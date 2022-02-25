@@ -1,0 +1,20 @@
+<?php
+/**
+ * functions.php
+ *
+ * @package neoneng
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
+ * Require inc
+ */
+$incs = array(
+	'class-n2-hogehoge',
+);
+foreach ( $incs as $name ) {
+	require_once get_template_directory() . "/inc/{$name}.php";
+}
