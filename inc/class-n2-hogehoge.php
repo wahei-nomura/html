@@ -15,8 +15,7 @@ if ( class_exists( 'N2_Hogehoge' ) ) {
 }
 
 /**
- * Hogehoe
- * https://steamship.co.jp/rakuten-musouapi/?applicationId=1002772968546257164&town=土岐市&_dev=1
+ * Hogehoge
  */
 class N2_Hogehoge {
 	/**
