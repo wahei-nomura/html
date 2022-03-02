@@ -136,12 +136,11 @@ class N2_Setpost {
 		if ( empty( $_POST ) ) {
 			return;
 		}
-		$post_data = array(
-			'価格'      => isset( $_POST['価格'] ) ? $this->h( $_POST['価格'] ) : '',
-			'キャッチコピー' => isset( $_POST['キャッチコピー'] ) ? $this->h( $_POST['キャッチコピー'] ) : '',
-			'説明文'     => isset( $_POST['説明文'] ) ? $this->h( $_POST['説明文'] ) : '',
-			'追加テスト'   => isset( $_POST['追加テスト'] ) ? $this->h( $_POST['追加テスト'] ) : '',
-			'追加テスト2'  => isset( $_POST['追加テスト2'] ) ? $this->h( $_POST['追加テスト2'] ) : '',
+		$post_data = array_filter(
+			$_POST,
+			function( $val ) {
+				return $this->h( $val );
+			}
 		);
 
 		update_post_meta( $post_id, 'post_data', $post_data );
