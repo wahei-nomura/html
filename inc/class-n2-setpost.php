@@ -74,39 +74,49 @@ class N2_Setpost {
 		global $post;
 		$post_data = get_post_meta( $post->ID, 'post_data', true );
 
-		$henreihin = array(
-			'価格'      => isset( $post_data['価格'] ) ? $post_data['価格'] : '',
-			'キャッチコピー' => isset( $post_data['キャッチコピー'] ) ? $post_data['キャッチコピー'] : '',
-			'説明文'     => isset( $post_data['説明文'] ) ? $post_data['説明文'] : '',
+		$fields = array(
+			'価格'      => array(
+				'type'      => 'text',
+				'value'     => isset( $post_data['価格'] ) ? $post_data['価格'] : '',
+				'補足'        => '（税込）',
+				'maxlength' => '',
+			),
+
+			'キャッチコピー' => array(
+				'type'      => 'text',
+				'value'     => isset( $post_data['キャッチコピー'] ) ? $post_data['キャッチコピー'] : '',
+				'補足'        => '（30文字以内）',
+				'maxlength' => '30',
+			),
+
+			'説明文'     => array(
+				'type'      => 'textarea',
+				'value'     => isset( $post_data['説明文'] ) ? $post_data['説明文'] : '',
+				'補足'        => '（900文字以内）',
+				'maxlength' => '900',
+			),
+		);
+
+		$input_tags = array(
+			'text'     => '<input type="text" id="%1$s" name="%1$s" value="%2$s" maxlength="%3$s">',
+			'select'   => '',
+			'textarea' => '<textarea style="display:block; width:100%; height:200px" id="%1$s" name="%1$s" maxlength="%3$s">%2$s</textarea>',
+			'checkbox' => '',
 		);
 
 		?>
 
 		<form method="post" action="admin.php?page=item_setting">
 			<div>
+				<?php foreach ( $fields as $field => $detail ) : ?>
 				<div>
-					<p><label for="価格">価格（税込）</label></p>
+					<p><label for="<?php echo $field; ?>"><?php echo $field; ?><?php echo $detail['補足']; ?></label></p>
 					<div>
-						<input type="text" id="価格" name="価格" value="<?php echo $henreihin['価格']; ?>">
+						<?php printf( $input_tags[ $detail['type'] ], $field, $detail['value'], $detail['maxlength'] ); ?>
 					</div>
 				</div>
 				<hr>
-				<div>
-					<p><label for="キャッチコピー">キャッチコピー(30文字以内)</label></p>
-					<div>
-						<input style="display:block; width:100%;" type="text" id="キャッチコピー" name="キャッチコピー" value="<?php echo $henreihin['キャッチコピー']; ?>" maxlength="30">
-						<label>0文字</label>
-					</div>
-				</div>
-				<hr>
-				<div>
-					<p><label for="説明文">説明文(900文字以内)</label></p>
-					<div>
-						<textarea style="display:block; width:100%; height:200px" id="説明文" name="説明文"><?php echo $henreihin['説明文']; ?></textarea>
-						<label>0文字</label>
-					</div>
-				</div>
-				
+				<?php endforeach; ?>
 			</div>
 		</form>
 		<?php
