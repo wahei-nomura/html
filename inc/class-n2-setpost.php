@@ -104,6 +104,14 @@ class N2_Setpost {
 			'checkbox' => '',
 		);
 
+		// プラグインn2-developのn2_setpost_show_customfields呼び出し
+		list($fields,$post_data) = apply_filters( 'n2_setpost_show_customfields', array( $fields, $post_data ) );
+
+		// // プラグイン無効の場合$dataに$post_dataが含まれてしまう
+		// var_dump( count( $data ) );
+		// if ( count( $data ) === 1 ) {
+		// 	$fields = $data;
+		// }
 		?>
 
 		<form method="post" action="admin.php?page=item_setting">
@@ -134,9 +142,11 @@ class N2_Setpost {
 			return;
 		}
 		$post_data = array(
-			'価格'      => $this->h( $_POST['価格'] ),
-			'キャッチコピー' => $this->h( $_POST['キャッチコピー'] ),
-			'説明文'     => $this->h( $_POST['説明文'] ),
+			'価格'      => isset( $_POST['価格'] ) ? $this->h( $_POST['価格'] ) : '',
+			'キャッチコピー' => isset( $_POST['キャッチコピー'] ) ? $this->h( $_POST['キャッチコピー'] ) : '',
+			'説明文'     => isset( $_POST['説明文'] ) ? $this->h( $_POST['説明文'] ) : '',
+			'追加テスト'   => isset( $_POST['追加テスト'] ) ? $this->h( $_POST['追加テスト'] ) : '',
+			'追加テスト2'  => isset( $_POST['追加テスト2'] ) ? $this->h( $_POST['追加テスト2'] ) : '',
 		);
 
 		update_post_meta( $post_id, 'post_data', $post_data );
