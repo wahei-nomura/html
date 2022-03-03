@@ -74,28 +74,12 @@ class N2_Setpost {
 		global $post;
 		$post_data = get_post_meta( $post->ID, 'post_data', true );
 
-		$fields = array(
-			'価格'      => array(
-				'type'      => 'text',
-				'value'     => isset( $post_data['価格'] ) ? $post_data['価格'] : '',
-				'補足'        => '（税込）',
-				'maxlength' => '',
-			),
+		$n2_ini = parse_ini_file( get_template_directory() . '/n2.ini', true );
 
-			'キャッチコピー' => array(
-				'type'      => 'text',
-				'value'     => isset( $post_data['キャッチコピー'] ) ? $post_data['キャッチコピー'] : '',
-				'補足'        => '（30文字以内）',
-				'maxlength' => '30',
-			),
-
-			'説明文'     => array(
-				'type'      => 'textarea',
-				'value'     => isset( $post_data['説明文'] ) ? $post_data['説明文'] : '',
-				'補足'        => '（900文字以内）',
-				'maxlength' => '900',
-			),
-		);
+		$fields = $n2_ini['customfields'];
+		foreach ( $fields as $key => $field ) {
+			$fields[ $key ]['value'] = isset( $post_data[ $key ] ) ? $post_data[ $key ] : '';
+		}
 
 		$input_tags = array(
 			'text'     => '<input type="text" id="%1$s" name="%1$s" value="%2$s" maxlength="%3$s">',
