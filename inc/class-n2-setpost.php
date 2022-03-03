@@ -74,9 +74,8 @@ class N2_Setpost {
 		global $post;
 		$post_data = get_post_meta( $post->ID, 'post_data', true );
 
-		$n2_ini = parse_ini_file( get_template_directory() . '/n2.ini', true );
+		$fields = parse_ini_file( get_template_directory() . '/n2.ini', true );
 
-		$fields = $n2_ini['customfields'];
 		foreach ( $fields as $key => $field ) {
 			$fields[ $key ]['value'] = isset( $post_data[ $key ] ) ? $post_data[ $key ] : '';
 		}
