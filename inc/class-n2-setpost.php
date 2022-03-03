@@ -76,6 +76,9 @@ class N2_Setpost {
 
 		$fields = parse_ini_file( get_template_directory() . '/n2.ini', true );
 
+		// プラグインn2-developのn2_setpost_show_customfields呼び出し
+		$fields = apply_filters( 'n2_setpost_show_customfields', $fields );
+
 		foreach ( $fields as $key => $field ) {
 			$fields[ $key ]['value'] = isset( $post_data[ $key ] ) ? $post_data[ $key ] : '';
 		}
@@ -86,9 +89,6 @@ class N2_Setpost {
 			'textarea' => '<textarea style="display:block; width:100%; height:200px" id="%1$s" name="%1$s" maxlength="%3$s">%2$s</textarea>',
 			'checkbox' => '',
 		);
-
-		// プラグインn2-developのn2_setpost_show_customfields呼び出し
-		list($fields,$post_data) = apply_filters( 'n2_setpost_show_customfields', array( $fields, $post_data ) );
 
 		?>
 
