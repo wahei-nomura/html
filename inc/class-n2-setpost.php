@@ -80,14 +80,16 @@ class N2_Setpost {
 		$fields = apply_filters( 'n2_setpost_show_customfields', $fields );
 
 		foreach ( $fields as $key => $field ) {
-			$fields[ $key ]['value'] = isset( $post_data[ $key ] ) ? $post_data[ $key ] : '';
+			$fields[ $key ]['option'] = isset( $fields[ $key ]['option'] ) ? explode( ',', $fields[ $key ]['option'] ) : '';
+			$fields[ $key ]['value']  = isset( $post_data[ $key ] ) ? $post_data[ $key ] : '';
 		}
 
 		$input_tags = array(
 			'text'     => '<input type="text" id="%1$s" name="%1$s" value="%2$s" maxlength="%3$s">',
-			'select'   => '',
 			'textarea' => '<textarea style="display:block; width:100%; height:200px" id="%1$s" name="%1$s" maxlength="%3$s">%2$s</textarea>',
 			'checkbox' => '',
+			'select'   => '<select id="%1$s" name="%1$s">%2$s</select>',
+			'option'   => '<option value="%1$s" %2$s>%1$s</option>',
 		);
 
 		?>
@@ -98,7 +100,18 @@ class N2_Setpost {
 				<div>
 					<p><label for="<?php echo $field; ?>"><?php echo $field; ?><?php echo $detail['補足']; ?></label></p>
 					<div>
-						<?php printf( $input_tags[ $detail['type'] ], $field, $detail['value'], $detail['maxlength'] ); ?>
+						<?php
+						if ( 'select' === $detail['type'] ) {
+							$options = '';
+							foreach ( $detail['option'] as $option ) {
+								$selected = $detail['value'] === $option ? 'selected' : '';
+								$options .= sprintf( $input_tags['option'], $option, $selected );
+							}
+							printf( $input_tags['select'], $field, $options );
+						} else {
+							printf( $input_tags[ $detail['type'] ], $field, $detail['value'], $detail['maxlength'] );
+						};
+						?>
 					</div>
 				</div>
 				<hr>
