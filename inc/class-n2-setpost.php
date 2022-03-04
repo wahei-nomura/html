@@ -74,16 +74,19 @@ class N2_Setpost {
 		global $post;
 		$post_data = get_post_meta( $post->ID, 'post_data', true );
 
+		// iniファイルからカスタムフィールドの内容を取得
 		$fields = parse_ini_file( get_template_directory() . '/n2.ini', true );
 
 		// プラグインn2-developのn2_setpost_show_customfields呼び出し
 		$fields = apply_filters( 'n2_setpost_show_customfields', $fields );
 
+		// optionを配列化、valueにDBの値をセット
 		foreach ( $fields as $key => $field ) {
 			$fields[ $key ]['option'] = isset( $fields[ $key ]['option'] ) ? explode( ',', $fields[ $key ]['option'] ) : '';
 			$fields[ $key ]['value']  = isset( $post_data[ $key ] ) ? $post_data[ $key ] : '';
 		}
 
+		// タグ管理
 		$input_tags = array(
 			'text'     => '<input type="text" id="%1$s" name="%1$s" value="%2$s" maxlength="%3$s">',
 			'textarea' => '<textarea style="display:block; width:100%; height:200px" id="%1$s" name="%1$s" maxlength="%3$s">%2$s</textarea>',
@@ -101,6 +104,7 @@ class N2_Setpost {
 					<p><label for="<?php echo $field; ?>"><?php echo $field; ?><?php echo $detail['補足']; ?></label></p>
 					<div>
 						<?php
+						// optionを文字列連結してselectに挿入
 						if ( 'select' === $detail['type'] ) {
 							$options = '';
 							foreach ( $detail['option'] as $option ) {
