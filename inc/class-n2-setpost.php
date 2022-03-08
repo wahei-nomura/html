@@ -90,7 +90,7 @@ class N2_Setpost {
 		$input_tags = array(
 			'text'     => '<input type="text" id="%1$s" name="%1$s" value="%2$s" maxlength="%3$s">',
 			'textarea' => '<textarea style="display:block; width:100%; height:200px" id="%1$s" name="%1$s" maxlength="%3$s">%2$s</textarea>',
-			'checkbox' => '',
+			'checkbox' => '<li><label><input type=checkbox name="%1$s" value="%2$s" %3$s>%2$s</label></li>',
 			'select'   => '<select id="%1$s" name="%1$s">%2$s</select>',
 			'option'   => '<option value="%1$s" %2$s>%1$s</option>',
 		);
@@ -112,6 +112,14 @@ class N2_Setpost {
 								$options .= sprintf( $input_tags['option'], $option, $selected );
 							}
 							printf( $input_tags['select'], $field, $options );
+						} elseif ( 'checkbox' === $detail['type'] ) {
+							$checks = '';
+							foreach ( $detail['option'] as $check ) {
+								// DB内の配列に選択肢が含まれればcheckd
+								$checked = in_array( $check, $detail['value'], true ) ? 'checked' : '';
+								$checks .= sprintf( $input_tags['checkbox'], $field . '[]', $check, $checked );
+							}
+							printf( '<ul>%1$s</ul>', $checks );
 						} else {
 							printf( $input_tags[ $detail['type'] ], $field, $detail['value'], $detail['maxlength'] );
 						};
@@ -149,11 +157,19 @@ class N2_Setpost {
 	/**
 	 * エスケープ処理の簡易関数
 	 *
-	 * @param string $str first parameter
+	 * @param string|array $arg 文字列or配列
 	 * @return string
 	 */
-	public function h( $str ) {
-		return htmlspecialchars( $str, ENT_QUOTES, 'UTF-8' );
+	public function h( $arg ) {
+		if ( gettype( $arg ) === 'array' ) {
+			$arr = array();
+			foreach ( $arg as $str ) {
+				array_push( $arr, htmlspecialchars( $str, ENT_QUOTES, 'UTF-8' ) );
+			}
+			return $arr;
+		} else {
+			return htmlspecialchars( $arg, ENT_QUOTES, 'UTF-8' );
+		}
 	}
 
 }
