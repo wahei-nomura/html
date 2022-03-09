@@ -82,17 +82,27 @@ class N2_Setpost {
 
 		// optionを配列化、valueにDBの値をセット
 		foreach ( $fields as $key => $field ) {
-			$fields[ $key ]['option'] = isset( $fields[ $key ]['option'] ) ? explode( ',', $fields[ $key ]['option'] ) : '';
-			$fields[ $key ]['value']  = isset( $post_data[ $key ] ) ? $post_data[ $key ] : '';
+			if ( isset( $fields[ $key ]['option'] ) ) {
+				$new_options = array();
+				$options     = explode( ',', $fields[ $key ]['option'] );
+				foreach ( $options as $option ) {
+					$new_options[ explode( '\\', $option )[0] ] = explode( '\\', $option )[1];
+				}
+				$fields[ $key ]['option'] = $new_options;
+			} else {
+				$fields[ $key ]['option'] = '';
+			}
+
+			$fields[ $key ]['value'] = isset( $post_data[ $key ] ) ? $post_data[ $key ] : '';
 		}
 
 		// タグ管理
 		$input_tags = array(
 			'text'     => '<input type="text" id="%1$s" name="%1$s" value="%2$s" maxlength="%3$s">',
 			'textarea' => '<textarea style="display:block; width:100%; height:200px" id="%1$s" name="%1$s" maxlength="%3$s">%2$s</textarea>',
-			'checkbox' => '<li><label><input type=checkbox name="%1$s" value="%2$s" %3$s>%2$s</label></li>',
+			'checkbox' => '<li><label><input type=checkbox name="%1$s" value="%2$s" %3$s>%4$s</label></li>',
 			'select'   => '<select id="%1$s" name="%1$s">%2$s</select>',
-			'option'   => '<option value="%1$s" %2$s>%1$s</option>',
+			'option'   => '<option value="%1$s" %3$s>%2$s</option>',
 		);
 
 		?>
@@ -108,17 +118,17 @@ class N2_Setpost {
 						// optionを文字列連結してselectに挿入
 						if ( 'select' === $detail['type'] ) {
 							$options = '';
-							foreach ( $detail['option'] as $option ) {
-								$selected = $detail['value'] === $option ? 'selected' : '';
-								$options .= sprintf( $input_tags['option'], $option, $selected );
+							foreach ( $detail['option'] as $key => $option ) {
+								$selected = (string) $detail['value'] === (string) $key ? 'selected' : '';
+								$options .= sprintf( $input_tags['option'], $key, $option, $selected );
 							}
 							printf( $input_tags['select'], $field, $options );
 						} elseif ( 'checkbox' === $detail['type'] ) {
 							$checks = '';
-							foreach ( $detail['option'] as $check ) {
+							foreach ( $detail['option'] as $key => $check ) {
 								// DB内の配列に選択肢が含まれればcheckd
-								$checked = ! empty( $detail['value'] ) && in_array( $check, $detail['value'], true ) ? 'checked' : '';
-								$checks .= sprintf( $input_tags['checkbox'], $field . '[]', $check, $checked );
+								$checked = ! empty( $detail['value'] ) && in_array( $key, $detail['value'], true ) ? 'checked' : '';
+								$checks .= sprintf( $input_tags['checkbox'], $field . '[]', $key, $checked, $check );
 							}
 							printf( '<ul>%1$s</ul>', $checks );
 						} else {
