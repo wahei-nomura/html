@@ -101,7 +101,8 @@ class N2_Setpost {
 			<div>
 				<?php foreach ( $fields as $field => $detail ) : ?>
 				<div>
-					<p><label for="<?php echo $field; ?>"><?php echo $field; ?><?php echo $detail['補足']; ?></label></p>
+					<p><label for="<?php echo $field; ?>"><?php echo $field; ?></label></p>
+					<p><?php echo $detail['description']; ?></p>
 					<div>
 						<?php
 						// optionを文字列連結してselectに挿入
