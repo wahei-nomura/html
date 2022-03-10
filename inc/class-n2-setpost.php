@@ -75,7 +75,7 @@ class N2_Setpost {
 		$post_data = get_post_meta( $post->ID, 'post_data', true );
 
 		// iniファイルからカスタムフィールドの内容を取得
-		$fields = parse_ini_file( get_template_directory() . '/n2.ini', true );
+		$fields = parse_ini_file( get_template_directory() . '/n2-fields.ini', true );
 
 		// プラグインn2-developのn2_setpost_show_customfields呼び出し
 		$fields = apply_filters( 'n2_setpost_show_customfields', $fields );
