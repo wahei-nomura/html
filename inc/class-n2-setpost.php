@@ -29,6 +29,7 @@ class N2_Setpost {
 
 	/**
 	 * remove_editor_support
+	 * 詳細ページ内で余分な項目を削除している
 	 */
 	public function remove_editor_support() {
 		$supports = array(
@@ -56,16 +57,17 @@ class N2_Setpost {
 
 	/**
 	 * add_customfields
+	 * SS管理と返礼品詳細を追加
 	 */
 	public function add_customfields() {
 		add_meta_box(
-			'ss_setting',
+			'item_setting',
 			'SS管理',
 			array( $this, 'show_customfields' ),
 			'post',
 			'normal',
 			'default',
-			// iniファイルからカスタムフィールドの内容を取得
+			// show_customfieldsメソッドに渡すパラメータ
 			array( parse_ini_file( get_template_directory() . '/config/n2-ss-fields.ini', true ), 'ss' ),
 		);
 		add_meta_box(
@@ -75,24 +77,26 @@ class N2_Setpost {
 			'post',
 			'normal',
 			'default',
-			// iniファイルからカスタムフィールドの内容を取得
+			// show_customfieldsメソッドに渡すパラメータ
 			array( parse_ini_file( get_template_directory() . '/config/n2-fields.ini', true ), 'default' ),
 		);
 	}
 
 	/**
 	 * show_customfields
+	 * iniファイル内を配列化してフィールドを作っている
 	 */
 	public function show_customfields( $post, $args ) {
 		global $post;
 		$post_data = get_post_meta( $post->ID, 'post_data', true );
-		$fields    = $args['args'][0];
-		$type      = $args['args'][1];
+		$fields    = $args['args'][0]; // iniファイル内の配列
+		$type      = $args['args'][1]; // ss or default
 
 		// プラグインn2-developのn2_setpost_show_customfields呼び出し
 		list($fields,$type) = apply_filters( 'n2_setpost_show_customfields', array( $fields, $type ) );
 
 		// optionを配列化、valueにDBの値をセット
+		// 「,」で配列に分けて、「\」でkey=>valueにわけている
 		foreach ( $fields as $key => $field ) {
 			if ( isset( $fields[ $key ]['option'] ) ) {
 				$new_options = array();
@@ -108,7 +112,7 @@ class N2_Setpost {
 			$fields[ $key ]['value'] = isset( $post_data[ $key ] ) ? $post_data[ $key ] : '';
 		}
 
-		// タグ管理
+		// タグ管理(printfで使う)
 		$input_tags = array(
 			'text'     => '<input type="text" id="%1$s" name="%1$s" value="%2$s" maxlength="%3$s" placeholder="%4$s">',
 			'textarea' => '<textarea style="display:block; width:100%; height:200px" id="%1$s" name="%1$s" maxlength="%3$s" placeholder="%4$s">%2$s</textarea>',
@@ -124,7 +128,9 @@ class N2_Setpost {
 			<div>
 				<?php foreach ( $fields as $field => $detail ) : ?>
 				<div>
+					<!-- ラベル -->
 					<p><label for="<?php echo $field; ?>"><?php echo $field; ?></label></p>
+					<!-- 説明 -->
 					<p><?php echo ! empty( $detail['description'] ) ? $detail['description'] : ''; ?></p>
 					<div>
 						<?php
@@ -132,6 +138,7 @@ class N2_Setpost {
 						if ( 'select' === $detail['type'] ) {
 							$options = '';
 							foreach ( $detail['option'] as $key => $option ) {
+								// DBのvalueと同じものにselectedをつける
 								$selected = (string) $detail['value'] === (string) $key ? 'selected' : '';
 								$options .= sprintf( $input_tags['option'], $key, $option, $selected );
 							}
@@ -149,7 +156,7 @@ class N2_Setpost {
 							$step  = ! empty( $detail['step'] ) ? $detail['step'] : '';
 							printf( $input_tags[ $detail['type'] ], $field, $value, $step );
 						} else {
-							// valueにデフォルト値をセットするか判定
+							// valueにデフォルト値やmaxlength,placeholderをセットするか判定
 							$value       = '' !== $detail['value'] ? $detail['value'] : ( ! empty( $detail['default'] ) ? $detail['default'] : '' );
 							$maxlength   = ! empty( $detail['maxlength'] ) ? $detail['maxlength'] : '';
 							$placeholder = ! empty( $detail['placeholder'] ) ? $detail['placeholder'] : '';
