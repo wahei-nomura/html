@@ -98,8 +98,8 @@ class N2_Setpost {
 
 		// タグ管理
 		$input_tags = array(
-			'text'     => '<input type="text" id="%1$s" name="%1$s" value="%2$s" maxlength="%3$s">',
-			'textarea' => '<textarea style="display:block; width:100%; height:200px" id="%1$s" name="%1$s" maxlength="%3$s">%2$s</textarea>',
+			'text'     => '<input type="text" id="%1$s" name="%1$s" value="%2$s" maxlength="%3$s" placeholder="%4$s">',
+			'textarea' => '<textarea style="display:block; width:100%; height:200px" id="%1$s" name="%1$s" maxlength="%3$s" placeholder="%4$s">%2$s</textarea>',
 			'checkbox' => '<li><label><input type=checkbox name="%1$s" value="%2$s" %3$s>%4$s</label></li>',
 			'select'   => '<select id="%1$s" name="%1$s">%2$s</select>',
 			'option'   => '<option value="%1$s" %3$s>%2$s</option>',
@@ -112,7 +112,7 @@ class N2_Setpost {
 				<?php foreach ( $fields as $field => $detail ) : ?>
 				<div>
 					<p><label for="<?php echo $field; ?>"><?php echo $field; ?></label></p>
-					<p><?php echo $detail['description']; ?></p>
+					<p><?php echo ! empty( $detail['description'] ) ? $detail['description'] : ''; ?></p>
 					<div>
 						<?php
 						// optionを文字列連結してselectに挿入
@@ -133,8 +133,10 @@ class N2_Setpost {
 							printf( '<ul>%1$s</ul>', $checks );
 						} else {
 							// valueにデフォルト値をセットするか判定
-							$value = '' !== $detail['value'] ? $detail['value'] : ( ! empty( $detail['default'] ) ? $detail['default'] : '' );
-							printf( $input_tags[ $detail['type'] ], $field, $value, $detail['maxlength'] );
+							$value       = '' !== $detail['value'] ? $detail['value'] : ( ! empty( $detail['default'] ) ? $detail['default'] : '' );
+							$maxlength   = ! empty( $detail['maxlength'] ) ? $detail['maxlength'] : '';
+							$placeholder = ! empty( $detail['placeholder'] ) ? $detail['placeholder'] : '';
+							printf( $input_tags[ $detail['type'] ], $field, $value, $maxlength, $placeholder );
 						};
 						?>
 					</div>
