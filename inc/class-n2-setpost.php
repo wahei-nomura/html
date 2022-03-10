@@ -66,7 +66,7 @@ class N2_Setpost {
 			'normal',
 			'default',
 			// iniファイルからカスタムフィールドの内容を取得
-			array( parse_ini_file( get_template_directory() . '/config/n2-ss-fields.ini', true ) ),
+			array( parse_ini_file( get_template_directory() . '/config/n2-ss-fields.ini', true ), 'ss' ),
 		);
 		add_meta_box(
 			'item_setting',
@@ -76,7 +76,7 @@ class N2_Setpost {
 			'normal',
 			'default',
 			// iniファイルからカスタムフィールドの内容を取得
-			array( parse_ini_file( get_template_directory() . '/config/n2-fields.ini', true ) ),
+			array( parse_ini_file( get_template_directory() . '/config/n2-fields.ini', true ), 'default' ),
 		);
 	}
 
@@ -87,9 +87,10 @@ class N2_Setpost {
 		global $post;
 		$post_data = get_post_meta( $post->ID, 'post_data', true );
 		$fields    = $args['args'][0];
+		$type      = $args['args'][1];
 
 		// プラグインn2-developのn2_setpost_show_customfields呼び出し
-		$fields = apply_filters( 'n2_setpost_show_customfields', $fields );
+		$fields = apply_filters( 'n2_setpost_show_customfields', array( $fields, $type ) );
 
 		// optionを配列化、valueにDBの値をセット
 		foreach ( $fields as $key => $field ) {
