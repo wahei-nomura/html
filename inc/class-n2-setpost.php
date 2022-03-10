@@ -132,7 +132,9 @@ class N2_Setpost {
 							}
 							printf( '<ul>%1$s</ul>', $checks );
 						} else {
-							printf( $input_tags[ $detail['type'] ], $field, $detail['value'], $detail['maxlength'] );
+							// valueにデフォルト値をセットするか判定
+							$value = '' !== $detail['value'] ? $detail['value'] : ( ! empty( $detail['default'] ) ? $detail['default'] : '' );
+							printf( $input_tags[ $detail['type'] ], $field, $value, $detail['maxlength'] );
 						};
 						?>
 					</div>
