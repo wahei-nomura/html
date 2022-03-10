@@ -127,7 +127,7 @@ class N2_Setpost {
 							$checks = '';
 							foreach ( $detail['option'] as $key => $check ) {
 								// DB内の配列に選択肢が含まれればcheckd
-								$checked = ! empty( $detail['value'] ) && in_array( $key, $detail['value'], true ) ? 'checked' : '';
+								$checked = ! empty( $detail['value'] ) && in_array( (string) $key, $detail['value'], true ) ? 'checked' : '';
 								$checks .= sprintf( $input_tags['checkbox'], $field . '[]', $key, $checked, $check );
 							}
 							printf( '<ul>%1$s</ul>', $checks );
