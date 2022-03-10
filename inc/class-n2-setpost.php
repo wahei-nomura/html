@@ -59,23 +59,34 @@ class N2_Setpost {
 	 */
 	public function add_customfields() {
 		add_meta_box(
+			'ss_setting',
+			'SS管理',
+			array( $this, 'show_customfields' ),
+			'post',
+			'normal',
+			'default',
+			// iniファイルからカスタムフィールドの内容を取得
+			array( parse_ini_file( get_template_directory() . '/config/n2-ss-fields.ini', true ) ),
+		);
+		add_meta_box(
 			'item_setting',
 			'返礼品詳細',
 			array( $this, 'show_customfields' ),
 			'post',
-			'normal'
+			'normal',
+			'default',
+			// iniファイルからカスタムフィールドの内容を取得
+			array( parse_ini_file( get_template_directory() . '/config/n2-fields.ini', true ) ),
 		);
 	}
 
 	/**
 	 * show_customfields
 	 */
-	public function show_customfields() {
+	public function show_customfields( $post, $args ) {
 		global $post;
 		$post_data = get_post_meta( $post->ID, 'post_data', true );
-
-		// iniファイルからカスタムフィールドの内容を取得
-		$fields = parse_ini_file( get_template_directory() . '/n2-fields.ini', true );
+		$fields    = $args['args'][0];
 
 		// プラグインn2-developのn2_setpost_show_customfields呼び出し
 		$fields = apply_filters( 'n2_setpost_show_customfields', $fields );
