@@ -129,7 +129,7 @@ class N2_Setpost {
 				<?php foreach ( $fields as $field => $detail ) : ?>
 				<div>
 					<!-- ラベル -->
-					<p><label for="<?php echo $field; ?>"><?php echo $field; ?></label></p>
+					<p><label for="<?php echo $field; ?>"><?php echo ! empty( $detail['label'] ) ? $detail['label'] : $field; ?></label></p>
 					<!-- 説明 -->
 					<p><?php echo ! empty( $detail['description'] ) ? $detail['description'] : ''; ?></p>
 					<div>
