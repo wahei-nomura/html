@@ -139,7 +139,7 @@ class N2_Setpost {
 							$options = '';
 							foreach ( $detail['option'] as $key => $option ) {
 								// DBのvalueと同じものにselectedをつける
-								$selected = (string) $detail['value'] === (string) $key ? 'selected' : '';
+								$selected = selected( ! empty( $detail['value'] ) && (string) $detail['value'] === (string) $key, true, false );
 								$options .= sprintf( $input_tags['option'], $key, $option, $selected );
 							}
 							printf( $input_tags['select'], $field, $options );
@@ -147,7 +147,7 @@ class N2_Setpost {
 							$checks = '';
 							foreach ( $detail['option'] as $key => $check ) {
 								// DB内の配列に選択肢が含まれればcheckd
-								$checked = ! empty( $detail['value'] ) && in_array( (string) $key, $detail['value'], true ) ? 'checked' : '';
+								$checked = checked( ! empty( $detail['value'] ) && in_array( (string) $key, $detail['value'], true ), true, false );
 								$checks .= sprintf( $input_tags['checkbox'], $field . '[]', $key, $checked, $check );
 							}
 							printf( '<ul>%1$s</ul>', $checks );
