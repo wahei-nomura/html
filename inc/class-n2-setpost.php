@@ -114,12 +114,17 @@ class N2_Setpost {
 
 		// タグ管理(printfで使う)
 		$input_tags = array(
-			'text'     => '<input type="text" id="%1$s" name="%1$s" value="%2$s" maxlength="%3$s" placeholder="%4$s">',
+			'text'     => '<input type="text" id="%1$s" name="%1$s" value="%2$s" maxlength="%3$s" placeholder="%4$s" class="%5$s">',
 			'textarea' => '<textarea style="display:block; width:100%; height:200px" id="%1$s" name="%1$s" maxlength="%3$s" placeholder="%4$s">%2$s</textarea>',
 			'number'   => '<input type="number" id="%1$s" name="%1$s" value="%2$s" step="%3$s">',
 			'checkbox' => '<li><label><input type=checkbox name="%1$s" value="%2$s" %3$s>%4$s</label></li>',
 			'select'   => '<select id="%1$s" name="%1$s">%2$s</select>',
 			'option'   => '<option value="%1$s" %3$s>%2$s</option>',
+		);
+
+		// バリデーション付与用
+		$validation_class = array(
+			'必須' => '-hissu',
 		);
 
 		?>
@@ -160,7 +165,8 @@ class N2_Setpost {
 							$value       = '' !== $detail['value'] ? $detail['value'] : ( ! empty( $detail['default'] ) ? $detail['default'] : '' );
 							$maxlength   = ! empty( $detail['maxlength'] ) ? $detail['maxlength'] : '';
 							$placeholder = ! empty( $detail['placeholder'] ) ? $detail['placeholder'] : '';
-							printf( $input_tags[ $detail['type'] ], $field, $value, $maxlength, $placeholder );
+							$validation  = ! empty( $detail['validation'] ) ? N2_THEME_NAME . $validation_class[ $detail['validation'] ] : '';
+							printf( $input_tags[ $detail['type'] ], $field, $value, $maxlength, $placeholder, $validation );
 						};
 						?>
 					</div>

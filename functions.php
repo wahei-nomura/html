@@ -10,6 +10,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Require config.php
+ */
+require_once get_template_directory() . '/config/config.php';
+
+/**
  * Require inc
  */
 $incs = array(
