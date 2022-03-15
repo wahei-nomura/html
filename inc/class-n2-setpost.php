@@ -25,6 +25,7 @@ class N2_Setpost {
 		add_action( 'init', array( $this, 'remove_editor_support' ) );
 		add_action( 'admin_menu', array( $this, 'add_customfields' ) );
 		add_action( 'save_post', array( $this, 'save_customfields' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_setpost_script' ) );
 	}
 
 	/**
@@ -217,4 +218,12 @@ class N2_Setpost {
 		}
 	}
 
+	/**
+	 * このクラスで使用するassetsの読み込み
+	 *
+	 * @return void
+	 */
+	public function enqueue_setpost_script() {
+		wp_enqueue_script( 'n2-setpost', get_template_directory_uri() . '/assets/js/n2-setpost.js', array( 'jquery' ), wp_get_theme()->get( 'Version' ), true );
+	}
 }
