@@ -2,7 +2,6 @@ jQuery(function($){
 	// クラスにテーマ名をprefixつける
 	const prefix = 'neo-neng';
 
-
 	// 返礼品編集画面
 	if(location.href.match(/(post|post-new)\.php/)){
 		$('form').on('submit',(e)=>{
@@ -11,8 +10,10 @@ jQuery(function($){
 			
 			$(`.${prefix}-hissu`).each( (i,v) => {
 				if($(v).val() === ''){
+					if(!$(v).parent().find(`.${prefix}-hissu-alert`).length){
+						$(v).before($(`<p class="${prefix}-hissu-alert" style="color:red;">※必須項目です</p>`))
+					}
 					$(v).css('background-color','pink'); 
-					$(v).before($('<p style="color:red;">※必須項目です</p>'))
 					vError.push(v);
 				}
 			})
