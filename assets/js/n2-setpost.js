@@ -27,4 +27,30 @@ jQuery(function($){
 		})
 	}
 
+
+	//メディアアップローダーボタン 
+	$(`.${prefix}-media-toggle`).on('click', e => {
+		e.preventDefault();
+		const parent = $(e.target).parent();
+		const customUploader = wp.media({
+			title: "画像を選択", //タイトルのテキストラベル
+			button: {
+			   text: "画像を設定" //ボタンのテキストラベル
+			},
+			library: {
+				type: "image" //imageにしておく。
+			},
+			multiple: false //選択できる画像を1つだけにする。
+		});
+		customUploader.open();
+		customUploader.on("select", () => {
+			const images = customUploader.state().get("selection");
+			images.each(file => {
+				parent.find(`.${prefix}-image-url`).attr('src',file.attributes.url); 
+				parent.find(`.${prefix}-image-input`).val(file.attributes.url); 
+			});
+		});
+		
+	});
+
 });

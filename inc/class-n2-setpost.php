@@ -72,7 +72,7 @@ class N2_Setpost {
 			array( parse_ini_file( get_template_directory() . '/config/n2-ss-fields.ini', true ), 'ss' ),
 		);
 		add_meta_box(
-			'item_setting',
+			'default_setting',
 			'返礼品詳細',
 			array( $this, 'show_customfields' ),
 			'post',
@@ -130,7 +130,6 @@ class N2_Setpost {
 
 		?>
 
-		<form method="post" action="admin.php?page=item_setting">
 			<div>
 				<?php foreach ( $fields as $field => $detail ) : ?>
 				<div>
@@ -176,9 +175,21 @@ class N2_Setpost {
 				</div>
 				<hr>
 				<?php endforeach; ?>
+
+				<?php if ( $type === 'default' ) : ?>
+				<div>
+					<p><label for="">画像1</label></p>
+					<input class="<?php echo N2_THEME_NAME; ?>-image-input" type="hidden" name="画像1" value="">
+					<button class="button button-primary <?php echo N2_THEME_NAME; ?>-media-toggle">画像選択</button>
+					<div>
+						<img class="<?php echo N2_THEME_NAME; ?>-image-url" src="<?php echo $post_data['画像1'];?>" alt="" />
+					</div>
+				</div>
+				<hr>
+				<?php endif; ?>
+					
 			</div>
-		</form>
-		<?php
+			<?php
 	}
 
 	/**
@@ -226,6 +237,7 @@ class N2_Setpost {
 	 * @return void
 	 */
 	public function enqueue_setpost_script() {
+		wp_enqueue_media();
 		wp_enqueue_script( 'n2-setpost', get_template_directory_uri() . '/assets/js/n2-setpost.js', array( 'jquery' ), wp_get_theme()->get( 'Version' ), true );
 	}
 }
