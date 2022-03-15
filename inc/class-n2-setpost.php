@@ -121,6 +121,8 @@ class N2_Setpost {
 			'checkbox' => '<li><label><input type=checkbox name="%1$s" value="%2$s" %3$s>%4$s</label></li>',
 			'select'   => '<select id="%1$s" name="%1$s" class="%3$s">%2$s</select>',
 			'option'   => '<option value="%1$s" %3$s>%2$s</option>',
+			'image'    => '<input class="%1$s-image-input" type="hidden" name="%2$s" value="%3$s"><button class="button button-primary %1$s-media-toggle">画像選択</button>
+							<div><img class="%1$s-image-url" src="%3$s" alt="" /></div>',
 		);
 
 		// バリデーション付与用
@@ -162,6 +164,9 @@ class N2_Setpost {
 							$step       = ! empty( $detail['step'] ) ? $detail['step'] : '';
 							$validation = ! empty( $detail['validation'] ) ? N2_THEME_NAME . $validation_class[ $detail['validation'] ] : '';
 							printf( $input_tags[ $detail['type'] ], $field, $value, $step, $validation );
+						} elseif ( 'image' === $detail['type'] ) {
+							$value = '' !== $detail['value'] ? $detail['value'] : '';
+							printf( $input_tags[ $detail['type'] ], N2_THEME_NAME, $field, $value );
 						} else {
 							// valueにデフォルト値やmaxlength,placeholderをセットするか判定
 							$value       = '' !== $detail['value'] ? $detail['value'] : ( ! empty( $detail['default'] ) ? $detail['default'] : '' );
@@ -175,19 +180,6 @@ class N2_Setpost {
 				</div>
 				<hr>
 				<?php endforeach; ?>
-
-				<?php if ( $type === 'default' ) : ?>
-				<div>
-					<p><label for="">画像1</label></p>
-					<input class="<?php echo N2_THEME_NAME; ?>-image-input" type="hidden" name="画像1" value="">
-					<button class="button button-primary <?php echo N2_THEME_NAME; ?>-media-toggle">画像選択</button>
-					<div>
-						<img class="<?php echo N2_THEME_NAME; ?>-image-url" src="<?php echo $post_data['画像1'];?>" alt="" />
-					</div>
-				</div>
-				<hr>
-				<?php endif; ?>
-					
 			</div>
 			<?php
 	}
