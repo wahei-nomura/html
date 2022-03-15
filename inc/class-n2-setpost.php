@@ -62,7 +62,7 @@ class N2_Setpost {
 	 */
 	public function add_customfields() {
 		add_meta_box(
-			'item_setting',
+			'ss_setting',
 			'SS管理',
 			array( $this, 'show_customfields' ),
 			'post',
