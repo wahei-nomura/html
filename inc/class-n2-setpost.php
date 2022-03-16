@@ -123,6 +123,8 @@ class N2_Setpost {
 			'option'   => '<option value="%1$s" %3$s>%2$s</option>',
 			'image'    => '<input class="%1$s-image-input" type="hidden" name="%2$s" value="%3$s"><button class="button button-primary %1$s-media-toggle">画像選択</button>
 							<div><img class="%1$s-image-url" src="%3$s" alt="" /></div>',
+			'zip'      => '<input class="%1$s-zip-input" type="hidden" name="%2$s" value="%3$s"><button type="button" class="button button-primary %1$s-zip-toggle">zip選択</button>
+							<div><p class="%1$s-zip-url">%4$s</p></div>',
 		);
 
 		// バリデーション付与用
@@ -167,6 +169,11 @@ class N2_Setpost {
 						} elseif ( 'image' === $detail['type'] ) {
 							$value = '' !== $detail['value'] ? $detail['value'] : '';
 							printf( $input_tags[ $detail['type'] ], N2_THEME_NAME, $field, $value );
+						} elseif ( 'zip' === $detail['type'] ) {
+							$value = '' !== $detail['value'] ? $detail['value'] : '';
+							$show  = $value ? explode( '/', $value ) : '';
+							$show  = end( $show ) . 'を選択中';
+							printf( $input_tags[ $detail['type'] ], N2_THEME_NAME, $field, $value, $show );
 						} else {
 							// valueにデフォルト値やmaxlength,placeholderをセットするか判定
 							$value       = '' !== $detail['value'] ? $detail['value'] : ( ! empty( $detail['default'] ) ? $detail['default'] : '' );

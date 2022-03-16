@@ -27,27 +27,52 @@ jQuery(function($){
 		})
 	}
 
+	/**
+	 *  wordpressのメディアアップロード呼び出し
+	 */
+	const wpMedia = (title,btnText,type) => {
+		return wp.media({
+			title: title,
+			button: {
+				text: btnText
+			},
+			library: {
+				type: type
+			},
+			multiple: false
+		});
+	}
 
-	//メディアアップローダーボタン 
+	//imageアップローダーボタン 
 	$(`.${prefix}-media-toggle`).on('click', e => {
 		e.preventDefault();
 		const parent = $(e.target).parent();
-		const customUploader = wp.media({
-			title: "画像を選択", //タイトルのテキストラベル
-			button: {
-			   text: "画像を設定" //ボタンのテキストラベル
-			},
-			library: {
-				type: "image" //imageにしておく。
-			},
-			multiple: false //選択できる画像を1つだけにする。
-		});
+		const customUploader = wpMedia('画像を選択','画像を設定','image');
+
 		customUploader.open();
 		customUploader.on("select", () => {
 			const images = customUploader.state().get("selection");
-			images.each(file => {
-				parent.find(`.${prefix}-image-url`).attr('src',file.attributes.url); 
-				parent.find(`.${prefix}-image-input`).val(file.attributes.url); 
+			images.each(image => {
+				parent.find(`.${prefix}-image-url`).attr('src',image.attributes.url); 
+				parent.find(`.${prefix}-image-input`).val(image.attributes.url); 
+			});
+		});
+		
+	});
+
+	//zipアップローダーボタン 
+	$(`.${prefix}-zip-toggle`).on('click', e => {
+		e.preventDefault();
+		const parent = $(e.target).parent();
+		const customUploader = wpMedia('zipファイルを選択','zipファイルを設定','application/zip')
+
+		customUploader.open();
+		customUploader.on("select", () => {
+			const zips = customUploader.state().get("selection");
+			zips.each(zip => {
+				console.log(zip)
+				parent.find(`.${prefix}-zip-url`).text(`${zip.attributes.filename}を選択中`); 
+				parent.find(`.${prefix}-zip-input`).val(zip.attributes.url); 
 			});
 		});
 		
