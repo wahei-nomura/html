@@ -26,6 +26,7 @@ class N2_Setpost {
 		add_action( 'admin_menu', array( $this, 'add_customfields' ) );
 		add_action( 'save_post', array( $this, 'save_customfields' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_setpost_script' ) );
+		add_filter( 'upload_mimes', array( $this, 'add_mimes' ) );
 	}
 
 	/**
@@ -172,7 +173,7 @@ class N2_Setpost {
 						} elseif ( 'zip' === $detail['type'] ) {
 							$value = '' !== $detail['value'] ? $detail['value'] : '';
 							$show  = $value ? explode( '/', $value ) : '';
-							$show  = end( $show ) . 'を選択中';
+							$show  = $show ? end( $show ) . 'を選択中' : '';
 							printf( $input_tags[ $detail['type'] ], N2_THEME_NAME, $field, $value, $show );
 						} else {
 							// valueにデフォルト値やmaxlength,placeholderをセットするか判定
@@ -238,5 +239,16 @@ class N2_Setpost {
 	public function enqueue_setpost_script() {
 		wp_enqueue_media();
 		wp_enqueue_script( 'n2-setpost', get_template_directory_uri() . '/assets/js/n2-setpost.js', array( 'jquery' ), wp_get_theme()->get( 'Version' ), true );
+	}
+
+	/**
+	 * zip形式をuploadできるようにする
+	 *
+	 * @param array $mimes upload形式
+	 * @return array
+	 */
+	public function add_mimes( $mimes ) {
+		$mimes['zip'] = 'application/zip';
+		return $mimes;
 	}
 }
