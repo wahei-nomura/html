@@ -22,7 +22,26 @@ class N2_Setusers {
 	 * コンストラクタ
 	 */
 	public function __construct() {
+		add_action( 'init', array( $this, 'remove_usertype' ) );
 		add_action( 'init', array( $this, 'add_usertype' ) );
+	}
+
+	/**
+	 * remove_usertype
+	 * デフォルトのユーザ権限を削除
+	 *
+	 * @return void
+	 */
+	public function remove_usertype() {
+		global $wp_roles;
+		if ( empty( $wo_roles ) ) {
+			$wp_roles = new WP_Roles();
+		}
+
+		$wp_roles->remove_role( 'editor' ); // 編集者
+		$wp_roles->remove_role( 'subscriber' ); // 購読者
+		$wp_roles->remove_role( 'contributor' ); // 寄稿者
+		$wp_roles->remove_role( 'author' ); // 投稿者
 	}
 
 	/**
