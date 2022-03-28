@@ -63,7 +63,7 @@ class N2_Setpost {
 	 */
 	public function add_customfields() {
 		// 管理者のみSS管理フィールド表示(あとで変更予定)
-		if ( current_user_can( 'administrator' ) ) {
+		if ( current_user_can( 'edit_others_posts' ) ) {
 			add_meta_box(
 				'ss_setting',
 				'SS管理',

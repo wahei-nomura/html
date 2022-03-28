@@ -90,7 +90,7 @@ class N2_Postlist {
 	 */
 	public function pre_get_author_posts( $query ) {
 		if (
-				is_admin() && ! current_user_can( 'administrator' ) && $query->is_main_query() &&
+				is_admin() && ! current_user_can( 'edit_others_posts' ) && $query->is_main_query() &&
 				( ! isset( $_GET['author'] ) || intval( $_GET['author'] ) === get_current_user_id() )
 		) {
 			$query->set( 'author', get_current_user_id() );

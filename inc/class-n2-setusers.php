@@ -36,9 +36,21 @@ class N2_Setusers {
 			$wp_roles = new WP_Roles();
 		}
 
+		// 事業者
 		$wp_roles->add_role( 'jigyousya', '事業者', array() );
 		$wp_roles->add_cap( 'jigyousya', 'read' );
 		$wp_roles->add_cap( 'jigyousya', 'edit_posts' );
+
+		// SSクルー
+		$wp_roles->add_role( 'ss-crew', 'SSクルー', array() );
+		$wp_roles->add_cap( 'ss-crew', 'read' );
+		$wp_roles->add_cap( 'ss-crew', 'edit_posts' );
+		$wp_roles->add_cap( 'ss-crew', 'delete_others_posts' );
+		$wp_roles->add_cap( 'ss-crew', 'delete_posts' );
+		$wp_roles->add_cap( 'ss-crew', 'delete_published_posts' );
+		$wp_roles->add_cap( 'ss-crew', 'edit_others_posts' );
+		$wp_roles->add_cap( 'ss-crew', 'edit_published_posts' );
+		$wp_roles->add_cap( 'ss-crew', 'publish_posts' );
 	}
 
 }
