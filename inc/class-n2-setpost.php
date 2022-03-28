@@ -62,16 +62,19 @@ class N2_Setpost {
 	 * SS管理と返礼品詳細を追加
 	 */
 	public function add_customfields() {
-		add_meta_box(
-			'ss_setting',
-			'SS管理',
-			array( $this, 'show_customfields' ),
-			'post',
-			'normal',
-			'default',
-			// show_customfieldsメソッドに渡すパラメータ
-			array( parse_ini_file( get_template_directory() . '/config/n2-ss-fields.ini', true ), 'ss' ),
-		);
+		// 管理者のみSS管理フィールド表示(あとで変更予定)
+		if ( current_user_can( 'administrator' ) ) {
+			add_meta_box(
+				'ss_setting',
+				'SS管理',
+				array( $this, 'show_customfields' ),
+				'post',
+				'normal',
+				'default',
+				// show_customfieldsメソッドに渡すパラメータ
+				array( parse_ini_file( get_template_directory() . '/config/n2-ss-fields.ini', true ), 'ss' ),
+			);
+		}
 		add_meta_box(
 			'default_setting',
 			'返礼品詳細',
