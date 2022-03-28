@@ -25,6 +25,8 @@ class N2_Postlist {
 		add_filter( 'manage_posts_columns', array( $this, 'add_posts_columns' ), 10, 2 );
 		add_filter( 'manage_posts_custom_column', array( $this, 'add_posts_columns_row' ), 10, 2 );
 		add_action( 'pre_get_posts', array( $this, 'pre_get_author_posts' ) );
+		add_filter( 'gettext', array( $this, 'change_status' ) );
+		add_filter( 'ngettext', array( $this, 'change_status' ) );
 	}
 
 	/**
@@ -97,5 +99,21 @@ class N2_Postlist {
 			unset( $_GET['author'] );
 		}
 
+	}
+
+	/**
+	 * change_status
+	 * ステータス表示名を変更する
+	 *
+	 * @param string $status ステータス
+	 * @return string $status ステータス
+	 */
+	public function change_status( $status ) {
+		$status = str_ireplace( '非公開', '事業者入力中', $status );
+		$status = str_ireplace( '下書き', '事業者入力中', $status );
+		$status = str_ireplace( 'レビュー待ち', 'Steamship確認待ち', $status );
+		$status = str_ireplace( '公開済み', 'Steamship確認済み', $status );
+
+		return $status;
 	}
 }
