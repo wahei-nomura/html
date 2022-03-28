@@ -24,6 +24,7 @@ class N2_Postlist {
 	public function __construct() {
 		add_filter( 'manage_posts_columns', array( $this, 'add_posts_columns' ), 10, 2 );
 		add_filter( 'manage_posts_custom_column', array( $this, 'add_posts_columns_row' ), 10, 2 );
+		add_action( 'pre_get_posts', array( $this, 'pre_get_author_posts' ) );
 	}
 
 	/**
@@ -78,5 +79,23 @@ class N2_Postlist {
 				the_modified_date( 'Y年Md日' );
 				break;
 		}
+	}
+
+	/**
+	 * pre_get_author_posts
+	 * 事業者権限だと自分の投稿のみに
+	 *
+	 * @param object $query WP_Query
+	 * @return void
+	 */
+	public function pre_get_author_posts( $query ) {
+		if (
+				is_admin() && ! current_user_can( 'administrator' ) && $query->is_main_query() &&
+				( ! isset( $_GET['author'] ) || intval( $_GET['author'] ) === get_current_user_id() )
+		) {
+			$query->set( 'author', get_current_user_id() );
+			unset( $_GET['author'] );
+		}
+
 	}
 }
