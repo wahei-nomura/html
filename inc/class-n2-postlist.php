@@ -56,7 +56,7 @@ class N2_Postlist {
 
 		$post_data = get_post_meta( $post->ID, 'post_data', true );
 
-		$image_url = ! empty( $post_data['画像1'] ) ? $post_data['画像1'] : 'https://placehold.jp/250x150.png?text=NoImage';
+		$image_url = ! empty( $post_data['画像1'] ) ? $post_data['画像1'] : 'https://placehold.jp/50x50.png?text=NoImage';
 		$money     = ! empty( $post_data['寄附金額'] ) ? $post_data['寄附金額'] : 0;
 		$poster    = ! empty( $post_data['post_author'] ) ? get_userdata( $post->post_author )->display_name : '';
 		$code      = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '';
@@ -72,7 +72,7 @@ class N2_Postlist {
 				echo "<div>{$code}</div>";
 				break;
 			case 'thumbnail':
-				echo "<img src='{$image_url}' style='max-width:100%;max-height:100px'>";
+				echo "<img src='{$image_url}' style='width:50px;height:50px'>";
 				break;
 			case 'modified-last':
 				the_modified_date( 'Y年Md日' );
