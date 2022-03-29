@@ -38,7 +38,7 @@ class N2_Postlist {
 	public function add_posts_columns( $columns ) {
 		$columns = array(
 			'cb'            => '<input type="checkbox" />',
-			'title'         => '返礼品名',
+			'item-title'    => '返礼品名',
 			'poster'        => '事業者名',
 			'code'          => '返礼品コード',
 			'money'         => '寄附金額',
@@ -59,12 +59,30 @@ class N2_Postlist {
 
 		$post_data = get_post_meta( $post->ID, 'post_data', true );
 
+		$title    = get_the_title();
+		$post_url = get_edit_post_link();
+
 		$image_url = ! empty( $post_data['画像1'] ) ? $post_data['画像1'] : 'https://placehold.jp/50x50.png?text=NoImage';
 		$money     = ! empty( $post_data['寄附金額'] ) ? $post_data['寄附金額'] : 0;
 		$poster    = ! empty( $post_data['post_author'] ) ? get_userdata( $post->post_author )->display_name : '';
 		$code      = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '';
 
+		$status = '';
+
+		if ( 'draft' === get_post_status() || 'inherit' === get_post_status() ) {
+			$status = '事業者下書き';
+		}
+		if ( 'pending' === get_post_status() ) {
+			$status = 'Steamship確認待ち';
+		}
+		if ( 'publish' === get_post_status() ) {
+			$status = 'Steamship確認済み';
+		}
+
 		switch ( $column_name ) {
+			case 'item-title':
+				echo "<div><a href='{$post_url}'>{$title}</a></div>";
+				break;
 			case 'poster':
 				echo "<div>{$poster}</div>";
 				break;
@@ -79,6 +97,7 @@ class N2_Postlist {
 				break;
 			case 'modified-last':
 				the_modified_date( 'Y年Md日' );
+				echo '<br>' . $status;
 				break;
 		}
 	}
@@ -109,8 +128,8 @@ class N2_Postlist {
 	 * @return string $status ステータス
 	 */
 	public function change_status( $status ) {
-		$status = str_ireplace( '非公開', '事業者入力中', $status );
-		$status = str_ireplace( '下書き', '事業者入力中', $status );
+		$status = str_ireplace( '非公開', '事業者下書き', $status );
+		$status = str_ireplace( '下書き', '事業者下書き', $status );
 		$status = str_ireplace( 'レビュー待ち', 'Steamship確認待ち', $status );
 		$status = str_ireplace( '公開済み', 'Steamship確認済み', $status );
 
