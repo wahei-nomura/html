@@ -50,7 +50,10 @@ class N2_Engineersetup {
 					<p><?php echo $v ?></p>
 					<?php
 					break;
-				case "text":
+				case preg_match("/text[1-9]/u", array_search($v,$args[args])) === 1 :
+					?>
+
+					<?php
 					break;
 			}
 		}
