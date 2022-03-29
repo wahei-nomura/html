@@ -26,13 +26,35 @@ class N2_Engineersetup {
 	}
 
 	public function add_widgets() {
-		wp_add_dashboard_widget('contact_setup_widget', '事業者連絡先', array($this,'contact_setup_widget'));
+		$widgets = array(
+			array(
+				"widget_name" => '事業者連絡先',
+				"description" => "事業者さまとのやりとりに使用するメールアドレス・電話番号を記入してください。",
+				"text" => "メールアドレス",
+				"text2" => "電話番号",
+			)
+		);
+		foreach($widgets as $v){
+			wp_add_dashboard_widget('setup_widget', $v[widget_name], array($this,'setup_widget'),null,$v);
+		}
 	}
 
-    function contact_setup_widget(){
+    function setup_widget( $var, $args ){
 		?>
 		<form>
-			<p>事業者さまとのやりとりに使用するメールアドレス・電話番号を記入してください。</p>
+		<?php
+		foreach($args[args] as $v){
+			switch(array_search($v,$args[args])){
+				case "description":
+					?>
+					<p><?php echo $v ?></p>
+					<?php
+					break;
+				case "text":
+					break;
+			}
+		}
+		?>
 			<input type="hidden" name="action" value="<?=NENG_DB_TABLENAME?>">
 			<input type="hidden" name="judge" value="option">
 			<p class="input-text-wrap">
