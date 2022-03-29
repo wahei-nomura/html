@@ -23,6 +23,7 @@ $incs = array(
 	'class-n2-setpost',
 	'class-n2-postlist',
 	'class-n2-setusers',
+	'class-n2-dashboard',
 );
 foreach ( $incs as $name ) {
 	require_once get_template_directory() . "/inc/{$name}.php";
