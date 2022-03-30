@@ -30,8 +30,8 @@ class N2_Engineersetup {
 			array(
 				"widget_name" => '事業者連絡先',
 				"description" => "事業者さまとのやりとりに使用するメールアドレス・電話番号を記入してください。",
-				"text" => "メールアドレス",
-				"text2" => "電話番号",
+				"text1" => array("メールアドレス","email"),
+				"text2" => array("電話番号","tel"),
 			)
 		);
 		foreach($widgets as $v){
@@ -42,6 +42,8 @@ class N2_Engineersetup {
     function setup_widget( $var, $args ){
 		?>
 		<form>
+		<input type="hidden" name="action" value="<?=NENG_DB_TABLENAME?>">
+		<input type="hidden" name="judge" value="option">
 		<?php
 		foreach($args[args] as $v){
 			switch(array_search($v,$args[args])){
@@ -52,22 +54,15 @@ class N2_Engineersetup {
 					break;
 				case preg_match("/text[1-9]/u", array_search($v,$args[args])) === 1 :
 					?>
-
+					<p class="input-text-wrap">
+						<?php echo $v[0]?>：
+						<input type="text" name="<?=NENG_DB_TABLENAME?>[contact][<?php echo $v[1]?>]" value="<?=NENG_OPTION['contact']['email']?>">
+					</p>
 					<?php
 					break;
 			}
 		}
 		?>
-			<input type="hidden" name="action" value="<?=NENG_DB_TABLENAME?>">
-			<input type="hidden" name="judge" value="option">
-			<p class="input-text-wrap">
-				メールアドレス：
-				<input type="text" name="<?=NENG_DB_TABLENAME?>[contact][email]" value="<?=NENG_OPTION['contact']['email']?>">
-			</p>
-			<p class="input-text-wrap">
-				電話番号：
-				<input type="text" name="<?=NENG_DB_TABLENAME?>[contact][tel]" value="<?=NENG_OPTION['contact']['tel']?>">
-			</p>
 			<input type="submit" class="button button-primary sissubmit" value="　更新する　">
 		</form>
 		<?php
