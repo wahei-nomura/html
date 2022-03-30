@@ -30,9 +30,13 @@ class N2_Engineersetup {
 			array(
 				"widget_name" => '事業者連絡先',
 				"description" => "事業者さまとのやりとりに使用するメールアドレス・電話番号を記入してください。",
-				"text1" => array("メールアドレス","email"),
-				"text2" => array("電話番号","tel"),
-			)
+				"input1" => array("メールアドレス","email","contact"),
+				"input2" => array("電話番号","tel","contact"),
+			),
+			array(
+				"widget_name" => '各ポータル共通説明文',
+				"text1" => array("商品説明文の文末に追加したいテキスト","<?=get_bloginfo('name')?>","add_text"),
+			),
 		);
 		foreach($widgets as $v){
 			wp_add_dashboard_widget('setup_widget', $v[widget_name], array($this,'setup_widget'),null,$v);
@@ -52,18 +56,25 @@ class N2_Engineersetup {
 					<p><?php echo $v ?></p>
 					<?php
 					break;
-				case preg_match("/text[1-9]/u", array_search($v,$args[args])) === 1 :
+				case preg_match("/input[1-9]/u", array_search($v,$args[args])) === 1 :
 					?>
 					<p class="input-text-wrap">
 						<?php echo $v[0]?>：
-						<input type="text" name="<?=NENG_DB_TABLENAME?>[contact][<?php echo $v[1]?>]" value="<?=NENG_OPTION['contact']['email']?>">
+						<input type="text" name="<?=NENG_DB_TABLENAME?>[<?php echo $v[2]?>][<?php echo $v[1]?>]" value="<?=NENG_OPTION['<?php echo $v[2]?>']['<?php echo $v[1]?>']?>">
 					</p>
 					<?php
 					break;
+				case preg_match("/text[1-9]/u", array_search($v,$args[args])) === 1 :
+					?>
+					<p class="textarea-wrap">
+						<?php echo $v[0]?>：
+						<textarea name="<?=NENG_DB_TABLENAME?>[<?php echo $v[2]?>][<?=get_bloginfo('name')?>]" rows="7" style="overflow-x: hidden;"><?=NENG_OPTION['<?php echo $v[2]?>'][get_bloginfo('name')]?></textarea>
+					</p>
+					<?php
 			}
 		}
 		?>
-			<input type="submit" class="button button-primary sissubmit" value="　更新する　">
+		<input type="submit" class="button button-primary sissubmit" value="　更新する　">
 		</form>
 		<?php
 	}
