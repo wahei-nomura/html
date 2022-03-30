@@ -22,10 +22,14 @@ class N2_Engineersetup {
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		add_action( 'wp_dashboard_setup', array( $this, 'add_widgets' ) );
+		add_action( 'wp_dashboard_setup', array( $this, 'add_setup_menu' ) );
 	}
 
-	public function add_widgets() {
+	public function add_setup_menu(){
+		add_menu_page('各種セットアップ', '各種セットアップ', 'manage_options', 'setup_menu', 'html_setup_menu','dashicons-list-view');
+	}
+
+/* 	public function add_widgets() {
 		$widgets = array(
 			array(
 				"widget_name" => '事業者連絡先',
@@ -39,8 +43,13 @@ class N2_Engineersetup {
 			),
 		);
 		foreach($widgets as $v){
-			wp_add_dashboard_widget('setup_widget', $v[widget_name], array($this,'setup_widget'),null,$v);
+			wp_add_dashboard_widget('setup_widget', $v[widget_name], array($this,'setup_widget'),null,$v[0]);
+			wp_add_dashboard_widget('setup_widget', $v[widget_name], array($this,'setup_widget'),null,$v)[1];
 		}
+	} */
+
+	function html_setup_menu(){
+		echo '<p>テストって感じ</p>';
 	}
 
     function setup_widget( $var, $args ){
