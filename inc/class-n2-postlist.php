@@ -27,6 +27,7 @@ class N2_Postlist {
 		add_action( 'pre_get_posts', array( $this, 'pre_get_author_posts' ) );
 		add_filter( 'gettext', array( $this, 'change_status' ) );
 		add_filter( 'ngettext', array( $this, 'change_status' ) );
+		add_filter( 'post_row_actions', array( $this, 'hide_editbtn' ) );
 	}
 
 	/**
@@ -134,5 +135,19 @@ class N2_Postlist {
 		$status = str_ireplace( '公開済み', 'Steamship確認済み', $status );
 
 		return $status;
+	}
+
+	/**
+	 * hide_editbtn
+	 * タイトル下の編集リンクなどを削除
+	 *
+	 * @param object $actions a
+	 * @return object @actions
+	 */
+	public function hide_editbtn( $actions ) {
+		unset( $actions['edit'] );
+		unset( $actions['inline hide-if-no-js'] );
+		unset( $actions['view'] );
+		return $actions;
 	}
 }
