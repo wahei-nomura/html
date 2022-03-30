@@ -1,0 +1,22 @@
+{
+  "name": "neo-neng",
+  "version": "1.0.0",
+  "description": "NENGシステムを大幅リニューアルし、今後の生活を豊かにするツール。",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/steamships/neo-neng.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/steamships/neo-neng/issues"
+  },
+  "homepage": "https://github.com/steamships/neo-neng#readme",
+  "dependencies": {
+    "sass": "^1.49.9"
+  }
+}

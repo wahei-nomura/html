@@ -25,6 +25,16 @@ jQuery(function($){
 			}
 			
 		})
+
+		// inputにmaxlengthが設定されているもののみ入力中の文字数表示
+		$('#ss_setting input,#ss_setting textarea,#default_setting input,#default_setting textarea').each((i,v) => {
+			if($(v).attr('maxlength')){
+				$(v).parent().append($(`<p>${$(v).val().length}文字</p>`))
+				$(v).on('keyup',()=>{
+					$(v).parent().find('p').text($(v).val().length + '文字');
+				})
+			}
+		})
 	}
 
 	/**
