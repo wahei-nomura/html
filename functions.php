@@ -21,13 +21,10 @@ $incs = array(
 	'class-n2-hogehoge',
 	'class-n2-setmenu',
 	'class-n2-setpost',
-<<<<<<< HEAD
 	'class-n2-engineersetup',
-=======
 	'class-n2-postlist',
 	'class-n2-setusers',
 	'class-n2-dashboard',
->>>>>>> main
 );
 foreach ( $incs as $name ) {
 	require_once get_template_directory() . "/inc/{$name}.php";
