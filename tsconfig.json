@@ -6,7 +6,7 @@
 		
 		"outDir": "./dist",
 		
-		"baseUrl": "./src/js",
+		"baseUrl": "./src/ts",
 		
 		"esModuleInterop": true,
 		"skipLibCheck": true,
