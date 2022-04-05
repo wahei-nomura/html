@@ -133,7 +133,8 @@ class N2_Setpost {
 
 		// バリデーション付与用
 		$validation_class = array(
-			'必須' => '-hissu',
+			'必須'  => '-hissu',
+			'0以外' => '-notzero',
 		);
 
 		?>

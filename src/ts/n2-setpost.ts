@@ -19,6 +19,16 @@ export default () => {
 				}
 			})
 
+			$(`.${prefix}-notzero`).each((i, v) => {
+				if(Number($(v).val())===0) {
+					if(!$(v).parent().find(`.${prefix}-notzero-alert`).length) {
+						$(v).before($(`<p class="${prefix}-notzero-alert" style="color:red;">※0以外の値を入力してください。</p>`))
+					}
+					$(v).css('background-color', 'pink');
+					vError.push(v);
+				}
+			})
+
 			if(vError.length) {
 				alert('入力内容をご確認ください。')
 				e.preventDefault();
