@@ -22,11 +22,11 @@ class N2_Engineersetup {
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		add_action( 'wp_dashboard_setup', array( $this, 'add_setup_menu' ) );
+		//add_action( 'admin_menu', array( $this, 'add_setup_menu' ) );
 	}
 
 	public function add_setup_menu(){
-		add_menu_page('各種セットアップ', '各種セットアップ', 'manage_options', 'setup_menu', 'html_setup_menu','dashicons-list-view');
+		//add_menu_page('各種セットアップ', '各種セットアップ', 'manage_options', 'setup_menu', 'html_setup_menu','dashicons-list-view');
 	}
 
 /* 	public function add_widgets() {
@@ -49,10 +49,10 @@ class N2_Engineersetup {
 	} */
 
 	function html_setup_menu(){
-		echo '<p>テストって感じ</p>';
+		echo "<h2>オリジナルメニューページ</h2>";
 	}
 
-    function setup_widget( $var, $args ){
+    /* function setup_widget( $var, $args ){
 		?>
 		<form>
 		<input type="hidden" name="action" value="<?=NENG_DB_TABLENAME?>">
@@ -86,5 +86,5 @@ class N2_Engineersetup {
 		<input type="submit" class="button button-primary sissubmit" value="　更新する　">
 		</form>
 		<?php
-	}
+	} */
 }
