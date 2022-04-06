@@ -22,11 +22,11 @@ class N2_Engineersetup {
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		//add_action( 'admin_menu', array( $this, 'add_setup_menu' ) );
+		add_action( 'admin_menu', array( $this, 'add_setup_menu' ) );
 	}
 
 	public function add_setup_menu(){
-		//add_menu_page('各種セットアップ', '各種セットアップ', 'manage_options', 'setup_menu', 'html_setup_menu','dashicons-list-view');
+		add_menu_page('各種セットアップ', '各種セットアップ', 'manage_options', 'setup_menu', array($this,'add_setup_menu_page'),'dashicons-list-view');
 	}
 
 /* 	public function add_widgets() {
@@ -48,8 +48,16 @@ class N2_Engineersetup {
 		}
 	} */
 
-	function html_setup_menu(){
-		echo "<h2>オリジナルメニューページ</h2>";
+	function add_setup_menu_page()
+	{
+		?>
+			<div class="wrap">
+				<h2>各種セットアップ</h2>
+					<div class="row">
+						<h2>事業者連絡先</h2>
+					</div>
+			</div>
+		<?php
 	}
 
     /* function setup_widget( $var, $args ){
