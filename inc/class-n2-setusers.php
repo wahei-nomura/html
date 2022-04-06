@@ -59,6 +59,7 @@ class N2_Setusers {
 		$wp_roles->add_role( 'jigyousya', '事業者', array() );
 		$wp_roles->add_cap( 'jigyousya', 'read' );
 		$wp_roles->add_cap( 'jigyousya', 'edit_posts' );
+		$wp_roles->add_cap( 'jigyousya', 'upload_files' );
 
 		// SSクルー
 		$wp_roles->add_role( 'ss-crew', 'SSクルー', array() );
@@ -70,6 +71,7 @@ class N2_Setusers {
 		$wp_roles->add_cap( 'ss-crew', 'edit_others_posts' );
 		$wp_roles->add_cap( 'ss-crew', 'edit_published_posts' );
 		$wp_roles->add_cap( 'ss-crew', 'publish_posts' );
+		$wp_roles->add_cap( 'ss-crew', 'upload_files' );
 	}
 
 }
