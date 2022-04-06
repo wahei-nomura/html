@@ -27,6 +27,7 @@ class N2_Setpost {
 		add_action( 'save_post', array( $this, 'save_customfields' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_setpost_script' ) );
 		add_filter( 'upload_mimes', array( $this, 'add_mimes' ) );
+		add_action( 'ajax_query_attachments_args', array( $this, 'display_only_self_uploaded_medias' ) );
 	}
 
 	/**
@@ -255,5 +256,18 @@ class N2_Setpost {
 	public function add_mimes( $mimes ) {
 		$mimes['zip'] = 'application/zip';
 		return $mimes;
+	}
+
+	/**
+	 * 管理者とSSクルー以外は自分がアップロードした画像しかライブラリに表示しない
+	 *
+	 * @param array $query global query
+	 * @return array
+	 */
+	public function display_only_self_uploaded_medias( $query ) {
+		if ( ! current_user_can( 'edit_others_posts' ) && wp_get_current_user() ) {
+			$query['author'] = wp_get_current_user()->ID;
+		}
+		return $query;
 	}
 }
