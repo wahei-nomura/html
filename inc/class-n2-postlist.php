@@ -63,7 +63,7 @@ class N2_Postlist {
 		$title    = get_the_title();
 		$post_url = get_edit_post_link();
 
-		$image_url = ! empty( $post_data['画像1'] ) ? $post_data['画像1'] : 'https://placehold.jp/50x50.png?text=NoImage';
+		$image = ! empty( $post_data['画像1'] ) ? "<img class='n2-postlist-imgicon' src='{$post_data['画像1']}'>" : 'なし';
 		$money     = ! empty( $post_data['寄附金額'] ) ? $post_data['寄附金額'] : 0;
 		$poster    = ! empty( $post_data['post_author'] ) ? get_userdata( $post->post_author )->display_name : '';
 		$code      = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '';
@@ -94,7 +94,7 @@ class N2_Postlist {
 				echo "<div>{$code}</div>";
 				break;
 			case 'thumbnail':
-				echo "<img src='{$image_url}' style='width:50px;height:50px'>";
+				echo $image;
 				break;
 			case 'modified-last':
 				the_modified_date( 'Y年Md日' );
@@ -148,6 +148,7 @@ class N2_Postlist {
 		unset( $actions['edit'] );
 		unset( $actions['inline hide-if-no-js'] );
 		unset( $actions['view'] );
+		unset( $actions['trash'] );
 		return $actions;
 	}
 }
