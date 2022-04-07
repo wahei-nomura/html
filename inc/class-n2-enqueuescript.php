@@ -32,7 +32,7 @@ class N2_Enqueuescript {
 	 */
 	public function enqueue_setpost_script() {
 		wp_enqueue_media();
-		wp_enqueue_script( 'n2-script', get_template_directory_uri() . '/dist/index.js', array( 'jquery' ), wp_get_theme()->get( 'Version' ), true );
-		wp_enqueue_style( 'n2-style', get_template_directory_uri() . '/dist/style.css', array(), wp_get_theme()->get( 'Version' ), true );
+		wp_enqueue_script( 'n2-script', get_theme_file_uri( 'dist/index.js' ), array( 'jquery' ), N2_CASH_BUSTER, true );
+		wp_enqueue_style( 'n2-style', get_theme_file_uri( 'dist/style.css' ), array(), N2_CASH_BUSTER, true );
 	}
 }
