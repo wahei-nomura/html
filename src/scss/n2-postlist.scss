@@ -1,0 +1,12 @@
+$prefix: 'n2-postlist';
+
+// コンパイルテスト用に書いてみてるだけ
+.#{$prefix} {
+	&-test {
+		color: red;
+		background-color: pink;
+	}
+	&-test2 {
+		font-size: 24px;
+	}
+}
