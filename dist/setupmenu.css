@@ -1,6 +1,8 @@
-div .row {
+div .flex {
   display: flex;
 }
-body {
-  background-color: red;
+
+div .column {
+  flex-direction: column;
 }
+/*# sourceMappingURL=setupmenu.css.map */
