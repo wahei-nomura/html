@@ -1,0 +1,6 @@
+div .row {
+  display: flex;
+}
+body {
+  background-color: red;
+}
