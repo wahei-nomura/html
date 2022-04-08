@@ -40,6 +40,7 @@ class N2_Postlist {
 		$columns = array(
 			'cb'            => '<input type="checkbox" />',
 			'item-title'    => '返礼品名',
+			'progress-bar'  => '進捗',
 			'poster'        => '事業者名',
 			'code'          => '返礼品コード',
 			'money'         => '寄附金額',
@@ -69,15 +70,18 @@ class N2_Postlist {
 		$code      = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '';
 
 		$status = '';
+		$status_bar = 0;
 
 		if ( 'draft' === get_post_status() || 'inherit' === get_post_status() ) {
 			$status = '事業者下書き';
 		}
 		if ( 'pending' === get_post_status() ) {
 			$status = 'Steamship確認待ち';
+			$status_bar = 30;
 		}
 		if ( 'publish' === get_post_status() ) {
 			$status = 'Steamship確認済み';
+			$status_bar = 60;
 		}
 
 		switch ( $column_name ) {
@@ -98,8 +102,9 @@ class N2_Postlist {
 				break;
 			case 'modified-last':
 				the_modified_date( 'Y年Md日' );
-				echo '<br>' . $status;
 				break;
+			case 'progress-bar':
+				echo "<div class='n2-postlist-status'><progress max='100' value='{$status_bar}'></progress><span>{$status}</span></div>";
 		}
 	}
 
