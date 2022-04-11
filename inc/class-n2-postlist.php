@@ -23,6 +23,7 @@ class N2_Postlist {
 	 */
 	public function __construct() {
 		add_filter( 'manage_posts_columns', array( $this, 'add_posts_columns' ), 10, 2 );
+		add_action( 'init', array( $this, 'change_postlabel' ) );
 		add_filter( 'manage_posts_custom_column', array( $this, 'add_posts_columns_row' ), 10, 2 );
 		add_action( 'pre_get_posts', array( $this, 'pre_get_author_posts' ) );
 		add_filter( 'gettext', array( $this, 'change_status' ) );
@@ -48,6 +49,24 @@ class N2_Postlist {
 			'modified-last' => '最終更新日',
 		);
 		return $columns;
+	}
+
+	/**
+	 * change_postlabel
+	 */
+	public function change_postlabel() {
+		global $wp_post_types;
+		$name                       = '返礼品';
+		$labels                     = &$wp_post_types['post']->labels;
+		$labels->name               = $name;
+		$labels->singular_name      = $name;
+		$labels->add_new_item       = $name . 'の新規追加';
+		$labels->edit_item          = $name . 'の編集';
+		$labels->new_item           = '新規' . $name;
+		$labels->view_item          = $name . 'を表示';
+		$labels->search_items       = $name . 'を検索';
+		$labels->not_found          = $name . 'が見つかりませんでした';
+		$labels->not_found_in_trash = 'ゴミ箱に' . $name . 'は見つかりませんでした';
 	}
 
 	/**

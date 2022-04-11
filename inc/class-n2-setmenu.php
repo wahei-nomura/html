@@ -24,7 +24,6 @@ class N2_Setmenu {
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'change_menulabel' ) );
 		add_action( 'admin_menu', array( $this, 'remove_menulabel' ) );
-		add_action( 'init', array( $this, 'change_postlabel' ) );
 	}
 
 	/**
@@ -51,23 +50,4 @@ class N2_Setmenu {
 			remove_menu_page( $menu );
 		}
 	}
-
-	/**
-	 * change_postlabel
-	 */
-	public function change_postlabel() {
-		global $wp_post_types;
-		$name                       = '返礼品';
-		$labels                     = &$wp_post_types['post']->labels;
-		$labels->name               = $name;
-		$labels->singular_name      = $name;
-		$labels->add_new_item       = $name . 'の新規追加';
-		$labels->edit_item          = $name . 'の編集';
-		$labels->new_item           = '新規' . $name;
-		$labels->view_item          = $name . 'を表示';
-		$labels->search_items       = $name . 'を検索';
-		$labels->not_found          = $name . 'が見つかりませんでした';
-		$labels->not_found_in_trash = 'ゴミ箱に' . $name . 'は見つかりませんでした';
-	}
-
 }
