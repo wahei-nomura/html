@@ -27,6 +27,7 @@ class N2_Setpost {
 		add_action( 'save_post', array( $this, 'save_customfields' ) );
 		add_filter( 'upload_mimes', array( $this, 'add_mimes' ) );
 		add_action( 'ajax_query_attachments_args', array( $this, 'display_only_self_uploaded_medias' ) );
+		add_filter( 'enter_title_here', array( $this, 'change_title' ) );
 	}
 
 	/**
@@ -257,5 +258,16 @@ class N2_Setpost {
 			$query['author'] = wp_get_current_user()->ID;
 		}
 		return $query;
+	}
+
+	/**
+	 * タイトル変更
+	 *
+	 * @param string $title タイトル
+	 * @return string
+	 */
+	public function change_title( $title ) {
+		$title = '返礼品の名前を入力';
+		return $title;
 	}
 }
