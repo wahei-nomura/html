@@ -83,23 +83,23 @@ class N2_Postlist {
 		$title    = get_the_title();
 		$post_url = get_edit_post_link();
 
-		$image = ! empty( $post_data['画像1'] ) ? "<img class='n2-postlist-imgicon' src='{$post_data['画像1']}'>" : 'なし';
-		$money     = ! empty( $post_data['寄附金額'] ) ? $post_data['寄附金額'] : 0;
-		$poster    = ! empty( $post_data['post_author'] ) ? get_userdata( $post->post_author )->display_name : '';
-		$code      = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '';
+		$image  = ! empty( $post_data['画像1'] ) ? "<img class='n2-postlist-imgicon' src='{$post_data['画像1']}'>" : 'なし';
+		$money  = ! empty( $post_data['寄附金額'] ) ? $post_data['寄附金額'] : 0;
+		$poster = ! empty( $post_data['post_author'] ) ? get_userdata( $post->post_author )->display_name : '';
+		$code   = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '';
 
-		$status = '';
+		$status     = '';
 		$status_bar = 0;
 
 		if ( 'draft' === get_post_status() || 'inherit' === get_post_status() ) {
 			$status = '事業者下書き';
 		}
 		if ( 'pending' === get_post_status() ) {
-			$status = 'Steamship確認待ち';
+			$status     = 'Steamship確認待ち';
 			$status_bar = 30;
 		}
 		if ( 'publish' === get_post_status() ) {
-			$status = 'Steamship確認済み';
+			$status     = 'Steamship確認済み';
 			$status_bar = 60;
 		}
 
