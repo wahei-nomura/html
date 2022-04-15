@@ -47,8 +47,17 @@ class N2_Postlist {
 			'money'         => '寄附金額',
 			'thumbnail'     => '画像',
 			'modified-last' => '最終更新日',
-			'ssmemo'        => 'SSメモ',
 		);
+
+		if ( 'jigyousya' !== wp_get_current_user()->roles[0] ) {
+			$columns = array_merge(
+				$columns,
+				array(
+					'ssmemo' => 'SSメモ',
+				)
+			);
+		}
+
 		return $columns;
 	}
 
