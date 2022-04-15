@@ -84,11 +84,11 @@ class N2_Postlist {
 		$title    = get_the_title();
 		$post_url = get_edit_post_link();
 
-		$image  = ! empty( $post_data['画像1'] ) ? "<img class='n2-postlist-imgicon' src='{$post_data['画像1']}'>" : 'なし';
-		$money  = ! empty( $post_data['寄附金額'] ) ? $post_data['寄附金額'] : 0;
-		$poster = ! empty( $post_data['post_author'] ) ? get_userdata( $post->post_author )->display_name : '';
-		$code   = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '';
-		$ssmemo = ! empty( $post_data['社内共有事項'] ) ? nl2br( $post_data['社内共有事項'] ) : '';
+		$image        = ! empty( $post_data['画像1'] ) ? "<img class='n2-postlist-imgicon' src='{$post_data['画像1']}'>" : 'なし';
+		$money        = ! empty( $post_data['寄附金額'] ) ? $post_data['寄附金額'] : 0;
+		$poster       = ! empty( $post_data['post_author'] ) ? get_userdata( $post->post_author )->display_name : '';
+		$code         = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '';
+		$ssmemo       = ! empty( $post_data['社内共有事項'] ) ? nl2br( $post_data['社内共有事項'] ) : '';
 		$ssmemo_isset = $ssmemo ? 'n2-postlist-ssmemo' : '';
 
 		$status     = '';
