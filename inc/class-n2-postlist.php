@@ -129,7 +129,7 @@ class N2_Postlist {
 				echo "<div class='n2-postlist-status'><progress max='100' value='{$status_bar}'></progress><span>{$status}</span></div>";
 				break;
 			case 'ssmemo':
-				echo "<div class='{$ssmemo_isset}'><span class='dashicons dashicons-testimonial'></span><p>{$ssmemo}</p></div>";
+				echo "<div class='{$ssmemo_isset}'><p>{$ssmemo}</p></div>";
 				break;
 		}
 	}

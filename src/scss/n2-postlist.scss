@@ -53,18 +53,24 @@ $prefix: 'n2-postlist';
 	}
 	&-ssmemo {
 		position: relative;
-		.dashicons {
+		&::after {
+			font-family: 'dashicons';
+			content: "\f473";
+			position: absolute;
 			cursor: pointer;
-			color: red;
-			&:hover {
-				& ~ p {
-					display: block;
-				}
+			color: #1a4899;
+			font-size: 24px;
+			line-height: 100%;
+		}
+		&:hover {
+			& > p {
+				display: block;
 			}
 		}
 		p {
 			display: none;
 			position: absolute;
+			top: 20px;
 			left: -40px;
 			z-index: 100;
 			padding: 8px;
