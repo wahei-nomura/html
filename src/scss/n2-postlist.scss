@@ -51,6 +51,31 @@ $prefix: 'n2-postlist';
 			background-color: #1a4899;
 		}
 	}
+	&-ssmemo {
+		position: relative;
+		.dashicons {
+			cursor: pointer;
+			color: red;
+			&:hover {
+				& ~ p {
+					display: block;
+				}
+			}
+		}
+		p {
+			display: none;
+			position: absolute;
+			left: -40px;
+			z-index: 100;
+			padding: 8px;
+			font-size: 20px;
+			background-color: #fff;
+			border: solid 1px #1a4899;
+			&:hover {
+				display: block;
+			}
+		}
+	}
 }
 // 返礼品一覧のカラムがギュッとならないように最低幅を保持
 div#wpbody-content {

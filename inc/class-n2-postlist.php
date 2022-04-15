@@ -47,6 +47,7 @@ class N2_Postlist {
 			'money'         => '寄附金額',
 			'thumbnail'     => '画像',
 			'modified-last' => '最終更新日',
+			'ssmemo'        => 'SSメモ',
 		);
 		return $columns;
 	}
@@ -87,6 +88,8 @@ class N2_Postlist {
 		$money  = ! empty( $post_data['寄附金額'] ) ? $post_data['寄附金額'] : 0;
 		$poster = ! empty( $post_data['post_author'] ) ? get_userdata( $post->post_author )->display_name : '';
 		$code   = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '';
+		$ssmemo = ! empty( $post_data['社内共有事項'] ) ? nl2br( $post_data['社内共有事項'] ) : '';
+		$ssmemo_isset = $ssmemo ? 'n2-postlist-ssmemo' : '';
 
 		$status     = '';
 		$status_bar = 0;
@@ -124,6 +127,10 @@ class N2_Postlist {
 				break;
 			case 'progress-bar':
 				echo "<div class='n2-postlist-status'><progress max='100' value='{$status_bar}'></progress><span>{$status}</span></div>";
+				break;
+			case 'ssmemo':
+				echo "<div class='{$ssmemo_isset}'><span class='dashicons dashicons-testimonial'></span><p>{$ssmemo}</p></div>";
+				break;
 		}
 	}
 
