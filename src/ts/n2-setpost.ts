@@ -4,6 +4,10 @@ export default () => {
 		// クラスにテーマ名をprefixつける
 		const prefix='neo-neng';
 
+		const neoNengPath=(window):string=> {
+			return window.tmp_path.tmp_url;
+		}
+
 		// 返礼品編集画面
 		$('form').on('submit', (e) => {
 
@@ -105,5 +109,54 @@ export default () => {
 		
 		});
 
+		// 楽天タグID
+
+
+		const rakutenApiUrl: string='https://app.rakuten.co.jp/services/api/IchibaGenre/Search/20140222?applicationId=1002772968546257164&genreId=';
+
+		const getRakutenId = (genreId: number) => {
+			const url: string=`https://app.rakuten.co.jp/services/api/IchibaGenre/Search/20140222?applicationId=1002772968546257164&genreId=${genreId}`;
+
+			return $.ajax({
+				url: url,
+				dataType: 'JSON',
+			})
+		}
+
+		$('#ss_setting').append($('<div id="ss-modal-wrapper"></div>'))
+		$('#ss-modal-wrapper').load(neoNengPath(window)+'/template/modal.html');
+		
+		// 初回
+		getRakutenId(0).done(res => {
+			console.log(res.children)
+			$.each(res.children,(index, val) => {
+				$('#ss-modal select').append($(`<option value="${val.child.genreId}">${val.child.genreName}</option>`))
+			})
+
+			console.log($('#ss-genle-select'))
+			$('#ss-genle-select').on('change',e => {
+				console.log($(e.target).val());
+			})
+		})
+
+		// $(`#${prefix}-searchid-btn`).on('click', e => {
+		// 	e.preventDefault();
+		// 	$(e.target).after($('<select></select>'))
+		// 	$.ajax({
+		// 		url: rakutenApiUrl + '0',
+		// 		dataType: 'JSON',
+		// 	}).done(res => {
+		// 		console.log(res);
+		// 		$.each(res.children, (index, val) => {
+		// 		// 	console.log(val.child.genreName + '(ID:' + val.child.genreId + ')');
+		// 			$(`#${prefix}-searchid-btn ~ select`).append($(`<option value="${val.child.genreId}">${val.child.genreName}</option>`))
+		// 			// $(`<option>${val.child.genreName}</option>`)
+		// 		})
+				
+		// 	}).fail(error => {
+		// 		console.log(error);
+		// 	})
+		// })
+		
 	});
 }
