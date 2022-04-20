@@ -109,8 +109,11 @@ export default () => {
 		
 		});
 
-		// 楽天タグID
-
+		/** ===============================================================
+		 * 
+		 * 楽天ID
+		 * 
+		================================================================== */
 
 		const rakutenApiUrl: string='https://app.rakuten.co.jp/services/api/IchibaGenre/Search/20140222?applicationId=1002772968546257164&genreId=';
 
@@ -123,14 +126,14 @@ export default () => {
 			})
 		}
 
-		$('#ss_setting').append($('<div id="ss-modal-wrapper"></div>'))
-		$('#ss-modal-wrapper').load(neoNengPath(window)+'/template/modal.html');
+		$('#ss_setting').append($('<div id="n2-setpost-rakuten-genleid-wrapper"></div>'))
+		$('#n2-setpost-rakuten-genleid-wrapper').load(neoNengPath(window)+'/template/rakuten-genleid.html');
 		
 		// 初回
 		getRakutenId(0).done(res => {
 			console.log(res.children)
 			$.each(res.children,(index, val) => {
-				$('#ss-modal select').append($(`<option value="${val.child.genreId}">${val.child.genreName}</option>`))
+				$('#rakuten-genle-id select').append($(`<option value="${val.child.genreId}">${val.child.genreName}</option>`))
 			})
 
 			console.log($('#ss-genle-select'))
