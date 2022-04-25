@@ -7,7 +7,8 @@ $prefix: 'n2-setpost';
 		left: 50%;
 		z-index: 100000;
 		background-color: #fff;
-		width: 600px;
+		padding: 32px;
+		width: 800px;
 		height: 400px;
 		border: solid 1px blue;
 		transform: translate(-50%, -50%);
@@ -20,8 +21,20 @@ $prefix: 'n2-setpost';
 			z-index: 100000;
 			background-color: rgba(255, 255, 255, .7);
 		}
-		.select {
-			color: pink;
+		h2 {
+			font-size: 24px;
+		}
+		.select-wrapper {
+			margin-top: 24px;
+		}
+		.result {
+			margin-top: 24px;
+			span {
+				font-size: 24px;
+			}
+		}
+		.buttons {
+			margin-top: 24px;
 		}
 	}
 }
