@@ -111,12 +111,15 @@ export default () => {
 
 		/** ===============================================================
 		 * 
-		 * 楽天ID
+		 * 楽天タグID用
 		 * 
 		================================================================== */
 
 		// タグ取得のAPI
 		const rakutenApiUrl: string = 'https://app.rakuten.co.jp/services/api/IchibaGenre/Search/20140222?applicationId=1002772968546257164&genreId=';
+
+		// ジャンル>ジャンル>ジャンルの形式のテキストを保持
+		let genreText: string = '';
 
 		// ジャンルIDをパラメータで渡すことでJSONを返す
 		const getRakutenId = (genreId: number) => {
@@ -128,47 +131,71 @@ export default () => {
 			})
 		}
 
-		// とりあえず画面に突っ込んでるだけ。あとでボタンと連動させる
-		$('#ss_setting').append($('<div id="n2-setpost-rakuten-genleid-wrapper"></div>'))
-		$('#n2-setpost-rakuten-genleid-wrapper').load(neoNengPath(window) + '/template/rakuten-genleid.html')
 
-		// 初期値
-		let genleId = 0;
-		let genleLevel = 1;
-
-		const setRakutenId = (genleId, genleLevel) => {
-			getRakutenId(genleId).done(res => {
+		// 再帰的にジャンルIDをセットし続けることで下の階層のIDをとっていく
+		const setRakutenId = (genreId: number = 0, genreLevel: number = 1): void => {
+			getRakutenId(genreId).done(res => {
+				// 子のジャンルがなければ終わり
 				if (!res.children.length) {
 					return
 				}
-				if (!$(`#n2-setpost-rakuten-genleid .select${genleLevel}`).length) {
-					$('#n2-setpost-rakuten-genleid .select-wrapper').append($(`<select class="select${genleLevel}"><option value="" selected>未選択</option></select>`))
+				// select数字クラスを自動生成
+				if (!$(`#n2-setpost-rakuten-genreid .select${genreLevel}`).length) {
+					$('#n2-setpost-rakuten-genreid .select-wrapper').append($(`<select class="select${genreLevel}"><option value="" selected>未選択</option></select>`))
 					$.each(res.children, (index, val) => {
-						$(`#n2-setpost-rakuten-genleid select.select${genleLevel}`).append($(`<option value="${val.child.genreId}">${val.child.genreName}</option>`))
+						$(`#n2-setpost-rakuten-genreid select.select${genreLevel}`).append($(`<option value="${val.child.genreId}">${val.child.genreName}</option>`))
 					})
 				}
 
-				$(`#n2-setpost-rakuten-genleid select.select${genleLevel}`).on('change', e => {
-					$('#n2-setpost-rakuten-genleid .result span').text(String($(e.target).val()))
+				// セレクトを変更するとジャンルIDと階層テキストを保持してまたsetRakutenIdをまわす
+				$(`#n2-setpost-rakuten-genreid select.select${genreLevel}`).on('change', e => {
+					$('#n2-setpost-rakuten-genreid .result span').text(String($(e.target).val()))
 					$(e.target).nextAll().remove();
-					genleId = $(e.target).val();
-					genleLevel++;
-					setRakutenId(genleId, genleLevel);
-				})
-
-				$('#n2-setpost-rakuten-genleid button').on('click', e => {
-					if ($(e.target)[0].className === 'clear') {
-						$('#n2-setpost-rakuten-genleid .select-wrapper>*').remove();
-						$('#n2-setpost-rakuten-genleid .result span').text('指定なし')
-						genleId = 0;
-						genleLevel = 1;
-						setRakutenId(genleId, genleLevel);
-					}
+					genreText += ' > ' + $(e.target).find($('option:selected')).text()
+					genreId = Number($(e.target).val());
+					genreLevel++;
+					setRakutenId(genreId, genreLevel);
 				})
 			})
 		}
 
-		setRakutenId(genleId, genleLevel);
+		// JS読み込んだ時点で、表示用のタグを生成する
+		$('#全商品ディレクトリID').before($(`<p>ディレクトリ階層：<span id="${prefix}-genre"></span><p>`))
+		$(`#${prefix}-genre`).text(String($('#全商品ディレクトリID-text').val()));
+		$('#全商品ディレクトリID').after($(`<p>ディレクトリID：<span id="${prefix}-genreid"></span><p>`))
+		$(`#${prefix}-genreid`).text(String($('#全商品ディレクトリID').val()));
+
+		// ディレクトリID検索スタート
+		$(`#${prefix}-genreid-btn`).on('click', e => {
+			$('#ss_setting').append($('<div id="n2-setpost-rakuten-genreid-wrapper"></div>'))
+			// テンプレートディレクトリからHTMLをロード
+			$('#n2-setpost-rakuten-genreid-wrapper').load(neoNengPath(window) + '/template/rakuten-genreid.html #n2-setpost-rakuten-genreid', () => {
+
+				// 保持テキストをリセットしてからsetRakutenId回す
+				genreText = '';
+				setRakutenId();
+
+				// モーダル内の各ボタンの処理制御
+				$('#n2-setpost-rakuten-genreid button').on('click', e => {
+					if ($(e.target)[0].className === 'clear') {
+						$('#n2-setpost-rakuten-genreid .select-wrapper>*').remove();
+						$('#n2-setpost-rakuten-genreid .result span').text('指定なし')
+						setRakutenId();
+					}
+					if ($(e.target)[0].className === 'done' && confirm('選択中のIDをセットしますか？')) {
+						$(`#${prefix}-genre`).text(genreText)
+						$(`#${prefix}-genreid`).text($('#n2-setpost-rakuten-genreid .result span').text())
+						$('#全商品ディレクトリID-text').val(genreText)
+						$('#全商品ディレクトリID').val(Number($('#n2-setpost-rakuten-genreid .result span').text()))
+						$('#n2-setpost-rakuten-genreid-wrapper').remove();
+					}
+					if ($(e.target)[0].className === 'close' && confirm('選択中のIDはリセットされますがそれでも閉じますか？')) {
+						$('#n2-setpost-rakuten-genreid-wrapper').remove();
+					}
+				})
+			})
+		})
+
 
 	});
 }
