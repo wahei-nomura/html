@@ -91,6 +91,9 @@ class N2_Setpost {
 	/**
 	 * show_customfields
 	 * iniファイル内を配列化してフィールドを作っている
+	 *
+	 * @param Object $post post
+	 * @param Array  $args args
 	 */
 	public function show_customfields( $post, $args ) {
 		global $post;
