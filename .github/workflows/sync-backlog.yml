@@ -1,0 +1,22 @@
+name: sync-backlog
+on:
+  issues:
+    types: [ opened ]
+  issue_comment:
+    types: [ created ]
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: KouWakai/gha-github-to-nulab-backlog@v1
+      env:
+        projectid: ${{ secrets.PROJECTID }}
+        issuetypeid: ${{ secrets.ISSUETYPEID }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_REPOSITORY: ${{ secrets.GITHUB_REPOSITORY }}
+        apikey: ${{ secrets.APIKEY }}
+        domain: ${{ secrets.DOMAIN }}
+      with:
+        priorityid: 1
