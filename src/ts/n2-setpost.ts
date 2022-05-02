@@ -163,22 +163,44 @@ export default () => {
 		// 再帰的にジャンルIDをセットし続けることで下の階層のIDをとっていく
 		const setRakutenTagId = (genreId: number = 0,tagLevel: number = 1): void => {
 			getRakutenId(genreId).done(res => {
-				console.log(res.tagGroups)
 
 				$.each(res.tagGroups, (index, val) => {
 					$(`#n2-setpost-rakuten-tagid .groups`).append(
-						$(`<div><input type="radio" name="tag-group" id="gid${val.tagGroup.tagGroupId}"><label for="gid${val.tagGroup.tagGroupId}">${val.tagGroup.tagGroupName}</label></div>`)
+						$(`<div><input type="radio" name="tag-group" id="gid${val.tagGroup.tagGroupId}" value="${val.tagGroup.tagGroupName}"><label for="gid${val.tagGroup.tagGroupId}">${val.tagGroup.tagGroupName}</label></div>`)
 					)
+					$(`#n2-setpost-rakuten-tagid .tags`).append($(`<div class="gid${val.tagGroup.tagGroupId}"></div>`))
+
+					$.each(val.tagGroup.tags, (index, v) => {
+						$(`#n2-setpost-rakuten-tagid .tags .gid${val.tagGroup.tagGroupId}`).append($(`<div><input type="checkbox" name="tags" id="tid${v.tag.tagId}" value="${v.tag.tagName}"><label for="tid${v.tag.tagId}">${v.tag.tagName}</label></div>`))
+					})
+
+					$(`#n2-setpost-rakuten-tagid .tags>*`).css('display', 'none');
 				})
 
 				$('#n2-setpost-rakuten-tagid .groups input[type="radio"]').on('click', e => {
 					const gid: number=Number($(e.target).attr('id').replace('gid', ''))
-					// クリックしたradioからグループID取得して下層tagを表示する
-					const tags=res.tagGroups.filter(v => v.tagGroup.tagGroupId === gid ? v : null)[0].tagGroup.tags
-					console.log(tags)
 
-					$.each(tags, (index, val) => {
-						$(`#n2-setpost-rakuten-tagid .tags`).append($(`<div><input type="checkbox">${val.tag.tagName}</div>`))
+					$(`#n2-setpost-rakuten-tagid .tags>*`).css('display', 'none');
+
+
+					$(`#n2-setpost-rakuten-tagid .tags .gid${gid}`).css('display','block')
+
+					
+				})
+
+				$(`#n2-setpost-rakuten-tagid .tags input[name="tags"]`).on('change', e => {
+					const tagId: number=Number($(e.target).attr('id').replace('tid', ''))
+					const tagName=$(e.target).val();
+
+					if($(e.target).prop('checked')) {
+						$('#n2-setpost-rakuten-tagid .result .checked-tags').append($(`<span class="${tagName}" data-tid="${tagId}">${tagId}:${tagName}</span>`))
+					} else {
+						$(`#n2-setpost-rakuten-tagid .result .checked-tags .${tagName}`).remove()
+					}
+
+					$(`#n2-setpost-rakuten-tagid .result .checked-tags span`).on('click', e => {
+						$(`#tid${$(e.target).data('tid')}`).prop('checked', false)
+						$(e.target).remove()
 					})
 				})
 			})
