@@ -110,6 +110,9 @@ $prefix: 'n2-setpost';
 			overflow-y: scroll;
 			margin-top: 24px;
 			border: solid 1px;
+			label {
+				user-select: none;
+			}
 		}
 		.close {
 			position: absolute;
@@ -140,13 +143,26 @@ $prefix: 'n2-setpost';
 			background-color: lightblue;
 			overflow-y: scroll;
 
-			span {
+			.checked-tags>div {
+				display: inline-block;
 				font-size: 12px;
-				border: solid red;
+				background-color: lightgray;
+				border-radius: 4px;
 				display: inline-block;
 				margin: 4px;
 				padding: 4px;
-				cursor: pointer;
+				user-select: none;
+				span {
+					cursor: pointer;
+					margin-left: 4px;
+					&::before {
+						content: "\f158";
+						font: normal 16px/1 dashicons;
+						vertical-align: middle;
+						-webkit-font-smoothing: antialiased;
+						-moz-osx-font-smoothing: grayscale;
+					}
+				}
 			}
 		}
 		.buttons {

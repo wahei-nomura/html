@@ -115,23 +115,45 @@ export default () => {
 		 * 
 		================================================================== */
 
+		// JS読み込んだ時点で、表示用のタグを生成する ============================================================================
+
+		// ディレクトリID用
+		$('#全商品ディレクトリID').before($(`<p>ディレクトリ階層：<span id="${prefix}-genre"></span><p>`))
+		$(`#${prefix}-genre`).text(String($('#全商品ディレクトリID-text').val()));
+		$('#全商品ディレクトリID').after($(`<p>ディレクトリID：<span id="${prefix}-genreid"></span><p>`))
+		$(`#${prefix}-genreid`).text(String($('#全商品ディレクトリID').val()));
+
+		// タグID用
+		$('#楽天タグID').before($(`<p>選択中のタグ：<span id="${prefix}-tag"></span><p>`))
+		$(`#${prefix}-tag`).text(String($('#楽天タグID-text').val()));
+		$('#楽天タグID').after($(`<p>タグID：<span id="${prefix}-tagid"></span><p>`))
+		$(`#${prefix}-tagid`).text(String($('#楽天タグID').val()));
+		
+		// ================================================================================================================
+
 		// タグ取得のAPI
 		const rakutenApiUrl: string = 'https://app.rakuten.co.jp/services/api/IchibaGenre/Search/20140222?applicationId=1002772968546257164&genreId=';
 
 		// ジャンル>ジャンル>ジャンルの形式のテキストを保持
-		let genreText: string = '';
-		let tagText: string = '';
+		let genreText: string='';
+		// 1234567/1234567/1234567みたいにする
+		let tagChain: string='';
+		// タグネーム/タグネーム/タグネーム
+		let tagText: string='';
+
+		// 最大タグID数に達していないかをカウントして表示
+		let tagCount: number=32;
+		const showTagCount=(tagCount:number):void => {
+			$('.tags-count  span').text(tagCount)
+		}
 
 		// ジャンルIDをパラメータで渡すことでJSONを返す
 		const getRakutenId = (genreId: number) => {
-			const url: string = `https://app.rakuten.co.jp/services/api/IchibaGenre/Search/20140222?applicationId=1002772968546257164&genreId=${genreId}`;
-
 			return $.ajax({
-				url: url,
+				url: rakutenApiUrl + genreId,
 				dataType: 'JSON',
 			})
 		}
-
 
 		// 再帰的にジャンルIDをセットし続けることで下の階層のIDをとっていく
 		const setRakutenId = (genreId: number = 0, genreLevel: number = 1): void => {
@@ -160,71 +182,81 @@ export default () => {
 			})
 		}
 
-		// 再帰的にジャンルIDをセットし続けることで下の階層のIDをとっていく
+		// genreIdをセットし、tagGroupからtagIdまでとっていく
 		const setRakutenTagId = (genreId: number = 0,tagLevel: number = 1): void => {
 			getRakutenId(genreId).done(res => {
 
+				showTagCount(tagCount)
+
 				$.each(res.tagGroups, (index, val) => {
+					// 含まれる全グループのブロックを生成
 					$(`#n2-setpost-rakuten-tagid .groups`).append(
 						$(`<div><input type="radio" name="tag-group" id="gid${val.tagGroup.tagGroupId}" value="${val.tagGroup.tagGroupName}"><label for="gid${val.tagGroup.tagGroupId}">${val.tagGroup.tagGroupName}</label></div>`)
 					)
 					$(`#n2-setpost-rakuten-tagid .tags`).append($(`<div class="gid${val.tagGroup.tagGroupId}"></div>`))
 
+					// グループごとのブロック内にタグを配置
 					$.each(val.tagGroup.tags, (index, v) => {
 						$(`#n2-setpost-rakuten-tagid .tags .gid${val.tagGroup.tagGroupId}`).append($(`<div><input type="checkbox" name="tags" id="tid${v.tag.tagId}" value="${v.tag.tagName}"><label for="tid${v.tag.tagId}">${v.tag.tagName}</label></div>`))
 					})
 
+					// 全ブロック非表示
 					$(`#n2-setpost-rakuten-tagid .tags>*`).css('display', 'none');
 				})
 
+				// グループを選択
 				$('#n2-setpost-rakuten-tagid .groups input[type="radio"]').on('click', e => {
 					const gid: number=Number($(e.target).attr('id').replace('gid', ''))
 
+					// 表示中のグループブロックを非表示
 					$(`#n2-setpost-rakuten-tagid .tags>*`).css('display', 'none');
 
-
+					// 選択したグループブロックを表示
 					$(`#n2-setpost-rakuten-tagid .tags .gid${gid}`).css('display','block')
-
-					
 				})
 
+				// tagを選択
 				$(`#n2-setpost-rakuten-tagid .tags input[name="tags"]`).on('change', e => {
 					const tagId: number=Number($(e.target).attr('id').replace('tid', ''))
 					const tagName=$(e.target).val();
 
+					// チェック未→済
 					if($(e.target).prop('checked')) {
-						$('#n2-setpost-rakuten-tagid .result .checked-tags').append($(`<span class="${tagName}" data-tid="${tagId}">${tagId}:${tagName}</span>`))
+						if(tagCount!==0) {
+							$('#n2-setpost-rakuten-tagid .result .checked-tags').append($(`<div data-tid="${tagId}">${tagId}:${tagName}<span></span></div>`))
+							tagCount--;
+							showTagCount(tagCount)
+						} else {
+							$(e.target).prop('checked', false)
+							alert('32件選択中です。')
+						}
+					// チェック済→未
 					} else {
-						$(`#n2-setpost-rakuten-tagid .result .checked-tags .${tagName}`).remove()
+						$(`#n2-setpost-rakuten-tagid .result .checked-tags div[data-tid="${tagId}"]`).remove()
+						tagCount++;
+						showTagCount(tagCount)
 					}
+				})
 
-					$(`#n2-setpost-rakuten-tagid .result .checked-tags span`).on('click', e => {
-						$(`#tid${$(e.target).data('tid')}`).prop('checked', false)
-						$(e.target).remove()
-					})
+				// バツボタンで選択中のタグを削除するとcheckboxも未選択に戻る
+				$(document).on('click',`#n2-setpost-rakuten-tagid .result .checked-tags div span`, e => {
+					$(`#tid${$(e.target).parent().data('tid')}`).prop('checked', false)
+					$(e.target).parent().remove()
+					tagCount++;
+					showTagCount(tagCount)
 				})
 			})
 		}
 
-		// JS読み込んだ時点で、表示用のタグを生成する ============================================================================
-
-		// ディレクトリID用
-		$('#全商品ディレクトリID').before($(`<p>ディレクトリ階層：<span id="${prefix}-genre"></span><p>`))
-		$(`#${prefix}-genre`).text(String($('#全商品ディレクトリID-text').val()));
-		$('#全商品ディレクトリID').after($(`<p>ディレクトリID：<span id="${prefix}-genreid"></span><p>`))
-		$(`#${prefix}-genreid`).text(String($('#全商品ディレクトリID').val()));
-
-		// タグID用
-		$('#楽天タグID').before($(`<p>選択中のタグ：<span id="${prefix}-tag"></span><p>`))
-		$(`#${prefix}-tag`).text(String($('#楽天タグID-text').val()));
-		$('#楽天タグID').after($(`<p>タグID：<span id="${prefix}-tagid"></span><p>`))
-		$(`#${prefix}-tagid`).text(String($('#楽天タグID').val()));
-		
-		// ================================================================================================================
-
 		// ディレクトリID検索スタート
 		$(`#${prefix}-genreid-btn`).on('click', e => {
 			$('#ss_setting').append($('<div id="n2-setpost-rakuten-genreid-wrapper"></div>'))
+
+			if($('#楽天タグID').val()!=='') {
+				if(!confirm('ディレクトリIDを変更すると、下の楽天タグIDがリセットされますのでご注意ください。')) {
+					return;
+				}
+			}
 			// テンプレートディレクトリからHTMLをロード
 			$('#n2-setpost-rakuten-genreid-wrapper').load(neoNengPath(window) + '/template/rakuten-genreid.html #n2-setpost-rakuten-genreid', () => {
 
@@ -239,12 +271,17 @@ export default () => {
 						$('#n2-setpost-rakuten-genreid .result span').text('指定なし')
 						setRakutenId();
 					}
-					if ($(e.target)[0].className === 'done' && confirm('選択中のIDをセットしますか？')) {
+					if ($(e.target)[0].className === 'done' && confirm('選択中のIDをセットしますか？(楽天タグIDがリセットされます)')) {
 						$(`#${prefix}-genre`).text(genreText)
 						$(`#${prefix}-genreid`).text($('#n2-setpost-rakuten-genreid .result span').text())
 						$('#全商品ディレクトリID-text').val(genreText)
 						$('#全商品ディレクトリID').val(Number($('#n2-setpost-rakuten-genreid .result span').text()))
 						$('#n2-setpost-rakuten-genreid-wrapper').remove();
+
+						$(`#${prefix}-tag`).text('')
+						$(`#${prefix}-tagid`).text('')
+						$('#楽天タグID-text').val('')
+						$('#楽天タグID').val('')
 					}
 					if ($(e.target)[0].className === 'close' && confirm('選択中のIDはリセットされますがそれでも閉じますか？')) {
 						$('#n2-setpost-rakuten-genreid-wrapper').remove();
@@ -262,9 +299,13 @@ export default () => {
 
 			$('#ss_setting').append($('<div id="n2-setpost-rakuten-tagid-wrapper"></div>'))
 			// テンプレートディレクトリからHTMLをロード
-			$('#n2-setpost-rakuten-tagid-wrapper').load(neoNengPath(window) + '/template/rakuten-tagid.html #n2-setpost-rakuten-tagid', () => {
+			$('#n2-setpost-rakuten-tagid-wrapper').load(neoNengPath(window)+'/template/rakuten-tagid.html #n2-setpost-rakuten-tagid', () => {
+				
+				tagCount = 32
+				showTagCount(tagCount)
 
 				// 保持テキストをリセットしてからsetRakutenId回す
+				tagChain='';
 				tagText='';
 
 				setRakutenTagId(Number($('#全商品ディレクトリID').val()));
@@ -273,14 +314,28 @@ export default () => {
 				$('#n2-setpost-rakuten-tagid button').on('click', e => {
 					if ($(e.target)[0].className === 'clear') {
 						$('#n2-setpost-rakuten-tagid .tags>*').remove();
-						$('#n2-setpost-rakuten-tagid .result span').text('指定なし')
-						// setRakutenId();
+						$('#n2-setpost-rakuten-tagid .result .checked-tags>*').remove();
+						tagCount=32
+						showTagCount(tagCount)
+						setRakutenTagId(Number($('#全商品ディレクトリID').val()));
 					}
-					if ($(e.target)[0].className === 'done' && confirm('選択中のIDをセットしますか？')) {
-						$(`#${prefix}-tag`).text(genreText)
-						$(`#${prefix}-tagid`).text($('#n2-setpost-rakuten-tagid .result span').text())
-						$('#楽天タグID-text').val(genreText)
-						$('#楽天タグID').val(Number($('#n2-setpost-rakuten-tagid .result span').text()))
+					if($(e.target)[0].className==='done'&&confirm('選択中のIDをセットしますか？')) {
+						const chekedTags = $('#n2-setpost-rakuten-tagid .tags input[name="tags"]').filter(':checked')
+
+						$.each(chekedTags, (i, v) => {
+							if(i===0) {
+								tagText += $(v).val()
+								tagChain += v.id.replace('tid', '')
+							} else {
+								tagText += '/' + $(v).val()
+								tagChain += '/' + v.id.replace('tid', '')
+							}
+						})
+
+						$(`#${prefix}-tag`).text(tagText)
+						$(`#${prefix}-tagid`).text(tagChain)
+						$('#楽天タグID-text').val(tagText)
+						$('#楽天タグID').val(tagChain)
 						$('#n2-setpost-rakuten-tagid-wrapper').remove();
 					}
 					if ($(e.target)[0].className === 'close' && confirm('選択中のIDはリセットされますがそれでも閉じますか？')) {
@@ -289,7 +344,5 @@ export default () => {
 				})
 			})
 		})
-
-
 	});
 }
