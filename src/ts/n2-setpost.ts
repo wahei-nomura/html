@@ -8,35 +8,46 @@ export default () => {
 			return window.tmp_path.tmp_url;
 		}
 
+		// 下書き保存にはバリデーションあてない
+		let varidation:boolean=true;
+		$('#save-post').on('click', e => {
+			varidation=false;
+		})
+
 		// 返礼品編集画面
 		$('form').on('submit', (e) => {
 
-			const vError = [];
-
-			$(`.${prefix}-hissu`).each((i, v) => {
-				if ($(v).val() === '') {
-					if (!$(v).parent().find(`.${prefix}-hissu-alert`).length) {
-						$(v).before($(`<p class="${prefix}-hissu-alert" style="color:red;">※必須項目です</p>`))
+			if(varidation) {
+				
+				const vError = [];
+				
+				$(`.${prefix}-hissu`).each((i, v) => {
+					if ($(v).val() === '') {
+						if (!$(v).parent().find(`.${prefix}-hissu-alert`).length) {
+							$(v).before($(`<p class="${prefix}-hissu-alert" style="color:red;">※必須項目です</p>`))
+						}
+						$(v).css('background-color', 'pink');
+						vError.push(v);
 					}
-					$(v).css('background-color', 'pink');
-					vError.push(v);
-				}
-			})
-
-			$(`.${prefix}-notzero`).each((i, v) => {
-				if (Number($(v).val()) === 0) {
-					if (!$(v).parent().find(`.${prefix}-notzero-alert`).length) {
-						$(v).before($(`<p class="${prefix}-notzero-alert" style="color:red;">※0以外の値を入力してください。</p>`))
+				})
+				
+				$(`.${prefix}-notzero`).each((i, v) => {
+					if (Number($(v).val()) === 0) {
+						if (!$(v).parent().find(`.${prefix}-notzero-alert`).length) {
+							$(v).before($(`<p class="${prefix}-notzero-alert" style="color:red;">※0以外の値を入力してください。</p>`))
+						}
+						$(v).css('background-color', 'pink');
+						vError.push(v);
 					}
-					$(v).css('background-color', 'pink');
-					vError.push(v);
+				})
+				
+				
+				
+				if (vError.length) {
+					alert('入力内容をご確認ください。')
+					e.preventDefault();
+					return false;
 				}
-			})
-
-			if (vError.length) {
-				alert('入力内容をご確認ください。')
-				e.preventDefault();
-				return false;
 			}
 
 		})
