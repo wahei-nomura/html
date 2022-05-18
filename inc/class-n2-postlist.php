@@ -91,7 +91,17 @@ class N2_Postlist {
 		$post_data = get_post_meta( $post->ID, 'post_data', true );
 
 		$title    = get_the_title();
-		$post_url = get_edit_post_link();
+
+		// アカウントやステータスによってリンクを変える
+		if ( current_user_can( 'edit_others_posts' ) ) {
+			$post_url = get_edit_post_link();
+		} else {
+			if ( 'pending' === get_post_status() || 'publish' === get_post_status() ) {
+				$post_url = home_url( '/' ) . "?p={$post->ID}";
+			} else {
+				$post_url = get_edit_post_link();
+			}
+		}
 
 		$image        = ! empty( $post_data['画像1'] ) ? "<img class='n2-postlist-imgicon' src='{$post_data['画像1']}'>" : 'なし';
 		$money        = ! empty( $post_data['寄附金額'] ) ? $post_data['寄附金額'] : 0;
