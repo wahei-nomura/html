@@ -58,9 +58,10 @@ if ( have_posts() ) :
 		<?php endif; ?>
 			<?PHP endforeach; ?>
 	</table>
-			<?php endif; ?>
+			<?php else : ?>
 			<p>公開中の商品は違う感じの表示にする。</p>
-		<?php
+				<?php
+endif;
 endwhile;
 endif;
 
