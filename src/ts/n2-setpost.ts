@@ -14,6 +14,12 @@ export default () => {
 			varidation=false;
 		})
 
+		// Steamshipへ送信を押したか判定
+		let checkPublish: boolean=false;
+		$('#publish').on('click', e => {
+			checkPublish=true;
+		})
+
 		// 返礼品編集画面
 		$('form').on('submit', (e) => {
 
@@ -44,10 +50,18 @@ export default () => {
 				
 				
 				if (vError.length) {
-					alert('入力内容をご確認ください。')
+					alert('入力必須項目が未入力です。入力内容をご確認ください。')
 					e.preventDefault();
 					return false;
 				}
+				
+				if(checkPublish) {
+					if(!confirm('本当にSteamshipへ送信しますか？\n送信してしまうと修正はできなくなります。')) {
+						e.preventDefault();
+						return false;
+					}
+				}
+
 			}
 
 		})
