@@ -22,12 +22,33 @@ class N2_Setpost {
 	 * コンストラクタ
 	 */
 	public function __construct() {
+		add_action( 'nocache_headers', array( $this, 'editpage_redirect' ) );
 		add_action( 'init', array( $this, 'remove_editor_support' ) );
 		add_action( 'admin_menu', array( $this, 'add_customfields' ) );
 		add_action( 'save_post', array( $this, 'save_customfields' ) );
 		add_filter( 'upload_mimes', array( $this, 'add_mimes' ) );
 		add_action( 'ajax_query_attachments_args', array( $this, 'display_only_self_uploaded_medias' ) );
 		add_filter( 'enter_title_here', array( $this, 'change_title' ) );
+	}
+
+	/**
+	 * editpage_redirect
+	 * 事業者のSS確認待ちをリダイレクト
+	 *
+	 * @param Object $headers headers
+	 * @return Object $headers headers
+	 */
+	public function editpage_redirect( $headers ) {
+		// post.phpのaction=editページ
+		if ( preg_match( '/post\.php/', $_SERVER['REQUEST_URI'] ) && ! empty( $_GET['action'] ) && 'edit' === $_GET['action'] ) {
+			$post_id = ! empty( $_GET['post'] ) && '' !== $_GET['post'] ? $_GET['post'] : false;
+
+			// $post_idが存在、かつ他記事編集権限がない、かつ事業者下書きじゃない
+			if ( $post_id && ! current_user_can( 'edit_others_posts' ) && 'draft' !== get_post_status( $post_id ) ) {
+				$headers['Location'] = home_url( "/?p={$post_id}" );
+				return $headers;
+			}
+		}
 	}
 
 	/**
