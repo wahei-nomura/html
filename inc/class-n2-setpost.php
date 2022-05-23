@@ -144,8 +144,8 @@ class N2_Setpost {
 
 		// タグ管理(printfで使う)
 		$input_tags = array(
-			'text'            => '<input type="text" id="%1$s" name="%1$s" value="%2$s" maxlength="%3$s" placeholder="%4$s" class="%5$s">',
-			'textarea'        => '<textarea style="display:block; width:100%; height:200px" id="%1$s" name="%1$s" maxlength="%3$s" placeholder="%4$s" class="%5$s">%2$s</textarea>',
+			'text'            => '<input type="text" style="width:100%%" id="%1$s" name="%1$s" value="%2$s" maxlength="%3$s" placeholder="%4$s" class="%5$s">',
+			'textarea'        => '<textarea style="width:100%%; height:200px" id="%1$s" name="%1$s" maxlength="%3$s" placeholder="%4$s" class="%5$s">%2$s</textarea>',
 			'number'          => '<input type="number" id="%1$s" name="%1$s" value="%2$s" step="%3$s" class="%4$s">',
 			'checkbox'        => '<li><label><input type=checkbox name="%1$s" value="%2$s" %3$s>%4$s</label></li>',
 			'select'          => '<select id="%1$s" name="%1$s" class="%3$s">%2$s</select>',
