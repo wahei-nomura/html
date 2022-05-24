@@ -44,9 +44,44 @@ export default () => {
 
 
 			// ここから確認用モーダル==========================================================================================================================
+			
 			$('#default_setting').append($('<div id="n2-setpost-check-modal-wrapper"></div>'))
 
 			$('#n2-setpost-check-modal-wrapper').load(neoNengPath(window)+'/template/check-modal.html #n2-setpost-check-modal', () => {
+
+				const inputs=$('#default_setting .n2-input')
+				let checkbox={}
+				$.each(inputs, (i, v) => {
+					const inputName=$(v).attr('name')
+					const value=$(v).text()
+					const tag=v.tagName
+					if((tag==='INPUT'&&$(v).attr('type')==='text')||tag==='TEXTAREA') {
+						const value=$(v).val()!==''? $(v).val():'入力なし'
+						$('#n2-setpost-check-modal .result table').append(`<tr><td>${inputName}</td><td>${$(v).val()}</td></tr>`)
+						// console.log(inputName+':'+$(v).val())
+					}
+					
+					if(tag==='SELECT') {
+						$.each($(v).find('option'), (i2, v2) => {
+							const selected=$(v2).attr('selected')==='selected'? $(v2).text():false
+							if(selected) {
+								// console.log(inputName+':'+selected)
+								$('#n2-setpost-check-modal .result table').append(`<tr><td>${inputName}</td><td>${selected}</td></tr>`)
+							}
+						})
+					}
+					if(tag==='INPUT'&&$(v).attr('type')==='checkbox') {
+						if($(v).prop('checked')) {
+							const checkedName=$(v).parent().text()
+							const key = inputName.replace('[]', '')
+							checkbox[key] = checkbox[key] === undefined ? '' + checkedName: checkbox[key] = checkbox[key] === undefined ? '' + checkedName: checkbox[key]+','+checkedName
+						}
+					}
+				})
+				$.each(checkbox, (k, v) => {
+					$('#n2-setpost-check-modal .result table').append(`<tr><td>${k}</td><td>${v}</td></tr>`)
+					// console.log(k+':'+v)
+				})
 
 				// ここはお試しあとで消す。
 				$('#n2-setpost-check-modal .result').css({
@@ -54,6 +89,7 @@ export default () => {
 					'height': '400px',
 					'background-color': 'pink'
 				})
+
 			})
 			// ここまで確認用モーダル==========================================================================================================================
 
