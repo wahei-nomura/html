@@ -8,61 +8,54 @@ export default () => {
 			return window.tmp_path.tmp_url;
 		}
 
-		// 下書き保存にはバリデーションあてない
-		let varidation:boolean=true;
-		$('#save-post').on('click', e => {
-			varidation=false;
-		})
-
-		// Steamshipへ送信を押したか判定
-		let checkPublish: boolean=false;
-		$('#publish').on('click', e => {
-			checkPublish=true;
-		})
-
 		// 返礼品編集画面
-		$('form').on('submit', (e) => {
+		$('#publish').on('click', (e) => {
+			e.preventDefault()
+				
 
-			if(varidation) {
-				
-				const vError = [];
-				
-				$(`.${prefix}-hissu`).each((i, v) => {
-					if ($(v).val() === '') {
-						if (!$(v).parent().find(`.${prefix}-hissu-alert`).length) {
-							$(v).before($(`<p class="${prefix}-hissu-alert" style="color:red;">※必須項目です</p>`))
-						}
-						$(v).css('background-color', 'pink');
-						vError.push(v);
+			// ここからバリデーション ===========================================================================================================================
+			const vError = [];
+			
+			$(`.${prefix}-hissu`).each((i, v) => {
+				if ($(v).val() === '') {
+					if (!$(v).parent().find(`.${prefix}-hissu-alert`).length) {
+						$(v).before($(`<p class="${prefix}-hissu-alert" style="color:red;">※必須項目です</p>`))
 					}
-				})
-				
-				$(`.${prefix}-notzero`).each((i, v) => {
-					if (Number($(v).val()) === 0) {
-						if (!$(v).parent().find(`.${prefix}-notzero-alert`).length) {
-							$(v).before($(`<p class="${prefix}-notzero-alert" style="color:red;">※0以外の値を入力してください。</p>`))
-						}
-						$(v).css('background-color', 'pink');
-						vError.push(v);
-					}
-				})
-				
-				
-				
-				if (vError.length) {
-					alert('入力必須項目が未入力です。入力内容をご確認ください。')
-					e.preventDefault();
-					return false;
+					$(v).css('background-color', 'pink');
+					vError.push(v);
 				}
-				
-				if(checkPublish) {
-					if(!confirm('本当にSteamshipへ送信しますか？\n送信してしまうと修正はできなくなります。')) {
-						e.preventDefault();
-						return false;
+			})
+			
+			$(`.${prefix}-notzero`).each((i, v) => {
+				if (Number($(v).val()) === 0) {
+					if (!$(v).parent().find(`.${prefix}-notzero-alert`).length) {
+						$(v).before($(`<p class="${prefix}-notzero-alert" style="color:red;">※0以外の値を入力してください。</p>`))
 					}
+					$(v).css('background-color', 'pink');
+					vError.push(v);
 				}
+			})
 
+			if (vError.length) {
+				alert('入力必須項目が未入力です。入力内容をご確認ください。')
+				return
 			}
+			// ここまでバリデーション==========================================================================================================================
+
+
+			// ここから確認用モーダル==========================================================================================================================
+			$('#default_setting').append($('<div id="n2-setpost-check-modal-wrapper"></div>'))
+
+			$('#n2-setpost-check-modal-wrapper').load(neoNengPath(window)+'/template/check-modal.html #n2-setpost-check-modal', () => {
+
+				// ここはお試しあとで消す。
+				$('#n2-setpost-check-modal .result').css({
+					'width': '100%',
+					'height': '400px',
+					'background-color': 'pink'
+				})
+			})
+			// ここまで確認用モーダル==========================================================================================================================
 
 		})
 
