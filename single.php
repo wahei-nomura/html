@@ -55,12 +55,31 @@ if ( have_posts() ) :
 		<tr><th width="30%">項目</th><th width="70%">内容</th></tr>
 			<?php
 			foreach ( $fields as $key => $value ) :
+				// var_dump( $value['option'] );
 				preg_match( '/画像/', $key, $m );
 				if ( $m[0] && ! empty( $post_data[ $key ] ) ) :
 					?>
 		<tr>
 			<td><?php echo $key; ?></td>
 			<td><img src=<?php echo $post_data[ $key ]; ?> width='200px'></td>
+		</tr>
+					<?php
+					elseif ( 'checkbox' === $value['type'] || 'select' === $value['type'] ) :
+						$new_options = array();
+						$options     = explode( ',', $value['option'] );
+						foreach ( $options as $option ) {
+							$new_options[ explode( '\\', $option )[0] ] = explode( '\\', $option )[1];
+						}
+						$cheked = '';
+						if ( 'checkbox' === $value['type'] ) {
+							foreach ( $post_data[ $key ] as $chekedkey ) {
+								$cheked .= $new_options[ $chekedkey ] . ',';
+							}
+						}
+						?>
+		<tr>
+			<td><?php echo $key; ?></td>
+			<td><?php echo 'select' === $value['type'] ? $new_options[ $post_data[ $key ] ] : $cheked; ?></td>
 		</tr>
 				<?php else : ?>
 		<tr>
