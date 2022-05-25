@@ -104,6 +104,7 @@ export default () => {
 						$('body').css('overflow-y','auto')
 					})
 					$('#n2-setpost-check-modal button.done').on('click', e => {
+						$(e.target).prop('disabled',true)
 						$('#publish').trigger('click')
 					})
 					
