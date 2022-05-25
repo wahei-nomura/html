@@ -1,0 +1,14 @@
+div .flex {
+  display: flex;
+  flex-direction: column;
+
+
+}
+
+div .column {
+  flex-direction: column;
+}
+div .row {
+  flex-direction: row;
+}
+/*# sourceMappingURL=setupmenu.css.map */

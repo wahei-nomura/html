@@ -18,9 +18,11 @@ require_once get_template_directory() . '/config/config.php';
  * Require inc
  */
 $incs = array(
-	'class-n2-hogehoge',
+	'class-n2-setupmenu',
 	'class-n2-setmenu',
 	'class-n2-setpost',
+	'class-n2-crewsetupmenu',
+	'class-n2-engineersetupmenu',
 	'class-n2-postlist',
 	'class-n2-setusers',
 	'class-n2-dashboard',

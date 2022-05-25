@@ -72,6 +72,11 @@ class N2_Setusers {
 		$wp_roles->add_cap( 'ss-crew', 'edit_published_posts' );
 		$wp_roles->add_cap( 'ss-crew', 'publish_posts' );
 		$wp_roles->add_cap( 'ss-crew', 'upload_files' );
+		$wp_roles->add_cap( 'ss-crew', 'ss-crew' ); // role判定用に追加
+
+		// エンジニア(管理者)
+		$engineer = get_role( 'administrator' );
+		$engineer->add_cap( 'ss-engineer' ); // role判定用に追加
 	}
 
 }
