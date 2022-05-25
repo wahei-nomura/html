@@ -190,7 +190,6 @@ $prefix: 'n2-setpost';
 		padding: 32px;
 		width: 80%;
 		height: 80%;
-		border: solid 1px blue;
 		transform: translate(-50%, -50%);
 		&-wrapper {
 			position: fixed;
@@ -199,10 +198,34 @@ $prefix: 'n2-setpost';
 			width: 100%;
 			height: 100%;
 			z-index: 100000;
-			background-color: rgba(255, 255, 255, .7);
+			background-color: rgba(0, 0, 0, .7);
 		}
-		iframe {
+		.result {
+			height: 80%;
+			overflow-y: scroll;
 			border: solid 1px;
+			table{
+				table-layout: fixed;
+				width: 100%;
+				border-collapse: collapse;
+				border-spacing: 0;
+				th,td{
+					padding: 8px 24px;
+				}
+				td:nth-child(odd){
+					text-align: center;
+				}
+				tr:nth-child(odd){
+					background-color: #eee;
+				}
+				th {
+					position: sticky;
+					top: 0;
+					z-index: 1;
+					background-color: gray;
+					color:#fff;
+				}
+			}
 		}
 	}
 }

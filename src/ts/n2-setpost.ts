@@ -10,89 +10,91 @@ export default () => {
 
 		// 返礼品編集画面
 		$('#publish').on('click', (e) => {
-			e.preventDefault()
+
+			if(!$('#n2-setpost-check-modal').length) {
+				e.preventDefault()
 				
-
-			// ここからバリデーション ===========================================================================================================================
-			const vError = [];
-			
-			$(`.${prefix}-hissu`).each((i, v) => {
-				if ($(v).val() === '') {
-					if (!$(v).parent().find(`.${prefix}-hissu-alert`).length) {
-						$(v).before($(`<p class="${prefix}-hissu-alert" style="color:red;">※必須項目です</p>`))
-					}
-					$(v).css('background-color', 'pink');
-					vError.push(v);
-				}
-			})
-			
-			$(`.${prefix}-notzero`).each((i, v) => {
-				if (Number($(v).val()) === 0) {
-					if (!$(v).parent().find(`.${prefix}-notzero-alert`).length) {
-						$(v).before($(`<p class="${prefix}-notzero-alert" style="color:red;">※0以外の値を入力してください。</p>`))
-					}
-					$(v).css('background-color', 'pink');
-					vError.push(v);
-				}
-			})
-
-			if (vError.length) {
-				alert('入力必須項目が未入力です。入力内容をご確認ください。')
-				return
-			}
-			// ここまでバリデーション==========================================================================================================================
-
-
-			// ここから確認用モーダル==========================================================================================================================
-			
-			$('#default_setting').append($('<div id="n2-setpost-check-modal-wrapper"></div>'))
-
-			$('#n2-setpost-check-modal-wrapper').load(neoNengPath(window)+'/template/check-modal.html #n2-setpost-check-modal', () => {
-
-				const inputs=$('#default_setting .n2-input')
-				let checkbox={}
-				$.each(inputs, (i, v) => {
-					const inputName=$(v).attr('name')
-					const value=$(v).text()
-					const tag=v.tagName
-					if((tag==='INPUT'&&$(v).attr('type')==='text')||tag==='TEXTAREA') {
-						const value=$(v).val()!==''? $(v).val():'入力なし'
-						$('#n2-setpost-check-modal .result table').append(`<tr><td>${inputName}</td><td>${$(v).val()}</td></tr>`)
-						// console.log(inputName+':'+$(v).val())
-					}
-					
-					if(tag==='SELECT') {
-						$.each($(v).find('option'), (i2, v2) => {
-							const selected=$(v2).attr('selected')==='selected'? $(v2).text():false
-							if(selected) {
-								// console.log(inputName+':'+selected)
-								$('#n2-setpost-check-modal .result table').append(`<tr><td>${inputName}</td><td>${selected}</td></tr>`)
-							}
-						})
-					}
-					if(tag==='INPUT'&&$(v).attr('type')==='checkbox') {
-						if($(v).prop('checked')) {
-							const checkedName=$(v).parent().text()
-							const key = inputName.replace('[]', '')
-							checkbox[key] = checkbox[key] === undefined ? '' + checkedName: checkbox[key] = checkbox[key] === undefined ? '' + checkedName: checkbox[key]+','+checkedName
+				// ここからバリデーション ===========================================================================================================================
+				const vError = [];
+				
+				$(`.${prefix}-hissu`).each((i, v) => {
+					if ($(v).val() === '') {
+						if (!$(v).parent().find(`.${prefix}-hissu-alert`).length) {
+							$(v).before($(`<p class="${prefix}-hissu-alert" style="color:red;">※必須項目です</p>`))
 						}
+						$(v).css('background-color', 'pink');
+						vError.push(v);
 					}
 				})
-				$.each(checkbox, (k, v) => {
-					$('#n2-setpost-check-modal .result table').append(`<tr><td>${k}</td><td>${v}</td></tr>`)
-					// console.log(k+':'+v)
+			
+				$(`.${prefix}-notzero`).each((i, v) => {
+					if (Number($(v).val()) === 0) {
+						if (!$(v).parent().find(`.${prefix}-notzero-alert`).length) {
+							$(v).before($(`<p class="${prefix}-notzero-alert" style="color:red;">※0以外の値を入力してください。</p>`))
+						}
+						$(v).css('background-color', 'pink');
+						vError.push(v);
+					}
 				})
+				
+				if (vError.length) {
+					alert('入力必須項目が未入力です。入力内容をご確認ください。')
+					return
+				}
+				// ここまでバリデーション==========================================================================================================================
+				
+				
+				// ここから確認用モーダル==========================================================================================================================
+			
+				$('#default_setting').append($('<div id="n2-setpost-check-modal-wrapper"></div>'))
+				
+				$('#n2-setpost-check-modal-wrapper').load(neoNengPath(window)+'/template/check-modal.html #n2-setpost-check-modal', () => {
+					
+					const inputs=$('#default_setting .n2-input')
+					console.log(inputs)
+				
+					let checkbox={}
+					$.each(inputs, (i, v) => {
+						const inputName=$(v).attr('name')
+						const value=$(v).text()
+						const tag=v.tagName
 
-				// ここはお試しあとで消す。
-				$('#n2-setpost-check-modal .result').css({
-					'width': '100%',
-					'height': '400px',
-					'background-color': 'pink'
+						if((tag==='INPUT'&&$(v).attr('type')==='text')||tag==='TEXTAREA') {
+							const value:string=$(v).val()!==''? String($(v).val()).replace('\n','<br>'):'<span style="color:red;">入力なし</span>'
+							$('#n2-setpost-check-modal .result table').append(`<tr><td>${inputName}</td><td>${value}</td></tr>`)
+						}
+						
+						if(tag==='SELECT') {
+							$.each($(v).find('option'), (i2, v2) => {
+								const selected=$(v2).attr('selected')==='selected'? $(v2).text():false
+								if(selected) {
+									// console.log(inputName+':'+selected)
+									$('#n2-setpost-check-modal .result table').append(`<tr><td>${inputName}</td><td>${selected}</td></tr>`)
+								}
+							})
+						}
+						if(tag==='INPUT'&&$(v).attr('type')==='checkbox') {
+							if($(v).prop('checked')) {
+								const checkedName=$(v).parent().text()
+								const key = inputName.replace('[]', '')
+								checkbox[key] = checkbox[key] === undefined ? '' + checkedName: checkbox[key] = checkbox[key] === undefined ? '' + checkedName: checkbox[key]+','+checkedName
+							}
+						}
+					})
+					$.each(checkbox, (k, v) => {
+						$('#n2-setpost-check-modal .result table').append(`<tr><td>${k}</td><td>${v}</td></tr>`)
+					})
+					
+					$('#n2-setpost-check-modal button.cancel').on('click', e => {
+						$('#n2-setpost-check-modal-wrapper').remove()
+					})
+					$('#n2-setpost-check-modal button.done').on('click', e => {
+						$('#publish').trigger('click')
+					})
+					
 				})
-
-			})
+			} // end if(!$('#n2-setpost-check-modal').length)
 			// ここまで確認用モーダル==========================================================================================================================
-
 		})
 
 		// inputにmaxlengthが設定されているもののみ入力中の文字数表示
