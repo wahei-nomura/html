@@ -17,15 +17,26 @@ $fields = apply_filters( 'n2_setpost_show_customfields', array( $ini, 'default' 
 
 <style>
 	table{
+		table-layout: fixed;
+		width: 100%;
 		border-collapse: collapse;
 		border-spacing: 0;
 	}
 	table th,table td{
 		padding: 10px 24px;
+	}
+	table td:nth-child(odd){
 		text-align: center;
 	}
 	table tr:nth-child(odd){
 		background-color: #eee;
+	}
+	table th {
+		position: sticky;
+		top: 0;
+		z-index: 1;
+		background-color: gray;
+		color:#fff;
 	}
 </style>
 
@@ -41,6 +52,7 @@ if ( have_posts() ) :
 	<h1><?php the_title(); ?></h1>	
 
 	<table>
+		<tr><th width="30%">項目</th><th width="70%">内容</th></tr>
 			<?php
 			foreach ( $fields as $key => $value ) :
 				preg_match( '/画像/', $key, $m );
