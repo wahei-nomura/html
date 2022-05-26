@@ -337,6 +337,7 @@ export default () => {
 			}
 			// テンプレートディレクトリからHTMLをロード
 			$('#n2-setpost-rakuten-genreid-wrapper').load(neoNengPath(window) + '/template/rakuten-genreid.html #n2-setpost-rakuten-genreid', () => {
+				$('body').css('overflow-y', 'hidden')
 
 				// 保持テキストをリセットしてからsetRakutenId回す
 				genreText = '';
@@ -355,6 +356,7 @@ export default () => {
 						$('#全商品ディレクトリID-text').val(genreText)
 						$('#全商品ディレクトリID').val(Number($('#n2-setpost-rakuten-genreid .result span').text()))
 						$('#n2-setpost-rakuten-genreid-wrapper').remove();
+						$('body').css('overflow-y', 'auto')
 
 						$(`#${prefix}-tag`).text('')
 						$(`#${prefix}-tagid`).text('')
@@ -363,6 +365,7 @@ export default () => {
 					}
 					if ($(e.target)[0].className === 'close' && confirm('選択中のIDはリセットされますがそれでも閉じますか？')) {
 						$('#n2-setpost-rakuten-genreid-wrapper').remove();
+						$('body').css('overflow-y', 'auto')
 					}
 				})
 			})
@@ -378,7 +381,8 @@ export default () => {
 			$('#ss_setting').append($('<div id="n2-setpost-rakuten-tagid-wrapper"></div>'))
 			// テンプレートディレクトリからHTMLをロード
 			$('#n2-setpost-rakuten-tagid-wrapper').load(neoNengPath(window)+'/template/rakuten-tagid.html #n2-setpost-rakuten-tagid', () => {
-				
+				$('body').css('overflow-y', 'hidden')
+
 				tagCount = 32
 				showTagCount(tagCount)
 
@@ -415,9 +419,11 @@ export default () => {
 						$('#楽天タグID-text').val(tagText)
 						$('#楽天タグID').val(tagChain)
 						$('#n2-setpost-rakuten-tagid-wrapper').remove();
+						$('body').css('overflow-y', 'auto')
 					}
 					if ($(e.target)[0].className === 'close' && confirm('選択中のIDはリセットされますがそれでも閉じますか？')) {
 						$('#n2-setpost-rakuten-tagid-wrapper').remove();
+						$('body').css('overflow-y', 'auto')
 					}
 				})
 			})
