@@ -151,7 +151,7 @@ class N2_Setpost {
 			'select'          => '<select id="%1$s" name="%1$s" class="n2-input %3$s">%2$s</select>',
 			'option'          => '<option value="%1$s" %3$s>%2$s</option>',
 			'image'           => '<input class="n2-input %1$s-image-input" type="hidden" name="%2$s" value="%3$s"><button class="button button-primary %1$s-media-toggle">画像選択</button>
-							<div><img class="%1$s-image-url" src="%3$s" alt="" /></div>',
+							<div><img class="%1$s-image-url" src="%3$s" alt="" width="50%%" /></div>',
 			'zip'             => '<input class="n2-input %1$s-zip-input" type="hidden" name="%2$s" value="%3$s"><button type="button" class="button button-primary %1$s-zip-toggle">zip選択</button>
 							<div><p class="%1$s-zip-url">%4$s</p></div>',
 			'rakuten_genreid' => '<button type="button" id="neo-neng-genreid-btn">ディレクトリID検索</button><input type="hidden" id="%1$s" name="%1$s" value="%2$s"><input type="hidden" id="%3$s" name="%3$s" value="%4$s" class="%5$s">',
