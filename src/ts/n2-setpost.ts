@@ -427,5 +427,55 @@ export default () => {
 				})
 			})
 		})
+
+		/** ===============================================================
+		 * 
+		 * 楽天カテゴリー用
+		 * 
+		================================================================== */
+
+		$(`#${prefix}-rakutencategory`).append('<option value="">カテゴリーを選択してください</option>')
+
+		const folderCode:string = '1p7DlbhcIEVIaH7Rw2mTmqJJKVDZCumYK'
+		const api: string='https://www.googleapis.com/drive/v3/files/'//API Request
+		const key:string = 'AIzaSyDQ1Mu41-8S5kBpZED421bCP8NPE7pneNU'
+		let data: {key:string,q:string} = {
+			key: key,//Gooleドライブ APIキー
+			q: `'${folderCode}' in parents`//フォルダの中を検索するクエリ
+		}
+		const town:string = $('#wp-admin-bar-site-name > a').text()// 自治体名
+
+
+		$.ajax(api, {data}).done(d => {
+			// .RakutenDataドライブのフォルダの中から該当する自治体のシートのIDを取得（セッションに保存したい）
+			const sheetID = d.files.filter(v => v.name.match(town) && v.mimeType.split('.').slice(-1)[0] == 'spreadsheet')
+			if(!sheetID.length) return false
+			$.ajax(`https://sheets.googleapis.com/v4/spreadsheets/${sheetID[0].id}/values/カテゴリー?key=${key}`).done(data => {
+				data = data['values'];
+				let cats,lCat,mCat;
+				$.each(data,(k:number,v:Array<String>) => {
+					//大カテの有無による大カテ・中カテの処理
+					if(v[0]){
+						lCat = v[0].replace('.',''); //大カテあればそれ
+						mCat = v[1]? v[1].replace('.','') : ''; //いったん中カテリセット
+					}else{
+						lCat = lCat; //大カテなければ前のを継承
+						mCat = v[1]? v[1].replace('.','') : mCat; //中カテあればそれ・なければ継承
+					}
+					cats = '#/'+lCat+'/'+(mCat? mCat+'/' : '')+(v[2]? v[2].replace('.','')+'/' : '');
+					$(`#${prefix}-rakutencategory`).append('<option value="'+cats+'" class="rakuten-category-item">'+cats+'</option>');
+			});
+			});
+			//選択された項目をtextareaに値として追記していく
+			$(`#${prefix}-rakutencategory`).on('change',() => {
+				let textarea = $('textarea#楽天カテゴリー');
+				let selected = String($('.rakuten-category-item:selected').val());
+				selected = (String(textarea.val()).search(selected) == -1)? selected : ''; //textareaにすでにあったら入れない
+				let cat = textarea.val()? textarea.val()+(selected? '\n'+selected : '') : selected;
+		
+				textarea.val(cat);
+			});
+		});
+		// ここまで楽天カテゴリー ==============================================================================================================================
 	});
 }
