@@ -13,7 +13,13 @@ export default () => {
 
 			
 			// ここからバリデーション ===========================================================================================================================
-			const vError = []; // エラーを溜める
+			const vError=[]; // エラーを溜める
+			
+			if($('input#title').val()==='') {
+				$('input#title').before($(`<p class="${prefix}-hissu-alert" style="color:red;">※必須項目です</p>`))
+				$('input#title').css('background-color', 'pink')
+				vError.push($('input#title'));
+			}
 			
 			// 必須
 			$(`.${prefix}-hissu`).each((i, v) => {
