@@ -43,8 +43,7 @@ export default () => {
 				return
 			}
 			// ここまでバリデーション==========================================================================================================================
-			
-			if(!$('#n2-setpost-check-modal').length) {
+			if(!$('#n2-setpost-check-modal').length && $(e.target).val() === 'Steamship確認待ちとして送信') {
 			$('body').css('overflow-y', 'hidden')
 			e.preventDefault()
 				
@@ -54,6 +53,7 @@ export default () => {
 				
 				$('#n2-setpost-check-modal-wrapper').load(neoNengPath(window)+'/template/check-modal.html #n2-setpost-check-modal', () => {
 					
+					$('#n2-setpost-check-modal .result table').append(`<tr><td>返礼品名</td><td>${$('input#title').val()}</td></tr>`)
 					const inputs=$('#default_setting .n2-input')
 				
 					let checkbox={}
