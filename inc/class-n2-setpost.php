@@ -154,8 +154,8 @@ class N2_Setpost {
 							<div><img class="%1$s-image-url" src="%3$s" alt="" width="50%%" /></div>',
 			'zip'             => '<input class="n2-input %1$s-zip-input" type="hidden" name="%2$s" value="%3$s"><button type="button" class="button button-primary %1$s-zip-toggle">zip選択</button>
 							<div><p class="%1$s-zip-url">%4$s</p></div>',
-			'rakuten_genreid' => '<button type="button" id="neo-neng-genreid-btn">ディレクトリID検索</button><input type="hidden" id="%1$s" name="%1$s" value="%2$s"><input type="hidden" id="%3$s" name="%3$s" value="%4$s" class="%5$s">',
-			'rakuten_tagid'   => '<button type="button" id="neo-neng-tagid-btn">タグID検索</button><input type="hidden" id="%1$s" name="%1$s" value="%2$s"><input type="hidden" id="%3$s" name="%3$s" value="%4$s" class="%5$s">',
+			'rakuten_genreid' => '<button type="button" id="neo-neng-genreid-btn" class="button button-primary button-large">ディレクトリID検索</button><input type="hidden" id="%1$s" name="%1$s" value="%2$s"><input type="hidden" id="%3$s" name="%3$s" value="%4$s" class="%5$s">',
+			'rakuten_tagid'   => '<button type="button" id="neo-neng-tagid-btn" class="button button-primary button-large">タグID検索</button><input type="hidden" id="%1$s" name="%1$s" value="%2$s"><input type="hidden" id="%3$s" name="%3$s" value="%4$s" class="%5$s">',
 		);
 
 		// バリデーション付与用

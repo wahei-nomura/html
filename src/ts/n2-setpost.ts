@@ -328,13 +328,12 @@ export default () => {
 
 		// ディレクトリID検索スタート
 		$(`#${prefix}-genreid-btn`).on('click', e => {
-			$('#ss_setting').append($('<div id="n2-setpost-rakuten-genreid-wrapper"></div>'))
-
 			if($('#楽天タグID').val()!=='') {
 				if(!confirm('ディレクトリIDを変更すると、下の楽天タグIDがリセットされますのでご注意ください。')) {
 					return;
 				}
 			}
+			$('#ss_setting').append($('<div id="n2-setpost-rakuten-genreid-wrapper"></div>'))
 			// テンプレートディレクトリからHTMLをロード
 			$('#n2-setpost-rakuten-genreid-wrapper').load(neoNengPath(window) + '/template/rakuten-genreid.html #n2-setpost-rakuten-genreid', () => {
 				$('body').css('overflow-y', 'hidden')
@@ -345,12 +344,12 @@ export default () => {
 
 				// モーダル内の各ボタンの処理制御
 				$('#n2-setpost-rakuten-genreid button').on('click', e => {
-					if ($(e.target)[0].className === 'clear') {
+					if ($(e.target).hasClass('clear')) {
 						$('#n2-setpost-rakuten-genreid .select-wrapper>*').remove();
 						$('#n2-setpost-rakuten-genreid .result span').text('指定なし')
 						setRakutenId();
 					}
-					if ($(e.target)[0].className === 'done' && confirm('選択中のIDをセットしますか？(楽天タグIDがリセットされます)')) {
+					if ($(e.target).hasClass('done') && confirm('選択中のIDをセットしますか？(楽天タグIDがリセットされます)')) {
 						$(`#${prefix}-genre`).text(genreText)
 						$(`#${prefix}-genreid`).text($('#n2-setpost-rakuten-genreid .result span').text())
 						$('#全商品ディレクトリID-text').val(genreText)
@@ -363,7 +362,7 @@ export default () => {
 						$('#楽天タグID-text').val('')
 						$('#楽天タグID').val('')
 					}
-					if ($(e.target)[0].className === 'close' && confirm('選択中のIDはリセットされますがそれでも閉じますか？')) {
+					if ($(e.target).hasClass('close') && confirm('選択中のIDはリセットされますがそれでも閉じますか？')) {
 						$('#n2-setpost-rakuten-genreid-wrapper').remove();
 						$('body').css('overflow-y', 'auto')
 					}
@@ -394,14 +393,14 @@ export default () => {
 
 				// モーダル内の各ボタンの処理制御
 				$('#n2-setpost-rakuten-tagid button').on('click', e => {
-					if ($(e.target)[0].className === 'clear') {
+					if ($(e.target).hasClass('clear')) {
 						$('#n2-setpost-rakuten-tagid .tags>*').remove();
 						$('#n2-setpost-rakuten-tagid .result .checked-tags>*').remove();
 						tagCount=32
 						showTagCount(tagCount)
 						setRakutenTagId(Number($('#全商品ディレクトリID').val()));
 					}
-					if($(e.target)[0].className==='done'&&confirm('選択中のIDをセットしますか？')) {
+					if($(e.target).hasClass('done')&&confirm('選択中のIDをセットしますか？')) {
 						const chekedTags = $('#n2-setpost-rakuten-tagid .tags input[name="tags"]').filter(':checked')
 
 						$.each(chekedTags, (i, v) => {
@@ -421,7 +420,7 @@ export default () => {
 						$('#n2-setpost-rakuten-tagid-wrapper').remove();
 						$('body').css('overflow-y', 'auto')
 					}
-					if ($(e.target)[0].className === 'close' && confirm('選択中のIDはリセットされますがそれでも閉じますか？')) {
+					if ($(e.target).hasClass('close') && confirm('選択中のIDはリセットされますがそれでも閉じますか？')) {
 						$('#n2-setpost-rakuten-tagid-wrapper').remove();
 						$('body').css('overflow-y', 'auto')
 					}
