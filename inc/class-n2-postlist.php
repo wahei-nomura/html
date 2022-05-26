@@ -117,11 +117,11 @@ class N2_Postlist {
 			$status = '事業者下書き';
 		}
 		if ( 'pending' === get_post_status() ) {
-			$status     = 'Steamship確認待ち';
+			$status     = 'スチームシップ確認待ち';
 			$status_bar = 30;
 		}
 		if ( 'publish' === get_post_status() ) {
-			$status     = 'Steamship確認済み';
+			$status     = 'スチームシップ確認済み';
 			$status_bar = 60;
 		}
 
@@ -181,8 +181,8 @@ class N2_Postlist {
 	public function change_status( $status ) {
 		$status = str_ireplace( '非公開', '事業者下書き', $status );
 		$status = str_ireplace( '下書き', '事業者下書き', $status );
-		$status = str_ireplace( 'レビュー待ち', 'Steamship確認待ち', $status );
-		$status = str_ireplace( '公開済み', 'Steamship確認済み', $status );
+		$status = str_ireplace( 'レビュー待ち', 'スチームシップ確認待ち', $status );
+		$status = str_ireplace( '公開済み', 'スチームシップ確認済み', $status );
 
 		return $status;
 	}

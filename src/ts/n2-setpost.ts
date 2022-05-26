@@ -43,7 +43,7 @@ export default () => {
 				return
 			}
 			// ここまでバリデーション==========================================================================================================================
-			if(!$('#n2-setpost-check-modal').length && $(e.target).val() === 'Steamship確認待ちとして送信') {
+			if(!$('#n2-setpost-check-modal').length && $(e.target).val() === 'スチームシップ確認待ちとして送信') {
 			$('body').css('overflow-y', 'hidden')
 			e.preventDefault()
 				
