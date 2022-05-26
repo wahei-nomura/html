@@ -62,6 +62,8 @@
 		<exclude name="Generic.CodeAnalysis.UnusedFunctionParameter.FoundBeforeLastUsed" />
 		<exclude name="Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed" />
 
+		<!-- インデント -->
+		<exclude name="Generic.WhiteSpace.ScopeIndent" />
 	</rule>
 
 	<!-- Let's also check that everything is properly documented. -->

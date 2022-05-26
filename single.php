@@ -46,57 +46,58 @@ $fields = apply_filters( 'n2_setpost_show_customfields', array( $ini, 'default' 
 if ( have_posts() ) :
 	while ( have_posts() ) :
 		the_post();
-		if ( 'publish' !== get_post_status() ) :
-			?>
+		?>
+		<?php if ( 'publish' !== get_post_status() ) : ?>
 
-	<h1><?php the_title(); ?></h1>	
+		<h1><?php the_title(); ?></h1>	
 
-	<table>
-		<tr><th width="30%">項目</th><th width="70%">内容</th></tr>
-			<?php
-			foreach ( $fields as $key => $value ) :
-				preg_match( '/画像/', $key, $m );
-				if ( $m[0] && ! empty( $post_data[ $key ] ) ) :
-					?>
-		<tr>
-			<td><?php echo $key; ?></td>
-			<td><img src=<?php echo $post_data[ $key ]; ?> width='200px'></td>
-		</tr>
+		<table>
+			<tr><th width="30%">項目</th><th width="70%">内容</th></tr>
+				<?php foreach ( $fields as $key => $value ) : ?>
 					<?php
-			elseif ( 'checkbox' === $value['type'] || 'select' === $value['type'] ) :
-				$new_options = array();
-				$options     = explode( ',', $value['option'] );
-				foreach ( $options as $option ) {
-					$new_options[ explode( '\\', $option )[0] ] = explode( '\\', $option )[1];
-				}
-				$cheked = '';
-				if ( 'checkbox' === $value['type'] ) {
-					if ( ! empty( $post_data[ $key ] ) ) {
-						foreach ( $post_data[ $key ] as $chekedkey ) {
-							$cheked .= $new_options[ $chekedkey ] . ',';
+					preg_match( '/画像/', $key, $m );
+					if ( $m[0] && ! empty( $post_data[ $key ] ) ) :
+						?>
+					<tr>
+						<td><?php echo $key; ?></td>
+						<td><img src=<?php echo $post_data[ $key ]; ?> width='200px'></td>
+					</tr>
+						<?php
+					elseif ( 'checkbox' === $value['type'] || 'select' === $value['type'] ) :
+						$new_options = array();
+						$options     = explode( ',', $value['option'] );
+						foreach ( $options as $option ) {
+							$new_options[ explode( '\\', $option )[0] ] = explode( '\\', $option )[1];
 						}
-					} else {
-						$cheked = 'なし';
-					}
-				}
-				?>
-		<tr>
-			<td><?php echo $key; ?></td>
-			<td><?php echo 'select' === $value['type'] ? $new_options[ $post_data[ $key ] ] : $cheked; ?></td>
-		</tr>
+						$cheked = '';
+						if ( 'checkbox' === $value['type'] ) {
+							if ( ! empty( $post_data[ $key ] ) ) {
+								foreach ( $post_data[ $key ] as $chekedkey ) {
+									$cheked .= $new_options[ $chekedkey ] . ',';
+								}
+							} else {
+								$cheked = 'なし';
+							}
+						}
+						?>
+					<tr>
+						<td><?php echo $key; ?></td>
+						<td><?php echo 'select' === $value['type'] ? $new_options[ $post_data[ $key ] ] : $cheked; ?></td>
+					</tr>
 				<?php else : ?>
-		<tr>
-			<td><?php echo $key; ?></td>
-			<td><?php echo $post_data[ $key ] ? $post_data[ $key ] : '入力無し'; ?></td>
-		</tr>
-		<?php endif; ?>
-			<?PHP endforeach; ?>
-	</table>
-			<?php else : ?>
-			<p>公開中の商品は違う感じの表示にする。</p>
-				<?php
-endif;
+					<tr>
+						<td><?php echo $key; ?></td>
+						<td><?php echo $post_data[ $key ] ? $post_data[ $key ] : '入力無し'; ?></td>
+					</tr>
+				<?php endif; ?>
+				<?PHP endforeach; ?>
+		</table>
+	<?php else : ?>
+		<p>公開中の商品は違う感じの表示にする。</p>
+		<?php
+	endif;
 endwhile;
 endif;
+
 
 get_footer();
