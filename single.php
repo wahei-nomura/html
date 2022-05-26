@@ -87,7 +87,7 @@ if ( have_posts() ) :
 				<?php else : ?>
 					<tr>
 						<td><?php echo $key; ?></td>
-						<td><?php echo $post_data[ $key ] ? $post_data[ $key ] : '入力無し'; ?></td>
+						<td><?php echo $post_data[ $key ] ? preg_replace( '/\n/', '<br>', $post_data[ $key ] ) : '入力無し'; ?></td>
 					</tr>
 				<?php endif; ?>
 				<?PHP endforeach; ?>
