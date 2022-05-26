@@ -62,6 +62,28 @@ if ( have_posts() ) :
 			<td><?php echo $key; ?></td>
 			<td><img src=<?php echo $post_data[ $key ]; ?> width='200px'></td>
 		</tr>
+					<?php
+			elseif ( 'checkbox' === $value['type'] || 'select' === $value['type'] ) :
+				$new_options = array();
+				$options     = explode( ',', $value['option'] );
+				foreach ( $options as $option ) {
+					$new_options[ explode( '\\', $option )[0] ] = explode( '\\', $option )[1];
+				}
+				$cheked = '';
+				if ( 'checkbox' === $value['type'] ) {
+					if ( ! empty( $post_data[ $key ] ) ) {
+						foreach ( $post_data[ $key ] as $chekedkey ) {
+							$cheked .= $new_options[ $chekedkey ] . ',';
+						}
+					} else {
+						$cheked = 'なし';
+					}
+				}
+				?>
+		<tr>
+			<td><?php echo $key; ?></td>
+			<td><?php echo 'select' === $value['type'] ? $new_options[ $post_data[ $key ] ] : $cheked; ?></td>
+		</tr>
 				<?php else : ?>
 		<tr>
 			<td><?php echo $key; ?></td>
