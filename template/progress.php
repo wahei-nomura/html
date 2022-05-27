@@ -8,7 +8,8 @@
 	$current_status = get_post_status();
 
 	$status_pattern = array(
-		'draft'   => '商品基本情報入力',
+		'auto-draft'   => '商品基本情報入力開始',
+		'draft'   => '下書き保存',
 		'pending' => 'スチームシップ確認作業',
 		'publish' => 'スチームシップ確認済み',
 		'output'  => 'ポータルサイト登録', // ここはまだ未定
@@ -31,7 +32,7 @@
 	}
 	#neo-neng-progress-tracker li {
 		list-style-type: none;
-		width: 25%;
+		width: 20%;
 		float: left;
 		font-size: 24px;
 		position: relative;
