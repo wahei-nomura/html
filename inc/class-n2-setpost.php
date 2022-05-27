@@ -23,6 +23,8 @@ class N2_Setpost {
 	 */
 	public function __construct() {
 		add_action( 'nocache_headers', array( $this, 'editpage_redirect' ) );
+		add_action( 'admin_head-post.php', array( $this, 'show_progress' ) );
+		add_action( 'admin_head-post-new.php', array( $this, 'show_progress' ) );
 		add_action( 'init', array( $this, 'remove_editor_support' ) );
 		add_action( 'admin_menu', array( $this, 'add_customfields' ) );
 		add_action( 'save_post', array( $this, 'save_customfields' ) );
@@ -49,6 +51,16 @@ class N2_Setpost {
 				return $headers;
 			}
 		}
+	}
+
+	/**
+	 * show_progress
+	 * 編集画面にてプログレストラッカー表示
+	 *
+	 * @return void
+	 */
+	public function show_progress() {
+		get_template_part( 'template/progress' );
 	}
 
 	/**

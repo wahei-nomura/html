@@ -35,6 +35,7 @@ class N2_Hogehoge {
 			'!!!',
 		);
 		$message = apply_filters( 'n2_hello', $message );
-		echo implode( ' ', $message );
+		// echo implode( ' ', $message );
+
 	}
 }

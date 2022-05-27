@@ -1,14 +1,17 @@
 <style>
-	/* パターン1 */
-	.progressbar {
+	#neo-neng-progress-tracker {
+		margin-top: 60px;
+		background-color: #fff;
+	}
+	#neo-neng-progress-tracker ul {
 		margin: 40px 0;
-		padding: 0;
+		padding: 24px;
 		height: 150px;
 		counter-reset: step;
 		z-index: 0;
 		position: relative;
 	}
-	.progressbar li {
+	#neo-neng-progress-tracker li {
 		list-style-type: none;
 		width: 25%;
 		float: left;
@@ -16,9 +19,9 @@
 		position: relative;
 		text-align: center;
 		text-transform: uppercase;
-		color: #aaa;
+		color: gray;
 	}
-	.progressbar li:before {
+	#neo-neng-progress-tracker li:before {
 		width: 120px;
 		height: 120px;
 		content: counter(step);
@@ -30,7 +33,7 @@
 		border-radius: 50%;
 		background-color: #eee;
 	}
-	.progressbar li:after {
+	#neo-neng-progress-tracker li:after {
 		width: 100%;
 		height: 4px;
 		content: '';
@@ -40,24 +43,27 @@
 		left: -50%;
 		z-index: -1;
 	}
-	.progressbar li:first-child:after {
+	#neo-neng-progress-tracker li:first-child:after {
 		content: none;
 	}
-	.progressbar li.active {
+	#neo-neng-progress-tracker li.active {
 		color: #1a4899;
 	}
-	.progressbar li.active:before {
+	#neo-neng-progress-tracker li.active:before {
 		background-color: #1a4899;
 		color:#fff;
 	}
-	.progressbar li.active + li:after {
+	#neo-neng-progress-tracker li.active + li:after {
 		background-color: #1a4899;
 	}
 </style>
 
-<ul class="progressbar">
-	<li class="">商品基本情報入力</li>
-	<li class="active">スチームシップ確認作業</li>
-	<li>スチームシップ確認済み</li>
-	<li>ポータルサイト登録</li>
-</ul>
+<div id="neo-neng-progress-tracker">
+	<h2>返礼品登録進捗状況</h2>
+	<ul>
+		<li class="">商品基本情報入力</li>
+		<li class="active">スチームシップ確認作業</li>
+		<li>スチームシップ確認済み</li>
+		<li>ポータルサイト登録</li>
+	</ul>
+</div>
