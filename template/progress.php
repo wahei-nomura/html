@@ -10,7 +10,7 @@
 	$status_pattern = array(
 		'draft'   => '商品基本情報入力',
 		'pending' => 'スチームシップ確認作業',
-		'publish' => '商品基本情報入力',
+		'publish' => 'スチームシップ確認済み',
 		'output'  => 'ポータルサイト登録', // ここはまだ未定
 	);
 
