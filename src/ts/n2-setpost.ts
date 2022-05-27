@@ -8,6 +8,9 @@ export default () => {
 			return window.tmp_path.tmp_url;
 		}
 
+		// プログレストラッカーの表示調整
+		$('#wpbody-content').prepend($(`#${prefix}-progress-tracker`))
+
 		// 返礼品編集画面
 		$('#publish').on('click', (e) => {
 

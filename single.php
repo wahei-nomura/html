@@ -51,6 +51,9 @@ if ( have_posts() ) :
 
 		<h1><?php the_title(); ?></h1>	
 
+		<!-- プログレストラッカー -->
+			<?php get_template_part( 'template/progress' ); ?>
+
 		<table>
 			<tr><th width="30%">項目</th><th width="70%">内容</th></tr>
 				<?php foreach ( $fields as $key => $value ) : ?>
@@ -93,6 +96,7 @@ if ( have_posts() ) :
 				<?PHP endforeach; ?>
 		</table>
 	<?php else : ?>
+		<?php echo is_user_logged_in() ? get_template_part( 'template/progress' ) : ''; ?>
 		<p>公開中の商品は違う感じの表示にする。</p>
 		<?php
 	endif;
