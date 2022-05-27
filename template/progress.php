@@ -1,3 +1,21 @@
+<?php
+/**
+ * template/progress.php
+ *
+ * @package neoneng
+ */
+
+	$current_status = get_post_status();
+
+	$status_pattern = array(
+		'draft'   => '商品基本情報入力',
+		'pending' => 'スチームシップ確認作業',
+		'publish' => '商品基本情報入力',
+		'output'  => 'ポータルサイト登録', // ここはまだ未定
+	);
+
+	?>
+
 <style>
 	#neo-neng-progress-tracker {
 		margin-top: 60px;
@@ -61,9 +79,8 @@
 <div id="neo-neng-progress-tracker">
 	<h2>返礼品登録進捗状況</h2>
 	<ul>
-		<li class="">商品基本情報入力</li>
-		<li class="active">スチームシップ確認作業</li>
-		<li>スチームシップ確認済み</li>
-		<li>ポータルサイト登録</li>
+		<?php foreach ( $status_pattern as $status => $text ) : ?>
+			<li class="<?php echo $status === $current_status ? 'active' : ''; ?>"><?php echo $text; ?></li>
+		<?php endforeach; ?>
 	</ul>
 </div>
