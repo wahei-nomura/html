@@ -8,11 +8,11 @@
 	$current_status = get_post_status();
 
 	$status_pattern = array(
-		'auto-draft'   => '商品基本情報入力開始',
-		'draft'   => '下書き保存',
-		'pending' => 'スチームシップ確認作業',
-		'publish' => 'スチームシップ確認済み',
-		'output'  => 'ポータルサイト登録', // ここはまだ未定
+		'auto-draft' => '商品基本情報入力開始',
+		'draft'      => '下書き保存',
+		'pending'    => 'スチームシップ確認作業',
+		'publish'    => 'スチームシップ確認済み',
+		'output'     => 'ポータルサイト登録', // ここはまだ未定
 	);
 
 	?>
