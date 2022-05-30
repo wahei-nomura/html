@@ -87,10 +87,9 @@ class N2_Postlist {
 	 */
 	public function add_posts_columns_row( $column_name ) {
 		global $post;
+		$post_data = N2_Functions::get_all_meta( $post );
 
-		$post_data = get_post_meta( $post->ID, 'post_data', true );
-
-		$title    = get_the_title();
+		$title = get_the_title();
 
 		// アカウントやステータスによってリンクを変える
 		if ( current_user_can( 'edit_others_posts' ) ) {
