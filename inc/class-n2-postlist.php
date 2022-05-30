@@ -22,6 +22,7 @@ class N2_Postlist {
 	 * コンストラクタ
 	 */
 	public function __construct() {
+		add_action( 'admin_head-edit.php', array( $this, 'show_exportbtns' ) );
 		add_filter( 'manage_posts_columns', array( $this, 'add_posts_columns' ), 10, 2 );
 		add_action( 'init', array( $this, 'change_postlabel' ) );
 		add_filter( 'manage_posts_custom_column', array( $this, 'add_posts_columns_row' ), 10, 2 );
@@ -29,6 +30,16 @@ class N2_Postlist {
 		add_filter( 'gettext', array( $this, 'change_status' ) );
 		add_filter( 'ngettext', array( $this, 'change_status' ) );
 		add_filter( 'post_row_actions', array( $this, 'hide_editbtn' ) );
+	}
+
+	/**
+	 * show_exportbtns
+	 * エクスポートボタン群表示
+	 *
+	 * @return void
+	 */
+	public function show_exportbtns() {
+		get_template_part( 'template/export-btns' );
 	}
 
 	/**
