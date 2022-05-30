@@ -6,7 +6,6 @@
  */
 
 global $post;
-$post_data = get_post_meta( $post->ID, 'post_data', true );
 
 $ini = parse_ini_file( get_template_directory() . '/config/n2-fields.ini', true );
 
@@ -59,11 +58,11 @@ if ( have_posts() ) :
 				<?php foreach ( $fields as $key => $value ) : ?>
 					<?php
 					preg_match( '/画像/', $key, $m );
-					if ( $m[0] && ! empty( $post_data[ $key ] ) ) :
+					if ( $m[0] && ! empty( get_post_meta( $post->ID, $key, true ) ) ) :
 						?>
 					<tr>
 						<td><?php echo $key; ?></td>
-						<td><img src=<?php echo $post_data[ $key ]; ?> width='200px'></td>
+						<td><img src=<?php echo get_post_meta( $post->ID, $key, true ); ?> width='200px'></td>
 					</tr>
 						<?php
 					elseif ( 'checkbox' === $value['type'] || 'select' === $value['type'] ) :
@@ -74,8 +73,8 @@ if ( have_posts() ) :
 						}
 						$cheked = '';
 						if ( 'checkbox' === $value['type'] ) {
-							if ( ! empty( $post_data[ $key ] ) ) {
-								foreach ( $post_data[ $key ] as $chekedkey ) {
+							if ( ! empty( get_post_meta( $post->ID, $key, true ) ) ) {
+								foreach ( get_post_meta( $post->ID, $key, true ) as $chekedkey ) {
 									$cheked .= $new_options[ $chekedkey ] . ',';
 								}
 							} else {
@@ -85,12 +84,12 @@ if ( have_posts() ) :
 						?>
 					<tr>
 						<td><?php echo $key; ?></td>
-						<td><?php echo 'select' === $value['type'] ? $new_options[ $post_data[ $key ] ] : $cheked; ?></td>
+						<td><?php echo 'select' === $value['type'] ? $new_options[ get_post_meta( $post->ID, $key, true ) ] : $cheked; ?></td>
 					</tr>
 				<?php else : ?>
 					<tr>
 						<td><?php echo $key; ?></td>
-						<td><?php echo $post_data[ $key ] ? preg_replace( '/\n/', '<br>', $post_data[ $key ] ) : '入力無し'; ?></td>
+						<td><?php echo get_post_meta( $post->ID, $key, true ) ? preg_replace( '/\n/', '<br>', get_post_meta( $post->ID, $key, true ) ) : '入力無し'; ?></td>
 					</tr>
 				<?php endif; ?>
 				<?PHP endforeach; ?>

@@ -130,9 +130,8 @@ class N2_Setpost {
 	 */
 	public function show_customfields( $post, $args ) {
 		global $post;
-		$post_data = get_post_meta( $post->ID, 'post_data', true );
-		$fields    = $args['args'][0]; // iniファイル内の配列
-		$type      = $args['args'][1]; // ss or default
+		$fields = $args['args'][0]; // iniファイル内の配列
+		$type   = $args['args'][1]; // ss or default
 
 		// プラグインn2-developのn2_setpost_show_customfields呼び出し
 		list($fields,$type) = apply_filters( 'n2_setpost_show_customfields', array( $fields, $type ) );
@@ -151,7 +150,7 @@ class N2_Setpost {
 				$fields[ $key ]['option'] = '';
 			}
 
-			$fields[ $key ]['value'] = isset( $post_data[ $key ] ) ? $post_data[ $key ] : '';
+			$fields[ $key ]['value'] = ! empty( get_post_meta( $post->ID, $key, true ) ) ? get_post_meta( $post->ID, $key, true ) : '';
 		}
 
 		// タグ管理(printfで使う)
@@ -222,13 +221,13 @@ class N2_Setpost {
 						} elseif ( 'rakuten_genreid' === $detail['type'] ) {
 							// 楽天ディレクトリID検索用
 							$value      = '' !== $detail['value'] ? $detail['value'] : '';
-							$text       = '' !== $post_data['全商品ディレクトリID-text'] ? $post_data['全商品ディレクトリID-text'] : '';
+							$text       = '' !== get_post_meta( $post->ID, '全商品ディレクトリID-text', true ) ? get_post_meta( $post->ID, '全商品ディレクトリID-text', true ) : '';
 							$validation = ! empty( $detail['validation'] ) ? N2_THEME_NAME . $validation_class[ $detail['validation'] ] : '';
 							printf( $input_tags[ $detail['type'] ], $field, $value, $field . '-text', $text, $validation );
 						} elseif ( 'rakuten_tagid' === $detail['type'] ) {
 							// 楽天ディレクトリID検索用
 							$value      = '' !== $detail['value'] ? $detail['value'] : '';
-							$text       = '' !== $post_data['楽天タグID-text'] ? $post_data['楽天タグID-text'] : '';
+							$text       = '' !== get_post_meta( $post->ID, '楽天タグID-text', true ) ? get_post_meta( $post->ID, '楽天タグID-text', true ) : '';
 							$validation = ! empty( $detail['validation'] ) ? N2_THEME_NAME . $validation_class[ $detail['validation'] ] : '';
 							printf( $input_tags[ $detail['type'] ], $field, $value, $field . '-text', $text, $validation );
 						} else {
@@ -259,33 +258,26 @@ class N2_Setpost {
 		if ( empty( $_POST ) ) {
 			return;
 		}
-		$post_data = array_filter(
-			$_POST,
-			function( $val ) {
-				return $this->h( $val );
-			}
-		);
 
-		update_post_meta( $post_id, 'post_data', $post_data );
+		foreach ( $_POST as $key => $value ) {
+			update_post_meta( $post_id, $key, $this->h( $value ) );
+		}
 	}
 
 	/**
 	 * エスケープ処理の簡易関数
 	 *
-	 * @param string|array $arg 文字列or配列
+	 * @param string $arg 文字列
 	 * @return string
 	 */
 	public function h( $arg ) {
-		if ( gettype( $arg ) === 'array' ) {
-			$arr = array();
-			foreach ( $arg as $str ) {
-				array_push( $arr, htmlspecialchars( $str, ENT_QUOTES, 'UTF-8' ) );
-			}
-			return $arr;
-		} else {
+		if ( gettype( $arg ) === 'string' ) {
 			return htmlspecialchars( $arg, ENT_QUOTES, 'UTF-8' );
+		} else {
+			return $arg;
 		}
 	}
+
 
 	/**
 	 * zip形式をuploadできるようにする

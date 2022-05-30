@@ -88,9 +88,7 @@ class N2_Postlist {
 	public function add_posts_columns_row( $column_name ) {
 		global $post;
 
-		$post_data = get_post_meta( $post->ID, 'post_data', true );
-
-		$title    = get_the_title();
+		$title = get_the_title();
 
 		// アカウントやステータスによってリンクを変える
 		if ( current_user_can( 'edit_others_posts' ) ) {
@@ -103,11 +101,11 @@ class N2_Postlist {
 			}
 		}
 
-		$image        = ! empty( $post_data['画像1'] ) ? "<img class='n2-postlist-imgicon' src='{$post_data['画像1']}'>" : 'なし';
-		$money        = ! empty( $post_data['寄附金額'] ) ? $post_data['寄附金額'] : 0;
-		$poster       = ! empty( $post_data['post_author'] ) ? get_userdata( $post->post_author )->display_name : '';
-		$code         = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '';
-		$ssmemo       = ! empty( $post_data['社内共有事項'] ) ? nl2br( $post_data['社内共有事項'] ) : '';
+		$image        = ! empty( get_post_meta( $post->ID, '画像1', true ) ) ? "<img class='n2-postlist-imgicon' src='" . get_post_meta( $post->ID, '画像1', true ) . "'>" : 'なし';
+		$money        = ! empty( get_post_meta( $post->ID, '寄附金額', true ) ) ? get_post_meta( $post->ID, '寄附金額', true ) : 0;
+		$poster       = ! empty( get_post_meta( $post->ID, 'post_author', true ) ) ? get_userdata( $post->post_author )->display_name : '';
+		$code         = ! empty( get_post_meta( $post->ID, '返礼品コード', true ) ) ? get_post_meta( $post->ID, '返礼品コード', true ) : 'なし';
+		$ssmemo       = ! empty( get_post_meta( $post->ID, '社内共有事項', true ) ) ? nl2br( get_post_meta( $post->ID, '社内共有事項', true ) ) : '';
 		$ssmemo_isset = $ssmemo ? 'n2-postlist-ssmemo' : '';
 
 		$status     = '';
