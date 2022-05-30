@@ -129,7 +129,8 @@ class N2_Setpost {
 	 * @param Array  $args args
 	 */
 	public function show_customfields( $post, $args ) {
-		global $post;
+		$post_data = N2_Functions::get_all_meta( $post );
+
 		$fields = $args['args'][0]; // iniファイル内の配列
 		$type   = $args['args'][1]; // ss or default
 
@@ -150,7 +151,7 @@ class N2_Setpost {
 				$fields[ $key ]['option'] = '';
 			}
 
-			$fields[ $key ]['value'] = ! empty( get_post_meta( $post->ID, $key, true ) ) ? get_post_meta( $post->ID, $key, true ) : '';
+			$fields[ $key ]['value'] = ! empty( $post_data[ $key ] ) ? $post_data[ $key ] : '';
 		}
 
 		// タグ管理(printfで使う)
@@ -221,13 +222,13 @@ class N2_Setpost {
 						} elseif ( 'rakuten_genreid' === $detail['type'] ) {
 							// 楽天ディレクトリID検索用
 							$value      = '' !== $detail['value'] ? $detail['value'] : '';
-							$text       = '' !== get_post_meta( $post->ID, '全商品ディレクトリID-text', true ) ? get_post_meta( $post->ID, '全商品ディレクトリID-text', true ) : '';
+							$text       = '' !== $post_data['全商品ディレクトリID-text'] ? $post_data['全商品ディレクトリID-text'] : '';
 							$validation = ! empty( $detail['validation'] ) ? N2_THEME_NAME . $validation_class[ $detail['validation'] ] : '';
 							printf( $input_tags[ $detail['type'] ], $field, $value, $field . '-text', $text, $validation );
 						} elseif ( 'rakuten_tagid' === $detail['type'] ) {
 							// 楽天ディレクトリID検索用
 							$value      = '' !== $detail['value'] ? $detail['value'] : '';
-							$text       = '' !== get_post_meta( $post->ID, '楽天タグID-text', true ) ? get_post_meta( $post->ID, '楽天タグID-text', true ) : '';
+							$text       = '' !== $post_data['楽天タグID-text'] ? $post_data['楽天タグID-text'] : '';
 							$validation = ! empty( $detail['validation'] ) ? N2_THEME_NAME . $validation_class[ $detail['validation'] ] : '';
 							printf( $input_tags[ $detail['type'] ], $field, $value, $field . '-text', $text, $validation );
 						} else {
