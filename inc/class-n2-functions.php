@@ -14,11 +14,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Functions
  */
 class N2_Functions {
-	/**
-	 * コンストラクタ
-	 */
-	public function __construct() {
-	}
 
 	/**
 	 * カスタムフィールド全取得
