@@ -27,6 +27,7 @@ $incs = array(
 	'class-n2-dashboard',
 	'class-n2-enqueuescript',
 	'class-n2-sync',
+	'class-n2-ajax',
 );
 foreach ( $incs as $name ) {
 	require_once get_template_directory() . "/inc/{$name}.php";

@@ -36,7 +36,17 @@ eval("__webpack_require__.r(__webpack_exports__);\n// extracted by mini-css-extr
   \*************************/
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
-eval("\nvar __importDefault = (this && this.__importDefault) || function (mod) {\n    return (mod && mod.__esModule) ? mod : { \"default\": mod };\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\n__webpack_require__(/*! ../scss/n2-postlist.scss */ \"./src/scss/n2-postlist.scss\");\n__webpack_require__(/*! ../scss/n2-setpost.scss */ \"./src/scss/n2-setpost.scss\");\nvar n2_setpost_1 = __importDefault(__webpack_require__(/*! ./n2-setpost */ \"./src/ts/n2-setpost.ts\"));\n// 返礼品編集画面\nif (location.href.match(/(post|post-new)\\.php/)) {\n    (0, n2_setpost_1.default)();\n}\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/index.ts?");
+eval("\nvar __importDefault = (this && this.__importDefault) || function (mod) {\n    return (mod && mod.__esModule) ? mod : { \"default\": mod };\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\n__webpack_require__(/*! ../scss/n2-postlist.scss */ \"./src/scss/n2-postlist.scss\");\n__webpack_require__(/*! ../scss/n2-setpost.scss */ \"./src/scss/n2-setpost.scss\");\nvar n2_setpost_1 = __importDefault(__webpack_require__(/*! ./n2-setpost */ \"./src/ts/n2-setpost.ts\"));\nvar n2_postlist_ajax_1 = __importDefault(__webpack_require__(/*! ./n2-postlist-ajax */ \"./src/ts/n2-postlist-ajax.ts\"));\n// 返礼品編集画面\nif (location.href.match(/(post|post-new)\\.php/)) {\n    (0, n2_setpost_1.default)();\n}\nif (location.href.match(/edit\\.php/)) {\n    (0, n2_postlist_ajax_1.default)();\n}\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/index.ts?");
+
+/***/ }),
+
+/***/ "./src/ts/n2-postlist-ajax.ts":
+/*!************************************!*\
+  !*** ./src/ts/n2-postlist-ajax.ts ***!
+  \************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\n/**\n * 返礼品一覧ページで使用するAjax用のファイル\n */\nexports[\"default\"] = (function () {\n    jQuery(function ($) {\n        var ajaxUrl = function (window) {\n            return window.tmp_path.ajax_url;\n        };\n        console.log(ajaxUrl(window));\n        $('.sisbtn').on('click', function (e) {\n            // const id=$(e.target).attr('id');\n            // $.ajax({\n            // \ttype: 'POST',\n            // \turl: ajaxUrl(window),\n            // \tdata: {\n            // \t\taction: \"N2_Ajax\",\n            // \t\tid: id\n            // \t}\n            // }).done(res => {\n            // \tconsole.log(res)\n            // })\n            openByPost(ajaxUrl(window));\n        });\n        // POST送信してURLを開く\n        function openByPost(url) {\n            var win = window.open(\"about:blank\", url);\n            var form = document.createElement(\"form\");\n            var body = document.getElementsByTagName(\"body\")[0];\n            form.target = url;\n            form.action = url;\n            form.method = 'post';\n            var input = document.createElement(\"input\");\n            input.type = \"hidden\";\n            input.name = 'action';\n            input.value = 'N2_Ajax';\n            form.appendChild(input);\n            body.appendChild(form);\n            form.submit();\n            body.removeChild(form);\n            return win;\n        }\n    });\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/n2-postlist-ajax.ts?");
 
 /***/ }),
 
