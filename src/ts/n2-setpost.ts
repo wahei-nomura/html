@@ -8,8 +8,18 @@ export default () => {
 			return window.tmp_path.tmp_url;
 		}
 
-		// プログレストラッカーの表示調整
-		$('#wpbody-content').prepend($(`#${prefix}-progress-tracker`))
+		// ブロックエディターレンダリング後にDOM操作して不要なメニュー削除
+		$('#editor').ready(()=>{
+			$('[role="toolbar"]').remove() //ツールバー
+			$('button[aria-label="設定"]').remove() //設定ボタン
+			$('button[aria-label="オプション"]').remove() //３点リーダー
+			$('button.block-editor-post-preview__button-toggle').remove() //プレビュー表示リンク
+			$('.is-root-container.block-editor-block-list__layout').remove() //タイトル下のブロック
+			$('.wp-block-post-title').css('max-width','95%')
+			// プログレストラッカーの表示調整
+			$('.interface-interface-skeleton__content').prepend($(`#${prefix}-progress-tracker`))
+		})
+			
 
 		// 返礼品編集画面
 		$('#publish').on('click', (e) => {

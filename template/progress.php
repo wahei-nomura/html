@@ -78,7 +78,6 @@
 </style>
 
 <div id="neo-neng-progress-tracker">
-	<h2>返礼品登録進捗状況</h2>
 	<ul>
 		<?php foreach ( $status_pattern as $status => $text ) : ?>
 			<li class="<?php echo $status === $current_status ? 'active' : ''; ?>"><?php echo $text; ?></li>
