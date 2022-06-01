@@ -69,7 +69,6 @@ class N2_Setpost {
 	 */
 	public function remove_editor_support() {
 		$supports = array(
-			'editor',
 			'thumbnail',
 			'excerpt',
 			'trackbacks',
