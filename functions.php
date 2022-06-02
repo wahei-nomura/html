@@ -20,6 +20,7 @@ require_once get_template_directory() . '/config/config.php';
 $incs = array(
 	'class-n2-functions',
 	'class-n2-hogehoge',
+	'class-n2-setupmenu',
 	'class-n2-setmenu',
 	'class-n2-setpost',
 	'class-n2-postlist',
