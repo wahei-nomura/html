@@ -5,7 +5,7 @@
  * @package neoneng
  */
 
-	$current_status = get_post_status();
+	// $current_status = get_post_status();
 
 	$status_pattern = array(
 		'auto-draft' => '商品基本情報入力開始',
@@ -80,7 +80,7 @@
 <div id="neo-neng-progress-tracker">
 	<ul>
 		<?php foreach ( $status_pattern as $status => $text ) : ?>
-			<li class="<?php echo $status === $current_status ? 'active' : ''; ?>"><?php echo $text; ?></li>
+			<li class="<?php echo $status; ?>"><?php echo $text; ?></li>
 		<?php endforeach; ?>
 	</ul>
 </div>
