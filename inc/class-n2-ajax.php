@@ -40,7 +40,7 @@ class N2_Ajax {
 
 		foreach ( $ids as $id ) {
 			foreach ( $header as $head ) {
-				$csv .= ! empty( get_post_meta( $id, $head, true ) ) ? get_post_meta( $id, $head, true ) : "";
+				$csv .= ! empty( get_post_meta( $id, $head, true ) ) ? get_post_meta( $id, $head, true ) : '';
 				$csv .= ',';
 				// $item_data[ $id ][ $head ] = ! empty( get_post_meta( $id, $head, true ) ) ? get_post_meta( $id, $head, true ) : '';
 			}
@@ -54,8 +54,6 @@ class N2_Ajax {
 		header( 'Content-Disposition: attachment; filename=ledghome.csv' );
 		echo htmlspecialchars_decode( $csv );
 
-		// echo $ids;
-		echo( $csv );
 
 		die();
 	}
