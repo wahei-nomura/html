@@ -7,35 +7,32 @@ export default () => {
 			return window.tmp_path.ajax_url;
 		}
 
-		console.log(ajaxUrl(window))
-
 		$('.sisbtn').on('click', e => {
-			// const id=$(e.target).attr('id');
-			// $.ajax({
-			// 	type: 'POST',
-			// 	url: ajaxUrl(window),
-			// 	data: {
-			// 		action: "N2_Ajax",
-			// 		id: id
-			// 	}
-			// }).done(res => {
-			// 	console.log(res)
-			// })
-			openByPost(ajaxUrl(window))
+			const btnName=$(e.target).attr('id');
+			openByPost(ajaxUrl(window), btnName,getIds())
+			
+			console.log(getIds())
 		})
 
+		// チェックが入った返礼品のidを配列で返す
+		const getIds=():string => {
+			const checkbox=$.makeArray($('input[name="post[]"]'))
+			const checked = checkbox.flatMap(v=>$(v).prop('checked') ? $(v).val():[])
+			return checked.length? checked.join():''
+		}
+
 		// POST送信してURLを開く
-		function openByPost( url ){
-			var win = window.open("about:blank",url);
-			var form = document.createElement("form");
-			var body = document.getElementsByTagName("body")[0];
-			form.target = url;
-			form.action = url;
+		const openByPost=(url: string, btnName: string, ids:string): Window => {
+			if(!ids) return
+			const win=window.open("about:blank", url);
+			const form=document.createElement("form");
+			const body=document.getElementsByTagName("body")[0];
+			form.action=url+'?action='+btnName;
 			form.method='post';
-			var input = document.createElement("input");
-			input.type = "hidden";
-			input.name = 'action';
-			input.value = 'N2_Ajax';
+			const input=document.createElement("input");
+			input.type="hidden";
+			input.name=btnName
+			input.value=ids
 			form.appendChild(input);
 			body.appendChild(form);
 			form.submit();
