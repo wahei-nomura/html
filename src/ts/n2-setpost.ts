@@ -15,8 +15,6 @@ export default () => {
 		const current_user_can=window => {
 			return window.tmp_path.current_user_can;
 		}
-		console.log(current_user_can(window))
-
 		// ブロックエディターレンダリング後にDOM操作して不要なメニュー削除
 		$('#editor').ready(() => {
 			$('[role="toolbar"]').remove() //ツールバー
