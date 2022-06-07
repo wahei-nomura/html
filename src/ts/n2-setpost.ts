@@ -12,8 +12,8 @@ export default () => {
 			return window.tmp_path.tmp_url;
 		}
 
-		const current_user_can=window => {
-			return window.tmp_path.current_user_can;
+		const ajaxUrl = (window): string => {
+			return window.tmp_path.ajax_url;
 		}
 		// ブロックエディターレンダリング後にDOM操作して不要なメニュー削除
 		$('#editor').ready(() => {
@@ -29,8 +29,6 @@ export default () => {
 
 			$('.editor-post-publish-button__button').on('click', e => {
 				e.preventDefault()
-
-				const sitagakiBtn = $('.components-button.editor-post-save-draft.is-tertiary')
 
 				// ここからバリデーション ===========================================================================================================================
 				const vError=[]; // エラーを溜める
@@ -67,15 +65,14 @@ export default () => {
 					alert('入力必須項目が未入力です。入力内容をご確認ください。')
 					// 公開をロック
 					wp(window).data.dispatch('core/editor').lockPostSaving('my-lock');
-					setTimeout(() => {	
+					setTimeout(() => {
 						$('.editor-post-publish-panel__header-cancel-button .components-button.is-secondary').trigger('click')
-					},10)
+					}, 10)
 				} else {
 					// 公開ロックを解除
-					wp(window).data.dispatch( 'core/editor' ).unlockPostSaving( 'my-lock' );
+					wp(window).data.dispatch('core/editor').unlockPostSaving('my-lock');
 				}
 				// ここまでバリデーション==========================================================================================================================
-				console.log(wp(window).data.select('core').canUser('create','posts'))
 
 				if(!$('#n2-setpost-check-modal').length && $(e.target).text() === '公開' && !vError.length ) {
 					$('body').css('overflow-y', 'hidden')
@@ -83,68 +80,78 @@ export default () => {
 						
 					// ここから確認用モーダル==========================================================================================================================
 
-					$('body').append($('<div id="n2-setpost-check-modal-wrapper"></div>'))
-					
-					$('#n2-setpost-check-modal-wrapper').load(neoNengPath(window)+'/template/check-modal.html #n2-setpost-check-modal', () => {
-						
-						$('#n2-setpost-check-modal .result table').append(`<tr><td>返礼品名</td><td>${$('h1.editor-post-title').text()}</td></tr>`)
-						const inputs=$('#default_setting .n2-input')
-					
-						let checkbox={}
-						$.each(inputs, (i, v) => {
-							const inputName=$(v).attr('name')
-							const tag=v.tagName
-
-							if((tag==='INPUT'&&$(v).attr('type')==='text')||tag==='TEXTAREA') {
-								const value:string=$(v).val()!==''? String($(v).val()).replace('\n','<br>'):'<span class="noset">入力なし</span>'
-								$('#n2-setpost-check-modal .result table').append(`<tr><td>${inputName}</td><td>${value}</td></tr>`)
-							}
+					$.ajax({
+						url: ajaxUrl(window),
+						data: {
+							action: 'N2_Setpost',
+						},
+					}).done(res => {
+						if(res==='false') {
 							
-							if(tag==='SELECT') {
-								let selected = '未選択'
-								$.each($(v).find('option'), (i2, v2) => {
-									selected=$(v2).attr('selected')==='selected' && $(v2).text() !== '未選択'? $(v2).text():selected
+							$('body').append($('<div id="n2-setpost-check-modal-wrapper"></div>'))
+							
+							$('#n2-setpost-check-modal-wrapper').load(neoNengPath(window)+'/template/check-modal.html #n2-setpost-check-modal', () => {
+								
+								$('#n2-setpost-check-modal .result table').append(`<tr><td>返礼品名</td><td>${$('h1.editor-post-title').text()}</td></tr>`)
+								const inputs=$('#default_setting .n2-input')
+							
+								let checkbox={}
+								$.each(inputs, (i, v) => {
+									const inputName=$(v).attr('name')
+									const tag=v.tagName
+
+									if((tag==='INPUT'&&$(v).attr('type')==='text')||tag==='TEXTAREA') {
+										const value:string=$(v).val()!==''? String($(v).val()).replace('\n','<br>'):'<span class="noset">入力なし</span>'
+										$('#n2-setpost-check-modal .result table').append(`<tr><td>${inputName}</td><td>${value}</td></tr>`)
+									}
+									
+									if(tag==='SELECT') {
+										let selected = '未選択'
+										$.each($(v).find('option'), (i2, v2) => {
+											selected=$(v2).attr('selected')==='selected' && $(v2).text() !== '未選択'? $(v2).text():selected
+										})
+										selected = selected === '未選択' ? `<span class="noset">${selected}</span>`: selected
+										$('#n2-setpost-check-modal .result table').append(`<tr><td>${inputName}</td><td>${selected}</td></tr>`)
+									}
+
+									if(tag==='INPUT'&&$(v).attr('type')==='checkbox') {
+										const checkedName=$(v).parent().text()
+										const key = inputName.replace('[]', '')
+										if($(v).prop('checked')) {
+											checkbox[key] = checkbox[key] === undefined ? '' + checkedName: checkbox[key] = checkbox[key] === undefined ? '' + checkedName: checkbox[key]+','+checkedName
+										} else {
+											checkbox[key] = checkbox[key] === undefined || checkbox[key] === 'なし' ? 'なし': checkbox[key].replace('なし,','')
+										}
+									}
+									if(tag==='INPUT'&&$(v).attr('type')==='hidden') {
+										let value=$(v).val()!==''? $(v).val():false
+										value = value && inputName.match(/画像/)?`<img src="${value}" width="100%">`:'<span class="noset">なし</span>'
+										$('#n2-setpost-check-modal .result table').append(`<tr><td>${inputName}</td><td>${value}</td></tr>`)
+									}
 								})
-								selected = selected === '未選択' ? `<span class="noset">${selected}</span>`: selected
-								$('#n2-setpost-check-modal .result table').append(`<tr><td>${inputName}</td><td>${selected}</td></tr>`)
-							}
 
-							if(tag==='INPUT'&&$(v).attr('type')==='checkbox') {
-								const checkedName=$(v).parent().text()
-								const key = inputName.replace('[]', '')
-								if($(v).prop('checked')) {
-									checkbox[key] = checkbox[key] === undefined ? '' + checkedName: checkbox[key] = checkbox[key] === undefined ? '' + checkedName: checkbox[key]+','+checkedName
-								} else {
-									checkbox[key] = checkbox[key] === undefined || checkbox[key] === 'なし' ? 'なし': checkbox[key].replace('なし,','')
-								}
-							}
-							if(tag==='INPUT'&&$(v).attr('type')==='hidden') {
-								let value=$(v).val()!==''? $(v).val():false
-								value = value && inputName.match(/画像/)?`<img src="${value}" width="100%">`:'<span class="noset">なし</span>'
-								$('#n2-setpost-check-modal .result table').append(`<tr><td>${inputName}</td><td>${value}</td></tr>`)
-							}
-						})
-
-						$.each(checkbox, (k, v) => {
-							if(v==='なし') {
-								$('#n2-setpost-check-modal .result table').append(`<tr><td>${k}</td><td><span class="noset">${v}</span></td></tr>`)
-							} else {	
-								$('#n2-setpost-check-modal .result table').append(`<tr><td>${k}</td><td>${v}</td></tr>`)
-							}
-						})
-						
-						$('#n2-setpost-check-modal button.cancel').on('click', e => {
-							$('#n2-setpost-check-modal-wrapper').remove()
-							$('body').css('overflow-y', 'auto')
-							$('.editor-post-publish-panel__header-cancel-button .components-button.is-secondary').trigger('click')
-						})
-						$('#n2-setpost-check-modal button.done').on('click', e => {
-							$(e.target).prop('disabled',true)
-							$('.editor-post-publish-button__button').trigger('click')
-							$('#n2-setpost-check-modal-wrapper').remove()
-							$('body').css('overflow-y','auto')
-						})
-						
+								$.each(checkbox, (k, v) => {
+									if(v==='なし') {
+										$('#n2-setpost-check-modal .result table').append(`<tr><td>${k}</td><td><span class="noset">${v}</span></td></tr>`)
+									} else {	
+										$('#n2-setpost-check-modal .result table').append(`<tr><td>${k}</td><td>${v}</td></tr>`)
+									}
+								})
+								
+								$('#n2-setpost-check-modal button.cancel').on('click', e => {
+									$('#n2-setpost-check-modal-wrapper').remove()
+									$('body').css('overflow-y', 'auto')
+									$('.editor-post-publish-panel__header-cancel-button .components-button.is-secondary').trigger('click')
+								})
+								$('#n2-setpost-check-modal button.done').on('click', e => {
+									$(e.target).prop('disabled',true)
+									$('.editor-post-publish-button__button').trigger('click')
+									$('#n2-setpost-check-modal-wrapper').remove()
+									$('body').css('overflow-y','auto')
+								})
+								
+							})
+						} // end if(res==='false')
 					})
 				} // end if(!$('#n2-setpost-check-modal').length)
 				// ここまで確認用モーダル==========================================================================================================================

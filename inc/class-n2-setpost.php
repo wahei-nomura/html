@@ -19,9 +19,17 @@ if ( class_exists( 'N2_Setpost' ) ) {
  */
 class N2_Setpost {
 	/**
+	 * クラス名
+	 *
+	 * @var string
+	 */
+	private $cls;
+
+	/**
 	 * コンストラクタ
 	 */
 	public function __construct() {
+		$this->cls = get_class( $this );
 		add_action( 'nocache_headers', array( $this, 'editpage_redirect' ) );
 		add_action( 'admin_head-post.php', array( $this, 'show_progress' ) );
 		add_action( 'admin_head-post-new.php', array( $this, 'show_progress' ) );
@@ -31,6 +39,7 @@ class N2_Setpost {
 		add_filter( 'upload_mimes', array( $this, 'add_mimes' ) );
 		add_action( 'ajax_query_attachments_args', array( $this, 'display_only_self_uploaded_medias' ) );
 		add_filter( 'enter_title_here', array( $this, 'change_title' ) );
+		add_action( "wp_ajax_{$this->cls}", array( $this, 'ajax' ) );
 	}
 
 	/**
@@ -312,5 +321,17 @@ class N2_Setpost {
 	public function change_title( $title ) {
 		$title = '返礼品の名前を入力';
 		return $title;
+	}
+
+	/**
+	 * JSにユーザー権限判定を渡す
+	 *
+	 * @return void
+	 */
+	public function ajax() {
+		$user = wp_get_current_user();
+		echo $user->allcaps['edit_others_posts'] ? 'true' : 'false';
+
+		die();
 	}
 }
