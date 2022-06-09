@@ -55,7 +55,7 @@ class N2_Setpost {
 			$post_id = ! empty( $_GET['post'] ) && '' !== $_GET['post'] ? $_GET['post'] : false;
 
 			// $post_idが存在、かつ他記事編集権限がない、かつ事業者下書きじゃない
-			if ( $post_id && ! current_user_can( 'edit_others_posts' ) && 'draft' !== get_post_status( $post_id ) ) {
+			if ( $post_id && ! current_user_can( 'ss_crew' ) && 'draft' !== get_post_status( $post_id ) ) {
 				$headers['Location'] = home_url( "/?p={$post_id}" );
 				return $headers;
 			}
@@ -105,7 +105,7 @@ class N2_Setpost {
 	 */
 	public function add_customfields() {
 		// 管理者のみSS管理フィールド表示(あとで変更予定)
-		if ( current_user_can( 'edit_others_posts' ) ) {
+		if ( current_user_can( 'ss_crew' ) ) {
 			add_meta_box(
 				'ss_setting',
 				'SS管理',
@@ -306,7 +306,7 @@ class N2_Setpost {
 	 * @return array
 	 */
 	public function display_only_self_uploaded_medias( $query ) {
-		if ( ! current_user_can( 'edit_others_posts' ) && wp_get_current_user() ) {
+		if ( ! current_user_can( 'ss_crew' ) && wp_get_current_user() ) {
 			$query['author'] = wp_get_current_user()->ID;
 		}
 		return $query;
@@ -330,7 +330,7 @@ class N2_Setpost {
 	 */
 	public function ajax() {
 		$user = wp_get_current_user();
-		echo $user->allcaps['edit_others_posts'] ? 'true' : 'false';
+		echo $user->allcaps['ss_crew'] ? 'true' : 'false';
 
 		die();
 	}

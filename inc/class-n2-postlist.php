@@ -92,7 +92,7 @@ class N2_Postlist {
 		$title = get_the_title();
 
 		// アカウントやステータスによってリンクを変える
-		if ( current_user_can( 'edit_others_posts' ) ) {
+		if ( current_user_can( 'ss_crew' ) ) {
 			$post_url = get_edit_post_link();
 		} else {
 			if ( 'pending' === get_post_status() || 'publish' === get_post_status() ) {
@@ -161,7 +161,7 @@ class N2_Postlist {
 	 */
 	public function pre_get_author_posts( $query ) {
 		if (
-				is_admin() && ! current_user_can( 'edit_others_posts' ) && $query->is_main_query() &&
+				is_admin() && ! current_user_can( 'ss_crew' ) && $query->is_main_query() &&
 				( ! isset( $_GET['author'] ) || intval( $_GET['author'] ) === get_current_user_id() )
 		) {
 			$query->set( 'author', get_current_user_id() );
