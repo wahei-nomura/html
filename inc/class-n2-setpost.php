@@ -104,6 +104,13 @@ class N2_Setpost {
 	 * SS管理と返礼品詳細を追加
 	 */
 	public function add_customfields() {
+
+		$ss_fields      = parse_ini_file( get_template_directory() . '/config/n2-ss-fields.ini', true );
+		$default_fields = parse_ini_file( get_template_directory() . '/config/n2-fields.ini', true );
+
+		// 既存のフィールドの位置を変更したい際にプラグイン側からフィールドを削除するためのフック
+		list($ss_fields,$default_fields) = apply_filters( 'n2_setpost_delete_customfields', array( $ss_fields, $default_fields ) );
+
 		// 管理者のみSS管理フィールド表示(あとで変更予定)
 		if ( current_user_can( 'ss_crew' ) ) {
 			add_meta_box(
@@ -114,7 +121,7 @@ class N2_Setpost {
 				'normal',
 				'default',
 				// show_customfieldsメソッドに渡すパラメータ
-				array( parse_ini_file( get_template_directory() . '/config/n2-ss-fields.ini', true ), 'ss' ),
+				array( $ss_fields, 'ss' ),
 			);
 		}
 		add_meta_box(
@@ -125,7 +132,7 @@ class N2_Setpost {
 			'normal',
 			'default',
 			// show_customfieldsメソッドに渡すパラメータ
-			array( parse_ini_file( get_template_directory() . '/config/n2-fields.ini', true ), 'default' ),
+			array( $default_fields, 'default' ),
 		);
 	}
 
