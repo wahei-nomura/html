@@ -184,7 +184,6 @@ $prefix: 'n2-setpost';
 		position: absolute;
 		top: 50%;
 		left: 50%;
-		z-index: 100000;
 		background-color: #fff;
 		padding: 32px;
 		width: 80%;
@@ -196,7 +195,7 @@ $prefix: 'n2-setpost';
 			left: 0;
 			width: 100%;
 			height: 100%;
-			z-index: 100000;
+			z-index: 999999999999;
 			background-color: rgba(0, 0, 0, .7);
 		}
 		.result {

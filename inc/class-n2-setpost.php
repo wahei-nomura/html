@@ -19,9 +19,17 @@ if ( class_exists( 'N2_Setpost' ) ) {
  */
 class N2_Setpost {
 	/**
+	 * クラス名
+	 *
+	 * @var string
+	 */
+	private $cls;
+
+	/**
 	 * コンストラクタ
 	 */
 	public function __construct() {
+		$this->cls = get_class( $this );
 		add_action( 'nocache_headers', array( $this, 'editpage_redirect' ) );
 		add_action( 'admin_head-post.php', array( $this, 'show_progress' ) );
 		add_action( 'admin_head-post-new.php', array( $this, 'show_progress' ) );
@@ -31,6 +39,7 @@ class N2_Setpost {
 		add_filter( 'upload_mimes', array( $this, 'add_mimes' ) );
 		add_action( 'ajax_query_attachments_args', array( $this, 'display_only_self_uploaded_medias' ) );
 		add_filter( 'enter_title_here', array( $this, 'change_title' ) );
+		add_action( "wp_ajax_{$this->cls}", array( $this, 'ajax' ) );
 	}
 
 	/**
@@ -46,7 +55,7 @@ class N2_Setpost {
 			$post_id = ! empty( $_GET['post'] ) && '' !== $_GET['post'] ? $_GET['post'] : false;
 
 			// $post_idが存在、かつ他記事編集権限がない、かつ事業者下書きじゃない
-			if ( $post_id && ! current_user_can( 'edit_others_posts' ) && 'draft' !== get_post_status( $post_id ) ) {
+			if ( $post_id && ! current_user_can( 'ss_crew' ) && 'draft' !== get_post_status( $post_id ) ) {
 				$headers['Location'] = home_url( "/?p={$post_id}" );
 				return $headers;
 			}
@@ -69,7 +78,6 @@ class N2_Setpost {
 	 */
 	public function remove_editor_support() {
 		$supports = array(
-			'editor',
 			'thumbnail',
 			'excerpt',
 			'trackbacks',
@@ -97,7 +105,7 @@ class N2_Setpost {
 	 */
 	public function add_customfields() {
 		// 管理者のみSS管理フィールド表示(あとで変更予定)
-		if ( current_user_can( 'edit_others_posts' ) ) {
+		if ( current_user_can( 'ss_crew' ) ) {
 			add_meta_box(
 				'ss_setting',
 				'SS管理',
@@ -298,7 +306,7 @@ class N2_Setpost {
 	 * @return array
 	 */
 	public function display_only_self_uploaded_medias( $query ) {
-		if ( ! current_user_can( 'edit_others_posts' ) && wp_get_current_user() ) {
+		if ( ! current_user_can( 'ss_crew' ) && wp_get_current_user() ) {
 			$query['author'] = wp_get_current_user()->ID;
 		}
 		return $query;
@@ -313,5 +321,17 @@ class N2_Setpost {
 	public function change_title( $title ) {
 		$title = '返礼品の名前を入力';
 		return $title;
+	}
+
+	/**
+	 * JSにユーザー権限判定を渡す
+	 *
+	 * @return void
+	 */
+	public function ajax() {
+		$user = wp_get_current_user();
+		echo $user->allcaps['ss_crew'] ? 'true' : 'false';
+
+		die();
 	}
 }
