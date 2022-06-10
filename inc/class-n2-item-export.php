@@ -15,7 +15,7 @@ if ( class_exists( 'N2_Item_Export' ) ) {
 }
 
 /**
- * ajax
+ * Item_Export
  */
 class N2_Item_Export {
 	/**
@@ -40,7 +40,7 @@ class N2_Item_Export {
 	}
 
 	/**
-	 * ledghome
+	 * ledghomeのエクスポート用CSV生成
 	 *
 	 * @return void
 	 */
