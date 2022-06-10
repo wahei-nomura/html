@@ -39,7 +39,7 @@ class N2_Setupmenu {
 		add_action( "wp_ajax_{$this->cls}", array( &$this, 'update_setupmenu' ) );
 	}
 	/**
-	 * ajaxでDBに登録用
+	 * ajaxでDBに登録する
 	 *
 	 * @return void
 	 */
@@ -58,180 +58,113 @@ class N2_Setupmenu {
 	public function add_crew_setup_menu() {
 		add_menu_page( '各種セットアップ', '各種セットアップ', 'ss_crew', 'n2_setup_menu', array( $this, 'add_crew_setup_menu_page' ), 'dashicons-list-view' );
 	}
-
-	 /**
-	  * クルー用メニュー描画
-	  *
-	  * @return void
-	  */
+	/**
+	 * クルー用メニュー描画
+	 *
+	 * @return void
+	 */
 	public function add_crew_setup_menu_page() {
-		$crew_menus = array(
-			array(
-				'header'      => '事業者連絡先',
-				'description' => '事業者さまとのやりとりに使用するメールアドレス・電話番号を記入してください。',
-				'query1'      => 'contact',
-				'input1'      => array(
-					'title'      => 'メールアドレス',
-					'query2'     => 'email',
-					'attributes' => array(
-						'type' => 'text',
-					),
-				),
-				'input2'      => array(
-					'title'      => '電話番号',
-					'query2'     => 'tel',
-					'attributes' => array(
-						'type' => 'text',
-					),
-				),
-			),
-			array(
-				'header' => '各ポータル共通説明文',
-				'query1' => 'add_text',
-				'text1'  => array(
-					'title'      => '商品説明文の文末に追加したいテキスト',
-					'query2'     => get_bloginfo( 'name' ),
-					'attributes' => array(
-						'rows'  => '7',
-						'style' => 'overflow-x: hidden;',
-					),
-				),
-			),
-			array(
-				'header' => '楽天セットアップ',
-				'query1' => 'rakuten',
-				'text1'  => array(
-					'title'      => '説明文追加html',
-					'attributes' => array(
-						'rows'  => '5',
-						'style' => 'overflow-x: hidden;',
-					),
-					'query2'     => 'html',
-					'repeat'     => '5',
-				),
-			),
-		);
-		$this->wrapping_contents( $crew_menus );
+		$this->wrapping_contents( '事業者連絡先', 'contact_setup_menu' );
+		$this->wrapping_contents( '各ポータル共通説明文', 'add_text_widget' );
+		// $this->wrapping_contents( '楽天セットアップ', 'rakuten_setup_widget' ); //必要？
 	}
 
 	/**
-	 * 各種セットアップの各項目ラッピング用
+	 * 事業者連絡先
 	 *
-	 * @param Array $menus メニュー一覧
 	 * @return void
 	 */
-	public function wrapping_contents( $menus ) {
-		foreach ( $menus as $menu ) : ?>
-		<div>
-			<div class="postbox-header">
-				<h2><?php echo $menu['header']; ?></h2>
-			</div>
-			<div class="inside">
-				<?php $this->auto_make_form( $menu ); ?>
-			</div>
-		</div>
-			<?php
-		endforeach;
+	public function contact_setup_menu() {
+		?>
+		<form>
+			<p>事業者さまとのやりとりに使用するメールアドレス・電話番号を記入してください。</p>
+			<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
+			<input type="hidden" name="judge" value="option">
+			<p class="input-text-wrap">
+				<label>
+					メールアドレス：
+					<input type="text" name="<?php echo $this->cls; ?>[contact][email]" value="<?php echo get_option( $this->cls )['contact']['email']; ?>">
+				</label>
+			</p>
+			<p class="input-text-wrap">
+				<label>
+					電話番号：
+					<input type="text" name="<?php echo $this->cls; ?>[contact][tel]" value="<?php echo get_option( $this->cls )['contact']['tel']; ?>">
+				</label>
+			</p>
+			<input type="submit" class="button button-primary sissubmit" value="　更新する　">
+		</form>
+		<?php
 	}
 	/**
-	 *
-	 * form自動生成
-	 *
-	 * @param Array $menu メニュー内容
+	 * 各ポータル共通説明文
 	 *
 	 * @return void
 	 */
-	public function auto_make_form( &$menu ) {
+	public function add_text_widget() {
 		?>
 		<form>
 			<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
 			<input type="hidden" name="judge" value="option">
-			<?php if ( 'rakuten' === $menu['query1'] ) : ?>
+			<p class="textarea-wrap">
+				<label>
+					商品説明文の文末に追加したいテキスト：
+					<textarea name="<?php echo $this->cls; ?>[add_text][<?php echo get_bloginfo( 'name' ); ?>]" rows="7" style="overflow-x: hidden;"><?php echo get_option( $this->cls )['add_text'][ get_bloginfo( 'name' ) ]; ?></textarea>
+				</label>
+			</p>
+			<input type="submit" class="button button-primary sissubmit" value="　更新する　">
+		</form>
+		<?php
+	}
+	/**
+	 * 説明文追加html等
+	 *
+	 * @return void
+	 */
+	public function rakuten_setup_widget() {
+		?>
+		<form>
+			<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
+			<input type="hidden" name="judge" value="option">
 			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][ftp_server]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_server']; ?>">
 			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][ftp_server_port]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_server_port']; ?>">
 			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][upload_server]" value="<?php echo get_option( $this->cls )['rakuten']['upload_server']; ?>">
 			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][upload_server_port]" value="<?php echo get_option( $this->cls )['rakuten']['upload_server_port']; ?>">
-				<?php
-			endif;
-			if ( array_key_exists( 'description', $menu ) ) :
-				?>
-			<p><?php echo $menu['description']; ?></p>
-				<?php
-			endif;
-			?>
-			<div class="flex">
-			<?php foreach ( $menu as $node ) : ?>
-				<div>
-					<?php
-					switch ( array_search( $node, $menu, true ) ) :
-						// input(ckeckbox以外)
-						case 1 === preg_match( '/input[1-9]/u', array_search( $node, $menu, true ) ):
-							?>
-						<label>
-							<p><?php echo $node['title']; ?>：</p>
-							<input name="<?php echo $this->cls; ?>[<?php echo $menu['query1']; ?>][<?php echo $node['query2']; ?>]" value="<?php echo get_option( $this->cls )[ $menu['query1'] ][ $node['query2'] ]; ?>" 
-													<?php
-													foreach ( $node['attributes'] as $key => $val ) {
-														echo $key . '="' . $val . '" ';}
-													?>
-							>
-						</label>
-							<?php
-							break;
-						case 1 === preg_match( '/checkbox[1-9]/u', array_search( $node, $menu, true ) ):
-							?>
-						<label>
-							<input name="<?php echo $this->cls; ?>[<?php echo $menu['query1']; ?>][<?php echo $node['query2']; ?>]" value="<?php echo get_option( $this->cls )[ $menu['query1'] ][ $node['query2'] ]; ?>" 
-													<?php
-													foreach ( $node['attributes'] as $key => $val ) {
-														echo $key . '="' . $val . '" ';}
-													?>
-							>
-							<p><?php echo $node['title']; ?>：</p>
-						</label>
-							<?php
-							break;
-						// テキストアリア
-						case 1 === preg_match( '/text[1-9]/u', array_search( $node, $menu, true ) ):
-							if ( $node['repeat'] ) {
-								$text_len = $node['repeat'];
-							} else {
-								$text_len = 1;
-							}
-							for ( $i = 0; $i < $text_len; ++$i ) :
-								?>
-						<label>
-							<p><?php echo $node['title']; ?>：</p>
-							<textarea name="<?php echo $this->cls; ?>[<?php echo $menu['query1']; ?>][<?php echo $node['query2']; ?>][<?php echo $i; ?>]" 
-								<?php
-								foreach ( $node['attributes'] as $key => $val ) {
-									echo $key . '="' . $val . '" ';}
-								?>
-							><?php echo get_option( $this->cls )[ $menu['query1'] ][ $node['query2'] ][ $i ]; ?></textarea>
-						</label>
-								<?php
-						endfor;
-							break;
-						// プルダウン
-						case 1 === preg_match( '/select[1-9]/u', array_search( $node, $menu, true ) ):
-							?>
-						<label>
-							<p><?php echo $node['title']; ?>：</p>
-							<select name="<?php echo $this->cls; ?>[<?php echo $menu['query1']; ?>][<?php echo $node['query2']; ?>]">
-								<?php foreach ( $node['calc'] as $key => $val ) : ?>
-								<option value="<?php echo $key; ?>"<?php echo selected( get_option( $this->cls )[ $menu['query1'] ][ $node['query2'] ], $key, false ); ?>><?php echo $val; ?></option>
-								<?php endforeach; ?>
-							</select>
-						</label>
-							<?php
-							break;
-						endswitch;
-					?>
-				</div>
-			<?php endforeach; ?>
-				<input type="submit" class="button button-primary sissubmit" value="　更新する　">
-			</div>
+			<p class="textarea-wrap">
+				<label>
+					説明文追加html：
+					<textarea name="<?php echo $this->cls; ?>[rakuten][html]" rows="5" style="overflow-x: hidden;"><?php echo stripslashes_deep( get_option( $this->cls )['rakuten']['html'] ); ?></textarea>
+				</label>
+			</p>
+			<?php for ( $i = 0;$i < 5;$i++ ) : ?>
+			<p class="textarea-wrap">
+				<label>
+					項目選択肢（改行区切）※選択肢は最大16文字：
+					<textarea name="<?php echo $this->cls; ?>[rakuten][select][]" rows="5" style="overflow-x: hidden;"><?php echo get_option( $this->cls )['rakuten']['select'][ $i ]; ?></textarea>
+				</label>
+			</p>
+			<?php endfor; ?>
+			<input type="submit" class="button button-primary sissubmit" value="　更新する　">
 		</form>
+		<?php
+	}
+	/**
+	 * 各種セットアップの各項目ラッピングして表示を整える
+	 *
+	 * @param string $header 見出し
+	 * @param string $function_name 関数名
+	 * @return void
+	 */
+	public function wrapping_contents( $header, $function_name ) {
+		?>
+		<div>
+			<div class="postbox-header">
+				<h2><?php echo $header; ?></h2>
+			</div>
+			<div class="inside">
+				<?php $this->{$function_name}(); ?>
+			</div>
+		</div>
 		<?php
 	}
 	/**
