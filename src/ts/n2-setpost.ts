@@ -232,7 +232,7 @@ export default () => {
 
 		/** ===============================================================
 		 * 
-		 * 楽天タグID用
+		 * タグID用
 		 * 
 		================================================================== */
 
@@ -245,10 +245,10 @@ export default () => {
 		$(`#${prefix}-genreid`).text(String($('#全商品ディレクトリID').val()));
 
 		// タグID用
-		$('#楽天タグID').before($(`<p>選択中のタグ：<span id="${prefix}-tag"></span><p>`))
-		$(`#${prefix}-tag`).text(String($('#楽天タグID-text').val()));
-		$('#楽天タグID').after($(`<p>タグID：<span id="${prefix}-tagid"></span><p>`))
-		$(`#${prefix}-tagid`).text(String($('#楽天タグID').val()));
+		$('#タグID').before($(`<p>選択中のタグ：<span id="${prefix}-tag"></span><p>`))
+		$(`#${prefix}-tag`).text(String($('#タグID-text').val()));
+		$('#タグID').after($(`<p>タグID：<span id="${prefix}-tagid"></span><p>`))
+		$(`#${prefix}-tagid`).text(String($('#タグID').val()));
 		
 		// ================================================================================================================
 
@@ -371,8 +371,8 @@ export default () => {
 
 		// ディレクトリID検索スタート
 		$(`#${prefix}-genreid-btn`).on('click', e => {
-			if($('#楽天タグID').val()!=='') {
-				if(!confirm('ディレクトリIDを変更すると、下の楽天タグIDがリセットされますのでご注意ください。')) {
+			if($('#タグID').val()!=='') {
+				if(!confirm('ディレクトリIDを変更すると、下のタグIDがリセットされますのでご注意ください。')) {
 					return;
 				}
 			}
@@ -392,7 +392,7 @@ export default () => {
 						$('#n2-setpost-rakuten-genreid .result span').text('指定なし')
 						setRakutenId();
 					}
-					if ($(e.target).hasClass('done') && confirm('選択中のIDをセットしますか？(楽天タグIDがリセットされます)')) {
+					if ($(e.target).hasClass('done') && confirm('選択中のIDをセットしますか？(タグIDがリセットされます)')) {
 						$(`#${prefix}-genre`).text(genreText)
 						$(`#${prefix}-genreid`).text($('#n2-setpost-rakuten-genreid .result span').text())
 						$('#全商品ディレクトリID-text').val(genreText)
@@ -402,8 +402,8 @@ export default () => {
 
 						$(`#${prefix}-tag`).text('')
 						$(`#${prefix}-tagid`).text('')
-						$('#楽天タグID-text').val('')
-						$('#楽天タグID').val('')
+						$('#タグID-text').val('')
+						$('#タグID').val('')
 					}
 					if ($(e.target).hasClass('close') && confirm('選択中のIDはリセットされますがそれでも閉じますか？')) {
 						$('#n2-setpost-rakuten-genreid-wrapper').remove();
@@ -458,8 +458,8 @@ export default () => {
 
 						$(`#${prefix}-tag`).text(tagText)
 						$(`#${prefix}-tagid`).text(tagChain)
-						$('#楽天タグID-text').val(tagText)
-						$('#楽天タグID').val(tagChain)
+						$('#タグID-text').val(tagText)
+						$('#タグID').val(tagChain)
 						$('#n2-setpost-rakuten-tagid-wrapper').remove();
 						$('body').css('overflow-y', 'auto')
 					}

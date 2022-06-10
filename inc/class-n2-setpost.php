@@ -243,7 +243,7 @@ class N2_Setpost {
 						} elseif ( 'rakuten_tagid' === $detail['type'] ) {
 							// 楽天ディレクトリID検索用
 							$value      = '' !== $detail['value'] ? $detail['value'] : '';
-							$text       = '' !== $post_data['楽天タグID-text'] ? $post_data['楽天タグID-text'] : '';
+							$text       = '' !== $post_data['タグID-text'] ? $post_data['タグID-text'] : '';
 							$validation = ! empty( $detail['validation'] ) ? N2_THEME_NAME . $validation_class[ $detail['validation'] ] : '';
 							printf( $input_tags[ $detail['type'] ], $field, $value, $field . '-text', $text, $validation );
 						} else {
