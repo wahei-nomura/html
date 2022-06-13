@@ -53,7 +53,7 @@ class N2_Item_Export {
 
 		foreach ( $ids as $id ) {
 			foreach ( $header as $head ) {
-				$csv .= ! empty( get_post_meta( $id, $head, true ) ) ? preg_replace( "/\n/", '<br>', '"' . get_post_meta( $id, $head, true ) . '"' ) : '';
+				$csv .= ! empty( get_post_meta( $id, $head, true ) ) ? '"' . get_post_meta( $id, $head, true ) . '"' : '';
 				$csv .= ',';
 			}
 			$csv  = substr( $csv, 0, -1 );
