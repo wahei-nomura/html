@@ -45,18 +45,19 @@ class N2_Item_Export {
 	 * @return void
 	 */
 	public function ledghome() {
-		$item_data = array();
-		$header    = explode( '	', parse_ini_file( get_template_directory() . '/config/n2-setting.ini', true )['ledghome']['csv_header'] );
-		$csv       = implode( ',', $header ) . "\n";
+		$header_str = parse_ini_file( get_template_directory() . '/config/n2-file-header.ini', true )['ledghome']['csv_header'];
+		$header     = explode( ',', $header_str );
+		$csv        = $header_str . PHP_EOL;
 
 		$ids = explode( ',', filter_input( INPUT_POST, 'ledghome' ) );
 
 		foreach ( $ids as $id ) {
 			foreach ( $header as $head ) {
-				$csv .= ! empty( get_post_meta( $id, $head, true ) ) ? get_post_meta( $id, $head, true ) : '';
+				$csv .= ! empty( get_post_meta( $id, $head, true ) ) ? preg_replace( "/\n/", '<br>', '"' . get_post_meta( $id, $head, true ) . '"' ) : '';
 				$csv .= ',';
 			}
-			$csv .= "\n";
+			$csv  = substr( $csv, 0, -1 );
+			$csv .= PHP_EOL;
 		}
 
 		$this->download_data( $csv );
