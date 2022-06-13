@@ -39,7 +39,9 @@ class N2_Postlist {
 	 * @return void
 	 */
 	public function show_exportbtns() {
-		get_template_part( 'template/export-btns' );
+		if ( current_user_can( 'ss_crew' ) ) {
+			get_template_part( 'template/export-btns' );
+		}
 	}
 
 	/**
