@@ -1,0 +1,11 @@
+{
+	"phpcs.executablePath": "/home/hirotoki/.config/composer/vendor/squizlabs/php_codesniffer/bin/phpcs",
+	"phpcbf.executablePath": "/home/hirotoki/.config/composer/vendor/squizlabs/php_codesniffer/bin/phpcbf",
+	"phpcs.standard": "WordPress", //phpcsにWordPressの規約を適用
+	"editor.detectIndentation": false, //デフォルトのタブ設定を解除
+	"editor.insertSpaces": false, //インデントをタブ文字にする
+	"editor.tabSize": 4, // 【wordpress用】タブのサイズを４に変更
+	"files.eol": "\n", //改行コードを変更
+	"phpcbf.standard": "WordPress", //phpcdfにWordPressの規約を適用
+	"phpcbf.onsave": true, //ファイルを保存したときにフォーマット	
+}
