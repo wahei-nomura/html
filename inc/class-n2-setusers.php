@@ -77,5 +77,4 @@ class N2_Setusers {
 		// エンジニア(管理者)
 		$wp_roles->add_cap( 'administrator', 'ss_crew' ); // role判定用に追加
 	}
-
 }

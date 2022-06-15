@@ -22,6 +22,7 @@ class N2_Postlist {
 	 * コンストラクタ
 	 */
 	public function __construct() {
+		add_action( 'admin_head-edit.php', array( $this, 'show_exportbtns' ) );
 		add_filter( 'manage_posts_columns', array( $this, 'add_posts_columns' ), 10, 2 );
 		add_action( 'init', array( $this, 'change_postlabel' ) );
 		add_filter( 'manage_posts_custom_column', array( $this, 'add_posts_columns_row' ), 10, 2 );
@@ -29,6 +30,18 @@ class N2_Postlist {
 		add_filter( 'gettext', array( $this, 'change_status' ) );
 		add_filter( 'ngettext', array( $this, 'change_status' ) );
 		add_filter( 'post_row_actions', array( $this, 'hide_editbtn' ) );
+	}
+
+	/**
+	 * show_exportbtns
+	 * エクスポートボタン群表示
+	 *
+	 * @return void
+	 */
+	public function show_exportbtns() {
+		if ( current_user_can( 'ss_crew' ) ) {
+			get_template_part( 'template/export-btns' );
+		}
 	}
 
 	/**
@@ -92,7 +105,7 @@ class N2_Postlist {
 		$title = get_the_title();
 
 		// アカウントやステータスによってリンクを変える
-		if ( current_user_can( 'edit_others_posts' ) ) {
+		if ( current_user_can( 'ss_crew' ) ) {
 			$post_url = get_edit_post_link();
 		} else {
 			if ( 'pending' === get_post_status() || 'publish' === get_post_status() ) {
@@ -161,7 +174,7 @@ class N2_Postlist {
 	 */
 	public function pre_get_author_posts( $query ) {
 		if (
-				is_admin() && ! current_user_can( 'edit_others_posts' ) && $query->is_main_query() &&
+				is_admin() && ! current_user_can( 'ss_crew' ) && $query->is_main_query() &&
 				( ! isset( $_GET['author'] ) || intval( $_GET['author'] ) === get_current_user_id() )
 		) {
 			$query->set( 'author', get_current_user_id() );

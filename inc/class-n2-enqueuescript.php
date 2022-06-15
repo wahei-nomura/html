@@ -35,6 +35,7 @@ class N2_Enqueuescript {
 		wp_enqueue_script( 'n2-script', get_theme_file_uri( 'dist/index.js' ), array( 'jquery' ), N2_CASH_BUSTER, true );
 		wp_enqueue_style( 'n2-style', get_theme_file_uri( 'dist/style.css' ), array(), N2_CASH_BUSTER );
 
+		// JS側に変数としてPHPのpathを渡す
 		$tmp_path_arr = array(
 			'tmp_url'  => get_template_directory_uri(),
 			'ajax_url' => admin_url( 'admin-ajax.php' ),

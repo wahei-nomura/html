@@ -19,7 +19,6 @@ require_once get_template_directory() . '/config/config.php';
  */
 $incs = array(
 	'class-n2-functions',
-	'class-n2-hogehoge',
 	'class-n2-setupmenu',
 	'class-n2-setmenu',
 	'class-n2-setpost',
@@ -28,6 +27,7 @@ $incs = array(
 	'class-n2-dashboard',
 	'class-n2-enqueuescript',
 	'class-n2-sync',
+	'class-n2-item-export',
 );
 foreach ( $incs as $name ) {
 	require_once get_template_directory() . "/inc/{$name}.php";
