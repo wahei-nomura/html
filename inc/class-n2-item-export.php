@@ -26,15 +26,23 @@ class N2_Item_Export {
 	}
 
 	/**
-	 * download_data
+	 * download_csv
 	 *
-	 * @param string $data 出力したいデータ
+	 * @param string $name データ名
+	 * @param string $header_str header文字列
+	 * @param Array  $items_arr 商品情報配列
 	 * @return void
 	 */
-	private function download_data( $data ) {
+	private function download_csv( $name, $header_str, $items_arr ) {
+
+		$csv = $header_str . PHP_EOL;
+		foreach ( $items_arr as $item ) {
+			$csv .= '"' . implode( '","', $item ) . '"' . PHP_EOL;
+		}
+
 		header( 'Content-Type: application/octet-stream' );
-		header( 'Content-Disposition: attachment; filename=ledghome.csv' );
-		echo htmlspecialchars_decode( $data );
+		header( "Content-Disposition: attachment; filename={$name}.csv" );
+		echo htmlspecialchars_decode( $csv );
 
 		die();
 	}
@@ -49,7 +57,6 @@ class N2_Item_Export {
 		$items_arr  = array();
 		$header_str = parse_ini_file( get_template_directory() . '/config/n2-file-header.ini', true )['ledghome']['csv_header'];
 		$header     = explode( ',', explode( "\n", $header_str )[1] );
-		$csv        = $header_str . PHP_EOL;
 
 		$ids = explode( ',', filter_input( INPUT_POST, 'ledghome' ) );
 
@@ -83,9 +90,6 @@ class N2_Item_Export {
 
 		}
 
-		foreach ( $items_arr as $item ) {
-				$csv .= '"' . implode( '","', $item ) . '"' . PHP_EOL;
-		}
-		$this->download_data( $csv );
+		$this->download_csv( 'ledghome', $header_str, $items_arr );
 	}
 }
