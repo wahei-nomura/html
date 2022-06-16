@@ -58,6 +58,8 @@ class N2_Item_Export {
 		$header_str = parse_ini_file( get_template_directory() . '/config/n2-file-header.ini', true )['ledghome']['csv_header'];
 		$header     = explode( ',', explode( "\n", $header_str )[1] );
 
+		$header = apply_filters( 'n2_item_export_ledghome_header', $header );
+
 		$ids = explode( ',', filter_input( INPUT_POST, 'ledghome' ) );
 
 		foreach ( $ids as $id ) {
@@ -96,10 +98,10 @@ class N2_Item_Export {
 			}
 		}
 
-		list($ids,$header,$items_arr) = apply_filters( 'n2_item_export_ledghome', array($ids, $header, $items_arr ) );
+		list($ids, $items_arr) = apply_filters( 'n2_item_export_ledghome_items', array( $ids, $items_arr ) );
 
 		// CSVにするまえにheaderを文字列として再変換
-		$header_str = implode(',',$header);
+		$header_str = implode( ',', $header );
 
 		$this->download_csv( 'ledghome', $header_str, $items_arr );
 	}
