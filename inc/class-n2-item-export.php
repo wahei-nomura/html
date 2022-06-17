@@ -29,15 +29,18 @@ class N2_Item_Export {
 	 * download_csv
 	 *
 	 * @param string $name データ名
-	 * @param string $header_str header文字列
+	 * @param Array  $header header
 	 * @param Array  $items_arr 商品情報配列
 	 * @return void
 	 */
-	private function download_csv( $name, $header_str, $items_arr ) {
-
-		$csv = $header_str . PHP_EOL;
+	private function download_csv( $name, $header, $items_arr ) {
+		$csv = implode( ',', $header ) . PHP_EOL;
 		foreach ( $items_arr as $item ) {
-			$csv .= '"' . implode( '","', $item ) . '"' . PHP_EOL;
+			foreach ( $header as $head ) {
+				$csv .= '"' . $item[ $head ] . '",';
+			}
+			$csv  = rtrim( $csv, ',' );
+			$csv .= PHP_EOL;
 		}
 
 		header( 'Content-Type: application/octet-stream' );
@@ -58,6 +61,7 @@ class N2_Item_Export {
 		$header_str = parse_ini_file( get_template_directory() . '/config/n2-file-header.ini', true )['ledghome']['csv_header'];
 		$header     = explode( ',', explode( "\n", $header_str )[1] );
 
+		// プラグイン側でヘッダーを編集
 		$header = apply_filters( 'n2_item_export_ledghome_header', $header );
 
 		$ids = explode( ',', filter_input( INPUT_POST, 'ledghome' ) );
@@ -98,11 +102,9 @@ class N2_Item_Export {
 			}
 		}
 
+		// プラグイン側で項目を追加
 		list($ids, $items_arr) = apply_filters( 'n2_item_export_ledghome_items', array( $ids, $items_arr ) );
 
-		// CSVにするまえにheaderを文字列として再変換
-		$header_str = implode( ',', $header );
-
-		$this->download_csv( 'ledghome', $header_str, $items_arr );
+		$this->download_csv( 'ledghome', $header, $items_arr );
 	}
 }
