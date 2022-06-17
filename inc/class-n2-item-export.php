@@ -31,10 +31,12 @@ class N2_Item_Export {
 	 * @param string $name データ名
 	 * @param Array  $header header
 	 * @param Array  $items_arr 商品情報配列
+	 * @param string $csv_title あれば連結する
 	 * @return void
 	 */
-	private function download_csv( $name, $header, $items_arr ) {
-		$csv = implode( ',', $header ) . PHP_EOL;
+	private function download_csv( $name, $header, $items_arr, $csv_title = '' ) {
+		$csv  = $csv_title . PHP_EOL;
+		$csv .= implode( ',', $header ) . PHP_EOL;
 		foreach ( $items_arr as $item ) {
 			foreach ( $header as $head ) {
 				$csv .= '"' . $item[ $head ] . '",';
@@ -62,7 +64,11 @@ class N2_Item_Export {
 		// itemの情報を配列か
 		$items_arr  = array();
 		$header_str = parse_ini_file( get_template_directory() . '/config/n2-file-header.ini', true )['ledghome']['csv_header'];
-		$header     = explode( ',', explode( "\n", $header_str )[1] );
+
+		// あとでヘッダの上の連結するのに必要
+		$csv_title = explode( "\n", $header_str )[0];
+
+		$header = explode( ',', explode( "\n", $header_str )[1] );
 
 		// プラグイン側でヘッダーを編集
 		$header = apply_filters( 'n2_item_export_ledghome_header', $header );
@@ -79,9 +85,9 @@ class N2_Item_Export {
 					$items_arr[ $key_id ][ $head ] = ! empty( get_post_meta( $id, $head, true ) ) ? get_post_meta( $id, $head, true ) : '';
 				}
 
-				$items_arr[ $key_id ]['謝礼品番号']      = trim( strtoupper( get_post_meta( $id, '返礼品コード', true ) ) ) . $teikinum;
-				$items_arr[ $key_id ]['謝礼品名']       = $items_arr[ $key_id ]['謝礼品番号'] . ' ';
-				$items_arr[ $key_id ]['謝礼品名']      .= ( get_post_meta( $id, '略称', true ) ) ? get_post_meta( $id, '略称', true ) : N2_Functions::_s( get_the_title( $id ) );
+				$items_arr[ $key_id ]['謝礼品番号'] = trim( strtoupper( get_post_meta( $id, '返礼品コード', true ) ) ) . $teikinum;
+				$items_arr[ $key_id ]['謝礼品名']  = $items_arr[ $key_id ]['謝礼品番号'] . ' ';
+				$items_arr[ $key_id ]['謝礼品名'] .= ( get_post_meta( $id, '略称', true ) ) ? get_post_meta( $id, '略称', true ) : N2_Functions::_s( get_the_title( $id ) );
 				$items_arr[ $key_id ]['事業者']        = get_the_author_meta( 'first_name', get_post_field( 'post_author', $id ) );
 				$items_arr[ $key_id ]['配送名称']       = ( get_post_meta( $id, '配送伝票表示名', true ) ) ? ( $items_arr[ $key_id ]['謝礼品番号'] . ' ' . get_post_meta( $id, '配送伝票表示名', true ) ) : $items_arr[ $key_id ]['謝礼品名'];
 				$items_arr[ $key_id ]['ふるさとチョイス名称'] = N2_Functions::_s( get_the_title( $id ) ) . " [{$items_arr[$key_id]['謝礼品番号']}]";
@@ -108,6 +114,6 @@ class N2_Item_Export {
 		// プラグイン側で項目を追加
 		list($ids, $items_arr) = apply_filters( 'n2_item_export_ledghome_items', array( $ids, $items_arr ) );
 
-		$this->download_csv( 'ledghome', $header, $items_arr );
+		$this->download_csv( 'ledghome', $header, $items_arr, $csv_title );
 	}
 }
