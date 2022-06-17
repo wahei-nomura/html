@@ -37,6 +37,8 @@ class N2_Item_Export {
 	private function download_csv( $name, $header, $items_arr, $csv_title = '' ) {
 		$csv  = $csv_title . PHP_EOL;
 		$csv .= implode( ',', $header ) . PHP_EOL;
+
+		// CSV文字列生成
 		foreach ( $items_arr as $item ) {
 			foreach ( $header as $head ) {
 				$csv .= '"' . $item[ $head ] . '",';
@@ -73,6 +75,7 @@ class N2_Item_Export {
 		// プラグイン側でヘッダーを編集
 		$header = apply_filters( 'n2_item_export_ledghome_header', $header );
 
+		// ajaxで渡ってきたpostidの配列
 		$ids = explode( ',', filter_input( INPUT_POST, 'ledghome' ) );
 
 		foreach ( $ids as $id ) {
