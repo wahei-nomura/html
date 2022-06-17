@@ -85,10 +85,10 @@ class N2_Item_Export {
 					$items_arr[ $key_id ][ $head ] = ! empty( get_post_meta( $id, $head, true ) ) ? get_post_meta( $id, $head, true ) : '';
 				}
 
-				$items_arr[ $key_id ]['謝礼品番号'] = trim( strtoupper( get_post_meta( $id, '返礼品コード', true ) ) ) . $teikinum;
-				$items_arr[ $key_id ]['謝礼品名']  = $items_arr[ $key_id ]['謝礼品番号'] . ' ';
-				$items_arr[ $key_id ]['謝礼品名'] .= ( get_post_meta( $id, '略称', true ) ) ? get_post_meta( $id, '略称', true ) : N2_Functions::_s( get_the_title( $id ) );
-				$items_arr[ $key_id ]['事業者']        = get_the_author_meta( 'first_name', get_post_field( 'post_author', $id ) );
+				$items_arr[ $key_id ]['謝礼品番号']      = trim( strtoupper( get_post_meta( $id, '返礼品コード', true ) ) ) . $teikinum;
+				$items_arr[ $key_id ]['謝礼品名']       = $items_arr[ $key_id ]['謝礼品番号'] . ' ';
+				$items_arr[ $key_id ]['謝礼品名']      .= ( get_post_meta( $id, '略称', true ) ) ? get_post_meta( $id, '略称', true ) : N2_Functions::_s( get_the_title( $id ) );
+				$items_arr[ $key_id ]['事業者']        = get_the_author_meta( 'display_name', get_post_field( 'post_author', $id ) );
 				$items_arr[ $key_id ]['配送名称']       = ( get_post_meta( $id, '配送伝票表示名', true ) ) ? ( $items_arr[ $key_id ]['謝礼品番号'] . ' ' . get_post_meta( $id, '配送伝票表示名', true ) ) : $items_arr[ $key_id ]['謝礼品名'];
 				$items_arr[ $key_id ]['ふるさとチョイス名称'] = N2_Functions::_s( get_the_title( $id ) ) . " [{$items_arr[$key_id]['謝礼品番号']}]";
 				$items_arr[ $key_id ]['楽天名称']       = '【ふるさと納税】' . N2_Functions::_s( get_the_title( $id ) ) . " [{$items_arr[$key_id]['謝礼品番号']}]";
