@@ -43,6 +43,9 @@ class N2_Item_Export {
 			$csv .= PHP_EOL;
 		}
 
+		// sjisに変換
+		$csv = mb_convert_encoding( $csv, 'SJIS-win', 'utf-8' );
+
 		header( 'Content-Type: application/octet-stream' );
 		header( "Content-Disposition: attachment; filename={$name}.csv" );
 		echo htmlspecialchars_decode( $csv );
