@@ -276,11 +276,13 @@ class N2_Setpost {
 		}
 
 		foreach ( $_POST as $key => $value ) {
-			if ( '寄附金額' === $key && ( empty( $value ) || 0 === $value ) ) {
-				$value = ceil( get_post_meta( $post_id, '価格', true ) / 300 ) * 1000;
-			}
-
 			update_post_meta( $post_id, $key, N2_Functions::_s( $value ) );
+		}
+
+		if ( empty( get_post_meta( $post_id, '寄附金額', true ) ) || 0 === get_post_meta( $post_id, '寄附金額', true ) ) {
+			$teiki = get_post_meta( $post_id, '定期便', true );
+			$price = ceil( get_post_meta( $post_id, '価格', true ) / 300 ) * 1000 * $teiki;
+			update_post_meta( $post_id, '寄附金額', $price );
 		}
 	}
 
