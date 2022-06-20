@@ -276,21 +276,11 @@ class N2_Setpost {
 		}
 
 		foreach ( $_POST as $key => $value ) {
-			update_post_meta( $post_id, $key, $this->h( $value ) );
-		}
-	}
+			if ( '寄附金額' === $key && ( empty( $value ) || 0 === $value ) ) {
+				$value = ceil( get_post_meta( $post_id, '価格', true ) / 300 ) * 1000;
+			}
 
-	/**
-	 * エスケープ処理の簡易関数
-	 *
-	 * @param string $arg 文字列
-	 * @return string
-	 */
-	public function h( $arg ) {
-		if ( gettype( $arg ) === 'string' ) {
-			return htmlspecialchars( $arg, ENT_QUOTES, 'UTF-8' );
-		} else {
-			return $arg;
+			update_post_meta( $post_id, $key, N2_Functions::_s( $value ) );
 		}
 	}
 
