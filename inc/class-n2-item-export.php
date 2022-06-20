@@ -112,7 +112,7 @@ class N2_Item_Export {
 				);
 
 				// 内容を追加、または上書きするためのフック
-				list( $id, $items_arr[ $key_id ] ) = apply_filters( 'n2_item_export_ledghome_items', array( $id, $arr ) );
+				$items_arr[ $key_id ] = apply_filters( 'n2_item_export_ledghome_items', $arr, $id );
 			}
 		}
 
