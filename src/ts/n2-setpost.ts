@@ -30,6 +30,8 @@ export default () => {
 			$('.editor-post-publish-button__button').on('click', e => {
 				e.preventDefault()
 
+				if($(e.target).attr('aria-disabled')==='true') return;
+
 				// ここからバリデーション ===========================================================================================================================
 				const vError=[]; // エラーを溜める
 				
