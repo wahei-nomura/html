@@ -150,7 +150,7 @@ class N2_Setpost {
 		$type   = $args['args'][1]; // ss or default
 
 		// プラグインn2-developのn2_setpost_show_customfields呼び出し
-		list($fields,$type) = apply_filters( 'n2_setpost_show_customfields', array( $fields, $type ) );
+		$fields = apply_filters( 'n2_setpost_show_customfields', $fields, $type );
 
 		// optionを配列化、valueにDBの値をセット
 		// 「,」で配列に分けて、「\」でkey=>valueにわけている
