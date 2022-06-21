@@ -63,12 +63,6 @@ export default () => {
 					}
 				})
 
-				// 寄附金額>=価格÷0.4だったらエラー
-				if(Number($('#寄附金額').val())>=Math.ceil(Number($('#価格').val())/400)*1000) {
-					$('#寄附金額').before($(`<p class="${prefix}-notzero-alert" style="color:red;">※寄附金額が高すぎます。</p>`))
-					vError.push($('#寄附金額'))
-				}
-				
 				if(vError.length) {
 					alert('入力必須項目が未入力です。入力内容をご確認ください。')
 					// 公開をロック
@@ -77,6 +71,21 @@ export default () => {
 						$('.editor-post-publish-panel__header-cancel-button .components-button.is-secondary').trigger('click')
 					}, 10)
 				} else {
+					// 寄附金額>=価格÷0.4だったらエラー
+					if(Number($('#寄附金額').val())>=Math.ceil(Number($('#価格').val())/400)*1000) {
+						if(!$('#寄附金額').parent().find(`.${prefix}-alert`).length) {
+							$('#寄附金額').before($(`<p class="${prefix}-alert" style="color:red;">※寄附金額が高すぎます。</p>`))
+						}
+						if(!confirm('自動計算された値に対して寄附金額が高すぎます。それでも更新しますか？')) {
+							// 公開をロック
+							wp(window).data.dispatch('core/editor').lockPostSaving('my-lock');
+							setTimeout(() => {
+								$('.editor-post-publish-panel__header-cancel-button .components-button.is-secondary').trigger('click')
+							}, 10)
+							return;
+						}
+					}
+
 					// 公開ロックを解除
 					wp(window).data.dispatch('core/editor').unlockPostSaving('my-lock');
 				}
@@ -561,6 +570,11 @@ export default () => {
 				return Number(this.kifukingaku)!==0&&this.kifukingaku!=='';
 			}
 
+			// 最低ラインの寄附金額計算
+			errorPrice() {
+				return Math.ceil(this.kakaku/400)*1000;
+			}
+
 			// 自動計算
 			calcPrice() {
 				return Math.ceil(this.kakaku/300)*1000;
@@ -587,6 +601,7 @@ export default () => {
 		// イベント監視
 		$('#価格').on('keyup', e => {
 			priceState.setkakaku=Number($(e.target).val())
+
 			$('#寄附金額 + p').html(`自動計算の値：${priceState.calcPrice()}(<span style="color:${priceState.diffPrice()>=0?'turquoise':'red'}">差額：${priceState.diffPrice()}</span>)`)
 		})
 
