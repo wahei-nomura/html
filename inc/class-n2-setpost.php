@@ -279,11 +279,6 @@ class N2_Setpost {
 			update_post_meta( $post_id, $key, $value );
 		}
 
-		if ( empty( get_post_meta( $post_id, '寄附金額', true ) ) || 0 === get_post_meta( $post_id, '寄附金額', true ) ) {
-			$teiki = get_post_meta( $post_id, '定期便', true );
-			$price = ceil( get_post_meta( $post_id, '価格', true ) / 300 ) * 1000 * $teiki;
-			update_post_meta( $post_id, '寄附金額', $price );
-		}
 	}
 
 
