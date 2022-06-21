@@ -568,7 +568,7 @@ export default () => {
 
 			// 差額計算
 			diffPrice() {
-				return Number(this.kifukingaku)-this.calcPrice()<0? -1*(Number(this.kifukingaku)-this.calcPrice()):Number(this.kifukingaku)-this.calcPrice();
+				return Number(this.kifukingaku)-this.calcPrice();
 			}
 		}
 
@@ -582,17 +582,17 @@ export default () => {
 		}
 
 		// 自動計算値と差額表示
-		$('#寄附金額').after($(`<p>自動計算の値：${priceState.calcPrice()}(差額：${priceState.diffPrice()})</p>`))
+		$('#寄附金額').after($(`<p>自動計算の値：${priceState.calcPrice()}(<span style="color:${priceState.diffPrice()>=0?'turquoise':'red'}">差額：${priceState.diffPrice()}</span>)</p>`))
 
 		// イベント監視
 		$('#価格').on('keyup', e => {
 			priceState.setkakaku=Number($(e.target).val())
-			$('#寄附金額 + p').text(`自動計算の値：${priceState.calcPrice()}(差額：${priceState.diffPrice()})`)
+			$('#寄附金額 + p').html(`自動計算の値：${priceState.calcPrice()}(<span style="color:${priceState.diffPrice()>=0?'turquoise':'red'}">差額：${priceState.diffPrice()}</span>)`)
 		})
 
 		$('#寄附金額').on('keyup mouseup', e => {
 			priceState.setkifu=Number($(e.target).val())
-			$('#寄附金額 + p').text(`自動計算の値：${priceState.calcPrice()}(差額：${priceState.diffPrice()})`)
+			$('#寄附金額 + p').html(`自動計算の値：${priceState.calcPrice()}(<span style="color:${priceState.diffPrice()>=0?'turquoise':'red'}">差額：${priceState.diffPrice()}</span>)`)
 		})
 
 
