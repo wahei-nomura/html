@@ -71,12 +71,12 @@ export default () => {
 						$('.editor-post-publish-panel__header-cancel-button .components-button.is-secondary').trigger('click')
 					}, 10)
 				} else {
-					// 寄附金額>=価格÷0.4だったらエラー
-					if(Number($('#寄附金額').val())>=Math.ceil(Number($('#価格').val())/400)*1000) {
+					// 寄附金額<=価格÷0.4だったらエラー
+					if(Number($('#寄附金額').val())<=Math.ceil(Number($('#価格').val())/400)*1000) {
 						if(!$('#寄附金額').parent().find(`.${prefix}-alert`).length) {
-							$('#寄附金額').before($(`<p class="${prefix}-alert" style="color:red;">※寄附金額が高すぎます。</p>`))
+							$('#寄附金額').before($(`<p class="${prefix}-alert" style="color:red;">※寄附金額が低すぎます。</p>`))
 						}
-						if(!confirm('自動計算された値に対して寄附金額が高すぎます。それでも更新しますか？')) {
+						if(!confirm('自動計算された値に対して寄附金額が低すぎます。それでも更新しますか？')) {
 							// 公開をロック
 							wp(window).data.dispatch('core/editor').lockPostSaving('my-lock');
 							setTimeout(() => {
@@ -596,17 +596,39 @@ export default () => {
 		}
 
 		// 自動計算値と差額表示
-		$('#寄附金額').after($(`<p>自動計算の値：${priceState.calcPrice()}(<span style="color:${priceState.diffPrice()>=0?'turquoise':'red'}">差額：${priceState.diffPrice()}</span>)</p>`))
+		$('#寄附金額').after($(`<p>自動計算の値：${priceState.calcPrice()}(<span style="color:${priceState.diffPrice()>=0? 'turquoise':'red'}">差額：${priceState.diffPrice()}</span>)</p>`))
+		
+		if(Number(priceState.errorPrice())>=Number($('#寄附金額').val())) {
+			if(!$('#寄附金額').parent().find(`.${prefix}-alert`).length) {
+				$('#寄附金額').before($(`<p class="${prefix}-alert" style="color:red;">※寄附金額が低すぎます。</p>`))
+			}
+		} else {
+			$('#寄附金額').parent().find(`.${prefix}-alert`).remove()
+		}
 
 		// イベント監視
 		$('#価格').on('keyup', e => {
 			priceState.setkakaku=Number($(e.target).val())
-
+			if(Number(priceState.errorPrice())>=Number($('#寄附金額').val())) {
+				if(!$('#寄附金額').parent().find(`.${prefix}-alert`).length) {
+					$('#寄附金額').before($(`<p class="${prefix}-alert" style="color:red;">※寄附金額が低すぎます。</p>`))
+				}
+			} else {
+				$('#寄附金額').parent().find(`.${prefix}-alert`).remove()
+			}
 			$('#寄附金額 + p').html(`自動計算の値：${priceState.calcPrice()}(<span style="color:${priceState.diffPrice()>=0?'turquoise':'red'}">差額：${priceState.diffPrice()}</span>)`)
 		})
 
 		$('#寄附金額').on('keyup mouseup', e => {
 			priceState.setkifu=Number($(e.target).val())
+			console.log(priceState.errorPrice())
+			if(Number(priceState.errorPrice())>=Number($('#寄附金額').val())) {
+				if(!$('#寄附金額').parent().find(`.${prefix}-alert`).length) {
+					$('#寄附金額').before($(`<p class="${prefix}-alert" style="color:red;">※寄附金額が低すぎます。</p>`))
+				}
+			} else {
+				$('#寄附金額').parent().find(`.${prefix}-alert`).remove()
+			}
 			$('#寄附金額 + p').html(`自動計算の値：${priceState.calcPrice()}(<span style="color:${priceState.diffPrice()>=0?'turquoise':'red'}">差額：${priceState.diffPrice()}</span>)`)
 		})
 
