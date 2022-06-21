@@ -596,7 +596,7 @@ export default () => {
 		}
 
 		// 自動計算値と差額表示
-		$('#寄附金額').after($(`<p>自動計算の値：${priceState.calcPrice()}(<span style="color:${priceState.diffPrice()>=0? 'turquoise':'red'}">差額：${priceState.diffPrice()}</span>)</p>`))
+		$('#寄附金額').after($(`<p>自動計算の値：${priceState.calcPrice().toLocaleString()}(<span style="color:${priceState.diffPrice()>=0? 'turquoise':'red'}">差額：${priceState.diffPrice().toLocaleString()}</span>)</p>`))
 		
 		if(Number(priceState.errorPrice())>=Number($('#寄附金額').val())) {
 			if(!$('#寄附金額').parent().find(`.${prefix}-alert`).length) {
@@ -616,7 +616,7 @@ export default () => {
 			} else {
 				$('#寄附金額').parent().find(`.${prefix}-alert`).remove()
 			}
-			$('#寄附金額 + p').html(`自動計算の値：${priceState.calcPrice()}(<span style="color:${priceState.diffPrice()>=0?'turquoise':'red'}">差額：${priceState.diffPrice()}</span>)`)
+			$('#寄附金額 + p').html(`自動計算の値：${priceState.calcPrice().toLocaleString()}(<span style="color:${priceState.diffPrice()>=0?'turquoise':'red'}">差額：${priceState.diffPrice().toLocaleString()}</span>)`)
 		})
 
 		$('#寄附金額').on('keyup mouseup', e => {
@@ -629,7 +629,7 @@ export default () => {
 			} else {
 				$('#寄附金額').parent().find(`.${prefix}-alert`).remove()
 			}
-			$('#寄附金額 + p').html(`自動計算の値：${priceState.calcPrice()}(<span style="color:${priceState.diffPrice()>=0?'turquoise':'red'}">差額：${priceState.diffPrice()}</span>)`)
+			$('#寄附金額 + p').html(`自動計算の値：${priceState.calcPrice().toLocaleString()}(<span style="color:${priceState.diffPrice()>=0?'turquoise':'red'}">差額：${priceState.diffPrice().toLocaleString()}</span>)`)
 		})
 
 
