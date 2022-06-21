@@ -63,9 +63,9 @@ export default () => {
 					}
 				})
 
-				// 寄附金額<=価格÷0.4だったらエラー
-				if(Number($('#寄附金額').val())<=Math.ceil(Number($('#価格').val())/400)*1000) {
-					$('#寄附金額').before($(`<p class="${prefix}-notzero-alert" style="color:red;">※寄附金額が低すぎます。</p>`))
+				// 寄附金額>=価格÷0.4だったらエラー
+				if(Number($('#寄附金額').val())>=Math.ceil(Number($('#価格').val())/400)*1000) {
+					$('#寄附金額').before($(`<p class="${prefix}-notzero-alert" style="color:red;">※寄附金額が高すぎます。</p>`))
 					vError.push($('#寄附金額'))
 				}
 				
