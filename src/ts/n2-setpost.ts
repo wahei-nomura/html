@@ -62,6 +62,12 @@ export default () => {
 						vError.push(v);
 					}
 				})
+
+				// 寄附金額<=価格÷0.4だったらエラー
+				if(Number($('#寄附金額').val())<=Math.ceil(Number($('#価格').val())/400)*1000) {
+					$('#寄附金額').before($(`<p class="${prefix}-notzero-alert" style="color:red;">※寄附金額が低すぎます。</p>`))
+					vError.push($('#寄附金額'))
+				}
 				
 				if(vError.length) {
 					alert('入力必須項目が未入力です。入力内容をご確認ください。')
