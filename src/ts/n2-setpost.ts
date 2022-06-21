@@ -522,5 +522,74 @@ export default () => {
 			});
 		});
 		// ここまで楽天カテゴリー ==============================================================================================================================
+
+		/** ===============================================================
+		 * 
+		 * 寄附金額自動計算
+		 * 寄附金額バリデーション
+		 * 
+		================================================================== */
+
+		// 価格と寄附金額の状態を監視するクラス
+		class AutoCalc {
+			private kakaku: number;
+			private kifukingaku: any;
+
+			constructor(kakaku:number, kifukingaku:any) {
+				this.kakaku=kakaku;
+				this.kifukingaku=kifukingaku;
+			}
+
+			// 価格更新
+			set setkakaku(price:number) {
+				this.kakaku=price;
+			}
+
+			// 寄附金額更新
+			set setkifu(price:number) {
+				this.kifukingaku=price;
+			}
+
+			// 寄附金額に入力があるかチェック
+			checkPrice() {
+				return Number(this.kifukingaku)!==0&&this.kifukingaku!=='';
+			}
+
+			// 自動計算
+			calcPrice() {
+				return Math.ceil(this.kakaku/300)*1000;
+			}
+
+			// 差額計算
+			diffPrice() {
+				return Number(this.kifukingaku)-this.calcPrice()<0? -1*(Number(this.kifukingaku)-this.calcPrice()):Number(this.kifukingaku)-this.calcPrice();
+			}
+		}
+
+		// インスタンス生成
+		const priceState=new AutoCalc(Number($('#価格').val()), $('#寄附金額').val());
+
+		// 寄附金額み入力時のみ自動計算を入力値に反映
+		if(!priceState.checkPrice()) {
+			$('#寄附金額').val(priceState.calcPrice())	
+			priceState.setkifu=priceState.calcPrice();
+		}
+
+		// 自動計算値と差額表示
+		$('#寄附金額').after($(`<p>自動計算の値：${priceState.calcPrice()}(差額：${priceState.diffPrice()})</p>`))
+
+		// イベント監視
+		$('#価格').on('keyup', e => {
+			priceState.setkakaku=Number($(e.target).val())
+			$('#寄附金額 + p').text(`自動計算の値：${priceState.calcPrice()}(差額：${priceState.diffPrice()})`)
+		})
+
+		$('#寄附金額').on('keyup mouseup', e => {
+			priceState.setkifu=Number($(e.target).val())
+			$('#寄附金額 + p').text(`自動計算の値：${priceState.calcPrice()}(差額：${priceState.diffPrice()})`)
+		})
+
+
+		// ここまで寄附金額計算 ==============================================================================================================================
 	});
 }
