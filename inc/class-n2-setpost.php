@@ -276,7 +276,7 @@ class N2_Setpost {
 		}
 
 		foreach ( $_POST as $key => $value ) {
-			update_post_meta( $post_id, $key, N2_Functions::_s( $value ) );
+			update_post_meta( $post_id, $key, $value );
 		}
 
 		if ( empty( get_post_meta( $post_id, '寄附金額', true ) ) || 0 === get_post_meta( $post_id, '寄附金額', true ) ) {
