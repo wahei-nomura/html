@@ -551,10 +551,13 @@ export default () => {
 		class AutoCalc {
 			private kakaku: number;
 			private kifukingaku: any;
+			private pattern: string;
+			private souryou: any = 0;
 
-			constructor(kakaku:number, kifukingaku:any) {
+			constructor(kakaku:number, kifukingaku:any, souryou:any = 0) {
 				this.kakaku=kakaku;
 				this.kifukingaku=kifukingaku;
+				this.souryou=souryou;
 			}
 
 			// 価格更新
@@ -565,6 +568,11 @@ export default () => {
 			// 寄附金額更新
 			set setkifu(price:number) {
 				this.kifukingaku=price;
+			}
+
+			// 計算パターン変更
+			set setpattern(pattern:string) {
+				this.pattern=pattern;
 			}
 
 			// 寄附金額に入力があるかチェック
@@ -579,7 +587,8 @@ export default () => {
 
 			// 自動計算
 			calcPrice() {
-				return Math.ceil(this.kakaku/300)*1000;
+				return eval(this.pattern);
+				// return Math.ceil(this.kakaku/300)*1000;
 			}
 
 			// 差額計算
@@ -588,42 +597,54 @@ export default () => {
 			}
 		}
 
-		// インスタンス生成
-		const priceState=new AutoCalc(Number($('#価格').val()), $('#寄附金額').val());
+		$.ajax({
+			url: ajaxUrl(window),
+			data: {
+				action: 'N2_Setpost',
+			},
+		}).done(res => {
+			const data=JSON.parse(res)
+			console.log(data)
+			// インスタンス生成
+			const priceState=new AutoCalc(Number($('#価格').val()), $('#寄附金額').val());
 
-		// もろろのDOM操作をまとめて関数化
-		const showPrice=(priceState):void => {
-			if(Number(priceState.errorPrice())>=Number($('#寄附金額').val())) {
-				if(!$('#寄附金額').parent().find(`.${prefix}-alert`).length) {
-					$('#寄附金額').before($(`<p class="${prefix}-alert" style="color:red;">※寄附金額が低すぎます。</p>`))
+			priceState.setpattern = data.kifu_auto_pattern
+			
+			
+			// もろろのDOM操作をまとめて関数化
+			const showPrice=(priceState):void => {
+				if(Number(priceState.errorPrice())>=Number($('#寄附金額').val())) {
+					if(!$('#寄附金額').parent().find(`.${prefix}-alert`).length) {
+						$('#寄附金額').before($(`<p class="${prefix}-alert" style="color:red;">※寄附金額が低すぎます。</p>`))
+					}
+				} else {
+					$('#寄附金額').parent().find(`.${prefix}-alert`).remove()
 				}
-			} else {
-				$('#寄附金額').parent().find(`.${prefix}-alert`).remove()
+				$('#寄附金額 + p').html(`自動計算の値：${priceState.calcPrice().toLocaleString()}(<span style="color:${priceState.diffPrice()>=0?'turquoise':'red'}">差額：${priceState.diffPrice().toLocaleString()}</span>)`)
 			}
-			$('#寄附金額 + p').html(`自動計算の値：${priceState.calcPrice().toLocaleString()}(<span style="color:${priceState.diffPrice()>=0?'turquoise':'red'}">差額：${priceState.diffPrice().toLocaleString()}</span>)`)
-		}
-
-		// 寄附金額み入力時のみ自動計算を入力値に反映
-		if(!priceState.checkPrice()) {
-			$('#寄附金額').val(priceState.calcPrice())	
-			priceState.setkifu=priceState.calcPrice();
-		}
-
-		// 自動計算値と差額表示用DOMセット
-		$('#寄附金額').after($('<p></p>'))
-		
-		// デフォルトで計算値、差額表示
-		showPrice(priceState)
-
-		// イベント監視
-		$('#価格').on('keyup', e => {
-			priceState.setkakaku=Number($(e.target).val())
+			
+			// 寄附金額み入力時のみ自動計算を入力値に反映
+			if(!priceState.checkPrice()) {
+				$('#寄附金額').val(priceState.calcPrice())	
+				priceState.setkifu=priceState.calcPrice();
+			}
+			
+			// 自動計算値と差額表示用DOMセット
+			$('#寄附金額').after($('<p></p>'))
+			
+			// デフォルトで計算値、差額表示
 			showPrice(priceState)
-		})
-
-		$('#寄附金額').on('keyup mouseup', e => {
-			priceState.setkifu=Number($(e.target).val())
-			showPrice(priceState)
+			
+			// イベント監視
+			$('#価格').on('keyup', e => {
+				priceState.setkakaku=Number($(e.target).val())
+				showPrice(priceState)
+			})
+			
+			$('#寄附金額').on('keyup mouseup', e => {
+				priceState.setkifu=Number($(e.target).val())
+				showPrice(priceState)
+			})
 		})
 
 

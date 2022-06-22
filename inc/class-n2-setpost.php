@@ -325,11 +325,25 @@ class N2_Setpost {
 	public function ajax() {
 
 		$arr = array(
-			'ss_crew' => wp_get_current_user()->allcaps['ss_crew'] ? 'true' : 'false',
+			'ss_crew'           => wp_get_current_user()->allcaps['ss_crew'] ? 'true' : 'false',
+			'kifu_auto_pattern' => $this->kifu_auto_pattern(),
 		);
 
 		echo json_encode( $arr );
 
 		die();
+	}
+
+	/**
+	 * 寄附金額計算式をそのままJSの構文として渡す
+	 *
+	 * @return string
+	 */
+	private function kifu_auto_pattern() {
+		$pattern = array(
+			0 => 'Math.ceil((this.kakaku + this.souryou) / 300) * 1000',
+		);
+
+		return $pattern[0];
 	}
 }
