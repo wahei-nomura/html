@@ -341,7 +341,8 @@ class N2_Setpost {
 	 */
 	private function kifu_auto_pattern() {
 		$pattern = array(
-			0 => 'Math.ceil((this.kakaku + this.souryou) / 300) * 1000',
+			0 => 'Math.ceil(kakaku / 300) * 1000',
+			1 => 'Math.ceil((kakaku + souryou) / 300) * 1000',
 		);
 
 		return $pattern[0];

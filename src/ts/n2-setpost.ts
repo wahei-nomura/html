@@ -587,8 +587,10 @@ export default () => {
 
 			// 自動計算
 			calcPrice() {
+				const kakaku=this.kakaku;
+				const kifukingaku=this.kifukingaku;
+				const souryou=this.souryou;
 				return eval(this.pattern);
-				// return Math.ceil(this.kakaku/300)*1000;
 			}
 
 			// 差額計算
