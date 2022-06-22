@@ -552,9 +552,9 @@ export default () => {
 			private kakaku: number;
 			private kifukingaku: any;
 			private pattern: string;
-			private souryou: any = 0;
+			private souryou: number;
 
-			constructor(kakaku:number, kifukingaku:any, souryou:any = 0) {
+			constructor(kakaku:number, kifukingaku:any, souryou:number) {
 				this.kakaku=kakaku;
 				this.kifukingaku=kifukingaku;
 				this.souryou=souryou;
@@ -563,6 +563,11 @@ export default () => {
 			// 価格更新
 			set setkakaku(price:number) {
 				this.kakaku=price;
+			}
+
+			// 送料更新
+			set setsouryou(price:number) {
+				this.souryou=price;
 			}
 
 			// 寄附金額更新
@@ -608,7 +613,7 @@ export default () => {
 			const data=JSON.parse(res)
 			console.log(data)
 			// インスタンス生成
-			const priceState=new AutoCalc(Number($('#価格').val()), $('#寄附金額').val());
+			const priceState=new AutoCalc(Number($('#価格').val()), $('#寄附金額').val(), Number($('#送料').val()));
 
 			priceState.setpattern = data.kifu_auto_pattern
 			
@@ -640,6 +645,11 @@ export default () => {
 			// イベント監視
 			$('#価格').on('keyup', e => {
 				priceState.setkakaku=Number($(e.target).val())
+				showPrice(priceState)
+			})
+
+			$('#送料').on('keyup mouseup', e => {
+				priceState.setsouryou=Number($(e.target).val())
 				showPrice(priceState)
 			})
 			

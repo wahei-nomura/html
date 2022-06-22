@@ -340,11 +340,19 @@ class N2_Setpost {
 	 * @return string
 	 */
 	private function kifu_auto_pattern() {
+
+		// パターンを配列で置いておく
 		$pattern = array(
-			0 => 'Math.ceil(kakaku / 300) * 1000',
-			1 => 'Math.ceil((kakaku + souryou) / 300) * 1000',
+			'零号機' => 'Math.ceil((kakaku + souryou) / 300) * 1000',
+			'初号機' => 'Math.ceil(kakaku / 300) * 1000',
+			'弐号機' => 'Math.ceil((kakaku + souryou) / 350) * 1000',
 		);
 
-		return $pattern[0];
+		$pattern['使徒'] = "{$pattern['初号機']}>{$pattern['弐号機']}?{$pattern['初号機']}:{$pattern['弐号機']}";
+
+		$pattern_type = '初号機';
+		$pattern_type = apply_filters( 'n2_setpost_change_kifu_pattern', $pattern_type );
+
+		return $pattern[ $pattern_type ];
 	}
 }
