@@ -323,8 +323,12 @@ class N2_Setpost {
 	 * @return void
 	 */
 	public function ajax() {
-		$user = wp_get_current_user();
-		echo $user->allcaps['ss_crew'] ? 'true' : 'false';
+
+		$arr = array(
+			'ss_crew' => wp_get_current_user()->allcaps['ss_crew'] ? 'true' : 'false',
+		);
+
+		echo json_encode( $arr );
 
 		die();
 	}

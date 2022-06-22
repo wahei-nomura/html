@@ -103,7 +103,9 @@ export default () => {
 							action: 'N2_Setpost',
 						},
 					}).done(res => {
-						if(res==='false') {
+						const data=JSON.parse(res) 
+						console.log(data)
+						if(data.ss_crew==='false') {
 							
 							$('body').append($('<div id="n2-setpost-check-modal-wrapper"></div>'))
 							
