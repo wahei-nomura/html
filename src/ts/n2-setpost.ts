@@ -566,7 +566,7 @@ export default () => {
 			set setkakaku(price:number) {
 				this.kakaku=price;
 			}
-
+			// 価格取得
 			get getkakaku() {
 				return this.kakaku;
 			}
@@ -575,7 +575,7 @@ export default () => {
 			set setsouryou(price:number) {
 				this.souryou=price;
 			}
-
+			// 送料取得
 			get getsouryou() {
 				return this.souryou;
 			}
@@ -584,7 +584,7 @@ export default () => {
 			set setteiki(count:number) {
 				this.teiki=count;
 			}
-
+			// 定期回数取得
 			get getteiki() {
 				return this.teiki;
 			}
@@ -648,7 +648,11 @@ export default () => {
 				} else {
 					$('#寄附金額').parent().find(`.${prefix}-alert`).remove()
 				}
-				$('#寄附金額 + p').html(`自動計算の値：${priceState.calcPrice().toLocaleString()}（<span style="color:${priceState.diffPrice()>=0?'turquoise':'red'}">差額：${priceState.diffPrice().toLocaleString()}</span>）<br>価格：${(priceState.getkakaku*priceState.getteiki).toLocaleString()}（${priceState.getkakaku.toLocaleString()} × ${priceState.getteiki}回）<br>送料：${(priceState.getsouryou*priceState.getteiki).toLocaleString()}（${priceState.getsouryou.toLocaleString()} × ${priceState.getteiki}回）`)
+				$('#寄附金額 + p').html(`
+				自動計算の値：${priceState.calcPrice().toLocaleString()}（<span style="color:${priceState.diffPrice()>=0? 'turquoise':'red'}">差額：${priceState.diffPrice().toLocaleString()}</span>）<br>
+				価格：${(priceState.getkakaku*priceState.getteiki).toLocaleString()}（${priceState.getkakaku.toLocaleString()} × ${priceState.getteiki}回）<br>
+				送料：${(priceState.getsouryou*priceState.getteiki).toLocaleString()}（${priceState.getsouryou.toLocaleString()} × ${priceState.getteiki}回）
+				`)
 			}
 			
 			// 寄附金額み入力時のみ自動計算を入力値に反映
