@@ -595,6 +595,7 @@ export default () => {
 				const kakaku=this.kakaku;
 				const kifukingaku=this.kifukingaku;
 				const souryou=this.souryou;
+				// PHPから計算パターンをJSの式（文字列）として受け取りevalでプログラムとして実行
 				return eval(this.pattern);
 			}
 
@@ -604,6 +605,7 @@ export default () => {
 			}
 		}
 
+		// 計算パターンを受け取ってから処理
 		$.ajax({
 			url: ajaxUrl(window),
 			data: {
@@ -615,8 +617,8 @@ export default () => {
 			// インスタンス生成
 			const priceState=new AutoCalc(Number($('#価格').val()), $('#寄附金額').val(), Number($('#送料').val()));
 
+			// インスタンスにパターンセット
 			priceState.setpattern = data.kifu_auto_pattern
-			
 			
 			// もろろのDOM操作をまとめて関数化
 			const showPrice=(priceState):void => {
@@ -642,7 +644,7 @@ export default () => {
 			// デフォルトで計算値、差額表示
 			showPrice(priceState)
 			
-			// イベント監視
+			// イベント監視 ------------------------------------------------------------------------------------------
 			$('#価格').on('keyup', e => {
 				priceState.setkakaku=Number($(e.target).val())
 				showPrice(priceState)
@@ -657,6 +659,7 @@ export default () => {
 				priceState.setkifu=Number($(e.target).val())
 				showPrice(priceState)
 			})
+			// ここまでイベント ---------------------------------------------------------------------------------------
 		})
 
 
