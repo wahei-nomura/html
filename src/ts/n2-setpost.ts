@@ -553,11 +553,13 @@ export default () => {
 			private kifukingaku: any;
 			private pattern: string;
 			private souryou: number;
+			private teiki: number;
 
-			constructor(kakaku:number, kifukingaku:any, souryou:number) {
+			constructor(kakaku:number, kifukingaku:any, souryou:number, teiki:number) {
 				this.kakaku=kakaku;
 				this.kifukingaku=kifukingaku;
 				this.souryou=souryou;
+				this.teiki=teiki===0?1:teiki;
 			}
 
 			// 価格更新
@@ -568,6 +570,11 @@ export default () => {
 			// 送料更新
 			set setsouryou(price:number) {
 				this.souryou=price;
+			}
+
+			// 定期回数更新
+			set setteiki(count:number) {
+				this.teiki=count;
 			}
 
 			// 寄附金額更新
@@ -587,7 +594,7 @@ export default () => {
 
 			// 最低ラインの寄附金額計算
 			errorPrice() {
-				return Math.ceil(this.kakaku/400)*1000;
+				return Math.ceil(this.kakaku/400)*1000*this.teiki;
 			}
 
 			// 自動計算
@@ -596,7 +603,7 @@ export default () => {
 				const kifukingaku=this.kifukingaku;
 				const souryou=this.souryou;
 				// PHPから計算パターンをJSの式（文字列）として受け取りevalでプログラムとして実行
-				return eval(this.pattern);
+				return eval(this.pattern)*this.teiki;
 			}
 
 			// 差額計算
@@ -615,7 +622,7 @@ export default () => {
 			const data=JSON.parse(res)
 			console.log(data)
 			// インスタンス生成
-			const priceState=new AutoCalc(Number($('#価格').val()), $('#寄附金額').val(), Number($('#送料').val()));
+			const priceState=new AutoCalc(Number($('#価格').val()), $('#寄附金額').val(), Number($('#送料').val()), Number($('#定期便').val()));
 
 			// インスタンスにパターンセット
 			priceState.setpattern = data.kifu_auto_pattern
@@ -652,6 +659,11 @@ export default () => {
 
 			$('#送料').on('keyup mouseup', e => {
 				priceState.setsouryou=Number($(e.target).val())
+				showPrice(priceState)
+			})
+
+			$('#定期便').on('change', e => {
+				priceState.setteiki=Number($(e.target).val())
 				showPrice(priceState)
 			})
 			
