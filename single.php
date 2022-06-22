@@ -11,7 +11,7 @@ $post_data = N2_Functions::get_all_meta( $post );
 $ini = parse_ini_file( get_template_directory() . '/config/n2-fields.ini', true );
 
 // プラグインn2-developのn2_setpost_show_customfields呼び出し
-$fields = apply_filters( 'n2_setpost_show_customfields', array( $ini, 'default' ) )[0];
+$fields = apply_filters( 'n2_setpost_show_customfields', $ini, 'default' );
 
 ?>
 
@@ -59,7 +59,7 @@ if ( have_posts() ) :
 				<?php foreach ( $fields as $key => $value ) : ?>
 					<?php
 					preg_match( '/画像/', $key, $m );
-					if ( $m[0] && ! empty( $post_data[ $key ] ) ) :
+					if ( ! empty( $m[0] ) && $m[0] && ! empty( $post_data[ $key ] ) ) :
 						?>
 					<tr>
 						<td><?php echo $key; ?></td>
