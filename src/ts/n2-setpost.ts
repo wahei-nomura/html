@@ -557,11 +557,12 @@ export default () => {
 			'160サイズ':1500,
 			'180サイズ':1600,
 			'200サイズ':1700,
-			'レターパックプラス':520,	
+			'レターパックプラス':520,
+			'その他':0,
 		}
 
 		class ControlSouryou {
-			private size: string;
+			public webSyukka: boolean=true;
 			private price: number;
 
 			constructor() {
@@ -570,6 +571,7 @@ export default () => {
 
 			set setPrice(price: number) {
 				this.price=price;
+				this.webSyukka=price===0? false:true;
 			}
 
 			get getPrice() {
@@ -578,15 +580,22 @@ export default () => {
 		}
 
 		const souryouState=new ControlSouryou();
-
 		souryouState.setPrice=delivery[$('#発送サイズ>option:selected').text()]
 		
-		$('#発送サイズ').after($(`<p>送料：${souryouState.getPrice.toLocaleString()}</p>`))
+		const souryouDecision=(souryouState) => {
+			souryouState.setPrice=delivery[$('#発送サイズ>option:selected').text()]
+			$('label[for="送料"] + p').text(`${souryouState.webSyukka?souryouState.getPrice.toLocaleString():''}`)
+			$('#送料').val(souryouState.getPrice)
+			$('#送料').attr('type', `${souryouState.webSyukka?'hidden':'text'}`)
+		}
+	
+		$('label[for="送料"]').after($(`<p></p>`))
+
+		souryouDecision(souryouState)
 
 		// イベント監視---------------------------------------------------------------------------------------------------
 		$('#発送サイズ').on('change', e => {
-			souryouState.setPrice=delivery[$('#発送サイズ>option:selected').text()]
-			$('#発送サイズ + p').text(`送料：${souryouState.getPrice.toLocaleString()}`)
+			souryouDecision(souryouState)
 		})
 		// ここまでイベント監視
 
