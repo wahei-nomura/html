@@ -540,238 +540,12 @@ export default () => {
 		});
 		// ここまで楽天カテゴリー ==============================================================================================================================
 
-		
 		/** ===============================================================
 		 * 
-		 * 送料制御
+		 * 寄附金額計算
 		 * 
-		================================================================== */
-
-		// 一時的に配送サイズのデフォルト料金表をここに置いておく（あとでajaxに含める）
-		// const delivery: {[s: string]: {[s: string]:number|string}}={
-		// 	'normal': {
-		// 		'未選択':'',
-		// 		'60サイズ':1000,
-		// 		'80サイズ':1100,
-		// 		'100サイズ':1200,
-		// 		'120サイズ':1300,
-		// 		'140サイズ':1400,
-		// 		'160サイズ':1500,
-		// 		'180サイズ':1600,
-		// 		'200サイズ':1700,
-		// 		'レターパックプラス':520,
-		// 		'その他':0,
-		// 	},
-		// 	'cool': {
-		// 		'未選択':'',
-		// 		'60サイズ': 1200,
-		// 		'80サイズ': 1300,
-		// 		'100サイズ': 1500,
-		// 		'120サイズ': 1900,
-		// 		'レターパックプラス': 520,
-		// 		'その他': 0,
-		// 	}
-		// }
-
-
-		// const delivery: {[s: string]:number}={
-			
-		// }
-
-		// const cool: {[s: string]: number}={
-			
-		// }
-
-		class ControlSouryou {
-			public webSyukka: boolean; // web出荷かどうかtrue or false
-			public deliveryCool: boolean; // クール便かどうか true or false
-			private price: number|string;
-
-			// このオブジェクトはPHPからajaxで受け取るようにする予定
-			delivery : {[s: string]: {[s: string]:number|string}}={
-				'normal': {
-					'未選択':'',
-					'60サイズ':1000,
-					'80サイズ':1100,
-					'100サイズ':1200,
-					'120サイズ':1300,
-					'140サイズ':1400,
-					'160サイズ':1500,
-					'180サイズ':1600,
-					'200サイズ':1700,
-					'レターパックプラス':520,
-					'その他':0,
-				},
-				'cool': {
-					'未選択':'',
-					'60サイズ': 1200,
-					'80サイズ': 1300,
-					'100サイズ': 1500,
-					'120サイズ': 1900,
-					'レターパックプラス': 520,
-					'その他': 0,
-				}
-			} 
-
-			constructor(webSyukka:boolean,deliveryCool:boolean) {
-				this.webSyukka=webSyukka;
-				this.deliveryCool=deliveryCool;
-			}
-
-			// 金額更新
-			set setPrice(price: number|string) {
-				this.price=price;
-				this.webSyukka=price===0? false:true;
-			}
-
-			// 金額取得
-			get getPrice() {
-				return this.price;
-			}
-
-			// クール判定
-			set setDeliveryCool(cool: boolean) {
-				this.deliveryCool=cool;
-			}
-
-			// 料金表オブジェクトをもとにサイズを料金へ変換
-			convertPrice(size:string) {
-				return this.delivery[this.deliveryCool?'cool':'normal'][size];
-			}
-		}
+		================================================================== */	
 		
-		// インスタンス生成
-		const souryouState=new ControlSouryou($('#発送サイズ').text()!=='その他', $('#発送方法').val()!=='常温');
-		// 金額セット
-		souryouState.setPrice=souryouState.convertPrice($('#発送サイズ>option:selected').text())
-		
-		// 発送方法の変更に合わせて発想サイズの選択肢変更
-		const changeSizeSelect = (souryouState) => {
-			// 発送サイズをcool表示に
-			$.each($('#発送サイズ>option'), (index,option) => {
-				if(!Object.keys(souryouState.delivery['cool']).includes($(option).text())) {
-					$(option).css('display',`${souryouState.deliveryCool?'none':'block'}`)
-				}
-			})
-		}
-		// 送料決定プロセス
-		const souryouDecision=(souryouState) => {
-			souryouState.setPrice=souryouState.convertPrice($('#発送サイズ>option:selected').text())
-			$('label[for="送料"] + p').text(`${souryouState.webSyukka?souryouState.getPrice.toLocaleString():''}`)
-			$('#送料').val(souryouState.getPrice)
-			$('#送料').attr('type', `${souryouState.webSyukka?'hidden':'text'}`)
-		}
-
-		// JS起動時処理
-		$('label[for="送料"]').after($(`<p></p>`))
-		changeSizeSelect(souryouState)
-		souryouDecision(souryouState)
-
-		// イベント監視---------------------------------------------------------------------------------------------------
-		$('#発送サイズ').on('change', e => {
-			souryouDecision(souryouState)
-		})
-
-		$('#発送方法').on('change', e => {
-			// クール便判定再セット
-			souryouState.setDeliveryCool=$('#発送方法').val()!=='常温'; 
-			// あとからクールになった時に発想サイズリセット
-			if($('#発送サイズ>option:selected').text()!=='未選択' && souryouState.deliveryCool) {
-				alert('発送方法が変更になったため発送サイズをリセットしました')
-				$('#発送サイズ>option[value=""]').prop('selected',true)
-			}
-			
-			changeSizeSelect(souryouState)
-			souryouDecision(souryouState)
-		})
-		// ここまでイベント監視
-
-		// ここまで送料制御 ==============================================================================================================================
-
-		/** ===============================================================
-		 * 
-		 * 寄附金額自動計算
-		 * 寄附金額バリデーション
-		 * 
-		================================================================== */
-
-		// 価格と寄附金額の状態を監視するクラス
-		class AutoCalc {
-			private kakaku: number;
-			private kifukingaku: any;
-			private pattern: string;
-			private souryou: number;
-			private teiki: number;
-
-			constructor(kakaku:number, kifukingaku:any, souryou:number, teiki:number) {
-				this.kakaku=kakaku;
-				this.kifukingaku=kifukingaku;
-				this.souryou=souryou;
-				this.teiki=teiki===0?1:teiki;
-			}
-
-			// 価格更新
-			set setkakaku(price:number) {
-				this.kakaku=price;
-			}
-			// 価格取得
-			get getkakaku() {
-				return this.kakaku;
-			}
-
-			// 送料更新
-			set setsouryou(price:number) {
-				this.souryou=price;
-			}
-			// 送料取得
-			get getsouryou() {
-				return this.souryou;
-			}
-
-			// 定期回数更新
-			set setteiki(count:number) {
-				this.teiki=count;
-			}
-			// 定期回数取得
-			get getteiki() {
-				return this.teiki;
-			}
-
-			// 寄附金額更新
-			set setkifu(price:number) {
-				this.kifukingaku=price;
-			}
-
-			// 計算パターン変更
-			set setpattern(pattern:string) {
-				this.pattern=pattern;
-			}
-
-			// 寄附金額に入力があるかチェック
-			checkPrice() {
-				return Number(this.kifukingaku)!==0&&this.kifukingaku!=='';
-			}
-
-			// 最低ラインの寄附金額計算
-			errorPrice() {
-				return Math.ceil(this.kakaku/400)*1000*this.teiki;
-			}
-
-			// 自動計算
-			calcPrice() {
-				const kakaku=this.kakaku;
-				const kifukingaku=this.kifukingaku;
-				const souryou=this.souryou;
-				// PHPから計算パターンをJSの式（文字列）として受け取りevalでプログラムとして実行
-				return eval(this.pattern)*this.teiki;
-			}
-
-			// 差額計算
-			diffPrice() {
-				return Number(this.kifukingaku)-this.calcPrice();
-			}
-		}
-
 		// 計算パターンを受け取ってから処理
 		$.ajax({
 			url: ajaxUrl(window),
@@ -781,6 +555,205 @@ export default () => {
 		}).done(res => {
 			const data=JSON.parse(res)
 			console.log(data)
+			
+			/** ===============================================================
+			 * 
+			 * 送料制御
+			 * 
+			================================================================== */
+			class ControlSouryou {
+				public webSyukka: boolean; // web出荷かどうかtrue or false
+				public deliveryCool: boolean; // クール便かどうか true or false
+				private price: number|string;
+
+				// このオブジェクトはPHPからajaxで受け取るようにする予定
+				delivery : {[s: string]: {[s: string]:number|string}}={
+					'normal': {
+						'未選択':'',
+						'60サイズ':1000,
+						'80サイズ':1100,
+						'100サイズ':1200,
+						'120サイズ':1300,
+						'140サイズ':1400,
+						'160サイズ':1500,
+						'180サイズ':1600,
+						'200サイズ':1700,
+						'レターパックプラス':520,
+						'その他':0,
+					},
+					'cool': {
+						'未選択':'',
+						'60サイズ': 1200,
+						'80サイズ': 1300,
+						'100サイズ': 1500,
+						'120サイズ': 1900,
+						'レターパックプラス': 520,
+						'その他': 0,
+					}
+				} 
+
+				constructor(webSyukka:boolean,deliveryCool:boolean) {
+					this.webSyukka=webSyukka;
+					this.deliveryCool=deliveryCool;
+				}
+
+				// 金額更新
+				set setPrice(price: number|string) {
+					this.price=price;
+					this.webSyukka=price===0? false:true;
+				}
+
+				// 金額取得
+				get getPrice() {
+					return this.price;
+				}
+
+				// クール判定
+				set setDeliveryCool(cool: boolean) {
+					this.deliveryCool=cool;
+				}
+
+				// 料金表オブジェクトをもとにサイズを料金へ変換
+				convertPrice(size:string) {
+					return this.delivery[this.deliveryCool?'cool':'normal'][size];
+				}
+			}
+			
+			// インスタンス生成
+			const souryouState=new ControlSouryou($('#発送サイズ').text()!=='その他', $('#発送方法').val()!=='常温');
+			// 金額セット
+			souryouState.setPrice=souryouState.convertPrice($('#発送サイズ>option:selected').text())
+			
+			// 発送方法の変更に合わせて発想サイズの選択肢変更
+			const changeSizeSelect = (souryouState) => {
+				// 発送サイズをcool表示に
+				$.each($('#発送サイズ>option'), (index,option) => {
+					if(!Object.keys(souryouState.delivery['cool']).includes($(option).text())) {
+						$(option).css('display',`${souryouState.deliveryCool?'none':'block'}`)
+					}
+				})
+			}
+			// 送料決定プロセス
+			const souryouDecision=(souryouState) => {
+				souryouState.setPrice=souryouState.convertPrice($('#発送サイズ>option:selected').text())
+				$('label[for="送料"] + p').text(`${souryouState.webSyukka?souryouState.getPrice.toLocaleString():''}`)
+				$('#送料').val(souryouState.getPrice)
+				$('#送料').attr('type', `${souryouState.webSyukka?'hidden':'text'}`)
+			}
+
+			// JS起動時処理
+			$('label[for="送料"]').after($(`<p></p>`))
+			changeSizeSelect(souryouState)
+			souryouDecision(souryouState)
+
+			// イベント監視---------------------------------------------------------------------------------------------------
+			$('#発送サイズ').on('change', e => {
+				souryouDecision(souryouState)
+				// 寄附金額再計算
+				priceState.setsouryou=Number($('#送料').val())
+				showPrice(priceState)
+			})
+
+			$('#発送方法').on('change', e => {
+				// クール便判定再セット
+				souryouState.setDeliveryCool=$('#発送方法').val()!=='常温'; 
+				// あとからクールになった時に発想サイズリセット
+				if($('#発送サイズ>option:selected').text()!=='未選択' && souryouState.deliveryCool) {
+					alert('発送方法が変更になったため発送サイズをリセットしました')
+					$('#発送サイズ>option[value=""]').prop('selected',true)
+				}
+				
+				changeSizeSelect(souryouState)
+				souryouDecision(souryouState)
+				priceState.setsouryou=Number($('#送料').val())
+				showPrice(priceState)
+			})
+
+			// ここまでイベント監視
+
+			/** ===============================================================
+			 * 
+			 * 寄附金額制御
+			 * 
+			================================================================== */
+
+			// 価格と寄附金額の状態を監視するクラス
+			class AutoCalc {
+				private kakaku: number;
+				private kifukingaku: any;
+				private pattern: string;
+				private souryou: number;
+				private teiki: number;
+
+				constructor(kakaku:number, kifukingaku:any, souryou:number, teiki:number) {
+					this.kakaku=kakaku;
+					this.kifukingaku=kifukingaku;
+					this.souryou=souryou;
+					this.teiki=teiki===0?1:teiki;
+				}
+
+				// 価格更新
+				set setkakaku(price:number) {
+					this.kakaku=price;
+				}
+				// 価格取得
+				get getkakaku() {
+					return this.kakaku;
+				}
+
+				// 送料更新
+				set setsouryou(price:number) {
+					this.souryou=price;
+				}
+				// 送料取得
+				get getsouryou() {
+					return this.souryou;
+				}
+
+				// 定期回数更新
+				set setteiki(count:number) {
+					this.teiki=count;
+				}
+				// 定期回数取得
+				get getteiki() {
+					return this.teiki;
+				}
+
+				// 寄附金額更新
+				set setkifu(price:number) {
+					this.kifukingaku=price;
+				}
+
+				// 計算パターン変更
+				set setpattern(pattern:string) {
+					this.pattern=pattern;
+				}
+
+				// 寄附金額に入力があるかチェック
+				checkPrice() {
+					return Number(this.kifukingaku)!==0&&this.kifukingaku!=='';
+				}
+
+				// 最低ラインの寄附金額計算
+				errorPrice() {
+					return Math.ceil(this.kakaku/400)*1000*this.teiki;
+				}
+
+				// 自動計算
+				calcPrice() {
+					const kakaku=this.kakaku;
+					const kifukingaku=this.kifukingaku;
+					const souryou=this.souryou;
+					// PHPから計算パターンをJSの式（文字列）として受け取りevalでプログラムとして実行
+					return eval(this.pattern)*this.teiki;
+				}
+
+				// 差額計算
+				diffPrice() {
+					return Number(this.kifukingaku)-this.calcPrice();
+				}
+			}
+
 			// インスタンス生成
 			const priceState=new AutoCalc(Number($('#価格').val()), $('#寄附金額').val(), Number($('#送料').val()), Number($('#定期便').val()));
 
