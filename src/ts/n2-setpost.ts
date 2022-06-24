@@ -548,53 +548,140 @@ export default () => {
 		================================================================== */
 
 		// 一時的に配送サイズのデフォルト料金表をここに置いておく（あとでajaxに含める）
-		const delivery: {[s: string]:number}={
-			'60サイズ':1000,
-			'80サイズ':1100,
-			'100サイズ':1200,
-			'120サイズ':1300,
-			'140サイズ':1400,
-			'160サイズ':1500,
-			'180サイズ':1600,
-			'200サイズ':1700,
-			'レターパックプラス':520,
-			'その他':0,
-		}
+		// const delivery: {[s: string]: {[s: string]:number|string}}={
+		// 	'normal': {
+		// 		'未選択':'',
+		// 		'60サイズ':1000,
+		// 		'80サイズ':1100,
+		// 		'100サイズ':1200,
+		// 		'120サイズ':1300,
+		// 		'140サイズ':1400,
+		// 		'160サイズ':1500,
+		// 		'180サイズ':1600,
+		// 		'200サイズ':1700,
+		// 		'レターパックプラス':520,
+		// 		'その他':0,
+		// 	},
+		// 	'cool': {
+		// 		'未選択':'',
+		// 		'60サイズ': 1200,
+		// 		'80サイズ': 1300,
+		// 		'100サイズ': 1500,
+		// 		'120サイズ': 1900,
+		// 		'レターパックプラス': 520,
+		// 		'その他': 0,
+		// 	}
+		// }
+
+
+		// const delivery: {[s: string]:number}={
+			
+		// }
+
+		// const cool: {[s: string]: number}={
+			
+		// }
 
 		class ControlSouryou {
-			public webSyukka: boolean=true;
-			private price: number;
+			public webSyukka: boolean; // web出荷かどうかtrue or false
+			public deliveryCool: boolean; // クール便かどうか true or false
+			private price: number|string;
 
-			constructor() {
-				
+			// このオブジェクトはPHPからajaxで受け取るようにする予定
+			delivery : {[s: string]: {[s: string]:number|string}}={
+				'normal': {
+					'未選択':'',
+					'60サイズ':1000,
+					'80サイズ':1100,
+					'100サイズ':1200,
+					'120サイズ':1300,
+					'140サイズ':1400,
+					'160サイズ':1500,
+					'180サイズ':1600,
+					'200サイズ':1700,
+					'レターパックプラス':520,
+					'その他':0,
+				},
+				'cool': {
+					'未選択':'',
+					'60サイズ': 1200,
+					'80サイズ': 1300,
+					'100サイズ': 1500,
+					'120サイズ': 1900,
+					'レターパックプラス': 520,
+					'その他': 0,
+				}
+			} 
+
+			constructor(webSyukka:boolean,deliveryCool:boolean) {
+				this.webSyukka=webSyukka;
+				this.deliveryCool=deliveryCool;
 			}
 
-			set setPrice(price: number) {
+			// 金額更新
+			set setPrice(price: number|string) {
 				this.price=price;
 				this.webSyukka=price===0? false:true;
 			}
 
+			// 金額取得
 			get getPrice() {
 				return this.price;
 			}
-		}
 
-		const souryouState=new ControlSouryou();
-		souryouState.setPrice=delivery[$('#発送サイズ>option:selected').text()]
+			// クール判定
+			set setDeliveryCool(cool: boolean) {
+				this.deliveryCool=cool;
+			}
+
+			// 料金表オブジェクトをもとにサイズを料金へ変換
+			convertPrice(size:string) {
+				return this.delivery[this.deliveryCool?'cool':'normal'][size];
+			}
+		}
 		
+		// インスタンス生成
+		const souryouState=new ControlSouryou($('#発送サイズ').text()!=='その他', $('#発送方法').val()!=='常温');
+		// 金額セット
+		souryouState.setPrice=souryouState.convertPrice($('#発送サイズ>option:selected').text())
+		
+		// 発送方法の変更に合わせて発想サイズの選択肢変更
+		const changeSizeSelect = (souryouState) => {
+			// 発送サイズをcool表示に
+			$.each($('#発送サイズ>option'), (index,option) => {
+				if(!Object.keys(souryouState.delivery['cool']).includes($(option).text())) {
+					$(option).css('display',`${souryouState.deliveryCool?'none':'block'}`)
+				}
+			})
+		}
+		// 送料決定プロセス
 		const souryouDecision=(souryouState) => {
-			souryouState.setPrice=delivery[$('#発送サイズ>option:selected').text()]
+			souryouState.setPrice=souryouState.convertPrice($('#発送サイズ>option:selected').text())
 			$('label[for="送料"] + p').text(`${souryouState.webSyukka?souryouState.getPrice.toLocaleString():''}`)
 			$('#送料').val(souryouState.getPrice)
 			$('#送料').attr('type', `${souryouState.webSyukka?'hidden':'text'}`)
 		}
-	
-		$('label[for="送料"]').after($(`<p></p>`))
 
+		// JS起動時処理
+		$('label[for="送料"]').after($(`<p></p>`))
+		changeSizeSelect(souryouState)
 		souryouDecision(souryouState)
 
 		// イベント監視---------------------------------------------------------------------------------------------------
 		$('#発送サイズ').on('change', e => {
+			souryouDecision(souryouState)
+		})
+
+		$('#発送方法').on('change', e => {
+			// クール便判定再セット
+			souryouState.setDeliveryCool=$('#発送方法').val()!=='常温'; 
+			// あとからクールになった時に発想サイズリセット
+			if($('#発送サイズ>option:selected').text()!=='未選択' && souryouState.deliveryCool) {
+				alert('発送方法が変更になったため発送サイズをリセットしました')
+				$('#発送サイズ>option[value=""]').prop('selected',true)
+			}
+			
+			changeSizeSelect(souryouState)
 			souryouDecision(souryouState)
 		})
 		// ここまでイベント監視
