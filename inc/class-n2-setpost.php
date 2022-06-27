@@ -327,7 +327,7 @@ class N2_Setpost {
 		$arr = array(
 			'ss_crew'           => wp_get_current_user()->allcaps['ss_crew'] ? 'true' : 'false',
 			'kifu_auto_pattern' => $this->kifu_auto_pattern(),
-			'delivery_pattern' => $this->delivery_pattern(),
+			'delivery_pattern'  => $this->delivery_pattern(),
 		);
 
 		echo json_encode( $arr );
@@ -367,15 +367,20 @@ class N2_Setpost {
 		$pattern = parse_ini_file( get_template_directory() . '/config/n2-delivery.ini', true );
 
 		// プラグイン側で上書き
-		$pattern = apply_filters('n2_setpost_change_delivary_pattern',$pattern);
+		$pattern = apply_filters( 'n2_setpost_change_delivary_pattern', $pattern );
 
 		// 数値は数値に変換
-		$pattern = array_map(function($arr){
-			return array_map(function($v){
-				return $v !== '' ? intval($v):$v;
-			},$arr);
-		},$pattern);
-
+		$pattern = array_map(
+			function( $arr ) {
+				return array_map(
+					function( $v ) {
+						return '' !== $v ? intval( $v ) : $v;
+					},
+					$arr
+				);
+			},
+			$pattern
+		);
 
 		return $pattern;
 	}
