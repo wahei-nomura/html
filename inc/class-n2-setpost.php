@@ -363,30 +363,16 @@ class N2_Setpost {
 	 * @return Array $pattern
 	 */
 	private function delivery_pattern() {
-		$pattern = array(
-			'normal'=>array(
-				'未選択'=>'',
-				'60サイズ'=>1000,
-				'80サイズ'=>1100,
-				'100サイズ'=>1200,
-				'120サイズ'=>1300,
-				'140サイズ'=>1400,
-				'160サイズ'=>1500,
-				'180サイズ'=>1600,
-				'200サイズ'=>1700,
-				'レターパックプラス'=>520,
-				'その他'=>0,
-			),
-			'cool'=>array(
-				'未選択'=>'',
-				'60サイズ'=> 1200,
-				'80サイズ'=> 1300,
-				'100サイズ'=> 1500,
-				'120サイズ'=>1900,
-				'レターパックプラス'=> 520,
-				'その他'=> 0,
-			),
-		);
+
+		$pattern = parse_ini_file( get_template_directory() . '/config/n2-delivery.ini', true );
+
+		// 数値は数値に変換
+		$pattern = array_map(function($arr){
+			return array_map(function($v){
+				return $v !== '' ? intval($v):$v;
+			},$arr);
+		},$pattern);
+
 
 		return $pattern;
 	}
