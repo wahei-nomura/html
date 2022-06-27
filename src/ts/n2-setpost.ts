@@ -565,36 +565,12 @@ export default () => {
 				public webSyukka: boolean; // web出荷かどうかtrue or false
 				public deliveryCool: boolean; // クール便かどうか true or false
 				private price: number|string;
+				public deliveryPattern: {[s: string]: {[s: string]: number|string}};
 
-				// このオブジェクトはPHPからajaxで受け取るようにする予定
-				deliveryPattern : {[s: string]: {[s: string]:number|string}}={
-					'normal': {
-						'未選択':'',
-						'60サイズ':1000,
-						'80サイズ':1100,
-						'100サイズ':1200,
-						'120サイズ':1300,
-						'140サイズ':1400,
-						'160サイズ':1500,
-						'180サイズ':1600,
-						'200サイズ':1700,
-						'レターパックプラス':520,
-						'その他':0,
-					},
-					'cool': {
-						'未選択':'',
-						'60サイズ': 1200,
-						'80サイズ': 1300,
-						'100サイズ': 1500,
-						'120サイズ': 1900,
-						'レターパックプラス': 520,
-						'その他': 0,
-					}
-				} 
-
-				constructor(webSyukka:boolean,deliveryCool:boolean) {
+				constructor(webSyukka:boolean,deliveryCool:boolean,deliveryPattern: {[s: string]: {[s: string]:number|string}}) {
 					this.webSyukka=webSyukka;
 					this.deliveryCool=deliveryCool;
+					this.deliveryPattern=deliveryPattern;
 				}
 
 				// 金額更新
@@ -620,7 +596,7 @@ export default () => {
 			}
 			
 			// インスタンス生成
-			const souryouState=new ControlSouryou($('#発送サイズ').text()!=='その他', $('#発送方法').val()!=='常温');
+			const souryouState=new ControlSouryou($('#発送サイズ').text()!=='その他', $('#発送方法').val()!=='常温',data['delivery_pattern']);
 			// 金額セット
 			souryouState.setPrice=souryouState.convertPrice($('#発送サイズ>option:selected').text())
 			

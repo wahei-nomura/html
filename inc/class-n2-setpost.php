@@ -327,6 +327,7 @@ class N2_Setpost {
 		$arr = array(
 			'ss_crew'           => wp_get_current_user()->allcaps['ss_crew'] ? 'true' : 'false',
 			'kifu_auto_pattern' => $this->kifu_auto_pattern(),
+			'delivery_pattern' => $this->delivery_pattern(),
 		);
 
 		echo json_encode( $arr );
@@ -354,5 +355,39 @@ class N2_Setpost {
 		$pattern_type = apply_filters( 'n2_setpost_change_kifu_pattern', $pattern_type );
 
 		return $pattern[ $pattern_type ];
+	}
+
+	/**
+	 * 配送パターンを渡す
+	 *
+	 * @return Array $pattern
+	 */
+	private function delivery_pattern() {
+		$pattern = array(
+			'normal'=>array(
+				'未選択'=>'',
+				'60サイズ'=>1000,
+				'80サイズ'=>1100,
+				'100サイズ'=>1200,
+				'120サイズ'=>1300,
+				'140サイズ'=>1400,
+				'160サイズ'=>1500,
+				'180サイズ'=>1600,
+				'200サイズ'=>1700,
+				'レターパックプラス'=>520,
+				'その他'=>0,
+			),
+			'cool'=>array(
+				'未選択'=>'',
+				'60サイズ'=> 1200,
+				'80サイズ'=> 1300,
+				'100サイズ'=> 1500,
+				'120サイズ'=>1900,
+				'レターパックプラス'=> 520,
+				'その他'=> 0,
+			),
+		);
+
+		return $pattern;
 	}
 }
