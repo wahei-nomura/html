@@ -567,7 +567,7 @@ export default () => {
 				private price: number|string;
 
 				// このオブジェクトはPHPからajaxで受け取るようにする予定
-				delivery : {[s: string]: {[s: string]:number|string}}={
+				deliveryPattern : {[s: string]: {[s: string]:number|string}}={
 					'normal': {
 						'未選択':'',
 						'60サイズ':1000,
@@ -615,7 +615,7 @@ export default () => {
 
 				// 料金表オブジェクトをもとにサイズを料金へ変換
 				convertPrice(size:string) {
-					return this.delivery[this.deliveryCool?'cool':'normal'][size];
+					return this.deliveryPattern[this.deliveryCool?'cool':'normal'][size];
 				}
 			}
 			
@@ -628,7 +628,7 @@ export default () => {
 			const changeSizeSelect = (souryouState) => {
 				// 発送サイズをcool表示に
 				$.each($('#発送サイズ>option'), (index,option) => {
-					if(!Object.keys(souryouState.delivery['cool']).includes($(option).text())) {
+					if(!Object.keys(souryouState.deliveryPattern['cool']).includes($(option).text())) {
 						$(option).css('display',`${souryouState.deliveryCool?'none':'block'}`)
 					}
 				})
