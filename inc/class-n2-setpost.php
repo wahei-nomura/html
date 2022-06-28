@@ -364,23 +364,10 @@ class N2_Setpost {
 	 */
 	private function delivery_pattern() {
 
-		$pattern = parse_ini_file( get_template_directory() . '/config/n2-delivery.ini', true );
+		$pattern = parse_ini_file( get_template_directory() . '/config/n2-delivery.ini', true, INI_SCANNER_TYPED );
 
 		// プラグイン側で上書き
 		$pattern = apply_filters( 'n2_setpost_change_delivary_pattern', $pattern );
-
-		// 数値は数値に変換
-		$pattern = array_map(
-			function( $arr ) {
-				return array_map(
-					function( $v ) {
-						return '' !== $v ? intval( $v ) : $v;
-					},
-					$arr
-				);
-			},
-			$pattern
-		);
 
 		return $pattern;
 	}
