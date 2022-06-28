@@ -30,6 +30,7 @@ class N2_Postlist {
 		add_filter( 'gettext', array( $this, 'change_status' ) );
 		add_filter( 'ngettext', array( $this, 'change_status' ) );
 		add_filter( 'post_row_actions', array( $this, 'hide_editbtn' ) );
+		add_action( 'restrict_manage_posts', array( $this, 'add_field_filter' ) );
 	}
 
 	/**
@@ -212,5 +213,16 @@ class N2_Postlist {
 		unset( $actions['view'] );
 		unset( $actions['trash'] );
 		return $actions;
+	}
+
+	/**
+	 * add_field_filter
+	 * フィールド内容で絞り込み
+	 */
+	public function add_field_filter() {
+		global $post_type;
+		if ( ! empty( $post_type ) && 'post' === $post_type ) {
+			// ここにセレクトタグ表示したい
+		}
 	}
 }
