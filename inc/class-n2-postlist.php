@@ -221,8 +221,20 @@ class N2_Postlist {
 	 */
 	public function add_field_filter() {
 		global $post_type;
+		global $wpdb;
 		if ( ! empty( $post_type ) && 'post' === $post_type ) {
-			// ここにセレクトタグ表示したい
+			$query = "SELECT * FROM $wpdb->posts";
+			$results = $wpdb->get_results( $wpdb->prepare( $query ) );
+			echo '<select name="返礼品コード" multiple>';
+			echo '<option value="">返礼品コード</option>';
+			foreach($results as $row) {
+				$id = $row->ID;
+				$code = get_post_meta($id,'返礼品コード',true);
+				if( '' !== $code){
+					echo "<option value='{$code}'>{$code}</option>";
+				}
+			}
+			echo '</select>';
 		}
 	}
 }
