@@ -1,3 +1,5 @@
+import { prefix, neoNengPath, ajaxUrl } from '../functions/index'
+
 export default () => {
 	/** ===============================================================
 	 * 
@@ -5,12 +7,6 @@ export default () => {
 	 * 
 	================================================================== */
 	jQuery(function($) {
-		// クラスにテーマ名をprefixつける
-		const prefix='neo-neng';
-
-		const ajaxUrl=(window): string => {
-			return window.tmp_path.ajax_url;
-		}
 		
 		// 計算パターンを受け取ってから処理
 		$.ajax({
