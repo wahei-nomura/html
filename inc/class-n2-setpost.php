@@ -150,7 +150,7 @@ class N2_Setpost {
 		$type   = $args['args'][1]; // ss or default
 
 		// プラグインn2-developのn2_setpost_show_customfields呼び出し
-		list($fields,$type) = apply_filters( 'n2_setpost_show_customfields', array( $fields, $type ) );
+		$fields = apply_filters( 'n2_setpost_show_customfields', $fields, $type );
 
 		// optionを配列化、valueにDBの値をセット
 		// 「,」で配列に分けて、「\」でkey=>valueにわけている
@@ -237,13 +237,13 @@ class N2_Setpost {
 						} elseif ( 'rakuten_genreid' === $detail['type'] ) {
 							// 楽天ディレクトリID検索用
 							$value      = '' !== $detail['value'] ? $detail['value'] : '';
-							$text       = '' !== $post_data['全商品ディレクトリID-text'] ? $post_data['全商品ディレクトリID-text'] : '';
+							$text       = empty( $post_data['全商品ディレクトリID-text'] ) || '' === $post_data['全商品ディレクトリID-text'] ? '' : $post_data['全商品ディレクトリID-text'];
 							$validation = ! empty( $detail['validation'] ) ? N2_THEME_NAME . $validation_class[ $detail['validation'] ] : '';
 							printf( $input_tags[ $detail['type'] ], $field, $value, $field . '-text', $text, $validation );
 						} elseif ( 'rakuten_tagid' === $detail['type'] ) {
 							// 楽天ディレクトリID検索用
 							$value      = '' !== $detail['value'] ? $detail['value'] : '';
-							$text       = '' !== $post_data['タグID-text'] ? $post_data['タグID-text'] : '';
+							$text       = empty( $post_data['タグID-text'] ) || '' === $post_data['タグID-text'] ? '' : $post_data['タグID-text'];
 							$validation = ! empty( $detail['validation'] ) ? N2_THEME_NAME . $validation_class[ $detail['validation'] ] : '';
 							printf( $input_tags[ $detail['type'] ], $field, $value, $field . '-text', $text, $validation );
 						} else {
@@ -276,22 +276,9 @@ class N2_Setpost {
 		}
 
 		foreach ( $_POST as $key => $value ) {
-			update_post_meta( $post_id, $key, $this->h( $value ) );
+			update_post_meta( $post_id, $key, $value );
 		}
-	}
 
-	/**
-	 * エスケープ処理の簡易関数
-	 *
-	 * @param string $arg 文字列
-	 * @return string
-	 */
-	public function h( $arg ) {
-		if ( gettype( $arg ) === 'string' ) {
-			return htmlspecialchars( $arg, ENT_QUOTES, 'UTF-8' );
-		} else {
-			return $arg;
-		}
 	}
 
 
@@ -336,9 +323,52 @@ class N2_Setpost {
 	 * @return void
 	 */
 	public function ajax() {
-		$user = wp_get_current_user();
-		echo $user->allcaps['ss_crew'] ? 'true' : 'false';
+
+		$arr = array(
+			'ss_crew'           => wp_get_current_user()->allcaps['ss_crew'] ? 'true' : 'false',
+			'kifu_auto_pattern' => $this->kifu_auto_pattern(),
+			'delivery_pattern'  => $this->delivery_pattern(),
+		);
+
+		echo json_encode( $arr );
 
 		die();
+	}
+
+	/**
+	 * 寄附金額計算式をそのままJSの構文として渡す
+	 *
+	 * @return string
+	 */
+	private function kifu_auto_pattern() {
+
+		// パターンを配列で置いておく
+		$pattern = array(
+			'零号機' => 'Math.ceil((kakaku + souryou) / 300) * 1000',
+			'初号機' => 'Math.ceil(kakaku / 300) * 1000',
+			'弐号機' => 'Math.ceil((kakaku + souryou) / 350) * 1000',
+		);
+
+		$pattern['使徒'] = "{$pattern['初号機']}>{$pattern['弐号機']}?{$pattern['初号機']}:{$pattern['弐号機']}";
+
+		$pattern_type = '初号機';
+		$pattern_type = apply_filters( 'n2_setpost_change_kifu_pattern', $pattern_type );
+
+		return $pattern[ $pattern_type ];
+	}
+
+	/**
+	 * 配送パターンを渡す
+	 *
+	 * @return Array $pattern
+	 */
+	private function delivery_pattern() {
+
+		$pattern = parse_ini_file( get_template_directory() . '/config/n2-delivery.ini', true, INI_SCANNER_TYPED );
+
+		// プラグイン側で上書き
+		$pattern = apply_filters( 'n2_setpost_change_delivary_pattern', $pattern );
+
+		return $pattern;
 	}
 }

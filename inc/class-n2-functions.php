@@ -21,7 +21,7 @@ class N2_Functions {
 	 * @param Object $object 現在の投稿の詳細データ
 	 * @return Array 全カスタムフィールド情報
 	 */
-	public function get_all_meta( $object ) {
+	public static function get_all_meta( $object ) {
 
 		$all = get_post_meta( $object->ID );
 		foreach ( $all as $k => $v ) {
@@ -40,7 +40,7 @@ class N2_Functions {
 	 * @param string $str きれいにしたい文字列
 	 * @return string $str
 	 */
-	public function _s( $str ) {
+	public static function _s( $str ) {
 
 		// 絵文字除去
 		$str = preg_replace( '/([0-9|#][\x{20E3}])|[\x{00ae}|\x{00a9}|\x{203C}|\x{2047}|\x{2048}|\x{2049}|\x{3030}|\x{303D}|\x{2139}|\x{2122}|\x{3297}|\x{3299}][\x{FE00}-\x{FEFF}]?|[\x{2190}-\x{21FF}][\x{FE00}-\x{FEFF}]?|[\x{2300}-\x{23FF}][\x{FE00}-\x{FEFF}]?|[\x{2900}-\x{297F}][\x{FE00}-\x{FEFF}]?|[\x{2B00}-\x{2BF0}][\x{FE00}-\x{FEFF}]?|[\x{1F000}-\x{1F6FF}][\x{FE00}-\x{FEFF}]?/u', '', $str );
@@ -73,5 +73,17 @@ class N2_Functions {
 
 		// [K]半角カタカナ=>全角カタカナ、[r]全角英=>半角英、[n]全角数=>半角数、[V]濁点付きの文字を一文字に、[s]全角スペース=>半角スペース
 		return trim( mb_convert_kana( htmlspecialchars_decode( $str ), 'KrnVs' ) );
+	}
+
+	/**
+	 * get_post_metaのラッパー
+	 *
+	 * @param string $post_id postod
+	 * @param string $key key
+	 * @param bool   $single single
+	 * @return string
+	 */
+	public static function nl2br_get_post_meta( $post_id, $key, $single = true ) {
+		return nl2br( self::_s( get_post_meta( $post_id, $key, $single ) ) );
 	}
 }
