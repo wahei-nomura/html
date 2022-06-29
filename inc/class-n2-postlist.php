@@ -30,6 +30,7 @@ class N2_Postlist {
 		add_filter( 'gettext', array( $this, 'change_status' ) );
 		add_filter( 'ngettext', array( $this, 'change_status' ) );
 		add_filter( 'post_row_actions', array( $this, 'hide_editbtn' ) );
+		add_filter('posts_where', array( $this, 'posts_where_field' ) );
 		add_action( 'restrict_manage_posts', array( $this, 'add_field_filter' ) );
 	}
 
@@ -213,6 +214,22 @@ class N2_Postlist {
 		unset( $actions['view'] );
 		unset( $actions['trash'] );
 		return $actions;
+	}
+
+	/**
+	 * posts_where_field
+	 */
+	public function posts_where_field($where){
+		global $wpdb;
+		//管理画面でのみ実行
+		if(is_admin()) {
+			$value = get_query_var('返礼品コード');
+			  if(!empty($value)) {
+				  //検索条件にカスタムフィールド「subtitle」の値を追加
+				  $where .= $wpdb->prepare(" AND EXISTS ( SELECT * FROM {$wpdb->postmeta} as m WHERE m.post_id = {$wpdb->posts}.ID AND m.meta_key = '返礼品コード' AND m.meta_value like %s )","%{$value}%" );
+			  }
+		  }
+		  return $where;
 	}
 
 	/**
