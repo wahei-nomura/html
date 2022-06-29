@@ -1,17 +1,18 @@
-export default () =>{
+import { prefix, neoNengPath, ajaxUrl } from '../functions/index'
+
+export default () => {
 	jQuery(function($){
 		// 各種セットアップの更新
 		$('.sissubmit').on('click',function(e){
 			e.preventDefault();
 			const 
-			ajaxurl = (window) :string  => window.tmp_path.ajax_url,
 			$this :any = $(this),
 			data :string = $this.parents('form').serialize();
-			if(ajaxurl(window)){
+			if(ajaxUrl(window)){
 				$this.val("　更新中...　");
 				$.ajax({
 					type: "POST",
-					url : ajaxurl(window),
+					url : ajaxUrl(window),
 					data: data,
 				})
 				.done((data) =>{

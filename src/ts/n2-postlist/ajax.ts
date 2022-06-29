@@ -1,11 +1,10 @@
+import { prefix, neoNengPath, ajaxUrl } from '../functions/index'
+
 /**
  * 返礼品一覧ページで使用するAjax用のファイル
  */
 export default () => {
 	jQuery(function($) { 
-		const ajaxUrl = (window): string => {
-			return window.tmp_path.ajax_url;
-		}
 
 		$('.sisbtn').on('click', e => {
 			const btnName=$(e.target).attr('id');
