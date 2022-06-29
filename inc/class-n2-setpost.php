@@ -327,6 +327,7 @@ class N2_Setpost {
 		$arr = array(
 			'ss_crew'           => wp_get_current_user()->allcaps['ss_crew'] ? 'true' : 'false',
 			'kifu_auto_pattern' => $this->kifu_auto_pattern(),
+			'delivery_pattern'  => $this->delivery_pattern(),
 		);
 
 		echo json_encode( $arr );
@@ -354,5 +355,20 @@ class N2_Setpost {
 		$pattern_type = apply_filters( 'n2_setpost_change_kifu_pattern', $pattern_type );
 
 		return $pattern[ $pattern_type ];
+	}
+
+	/**
+	 * 配送パターンを渡す
+	 *
+	 * @return Array $pattern
+	 */
+	private function delivery_pattern() {
+
+		$pattern = parse_ini_file( get_template_directory() . '/config/n2-delivery.ini', true, INI_SCANNER_TYPED );
+
+		// プラグイン側で上書き
+		$pattern = apply_filters( 'n2_setpost_change_delivary_pattern', $pattern );
+
+		return $pattern;
 	}
 }
