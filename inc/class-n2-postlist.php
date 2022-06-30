@@ -30,8 +30,8 @@ class N2_Postlist {
 		add_filter( 'gettext', array( $this, 'change_status' ) );
 		add_filter( 'ngettext', array( $this, 'change_status' ) );
 		add_filter( 'post_row_actions', array( $this, 'hide_editbtn' ) );
-		add_filter('posts_where', array( $this, 'posts_where_field' ) );
 		add_action( 'restrict_manage_posts', array( $this, 'add_field_filter' ) );
+		add_action( 'posts_request', array( $this, 'posts_request' ) );
 	}
 
 	/**
@@ -217,22 +217,6 @@ class N2_Postlist {
 	}
 
 	/**
-	 * posts_where_field
-	 */
-	public function posts_where_field($where){
-		global $wpdb;
-		//管理画面でのみ実行
-		if(is_admin()) {
-			$value = get_query_var('返礼品コード');
-			  if(!empty($value)) {
-				  //検索条件にカスタムフィールド「subtitle」の値を追加
-				  $where .= $wpdb->prepare(" AND EXISTS ( SELECT * FROM {$wpdb->postmeta} as m WHERE m.post_id = {$wpdb->posts}.ID AND m.meta_key = '返礼品コード' AND m.meta_value like %s )","%{$value}%" );
-			  }
-		  }
-		  return $where;
-	}
-
-	/**
 	 * add_field_filter
 	 * フィールド内容で絞り込み
 	 */
@@ -240,18 +224,58 @@ class N2_Postlist {
 		global $post_type;
 		global $wpdb;
 		if ( ! empty( $post_type ) && 'post' === $post_type ) {
-			$query = "SELECT * FROM $wpdb->posts";
-			$results = $wpdb->get_results( $wpdb->prepare( $query ) );
-			echo '<select name="返礼品コード" multiple>';
+			$sql     = "SELECT * FROM $wpdb->posts ;";
+			$results = $wpdb->get_results( $sql );
+			echo '<select name="返礼品コード" multiple size=1>';
 			echo '<option value="">返礼品コード</option>';
-			foreach($results as $row) {
-				$id = $row->ID;
-				$code = get_post_meta($id,'返礼品コード',true);
-				if( '' !== $code){
+			foreach ( $results as $row ) {
+				$id   = $row->ID;
+				$code = get_post_meta( $id, '返礼品コード', true );
+				if ( '' !== $code ) {
 					echo "<option value='{$code}'>{$code}</option>";
 				}
 			}
 			echo '</select>';
 		}
 	}
+
+	/**
+	 * 一定条件下でSQLを全書き換え
+	 *
+	 * @param string $query sql
+	 * @return string $query sql
+	 */
+	public function posts_request( $query ) {
+		global $wpdb;
+
+		if ( is_admin() && current_user_can( 'ss_crew' ) && ! empty( $_GET['返礼品コード'] ) && '' !== $_GET['返礼品コード'] ) {
+
+			$sql = "
+			SELECT SQL_CALC_FOUND_ROWS *
+			FROM {$wpdb->posts}
+			LEFT OUTER JOIN {$wpdb->postmeta} ON {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id
+			WHERE 1 = 1
+			AND (
+				(
+					{$wpdb->posts}.post_type = 'post'
+					AND (
+						{$wpdb->posts}.post_status = 'publish'
+						OR {$wpdb->posts}.post_status = 'future'
+						OR {$wpdb->posts}.post_status = 'draft'
+						OR {$wpdb->posts}.post_status = 'pending'
+						OR {$wpdb->posts}.post_status = 'private'
+					)
+					AND {$wpdb->postmeta}.meta_key = '返礼品コード'
+					AND {$wpdb->postmeta}.meta_value = '%s'
+				)
+			)
+			ORDER BY {$wpdb->posts}.post_date DESC
+			";
+
+			$query = $wpdb->prepare( $sql, filter_input( INPUT_GET, '返礼品コード' ) );
+		}
+		return $query;
+	}
+
+
 }
