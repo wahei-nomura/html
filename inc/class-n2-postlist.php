@@ -269,20 +269,30 @@ class N2_Postlist {
 						)
 			";
 
-			if ( ! empty( $_GET['返礼品コード'] ) && '' !== $_GET['返礼品コード'] ) {
+			if ( ! empty( $_GET['s'] ) && '' !== $_GET['s'] ) {
 				$sql .= "
-						AND {$wpdb->postmeta}.meta_key = '返礼品コード'
-						AND {$wpdb->postmeta}.meta_value = '%s'
-						)
-					)";
-				array_push( $args, filter_input( INPUT_GET, '返礼品コード' ) );
+					AND {$wpdb->postmeta}.meta_value LIKE '%%%s%%'
+				";
+				array_push( $args, filter_input( INPUT_GET, 's' ) );
 			}
+			// if ( ! empty( $_GET['返礼品コード'] ) && '' !== $_GET['返礼品コード'] ) {
+			// 	$sql .= "
+			// 		AND {$wpdb->postmeta}.meta_key = '返礼品コード'
+			// 		AND {$wpdb->postmeta}.meta_value = '%s'";
+			// 	array_push( $args, filter_input( INPUT_GET, '返礼品コード' ) );
+			// }
 
-			$sql .= "ORDER BY {$wpdb->posts}.post_date DESC";
+			$sql .= "
+				)
+				)
+					ORDER BY {$wpdb->posts}.post_date DESC";
 
 		}
 
-		$query = count( $args ) > 0 ? $wpdb->prepare( $sql, ...$args ) : $query ;
+		$query = count( $args ) > 0 ? $wpdb->prepare( $sql, $args[0] ) : $query ;
+		// $query = $sql;
+
+		var_dump($query);
 		return $query;
 	}
 
