@@ -274,16 +274,15 @@ class N2_Postlist {
 						AND {$wpdb->postmeta}.meta_key = '返礼品コード'
 						AND {$wpdb->postmeta}.meta_value = '%s'
 						)
-					)
-
-					ORDER BY {$wpdb->posts}.post_date DESC
-					";
-
+					)";
 				array_push( $args, filter_input( INPUT_GET, '返礼品コード' ) );
 			}
 
-			$query = $wpdb->prepare( $sql, ...$args );
+			$sql .= "ORDER BY {$wpdb->posts}.post_date DESC";
+
 		}
+
+		$query = count( $args ) > 0 ? $wpdb->prepare( $sql, ...$args ) : $query ;
 		return $query;
 	}
 
