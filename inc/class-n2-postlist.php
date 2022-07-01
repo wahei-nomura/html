@@ -231,8 +231,9 @@ class N2_Postlist {
 			foreach ( $results as $row ) {
 				$id   = $row->ID;
 				$code = get_post_meta( $id, '返礼品コード', true );
+				$selected = $code === filter_input( INPUT_GET, '返礼品コード' ) ? 'selected' : '';
 				if ( '' !== $code ) {
-					echo "<option value='{$code}'>{$code}</option>";
+					echo "<option value='{$code}' {$selected}>{$code}</option>";
 				}
 			}
 			echo '</select>';
