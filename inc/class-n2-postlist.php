@@ -226,7 +226,7 @@ class N2_Postlist {
 		if ( ! empty( $post_type ) && 'post' === $post_type ) {
 			$sql     = "SELECT * FROM $wpdb->posts ;";
 			$results = $wpdb->get_results( $sql );
-			echo '<select name="返礼品コード" multiple size=1>';
+			echo '<select name="返礼品コード">';
 			echo '<option value="">返礼品コード</option>';
 			foreach ( $results as $row ) {
 				$id   = $row->ID;
