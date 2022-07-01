@@ -249,8 +249,9 @@ class N2_Postlist {
 	public function posts_request( $query ) {
 		global $wpdb;
 
-		if ( is_admin() && current_user_can( 'ss_crew' ) && ! empty( $_GET['返礼品コード'] ) && '' !== $_GET['返礼品コード'] ) {
+		$args = array();
 
+		if ( is_admin() && current_user_can( 'ss_crew' ) ) {
 			$sql = "
 			SELECT SQL_CALC_FOUND_ROWS *
 			FROM {$wpdb->posts}
@@ -265,15 +266,23 @@ class N2_Postlist {
 						OR {$wpdb->posts}.post_status = 'draft'
 						OR {$wpdb->posts}.post_status = 'pending'
 						OR {$wpdb->posts}.post_status = 'private'
-					)
-					AND {$wpdb->postmeta}.meta_key = '返礼品コード'
-					AND {$wpdb->postmeta}.meta_value = '%s'
-				)
-			)
-			ORDER BY {$wpdb->posts}.post_date DESC
+						)
 			";
 
-			$query = $wpdb->prepare( $sql, filter_input( INPUT_GET, '返礼品コード' ) );
+			if ( ! empty( $_GET['返礼品コード'] ) && '' !== $_GET['返礼品コード'] ) {
+				$sql .= "
+						AND {$wpdb->postmeta}.meta_key = '返礼品コード'
+						AND {$wpdb->postmeta}.meta_value = '%s'
+						)
+					)
+
+					ORDER BY {$wpdb->posts}.post_date DESC
+					";
+
+				array_push( $args, filter_input( INPUT_GET, '返礼品コード' ) );
+			}
+
+			$query = $wpdb->prepare( $sql, ...$args );
 		}
 		return $query;
 	}
