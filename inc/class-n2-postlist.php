@@ -223,17 +223,17 @@ class N2_Postlist {
 	public function add_field_filter() {
 		global $post_type;
 		global $wpdb;
-		if ( ! empty( $post_type ) && 'post' === $post_type ) {
-			$sql     = "SELECT * FROM $wpdb->posts ;";
+		if ( is_admin() && current_user_can( 'ss_crew' ) && ! empty( $post_type ) && 'post' === $post_type ) {
+			$sql     = "SELECT * FROM $wpdb->users ;";
 			$results = $wpdb->get_results( $sql );
-			echo '<select name="返礼品コード">';
-			echo '<option value="">返礼品コード</option>';
+			echo '<select name="事業者">';
+			echo '<option value="">事業者</option>';
 			foreach ( $results as $row ) {
-				$id       = $row->ID;
-				$code     = get_post_meta( $id, '返礼品コード', true );
-				$selected = $code === filter_input( INPUT_GET, '返礼品コード' ) ? 'selected' : '';
-				if ( '' !== $code ) {
-					echo "<option value='{$code}' {$selected}>{$code}</option>";
+				$author_id   = $row->ID;
+				$author_name = $row->display_name;
+				$selected    = $author_id === filter_input( INPUT_GET, '事業者' ) ? 'selected' : '';
+				if ( '' !== $author_name ) {
+					echo "<option value='{$author_id}' {$selected}>{$author_name}</option>";
 				}
 			}
 			echo '</select>';
@@ -255,7 +255,7 @@ class N2_Postlist {
 			$sql = "
 			SELECT SQL_CALC_FOUND_ROWS *
 			FROM {$wpdb->posts}
-			LEFT OUTER JOIN {$wpdb->postmeta} ON {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id
+			INNER JOIN {$wpdb->postmeta} ON {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id
 			WHERE 1 = 1
 			AND (
 				(
@@ -275,16 +275,17 @@ class N2_Postlist {
 				";
 				array_push( $args, filter_input( INPUT_GET, 's' ) );
 			}
-			if ( ! empty( $_GET['返礼品コード'] ) && '' !== $_GET['返礼品コード'] ) {
+			if ( ! empty( $_GET['事業者'] ) && '' !== $_GET['事業者'] ) {
 				$sql .= "
-					AND {$wpdb->postmeta}.meta_key = '返礼品コード'
-					AND {$wpdb->postmeta}.meta_value = '%s'";
-				array_push( $args, filter_input( INPUT_GET, '返礼品コード' ) );
+					AND {$wpdb->posts}.post_author = '%s'
+				";
+				array_push( $args, filter_input( INPUT_GET, '事業者' ) );
 			}
 
 			$sql .= "
 				)
 				)
+					GROUP BY {$wpdb->posts}.ID
 					ORDER BY {$wpdb->posts}.post_date DESC";
 
 		}
