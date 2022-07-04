@@ -19,9 +19,16 @@ if ( class_exists( 'N2_Postlist' ) ) {
  */
 class N2_Postlist {
 	/**
+	 * クラス名
+	 *
+	 * @var string
+	 */
+	private $cls;
+	/**
 	 * コンストラクタ
 	 */
 	public function __construct() {
+		$this->cls = get_class( $this );
 		add_action( 'admin_head-edit.php', array( $this, 'show_exportbtns' ) );
 		add_filter( 'manage_posts_columns', array( $this, 'add_posts_columns' ), 10, 2 );
 		add_action( 'init', array( $this, 'change_postlabel' ) );
@@ -32,6 +39,7 @@ class N2_Postlist {
 		add_filter( 'post_row_actions', array( $this, 'hide_editbtn' ) );
 		add_action( 'restrict_manage_posts', array( $this, 'add_field_filter' ) );
 		add_action( 'posts_request', array( $this, 'posts_request' ) );
+		add_action( "wp_ajax_{$this->cls}", array( $this, 'ajax' ) );
 	}
 
 	/**
@@ -239,6 +247,23 @@ class N2_Postlist {
 			}
 			echo '</select>';
 
+			// // 返礼品コード検索
+			echo '<select name="返礼品コード">';
+			echo '<option value="">返礼品コード</option>';
+			if ( empty( $_GET['事業者'] ) || '' === $_GET['事業者'] ) {
+				$posts_sql     = "SELECT * FROM $wpdb->posts ;";
+				$posts_results = $wpdb->get_results( $posts_sql );
+				foreach ( $posts_results as $row ) {
+					$post_id  = $row->ID;
+					$code     = get_post_meta( $post_id, '返礼品コード', 'true' );
+					$selected = $post_id === filter_input( INPUT_GET, '返礼品コード' ) ? 'selected' : '';
+					if ( '' !== $code ) {
+						echo "<option value='{$post_id}' {$selected}>{$code}</option>";
+					}
+				}
+			}
+			echo '</select>';
+
 			// ステータス検索
 			$status = array(
 				'draft'   => '事業者下書き',
@@ -301,6 +326,12 @@ class N2_Postlist {
 				";
 				array_push( $args, filter_input( INPUT_GET, '事業者' ) );
 			}
+			if ( ! empty( $_GET['返礼品コード'] ) && '' !== $_GET['返礼品コード'] ) {
+				$sql .= "
+					AND {$wpdb->posts}.ID = '%s'
+				";
+				array_push( $args, filter_input( INPUT_GET, '返礼品コード' ) );
+			}
 			if ( ! empty( $_GET['ステータス'] ) && '' !== $_GET['ステータス'] ) {
 				$sql .= "
 					AND {$wpdb->posts}.post_status = '%s'
@@ -321,5 +352,34 @@ class N2_Postlist {
 		return $query;
 	}
 
+	/**
+	 * JSに返礼品コード一覧を渡す
+	 *
+	 * @return void
+	 */
+	public function ajax() {
+		global $wpdb;
+		$jigyousya = filter_input( INPUT_GET, '事業者' );
+
+		if ( ! empty( $jigyousya ) && '' !== $jigyousya ) {
+			$sql = "SELECT * FROM $wpdb->posts WHERE $wpdb->posts.post_author = $jigyousya ;";
+		} else {
+			$sql = "SELECT * FROM $wpdb->posts ;";
+		}
+		$result = $wpdb->get_results( $sql );
+		$arr    = array();
+		foreach ( $result as $row ) {
+			if (
+				! empty( get_post_meta( $row->ID, '返礼品コード', 'true' ) ) &&
+				'' !== get_post_meta( $row->ID, '返礼品コード', 'true' )
+				) {
+				$arr[ $row->ID ] = get_post_meta( $row->ID, '返礼品コード', 'true' );
+			}
+		}
+
+		echo json_encode( $arr );
+
+		die();
+	}
 
 }
