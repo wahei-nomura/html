@@ -37,5 +37,12 @@ export default () => {
 		$('select[name="事業者"]').on('change', () => {
 			changeItemcode()
 		})
+
+		let url = new URL(location.href);
+
+		let params = url.searchParams;
+
+		const checked:string=params.get('or')==='1'? 'checked':'';
+		$('#post-search-input').before($(`<label style="float:left"><input name="or" value="1" type="checkbox" ${checked}>OR検索</label>`))
 	})
 }

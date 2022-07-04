@@ -311,10 +311,11 @@ class N2_Postlist {
 			";
 
 			if ( ! empty( $_GET['s'] ) && '' !== $_GET['s'] ) {
-				$s_arr = explode( ' ', mb_convert_kana( filter_input( INPUT_GET, 's' ), 's' ) );
+				$s_arr       = explode( ' ', mb_convert_kana( filter_input( INPUT_GET, 's' ), 's' ) );
+				$sql_pattern = ! empty( $_GET['or'] ) && '1' === $_GET['or'] ? 'OR' : 'AND';
 				foreach ( $s_arr as $s ) {
 					$sql .= "
-						AND (
+						{$sql_pattern} (
 							{$wpdb->postmeta}.meta_value LIKE '%%%s%%'
 							OR {$wpdb->posts}.post_title LIKE '%%%s%%'
 							)
@@ -351,7 +352,7 @@ class N2_Postlist {
 		}
 
 		$query = count( $args ) > 0 ? $wpdb->prepare( $sql, ...$args ) : $query;
-
+		var_dump($query);
 		return $query;
 	}
 
