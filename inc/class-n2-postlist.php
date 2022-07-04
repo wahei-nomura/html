@@ -229,8 +229,8 @@ class N2_Postlist {
 			echo '<select name="返礼品コード">';
 			echo '<option value="">返礼品コード</option>';
 			foreach ( $results as $row ) {
-				$id   = $row->ID;
-				$code = get_post_meta( $id, '返礼品コード', true );
+				$id       = $row->ID;
+				$code     = get_post_meta( $id, '返礼品コード', true );
 				$selected = $code === filter_input( INPUT_GET, '返礼品コード' ) ? 'selected' : '';
 				if ( '' !== $code ) {
 					echo "<option value='{$code}' {$selected}>{$code}</option>";
@@ -275,12 +275,12 @@ class N2_Postlist {
 				";
 				array_push( $args, filter_input( INPUT_GET, 's' ) );
 			}
-			// if ( ! empty( $_GET['返礼品コード'] ) && '' !== $_GET['返礼品コード'] ) {
-			// 	$sql .= "
-			// 		AND {$wpdb->postmeta}.meta_key = '返礼品コード'
-			// 		AND {$wpdb->postmeta}.meta_value = '%s'";
-			// 	array_push( $args, filter_input( INPUT_GET, '返礼品コード' ) );
-			// }
+			if ( ! empty( $_GET['返礼品コード'] ) && '' !== $_GET['返礼品コード'] ) {
+				$sql .= "
+					AND {$wpdb->postmeta}.meta_key = '返礼品コード'
+					AND {$wpdb->postmeta}.meta_value = '%s'";
+				array_push( $args, filter_input( INPUT_GET, '返礼品コード' ) );
+			}
 
 			$sql .= "
 				)
@@ -289,10 +289,8 @@ class N2_Postlist {
 
 		}
 
-		$query = count( $args ) > 0 ? $wpdb->prepare( $sql, $args[0] ) : $query ;
-		// $query = $sql;
+		$query = count( $args ) > 0 ? $wpdb->prepare( $sql, ...$args ) : $query;
 
-		var_dump($query);
 		return $query;
 	}
 
