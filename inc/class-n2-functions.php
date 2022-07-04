@@ -77,6 +77,7 @@ class N2_Functions {
 
 	/**
 	 * get_post_metaのラッパー
+	 * 文字列を整えて改行タグを追加する
 	 *
 	 * @param string $post_id postod
 	 * @param string $key key
@@ -84,6 +85,6 @@ class N2_Functions {
 	 * @return string
 	 */
 	public static function nl2br_get_post_meta( $post_id, $key, $single = true ) {
-		return nl2br( self::_s( get_post_meta( $post_id, $key, $single ) ) );
+		return nl2br( self::_s( get_metadata( 'post', $post_id, $key, $single ) ) );
 	}
 }

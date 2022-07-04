@@ -62,28 +62,43 @@ class N2_Item_Export {
 	}
 
 	/**
-	 * 初期情報を配列として格納する
+	 * iniファイルから取得する際はここに追加する
 	 *
-	 * @param String $ajax_str csvの種類
-	 * @return Array $arr 初期情報 
+	 * @param String $ajax_str csvの種類(iniファイルのセクション名)
+	 * @return Array $arr 処理に必要なiniの情報を格納した配列
 	 */
-	private function set_init( $ajax_str ) {
-		$arr     = array();
-		// iniを取得
-		$ini_arr = parse_ini_file( get_template_directory() . '/config/n2-file-header.ini', true );
+	private function get_ini( $ajax_str ) {
+		$arr            = array();
+		$n2_file_header = parse_ini_file( get_template_directory() . '/config/n2-file-header.ini', true );
+		$town           = end( explode( '/', get_option( 'home' ) ) ); // urlから自治体を取得
+		// twoncodeを配列として取得
+		$n2_towncode = parse_ini_file( get_template_directory() . '/config/n2-towncode.ini', true )[ $town ];
 		if ( 'item_csv' === $ajax_str || 'select_csv' === $ajax_str ) { // 楽天の場合
-			$header_str = $ini_arr['rakuten'][ $ajax_str ];
+			$header_str = $n2_file_header['rakuten'][ $ajax_str ];
 		} else {
-			$header_str = $ini_arr[ $ajax_str ]['csv_header'];
+			$header_str = $n2_file_header[ $ajax_str ]['csv_header'];
+		}
+		// アレルゲンをiniファイルから取得して配列にする
+		$allergens      = parse_ini_file( get_template_directory() . '/config/n2-fields.ini', true )['アレルゲン']['option'];
+		$allergens      = explode( ',', $allergens );
+		$allergens_list = array();
+		foreach ( $allergens as $allergen ) {
+			$allergen                       = explode( '\\', $allergen );
+			$allergens_list[ $allergen[0] ] = $allergen[1];
 		}
 
-		// あとでヘッダの上の連結するのに必要
-		$arr['csv_title'] = explode( "\n", $header_str )[0];
+		$arr = array(
+			// あとでヘッダの上の連結するのに必要
+			'csv_title'       => explode( "\n", $header_str )[0],
 
-		$arr['header'] = explode( ',', explode( "\n", $header_str )[1] );
+			'header'          => explode( ',', explode( "\n", $header_str )[1] ),
 
-		// ajaxで渡ってきたpostidの配列
-		$arr['ids'] = explode( ',', filter_input( INPUT_POST, $ajax_str ) );
+			// ajaxで渡ってきたpostidの配列
+			'ids'             => explode( ',', filter_input( INPUT_POST, $ajax_str ) ),
+			'rakuten_img_dir' => str_replace( 'n2-towncode', $n2_towncode['rakuten'], $n2_file_header['rakuten']['img_dir'] ),
+			'allergens'       => $allergens_list,
+		);
+
 		return $arr;
 	}
 
@@ -155,18 +170,11 @@ class N2_Item_Export {
 	 * @return void
 	 */
 	public function item_csv() {
+		$ini_arr       = $this->get_ini( __FUNCTION__ );
+		$img_dir       = $ini_arr['rakuten_img_dir'];
+		$allergen_list = $ini_arr['allergens'];
 		// itemの情報を配列化
-		$items_arr  = array();
-		$ini_arr = $this->set_init(__FUNCTION__);
-
-		// アレルゲンをiniファイルから取得して配列にする
-		$allergen_ini  = parse_ini_file( get_template_directory() . '/config/n2-fields.ini', true )['アレルゲン']['option'];
-		$allergen_ini  = explode( ',', $allergen_ini );
-		$allergen_list = array();
-		foreach ( $allergen_ini as $a ) {
-			$a                      = explode( '\\', $a );
-			$allergen_list[ $a[0] ] = $a[1];
-		}
+		$items_arr = array();
 
 		foreach ( $ini_arr['ids'] as $post_id ) {
 			foreach ( $ini_arr['header'] as $head ) {
@@ -176,9 +184,9 @@ class N2_Item_Export {
 				// 初期化
 				$c0 = array( '在庫数' );
 				$c1 = array( '送料', '代引料', '在庫タイプ', 'カタログIDなしの理由' );
-				if ( in_array( $k, $c0 ) ) {
+				if ( in_array( $k, $c0, true ) ) {
 					$items_arr[ $post_id ][ $k ] = 0;
-				} elseif ( in_array( $k, $c1 ) ) {
+				} elseif ( in_array( $k, $c1, true ) ) {
 					$items_arr[ $post_id ][ $k ] = 1;
 				} else {
 					$items_arr[ $post_id ][ $k ] = '';
@@ -222,9 +230,10 @@ class N2_Item_Export {
 			$item_arr['PC用商品説明文'] .= get_option( 'N2_setupmenu' )['add_text'][ get_bloginfo( 'name' ) ];
 
 			// GOLD（ne.jp）とキャビネット（co.jp）を判定してキャビネットは事業者コードディレクトリを追加
-			// $img_dir = rtrim( get_option('N2_setupmenu')['rakuten']['img_dir'], '/' );
-			$img_dir = rtrim( parse_ini_file( get_template_directory() . '/config/n2-setupmenu.ini', true )['rakuten']['img_dir'], '/' );
-
+			if ( '' === $img_dir ) {
+				echo '<div style="text-align:center;position:fixed;top:50%;width:100%;font-size:40px;margin-top:-200px;"><h1>ERROR</h1><p>自治体コードが設定されていません！エンジニアにご連絡ください。</p></div>';
+				die();
+			}
 			preg_match( '/^[a-z]{2,3}/', $item_arr['商品管理番号（商品URL）'], $m );// 事業者コード
 			if ( ! preg_match( '/ne\.jp/', $img_dir ) ) {
 				$img_dir .= "/{$m[0]}";// キャビネットの場合事業者コード追加
@@ -250,14 +259,14 @@ class N2_Item_Export {
 
 			$allergy_display = '';
 			if ( get_post_meta( $post_id, 'アレルゲン', true ) || get_post_meta( $post_id, 'アレルゲン注釈', true ) ) {
-				$allergen = '';
+				$allergens = '';
 				foreach ( get_post_meta( $post_id, 'アレルゲン', true )  as $v ) {
-					$allergen .= $allergen_list[ $v ] . '・';
+					$allergens .= $allergen_list[ $v ] . '・';
 				}
-				$allergen           = rtrim( $allergen, '・' );
+				$allergens          = rtrim( $allergens, '・' );
 				$allergy_annotation = get_post_meta( $post_id, 'アレルゲン注釈', true ) ?: '';
-				if ( '' !== $allergen ) {
-					$allergy_display = $allergen . ( $allergy_annotation ? '<br>※' . $allergy_annotation : '' );
+				if ( '' !== $allergens ) {
+					$allergy_display = $allergens . ( $allergy_annotation ? '<br>※' . $allergy_annotation : '' );
 				} else {
 					$allergy_display = $allergy_annotation ?: '';
 				}
@@ -318,7 +327,6 @@ class N2_Item_Export {
 				apply_filters( 'n2_item_export_rakuten_item_csv', $item_arr, $post_id )
 			);
 		}
-
 		$this->download_csv( 'rakuten_' . __FUNCTION__, $ini_arr['header'], $items_arr, $ini_arr['csv_title'] );
 		die();
 	}
@@ -330,9 +338,9 @@ class N2_Item_Export {
 	 */
 	public function select_csv() {
 		// itemの情報を配列化
-		$items_arr  = array();
-		$ini_arr = $this->set_init(__FUNCTION__);
-		
+		$items_arr = array();
+		$ini_arr   = $this->get_ini( __FUNCTION__ );
+
 		// select項目名 => array(選択肢)の形式に変換
 		$select = array();
 
