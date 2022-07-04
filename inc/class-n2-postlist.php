@@ -224,17 +224,33 @@ class N2_Postlist {
 		global $post_type;
 		global $wpdb;
 		if ( is_admin() && current_user_can( 'ss_crew' ) && ! empty( $post_type ) && 'post' === $post_type ) {
-			$sql     = "SELECT * FROM $wpdb->users ;";
-			$results = $wpdb->get_results( $sql );
+			// 事業者検索
+			$users_sql     = "SELECT * FROM $wpdb->users ;";
+			$users_results = $wpdb->get_results( $users_sql );
 			echo '<select name="事業者">';
 			echo '<option value="">事業者</option>';
-			foreach ( $results as $row ) {
+			foreach ( $users_results as $row ) {
 				$author_id   = $row->ID;
 				$author_name = $row->display_name;
 				$selected    = $author_id === filter_input( INPUT_GET, '事業者' ) ? 'selected' : '';
 				if ( '' !== $author_name ) {
 					echo "<option value='{$author_id}' {$selected}>{$author_name}</option>";
 				}
+			}
+			echo '</select>';
+
+			// ステータス検索
+			$status = array(
+				'draft'   => '事業者下書き',
+				'pending' => 'スチームシップ確認待ち',
+				'publish' => 'スチームシップ確認済み',
+			);
+
+			echo '<select name="ステータス">';
+			echo '<option value="">ステータス</option>';
+			foreach ( $status as $key => $value ) {
+				$selected = $key === filter_input( INPUT_GET, 'ステータス' ) ? 'selected' : '';
+					echo "<option value='{$key}' {$selected}>{$value}</option>";
 			}
 			echo '</select>';
 		}
@@ -284,6 +300,12 @@ class N2_Postlist {
 					AND {$wpdb->posts}.post_author = '%s'
 				";
 				array_push( $args, filter_input( INPUT_GET, '事業者' ) );
+			}
+			if ( ! empty( $_GET['ステータス'] ) && '' !== $_GET['ステータス'] ) {
+				$sql .= "
+					AND {$wpdb->posts}.post_status = '%s'
+				";
+				array_push( $args, filter_input( INPUT_GET, 'ステータス' ) );
 			}
 
 			$sql .= "
