@@ -311,14 +311,17 @@ class N2_Postlist {
 			";
 
 			if ( ! empty( $_GET['s'] ) && '' !== $_GET['s'] ) {
-				$sql .= "
-					AND (
-						{$wpdb->postmeta}.meta_value LIKE '%%%s%%'
-						OR {$wpdb->posts}.post_title LIKE '%%%s%%'
-						)
-				";
-				array_push( $args, filter_input( INPUT_GET, 's' ) ); // カスタムフィールド
-				array_push( $args, filter_input( INPUT_GET, 's' ) ); // タイトル
+				$s_arr = explode( ' ', mb_convert_kana( filter_input( INPUT_GET, 's' ), 's' ) );
+				foreach ( $s_arr as $s ) {
+					$sql .= "
+						AND (
+							{$wpdb->postmeta}.meta_value LIKE '%%%s%%'
+							OR {$wpdb->posts}.post_title LIKE '%%%s%%'
+							)
+					";
+					array_push( $args, $s ); // カスタムフィールド
+					array_push( $args, $s ); // タイトル
+				}
 			}
 			if ( ! empty( $_GET['事業者'] ) && '' !== $_GET['事業者'] ) {
 				$sql .= "
