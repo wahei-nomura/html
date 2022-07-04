@@ -271,9 +271,13 @@ class N2_Postlist {
 
 			if ( ! empty( $_GET['s'] ) && '' !== $_GET['s'] ) {
 				$sql .= "
-					AND {$wpdb->postmeta}.meta_value LIKE '%%%s%%'
+					AND (
+						{$wpdb->postmeta}.meta_value LIKE '%%%s%%'
+						OR {$wpdb->posts}.post_title LIKE '%%%s%%'
+						)
 				";
-				array_push( $args, filter_input( INPUT_GET, 's' ) );
+				array_push( $args, filter_input( INPUT_GET, 's' ) ); // カスタムフィールド
+				array_push( $args, filter_input( INPUT_GET, 's' ) ); // タイトル
 			}
 			if ( ! empty( $_GET['事業者'] ) && '' !== $_GET['事業者'] ) {
 				$sql .= "
