@@ -313,16 +313,27 @@ class N2_Postlist {
 			if ( ! empty( $_GET['s'] ) && '' !== $_GET['s'] ) {
 				$s_arr       = explode( ' ', mb_convert_kana( filter_input( INPUT_GET, 's' ), 's' ) );
 				$sql_pattern = ! empty( $_GET['or'] ) && '1' === $_GET['or'] ? 'OR' : 'AND';
-				foreach ( $s_arr as $s ) {
+				$sql .= "
+					AND(
+				";
+
+				foreach ( $s_arr as $key => $s ) {
+					if( 0 !== $key){
+						$sql .= $sql_pattern;
+					}
+
 					$sql .= "
-						{$sql_pattern} (
+						(
 							{$wpdb->postmeta}.meta_value LIKE '%%%s%%'
 							OR {$wpdb->posts}.post_title LIKE '%%%s%%'
-							)
+						)
 					";
 					array_push( $args, $s ); // カスタムフィールド
 					array_push( $args, $s ); // タイトル
 				}
+				$sql .= "
+					)
+				";
 			}
 			if ( ! empty( $_GET['事業者'] ) && '' !== $_GET['事業者'] ) {
 				$sql .= "
@@ -352,7 +363,6 @@ class N2_Postlist {
 		}
 
 		$query = count( $args ) > 0 ? $wpdb->prepare( $sql, ...$args ) : $query;
-		var_dump($query);
 		return $query;
 	}
 
