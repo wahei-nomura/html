@@ -278,6 +278,30 @@ class N2_Postlist {
 					echo "<option value='{$key}' {$selected}>{$value}</option>";
 			}
 			echo '</select>';
+
+			// 定期便検索
+			$teiki = array(
+				'1' => '定期便以外',
+				'2' => '2定期便のみ',
+				'3' => '3定期便のみ',
+				'4' => '4定期便のみ',
+				'5' => '5定期便のみ',
+				'6' => '6定期便のみ',
+				'7' => '7定期便のみ',
+				'8' => '8定期便のみ',
+				'9' => '9定期便のみ',
+				'10' => '10定期便のみ',
+				'11' => '11定期便のみ',
+				'12' => '12定期便のみ',
+			);
+			echo '<select name="定期便">';
+			echo '<option value="">定期便検索</option>';
+			foreach($teiki as $key => $value){
+				$selected = $key == filter_input( INPUT_GET, '定期便' ) ? 'selected' : '';
+				echo "<option value='{$key}' {$selected}>{$value}</option>";
+
+			}
+			echo '</select>';
 		}
 	}
 
@@ -360,6 +384,13 @@ class N2_Postlist {
 					AND {$wpdb->posts}.post_status = '%s'
 				";
 				array_push( $args, filter_input( INPUT_GET, 'ステータス' ) );
+			}
+			if ( ! empty( $_GET['定期便'] ) && '' !== $_GET['定期便'] ) {
+				$sql .= "
+					AND {$wpdb->postmeta}.meta_key = '定期便'
+					AND {$wpdb->postmeta}.meta_value = '%s'
+				";
+				array_push( $args, filter_input( INPUT_GET, '定期便' ) );
 			}
 
 			$sql .= "
