@@ -248,7 +248,7 @@ class N2_Postlist {
 			echo '</select>';
 
 			// // 返礼品コード検索
-			echo '<select name="返礼品コード">';
+			echo '<select name="返礼品コード[]" multiple>';
 			echo '<option value="">返礼品コード</option>';
 			if ( empty( $_GET['事業者'] ) || '' === $_GET['事業者'] ) {
 				$posts_sql     = "SELECT * FROM $wpdb->posts ;";
@@ -342,10 +342,18 @@ class N2_Postlist {
 				array_push( $args, filter_input( INPUT_GET, '事業者' ) );
 			}
 			if ( ! empty( $_GET['返礼品コード'] ) && '' !== $_GET['返礼品コード'] ) {
-				$sql .= "
-					AND {$wpdb->posts}.ID = '%s'
-				";
-				array_push( $args, filter_input( INPUT_GET, '返礼品コード' ) );
+				$code_arr = $_GET['返礼品コード'];
+				$sql .= "AND (";
+				foreach($code_arr as $key => $code){
+					if( 0 !== $key ){
+						$sql .= "OR";
+					}
+					$sql .= "
+						{$wpdb->posts}.ID = '%s'
+					";
+					array_push( $args, $code );
+				}
+				$sql .= ")";
 			}
 			if ( ! empty( $_GET['ステータス'] ) && '' !== $_GET['ステータス'] ) {
 				$sql .= "

@@ -18,15 +18,15 @@ export default () => {
 			}).done(res => {
 				const data=JSON.parse(res)
 				console.log(data)
-				$('select[name="返礼品コード"]>*').remove()
-				$('select[name="返礼品コード"]').append('<option value="">返礼品コード</option>')
+				$('select[name="返礼品コード[]"]>*').remove()
+				$('select[name="返礼品コード[]"]').append('<option value="">返礼品コード</option>')
 
 				const url=new URL(location.href)
 				const params=url.searchParams
 				
 				Object.keys(data).forEach(key => {
 					const selected=params.get('返礼品コード')===key? 'selected':'';
-					$('select[name="返礼品コード"]').append($(`<option value="${key}" ${selected}>${data[key]}</option>`));
+					$('select[name="返礼品コード[]"]').append($(`<option value="${key}" ${selected}>${data[key]}</option>`));
 					
 				})
 			})	
