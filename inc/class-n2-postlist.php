@@ -37,7 +37,7 @@ class N2_Postlist {
 		add_filter( 'gettext', array( $this, 'change_status' ) );
 		add_filter( 'ngettext', array( $this, 'change_status' ) );
 		add_filter( 'post_row_actions', array( $this, 'hide_editbtn' ) );
-		add_action( 'restrict_manage_posts', array( $this, 'add_field_filter' ) );
+		add_action( 'restrict_manage_posts', array( $this, 'add_search_filter' ) );
 		add_action( 'posts_request', array( $this, 'posts_request' ) );
 		add_action( "wp_ajax_{$this->cls}", array( $this, 'ajax' ) );
 	}
@@ -225,10 +225,11 @@ class N2_Postlist {
 	}
 
 	/**
-	 * add_field_filter
-	 * フィールド内容で絞り込み
+	 * add_search_filter
+	 * 絞り込み検索用のセレクトボックス表示
+	 * return void
 	 */
-	public function add_field_filter() {
+	public function add_search_filter() {
 		global $post_type;
 		global $wpdb;
 		if ( is_admin() && current_user_can( 'ss_crew' ) && ! empty( $post_type ) && 'post' === $post_type ) {
@@ -238,16 +239,17 @@ class N2_Postlist {
 			echo '<select name="事業者">';
 			echo '<option value="">事業者</option>';
 			foreach ( $users_results as $row ) {
-				$author_id   = $row->ID;
-				$author_name = $row->display_name;
-				$selected    = $author_id === filter_input( INPUT_GET, '事業者' ) ? 'selected' : '';
+				$author_id     = $row->ID;
+				$author_name   = $row->display_name;
+				$get_jigyousya = filter_input( INPUT_GET, '事業者', FILTER_VALIDATE_INT );
+				$selected      = $author_id === $get_jigyousya ? 'selected' : '';
 				if ( '' !== $author_name ) {
 					echo "<option value='{$author_id}' {$selected}>{$author_name}</option>";
 				}
 			}
 			echo '</select>';
 
-			// // 返礼品コード検索
+			// 返礼品コード検索
 			echo '<select name="返礼品コード[]" multiple>';
 			echo '<option value="">返礼品コード</option>';
 			if ( empty( $_GET['事業者'] ) || '' === $_GET['事業者'] ) {
@@ -256,7 +258,8 @@ class N2_Postlist {
 				foreach ( $posts_results as $row ) {
 					$post_id  = $row->ID;
 					$code     = get_post_meta( $post_id, '返礼品コード', 'true' );
-					$selected = $post_id === filter_input( INPUT_GET, '返礼品コード' ) ? 'selected' : '';
+					$get_code = filter_input( INPUT_GET, '返礼品コード', FILTER_SANITIZE_ENCODED );
+					$selected = $post_id === $get_code ? 'selected' : '';
 					if ( '' !== $code ) {
 						echo "<option value='{$post_id}' {$selected}>{$code}</option>";
 					}
@@ -270,36 +273,36 @@ class N2_Postlist {
 				'pending' => 'スチームシップ確認待ち',
 				'publish' => 'スチームシップ確認済み',
 			);
-
 			echo '<select name="ステータス">';
 			echo '<option value="">ステータス</option>';
 			foreach ( $status as $key => $value ) {
-				$selected = $key === filter_input( INPUT_GET, 'ステータス' ) ? 'selected' : '';
-					echo "<option value='{$key}' {$selected}>{$value}</option>";
+				$get_status = filter_input( INPUT_GET, 'ステータス', FILTER_SANITIZE_ENCODED );
+				$selected   = $key === $get_status ? 'selected' : '';
+				echo "<option value='{$key}' {$selected}>{$value}</option>";
 			}
 			echo '</select>';
 
 			// 定期便検索
 			$teiki = array(
-				'1' => '定期便以外',
-				'2' => '2定期便のみ',
-				'3' => '3定期便のみ',
-				'4' => '4定期便のみ',
-				'5' => '5定期便のみ',
-				'6' => '6定期便のみ',
-				'7' => '7定期便のみ',
-				'8' => '8定期便のみ',
-				'9' => '9定期便のみ',
+				'1'  => '定期便以外',
+				'2'  => '2定期便のみ',
+				'3'  => '3定期便のみ',
+				'4'  => '4定期便のみ',
+				'5'  => '5定期便のみ',
+				'6'  => '6定期便のみ',
+				'7'  => '7定期便のみ',
+				'8'  => '8定期便のみ',
+				'9'  => '9定期便のみ',
 				'10' => '10定期便のみ',
 				'11' => '11定期便のみ',
 				'12' => '12定期便のみ',
 			);
 			echo '<select name="定期便">';
 			echo '<option value="">定期便検索</option>';
-			foreach($teiki as $key => $value){
-				$selected = $key == filter_input( INPUT_GET, '定期便' ) ? 'selected' : '';
+			foreach ( $teiki as $key => $value ) {
+				$get_teiki = filter_input( INPUT_GET, '定期便', FILTER_VALIDATE_INT );
+				$selected  = $key === $get_teiki ? 'selected' : '';
 				echo "<option value='{$key}' {$selected}>{$value}</option>";
-
 			}
 			echo '</select>';
 		}
@@ -314,9 +317,11 @@ class N2_Postlist {
 	public function posts_request( $query ) {
 		global $wpdb;
 
+		// $wpdbのprepareでプレイスフォルダーに代入するための配列
 		$args = array();
 
-		if ( is_admin() && current_user_can( 'ss_crew' ) ) {
+		if ( is_admin() && current_user_can( 'ss_crew' ) && preg_match( '/edit\.php/', $_SERVER['REQUEST_URI'] ) ) {
+			// SQLの共通冒頭部分（postsとpostmetaテーブルを結合）
 			$sql = "
 			SELECT SQL_CALC_FOUND_ROWS *
 			FROM {$wpdb->posts}
@@ -334,15 +339,19 @@ class N2_Postlist {
 						)
 			";
 
+			// キーワード検索
 			if ( ! empty( $_GET['s'] ) && '' !== $_GET['s'] ) {
-				$s_arr       = explode( ' ', mb_convert_kana( filter_input( INPUT_GET, 's' ), 's' ) );
+				// 全角空白は半角空白へ変換し、複数キーワードを配列に
+				$s_arr = explode( ' ', mb_convert_kana( filter_input( INPUT_GET, 's', FILTER_SANITIZE_ENCODED ), 's' ) );
+				// OR検索対応
 				$sql_pattern = ! empty( $_GET['or'] ) && '1' === $_GET['or'] ? 'OR' : 'AND';
-				$sql .= "
-					AND(
-				";
 
+				// SQL文連結
+				$sql .= '
+					AND(
+				';
 				foreach ( $s_arr as $key => $s ) {
-					if( 0 !== $key){
+					if ( 0 !== $key ) {
 						$sql .= $sql_pattern;
 					}
 
@@ -355,44 +364,53 @@ class N2_Postlist {
 					array_push( $args, $s ); // カスタムフィールド
 					array_push( $args, $s ); // タイトル
 				}
-				$sql .= "
+				$sql .= '
 					)
-				";
+				';
 			}
+
+			// 事業者絞り込み
 			if ( ! empty( $_GET['事業者'] ) && '' !== $_GET['事業者'] ) {
 				$sql .= "
 					AND {$wpdb->posts}.post_author = '%s'
 				";
-				array_push( $args, filter_input( INPUT_GET, '事業者' ) );
+				array_push( $args, filter_input( INPUT_GET, '事業者', FILTER_VALIDATE_INT ) );
 			}
+
+			// 返礼品コード絞り込み
 			if ( ! empty( $_GET['返礼品コード'] ) && '' !== $_GET['返礼品コード'] ) {
 				$code_arr = $_GET['返礼品コード'];
-				$sql .= "AND (";
-				foreach($code_arr as $key => $code){
-					if( 0 !== $key ){
-						$sql .= "OR";
+				$sql     .= 'AND (';
+				foreach ( $code_arr as $key => $code ) {
+					if ( 0 !== $key ) {
+						$sql .= 'OR'; // 複数返礼品コードをOR検索
 					}
 					$sql .= "
 						{$wpdb->posts}.ID = '%s'
 					";
 					array_push( $args, $code );
 				}
-				$sql .= ")";
+				$sql .= ')';
 			}
+
+			// ステータス絞り込み
 			if ( ! empty( $_GET['ステータス'] ) && '' !== $_GET['ステータス'] ) {
 				$sql .= "
 					AND {$wpdb->posts}.post_status = '%s'
 				";
-				array_push( $args, filter_input( INPUT_GET, 'ステータス' ) );
+				array_push( $args, filter_input( INPUT_GET, 'ステータス', FILTER_VALIDATE_INT ) );
 			}
+
+			// 定期便絞り込み
 			if ( ! empty( $_GET['定期便'] ) && '' !== $_GET['定期便'] ) {
 				$sql .= "
 					AND {$wpdb->postmeta}.meta_key = '定期便'
 					AND {$wpdb->postmeta}.meta_value = '%s'
 				";
-				array_push( $args, filter_input( INPUT_GET, '定期便' ) );
+				array_push( $args, filter_input( INPUT_GET, '定期便', FILTER_VALIDATE_INT ) );
 			}
 
+			// SQL文共通末尾連結
 			$sql .= "
 				)
 				)
@@ -401,7 +419,9 @@ class N2_Postlist {
 
 		}
 
+		// 検索用GETパラメータがある場合のみ$queryを上書き
 		$query = count( $args ) > 0 ? $wpdb->prepare( $sql, ...$args ) : $query;
+
 		return $query;
 	}
 
@@ -412,7 +432,7 @@ class N2_Postlist {
 	 */
 	public function ajax() {
 		global $wpdb;
-		$jigyousya = filter_input( INPUT_GET, '事業者' );
+		$jigyousya = filter_input( INPUT_GET, '事業者', FILTER_VALIDATE_INT );
 
 		if ( ! empty( $jigyousya ) && '' !== $jigyousya ) {
 			$sql = "SELECT * FROM $wpdb->posts WHERE $wpdb->posts.post_author = $jigyousya ;";
