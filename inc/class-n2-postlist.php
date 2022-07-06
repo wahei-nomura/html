@@ -342,7 +342,7 @@ class N2_Postlist {
 			// キーワード検索
 			if ( ! empty( $_GET['s'] ) && '' !== $_GET['s'] ) {
 				// 全角空白は半角空白へ変換し、複数キーワードを配列に
-				$s_arr = explode( ' ', mb_convert_kana( filter_input( INPUT_GET, 's', FILTER_SANITIZE_ENCODED ), 's' ) );
+				$s_arr = explode( ' ', mb_convert_kana( filter_input( INPUT_GET, 's' ), 's' ) );
 				// OR検索対応
 				$sql_pattern = ! empty( $_GET['or'] ) && '1' === $_GET['or'] ? 'OR' : 'AND';
 
