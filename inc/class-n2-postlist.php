@@ -286,26 +286,13 @@ class N2_Postlist {
 		echo '</select>';
 
 		// 定期便検索
-		$teiki = array(
-			'1'  => '定期便以外',
-			'2'  => '2定期便のみ',
-			'3'  => '3定期便のみ',
-			'4'  => '4定期便のみ',
-			'5'  => '5定期便のみ',
-			'6'  => '6定期便のみ',
-			'7'  => '7定期便のみ',
-			'8'  => '8定期便のみ',
-			'9'  => '9定期便のみ',
-			'10' => '10定期便のみ',
-			'11' => '11定期便のみ',
-			'12' => '12定期便のみ',
-		);
 		echo '<select name="定期便">';
 		echo '<option value="">定期便検索</option>';
-		foreach ( $teiki as $key => $value ) {
+		for ( $i = 1; $i <= 12; $i++ ) {
+			$text      = $i > 1 ? "{$i}回定期便のみ" : '定期便以外';
 			$get_teiki = filter_input( INPUT_GET, '定期便', FILTER_VALIDATE_INT );
-			$selected  = $key === $get_teiki ? 'selected' : '';
-			echo "<option value='{$key}' {$selected}>{$value}</option>";
+			$selected  = $i === $get_teiki ? 'selected' : '';
+			echo "<option value='{$i}' {$selected}>{$text}</option>";
 		}
 		echo '</select>';
 	}
