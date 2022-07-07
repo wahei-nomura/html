@@ -28,7 +28,8 @@ class N2_Postlist {
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		$this->cls = get_class( $this );
+		$this->cls  = get_class( $this );
+		$this->page = 'edit.php';
 		add_action( 'admin_head-edit.php', array( $this, 'show_exportbtns' ) );
 		add_filter( 'manage_posts_columns', array( $this, 'add_posts_columns' ), 10, 2 );
 		add_action( 'init', array( $this, 'change_postlabel' ) );
@@ -231,7 +232,7 @@ class N2_Postlist {
 	 */
 	public function add_search_filter() {
 
-		if ( $this->admin_editpost_judge( 'edit.php' ) ) {
+		if ( N2_Functions::admin_param_judge( $this->page ) ) {
 			return;
 		}
 
@@ -305,7 +306,7 @@ class N2_Postlist {
 	 */
 	public function posts_request( $query ) {
 
-		if ( $this->admin_editpost_judge( 'edit.php' ) ) {
+		if ( N2_Functions::admin_param_judge( $this->page ) ) {
 			return $query;
 		}
 
@@ -441,16 +442,4 @@ class N2_Postlist {
 		die();
 	}
 
-	/**
-	 * 管理画面、ページ指定、ユーザー権限指定判定
-	 *
-	 * @param string $page $pegenow
-	 * @param string $type $post_type
-	 * @param string $user current_user_can
-	 * @return boolean
-	 */
-	private function admin_editpost_judge( $page, $type = 'post', $user = 'ss_crew' ) {
-		global $pagenow, $post_type;
-		return ! is_admin() || ! current_user_can( $user ) || $page !== $pagenow || $type !== $post_type;
-	}
 }
