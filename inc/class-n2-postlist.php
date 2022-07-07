@@ -317,20 +317,15 @@ class N2_Postlist {
 	 * @return string $query sql
 	 */
 	public function posts_request( $query ) {
-		global $wpdb;
+
 		if ( $this->admin_editpost_judge( 'edit.php' ) ) {
 			return $query;
 		}
 
-		// $wpdbのprepareでプレイスフォルダーに代入するための配列
-		$args = array();
+		global $wpdb;
 
-		// SQLの共通冒頭部分（postsとpostmetaテーブルを結合）
-		$sql = "
-		SELECT SQL_CALC_FOUND_ROWS *
-		FROM {$wpdb->posts}
-		INNER JOIN {$wpdb->postmeta} ON {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id
-		WHERE 1 = 1
+		// 最終的に$query内に代入するWHERE句
+		$where = "
 		AND (
 			(
 				{$wpdb->posts}.post_type = 'post'
@@ -343,7 +338,10 @@ class N2_Postlist {
 					)
 		";
 
-			// キーワード検索
+		// $wpdbのprepareでプレイスフォルダーに代入するための配列
+		$args = array();
+
+		// キーワード検索 ----------------------------------------
 		if ( ! empty( $_GET['s'] ) && '' !== $_GET['s'] ) {
 			// 全角空白は半角空白へ変換し、複数キーワードを配列に
 			$s_arr = explode( ' ', mb_convert_kana( $_GET['s'], 's' ) );
@@ -352,16 +350,14 @@ class N2_Postlist {
 			// OR検索対応
 			$sql_pattern = ! empty( $_GET['or'] ) && '1' === $_GET['or'] ? 'OR' : 'AND';
 
-			// SQL文連結
-			$sql .= '
-					AND(
-				';
+			// WHERE句連結
+			$where .= 'AND(';
 			foreach ( $s_arr as $key => $s ) {
 				if ( 0 !== $key ) {
-					$sql .= $sql_pattern;
+					$where .= $sql_pattern;
 				}
 
-				$sql .= "
+				$where .= "
 						(
 							{$wpdb->postmeta}.meta_value LIKE '%%%s%%'
 							OR {$wpdb->posts}.post_title LIKE '%%%s%%'
@@ -370,58 +366,57 @@ class N2_Postlist {
 				array_push( $args, $s ); // カスタムフィールド
 				array_push( $args, $s ); // タイトル
 			}
-			$sql .= '
-					)
-				';
+			$where .= ')';
 		}
+		// ここまでキーワード ------------------------------------
 
-			// 事業者絞り込み
+		// 事業者絞り込み ----------------------------------------
 		if ( ! empty( $_GET['事業者'] ) && '' !== $_GET['事業者'] ) {
-			$sql .= "
-					AND {$wpdb->posts}.post_author = '%s'
-				";
+			$where .= "AND {$wpdb->posts}.post_author = '%s'";
 			array_push( $args, filter_input( INPUT_GET, '事業者', FILTER_VALIDATE_INT ) );
 		}
 
-			// 返礼品コード絞り込み
+		// 返礼品コード絞り込み------------------------------------
 		if ( ! empty( $_GET['返礼品コード'] ) && '' !== $_GET['返礼品コード'] ) {
 			$code_arr = $_GET['返礼品コード'];
-			$sql     .= 'AND (';
+			$where   .= 'AND (';
 			foreach ( $code_arr as $key => $code ) {
 				if ( 0 !== $key ) {
-					$sql .= 'OR'; // 複数返礼品コードをOR検索
+					$where .= ' OR '; // 複数返礼品コードをOR検索(前後の空白必須)
 				}
-				$sql .= "
-						{$wpdb->posts}.ID = '%s'
-					";
+				$where .= "{$wpdb->posts}.ID = '%s'";
 				array_push( $args, $code );
 			}
-			$sql .= ')';
+			$where .= ')';
 		}
 
-			// ステータス絞り込み
+		// ステータス絞り込み ------------------------------------
 		if ( ! empty( $_GET['ステータス'] ) && '' !== $_GET['ステータス'] ) {
-			$sql .= "
-					AND {$wpdb->posts}.post_status = '%s'
-				";
-			array_push( $args, filter_input( INPUT_GET, 'ステータス', FILTER_VALIDATE_INT ) );
+			$where .= "AND {$wpdb->posts}.post_status = '%s'";
+			array_push( $args, filter_input( INPUT_GET, 'ステータス' ) );
 		}
 
-			// 定期便絞り込み
+		// 定期便絞り込み ---------------------------------------
 		if ( ! empty( $_GET['定期便'] ) && '' !== $_GET['定期便'] ) {
-			$sql .= "
+			$where .= "
 					AND {$wpdb->postmeta}.meta_key = '定期便'
 					AND {$wpdb->postmeta}.meta_value = '%s'
 				";
 			array_push( $args, filter_input( INPUT_GET, '定期便', FILTER_VALIDATE_INT ) );
 		}
 
-			// SQL文共通末尾連結
-			$sql .= "
-				)
-				)
-					GROUP BY {$wpdb->posts}.ID
-					ORDER BY {$wpdb->posts}.post_date DESC";
+		// WHER句末尾連結
+		$where .= '))';
+
+		// SQL（postsとpostmetaテーブルを結合）
+		$sql = "
+		SELECT SQL_CALC_FOUND_ROWS *
+		FROM {$wpdb->posts}
+		INNER JOIN {$wpdb->postmeta} ON {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id
+		WHERE 1 = 1 {$where}
+		GROUP BY {$wpdb->posts}.ID
+		ORDER BY {$wpdb->posts}.post_date DESC
+		";
 
 		// 検索用GETパラメータがある場合のみ$queryを上書き
 		$query = count( $args ) > 0 ? $wpdb->prepare( $sql, ...$args ) : $query;
