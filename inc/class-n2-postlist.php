@@ -243,10 +243,10 @@ class N2_Postlist {
 		echo '<select name="事業者">';
 		echo '<option value="">事業者</option>';
 		foreach ( $users_results as $row ) {
-			$author_id     = $row->ID;
+			$author_id     = (int) $row->ID;
 			$author_name   = $row->display_name;
 			$get_jigyousya = filter_input( INPUT_GET, '事業者', FILTER_VALIDATE_INT );
-			$selected      = $author_id === $get_jigyousya ? 'selected' : '';
+			$selected      = selected( $author_id === $get_jigyousya );
 			if ( '' !== $author_name ) {
 				echo "<option value='{$author_id}' {$selected}>{$author_name}</option>";
 			}
@@ -263,9 +263,8 @@ class N2_Postlist {
 				$post_id  = $row->ID;
 				$code     = get_post_meta( $post_id, '返礼品コード', 'true' );
 				$get_code = filter_input( INPUT_GET, '返礼品コード', FILTER_SANITIZE_ENCODED );
-				$selected = $post_id === $get_code ? 'selected' : '';
 				if ( '' !== $code ) {
-					echo "<option value='{$post_id}' {$selected}>{$code}</option>";
+					echo "<option value='{$post_id}'>{$code}</option>";
 				}
 			}
 		}
@@ -281,7 +280,7 @@ class N2_Postlist {
 		echo '<option value="">ステータス</option>';
 		foreach ( $status as $key => $value ) {
 			$get_status = filter_input( INPUT_GET, 'ステータス', FILTER_SANITIZE_ENCODED );
-			$selected   = $key === $get_status ? 'selected' : '';
+			$selected   = selected( $key === $get_status );
 			echo "<option value='{$key}' {$selected}>{$value}</option>";
 		}
 		echo '</select>';
@@ -292,7 +291,7 @@ class N2_Postlist {
 		for ( $i = 1; $i <= 12; $i++ ) {
 			$text      = $i > 1 ? "{$i}回定期便のみ" : '定期便以外';
 			$get_teiki = filter_input( INPUT_GET, '定期便', FILTER_VALIDATE_INT );
-			$selected  = $i === $get_teiki ? 'selected' : '';
+			$selected  = selected( $i === $get_teiki );
 			echo "<option value='{$i}' {$selected}>{$text}</option>";
 		}
 		echo '</select>';
