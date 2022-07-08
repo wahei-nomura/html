@@ -246,9 +246,9 @@ class N2_Postlist {
 			$author_id     = (int) $row->ID;
 			$author_name   = $row->display_name;
 			$get_jigyousya = filter_input( INPUT_GET, '事業者', FILTER_VALIDATE_INT );
-			$selected      = selected( $author_id === $get_jigyousya );
+			$selected      = selected( $author_id, $get_jigyousya, false );
 			if ( '' !== $author_name ) {
-				echo "<option value='{$author_id}' {$selected}>{$author_name}</option>";
+				echo "<option value='{$author_id}'{$selected}>{$author_name}</option>";
 			}
 		}
 		echo '</select>';
@@ -280,8 +280,8 @@ class N2_Postlist {
 		echo '<option value="">ステータス</option>';
 		foreach ( $status as $key => $value ) {
 			$get_status = filter_input( INPUT_GET, 'ステータス', FILTER_SANITIZE_ENCODED );
-			$selected   = selected( $key === $get_status );
-			echo "<option value='{$key}' {$selected}>{$value}</option>";
+			$selected   = selected( $key, $get_status, false );
+			echo "<option value='{$key}'{$selected}>{$value}</option>";
 		}
 		echo '</select>';
 
@@ -291,8 +291,8 @@ class N2_Postlist {
 		for ( $i = 1; $i <= 12; $i++ ) {
 			$text      = $i > 1 ? "{$i}回定期便のみ" : '定期便以外';
 			$get_teiki = filter_input( INPUT_GET, '定期便', FILTER_VALIDATE_INT );
-			$selected  = selected( $i === $get_teiki );
-			echo "<option value='{$i}' {$selected}>{$text}</option>";
+			$selected  = selected( $i, $get_teiki, false );
+			echo "<option value='{$i}'{$selected}>{$text}</option>";
 		}
 		echo '</select>';
 	}
