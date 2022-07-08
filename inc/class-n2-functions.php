@@ -74,17 +74,4 @@ class N2_Functions {
 		// [K]半角カタカナ=>全角カタカナ、[r]全角英=>半角英、[n]全角数=>半角数、[V]濁点付きの文字を一文字に、[s]全角スペース=>半角スペース
 		return trim( mb_convert_kana( htmlspecialchars_decode( $str ), 'KrnVs' ) );
 	}
-
-	/**
-	 * get_post_metaのラッパー
-	 * 文字列を整えて改行タグを追加する
-	 *
-	 * @param string $post_id postod
-	 * @param string $key key
-	 * @param bool   $single single
-	 * @return string
-	 */
-	public static function nl2br_get_post_meta( $post_id, $key, $single = true ) {
-		return nl2br( self::_s( get_metadata( 'post', $post_id, $key, $single ) ) );
-	}
 }
