@@ -74,4 +74,17 @@ class N2_Functions {
 		// [K]半角カタカナ=>全角カタカナ、[r]全角英=>半角英、[n]全角数=>半角数、[V]濁点付きの文字を一文字に、[s]全角スペース=>半角スペース
 		return trim( mb_convert_kana( htmlspecialchars_decode( $str ), 'KrnVs' ) );
 	}
+
+	/**
+	 * 管理画面、ページ指定、ユーザー権限指定判定
+	 *
+	 * @param string $page $pegenow
+	 * @param string $type $post_type
+	 * @param string $user current_user_can
+	 * @return boolean
+	 */
+	public static function admin_param_judge( $page, $type = 'post', $user = 'ss_crew' ) {
+		global $pagenow, $post_type;
+		return ! is_admin() || ! current_user_can( $user ) || $page !== $pagenow || $type !== $post_type;
+	}
 }
