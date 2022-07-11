@@ -63,6 +63,7 @@ class N2_Setusers {
 
 		// SSクルー
 		$wp_roles->add_role( 'ss-crew', 'SSクルー', array() );
+		$wp_roles->add_cap( 'ss-crew', 'switch_themes' ); // マルチサイト
 		$wp_roles->add_cap( 'ss-crew', 'read' );
 		$wp_roles->add_cap( 'ss-crew', 'edit_posts' );
 		$wp_roles->add_cap( 'ss-crew', 'delete_others_posts' );
