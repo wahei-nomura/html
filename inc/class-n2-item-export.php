@@ -92,7 +92,7 @@ class N2_Item_Export {
 			$allergens_list[ $allergen[0] ] = $allergen[1];
 		}
 
-		// クルーセットアップで設定したk項目を取得
+		// クルーセットアップで設定した項目を取得
 		$rakuten_select_option = fn() => get_option( 'N2_setupmenu' )['rakuten']['select'] ?? '';
 
 		$arr = array(
