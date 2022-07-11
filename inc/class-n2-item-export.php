@@ -92,20 +92,19 @@ class N2_Item_Export {
 			$allergens_list[ $allergen[0] ] = $allergen[1];
 		}
 
-		// 自治体ごとに項目内容が違う可能性あり？
-		$rakuten_select_option = $n2_file_header['rakuten']['select'];
+		// クルーセットアップで設定したk項目を取得
+		$rakuten_select_option = fn() => get_option( 'N2_setupmenu' )['rakuten']['select'] ?? '';
 
 		$arr = array(
 			// あとでヘッダの上の連結するのに必要
 			'csv_title'             => explode( "\n", $header_str )[0],
 			// プラグイン側でヘッダーを編集
 			'header'                => apply_filters( 'n2_item_export_' . $ajax_str . '_header', explode( ',', explode( "\n", $header_str )[1] ) ),
-
 			// ajaxで渡ってきたpostidの配列
-			'ids'                   => explode( ',', filter_input( INPUT_POST, $ajax_str ) ),
+			'ids'                   => explode( ',', filter_input( INPUT_POST, $ajax_str, FILTER_SANITIZE_ENCODED ) ),
 			'rakuten_img_dir'       => str_replace( 'n2-towncode', $n2_towncode['rakuten'], $n2_file_header['rakuten']['img_dir'] ),
 			'allergens'             => $allergens_list,
-			'rakuten_select_option' => $rakuten_select_option,
+			'rakuten_select_option' => $rakuten_select_option(),
 		);
 		return $arr;
 	}
@@ -197,15 +196,8 @@ class N2_Item_Export {
 			'のし対応',
 			'キャッチコピー',
 			'説明文',
-			'内容量・規格等',
-			'アレルゲン',
-			'アレルゲン注釈',
-			'表示名称',
 			'賞味期限',
 			'消費期限',
-			'発送方法',
-			'配送期間',
-			'提供事業者名',
 			'検索キーワード',
 			'楽天カテゴリー',
 		);
@@ -260,23 +252,8 @@ class N2_Item_Export {
 			// 画像URL一覧(文字列)
 			$img_urls = $check_img_urls();
 
-			// アレルギー表示
-			$allergy_display = '';
-			if ( $post_meta_list['アレルゲン'] || $post_meta_list['アレルゲン注釈'] ) {
-				$allergens = '';
-				foreach ( $post_meta_list['アレルゲン']  as $v ) {
-					$allergens .= $ini_arr['allergens'][ $v ] . '・';
-				}
-				$allergy_display .= rtrim( $allergens, '・' );
-
-				if ( $allergy_display && $post_meta_list['アレルゲン注釈'] ) {
-					$allergy_display .= '<br>※';
-				}
-				$allergy_display .= $post_meta_list['アレルゲン注釈'];
-			}
-
 			// 商品説明テーブル
-			$itemtable = $this->make_itemtable( $post_id, $post_meta_list, $allergy_display );
+			$itemtable = $this->make_itemtable( $post_id );
 
 			// PC用販売説明文
 			$pc_sales_description = function() use ( $itemtable, $post_id, $img_urls ) {
@@ -359,13 +336,12 @@ class N2_Item_Export {
 	/**
 	 * 楽天のPC用商品説明文
 	 *
-	 * @param int   $post_id id
-	 * @param array $post_meta_list meta情報
+	 * @param int $post_id id
 	 * @return string $str 楽天のPC用商品説明文
 	 */
-	public function pc_item_description( $post_id, $post_meta_list = array() ) {
+	public function pc_item_description( $post_id ) {
 		// get_post_metaのkey
-		$keys = array(
+		$post_keys = array(
 			'説明文',
 			'内容量・規格等',
 			'賞味期限',
@@ -374,18 +350,17 @@ class N2_Item_Export {
 			'楽天カテゴリー',
 		);
 		// get_post_meta_multipleの格納用
-		$post_meta_list    = $this->get_post_meta_multiple( $post_id, $keys, $post_meta_list );
-				$formatter = fn( $key ) => nl2br( N2_Functions::_s( $post_meta_list[ $key ] ) );
-
+		$post_meta_list = $this->get_post_meta_multiple( $post_id, $post_keys );
+		$formatter      = fn( $post_key ) => nl2br( N2_Functions::_s( $post_meta_list[ $post_key ] ) );
 		$pc_description = PHP_EOL . $formatter( '説明文' ) . '<br><br>' . PHP_EOL . $formatter( '内容量・規格等' ) . '<br>' . PHP_EOL;
 		// 賞味期限
 		if ( $post_meta_list['賞味期限'] ) {
-			$pc_description .= '<br>【賞味期限】<br>' . PHP_EOL . $formatter( '賞味期限' ) . '<br><br>' . PHP_EOL;
+			$pc_description .= '<br>【賞味期限】<br>' . $formatter( '賞味期限' ) . '<br><br>' . PHP_EOL;
 		}
 
 		// 消費期限
 		if ( $post_meta_list['消費期限'] ) {
-			$pc_description .= '<br>【消費期限】<br>' . PHP_EOL . $formatter( '消費期限' ) . '<br><br>' . PHP_EOL;
+			$pc_description .= '<br>【消費期限】<br>' . $formatter( '消費期限' ) . '<br><br>' . PHP_EOL;
 		}
 		// やき物関連
 		$pc_description .= apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $post_id, '対応機器' ) . '<br>';
@@ -406,13 +381,13 @@ class N2_Item_Export {
 	/**
 	 * 商品説明テーブル
 	 *
-	 * @param int    $post_id post_id
-	 * @param array  $post_meta_list meta情報
-	 * @param string $allergy_display アレルギー表示
+	 * @param int $post_id post_id
+	 *
 	 * @return string 商品説明テーブル
 	 */
-	public function make_itemtable( $post_id, $post_meta_list, $allergy_display ) {
-		$post_keys      = array(
+	public function make_itemtable( $post_id ) {
+		$ini_arr   = $this->get_ini( 'item_csv' );
+		$post_keys = array(
 			'表示名称',
 			'略称',
 			'内容量・規格等',
@@ -421,36 +396,47 @@ class N2_Item_Export {
 			'発送方法',
 			'配送期間',
 			'提供事業者名',
+			'アレルゲン',
+			'アレルゲン注釈',
 		);
-		$post_meta_list = $this->get_post_meta_multiple( $post_id, $post_keys, $post_meta_list );
 
-		$formatter = fn( $key ) => N2_Functions::_s( $post_meta_list[ $key ] );
-		$itemtable = '<!-- 商品説明テーブル --><p><b><font size=""5"">商品説明</font></b></p><hr noshade color=""black""><br>' . PHP_EOL . '<table border=""1"" width=""100%"" cellspacing=""0"" cellpadding=""10"" bordercolor=""black"">' . PHP_EOL . '<tr><th>名称</th><td>';
+		$post_meta_list = $this->get_post_meta_multiple( $post_id, $post_keys );
+		$formatter      = fn( $post_key ) => N2_Functions::_s( $post_meta_list[ $post_key ] );
+
+		// アレルギー表示
+		$allergy_display     = function() use ( $post_meta_list, $ini_arr ) {
+			$result = '';
+			if ( $post_meta_list['アレルゲン'] || $post_meta_list['アレルゲン注釈'] ) {
+				$allergens = '';
+				foreach ( $post_meta_list['アレルゲン']  as $v ) {
+					$allergens .= $ini_arr['allergens'][ $v ] . '・';
+				}
+				$result .= rtrim( $allergens, '・' );
+				if ( $result && $post_meta_list['アレルゲン注釈'] ) {
+					$result .= '<br>※';
+				}
+				$result .= $post_meta_list['アレルゲン注釈'];
+			}
+			return $result;
+		};
+		$allergy_display_str = $allergy_display();
+
+		$itemtable = '<!-- 商品説明テーブル --><p><b><font size=""5"">商品説明</font></b></p><hr noshade color=""black""><br>' . PHP_EOL . '<table border=""1"" width=""100%"" cellspacing=""0"" cellpadding=""10"" bordercolor=""black"">';
 		// 名称
-		switch ( true ) {
-			case $formatter( '表示名称' ):
-				$itemtable .= $formatter( '表示名称' );
-				break;
-			case $formatter( '略称' ):
-				$itemtable .= $formatter( '略称' );
-				break;
-			default:
-				$itemtable .= N2_Functions::_s( get_the_title( $post_id ) );
-		}
-		$itemtable .= '</td></tr>';
+		$itemtable .= PHP_EOL . '<tr><th>名称</th><td>' . ( $formatter( '表示名称' ) ?: $formatter( '略称' ) ?: N2_Functions::_s( get_the_title( $post_id ) ) ) . '</td></tr>';
 		// 内容量(焼きもの説明文を追加)
 		$itemtable .= PHP_EOL . '<tr><th>内容量</th><td>' . nl2br( $formatter( '内容量・規格等' ) ) . apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $post_id, '対応機器' ) . '</td></tr>';
 		// 賞味期限
 		if ( $post_meta_list['賞味期限'] ) {
-			$itemtable .= PHP_EOL . '<tr><th>賞味期限</th><td>' . PHP_EOL . nl2br( $formatter( '賞味期限' ) ) . '</td></tr>';
+			$itemtable .= PHP_EOL . '<tr><th>賞味期限</th><td>' . nl2br( $formatter( '賞味期限' ) ) . '</td></tr>';
 		}
 		// 消費期限
 		if ( $post_meta_list['消費期限'] ) {
-			$itemtable .= PHP_EOL . '<tr><th>消費期限</th><td>' . PHP_EOL . nl2br( $formatter( '消費期限' ) ) . '</td></tr>';
+			$itemtable .= PHP_EOL . '<tr><th>消費期限</th><td>' . nl2br( $formatter( '消費期限' ) ) . '</td></tr>';
 		}
 		// アレルギー表示
-		if ( $allergy_display ) {
-			$itemtable .= PHP_EOL . '<tr><th>アレルギー表示</th><td>' . $allergy_display . '</td></tr>';
+		if ( $allergy_display_str ) {
+			$itemtable .= PHP_EOL . '<tr><th>アレルギー表示</th><td>' . $allergy_display_str . '</td></tr>';
 		}
 		// 配送方法
 		$itemtable .= PHP_EOL . '<tr><th>配送方法</th><td>' . nl2br( $formatter( '発送方法' ) ) . '</td></tr>';
@@ -471,8 +457,9 @@ class N2_Item_Export {
 					)
 				);
 			}
+			$itemtable .= '</td></tr>';
 		}
-		$itemtable .= '</td></tr></table><!-- /商品説明テーブル -->';
+		$itemtable .= '</table><!-- /商品説明テーブル -->';
 		return $itemtable;
 	}
 
@@ -481,10 +468,10 @@ class N2_Item_Export {
 	 *
 	 * @param int   $post_id post_id
 	 * @param array $keys keys get_post_meta用にdefaultは空文字
-	 * @param array $post_meta_list meta情報が入った連想配列を更新する際は必要
 	 * @return array $post_meta_list 更新後のmetaリスト
 	 */
-	public function get_post_meta_multiple( $post_id, $keys = '', $post_meta_list = array() ) {
+	public function get_post_meta_multiple( $post_id, $keys = '' ) {
+		$post_meta_list = array();
 		if ( ! $keys || ! is_array( $keys ) ) {
 			return get_metadata( 'post', $post_id, $keys, true );
 		}
@@ -514,9 +501,10 @@ class N2_Item_Export {
 		$select = array();
 
 		foreach ( $ini_arr['rakuten_select_option'] as $v ) {
-			if ( '' !== $v ) {
-				$arr                       = explode( "\n", $v );
-				$select[ trim( $arr[0] ) ] = explode( ',', $arr[1] );
+			if ( $v ) {
+				$arr                      = explode( "\n", $v );
+				$select_header            = trim( array_shift( $arr ) );
+				$select[ $select_header ] = $arr;
 			}
 		}
 		// 初期化

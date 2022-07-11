@@ -83,7 +83,7 @@ class N2_Setupmenu {
 			<p class="input-text-wrap">
 				<label>
 					メールアドレス：
-					<input type="text" name="<?php echo $this->cls; ?>[contact][email]" value="<?php echo get_option( $this->cls )['contact']['email']; ?>">
+					<input type="text" name="<?php echo $this->cls; ?>[contact][email]" value="<?php echo get_option( $this->cls )['contact']['email']??''; ?>">
 				</label>
 			</p>
 			<p class="input-text-wrap">
