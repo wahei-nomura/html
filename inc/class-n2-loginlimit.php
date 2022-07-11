@@ -23,6 +23,7 @@ class N2_Loginlimit {
 	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'judge_administrator_ip' ) );
+		add_action( 'init', array( $this, 'judge_sscrew_ip' ) );
 	}
 
 	/**
@@ -48,6 +49,36 @@ class N2_Loginlimit {
 		);
 
 		if ( 'ore.steamship.co.jp' !== $_SERVER['HTTP_HOST'] && ! in_array( $_SERVER['REMOTE_ADDR'], $ips ) ) {
+			echo $_SERVER['REMOTE_ADDR'];
+			exit;
+		}
+
+	}
+
+	/**
+	 * ss-crewログインのIP判定
+	 *
+	 * @return void
+	 */
+	public function judge_sscrew_ip() {
+		if ( ( ! empty( wp_get_current_user()->roles[0] ) && 'ss-crew' !== wp_get_current_user()->roles[0] ) || 'ore.steamship.co.jp' === $_SERVER['HTTP_HOST'] ) {
+			return;
+		}
+
+		// APIで国内IPか判定
+		$url = 'http://ip-api.com/json/' . $_SERVER['REMOTE_ADDR'];
+
+		$ch = curl_init();
+		curl_setopt( $ch, CURLOPT_URL, $url );
+		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+
+		$response = curl_exec( $ch );
+		$result   = json_decode( $response, true );
+
+		curl_close( $ch );
+
+		if ( 'Japan' !== $result['country'] ) {
 			echo $_SERVER['REMOTE_ADDR'];
 			exit;
 		}
