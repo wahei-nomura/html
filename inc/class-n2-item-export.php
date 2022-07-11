@@ -537,6 +537,11 @@ class N2_Item_Export {
 					++$i;
 				}
 			}
+			// 内容を追加、または上書きするためのフック
+			$items_arr[ $post_id ] = array_merge(
+				$items_arr[ $post_id ],
+				apply_filters( 'n2_item_export_' . __FUNCTION__ . '_items', $item_arr, $post_id ),
+			);
 		}
 		$this->download_csv( 'rakuten_' . __FUNCTION__, $ini_arr['header'], $items_arr, $ini_arr['csv_title'] );
 		die();
