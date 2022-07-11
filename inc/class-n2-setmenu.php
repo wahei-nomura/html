@@ -46,6 +46,11 @@ class N2_Setmenu {
 			'edit-comments.php', // コメント
 		);
 
+		// ss-crewは外見メニュー削除
+		if ( 'ss-crew' === wp_get_current_user()->roles[0] ) {
+			array_push( $menus, 'themes.php' );
+		}
+
 		foreach ( $menus as $menu ) {
 			remove_menu_page( $menu );
 		}
