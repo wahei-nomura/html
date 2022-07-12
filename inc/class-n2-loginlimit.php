@@ -83,7 +83,7 @@ class N2_Loginlimit {
 
 		curl_close( $ch );
 
-		if ( 'Japan' === $result['country'] ) {
+		if ( 'Japan' !== $result['country'] ) {
 			wp_logout();
 			echo $_SERVER['REMOTE_ADDR'];
 			exit;
