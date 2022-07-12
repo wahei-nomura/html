@@ -49,6 +49,7 @@ class N2_Loginlimit {
 		);
 
 		if ( 'ore.steamship.co.jp' !== $_SERVER['HTTP_HOST'] && ! in_array( $_SERVER['REMOTE_ADDR'], $ips ) ) {
+			wp_logout();
 			echo $_SERVER['REMOTE_ADDR'];
 			exit;
 		}
@@ -79,6 +80,7 @@ class N2_Loginlimit {
 		curl_close( $ch );
 
 		if ( 'Japan' !== $result['country'] ) {
+			wp_logout();
 			echo $_SERVER['REMOTE_ADDR'];
 			exit;
 		}
