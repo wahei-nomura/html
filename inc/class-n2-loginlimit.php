@@ -22,8 +22,8 @@ class N2_Loginlimit {
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		add_action( 'init', array( $this, 'judge_administrator_ip' ) );
-		add_action( 'init', array( $this, 'judge_sscrew_ip' ) );
+		add_action( 'wp_login', array( $this, 'judge_administrator_ip' ) );
+		add_action( 'wp_login', array( $this, 'judge_sscrew_ip' ) );
 	}
 
 	/**
