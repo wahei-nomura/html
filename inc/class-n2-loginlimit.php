@@ -22,30 +22,32 @@ class N2_Loginlimit {
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		add_action( 'wp_login', array( $this, 'judge_administrator_ip' ) );
-		add_action( 'wp_login', array( $this, 'judge_sscrew_ip' ) );
+		add_action( 'wp_login', array( $this, 'judge_administrator_ip' ), 10, 2 );
+		add_action( 'wp_login', array( $this, 'judge_sscrew_ip' ), 10, 2 );
 	}
 
 	/**
 	 * 管理者ログインのIP判定
 	 *
+	 * @param Object $user_login login
+	 * @param Object $user user
 	 * @return void
 	 */
-	public function judge_administrator_ip() {
-		if ( ! empty( wp_get_current_user()->roles[0] ) && 'administrator' !== wp_get_current_user()->roles[0] ) {
+	public function judge_administrator_ip( $user_login, $user ) {
+		if ( ! empty( $user->roles[0] ) && 'administrator' !== $user->roles[0] ) {
 			return;
 		}
 
 		$ips = array(
-			'219.111.49.195',#波佐見
-			'121.2.77.80',#吉野ヶ里
-			'202.241.189.211',#糸島
-			'219.111.24.202',#有田
-			'122.103.81.78',#出島
-			'183.177.128.173',#土岐
-			'217.178.116.13',#大村
-			'175.41.201.54',#SSVPN
-			'127.0.0.1',#自分
+			'219.111.49.195', // 波佐見
+			'121.2.77.80', // 吉野ヶ里
+			'202.241.189.211', // 糸島
+			'219.111.24.202', // 有田
+			'122.103.81.78', // 出島
+			'183.177.128.173', // 土岐
+			'217.178.116.13', // 大村
+			'175.41.201.54', // SSVPN
+			'127.0.0.1', // 自分
 		);
 
 		if ( 'ore.steamship.co.jp' !== $_SERVER['HTTP_HOST'] && ! in_array( $_SERVER['REMOTE_ADDR'], $ips ) ) {
@@ -59,10 +61,12 @@ class N2_Loginlimit {
 	/**
 	 * ss-crewログインのIP判定
 	 *
+	 * @param Object $user_login login
+	 * @param Object $user user
 	 * @return void
 	 */
-	public function judge_sscrew_ip() {
-		if ( ( ! empty( wp_get_current_user()->roles[0] ) && 'ss-crew' !== wp_get_current_user()->roles[0] ) || 'ore.steamship.co.jp' === $_SERVER['HTTP_HOST'] ) {
+	public function judge_sscrew_ip( $user_login, $user ) {
+		if ( ( ! empty( $user->roles[0] ) && 'ss-crew' !== $user->roles[0] ) || 'ore.steamship.co.jp' === $_SERVER['HTTP_HOST'] ) {
 			return;
 		}
 
