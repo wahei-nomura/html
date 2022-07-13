@@ -34,7 +34,7 @@ class N2_Setupmenu {
 	 */
 	public function __construct() {
 		$this->cls = get_class( $this );
-		add_action( 'admin_menu', array( $this, 'add_crew_setup_menu' ) );
+		add_action( 'admin_menu', array( $this, 'add_setup_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'setup_menu_style' ) );
 		add_action( "wp_ajax_{$this->cls}", array( &$this, 'update_setupmenu' ) );
 	}
@@ -54,7 +54,7 @@ class N2_Setupmenu {
 	 * add_setup_menu
 	 * クルー用セットアップ管理ページを追加
 	 */
-	public function add_crew_setup_menu() {
+	public function add_setup_menu() {
 		add_menu_page( '各種セットアップ', '各種セットアップ', 'ss_crew', 'n2_setup_menu', array( $this, 'add_crew_setup_menu_page' ), 'dashicons-list-view' );
 		add_menu_page( '食品取扱設定', '食品取扱設定', 'jigyousya', 'n2_food_menu' );
 	}
