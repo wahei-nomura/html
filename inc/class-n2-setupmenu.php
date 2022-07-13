@@ -44,14 +44,10 @@ class N2_Setupmenu {
 	 * @return void
 	 */
 	public function update_setupmenu() {
+		$opt = get_option( $this->cls );
 		extract( $_POST );
-		if ( ! empty( $food ) && '' !== $food ) {
-			echo 'ここでuser_metaに登録したい';
-		} else {
-			$opt = get_option( $this->cls );
-			$opt = array_merge( (array) $opt, ${$this->cls} );
-			echo update_option( $this->cls, $opt ) ? '登録完了' : '登録失敗';
-		}
+		$opt = array_merge( (array) $opt, ${$this->cls} );
+		echo update_option( $this->cls, $opt ) ? '登録完了' : '登録失敗';
 		die();
 	}
 	/**
@@ -60,7 +56,6 @@ class N2_Setupmenu {
 	 */
 	public function add_setup_menu() {
 		add_menu_page( '各種セットアップ', '各種セットアップ', 'ss_crew', 'n2_setup_menu', array( $this, 'add_crew_setup_menu_page' ), 'dashicons-list-view' );
-		add_menu_page( '食品取扱設定', '食品取扱設定', 'jigyousya', 'n2_food_menu', array( $this, 'add_jigyousya_setup_menu_page' ), 'dashicons-list-view' );
 	}
 	/**
 	 * クルー用メニュー描画
@@ -71,28 +66,6 @@ class N2_Setupmenu {
 		$this->wrapping_contents( '事業者連絡先', 'contact_setup_menu' );
 		$this->wrapping_contents( '各ポータル共通説明文', 'add_text_widget' );
 		$this->wrapping_contents( '楽天セットアップ', 'rakuten_setup_widget' ); // 必要？
-	}
-
-	/**
-	 * 事業者食品用メニュー描画
-	 *
-	 * @return void
-	 */
-	public function add_jigyousya_setup_menu_page() {
-		?>
-			<form>
-				<h2>事業者様の食品取扱いの有無を登録</h2>
-				<div>
-					<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
-					<label for="foodyes"><input type="radio" name="food" id="foodyes" value="有">食品を取り扱っている</label>
-					<label for="foodno"><input type="radio" name="food" id="foodno" value="無">食品を取り扱っていない</label>
-				</div>
-				<p>※返礼品登録時のアレルギー選択項目の表示に使用します。</p>
-				<div>
-					<button type="submit" class="button button-primary sissubmit">更新する</button>
-				</div>
-			</form>
-		<?php
 	}
 
 	/**

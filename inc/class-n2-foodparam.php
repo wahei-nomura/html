@@ -30,6 +30,21 @@ class N2_Foodparam {
 	public function __construct() {
 		$this->cls = get_class( $this );
 		add_action( 'wp_login', array( $this, 'jigyousya_add_food' ), 11, 2 );
+		add_action( 'admin_menu', array( $this, 'add_setup_menu' ) );
+		add_action( "wp_ajax_{$this->cls}", array( &$this, 'update_setupmenu' ) );
+	}
+
+	/**
+	 * ajaxでDBに登録する
+	 *
+	 * @return void
+	 */
+	public function update_setupmenu() {
+		if ( empty( $_POST['food'] ) || '' === $_POST['food'] ) {
+			return;
+		}
+		echo 'ここでuser_metaに登録したい';
+		die();
 	}
 
 	/**
@@ -50,5 +65,35 @@ class N2_Foodparam {
 			wp_redirect( site_url() . '/wp-admin/admin.php?page=n2_food_menu' );
 			exit;
 		}
+	}
+
+	/**
+	 * add_setup_menu
+	 * クルー用セットアップ管理ページを追加
+	 */
+	public function add_setup_menu() {
+		add_menu_page( '食品取扱設定', '食品取扱設定', 'jigyousya', 'n2_food_menu', array( $this, 'add_jigyousya_setup_menu_page' ), 'dashicons-list-view' );
+	}
+
+	/**
+	 * 事業者食品用メニュー描画
+	 *
+	 * @return void
+	 */
+	public function add_jigyousya_setup_menu_page() {
+		?>
+			<form>
+				<h2>事業者様の食品取扱いの有無を登録</h2>
+				<div>
+					<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
+					<label for="foodyes"><input type="radio" name="food" id="foodyes" value="有">食品を取り扱っている</label>
+					<label for="foodno"><input type="radio" name="food" id="foodno" value="無">食品を取り扱っていない</label>
+				</div>
+				<p>※返礼品登録時のアレルギー選択項目の表示に使用します。</p>
+				<div>
+					<button type="submit" class="button button-primary sissubmit">更新する</button>
+				</div>
+			</form>
+		<?php
 	}
 }
