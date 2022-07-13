@@ -56,6 +56,7 @@ class N2_Setupmenu {
 	 */
 	public function add_crew_setup_menu() {
 		add_menu_page( '各種セットアップ', '各種セットアップ', 'ss_crew', 'n2_setup_menu', array( $this, 'add_crew_setup_menu_page' ), 'dashicons-list-view' );
+		add_menu_page( '食品取扱設定', '食品取扱設定', 'jigyousya', 'n2_food_menu' );
 	}
 	/**
 	 * クルー用メニュー描画
