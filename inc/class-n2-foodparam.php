@@ -43,7 +43,7 @@ class N2_Foodparam {
 		if ( empty( $_POST['food'] ) || '' === $_POST['food'] ) {
 			return;
 		}
-		echo 'ここでuser_metaに登録したい';
+		update_user_meta( wp_get_current_user()->ID, '食品取扱い', filter_input( INPUT_POST, 'food' ) );
 		die();
 	}
 
