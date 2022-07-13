@@ -39,7 +39,7 @@ class N2_Foodparam {
 	 * @param Object $user user
 	 * @return void
 	 */
-	public function judge_jigyousya( $user_login, $user ) {
+	public function jigyousya_add_food( $user_login, $user ) {
 		// 事業者ユーザーでなければreturn
 		if ( ! empty( $user->roles[0] ) && 'jigyousya' !== $user->roles[0] ) {
 			return;
@@ -47,8 +47,8 @@ class N2_Foodparam {
 
 		// user_metaに食品取扱いがない、またはからの場合
 		if ( empty( get_user_meta( $user->ID, '食品取扱い', true ) ) || '' === get_user_meta( $user->ID, '食品取扱い', true ) ) {
-			// モーダル表示したい
+			wp_redirect( site_url() . '/wp-admin/admin.php?page=n2_food_menu' );
+			exit;
 		}
-		exit;
 	}
 }
