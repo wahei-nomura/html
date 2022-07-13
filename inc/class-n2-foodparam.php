@@ -81,13 +81,14 @@ class N2_Foodparam {
 	 * @return void
 	 */
 	public function add_jigyousya_setup_menu_page() {
+		$value = get_user_meta( wp_get_current_user()->ID, '食品取扱い', true ) ? get_user_meta( wp_get_current_user()->ID, '食品取扱い', true ) : '';
 		?>
 			<form>
 				<h2>事業者様の食品取扱いの有無を登録</h2>
 				<div>
 					<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
-					<label for="foodyes"><input type="radio" name="food" id="foodyes" value="有">食品を取り扱っている</label>
-					<label for="foodno"><input type="radio" name="food" id="foodno" value="無">食品を取り扱っていない</label>
+					<label for="foodyes"><input type="radio" name="food" id="foodyes" value="有"<?php checked( $value, '有' ); ?>>食品を取り扱っている</label>
+					<label for="foodno"><input type="radio" name="food" id="foodno" value="無"<?php checked( $value, '無' ); ?>>食品を取り扱っていない</label>
 				</div>
 				<p>※返礼品登録時のアレルギー選択項目の表示に使用します。</p>
 				<div>
