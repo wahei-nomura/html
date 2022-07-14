@@ -44,33 +44,9 @@ class N2_Foodparam {
 			return;
 		}
 
+		// 食品取扱登録用モーダルテンプレートをinclude
 		if ( empty( get_user_meta( $user->ID, '食品取扱い', true ) ) || '' === get_user_meta( $user->ID, '食品取扱い', true ) ) {
-		$value = get_user_meta( wp_get_current_user()->ID, '食品取扱い', true ) ? get_user_meta( wp_get_current_user()->ID, '食品取扱い', true ) : '';
-		?>
-			<div class="ss-food-modal" style="position:fixed;top:50%;left:50%;z-index:100000;background-color: pink;">
-				<form>
-					<h2>事業者様の食品取扱いの有無を登録</h2>
-					<div>
-						<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
-						<label for="foodyes"><input type="radio" name="food" id="foodyes" value="有"<?php checked( $value, '有' ); ?>>食品を取り扱っている</label>
-						<label for="foodno"><input type="radio" name="food" id="foodno" value="無"<?php checked( $value, '無' ); ?>>食品を取り扱っていない</label>
-					</div>
-					<p>※返礼品登録時のアレルギー選択項目の表示に使用します。</p>
-					<div>
-						<button type="button" class="button button-primary sissubmit">更新する</button>
-					</div>
-				</form>
-				<script>
-					jQuery(function($){
-						$('.sissubmit').on('click',()=>{
-							setTimeout(()=>{
-								$('.ss-food-modal').remove()
-							},1000)
-						})
-					})
-				</script>
-			</div>
-		<?php
+			include get_theme_file_path( 'template/food-modal.php' );
 		}
 
 	}
