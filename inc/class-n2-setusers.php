@@ -42,6 +42,7 @@ class N2_Setusers {
 		$wp_roles->remove_role( 'subscriber' ); // 購読者
 		$wp_roles->remove_role( 'contributor' ); // 寄稿者
 		$wp_roles->remove_role( 'author' ); // 投稿者
+		$wp_roles->remove_cap( 'ss-crew', 'edit_theme_options' ); // テーマ編集不可
 	}
 
 	/**
