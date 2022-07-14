@@ -29,9 +29,50 @@ class N2_Foodparam {
 	 */
 	public function __construct() {
 		$this->cls = get_class( $this );
-		add_action( 'wp_login', array( $this, 'jigyousya_add_food' ), 11, 2 );
+		add_action( 'admin_footer', array( $this, 'show_food_modal' ) );
 		add_action( 'admin_menu', array( $this, 'add_setup_menu' ) );
 		add_action( "wp_ajax_{$this->cls}", array( &$this, 'update_setupmenu' ) );
+	}
+	/**
+	 * 事業者ユーザーが食品取扱データを持っていない場合モーダル表示
+	 *
+	 * @return void
+	 */
+	public function show_food_modal() {
+		$user = wp_get_current_user();
+		if ( 'jigyousya' !== $user->roles[0] ) {
+			return;
+		}
+
+		if ( empty( get_user_meta( $user->ID, '食品取扱い', true ) ) || '' === get_user_meta( $user->ID, '食品取扱い', true ) ) {
+		$value = get_user_meta( wp_get_current_user()->ID, '食品取扱い', true ) ? get_user_meta( wp_get_current_user()->ID, '食品取扱い', true ) : '';
+		?>
+			<div class="ss-food-modal" style="position:fixed;top:50%;left:50%;z-index:100000;background-color: pink;">
+				<form>
+					<h2>事業者様の食品取扱いの有無を登録</h2>
+					<div>
+						<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
+						<label for="foodyes"><input type="radio" name="food" id="foodyes" value="有"<?php checked( $value, '有' ); ?>>食品を取り扱っている</label>
+						<label for="foodno"><input type="radio" name="food" id="foodno" value="無"<?php checked( $value, '無' ); ?>>食品を取り扱っていない</label>
+					</div>
+					<p>※返礼品登録時のアレルギー選択項目の表示に使用します。</p>
+					<div>
+						<button type="button" class="button button-primary sissubmit">更新する</button>
+					</div>
+				</form>
+				<script>
+					jQuery(function($){
+						$('.sissubmit').on('click',()=>{
+							setTimeout(()=>{
+								$('.ss-food-modal').remove()
+							},1000)
+						})
+					})
+				</script>
+			</div>
+		<?php
+		}
+
 	}
 
 	/**
@@ -44,27 +85,8 @@ class N2_Foodparam {
 			return;
 		}
 		update_user_meta( wp_get_current_user()->ID, '食品取扱い', filter_input( INPUT_POST, 'food' ) );
+		echo '食品取扱い有無更新完了';
 		die();
-	}
-
-	/**
-	 * judge_jigyousya
-	 *
-	 * @param Object $user_login user_login
-	 * @param Object $user user
-	 * @return void
-	 */
-	public function jigyousya_add_food( $user_login, $user ) {
-		// 事業者ユーザーでなければreturn
-		if ( ! empty( $user->roles[0] ) && 'jigyousya' !== $user->roles[0] ) {
-			return;
-		}
-
-		// user_metaに食品取扱いがない、またはからの場合
-		if ( empty( get_user_meta( $user->ID, '食品取扱い', true ) ) || '' === get_user_meta( $user->ID, '食品取扱い', true ) ) {
-			wp_redirect( site_url() . '/wp-admin/admin.php?page=n2_food_menu' );
-			exit;
-		}
 	}
 
 	/**
