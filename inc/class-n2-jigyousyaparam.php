@@ -36,8 +36,18 @@ class N2_Jigyousyaparam {
 
 	private function params(){
 		$params = array(
-			"food"=>"食品取扱い",
-			"yakimono"=>"やきもの取り扱い",
+			"food"=>array(
+				"meta"=>"食品取扱い",
+				"title"=>"ふるさと納税の返礼品として食品を出品しますか？",
+				"description"=>"出品される返礼品の中に食品が含まれる場合は「はい」を選択してください。<br>
+				返礼品の情報をご入力いただく際のアレルギー選択項目をデフォルトで表示するかどうかに使用いたします。",
+			),
+			"yakimono"=>array(
+				"meta"=>"やきもの取り扱い",
+				"title"=>"ふるさと納税の返礼品としてやきもの（陶器など）を出品しますか？",
+				"description"=>"出品される返礼品の中にやきものが含まれる場合は「はい」を選択してください。<br>
+				返礼品の情報をご入力いただく際のやきもの独自の項目をデフォルトで表示するかどうかに使用いたします。",
+			),
 		);
 
 		return $params;
@@ -57,8 +67,8 @@ class N2_Jigyousyaparam {
 		$params = $this->params();
 
 		$modal = false;
-		foreach( $params as $key => $meta ){
-			$modal = empty( get_user_meta( $user->ID, $meta, true ) ) || '' === get_user_meta( $user->ID, $meta, true ) ? true : $modal;
+		foreach( $params as $key => $value ){
+			$modal = empty( get_user_meta( $user->ID, $value['meta'], true ) ) || '' === get_user_meta( $user->ID, $value['meta'], true ) ? true : $modal;
 		}
 
 		// 食品取扱登録用モーダルテンプレートをinclude
@@ -75,9 +85,9 @@ class N2_Jigyousyaparam {
 	 */
 	public function update_setupmenu() {
 		$params = $this->params();
-		foreach( $params as $key => $meta ){
+		foreach( $params as $key => $value ){
 			if ( ! empty( $_POST[$key] ) && '' !== $_POST[$key] ) {
-				update_user_meta( wp_get_current_user()->ID, $meta, filter_input( INPUT_POST, $key ) );
+				update_user_meta( wp_get_current_user()->ID, $value['meta'], filter_input( INPUT_POST, $key ) );
 			}
 		}
 		echo '食品取扱い有無更新完了';

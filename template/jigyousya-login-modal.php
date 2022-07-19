@@ -102,32 +102,16 @@
 	<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
 
 	<?php foreach( $params as $key => $value ): ?>
-	<!-- ここから下は編集不可 -->
-	<div class="ss-check-item">
-		<div class="flex-item1">
-			<h3>ふるさと納税の返礼品として食品を出品しますか？</h3>
-			<p>
-				出品される返礼品の中に食品が含まれる場合は「はい」を選択してください。<br>
-				返礼品の情報をご入力いただく際のアレルギー選択項目をデフォルトで表示するかどうかに使用いたします。
-			</p>
+		<div class="ss-check-item">
+			<div class="flex-item1">
+				<h3><?php echo $value['title'] ;?></h3>
+				<p><?php echo $value['description'] ; ?></p>
+			</div>
+			<div class="flex-item2"><input type="radio" name="<?php echo $key; ?>" id="<?php echo $key; ?>yes" value="有"><label for="<?php echo $key; ?>yes" class="radioyes">はい</label></div>
+			<div class="flex-item3"><input type="radio" name="<?php echo $key; ?>" id="<?php echo $key; ?>no" value="無"><label for="<?php echo $key; ?>no" class="radiono">いいえ</label></div>
 		</div>
-		<div class="flex-item2"><input type="radio" name="<?php echo $key; ?>" id="<?php echo $key; ?>yes" value="有"><label for="<?php echo $key; ?>yes" class="radioyes">はい</label></div>
-		<div class="flex-item3"><input type="radio" name="<?php echo $key; ?>" id="<?php echo $key; ?>no" value="無"><label for="<?php echo $key; ?>no" class="radiono">いいえ</label></div>
-	</div>
 	<?php endforeach; ?>
-	<!-- ここまでで１ブロック -->
-	<!-- <div class="ss-check-item">
-		<div class="flex-item1">
-			<h3>ふるさと納税の返礼品としてやきもの（陶器など）を出品しますか？</h3>
-			<p>
-				出品される返礼品の中にやきものが含まれる場合は「はい」を選択してください。<br>
-				返礼品の情報をご入力いただく際のやきもの独自の項目をデフォルトで表示するかどうかに使用いたします。
-			</p>
-		</div>
-		<div class="flex-item2"><input type="radio" name="yakimono" id="yakimonoyes" value="有"><label for="yakimonoyes" class="radioyes">はい</label></div>
-		<div class="flex-item3"><input type="radio" name="yakimono" id="yakimonono" value="無"><label for="yakimonono" class="radiono">いいえ</label></div>
-	</div> -->
-	
+
 	<p>
 	※またこの設定は画面左側のメニュー<b>「返礼品設定」</b>よりいつでも変更ができます。
 	</p>
