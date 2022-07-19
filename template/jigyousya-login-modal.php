@@ -139,7 +139,10 @@
 	jQuery(function($){
 
 		$('.ss-check-item input[type="radio"]').on('change',()=>{
-			$('.ss-jigyousya-button button').prop('disabled',false);
+			// 全てのチェックしているか判定
+			if($('.ss-check-item input[type="radio"]').length === $('.ss-check-item input[type="radio"]:checked').length * 2){
+				$('.ss-jigyousya-button button').prop('disabled',false);
+			}
 		})
 
 		$('.sissubmit').on('click',()=>{
