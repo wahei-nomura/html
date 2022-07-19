@@ -74,8 +74,11 @@ class N2_Jigyousyaparam {
 	 * @return void
 	 */
 	public function update_setupmenu() {
-		if ( ! empty( $_POST['food'] ) && '' !== $_POST['food'] ) {
-			update_user_meta( wp_get_current_user()->ID, '食品取扱い', filter_input( INPUT_POST, 'food' ) );
+		$params = $this->params();
+		foreach( $params as $key => $meta ){
+			if ( ! empty( $_POST[$key] ) && '' !== $_POST[$key] ) {
+				update_user_meta( wp_get_current_user()->ID, $meta, filter_input( INPUT_POST, $key ) );
+			}
 		}
 		echo '食品取扱い有無更新完了';
 		die();
