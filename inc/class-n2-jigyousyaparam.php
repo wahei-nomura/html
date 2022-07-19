@@ -58,13 +58,15 @@ class N2_Jigyousyaparam {
 
 		$params = $this->params();
 
-		$modal = false;
 		foreach( $params as $key => $value ){
-			$modal = empty( get_user_meta( $user->ID, $value['meta'], true ) ) || '' === get_user_meta( $user->ID, $value['meta'], true ) ? true : $modal;
+			if( ! empty( get_user_meta( $user->ID, $value['meta'], true ) ) && '' !== get_user_meta( $user->ID, $value['meta'], true ) ){
+				// すでに登録済みの項目は出さない
+				unset($params[$key]);
+			}
 		}
 
 		// 食品取扱登録用モーダルテンプレートをinclude
-		if ( $modal ) {
+		if ( count( $params ) > 0 ) {
 			include get_theme_file_path( 'template/jigyousya-login-modal.php' );
 		}
 
