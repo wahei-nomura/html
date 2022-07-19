@@ -42,7 +42,7 @@ class N2_Jigyousyaparam {
 	private function params(){
 		$params = parse_ini_file( get_template_directory() . '/config/n2-jigyousya-params.ini', true );
 
-		return $params;
+		return apply_filters( __CLASS__ . '_' . __FUNCTION__, $params );
 	}
 
 	/**
