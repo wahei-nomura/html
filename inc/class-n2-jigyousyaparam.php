@@ -34,21 +34,13 @@ class N2_Jigyousyaparam {
 		add_action( "wp_ajax_{$this->cls}", array( &$this, 'update_setupmenu' ) );
 	}
 
+	/**
+	 * usermetaに登録させたい項目をiniから取得
+	 *
+	 * @return Array $params
+	 */
 	private function params(){
-		$params = array(
-			"food"=>array(
-				"meta"=>"食品取扱い",
-				"title"=>"ふるさと納税の返礼品として食品を出品しますか？",
-				"description"=>"出品される返礼品の中に食品が含まれる場合は「はい」を選択してください。<br>
-				返礼品の情報をご入力いただく際のアレルギー選択項目をデフォルトで表示するかどうかに使用いたします。",
-			),
-			"yakimono"=>array(
-				"meta"=>"やきもの取り扱い",
-				"title"=>"ふるさと納税の返礼品としてやきもの（陶器など）を出品しますか？",
-				"description"=>"出品される返礼品の中にやきものが含まれる場合は「はい」を選択してください。<br>
-				返礼品の情報をご入力いただく際のやきもの独自の項目をデフォルトで表示するかどうかに使用いたします。",
-			),
-		);
+		$params = parse_ini_file( get_template_directory() . '/config/n2-jigyousya-params.ini', true );
 
 		return $params;
 	}
