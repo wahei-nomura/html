@@ -101,6 +101,7 @@
 	<h2>はい　か　いいえ　を選んでください</h2>
 	<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
 
+	<?php foreach( $jigyousya_data as $key => $value ): ?>
 	<!-- ここから下は編集不可 -->
 	<div class="ss-check-item">
 		<div class="flex-item1">
@@ -110,9 +111,10 @@
 				返礼品の情報をご入力いただく際のアレルギー選択項目をデフォルトで表示するかどうかに使用いたします。
 			</p>
 		</div>
-		<div class="flex-item2"><input type="radio" name="food" id="foodyes" value="有"><label for="foodyes" class="radioyes">はい</label></div>
-		<div class="flex-item3"><input type="radio" name="food" id="foodno" value="無"><label for="foodno" class="radiono">いいえ</label></div>
+		<div class="flex-item2"><input type="radio" name="<?php echo $key; ?>" id="<?php echo $key; ?>yes" value="有"><label for="<?php echo $key; ?>yes" class="radioyes">はい</label></div>
+		<div class="flex-item3"><input type="radio" name="<?php echo $key; ?>" id="<?php echo $key; ?>no" value="無"><label for="<?php echo $key; ?>no" class="radiono">いいえ</label></div>
 	</div>
+	<?php endforeach; ?>
 	<!-- ここまでで１ブロック -->
 	<!-- <div class="ss-check-item">
 		<div class="flex-item1">

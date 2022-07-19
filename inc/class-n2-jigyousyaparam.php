@@ -44,8 +44,18 @@ class N2_Jigyousyaparam {
 			return;
 		}
 
+		$jigyousya_data = array(
+			"food"=>"食品取扱い",
+			"yakimono"=>"やきもの取り扱い",
+		);
+
+		$modal = false;
+		foreach( $jigyousya_data as $key => $meta ){
+			$modal = empty( get_user_meta( $user->ID, $meta, true ) ) || '' === get_user_meta( $user->ID, $meta, true ) ? true : $modal;
+		}
+
 		// 食品取扱登録用モーダルテンプレートをinclude
-		if ( empty( get_user_meta( $user->ID, '食品取扱い', true ) ) || '' === get_user_meta( $user->ID, '食品取扱い', true ) ) {
+		if ( $modal ) {
 			include get_theme_file_path( 'template/jigyousya-login-modal.php' );
 		}
 
