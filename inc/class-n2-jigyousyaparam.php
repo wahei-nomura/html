@@ -33,6 +33,16 @@ class N2_Jigyousyaparam {
 		add_action( 'admin_menu', array( $this, 'add_setup_menu' ) );
 		add_action( "wp_ajax_{$this->cls}", array( &$this, 'update_setupmenu' ) );
 	}
+
+	private function params(){
+		$params = array(
+			"food"=>"食品取扱い",
+			"yakimono"=>"やきもの取り扱い",
+		);
+
+		return $params;
+	}
+
 	/**
 	 * 事業者ユーザーが食品取扱データを持っていない場合モーダル表示
 	 *
@@ -44,13 +54,10 @@ class N2_Jigyousyaparam {
 			return;
 		}
 
-		$jigyousya_data = array(
-			"food"=>"食品取扱い",
-			"yakimono"=>"やきもの取り扱い",
-		);
+		$params = $this->params();
 
 		$modal = false;
-		foreach( $jigyousya_data as $key => $meta ){
+		foreach( $params as $key => $meta ){
 			$modal = empty( get_user_meta( $user->ID, $meta, true ) ) || '' === get_user_meta( $user->ID, $meta, true ) ? true : $modal;
 		}
 

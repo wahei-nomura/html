@@ -101,7 +101,7 @@
 	<h2>はい　か　いいえ　を選んでください</h2>
 	<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
 
-	<?php foreach( $jigyousya_data as $key => $value ): ?>
+	<?php foreach( $params as $key => $value ): ?>
 	<!-- ここから下は編集不可 -->
 	<div class="ss-check-item">
 		<div class="flex-item1">
