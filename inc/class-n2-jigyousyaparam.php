@@ -46,7 +46,7 @@ class N2_Jigyousyaparam {
 
 		// 食品取扱登録用モーダルテンプレートをinclude
 		if ( empty( get_user_meta( $user->ID, '食品取扱い', true ) ) || '' === get_user_meta( $user->ID, '食品取扱い', true ) ) {
-			include get_theme_file_path( 'template/food-modal.php' );
+			include get_theme_file_path( 'template/jigyousya-login-modal.php' );
 		}
 
 	}
