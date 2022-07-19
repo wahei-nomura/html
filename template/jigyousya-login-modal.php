@@ -1,6 +1,6 @@
 <?php
 /**
- * class-n2-foodparam.phpのshow_food_modalメソッドで使用
+ * class-n2-jigyousyaparam.phpのshow_login_modalメソッドで使用
  *
  * @package neoneng
  */
@@ -8,63 +8,142 @@
 ?>
 
 <style>
-	.ss-food-modal {
+	.ss-jigyousya-modal {
 		position: fixed;
 		top: 50%;
 		left: 50%;
 		z-index: 10000000;
+		width: 50%;
+		min-width: 800px;
 		transform: translate(-50%,-50%);
 		padding: 60px;
 		background-color: #fff;
 		box-shadow: 0 5px 15px rgba(0,0,0,.7);
 	}
-	.ss-food-check {
+
+	.ss-jigyousya-modal h2 {
+		text-align: center;
+	}
+
+	.ss-check-item {
 		margin-top: 40px;
 		display: flex;
 		justify-content: space-around;
-		background-color: lightblue;
 		padding: 8px 16px;
+		box-shadow: 0 0 5px 2px rgba(0,0,0,.2);
 		border-radius: 4px;
 	}
-	.ss-food-check label {
+
+	.ss-check-item .flex-item1 {
+		flex-basis: 70%;
+	}
+	.ss-check-item .flex-item2 {
+		flex-basis: 15%;
+	}
+	.ss-check-item .flex-item3 {
+		flex-basis: 15%;
+	}
+
+	.ss-check-item label {
 		user-select: none;
 		font-size: 18px;
 		font-weight: bold;
-	}
-	.ss-food-button {
 		display: flex;
-		justify-content: center;
+		flex-direction: column;
+		justify-content: end;
+		align-items: center;
+		position: relative;
+		color: lightgray;
+		height: 100%;
+	}
+	.ss-check-item input {
+		display: none;
+	}
+
+	.ss-check-item input:checked + label {
+		color: #2271b1;
+	}
+	.ss-check-item input:checked + label::before {
+		color: #2271b1;
+	}
+
+	.ss-check-item .radioyes::before {
+		font-family: "dashicons";
+		content: "\f159";
+		position: absolute;
+		top: 40%;
+		left: 50%;
+		transform: translate(-50%,-50%);
+		font-size: 60px;
+		color: lightgray;
+	}
+
+	.ss-check-item .radiono::before {
+		font-family: "dashicons";
+		content: "\f158";
+		position: absolute;
+		top: 40%;
+		left: 50%;
+		transform: translate(-50%,-50%);
+		font-size: 60px;
+		color: lightgray;
+	}
+
+	.ss-jigyousya-button {
+		display: flex;
+		justify-content: space-around;
 		margin-top: 40px;
 	}
 </style>
 
-<div class="ss-food-modal-wrapper media-modal-backdrop"></div>
-<form class="ss-food-modal">
-	<h2>初回ログインにあたり、事業者様の食品取扱の有無についてお尋ねします。</h2>
+<div class="ss-jigyousya-modal-wrapper media-modal-backdrop"></div>
+<form class="ss-jigyousya-modal">
+	<h2>はい　か　いいえ　を選んでください</h2>
 	<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
-	<div class="ss-food-check">
-		<label for="foodyes"><input type="radio" name="food" id="foodyes" value="有">食品を取り扱っている</label>
-		<label for="foodno"><input type="radio" name="food" id="foodno" value="無">食品を取り扱っていない</label>
+
+	<!-- ここから下は編集不可 -->
+	<div class="ss-check-item">
+		<div class="flex-item1">
+			<h3>ふるさと納税の返礼品として食品を出品しますか？</h3>
+			<p>
+				出品される返礼品の中に食品が含まれる場合は「はい」を選択してください。<br>
+				返礼品の情報をご入力いただく際のアレルギー選択項目をデフォルトで表示するかどうかに使用いたします。
+			</p>
+		</div>
+		<div class="flex-item2"><input type="radio" name="food" id="foodyes" value="有"><label for="foodyes" class="radioyes">はい</label></div>
+		<div class="flex-item3"><input type="radio" name="food" id="foodno" value="無"><label for="foodno" class="radiono">いいえ</label></div>
 	</div>
+	<!-- ここまでで１ブロック -->
+	<!-- <div class="ss-check-item">
+		<div class="flex-item1">
+			<h3>ふるさと納税の返礼品としてやきもの（陶器など）を出品しますか？</h3>
+			<p>
+				出品される返礼品の中にやきものが含まれる場合は「はい」を選択してください。<br>
+				返礼品の情報をご入力いただく際のやきもの独自の項目をデフォルトで表示するかどうかに使用いたします。
+			</p>
+		</div>
+		<div class="flex-item2"><input type="radio" name="yakimono" id="yakimonoyes" value="有"><label for="yakimonoyes" class="radioyes">はい</label></div>
+		<div class="flex-item3"><input type="radio" name="yakimono" id="yakimonono" value="無"><label for="yakimonono" class="radiono">いいえ</label></div>
+	</div> -->
+	
 	<p>
-		※返礼品登録時のアレルギー選択項目の表示に使用します。<br>
-		またこの設定は画面左側のメニュー<b>「食品取扱設定」</b>よりいつでも変更ができます。
+	※またこの設定は画面左側のメニュー<b>「返礼品設定」</b>よりいつでも変更ができます。
 	</p>
-	<div class="ss-food-button">
+	<div class="ss-jigyousya-button">
 		<button type="button" class="button button-primary sissubmit" disabled>登録する</button>
 	</div>
 </form>
 <script>
 	jQuery(function($){
 
-		$('.ss-food-check input[type="radio"]').on('change',()=>{
-			$('.ss-food-button button').prop('disabled',false);
+		$('.ss-check-item input[type="radio"]').on('change',()=>{
+			$('.ss-jigyousya-button button').prop('disabled',false);
 		})
 
 		$('.sissubmit').on('click',()=>{
 			setTimeout(()=>{
-				$('.ss-food-modal-wrapper').remove()
-				$('.ss-food-modal').remove()
+				$('.ss-jigyousya-modal-wrapper').remove()
+				$('.ss-jigyousya-modal').remove()
 			},1000)
 		})
 	})
