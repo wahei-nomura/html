@@ -50,6 +50,15 @@ export default () => {
 			});
 		});
 
+		$(`.${prefix}-media-delete`).on("click", e => {
+			if(!confirm('選択中の画像を削除してもよろしいですか？')) {
+				return;
+			}
+			const parent=$(e.target).parent();
+			parent.find(`.${prefix}-image-input`).val('');
+			parent.find(`.${prefix}-image-url`).attr('src', '');
+		})
+
 		//zipアップローダーボタン
 		$(`.${prefix}-zip-toggle`).on("click", (e) => {
 			e.preventDefault();
