@@ -101,11 +101,11 @@
 	<h2>はい　か　いいえ　を選んでください</h2>
 	<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
 
-	<?php foreach( $params as $key => $value ): ?>
+	<?php foreach ( $params as $key => $value ) : ?>
 		<div class="ss-check-item">
 			<div class="flex-item1">
-				<h3><?php echo $value['title'] ;?></h3>
-				<p><?php echo $value['description'] ; ?></p>
+				<h3><?php echo $value['title']; ?></h3>
+				<p><?php echo $value['description']; ?></p>
 			</div>
 			<div class="flex-item2"><input type="radio" name="<?php echo $key; ?>" id="<?php echo $key; ?>yes" value="有"><label for="<?php echo $key; ?>yes" class="radioyes">はい</label></div>
 			<div class="flex-item3"><input type="radio" name="<?php echo $key; ?>" id="<?php echo $key; ?>no" value="無"><label for="<?php echo $key; ?>no" class="radiono">いいえ</label></div>

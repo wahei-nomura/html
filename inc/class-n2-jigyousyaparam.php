@@ -39,7 +39,7 @@ class N2_Jigyousyaparam {
 	 *
 	 * @return Array $params
 	 */
-	private function params(){
+	private function params() {
 		$params = parse_ini_file( get_template_directory() . '/config/n2-jigyousya-params.ini', true );
 
 		return apply_filters( __CLASS__ . '_' . __FUNCTION__, $params );
@@ -58,10 +58,10 @@ class N2_Jigyousyaparam {
 
 		$params = $this->params();
 
-		foreach( $params as $key => $value ){
-			if( ! empty( get_user_meta( $user->ID, $value['meta'], true ) ) && '' !== get_user_meta( $user->ID, $value['meta'], true ) ){
+		foreach ( $params as $key => $value ) {
+			if ( ! empty( get_user_meta( $user->ID, $value['meta'], true ) ) && '' !== get_user_meta( $user->ID, $value['meta'], true ) ) {
 				// すでに登録済みの項目は出さない
-				unset($params[$key]);
+				unset( $params[ $key ] );
 			}
 		}
 
@@ -79,8 +79,8 @@ class N2_Jigyousyaparam {
 	 */
 	public function update_setupmenu() {
 		$params = $this->params();
-		foreach( $params as $key => $value ){
-			if ( ! empty( $_POST[$key] ) && '' !== $_POST[$key] ) {
+		foreach ( $params as $key => $value ) {
+			if ( ! empty( $_POST[ $key ] ) && '' !== $_POST[ $key ] ) {
 				update_user_meta( wp_get_current_user()->ID, $value['meta'], filter_input( INPUT_POST, $key ) );
 			}
 		}

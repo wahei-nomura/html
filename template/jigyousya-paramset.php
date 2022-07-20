@@ -83,14 +83,14 @@
 <form class="ss-jigyousya-modal">
 	<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
 
-	<?php 
-		foreach( $params as $key => $value ): 
+	<?php
+	foreach ( $params as $key => $value ) :
 		$result = get_user_meta( wp_get_current_user()->ID, $value['meta'], true ) ? get_user_meta( wp_get_current_user()->ID, $value['meta'], true ) : '';
-	?>
+		?>
 		<div class="ss-check-item">
 			<div class="flex-item1">
-				<h3><?php echo $value['title'] ;?></h3>
-				<p><?php echo $value['description'] ; ?></p>
+				<h3><?php echo $value['title']; ?></h3>
+				<p><?php echo $value['description']; ?></p>
 			</div>
 			<div class="flex-item2">
 				<input type="radio" name="<?php echo $key; ?>" id="<?php echo $key; ?>yes" value="有"<?php checked( $result, '有' ); ?>>
