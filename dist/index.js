@@ -80,13 +80,23 @@ eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nvar 
 
 /***/ }),
 
+/***/ "./src/ts/n2-setpost/allergen.ts":
+/*!***************************************!*\
+  !*** ./src/ts/n2-setpost/allergen.ts ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports[\"default\"] = (function () {\n    /** ===============================================================\n     *\n     * アレルギー項目制御\n     *\n    ================================================================== */\n    jQuery(function ($) {\n        console.log(\"allergen.ts読み込み\");\n    });\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/n2-setpost/allergen.ts?");
+
+/***/ }),
+
 /***/ "./src/ts/n2-setpost/index.ts":
 /*!************************************!*\
   !*** ./src/ts/n2-setpost/index.ts ***!
   \************************************/
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
-eval("\nvar __importDefault = (this && this.__importDefault) || function (mod) {\n    return (mod && mod.__esModule) ? mod : { \"default\": mod };\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nvar main_1 = __importDefault(__webpack_require__(/*! ./main */ \"./src/ts/n2-setpost/main.ts\"));\nvar price_1 = __importDefault(__webpack_require__(/*! ./price */ \"./src/ts/n2-setpost/price.ts\"));\nvar rakuten_tag_1 = __importDefault(__webpack_require__(/*! ./rakuten-tag */ \"./src/ts/n2-setpost/rakuten-tag.ts\"));\nvar media_up_1 = __importDefault(__webpack_require__(/*! ./media-up */ \"./src/ts/n2-setpost/media-up.ts\"));\nexports[\"default\"] = (function () {\n    (0, main_1.default)();\n    (0, price_1.default)();\n    (0, rakuten_tag_1.default)();\n    (0, media_up_1.default)();\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/n2-setpost/index.ts?");
+eval("\nvar __importDefault = (this && this.__importDefault) || function (mod) {\n    return (mod && mod.__esModule) ? mod : { \"default\": mod };\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nvar main_1 = __importDefault(__webpack_require__(/*! ./main */ \"./src/ts/n2-setpost/main.ts\"));\nvar price_1 = __importDefault(__webpack_require__(/*! ./price */ \"./src/ts/n2-setpost/price.ts\"));\nvar rakuten_tag_1 = __importDefault(__webpack_require__(/*! ./rakuten-tag */ \"./src/ts/n2-setpost/rakuten-tag.ts\"));\nvar media_up_1 = __importDefault(__webpack_require__(/*! ./media-up */ \"./src/ts/n2-setpost/media-up.ts\"));\nvar allergen_1 = __importDefault(__webpack_require__(/*! ./allergen */ \"./src/ts/n2-setpost/allergen.ts\"));\nexports[\"default\"] = (function () {\n    (0, main_1.default)();\n    (0, price_1.default)();\n    (0, rakuten_tag_1.default)();\n    (0, media_up_1.default)();\n    (0, allergen_1.default)();\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/n2-setpost/index.ts?");
 
 /***/ }),
 
