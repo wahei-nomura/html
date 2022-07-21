@@ -50,16 +50,17 @@ export default () => {
 			});
 		});
 
-		$(`.${prefix}-media-delete`).on("click", e => {
-			if(!confirm('選択中の画像を削除してもよろしいですか？')) {
+		// 画像削除ボタン
+		$(`.${prefix}-media-delete`).on("click", (e) => {
+			if (!confirm("選択中の画像を削除してもよろしいですか？")) {
 				return;
 			}
-			const parent=$(e.target).parent();
-			parent.find(`.${prefix}-image-input`).val('');
-			parent.find(`.${prefix}-image-url`).attr('src', '');
-		})
+			const parent = $(e.target).parent();
+			parent.find(`.${prefix}-image-input`).val("");
+			parent.find(`.${prefix}-image-url`).attr("src", "");
+		});
 
-		//zipアップローダーボタン
+		// zipアップローダーボタン
 		$(`.${prefix}-zip-toggle`).on("click", (e) => {
 			e.preventDefault();
 			const parent = $(e.target).parent();
@@ -83,6 +84,15 @@ export default () => {
 					parent.find(`.${prefix}-zip-input`).val(zip.attributes.url);
 				});
 			});
+		});
+		// zip削除ボタン
+		$(`.${prefix}-zip-delete`).on("click", (e) => {
+			if (!confirm("選択中のzipファイルを削除してもよろしいですか？")) {
+				return;
+			}
+			const parent = $(e.target).parent();
+			parent.find(`.${prefix}-zip-input`).val("");
+			parent.find(`.${prefix}-zip-url`).text("");
 		});
 	});
 };
