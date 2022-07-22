@@ -7,7 +7,10 @@
 
 ?>
 
-<style>
+<!-- Load sass.js -->
+<script src="https://cdn.jsdelivr.net/gh/steamships/in-browser-sass/dist/in-browser-sass.bundle.min.js"></script>
+
+<style type="text/scss">
 	.ss-jigyousya-modal {
 		position: fixed;
 		top: 50%;
