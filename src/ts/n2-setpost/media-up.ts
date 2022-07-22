@@ -25,20 +25,35 @@ export default () => {
 			});
 		};
 
-		const uploaderOpen=(customUploader,parent, dataName:string) => {
+		const uploaderOpen=(customUploader,parent) => {
 			customUploader.open();
 			customUploader.on("select", () => {
 				const datas = customUploader.state().get("selection");
 				datas.each((data) => {
 					parent
-						.find(`.${prefix}-${dataName}-url`)
+						.find(`.${prefix}-image-url`)
 						.attr("src", data.attributes.url)
+						.text(data.attributes.filename)
 					parent
-						.find(`.${prefix}-${dataName}-input`)
+						.find(`.${prefix}-image-input`)
 						.val(data.attributes.url);
 				});
+
+				createDelBtn();
 			});
 		}
+
+		const createDelBtn=():void => {
+			$.each($(`.${prefix}-image-input`), (i, input) => {
+				const parent=$(input).parent();
+				if($(input).val()!=='' && !parent.find(`.${prefix}-image-delete`).length) {
+					parent.find('button')
+						.after($(`<button type="button" class="${prefix}-image-delete button button-secondary">削除</button>`))
+				}
+			})
+		}
+
+		createDelBtn();
 
 		// imageアップローダーボタン
 		$(`.${prefix}-media-toggle`).on("click", (e) => {
@@ -51,19 +66,9 @@ export default () => {
 				window
 			);
 
-			uploaderOpen(customUploader, parent, 'image');
+			uploaderOpen(customUploader, parent);
 
 		});
-
-		// // 画像削除ボタン
-		// $(`.${prefix}-media-delete`).on("click", (e) => {
-		// 	if (!confirm("選択中の画像を削除してもよろしいですか？")) {
-		// 		return;
-		// 	}
-		// 	const parent = $(e.target).parent();
-		// 	parent.find(`.${prefix}-image-input`).val("");
-		// 	parent.find(`.${prefix}-image-url`).attr("src", "");
-		// });
 
 		// zipアップローダーボタン
 		$(`.${prefix}-zip-toggle`).on("click", (e) => {
@@ -76,16 +81,19 @@ export default () => {
 				window
 			);
 
-			uploaderOpen(customUploader, parent, 'zip');
+			uploaderOpen(customUploader, parent);
 		});
-		// zip削除ボタン
-		// $(`.${prefix}-zip-delete`).on("click", (e) => {
-		// 	if (!confirm("選択中のzipファイルを削除してもよろしいですか？")) {
-		// 		return;
-		// 	}
-		// 	const parent = $(e.target).parent();
-		// 	parent.find(`.${prefix}-zip-input`).val("");
-		// 	parent.find(`.${prefix}-zip-url`).text("");
-		// });
+		
+		// 画像削除ボタン
+		$("body").on("click",`.${prefix}-image-delete,.${prefix}-zip-delete`, (e) => {
+			if (!confirm("選択中の画像を削除してもよろしいですか？")) {
+				return;
+			}
+			const parent = $(e.target).parent();
+			parent.find(`.${prefix}-image-input`).val("");
+			parent.find(`.${prefix}-image-url`).attr("src", "").text("");
+			$(e.target).remove();
+		});
+
 	});
 };
