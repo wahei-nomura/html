@@ -6,25 +6,43 @@ export default () => {
 		 *  wordpressのメディアアップロード呼び出し
 		 */
 
-		const wpMedia = (
+		// wpMediaにわたすオブジェクトの型定義
+		type wpMediaObj={
 			title: string,
 			btnText: string,
 			type: string,
+		}
+
+		const wpMedia = (
+			object:wpMediaObj,
 			window: any
 		) => {
 			const wp = window.wp;
 			return wp.media({
-				title: title,
+				title: object.title,
 				button: {
-					text: btnText,
+					text: object.btnText,
 				},
 				library: {
-					type: type,
+					type: object.type,
 				},
 				multiple: false,
 			});
 		};
 
+		const imageObj:wpMediaObj={
+			title: "画像を選択",
+			btnText: "画像を設定",
+			type: "image",
+		}
+
+		const zipObj:wpMediaObj={
+			title: "zipファイルを選択",
+			btnText: "zipファイルを設定",
+			type: "application/zip",
+		}
+
+		// アップローダー展開
 		const uploaderOpen=(customUploader,parent) => {
 			customUploader.open();
 			customUploader.on("select", () => {
@@ -39,10 +57,12 @@ export default () => {
 						.val(data.attributes.url);
 				});
 
+				// deleteボタン生成
 				createDelBtn();
 			});
 		}
 
+		// deleteボタン生成定義
 		const createDelBtn=():void => {
 			$.each($(`.${prefix}-image-input`), (i, input) => {
 				const parent=$(input).parent();
@@ -53,38 +73,26 @@ export default () => {
 			})
 		}
 
+		// アップ済み画像にdeleteボタン生成
 		createDelBtn();
 
-		// imageアップローダーボタン
+		// 画像アップイベント
 		$(`.${prefix}-media-toggle`).on("click", (e) => {
 			e.preventDefault();
-			const parent = $(e.target).parent();
-			const customUploader = wpMedia(
-				"画像を選択",
-				"画像を設定",
-				"image",
-				window
-			);
 
-			uploaderOpen(customUploader, parent);
+			uploaderOpen( wpMedia(imageObj,window), $(e.target).parent());
 
 		});
 
-		// zipアップローダーボタン
+		// zipアップイベント
 		$(`.${prefix}-zip-toggle`).on("click", (e) => {
 			e.preventDefault();
-			const parent = $(e.target).parent();
-			const customUploader = wpMedia(
-				"zipファイルを選択",
-				"zipファイルを設定",
-				"application/zip",
-				window
-			);
 
-			uploaderOpen(customUploader, parent);
+			uploaderOpen(wpMedia(zipObj,window), $(e.target).parent());
+
 		});
 		
-		// 画像削除ボタン
+		// 画像削除イベント
 		$("body").on("click",`.${prefix}-image-delete`, (e) => {
 			if (!confirm("選択中の画像を削除してもよろしいですか？")) {
 				return;
