@@ -85,7 +85,7 @@ export default () => {
 		});
 		
 		// 画像削除ボタン
-		$("body").on("click",`.${prefix}-image-delete,.${prefix}-zip-delete`, (e) => {
+		$("body").on("click",`.${prefix}-image-delete`, (e) => {
 			if (!confirm("選択中の画像を削除してもよろしいですか？")) {
 				return;
 			}
