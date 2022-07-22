@@ -25,7 +25,22 @@ export default () => {
 			});
 		};
 
-		//imageアップローダーボタン
+		const uploaderOpen=(customUploader,parent, dataName:string) => {
+			customUploader.open();
+			customUploader.on("select", () => {
+				const datas = customUploader.state().get("selection");
+				datas.each((data) => {
+					parent
+						.find(`.${prefix}-${dataName}-url`)
+						.attr("src", data.attributes.url)
+					parent
+						.find(`.${prefix}-${dataName}-input`)
+						.val(data.attributes.url);
+				});
+			});
+		}
+
+		// imageアップローダーボタン
 		$(`.${prefix}-media-toggle`).on("click", (e) => {
 			e.preventDefault();
 			const parent = $(e.target).parent();
@@ -36,29 +51,19 @@ export default () => {
 				window
 			);
 
-			customUploader.open();
-			customUploader.on("select", () => {
-				const images = customUploader.state().get("selection");
-				images.each((image) => {
-					parent
-						.find(`.${prefix}-image-url`)
-						.attr("src", image.attributes.url);
-					parent
-						.find(`.${prefix}-image-input`)
-						.val(image.attributes.url);
-				});
-			});
+			uploaderOpen(customUploader, parent, 'image');
+
 		});
 
-		// 画像削除ボタン
-		$(`.${prefix}-media-delete`).on("click", (e) => {
-			if (!confirm("選択中の画像を削除してもよろしいですか？")) {
-				return;
-			}
-			const parent = $(e.target).parent();
-			parent.find(`.${prefix}-image-input`).val("");
-			parent.find(`.${prefix}-image-url`).attr("src", "");
-		});
+		// // 画像削除ボタン
+		// $(`.${prefix}-media-delete`).on("click", (e) => {
+		// 	if (!confirm("選択中の画像を削除してもよろしいですか？")) {
+		// 		return;
+		// 	}
+		// 	const parent = $(e.target).parent();
+		// 	parent.find(`.${prefix}-image-input`).val("");
+		// 	parent.find(`.${prefix}-image-url`).attr("src", "");
+		// });
 
 		// zipアップローダーボタン
 		$(`.${prefix}-zip-toggle`).on("click", (e) => {
@@ -71,28 +76,16 @@ export default () => {
 				window
 			);
 
-			customUploader.open();
-			customUploader.on("select", () => {
-				const zips = customUploader.state().get("selection");
-				console.log(zips);
-
-				zips.each((zip) => {
-					console.log(zip);
-					parent
-						.find(`.${prefix}-zip-url`)
-						.text(`${zip.attributes.filename}を選択中`);
-					parent.find(`.${prefix}-zip-input`).val(zip.attributes.url);
-				});
-			});
+			uploaderOpen(customUploader, parent, 'zip');
 		});
 		// zip削除ボタン
-		$(`.${prefix}-zip-delete`).on("click", (e) => {
-			if (!confirm("選択中のzipファイルを削除してもよろしいですか？")) {
-				return;
-			}
-			const parent = $(e.target).parent();
-			parent.find(`.${prefix}-zip-input`).val("");
-			parent.find(`.${prefix}-zip-url`).text("");
-		});
+		// $(`.${prefix}-zip-delete`).on("click", (e) => {
+		// 	if (!confirm("選択中のzipファイルを削除してもよろしいですか？")) {
+		// 		return;
+		// 	}
+		// 	const parent = $(e.target).parent();
+		// 	parent.find(`.${prefix}-zip-input`).val("");
+		// 	parent.find(`.${prefix}-zip-url`).text("");
+		// });
 	});
 };
