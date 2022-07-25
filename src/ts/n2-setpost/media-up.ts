@@ -33,54 +33,38 @@ export default () => {
 			type: "image",
 		};
 
-		const zipObj: wpMediaObj = {
-			title: "zipファイルを選択",
-			btnText: "zipファイルを設定",
-			type: "application/zip",
-		};
+		// const zipObj: wpMediaObj = {
+		// 	title: "zipファイルを選択",
+		// 	btnText: "zipファイルを設定",
+		// 	type: "application/zip",
+		// };
+
+		$('label[for="画像"]')
+			.parent()
+			.next()
+			.next()
+			.before(
+				$(
+					`<button class="button button-primary ${prefix}-media-toggle">画像選択</button>`
+				)
+			);
 
 		// アップローダー展開
 		const uploaderOpen = (customUploader, parent) => {
 			customUploader.open();
 			customUploader.on("select", () => {
 				const datas = customUploader.state().get("selection");
-				console.log(datas);
 				datas.each((data) => {
-					console.log(data.attributes.url);
 					parent.append(
-						$(
-							`<input type="hidden" name="画像[]" value="${data.attributes.url}">`
-						)
+						$(`<div>
+					<input type="hidden" name="画像[]" class="${prefix}-image-input" value="${data.attributes.url}">
+					<button type="button" class="button button-secondary ${prefix}-image-delete">削除</button>
+					<img class="${prefix}-image-url" src="${data.attributes.url}" width="50%">
+					</div>`)
 					);
-					parent.append($(`<img src="${data.attributes.url}">`));
 				});
-
-				// deleteボタン生成
-				createDelBtn();
 			});
 		};
-
-		// deleteボタン生成定義
-		const createDelBtn = (): void => {
-			$.each($(`.${prefix}-image-button`), (i, input) => {
-				const parent = $(input).parent();
-				if (
-					$(input).val() !== "" &&
-					!parent.find(`.${prefix}-image-delete`).length
-				) {
-					parent
-						.find("button")
-						.after(
-							$(
-								`<button type="button" class="${prefix}-image-delete button button-secondary">削除</button>`
-							)
-						);
-				}
-			});
-		};
-
-		// アップ済み画像にdeleteボタン生成
-		createDelBtn();
 
 		// 画像アップイベント
 		$(`.${prefix}-media-toggle`).on("click", (e) => {
@@ -89,22 +73,19 @@ export default () => {
 			uploaderOpen(wpMedia(imageObj, window), $(e.target).parent());
 		});
 
-		// zipアップイベント
-		$(`.${prefix}-zip-toggle`).on("click", (e) => {
-			e.preventDefault();
+		// // zipアップイベント
+		// $(`.${prefix}-zip-toggle`).on("click", (e) => {
+		// 	e.preventDefault();
 
-			uploaderOpen(wpMedia(zipObj, window), $(e.target).parent());
-		});
+		// 	uploaderOpen(wpMedia(zipObj, window), $(e.target).parent());
+		// });
 
 		// 画像削除イベント
 		$("body").on("click", `.${prefix}-image-delete`, (e) => {
-			if (!confirm("選択中の画像を削除してもよろしいですか？")) {
-				return;
-			}
-			const parent = $(e.target).parent();
-			parent.find(`.${prefix}-image-input`).val("");
-			parent.find(`.${prefix}-image-url`).attr("src", "").text("");
-			$(e.target).remove();
+			// if (!confirm("選択中の画像を削除してもよろしいですか？")) {
+			// 	return;
+			// }
+			$(e.target).parent().remove();
 		});
 	});
 };
