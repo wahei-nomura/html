@@ -50,7 +50,7 @@ class N2_Loginlimit {
 			'127.0.0.1', // 自分
 		);
 
-		if ( ! preg_match( '/local/', $_SERVER['HTTP_HOST'] ) && 'ore.steamship.co.jp' !== $_SERVER['HTTP_HOST'] && ! in_array( $_SERVER['REMOTE_ADDR'], $ips ) ) {
+		if ( ! preg_match( '/ore\.steamship\.co\.jp|local/', $_SERVER['HTTP_HOST'] ) && ! in_array( $_SERVER['REMOTE_ADDR'], $ips ) ) {
 			wp_logout();
 			echo $_SERVER['REMOTE_ADDR'];
 			exit;
