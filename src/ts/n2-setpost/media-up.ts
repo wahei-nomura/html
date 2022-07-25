@@ -45,18 +45,46 @@ export default () => {
 			.next()
 			.before(
 				$(
-					`<button class="button button-primary ${prefix}-media-toggle">画像選択</button>`
+					`<button class="button button-primary ${prefix}-media-toggle">画像選択</button><input type="hidden" name="画像" value="">`
 				)
 			);
 
 		// アップローダー展開
 		const uploaderOpen = (customUploader, parent) => {
+			// 	$("#editor .media-modal.wp-core-ui .attachment.save-ready").ready(() => {
+			// 		console.log("読み込み");
+			// 		console.log($(".attachment.save-ready"))
+			// 		$(".attachment.save-ready").css("border","solid 5px red !important")
+			// 	});
+			// });
+			// $(".media-frame.mode-select.wp-core-ui.hide-menu").ready(() => {
+			// 	console.log($(".media-frame.mode-select.wp-core-ui.hide-menu"))
+			// })
+			customUploader.on("open", () => {
+				$(".attachments-wrapper").ready(() => {
+					console.log(
+						$(
+							".attachment-preview.js--select-attachment.type-image.subtype-jpeg.portrait"
+						)
+					);
+				});
+			});
+
 			customUploader.open();
+
 			customUploader.on("select", () => {
+				$(".attachments-wrapper").ready(() => {
+					console.log(
+						$(
+							".attachment-preview.js--select-attachment.type-image.subtype-jpeg.portrait"
+						)
+					);
+				});
+
 				const datas = customUploader.state().get("selection");
 				datas.each((data) => {
 					parent.append(
-						$(`<div>
+						$(`<div style="border: solid 1px;">
 					<input type="hidden" name="画像[]" class="${prefix}-image-input" value="${data.attributes.url}">
 					<button type="button" class="button button-secondary ${prefix}-image-delete">削除</button>
 					<img class="${prefix}-image-url" src="${data.attributes.url}" width="50%">
