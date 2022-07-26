@@ -85,13 +85,13 @@ export default () => {
 							parent.append(
 								$(`<div class="${prefix}-image-block">
 				<input type="hidden" name="画像[]" class="${prefix}-image-input" value="${data.attributes.url}">
-				<span class="dashicons dashicons-no-alt ${prefix}-image-delete"></span>
+				<span class="dashicons dashicons-no-alt ${prefix}-image-delete"></span><span class="${prefix}-image-num"></span>
 				<img class="${prefix}-image-url" src="${data.attributes.url}" width="100%">
 				</div>`)
 							);
 						});
 
-						imgSortable()
+						imgSortable();
 					});
 				})
 				.fail((error) => {
@@ -108,7 +108,7 @@ export default () => {
 			.next()
 			.before(
 				$(
-					`<button class="button button-primary ${prefix}-media-toggle">画像選択</button><input type="hidden" name="画像" value="">`
+					`<button class="button button-primary ${prefix}-media-toggle">画像選択</button><input type="hidden" name="画像" value=""><div class="${prefix}-image-wrapper"></div>`
 				)
 			);
 
@@ -116,12 +116,30 @@ export default () => {
 		$("body").on("click", `.${prefix}-media-toggle`, (e) => {
 			e.preventDefault();
 
-			uploaderOpen(wpMedia(imageObj, window), $(e.target).parent());
+			uploaderOpen(
+				wpMedia(imageObj, window),
+				$(`.${prefix}-image-wrapper`)
+			);
 		});
 
+		const setImageNum = () => {
+			$.each($(`.${prefix}-image-num`), (i, v) => {
+				$(v).text(i + 1);
+			});
+		};
+
+
 		const imgSortable = (): void => {
-			const imagesWrapper = $(`.${prefix}-image-block`).parent();
-			imagesWrapper.sortable();
+			const imagesWrapper = $(`.${prefix}-image-wrapper`);
+			$.each($(`.${prefix}-image-block`), (i, v) => {
+				$(v).appendTo(imagesWrapper);
+			});
+			imagesWrapper.sortable({
+				update: () => {
+					setImageNum();
+				},
+			});
+			setImageNum()
 		};
 
 		imgSortable();
@@ -135,10 +153,8 @@ export default () => {
 
 		// 画像削除イベント
 		$("body").on("click", `.${prefix}-image-delete`, (e) => {
-			// if (!confirm("選択中の画像を削除してもよろしいですか？")) {
-			// 	return;
-			// }
 			$(e.target).parent().remove();
+			setImageNum();
 		});
 	});
 };

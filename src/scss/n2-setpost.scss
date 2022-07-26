@@ -245,10 +245,10 @@ $prefix: "n2-setpost";
 }
 
 .neo-neng-image-block {
-	margin: 8px;
+	margin: 16px;
 	position: relative;
-	width: 300px;
-	height: 300px;
+	width: 150px;
+	height: 150px;
 	border: solid 6px lightgray;
 	overflow: hidden;
 	&::after {
@@ -278,7 +278,7 @@ $prefix: "n2-setpost";
 	}
 
 	img {
-		object-fit: contain;
+		object-fit: cover;
 		object-position: center;
 	}
 }
@@ -290,9 +290,9 @@ $prefix: "n2-setpost";
 	top:0;
 	left:0;
 	z-index: 10000;
-	font-size: 32px;
-	width: 40px;
-	height: 40px;
+	font-size: 24px;
+	width: 24px;
+	height: 24px;
 	background-color: #2271b1;
 	color: #fff;
 	border: solid 1px #fff;
@@ -300,4 +300,26 @@ $prefix: "n2-setpost";
 	&:hover {
 		background-color: red;
 	}
+}
+
+.neo-neng-image-wrapper {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.neo-neng-image-num {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	z-index: 1000;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 24px;
+	width: 30px;
+	height: 30px;
+	color: #2271b1;
+	font-weight: bold;
+	background-color: rgba($color: #fff, $alpha: .7);
+	border-radius: 15px;
 }
