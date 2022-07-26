@@ -85,7 +85,7 @@ export default () => {
 							parent.append(
 								$(`<div class="${prefix}-image-block">
 				<input type="hidden" name="画像[]" class="${prefix}-image-input" value="${data.attributes.url}">
-				<button type="button" class="button button-secondary ${prefix}-image-delete">削除</button>
+				<span class="dashicons dashicons-no-alt ${prefix}-image-delete"></span>
 				<img class="${prefix}-image-url" src="${data.attributes.url}" width="100%">
 				</div>`)
 							);
