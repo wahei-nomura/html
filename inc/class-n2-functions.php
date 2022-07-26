@@ -92,14 +92,19 @@ class N2_Functions {
 	/**
 	 * html文を文字列出力する
 	 *
-	 * @param function $html_function
-	 * @return string html_tags
+	 * @param function $html_function 関数名を文字列として渡す
+	 * @return null|string html_tags
 	 */
-	public static function html2str( $html_function ){
+	public static function html2str( $html_function ) {
+		// 関数でなければ終了
+		if ( ! is_callable( $html_function ) ) {
+			return null;
+		}
 		ob_start();
 		?>
 		<?php $html_function(); ?>
-		<?php return rtrim( str_replace( "\t", '', ob_get_clean() ), PHP_EOL );
+		<?php
+		return rtrim( str_replace( "\t", '', ob_get_clean() ), PHP_EOL );
 	}
 
 	/**
