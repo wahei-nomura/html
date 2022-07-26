@@ -40,6 +40,7 @@ class N2_Setpost {
 		add_action( 'ajax_query_attachments_args', array( $this, 'display_only_self_uploaded_medias' ) );
 		add_filter( 'enter_title_here', array( $this, 'change_title' ) );
 		add_action( "wp_ajax_{$this->cls}", array( $this, 'ajax' ) );
+		add_action( "wp_ajax_{$this->cls}_image", array( $this, 'ajax_imagedata' ) );
 	}
 
 	/**
@@ -177,7 +178,7 @@ class N2_Setpost {
 			'checkbox'         => '<li><label><input type=checkbox name="%1$s" value="%2$s" %3$s class="n2-input">%4$s</label></li>',
 			'select'           => '<select id="%1$s" name="%1$s" class="n2-input %3$s">%2$s</select>',
 			'option'           => '<option value="%1$s" %3$s>%2$s</option>',
-			'image'            => '<div style="border: solid 1px;"><input type="hidden" class="%1$s-image-input" name="%2$s[]" value="%3$s"><button type="button" class="button button-secondary %1$s-image-delete">削除</button><img class="%1$s-image-url" src="%3$s" alt="" width="50%%" /></div>',
+			'image'            => '<div class="%1$s-image-block"><input type="hidden" class="%1$s-image-input" name="%2$s[]" value="%3$s"><button type="button" class="button button-secondary %1$s-image-delete">削除</button><img class="%1$s-image-url" src="%3$s" alt="" width="50%%" /></div>',
 			'zip'              => '<input class="n2-input %1$s-image-input" type="hidden" name="%2$s" value="%3$s"><button type="button" class="button button-primary %1$s-zip-toggle">zip選択</button>
 							<div><p class="%1$s-image-url">%4$s</p></div>',
 			'rakuten_genreid'  => '<button type="button" id="neo-neng-genreid-btn" class="button button-primary button-large">ディレクトリID検索</button><input type="hidden" id="%1$s" name="%1$s" value="%2$s"><input type="hidden" id="%3$s" name="%3$s" value="%4$s" class="%5$s">',
@@ -226,9 +227,9 @@ class N2_Setpost {
 							$validation = ! empty( $detail['validation'] ) ? N2_THEME_NAME . $validation_class[ $detail['validation'] ] : '';
 							printf( $input_tags[ $detail['type'] ], $field, $value, $step, $validation );
 						} elseif ( 'image' === $detail['type'] ) {
-							if ( ! empty( $detail[ 'value' ] ) ){
-								foreach ( $detail[ 'value' ] as $img_url ) {
-									if ( "" !== $img_url ) {
+							if ( ! empty( $detail['value'] ) ) {
+								foreach ( $detail['value'] as $img_url ) {
+									if ( '' !== $img_url ) {
 										printf( $input_tags[ $detail['type'] ], N2_THEME_NAME, $field, $img_url );
 									}
 								}
@@ -375,5 +376,29 @@ class N2_Setpost {
 		$pattern = apply_filters( 'n2_setpost_change_delivary_pattern', $pattern );
 
 		return $pattern;
+	}
+
+	/**
+	 *
+	 */
+	public function ajax_imagedata() {
+
+		if(empty($_GET['imgurls'])){
+			echo 'noselected';
+			die();
+		}
+
+		$img_urls = $_GET['imgurls'];
+
+		echo json_encode(
+			array_map(
+				function( $img_url ) {
+					return attachment_url_to_postid( $img_url );
+				},
+				$img_urls
+			)
+		);
+
+		die();
 	}
 }

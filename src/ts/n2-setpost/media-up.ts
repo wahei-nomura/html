@@ -1,3 +1,4 @@
+import { RuleTester } from "eslint";
 import { prefix, neoNengPath, ajaxUrl } from "../functions/index";
 
 export default () => {
@@ -39,6 +40,64 @@ export default () => {
 		// 	type: "application/zip",
 		// };
 
+		const uploaderOpen = (customUploader, parent) => {
+			const imgUrls = [];
+			$.each($(`input[name="画像[]"]`), (i, v) => {
+				imgUrls[i] = $(v).val();
+			});
+
+			$.ajax({
+				url: ajaxUrl(window),
+				data: {
+					action: "N2_Setpost_image",
+					imgurls: imgUrls,
+				},
+			})
+				.done((res) => {
+					const imageIds = res !== 'noselected' ? JSON.parse(res) : [];
+
+					// console.log(`imageIds:${imageIds}`);
+					console.log(imageIds);
+
+					// アップローダー展開
+					customUploader.on("open", () => {
+
+						const selection = customUploader
+							.state()
+							.get("selection");
+						if(imageIds.length>0) {
+							imageIds.forEach((id) => {
+								const attachment = (window as any).wp.media.attachment(id);
+								attachment.fetch();
+								selection.add(attachment ? [attachment] : []);
+							});
+						}
+					});
+
+					customUploader.open();
+
+					customUploader.on("select", () => {
+						parent.find(`.${prefix}-image-block`).remove();
+						const datas = customUploader.state().get("selection");
+						datas.each((data) => {
+							parent.append(
+								$(`<div class="${prefix}-image-block">
+				<input type="hidden" name="画像[]" class="${prefix}-image-input" value="${data.attributes.url}">
+				<button type="button" class="button button-secondary ${prefix}-image-delete">削除</button>
+				<img class="${prefix}-image-url" src="${data.attributes.url}" width="50%">
+				</div>`)
+							);
+						});
+					});
+				})
+				.fail((error) => {
+					console.log(error);
+					alert(
+						"画像データの読み込みに失敗しました。ページをリロードしてください"
+					);
+				});
+		};
+
 		$('label[for="画像"]')
 			.parent()
 			.next()
@@ -49,53 +108,8 @@ export default () => {
 				)
 			);
 
-		// アップローダー展開
-		const uploaderOpen = (customUploader, parent) => {
-			// 	$("#editor .media-modal.wp-core-ui .attachment.save-ready").ready(() => {
-			// 		console.log("読み込み");
-			// 		console.log($(".attachment.save-ready"))
-			// 		$(".attachment.save-ready").css("border","solid 5px red !important")
-			// 	});
-			// });
-			// $(".media-frame.mode-select.wp-core-ui.hide-menu").ready(() => {
-			// 	console.log($(".media-frame.mode-select.wp-core-ui.hide-menu"))
-			// })
-			customUploader.on("open", () => {
-				$(".attachments-wrapper").ready(() => {
-					console.log(
-						$(
-							".attachment-preview.js--select-attachment.type-image.subtype-jpeg.portrait"
-						)
-					);
-				});
-			});
-
-			customUploader.open();
-
-			customUploader.on("select", () => {
-				$(".attachments-wrapper").ready(() => {
-					console.log(
-						$(
-							".attachment-preview.js--select-attachment.type-image.subtype-jpeg.portrait"
-						)
-					);
-				});
-
-				const datas = customUploader.state().get("selection");
-				datas.each((data) => {
-					parent.append(
-						$(`<div style="border: solid 1px;">
-					<input type="hidden" name="画像[]" class="${prefix}-image-input" value="${data.attributes.url}">
-					<button type="button" class="button button-secondary ${prefix}-image-delete">削除</button>
-					<img class="${prefix}-image-url" src="${data.attributes.url}" width="50%">
-					</div>`)
-					);
-				});
-			});
-		};
-
 		// 画像アップイベント
-		$(`.${prefix}-media-toggle`).on("click", (e) => {
+		$("body").on("click", `.${prefix}-media-toggle`, (e) => {
 			e.preventDefault();
 
 			uploaderOpen(wpMedia(imageObj, window), $(e.target).parent());
