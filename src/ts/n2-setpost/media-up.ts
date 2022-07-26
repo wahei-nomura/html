@@ -2,7 +2,7 @@ import { RuleTester } from "eslint";
 import { prefix, neoNengPath, ajaxUrl } from "../functions/index";
 
 export default () => {
-	jQuery(function ($) {
+	jQuery(function ($: any) {
 		/**
 		 *  wordpressのメディアアップロード呼び出し
 		 */
@@ -54,20 +54,22 @@ export default () => {
 				},
 			})
 				.done((res) => {
-					const imageIds = res !== 'noselected' ? JSON.parse(res) : [];
+					const imageIds =
+						res !== "noselected" ? JSON.parse(res) : [];
 
 					// console.log(`imageIds:${imageIds}`);
 					console.log(imageIds);
 
 					// アップローダー展開
 					customUploader.on("open", () => {
-
 						const selection = customUploader
 							.state()
 							.get("selection");
-						if(imageIds.length>0) {
+						if (imageIds.length > 0) {
 							imageIds.forEach((id) => {
-								const attachment = (window as any).wp.media.attachment(id);
+								const attachment = (
+									window as any
+								).wp.media.attachment(id);
 								attachment.fetch();
 								selection.add(attachment ? [attachment] : []);
 							});
@@ -84,10 +86,12 @@ export default () => {
 								$(`<div class="${prefix}-image-block">
 				<input type="hidden" name="画像[]" class="${prefix}-image-input" value="${data.attributes.url}">
 				<button type="button" class="button button-secondary ${prefix}-image-delete">削除</button>
-				<img class="${prefix}-image-url" src="${data.attributes.url}" width="50%">
+				<img class="${prefix}-image-url" src="${data.attributes.url}" width="100%">
 				</div>`)
 							);
 						});
+
+						imgSortable()
 					});
 				})
 				.fail((error) => {
@@ -114,6 +118,13 @@ export default () => {
 
 			uploaderOpen(wpMedia(imageObj, window), $(e.target).parent());
 		});
+
+		const imgSortable = (): void => {
+			const imagesWrapper = $(`.${prefix}-image-block`).parent();
+			imagesWrapper.sortable();
+		};
+
+		imgSortable();
 
 		// // zipアップイベント
 		// $(`.${prefix}-zip-toggle`).on("click", (e) => {
