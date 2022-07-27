@@ -196,7 +196,7 @@ class N2_Setpost {
 
 			<div>
 				<?php foreach ( $fields as $field => $detail ) : ?>
-				<div>
+				<div style="background-color: #87cefa; margin: 8px 24px; border-radius:8px; padding: 16px;">
 					<!-- ラベル -->
 					<p><label for="<?php echo $field; ?>"><?php echo ! empty( $detail['label'] ) ? $detail['label'] : $field; ?></label></p>
 					<!-- 説明 -->
@@ -220,7 +220,7 @@ class N2_Setpost {
 								$checked = checked( ! empty( $detail['value'] ) && in_array( (string) $key, $detail['value'], true ), true, false );
 								$checks .= sprintf( $input_tags['checkbox'], $field . '[]', $key, $checked, $check );
 							}
-							printf( '<ul>%1$s</ul>', $checks );
+							printf( '<input type="hidden" name="' . $field . '" value=""><ul>%1$s</ul>', $checks );
 						} elseif ( 'number' === $detail['type'] ) {
 							$value      = '' !== $detail['value'] ? $detail['value'] : 0;
 							$step       = ! empty( $detail['step'] ) ? $detail['step'] : '';
