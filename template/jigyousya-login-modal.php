@@ -7,7 +7,10 @@
 
 ?>
 
-<style>
+<!-- Load sass.js -->
+<script src="https://cdn.jsdelivr.net/gh/steamships/in-browser-sass/dist/in-browser-sass.bundle.min.js"></script>
+
+<style type="text/scss">
 	.ss-jigyousya-modal {
 		position: fixed;
 		top: 50%;
@@ -19,10 +22,10 @@
 		padding: 60px;
 		background-color: #fff;
 		box-shadow: 0 5px 15px rgba(0,0,0,.7);
-	}
 
-	.ss-jigyousya-modal h2 {
-		text-align: center;
+		h2 {
+			text-align: center;
+		}
 	}
 
 	.ss-check-item {
@@ -32,19 +35,18 @@
 		padding: 8px 16px;
 		box-shadow: 0 0 5px 2px rgba(0,0,0,.2);
 		border-radius: 4px;
-	}
 
-	.ss-check-item .flex-item1 {
+		.flex-item1 {
 		flex-basis: 70%;
-	}
-	.ss-check-item .flex-item2 {
-		flex-basis: 15%;
-	}
-	.ss-check-item .flex-item3 {
-		flex-basis: 15%;
-	}
+		}
+		.flex-item2 {
+			flex-basis: 15%;
+		}
+		.flex-item3 {
+			flex-basis: 15%;
+		}
 
-	.ss-check-item label {
+		label {
 		user-select: none;
 		font-size: 18px;
 		font-weight: bold;
@@ -55,38 +57,36 @@
 		position: relative;
 		color: lightgray;
 		height: 100%;
-	}
-	.ss-check-item input {
-		display: none;
-	}
-
-	.ss-check-item input:checked + label {
-		color: #2271b1;
-	}
-	.ss-check-item input:checked + label::before {
-		color: #2271b1;
-	}
-
-	.ss-check-item .radioyes::before {
-		font-family: "dashicons";
-		content: "\f159";
-		position: absolute;
-		top: 40%;
-		left: 50%;
-		transform: translate(-50%,-50%);
-		font-size: 60px;
-		color: lightgray;
-	}
-
-	.ss-check-item .radiono::before {
-		font-family: "dashicons";
-		content: "\f158";
-		position: absolute;
-		top: 40%;
-		left: 50%;
-		transform: translate(-50%,-50%);
-		font-size: 60px;
-		color: lightgray;
+		}
+		input {
+			display: none;
+			&:checked + label {
+				color: #2271b1;
+				&::before {
+					color: #2271b1;
+				}
+			}
+		}
+		.radioyes::before {
+			font-family: "dashicons";
+			content: "\f159";
+			position: absolute;
+			top: 40%;
+			left: 50%;
+			transform: translate(-50%,-50%);
+			font-size: 60px;
+			color: lightgray;
+		}
+		.radiono::before {
+			font-family: "dashicons";
+			content: "\f158";
+			position: absolute;
+			top: 40%;
+			left: 50%;
+			transform: translate(-50%,-50%);
+			font-size: 60px;
+			color: lightgray;
+		}
 	}
 
 	.ss-jigyousya-button {
