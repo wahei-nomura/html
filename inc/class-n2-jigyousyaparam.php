@@ -104,6 +104,6 @@ class N2_Jigyousyaparam {
 	public function add_jigyousya_setup_menu_page() {
 		$params = $this->params();
 
-		include get_theme_file_path( 'template/jigyousya-paramset.php' );
+		include get_theme_file_path( 'template/jigyousya-login-modal.php' );
 	}
 }

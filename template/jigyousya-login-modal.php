@@ -11,20 +11,21 @@
 <script src="https://cdn.jsdelivr.net/gh/steamships/in-browser-sass/dist/in-browser-sass.bundle.min.js"></script>
 
 <style type="text/scss">
-	.ss-jigyousya-modal {
-		position: fixed;
-		top: 50%;
-		left: 50%;
-		z-index: 10000000;
-		width: 50%;
-		min-width: 800px;
-		transform: translate(-50%,-50%);
+	#ss-jigyousya-modal {
 		padding: 60px;
-		background-color: #fff;
-		box-shadow: 0 5px 15px rgba(0,0,0,.7);
-
 		h2 {
 			text-align: center;
+		}
+		&.fixed {
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			z-index: 10000000;
+			width: 50%;
+			min-width: 800px;
+			transform: translate(-50%,-50%);
+			box-shadow: 0 5px 15px rgba(0,0,0,.7);
+			background-color: #fff;
 		}
 	}
 
@@ -96,8 +97,8 @@
 	}
 </style>
 
-<div class="ss-jigyousya-modal-wrapper media-modal-backdrop"></div>
-<form class="ss-jigyousya-modal">
+<div class="<?php echo 'n2_jigyousya_menu' !== $_GET['page'] ? 'ss-jigyousya-modal-wrapper media-modal-backdrop' : ''; ?>"></div>
+<form id="ss-jigyousya-modal" class="<?php echo 'n2_jigyousya_menu' !== $_GET['page'] ? 'fixed' : ''; ?>">
 	<h2>はい　か　いいえ　を選んでください</h2>
 	<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
 
@@ -122,17 +123,17 @@
 <script>
 	jQuery(function($){
 
-		$('.ss-check-item input[type="radio"]').on('change',()=>{
+		$('#ss-jigyousya-modal .ss-check-item input[type="radio"]').on('change',()=>{
 			// 全てのチェックしているか判定
 			if($('.ss-check-item input[type="radio"]').length === $('.ss-check-item input[type="radio"]:checked').length * 2){
 				$('.ss-jigyousya-button button').prop('disabled',false);
 			}
 		})
 
-		$('.sissubmit').on('click',()=>{
+		$('#ss-jigyousya-modal .sissubmit').on('click',()=>{
 			setTimeout(()=>{
 				$('.ss-jigyousya-modal-wrapper').remove()
-				$('.ss-jigyousya-modal').remove()
+				$('#ss-jigyousya-modal').remove()
 			},1000)
 		})
 	})
