@@ -22,6 +22,9 @@ export default () => {
 
 			set foodBool(food: boolean) {
 				this.food = food;
+				if (!food) {
+					this.allergenBool = false;
+				}
 			}
 
 			get allergenBool() {
@@ -32,23 +35,84 @@ export default () => {
 				this.allergen = allergen;
 			}
 
+			public displayAllergenBool() {
+				const allergenBoolBlock = $(
+					'label[for="アレルギー有無確認"],label[for="アレルギーの特記事項"]'
+				)
+					.parent()
+					.parent();
+
+				allergenBoolBlock
+					.prev()
+					.css("display", `${this.food ? "block" : "none"}`);
+
+				allergenBoolBlock.css(
+					"display",
+					`${this.food ? "block" : "none"}`
+				);
+				allergenBoolBlock
+					.next()
+					.css("display", `${this.food ? "block" : "none"}`);
+
+				$('input[name="アレルギー有無確認[]"]')
+					.val("アレルギー品目あり")
+					.prop("checked", this.food && this.allergen);
+			}
+
+			public displayAllergenList() {
+				const allergenListBlock = $('label[for="アレルゲン"]')
+					.parent()
+					.parent();
+
+				allergenListBlock
+					.prev()
+					.css("display", `${this.allergen ? "block" : "none"}`);
+
+				allergenListBlock.css(
+					"display",
+					`${this.allergen ? "block" : "none"}`
+				);
+
+				allergenListBlock
+					.next()
+					.css("display", `${this.allergen ? "block" : "none"}`);
+
+				$.each($('input[name="アレルゲン[]"]'), (i, v) => {
+					$(v).prop("checked", this.allergen && $(v).prop("checked"));
+				});
+			}
 		}
 
-		const allergenState=new ControlAllergen();
+		// インスタンス生成
+		const allergenState = new ControlAllergen(
+			$('input[name="食品確認[]"]').val("食品である").prop("checked"),
+			$('input[name="アレルギー有無確認[]"]')
+				.val("アレルギー品目あり")
+				.prop("checked")
+		);
+		// 初期表示
+		allergenState.displayAllergenBool();
+		allergenState.displayAllergenList();
 
-		console.log($('input[name="食品確認[]"]:checked').val())
+		// 	checkboxイベント
+		$('input[name="食品確認[]"]').on("change", (e) => {
+			allergenState.foodBool = $('input[name="食品確認[]"]')
+				.val("食品である")
+				.prop("checked");
+			allergenState.displayAllergenBool();
 
-		const allergenBoolContent = $("label[for='アレルギー有無確認']")
-			.parent()
-			.parent();
-		const allergenListContent = $("label[for='アレルゲン']").parent().parent();
-		const tokkiContent = $("#アレルギーの特記事項").parent().parent();
-		allergenBoolContent.css("background-color", "pink");
-		allergenListContent.css("background-color", "yellow");
-		tokkiContent.css("background-color", "skyblue");
+			allergenState.allergenBool = $('input[name="アレルギー有無確認[]"]')
+				.val("アレルギー品目あり")
+				.prop("checked");
+			allergenState.displayAllergenList();
+		});
 
-		// allergenBoolContent.css("display", "none");
-		// allergenListContent.css("display", "none");
-		// tokkiContent.css("display", "none");
+		$('input[name="アレルギー有無確認[]"]').on("change", (e) => {
+			allergenState.allergenBool = $('input[name="アレルギー有無確認[]"]')
+				.val("アレルギー品目あり")
+				.prop("checked");
+			allergenState.displayAllergenList();
+		});
+
 	});
 };
