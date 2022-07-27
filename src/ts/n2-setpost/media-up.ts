@@ -12,7 +12,7 @@ export default () => {
 			return wp.media({
 				title: "画像を選択（controlキーまたはShiftキーを押しながら複数選択してください）",
 				button: {
-					text: "設定した画像を登録",
+					text: "選択した画像を登録",
 				},
 				library: {
 					type: "image",
