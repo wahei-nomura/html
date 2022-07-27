@@ -29,8 +29,8 @@ export default () => {
 		};
 
 		const imageObj: wpMediaObj = {
-			title: "画像を選択",
-			btnText: "画像を設定",
+			title: "画像を選択（controlキーまたはShiftキーを押しながら複数選択してください）",
+			btnText: "設定した画像を登録",
 			type: "image",
 		};
 
@@ -62,9 +62,11 @@ export default () => {
 
 					// アップローダー展開
 					customUploader.on("open", () => {
+
 						const selection = customUploader
 							.state()
 							.get("selection");
+
 						if (imageIds.length > 0) {
 							imageIds.forEach((id) => {
 								const attachment = (

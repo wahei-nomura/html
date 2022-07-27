@@ -266,7 +266,7 @@ $prefix: "n2-setpost";
 		background-color: rgba($color: #000000, $alpha: 0);
 		width: 100%;
 		height: 100%;
-		transition: all .2s;
+		transition: all 0.2s;
 		cursor: pointer;
 	}
 	&:hover {
@@ -274,7 +274,7 @@ $prefix: "n2-setpost";
 	}
 	&:hover::after {
 		color: #fff;
-		background-color: rgba($color: #000000, $alpha: .5);
+		background-color: rgba($color: #000000, $alpha: 0.5);
 	}
 
 	img {
@@ -287,8 +287,8 @@ $prefix: "n2-setpost";
 	justify-content: center;
 	align-items: center;
 	position: absolute;
-	top:0;
-	left:0;
+	top: 0;
+	left: 0;
 	z-index: 10000;
 	font-size: 24px;
 	width: 24px;
@@ -320,6 +320,17 @@ $prefix: "n2-setpost";
 	height: 30px;
 	color: #2271b1;
 	font-weight: bold;
-	background-color: rgba($color: #fff, $alpha: .7);
+	background-color: rgba($color: #fff, $alpha: 0.7);
 	border-radius: 15px;
+}
+
+.wp-admin .media-modal {
+	.media-sidebar {
+		display: none;
+	}
+
+	.attachments-wrapper {
+		width: 100%;
+	}
+
 }
