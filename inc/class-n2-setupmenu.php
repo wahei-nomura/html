@@ -135,7 +135,7 @@ class N2_Setupmenu {
 					<textarea name="<?php echo $this->cls; ?>[rakuten][html]" rows="5" style="overflow-x: hidden;"><?php echo stripslashes_deep( get_option( $this->cls )['rakuten']['html'] ?? '' ); ?></textarea>
 				</label>
 			</p>
-			<?php for ( $i = 0;$i < 5;$i++ ) : ?>
+			<?php for ( $i = 0;$i < 6;$i++ ) : ?>
 			<p class="textarea-wrap">
 				<label>
 					項目選択肢（改行区切）※選択肢は最大16文字：

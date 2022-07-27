@@ -1,0 +1,3 @@
+<Files ~ "^.*?\.(md|ini)$">
+deny from all
+</Files>

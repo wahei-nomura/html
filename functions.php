@@ -18,6 +18,7 @@ require_once get_template_directory() . '/config/config.php';
  * Require inc
  */
 $incs = array(
+	'class-n2-loginlimit',
 	'class-n2-functions',
 	'class-n2-jigyousyaparam',
 	'class-n2-setupmenu',

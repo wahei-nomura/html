@@ -34,7 +34,7 @@ class N2_Setusers {
 	 */
 	public function remove_usertype() {
 		global $wp_roles;
-		if ( empty( $wo_roles ) ) {
+		if ( empty( $wp_roles ) ) {
 			$wp_roles = new WP_Roles();
 		}
 
@@ -52,7 +52,7 @@ class N2_Setusers {
 	 */
 	public function add_usertype() {
 		global $wp_roles;
-		if ( empty( $wo_roles ) ) {
+		if ( empty( $wp_roles ) ) {
 			$wp_roles = new WP_Roles();
 		}
 
