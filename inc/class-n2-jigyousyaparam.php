@@ -67,7 +67,14 @@ class N2_Jigyousyaparam {
 
 		// 食品取扱登録用モーダルテンプレートをinclude
 		if ( count( $params ) > 0 ) {
-			include get_theme_file_path( 'template/jigyousya-login-modal.php' );
+			get_template_part(
+				'template/jigyousya-paramset',
+				null,
+				$args = array(
+					'params' => $params,
+					'cls'    => $this->cls,
+				)
+			);
 		}
 
 	}
@@ -104,6 +111,13 @@ class N2_Jigyousyaparam {
 	public function add_jigyousya_setup_menu_page() {
 		$params = $this->params();
 
-		include get_theme_file_path( 'template/jigyousya-login-modal.php' );
+		get_template_part(
+			'template/jigyousya-paramset',
+			null,
+			$args = array(
+				'params' => $params,
+				'cls'    => $this->cls,
+			)
+		);
 	}
 }
