@@ -196,7 +196,7 @@ class N2_Setpost {
 
 			<div>
 				<?php foreach ( $fields as $field => $detail ) : ?>
-				<div>
+				<div style="background-color: #87cefa; margin: 8px 24px; border-radius:8px; padding: 16px;">
 					<!-- ラベル -->
 					<p><label for="<?php echo $field; ?>"><?php echo ! empty( $detail['label'] ) ? $detail['label'] : $field; ?></label></p>
 					<!-- 説明 -->
