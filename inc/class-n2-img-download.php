@@ -13,7 +13,7 @@ if ( class_exists( 'N2_Img_Download' ) ) {
 	new N2_Img_Download();
 	return;
 }
-
+require_once( ABSPATH . '/wp-admin/includes/file.php' );
 /**
  * Img_Download
  */
@@ -21,7 +21,6 @@ class N2_Img_Download {
 	/**
 	 * コンストラクタ
 	 */
-
 	public function __construct() {
 		add_action( 'wp_ajax_download_img', array( $this, 'download_img' ) );
 	}
@@ -59,17 +58,21 @@ class N2_Img_Download {
 				$metapath  = get_post_meta( $id, '画像' . $i, true );
 				$pic_id    = attachment_url_to_postid( $metapath );
 				$fpath     = get_attached_file( $pic_id, true );
-				$extension = substr( $fpath, strrpos( $fpath, '.' ) );
+				$extension = pathinfo( $fpath );
 
 				// 画像がアップロードされている場合のみ処理
 				if ( $fpath ) {
 					// ファイル名に連番付与
 					if ( 1 === $fnum ) {
-						$fname .= '-DL' . $extension;
+						$fname .= '-DL.' . $extension['extension'];
 					} else {
-						$fname .= '-' . ( $fnum - 1 ) . '-DL' . $extension;
+						$fname .= '-' . ( $fnum - 1 ) . '-DL.' . $extension['extension'];
 					}
-					$zip->addFile( $fpath, $item_code . '/' . $fname );
+					if ( WP_Filesystem() ) {
+						global $wp_filesystem;
+						$zip->addFromString( $item_code . '/' . $fname, $wp_filesystem->get_contents( $fpath ) );
+
+					  }
 					$fnum ++;
 					$file_length ++;
 				};
