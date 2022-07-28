@@ -94,7 +94,7 @@ class N2_Img_Download {
 		}
 		// もし選択した返礼品全てに画像がなければ
 		if ( ! $zip->numFiles ) {
-			$redirect_url = admin_url() . 'edit.php';
+			$redirect_url = admin_url( 'edit.php' );
 			$zip->close();
 			exit;
 		}
