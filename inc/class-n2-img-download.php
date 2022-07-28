@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( class_exists( 'N2_Item_Export' ) ) {
+if ( class_exists( 'N2_Img_Download' ) ) {
 	new N2_Img_Download();
 	return;
 }
@@ -21,6 +21,7 @@ class N2_Img_Download {
 	/**
 	 * コンストラクタ
 	 */
+
 	public function __construct() {
 		add_action( 'wp_ajax_download_img', array( $this, 'download_img' ) );
 	}
@@ -30,7 +31,7 @@ class N2_Img_Download {
 	 *
 	 * @return void
 	 */
-	private function download_img() {
+	public function download_img() {
 		// ajaxで渡ってきたpostidの配列
 		$ids = explode( ',', $_POST['id'] );
 		// 画像が１枚もない商品コードを格納する配列
