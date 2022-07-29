@@ -192,13 +192,15 @@ class N2_Setpost {
 			'0以外' => '-notzero',
 		);
 
+		$color = 'ss' === $type ? '#ffb6c1' : '#87cefa';
+
 		?>
 
 			<div>
 				<?php foreach ( $fields as $field => $detail ) : ?>
-				<div style="border:solid 2px #87cefa; margin: 24px auto; border-radius:8px; width:60%; min-width:800px;">
+				<div style="border:solid 2px <?php echo $color; ?>; margin: 24px auto; border-radius:8px; width:60%; min-width:800px;">
 					<!-- ラベル -->
-					<p style="margin: 0;"><label style="margin: 0;padding:16px 0;background-color:#87cefa; color: white;font-size:20px;font-weight:bold;padding:4px 8px;display:block;text-align:center;" for="<?php echo $field; ?>"><?php echo ! empty( $detail['label'] ) ? $detail['label'] : $field; ?></label></p>
+					<p style="margin: 0;"><label style="margin: 0;padding:16px 0;background-color:<?php echo $color; ?>; color: white;font-size:20px;font-weight:bold;padding:4px 8px;display:block;text-align:center;" for="<?php echo $field; ?>"><?php echo ! empty( $detail['label'] ) ? $detail['label'] : $field; ?></label></p>
 					<!-- 説明 -->
 					<p style="padding: 24px;"><?php echo ! empty( $detail['description'] ) ? $detail['description'] : ''; ?></p>
 					<div style="padding:0 24px 24px 24px;">
