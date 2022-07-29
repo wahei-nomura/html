@@ -42,17 +42,17 @@ export default () => {
 					.parent()
 					.parent();
 
-				allergenBoolBlock
-					.prev()
-					.css("display", `${this.food ? "block" : "none"}`);
+				// allergenBoolBlock
+				// 	.prev()
+				// 	.css("display", `${this.food ? "block" : "none"}`);
 
 				allergenBoolBlock.css(
 					"display",
 					`${this.food ? "block" : "none"}`
 				);
-				allergenBoolBlock
-					.next()
-					.css("display", `${this.food ? "block" : "none"}`);
+				// allergenBoolBlock
+				// 	.next()
+				// 	.css("display", `${this.food ? "block" : "none"}`);
 
 				$('input[name="アレルギー有無確認[]"]')
 					.val("アレルギー品目あり")
@@ -64,18 +64,10 @@ export default () => {
 					.parent()
 					.parent();
 
-				allergenListBlock
-					.prev()
-					.css("display", `${this.allergen ? "block" : "none"}`);
-
 				allergenListBlock.css(
 					"display",
 					`${this.allergen ? "block" : "none"}`
 				);
-
-				allergenListBlock
-					.next()
-					.css("display", `${this.allergen ? "block" : "none"}`);
 
 				$.each($('input[name="アレルゲン[]"]'), (i, v) => {
 					$(v).prop("checked", this.allergen && $(v).prop("checked"));
