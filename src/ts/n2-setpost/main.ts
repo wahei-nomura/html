@@ -31,6 +31,31 @@ export default () => {
 				// ここからバリデーション ===========================================================================================================================
 				const vError = []; // エラーを溜める
 
+				// アレルゲンは必須
+				if (
+					$(`input[name="アレルギー有無確認[]"]`)
+						.val("アレルギー品目あり")
+						.prop("checked")
+				) {
+					if ($('input[name="アレルゲン[]"]:checked').length === 0) {
+						$('input[name="アレルゲン[]"]')
+							.parent()
+							.parent()
+							.parent()
+							.css("background-color", "pink");
+
+						$($('input[name="アレルゲン[]"]')[0])
+							.parent()
+							.parent()
+							.before(
+								$(
+									`<p class="${prefix}-hissu-alert" style="color:red;">※最低１つは選択してください。該当がない場合は上のアレルギー品目ありのチェックをはずしてください。</p>`
+								)
+							);
+						vError.push($('input[name="アレルゲン[]"]')[0]);
+					}
+				}
+
 				if ($("input#title").val() === "") {
 					$("input#title").before(
 						$(
