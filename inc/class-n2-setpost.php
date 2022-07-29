@@ -196,12 +196,12 @@ class N2_Setpost {
 
 			<div>
 				<?php foreach ( $fields as $field => $detail ) : ?>
-				<div style="background-color: #87cefa; margin: 8px 24px; border-radius:8px; padding: 16px;">
+				<div style="border:solid 2px #87cefa; margin: 24px auto; border-radius:8px; width:60%; min-width:800px;">
 					<!-- ラベル -->
-					<p><label for="<?php echo $field; ?>"><?php echo ! empty( $detail['label'] ) ? $detail['label'] : $field; ?></label></p>
+					<p style="margin: 0;"><label style="margin: 0;padding:16px 0;background-color:#87cefa; color: white;font-size:20px;font-weight:bold;padding:4px 8px;display:block;text-align:center;" for="<?php echo $field; ?>"><?php echo ! empty( $detail['label'] ) ? $detail['label'] : $field; ?></label></p>
 					<!-- 説明 -->
-					<p><?php echo ! empty( $detail['description'] ) ? $detail['description'] : ''; ?></p>
-					<div>
+					<p style="padding: 24px;"><?php echo ! empty( $detail['description'] ) ? $detail['description'] : ''; ?></p>
+					<div style="padding:0 24px 24px 24px;">
 						<?php
 						// optionを文字列連結してselectに挿入
 						if ( 'select' === $detail['type'] ) {
@@ -257,7 +257,6 @@ class N2_Setpost {
 						?>
 					</div>
 				</div>
-				<hr>
 				<?php endforeach; ?>
 			</div>
 			<?php
