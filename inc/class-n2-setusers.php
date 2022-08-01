@@ -61,6 +61,7 @@ class N2_Setusers {
 		$wp_roles->add_cap( 'jigyousya', 'read' );
 		$wp_roles->add_cap( 'jigyousya', 'edit_posts' );
 		$wp_roles->add_cap( 'jigyousya', 'upload_files' );
+		$wp_roles->add_cap( 'jigyousya', 'jigyousya' );
 
 		// SSクルー
 		$wp_roles->add_role( 'ss-crew', 'SSクルー', array() );

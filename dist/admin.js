@@ -30,6 +30,16 @@ eval("__webpack_require__.r(__webpack_exports__);\n// extracted by mini-css-extr
 
 /***/ }),
 
+/***/ "./src/ts/admin.ts":
+/*!*************************!*\
+  !*** ./src/ts/admin.ts ***!
+  \*************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+eval("\nvar __importDefault = (this && this.__importDefault) || function (mod) {\n    return (mod && mod.__esModule) ? mod : { \"default\": mod };\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\n__webpack_require__(/*! ../scss/n2-postlist.scss */ \"./src/scss/n2-postlist.scss\");\n__webpack_require__(/*! ../scss/n2-setpost.scss */ \"./src/scss/n2-setpost.scss\");\nvar n2_setpost_1 = __importDefault(__webpack_require__(/*! ./n2-setpost */ \"./src/ts/n2-setpost/index.ts\"));\nvar n2_sissubmit_1 = __importDefault(__webpack_require__(/*! ./n2-sissubmit */ \"./src/ts/n2-sissubmit/index.ts\"));\nvar n2_postlist_1 = __importDefault(__webpack_require__(/*! ./n2-postlist */ \"./src/ts/n2-postlist/index.ts\"));\n// 返礼品編集画面\nif (location.href.match(/(post|post-new)\\.php/)) {\n    (0, n2_setpost_1.default)();\n}\n// 各種セットアップ画面\n/**\n * wp_ajax用のファイル読み込み、ページ制限外しておく\n * 2022/07/14@taiki\n */\n// if(location.href.match(/admin\\.php/)) {\n(0, n2_sissubmit_1.default)();\n// }\nif (location.href.match(/edit\\.php/)) {\n    (0, n2_postlist_1.default)();\n}\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/admin.ts?");
+
+/***/ }),
+
 /***/ "./src/ts/functions/index.ts":
 /*!***********************************!*\
   !*** ./src/ts/functions/index.ts ***!
@@ -37,16 +47,6 @@ eval("__webpack_require__.r(__webpack_exports__);\n// extracted by mini-css-extr
 /***/ ((__unused_webpack_module, exports) => {
 
 eval("\n/**\n * 複数ファイルで使いまわしたい変数や関数があればここに\n *\n * 読み込むファイルではimport { prefix, neoNengPath, ajaxUrl } from '../n2-functions/index'を記載\n */\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.ajaxUrl = exports.neoNengPath = exports.prefix = void 0;\n// クラス名にプレフィックスを付けてるところがある\nexports.prefix = \"neo-neng\";\n// PHPからこのテーマのディレクトリパスを受けとっている\nvar neoNengPath = function (window) {\n    return window.tmp_path.tmp_url;\n};\nexports.neoNengPath = neoNengPath;\n// wp_ajax用のパスを受け取っている\nvar ajaxUrl = function (window) {\n    return window.tmp_path.ajax_url;\n};\nexports.ajaxUrl = ajaxUrl;\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/functions/index.ts?");
-
-/***/ }),
-
-/***/ "./src/ts/index.ts":
-/*!*************************!*\
-  !*** ./src/ts/index.ts ***!
-  \*************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-eval("\nvar __importDefault = (this && this.__importDefault) || function (mod) {\n    return (mod && mod.__esModule) ? mod : { \"default\": mod };\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\n__webpack_require__(/*! ../scss/n2-postlist.scss */ \"./src/scss/n2-postlist.scss\");\n__webpack_require__(/*! ../scss/n2-setpost.scss */ \"./src/scss/n2-setpost.scss\");\nvar n2_setpost_1 = __importDefault(__webpack_require__(/*! ./n2-setpost */ \"./src/ts/n2-setpost/index.ts\"));\nvar n2_sissubmit_1 = __importDefault(__webpack_require__(/*! ./n2-sissubmit */ \"./src/ts/n2-sissubmit/index.ts\"));\nvar n2_postlist_1 = __importDefault(__webpack_require__(/*! ./n2-postlist */ \"./src/ts/n2-postlist/index.ts\"));\n// 返礼品編集画面\nif (location.href.match(/(post|post-new)\\.php/)) {\n    (0, n2_setpost_1.default)();\n}\n// 各種セットアップ画面\nif (location.href.match(/admin\\.php/)) {\n    (0, n2_sissubmit_1.default)();\n}\nif (location.href.match(/edit\\.php/)) {\n    (0, n2_postlist_1.default)();\n}\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/index.ts?");
 
 /***/ }),
 
@@ -156,7 +156,7 @@ eval("\nvar __importDefault = (this && this.__importDefault) || function (mod) {
   \***************************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nvar index_1 = __webpack_require__(/*! ../functions/index */ \"./src/ts/functions/index.ts\");\nexports[\"default\"] = (function () {\n    jQuery(function ($) {\n        // 各種セットアップの更新\n        $('.sissubmit').on('click', function (e) {\n            e.preventDefault();\n            var $this = $(this), data = $this.parents('form').serialize();\n            if ((0, index_1.ajaxUrl)(window)) {\n                $this.val(\"　更新中...　\");\n                $.ajax({\n                    type: \"POST\",\n                    url: (0, index_1.ajaxUrl)(window),\n                    data: data,\n                })\n                    .done(function (data) {\n                    console.log(data);\n                    alert(\"更新完了！\");\n                    $this.val(\"　更新する　\");\n                });\n            }\n            else {\n                alert('更新に失敗しました');\n            }\n            return false;\n        });\n    });\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/n2-sissubmit/submit.ts?");
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nvar index_1 = __webpack_require__(/*! ../functions/index */ \"./src/ts/functions/index.ts\");\nexports[\"default\"] = (function () {\n    jQuery(function ($) {\n        console.log('submit.ts読み込み中');\n        // 各種セットアップの更新\n        $('.sissubmit').on('click', function (e) {\n            e.preventDefault();\n            var $this = $(this), data = $this.parents('form').serialize();\n            if ((0, index_1.ajaxUrl)(window)) {\n                $this.val(\"　更新中...　\");\n                $.ajax({\n                    type: \"POST\",\n                    url: (0, index_1.ajaxUrl)(window),\n                    data: data,\n                })\n                    .done(function (data) {\n                    console.log(data);\n                    alert(\"更新完了！\");\n                    $this.val(\"　更新する　\");\n                });\n            }\n            else {\n                alert('更新に失敗しました');\n            }\n            return false;\n        });\n    });\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/n2-sissubmit/submit.ts?");
 
 /***/ })
 
@@ -203,7 +203,7 @@ eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nvar 
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __webpack_require__("./src/ts/index.ts");
+/******/ 	var __webpack_exports__ = __webpack_require__("./src/ts/admin.ts");
 /******/ 	
 /******/ })()
 ;
