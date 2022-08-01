@@ -89,9 +89,14 @@ export default () => {
 						datas.each((data) => {
 							parent.append(
 								$(`<div class="${prefix}-image-block">
-				<input type="hidden" name="画像[]" class="${prefix}-image-input" value="${data.attributes.url}">
+				<input type="hidden" name="画像[]" class="${prefix}-image-input" value="${
+									data.attributes.url
+								}">
 				<span class="dashicons dashicons-no-alt ${prefix}-image-delete"></span><span class="${prefix}-image-num"></span>
-				<img class="${prefix}-image-url" src="${data.attributes.url.replace(/\.(png|jpg|jpeg)$/,'-150x150.$1')}" width="100%">
+				<img class="${prefix}-image-url" src="${data.attributes.url.replace(
+									/\.(png|jpg|jpeg)$/,
+									"-150x150.$1"
+								)}" width="100%">
 				</div>`)
 							);
 						});
@@ -126,6 +131,22 @@ export default () => {
 			e.preventDefault();
 			// アップローダー起動
 			uploaderOpen(wpMedia(), $(`.${prefix}-image-wrapper`));
+		});
+
+		// 画像拡大ボタン
+		$("body").on("click", `.${prefix}-image-big`, (e) => {
+			e.preventDefault();
+			const url = $(e.target).parent().find("input").val();
+			$("body").append(
+				$(
+					`<div class="${prefix}-image-big-modal"><img src="${url}" /></div>`
+				)
+			);
+		});
+
+		$("body").on("click", `.${prefix}-image-big-modal`, (e) => {
+			e.preventDefault();
+			$(`.${prefix}-image-big-modal`).remove();
 		});
 
 		// 画像削除イベント
