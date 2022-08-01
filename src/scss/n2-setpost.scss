@@ -248,8 +248,6 @@ $prefix: "n2-setpost";
 .neo-neng-image-block {
 	margin: 16px;
 	position: relative;
-	width: 150px;
-	height: 150px;
 	border: solid 6px lightgray;
 	overflow: hidden;
 	&::after {
@@ -265,8 +263,6 @@ $prefix: "n2-setpost";
 		left: 0;
 		z-index: 10;
 		background-color: rgba($color: #000000, $alpha: 0);
-		width: 100%;
-		height: 100%;
 		transition: all 0.2s;
 		cursor: pointer;
 	}

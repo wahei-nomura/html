@@ -232,6 +232,7 @@ class N2_Setpost {
 							if ( ! empty( $detail['value'] ) ) {
 								foreach ( $detail['value'] as $img_url ) {
 									if ( '' !== $img_url ) {
+										$img_url = preg_replace( '/\.(png|jpg|jpeg)$/', '-150x150.$1', $img_url );
 										printf( $input_tags[ $detail['type'] ], N2_THEME_NAME, $field, $img_url );
 									}
 								}

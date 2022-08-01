@@ -90,7 +90,7 @@ export default () => {
 								$(`<div class="${prefix}-image-block">
 				<input type="hidden" name="画像[]" class="${prefix}-image-input" value="${data.attributes.url}">
 				<span class="dashicons dashicons-no-alt ${prefix}-image-delete"></span><span class="${prefix}-image-num"></span>
-				<img class="${prefix}-image-url" src="${data.attributes.url}" width="100%">
+				<img class="${prefix}-image-url" src="${data.attributes.url.replace(/\.(png|jpg|jpeg)$/,'-150x150.$1')}" width="100%">
 				</div>`)
 							);
 						});
