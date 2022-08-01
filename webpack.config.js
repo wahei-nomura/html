@@ -1,51 +1,87 @@
-const path = require('path');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const path = require("path");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 
-module.exports = {
-	mode: 'development',
-	entry: './src/ts/index.ts',
+const admin = {
+	mode: "development",
+	entry: "./src/ts/admin.ts",
 	output: {
 		path: `${__dirname}/dist/`,
-		filename: 'index.js'
+		filename: "admin.js",
 	},
 	module: {
 		rules: [
 			{
 				test: /\.ts$/,
-				use: 'ts-loader',
+				use: "ts-loader",
 			},
 			{
 				test: /\.(sa|sc|c)ss$/,
 				use: [
 					MiniCssExtractPlugin.loader,
 					{
-						loader: 'css-loader',
+						loader: "css-loader",
 						options: {
 							url: false,
-						}
+						},
 					},
 					{
-						loader: 'sass-loader'
-					}
-				]
-			}
-		]
+						loader: "sass-loader",
+					},
+				],
+			},
+		],
 	},
 	resolve: {
-		extensions: [
-			'.ts', '.js',
-		]
+		extensions: [".ts", ".js"],
 	},
 	plugins: [
 		new MiniCssExtractPlugin({
-			filename: 'style.css',
+			filename: "admin.css",
 		}),
 		new CssMinimizerPlugin(),
 	],
-	// optimization: {
-	// 	minimizer: [
-			
-	// 	],
-	// },
 };
+
+const front = {
+	mode: "development",
+	entry: "./src/ts/front.ts",
+	output: {
+		path: `${__dirname}/dist/`,
+		filename: "front.js",
+	},
+	module: {
+		rules: [
+			{
+				test: /\.ts$/,
+				use: "ts-loader",
+			},
+			{
+				test: /\.(sa|sc|c)ss$/,
+				use: [
+					MiniCssExtractPlugin.loader,
+					{
+						loader: "css-loader",
+						options: {
+							url: false,
+						},
+					},
+					{
+						loader: "sass-loader",
+					},
+				],
+			},
+		],
+	},
+	resolve: {
+		extensions: [".ts", ".js"],
+	},
+	plugins: [
+		new MiniCssExtractPlugin({
+			filename: "front.css",
+		}),
+		new CssMinimizerPlugin(),
+	],
+};
+
+module.exports = [admin, front];
