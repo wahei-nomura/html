@@ -38,6 +38,7 @@ export default () => {
 				update: () => {
 					setImageNum();
 				},
+				placeholder: "placeholder",
 			});
 			setImageNum();
 		};
