@@ -10,14 +10,14 @@ export default () => {
 		const wpMedia = () => {
 			const wp = (window as any).wp;
 			return wp.media({
-				title: "画像を選択（controlキーまたはShiftキーを押しながら複数選択してください）",
+				title: "画像を選択",
 				button: {
 					text: "選択した画像を登録",
 				},
 				library: {
 					type: "image",
 				},
-				multiple: true,
+				multiple: "add",
 			});
 		};
 

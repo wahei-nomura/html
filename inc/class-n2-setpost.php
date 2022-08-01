@@ -178,7 +178,7 @@ class N2_Setpost {
 			'checkbox'         => '<li><label><input type=checkbox name="%1$s" value="%2$s" %3$s class="n2-input">%4$s</label></li>',
 			'select'           => '<select id="%1$s" name="%1$s" class="n2-input %3$s">%2$s</select>',
 			'option'           => '<option value="%1$s" %3$s>%2$s</option>',
-			'image'            => '<div class="%1$s-image-block"><input type="hidden" class="%1$s-image-input" name="%2$s[]" value="%3$s"><span class="%1$s-image-delete dashicons dashicons-no-alt"></span><span class="%1$s-image-num"></span><img class="%1$s-image-url" src="%3$s" alt="" width="100%%" height="100%%" /></div>',
+			'image'            => '<div class="%1$s-image-block"><input type="hidden" class="%1$s-image-input" name="%2$s[]" value="%3$s"><span class="%1$s-image-delete dashicons dashicons-no-alt"></span><span class="%1$s-image-num"></span><img class="%1$s-image-url" src="%4$s" alt="" width="100%%" height="100%%" /></div>',
 			// zipはいったんコメントアウト　2022/07/27@taiki
 			// 'zip'              => '<input class="n2-input %1$s-image-input" type="hidden" name="%2$s" value="%3$s"><button type="button" class="button button-primary %1$s-zip-toggle">zip選択</button><div><p class="%1$s-image-url">%4$s</p></div>',
 			'rakuten_genreid'  => '<button type="button" id="neo-neng-genreid-btn" class="button button-primary button-large">ディレクトリID検索</button><input type="hidden" id="%1$s" name="%1$s" value="%2$s"><input type="hidden" id="%3$s" name="%3$s" value="%4$s" class="%5$s">',
@@ -232,8 +232,8 @@ class N2_Setpost {
 							if ( ! empty( $detail['value'] ) ) {
 								foreach ( $detail['value'] as $img_url ) {
 									if ( '' !== $img_url ) {
-										$img_url = preg_replace( '/\.(png|jpg|jpeg)$/', '-150x150.$1', $img_url );
-										printf( $input_tags[ $detail['type'] ], N2_THEME_NAME, $field, $img_url );
+										$thumb_url = preg_replace( '/\.(png|jpg|jpeg)$/', '-150x150.$1', $img_url );
+										printf( $input_tags[ $detail['type'] ], N2_THEME_NAME, $field, $img_url, $thumb_url );
 									}
 								}
 							}
