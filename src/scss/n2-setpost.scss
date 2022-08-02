@@ -243,3 +243,145 @@ $prefix: "n2-setpost";
 		}
 	}
 }
+
+// ここからカスタムフィールドの画像まわり
+.neo-neng-image-block {
+	margin: 16px;
+	position: relative;
+	width: 150px;
+	height: 150px;
+	border: solid 6px lightgray;
+	overflow: hidden;
+	&::after {
+		content: "\f545";
+		font-family: dashicons;
+		font-size: 80px;
+		color: transparent;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		position: absolute;
+		top: 0;
+		left: 0;
+		z-index: 10;
+		background-color: rgba($color: #000000, $alpha: 0);
+		width: 100%;
+		height: 100%;
+		transition: all 0.2s;
+		cursor: pointer;
+	}
+	&:hover {
+		border: solid 6px #2271b1;
+	}
+	&:hover::after {
+		color: #fff;
+		background-color: rgba($color: #000000, $alpha: 0.5);
+	}
+
+	img {
+		object-fit: cover;
+		object-position: center;
+	}
+}
+.neo-neng-image-delete {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 10000;
+	font-size: 24px;
+	width: 24px;
+	height: 24px;
+	background-color: #2271b1;
+	color: #fff;
+	border: solid 1px #fff;
+	cursor: pointer;
+	&:hover {
+		background-color: red;
+	}
+}
+
+.neo-neng-image-big {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: absolute;
+	top: 0;
+	right: 0;
+	z-index: 10000;
+	font-size: 24px;
+	width: 24px;
+	height: 24px;
+	background-color: #2271b1;
+	color: #fff;
+	border: solid 1px #fff;
+	cursor: pointer;
+	transition: 0.3s;
+	&:hover {
+		width: 40px;
+		height: 40px;
+		font-size: 40px;
+	}
+}
+
+.neo-neng-image-big-modal {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 100000;
+	background-color: rgba(0, 0, 0, 0.7);
+	cursor: pointer;
+	img {
+		position: absolute;
+		max-width: 100%;
+		max-height: 100%;
+		object-fit: cover;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		cursor: zoom-out;
+		
+	}
+}
+
+.neo-neng-image-wrapper {
+	display: flex;
+	flex-wrap: wrap;
+	.placeholder {
+		border: 1px dashed red;
+		background-color: pink;
+		width: 150px;
+		height: 150px;
+	}
+}
+
+.neo-neng-image-num {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	z-index: 1000;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 24px;
+	width: 30px;
+	height: 30px;
+	color: #2271b1;
+	font-weight: bold;
+	background-color: rgba($color: #fff, $alpha: 0.7);
+	border-radius: 15px;
+}
+
+.wp-admin .media-modal {
+	.media-sidebar {
+		display: none;
+	}
+
+	.attachments-wrapper {
+		width: 100%;
+	}
+}
