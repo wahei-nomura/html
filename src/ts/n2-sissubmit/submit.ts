@@ -1,7 +1,9 @@
 import { prefix, neoNengPath, ajaxUrl } from '../functions/index'
 
 export default () => {
-	jQuery(function($){
+	jQuery(function($) {
+		
+		console.log('submit.ts読み込み中')
 		// 各種セットアップの更新
 		$('.sissubmit').on('click',function(e){
 			e.preventDefault();

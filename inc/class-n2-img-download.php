@@ -52,14 +52,14 @@ class N2_Img_Download {
 			// ファイルナンバー保持のため
 			$fnum = 1;
 			// 画像数保持
-			$file_length = 0;
-			for ( $i = 1; $i <= 8; $i++ ) {
+			$file_length  = 0;
+			$fname        = mb_strtolower( $item_code );
+			$meta_pic_arr = get_post_meta( $id, '画像', true );
+			foreach ( $meta_pic_arr as $pickey => $meta_pic ) {
 				$fname     = mb_strtolower( $item_code );
-				$metapath  = get_post_meta( $id, '画像' . $i, true );
-				$pic_id    = attachment_url_to_postid( $metapath );
+				$pic_id    = attachment_url_to_postid( $meta_pic );
 				$fpath     = get_attached_file( $pic_id, true );
 				$extension = pathinfo( $fpath );
-
 				// 画像がアップロードされている場合のみ処理
 				if ( $fpath ) {
 					// ファイル名に連番付与
@@ -76,7 +76,6 @@ class N2_Img_Download {
 					$fnum ++;
 					$file_length ++;
 				};
-
 			}
 			$zip_meta_path = get_post_meta( $id, 'zip', true );
 			$zip_id        = attachment_url_to_postid( $zip_meta_path );
