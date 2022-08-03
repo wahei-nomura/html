@@ -31,7 +31,16 @@ class N2_Sync {
 	 * @return void
 	 */
 	public function sync() {
-		$data = file_get_contents( 'https://steamship.co.jp/kawatana/wp-json/wp/v2/posts?per_page=100' );
+		$town = 'kawatana';
+		$url  = "https://steamship.co.jp/{$town}/wp-json/wp/v2/posts";
+		// params
+		$params  = http_build_query(
+			array(
+				'per_page' => 100,
+				'page'     => 5,
+			)
+		);
+		$data    = file_get_contents( "{$url}?{$params}" );
 		$headers = iconv_mime_decode_headers( implode( "\n", $http_response_header ) );
 		// 合計情報
 		$total = $headers['X-WP-Total'];
@@ -50,7 +59,7 @@ class N2_Sync {
 				'post_author' => $v['author'],
 				'meta_input'  => $v['acf'],
 			);
-			echo '<pre>';print_r($postarr);echo '</pre>';
+			print_r($postarr);
 			// wp_insert_post( $postarr );
 		}
 		exit;
