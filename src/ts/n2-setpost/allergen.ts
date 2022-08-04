@@ -72,35 +72,53 @@ export default () => {
 			}
 		}
 
-		// インスタンス生成
-		const allergenState = new ControlAllergen(
-			$('input[name="食品確認[]"]').val("食品である").prop("checked"),
-			$('input[name="アレルギー有無確認[]"]')
-				.val("アレルギー品目あり")
-				.prop("checked")
-		);
-		// 初期表示
-		allergenState.displayAllergenBool();
-		allergenState.displayAllergenList();
+		$.ajax({
+			url: ajaxUrl(window),
+			data: {
+				action: "N2_Setpost",
+			},
+		}).done((res) => {
+			// 事業者の食品取り扱いパラメーターが「有」の時のみ新規ページで食品にデフォルトチェック
+			if (JSON.parse(res).food_param === "有" && location.href.match(/post-new\.php/)) {
+				$('input[name="食品確認[]"]')
+					.val("食品である")
+					.prop("checked", true);
+			}
 
-		// 	checkboxイベント
-		$('input[name="食品確認[]"]').on("change", (e) => {
-			allergenState.foodBool = $('input[name="食品確認[]"]')
-				.val("食品である")
-				.prop("checked");
+			// インスタンス生成
+			const allergenState = new ControlAllergen(
+				$('input[name="食品確認[]"]').val("食品である").prop("checked"),
+				$('input[name="アレルギー有無確認[]"]')
+					.val("アレルギー品目あり")
+					.prop("checked")
+			);
+			// 初期表示
 			allergenState.displayAllergenBool();
-
-			allergenState.allergenBool = $('input[name="アレルギー有無確認[]"]')
-				.val("アレルギー品目あり")
-				.prop("checked");
 			allergenState.displayAllergenList();
-		});
 
-		$('input[name="アレルギー有無確認[]"]').on("change", (e) => {
-			allergenState.allergenBool = $('input[name="アレルギー有無確認[]"]')
-				.val("アレルギー品目あり")
-				.prop("checked");
-			allergenState.displayAllergenList();
+			// 	checkboxイベント
+			$('input[name="食品確認[]"]').on("change", (e) => {
+				allergenState.foodBool = $('input[name="食品確認[]"]')
+					.val("食品である")
+					.prop("checked");
+				allergenState.displayAllergenBool();
+
+				allergenState.allergenBool = $(
+					'input[name="アレルギー有無確認[]"]'
+				)
+					.val("アレルギー品目あり")
+					.prop("checked");
+				allergenState.displayAllergenList();
+			});
+
+			$('input[name="アレルギー有無確認[]"]').on("change", (e) => {
+				allergenState.allergenBool = $(
+					'input[name="アレルギー有無確認[]"]'
+				)
+					.val("アレルギー品目あり")
+					.prop("checked");
+				allergenState.displayAllergenList();
+			});
 		});
 	});
 };

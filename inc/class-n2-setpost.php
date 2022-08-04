@@ -329,6 +329,7 @@ class N2_Setpost {
 			'ss_crew'           => wp_get_current_user()->allcaps['ss_crew'] ? 'true' : 'false',
 			'kifu_auto_pattern' => $this->kifu_auto_pattern(),
 			'delivery_pattern'  => $this->delivery_pattern(),
+			'food_param'        => $this->food_param(),
 		);
 
 		echo json_encode( $arr );
@@ -371,5 +372,19 @@ class N2_Setpost {
 		$pattern = apply_filters( 'n2_setpost_change_delivary_pattern', $pattern );
 
 		return $pattern;
+	}
+
+	/**
+	 * 食品取扱の有無を返す
+	 *
+	 * @return string
+	 */
+	private function food_param() {
+		$user = wp_get_current_user();
+		if ( 'jigyousya' !== $user->roles[0] ) {
+			return '事業者ではない';
+		}
+
+		return empty( get_user_meta( $user->ID, '食品取り扱い', true ) ) ? '未設定' : get_user_meta( $user->ID, '食品取り扱い', true );
 	}
 }
