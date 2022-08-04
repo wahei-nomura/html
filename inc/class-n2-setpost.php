@@ -42,6 +42,7 @@ class N2_Setpost {
 		add_action( "wp_ajax_{$this->cls}", array( $this, 'ajax' ) );
 		add_action( "wp_ajax_{$this->cls}_image", array( $this, 'ajax_imagedata' ) );
 		add_filter( 'intermediate_image_sizes_advanced', array( $this, 'not_create_image' ) );
+		add_filter( 'wp_handle_upload', array( $this, 'image_compression' ) );
 	}
 
 	/**
@@ -418,5 +419,20 @@ class N2_Setpost {
 		unset( $sizes['1536x1536'] );
 		unset( $sizes['2048x2048'] );
 		return $sizes;
+	}
+
+	/**
+	 * 画像アップロード時に自動圧縮
+	 *
+	 * @param Array $image_data アップロード画像データ
+	 * @return Array $image_data 上に同じ
+	 */
+	public function image_compression( $image_data ) {
+		$imagick = new Imagick( $image_data['file'] );
+		// 画質80%
+		$imagick->setImageCompressionQuality( 80 );
+		$imagick->writeImage( $image_data['file'] );
+
+		return $image_data;
 	}
 }
