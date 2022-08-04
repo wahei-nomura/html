@@ -428,10 +428,17 @@ class N2_Setpost {
 	 * @return Array $image_data 上に同じ
 	 */
 	public function image_compression( $image_data ) {
+		ob_start();
 		$imagick = new Imagick( $image_data['file'] );
 		// 画質80%
+		
 		$imagick->setImageCompressionQuality( 80 );
 		$imagick->writeImage( $image_data['file'] );
+
+		$result = ob_get_contents();
+		ob_end_clean();
+
+		file_put_contents( get_theme_file_path( 'image.log' ), $result );
 
 		return $image_data;
 	}
