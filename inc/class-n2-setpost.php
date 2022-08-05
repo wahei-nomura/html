@@ -433,19 +433,19 @@ class N2_Setpost {
 		$file_extension = pathinfo( $image_data['file'], PATHINFO_EXTENSION );
 		$max_size       = 2000;
 
-		if ( 'png' === $file_extension ) {
-			$imagick->setImageFormat( 'jpg' );
-			$image_data['file'] = str_replace( '.png', '.jpg', $image_data['file'] );
-			$image_data['url']  = str_replace( '.png', '.jpg', $image_data['url'] );
-			$image_data['type'] = 'image/jpeg';
-		}
-
+		// width heightリサイズ
 		if ( $imagick->getImageGeometry()['width'] > $max_size || $imagick->getImageGeometry()['height'] > $max_size ) {
 			$imagick->scaleImage( $max_size, $max_size, true );
 		}
 
-		$imagick->setImageCompressionQuality( 80 );
-		$imagick->writeImage( $image_data['file'] );
+		// png
+		if ( 'png' === $file_extension ) {
+			exec( "pngquant --ext .png {$image_data['file']} --force --quality 50-80" );
+		} else {
+		// jpg
+			$imagick->setImageCompressionQuality( 80 );
+			$imagick->writeImage( $image_data['file'] );
+		}
 
 		return $image_data;
 	}
