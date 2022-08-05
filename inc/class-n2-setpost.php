@@ -429,11 +429,21 @@ class N2_Setpost {
 	 */
 	public function image_compression( $image_data ) {
 		$imagick  = new Imagick( $image_data['file'] );
-		$max_size = 2000;
+		// 写真拡張子取得
+		$file_extension = pathinfo( $image_data['file'], PATHINFO_EXTENSION );
+		$max_size       = 2000;
+
+		if ( 'png' === $file_extension ) {
+			$imagick->setImageFormat( 'jpg' );
+			$image_data['file'] = str_replace( '.png', '.jpg', $image_data['file'] );
+			$image_data['url']  = str_replace( '.png', '.jpg', $image_data['url'] );
+			$image_data['type'] = 'image/jpeg';
+		}
 
 		if ( $imagick->getImageGeometry()['width'] > $max_size || $imagick->getImageGeometry()['height'] > $max_size ) {
 			$imagick->scaleImage( $max_size, $max_size, true );
 		}
+
 		$imagick->setImageCompressionQuality( 80 );
 		$imagick->writeImage( $image_data['file'] );
 
