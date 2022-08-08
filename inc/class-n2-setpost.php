@@ -106,7 +106,8 @@ class N2_Setpost {
 	 */
 	public function add_customfields() {
 
-		$ss_fields      = parse_ini_file( get_template_directory() . '/config/n2-ss-fields.ini', true );
+		// $ss_fields      = parse_ini_file( get_template_directory() . '/config/n2-ss-fields.ini', true );
+		$ss_fields      = yaml_parse_file( get_template_directory() . '/config/n2-ss-fields.yml' );
 		$default_fields = parse_ini_file( get_template_directory() . '/config/n2-fields.ini', true );
 
 		// 既存のフィールドの位置を変更したい際にプラグイン側からフィールドを削除するためのフック
@@ -152,6 +153,7 @@ class N2_Setpost {
 
 		// プラグインn2-developのn2_setpost_show_customfields呼び出し
 		$fields = apply_filters( 'n2_setpost_show_customfields', $fields, $type );
+
 
 		// optionを配列化、valueにDBの値をセット
 		// 「,」で配列に分けて、「\」でkey=>valueにわけている
