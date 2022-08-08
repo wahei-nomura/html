@@ -7,6 +7,10 @@
 		margin-bottom: 3px;
 		line-height: 1.5;
 		padding: 0.5em;
+		&.draft{
+			border-left: solid 6px #888;
+			background: #eee;
+		}
 		&.product-list-header{
 			border: none;
 			background: #2d8fdd;
