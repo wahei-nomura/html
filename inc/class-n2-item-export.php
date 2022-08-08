@@ -660,6 +660,5 @@ class N2_Item_Export {
 			);
 		}
 		$this->download_csv( 'rakuten_' . __FUNCTION__, $ini_arr['header'], $items_arr, $ini_arr['csv_title'] );
-		die();
 	}
 }
