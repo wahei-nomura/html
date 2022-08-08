@@ -1,3 +1,19 @@
+# ===================================================
+
+# デフォルトカスタムフィールド(SS管理)
+
+# ******* 記述法 ********
+# type:text,textarea,checkbox,selectのいずれかを指定
+# description:タイトル下の説明文（改行は<br>を書く）
+# maxlength:文字数制限
+# option:selectとcheckboxの選択肢を指定
+# default:text,textareaのデフォルト値を指定
+# placeholder:text,textareaのplaceholderを指定
+
+# ===================================================
+
+# 共通:
+
 返礼品コード:
     type: text
 
