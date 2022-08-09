@@ -10,7 +10,8 @@ export default () => {
 		// 計算パターンを受け取ってから処理
 		console.log("ajaxtest2");
 		$.ajax({
-			url: ajaxUrl(window),
+			// url: ajaxUrl(window),
+			url: "https://ore.steamship.co.jp/wp/kawatana/wp-admin/admin-ajax.php",
 			data: {
 				action: "SS_Portal_Scraper",
 				id: "FBX001",
