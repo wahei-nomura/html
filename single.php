@@ -41,6 +41,8 @@ $fields = apply_filters( 'n2_setpost_show_customfields', $ini, 'default' );
 </style>
 
 <?php get_header(); ?>
+<body <?php body_class(); ?>>
+
 
 <?php
 if ( have_posts() ) :
@@ -98,6 +100,8 @@ if ( have_posts() ) :
 	<?php else : ?>
 		<?php echo is_user_logged_in() ? get_template_part( 'template/progress' ) : ''; ?>
 		<p>公開中の商品は違う感じの表示にする。</p>
+
+</body>
 		<?php
 	endif;
 endwhile;

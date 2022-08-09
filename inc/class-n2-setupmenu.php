@@ -34,7 +34,7 @@ class N2_Setupmenu {
 	 */
 	public function __construct() {
 		$this->cls = get_class( $this );
-		add_action( 'admin_menu', array( $this, 'add_crew_setup_menu' ) );
+		add_action( 'admin_menu', array( $this, 'add_setup_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'setup_menu_style' ) );
 		add_action( "wp_ajax_{$this->cls}", array( &$this, 'update_setupmenu' ) );
 	}
@@ -55,7 +55,7 @@ class N2_Setupmenu {
 	 * add_setup_menu
 	 * クルー用セットアップ管理ページを追加
 	 */
-	public function add_crew_setup_menu() {
+	public function add_setup_menu() {
 		add_menu_page( '各種セットアップ', '各種セットアップ', 'ss_crew', 'n2_setup_menu', array( $this, 'add_crew_setup_menu_page' ), 'dashicons-list-view' );
 	}
 	/**
@@ -136,7 +136,7 @@ class N2_Setupmenu {
 					<textarea name="<?php echo $this->cls; ?>[rakuten][html]" rows="5" style="overflow-x: hidden;"><?php echo stripslashes_deep( get_option( $this->cls )['rakuten']['html'] ?? '' ); ?></textarea>
 				</label>
 			</p>
-			<?php for ( $i = 0;$i < 5;$i++ ) : ?>
+			<?php for ( $i = 0;$i < 6;$i++ ) : ?>
 			<p class="textarea-wrap">
 				<label>
 					項目選択肢（改行区切）※選択肢は最大16文字：

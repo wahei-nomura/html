@@ -34,7 +34,7 @@ class N2_Setusers {
 	 */
 	public function remove_usertype() {
 		global $wp_roles;
-		if ( empty( $wo_roles ) ) {
+		if ( empty( $wp_roles ) ) {
 			$wp_roles = new WP_Roles();
 		}
 
@@ -52,7 +52,7 @@ class N2_Setusers {
 	 */
 	public function add_usertype() {
 		global $wp_roles;
-		if ( empty( $wo_roles ) ) {
+		if ( empty( $wp_roles ) ) {
 			$wp_roles = new WP_Roles();
 		}
 
@@ -61,6 +61,7 @@ class N2_Setusers {
 		$wp_roles->add_cap( 'jigyousya', 'read' );
 		$wp_roles->add_cap( 'jigyousya', 'edit_posts' );
 		$wp_roles->add_cap( 'jigyousya', 'upload_files' );
+		$wp_roles->add_cap( 'jigyousya', 'jigyousya' );
 
 		// SSクルー
 		$wp_roles->add_role( 'ss-crew', 'SSクルー', array() );

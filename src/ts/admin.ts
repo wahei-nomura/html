@@ -9,9 +9,13 @@ if(location.href.match(/(post|post-new)\.php/)) {
 	n2_setpost();
 }
 // 各種セットアップ画面
-if(location.href.match(/admin\.php/)) {
+/**
+ * wp_ajax用のファイル読み込み、ページ制限外しておく
+ * 2022/07/14@taiki
+ */
+// if(location.href.match(/admin\.php/)) {
 	n2_sissubmit();
-}
+// }
 if(location.href.match(/edit\.php/)) {
 	n2_postlist();
 }
