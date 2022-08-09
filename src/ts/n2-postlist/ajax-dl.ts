@@ -6,8 +6,8 @@ export default () => {
 		$(".dlbtn").on("click", (e) => {
 			const btnName = $(e.target).attr("id");
 			e.preventDefault();
+			$(e.target).addClass("not-click"); // クリックと同時にclass付けて二重クリックできないようにする
 			download(ajaxUrl(window), btnName, getIds());
-
 		});
 
 		// チェックが入った返礼品のidを配列で返す

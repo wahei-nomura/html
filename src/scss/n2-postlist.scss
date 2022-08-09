@@ -91,3 +91,9 @@ tbody#the-list>tr>td {
 	padding-top: 0;
 	padding-bottom: 0;
 }
+.button{
+	&.not-click{
+		pointer-events: none;
+		opacity: .5;
+	}
+}
