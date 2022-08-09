@@ -160,7 +160,8 @@
 
 カテゴリー:
     type : select
-    option : :未選択
+    option :
+        '': 未選択
 
 画像:
     type : image
