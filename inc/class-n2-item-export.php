@@ -26,7 +26,7 @@ class N2_Item_Export {
 		add_action( 'wp_ajax_ledghome', array( $this, 'ledghome' ) );
 		add_action( 'wp_ajax_item_csv', array( $this, 'item_csv' ) );
 		add_action( 'wp_ajax_select_csv', array( $this, 'select_csv' ) );
-		add_action( 'wp_ajax_rakuten', array( $this, 'pc_item_description' ) );
+		add_action( 'wp_ajax_rakuten_pc_item_description', array( $this, 'pc_item_description' ) );
 	}
 
 	/**
@@ -66,17 +66,17 @@ class N2_Item_Export {
 	 * @param String $ajax_str csvの種類(iniファイルのセクション名)
 	 * @return Array $arr 処理に必要なiniの情報を格納した配列
 	 */
-	private function get_ini( $ajax_str ) {
+	private function get_yml( $ajax_str ) {
 		// 初期化
 		$arr = array();
 		// ========ini一覧========
-		$n2_fields      = parse_ini_file( get_template_directory() . '/config/n2-fields.ini', true );
-		$n2_towncodes   = parse_ini_file( get_template_directory() . '/config/n2-towncode.ini', true );
-		$n2_file_header = parse_ini_file( get_template_directory() . '/config/n2-file-header.ini', true );
+		$n2_fields      = yaml_parse_file( get_template_directory() . '/config/n2-fields.yml' );
+		$n2_towncodes   = yaml_parse_file( get_template_directory() . '/config/n2-towncode.yml' );
+		$n2_file_header = yaml_parse_file( get_template_directory() . '/config/n2-file-header.yml' );
 
 		// ========自治体コード=========
-		$townname    = explode( '/', get_option( 'home' ) );
-		$n2_towncode = $n2_towncodes[ end( $townname ) ];
+		$townname    = end( explode( '/', get_option( 'home' ) ) );
+		$n2_towncode = $n2_towncodes[ $townname ];
 		// ========楽天商品画像のパス=======
 		$rakuten_img_dir = fn() => $n2_towncode['rakuten']
 			? str_replace( 'n2-towncode', $n2_towncode['rakuten'], $n2_file_header['rakuten']['img_dir'] )
@@ -88,12 +88,7 @@ class N2_Item_Export {
 			$header_str = $n2_file_header[ $ajax_str ]['csv_header'];
 		}
 		// ========アレルゲン========
-		$allergens      = explode( ',', $n2_fields['アレルゲン']['option'] );
-		$allergens_list = array();
-		foreach ( $allergens as $allergen ) {
-			$allergen                       = explode( '\\', $allergen );
-			$allergens_list[ $allergen[0] ] = $allergen[1];
-		}
+		$allergens_list = $n2_fields['アレルゲン']['option'];
 		// ========クルーセットアップでの設定項目========
 		$rakuten_select_option = get_option( 'N2_setupmenu' )['rakuten']['select'] ?? '';
 
@@ -109,7 +104,7 @@ class N2_Item_Export {
 			'rakuten_select_option' => $rakuten_select_option,
 		);
 		// 内容を追加、または上書きするためのフック
-		return apply_filters( 'n2_item_export_get_ini', $arr );
+		return apply_filters( 'n2_item_export_get_yml', $arr );
 	}
 
 	/**
@@ -118,7 +113,7 @@ class N2_Item_Export {
 	 * @return void
 	 */
 	public function ledghome() {
-		$ini_arr = $this->get_ini( __FUNCTION__ );
+		$ini_arr = $this->get_yml( __FUNCTION__ );
 
 		// itemの情報を配列か
 		$items_arr = array();
@@ -186,7 +181,7 @@ class N2_Item_Export {
 	 */
 	public function item_csv() {
 		// iniから情報を取得
-		$ini_arr = $this->get_ini( __FUNCTION__ );
+		$ini_arr = $this->get_yml( __FUNCTION__ );
 
 		// 初期化
 		$items_arr = array();
@@ -321,7 +316,7 @@ class N2_Item_Export {
 				apply_filters( 'n2_item_export_item_csv', $item_arr, $post_id ),
 			);
 
-			// iniファイルに自治体名が設定されていない場合
+			// ymlファイルに自治体名が設定されていない場合
 			if ( strpos( $img_dir, 'n2-towncode' ) ) {
 				?>
 				<style>
@@ -504,7 +499,7 @@ class N2_Item_Export {
 	 * @return string 商品説明テーブル
 	 */
 	public function make_itemtable( $post_id, $return_string = true ) {
-		$ini_arr        = $this->get_ini( 'item_csv' );
+		$ini_arr        = $this->get_yml( 'item_csv' );
 		$post_keys      = array(
 			'表示名称',
 			'略称',
@@ -612,7 +607,7 @@ class N2_Item_Export {
 	public function select_csv() {
 		// itemの情報を配列化
 		$items_arr = array();
-		$ini_arr   = $this->get_ini( __FUNCTION__ );
+		$ini_arr   = $this->get_yml( __FUNCTION__ );
 
 		// select項目名 => array(選択肢)の形式に変換
 		$select = array();
