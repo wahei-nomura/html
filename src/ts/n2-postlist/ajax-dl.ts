@@ -4,10 +4,14 @@ import { prefix, neoNengPath, ajaxUrl } from "../functions/index";/**
 export default () => {
 	jQuery(function ($) {
 		$(".dlbtn").on("click", (e) => {
+			$(e.target).addClass("not-click"); // クリックと同時にclass付けて二重クリックできないようにする
 			const btnName = $(e.target).attr("id");
 			e.preventDefault();
-			$(e.target).addClass("not-click"); // クリックと同時にclass付けて二重クリックできないようにする
 			download(ajaxUrl(window), btnName, getIds());
+			setTimeout(function(){
+				$(e.target).removeClass("not-click"); // 2秒待ってから再度クリックできるようにする
+			},2000);
+				
 		});
 
 		// チェックが入った返礼品のidを配列で返す

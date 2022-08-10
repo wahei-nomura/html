@@ -91,9 +91,35 @@ tbody#the-list>tr>td {
 	padding-top: 0;
 	padding-bottom: 0;
 }
-.button{
-	&.not-click{
-		pointer-events: none;
-		opacity: .5;
+.wp-core-ui {
+	.button{
+		&.not-click{
+			pointer-events: none;
+			background-color: rgba(34, 113, 177, 0.5);
+			&::after {
+				content: "";
+				position: fixed;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				height: 1em;
+				background-color: #c80000;
+				background-image: -webkit-gradient(linear, 0 0, 100% 100%,color-stop(.25, #930000), color-stop(.25, transparent),color-stop(.5, transparent), color-stop(.5, #930000),color-stop(.75, #930000), color-stop(.75, transparent),to(transparent));
+				background-size: 70px 70px;
+				color: #fff;
+				text-align: center;
+				font-size: 15px;
+				animation: bg 1s linear infinite;
+			}
+		}
 	}
+}
+@keyframes bg {
+	0%{background-position:0 0;}
+	100%{background-position:0 70px;}
+}
+@keyframes huwahuwa{
+	0%{color: white;}
+	50%{color: rgba(255,255,255,.5);}
+	100%{color: white;}
 }
