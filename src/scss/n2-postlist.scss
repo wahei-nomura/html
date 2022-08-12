@@ -95,6 +95,7 @@ tbody#the-list>tr>td {
 	.button{
 		&.not-click{
 			pointer-events: none;
+			user-select: none;
 			background-color: rgba(34, 113, 177, 0.5);
 			&::after {
 				content: "";

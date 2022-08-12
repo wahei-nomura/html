@@ -8,9 +8,9 @@ export default () => {
 			const btnName = $(e.target).attr("id");
 			e.preventDefault();
 			download(ajaxUrl(window), btnName, getIds());
-			setTimeout(function(){
-				$(e.target).removeClass("not-click"); // 2秒待ってから再度クリックできるようにする
-			},2000);
+			// setTimeout(function(){
+			// 	$(e.target).removeClass("not-click"); // 2秒待ってから再度クリックできるようにする
+			// },2000);
 				
 		});
 
@@ -28,6 +28,11 @@ export default () => {
 			const data = new FormData();
 			data.append("id", id);
 			const xhr = new XMLHttpRequest();
+			xhr.onreadystatechange = ()=>{
+				if (xhr.readyState === 4){
+					$('.not-click').removeClass("not-click"); 
+				}
+			}
 			xhr.open("POST", url + "?action=" + action, true);
 			xhr.responseType = "blob";
 			xhr.onload = function (e) {
