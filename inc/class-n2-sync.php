@@ -35,12 +35,12 @@ class N2_Sync {
 		$url  = "https://steamship.co.jp/{$town}/wp-json/wp/v2/posts";
 		// params
 		$params = array(
-			'per_page' => 100,
+			'per_page' => 3,
 			'page'     => 1,
 		);
 		// ページ
 		$pages = 1;
-		while ( $params['page'] <= $pages ) {
+		while ( $params['page'] <= 1 ) {
 			$data    = file_get_contents( "{$url}?" . http_build_query( $params ) );
 			$headers = iconv_mime_decode_headers( implode( "\n", $http_response_header ) );
 			// 合計情報
@@ -48,15 +48,18 @@ class N2_Sync {
 			$pages = $headers['X-WP-TotalPages'];
 			$params['page']++;
 			$arr = json_decode( $data, true );
-			// exit;
 			foreach ( $arr as $v ) {
 				// 返礼品情報を生成
 				$postarr = array(
-					'status'      => $v['status'],
-					'type'        => $v['type'],
-					'post_title'  => $v['title']['rendered'],
-					'post_author' => $v['author'],
-					'meta_input'  => $v['acf'],
+					'status'            => $v['status'],
+					'post_date'         => $v['date'],
+					'post_date_gmt'     => $v['date_gmt'],
+					'post_modified'     => $v['modified'],
+					'post_modified_gmt' => $v['modified_gmt'],
+					'type'              => $v['type'],
+					'post_title'        => $v['title']['rendered'],
+					'post_author'       => $v['author'],
+					'meta_input'        => $v['acf'],
 				);
 				// 「返礼品コード」が既に登録済みか調査
 				$args = array(
@@ -66,14 +69,35 @@ class N2_Sync {
 					'post_status' => 'any',
 				);
 				// 返礼品の投稿IDを取得
-				$id = get_posts( $args )[0]->ID;
+				$p = get_posts( $args )[0];
 				// 登録済みの場合
-				if ( $id ) {
-					$postarr['ID'] = $id;
+				if ( $p->ID ) {
+					// 更新されてない場合はスキップ
+					if ( new DateTime( $p->post_modified ) === new DateTime( $postarr['post_modified'] ) ) {
+						continue;
+					}
+					$postarr['ID'] = $p->ID;
 				}
+				add_filter( 'wp_insert_post_data', array( $this, 'alter_post_modification_time' ), 99, 2 );
 				wp_insert_post( $postarr );
+				remove_filter( 'wp_insert_post_data', array( $this, 'alter_post_modification_time' ) );
 			}
 		}
 		exit;
+	}
+	/**
+	 * 更新日時も登録可能にする
+	 * 参考：https://wordpress.stackexchange.com/questions/224161/cant-edit-post-modified-in-wp-insert-post-bug
+	 *
+	 * @param array $data post_data
+	 * @param array $postarr postarr
+	 * @return $data
+	 */
+	public function alter_post_modification_time( $data, $postarr ) {
+		if ( ! empty( $postarr['post_modified'] ) && ! empty( $postarr['post_modified_gmt'] ) ) {
+			$data['post_modified']     = $postarr['post_modified'];
+			$data['post_modified_gmt'] = $postarr['post_modified_gmt'];
+		}
+		return $data;
 	}
 }
