@@ -70,8 +70,6 @@ class N2_Sync {
 				// 登録済みの場合
 				if ( $id ) {
 					$postarr['ID'] = $id;
-					wp_update_post( $postarr );
-					continue;
 				}
 				wp_insert_post( $postarr );
 			}
