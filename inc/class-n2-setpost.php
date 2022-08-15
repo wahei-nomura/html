@@ -41,6 +41,8 @@ class N2_Setpost {
 		add_filter( 'enter_title_here', array( $this, 'change_title' ) );
 		add_action( "wp_ajax_{$this->cls}", array( $this, 'ajax' ) );
 		add_action( "wp_ajax_{$this->cls}_image", array( $this, 'ajax_imagedata' ) );
+		add_filter( 'intermediate_image_sizes_advanced', array( $this, 'not_create_image' ) );
+		add_filter( 'wp_handle_upload', array( $this, 'image_compression' ) );
 	}
 
 	/**
@@ -389,5 +391,49 @@ class N2_Setpost {
 		);
 
 		die();
+	}
+
+	/**
+	 * 画像アップロード時不要なサイズの自動生成をストップ
+	 *
+	 * @param Array $sizes デフォルトサイズ
+	 * @return Array $sizes 加工後
+	 */
+	public function not_create_image( $sizes ) {
+		unset( $sizes['medium'] );
+		unset( $sizes['large'] );
+		unset( $sizes['medium_large'] );
+		unset( $sizes['1536x1536'] );
+		unset( $sizes['2048x2048'] );
+		return $sizes;
+	}
+
+	/**
+	 * 画像アップロード時に自動圧縮
+	 *
+	 * @param Array $image_data アップロード画像データ
+	 * @return Array $image_data 上に同じ
+	 */
+	public function image_compression( $image_data ) {
+		$imagick  = new Imagick( $image_data['file'] );
+		// 写真拡張子取得
+		$file_extension = pathinfo( $image_data['file'], PATHINFO_EXTENSION );
+		$max_size       = 2000;
+
+		// width heightリサイズ
+		if ( $imagick->getImageGeometry()['width'] > $max_size || $imagick->getImageGeometry()['height'] > $max_size ) {
+			$imagick->scaleImage( $max_size, $max_size, true );
+		}
+
+		// png
+		if ( 'png' === $file_extension ) {
+			exec( "pngquant --ext .png {$image_data['file']} --force --quality 50-80" );
+		} else {
+		// jpg
+			$imagick->setImageCompressionQuality( 80 );
+			$imagick->writeImage( $image_data['file'] );
+		}
+
+		return $image_data;
 	}
 }
