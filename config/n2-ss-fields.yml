@@ -1,0 +1,53 @@
+# ===================================================
+
+# デフォルトカスタムフィールド(SS管理)
+
+# ******* 記述法 ********
+# type:text,textarea,checkbox,selectのいずれかを指定
+# description:タイトル下の説明文（改行は<br>を書く）
+# maxlength:文字数制限
+# option:selectとcheckboxの選択肢を指定
+# default:text,textareaのデフォルト値を指定
+# placeholder:text,textareaのplaceholderを指定
+
+# ===================================================
+
+# 共通:
+
+返礼品コード:
+    type: text
+
+LH表示名:
+    type: text
+
+寄附金額:
+    type: number
+    step: 1000
+    validation: 0以外
+
+# 固定のため変更不可
+全商品ディレクトリID:
+    type: rakuten_genreid
+    description: 楽天登録に必要なディレクトリIDを１つ選択してください。
+    validation: 必須
+
+# 固定のため変更不可
+タグID:
+    type: rakuten_tagid
+    description: 楽天登録に必要なタグを複数選択します。
+    validation: 必須
+
+# 固定のため変更不可
+楽天カテゴリー:
+    type: rakuten_category
+    description: 当てはまるカテゴリーを選択すると、下の入力欄に反映されます。複数選択する場合は、続けてカテゴリー一覧から選ぶと追記されます。
+    validation: 必須
+
+検索キーワード:
+    type: text
+    default: '検索キーワード:'
+    validation: 必須
+
+社内共有事項:
+    type: textarea
+    description: この商品に関して社内共有すべきことがあればここに記入。
