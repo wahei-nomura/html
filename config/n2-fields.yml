@@ -163,7 +163,7 @@
     option :
         '': 未選択
 
-画像:
+商品画像:
     type : image
     description : 画像を複数選択、またはアプロードしてください。
 
