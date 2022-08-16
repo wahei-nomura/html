@@ -55,10 +55,8 @@ export default () => {
 				// p要素に進捗状況を表示
 				if( e.lengthComputable ) {
 					dlper = Math.floor((e.loaded / e.total) * 100) + "%";
-					dlfontsize = Math.floor((e.loaded / e.total) * 3) + "em";
 					text_loading.textContent = "ダウンロード中… " + dlper;
-					$('#text_loading').css({'width':dlper, 'font-size':dlfontsize});
-					console.log(dlfontsize);
+					$('.progressbar').css('width',dlper);
 				} else {
 					text_loading.textContent = "読み込み中";
 				}
@@ -67,7 +65,7 @@ export default () => {
 				if (xhr.readyState === 4 && xhr.status === 200){
 					$('.not-click').removeClass("not-click"); 
 					text_loading.textContent = "";
-					$('#text_loading').css('width', dlper);
+					$('.progressbar').css('width', dlper);
 				}
 			}
 		}
