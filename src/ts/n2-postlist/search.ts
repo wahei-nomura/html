@@ -53,5 +53,12 @@ export default () => {
 				`<label style="float:left"><input name="or" value="1" type="checkbox" ${checked}>OR検索</label>`
 			)
 		);
+
+		// 事業者絞り込みコンボボックス
+		$('#jigyousya-list-tag').on('change', e => {
+			const id=$(`#jigyousya-list option[value="${$(e.target).val()}"]`).data('id')
+			$('#jigyousya-value').val(id)
+		})
+
 	});
 };

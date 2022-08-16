@@ -237,21 +237,30 @@ class N2_Postlist {
 		}
 
 		global $wpdb;
-		// 事業者検索
-		$users_sql     = "SELECT * FROM $wpdb->users ;";
-		$users_results = $wpdb->get_results( $users_sql );
-		echo '<select name="事業者">';
-		echo '<option value="">事業者</option>';
+		// 事業者検索 ===============================================================
+		$users_sql        = "SELECT * FROM $wpdb->users ;";
+		$users_results    = $wpdb->get_results( $users_sql );
+		$show_author      = '';
+		$get_jigyousya_id = filter_input( INPUT_GET, '事業者', FILTER_VALIDATE_INT );
+
+		// datalist生成
+		echo '<datalist id="jigyousya-list">';
 		foreach ( $users_results as $row ) {
-			$author_id     = (int) $row->ID;
-			$author_name   = $row->display_name;
-			$get_jigyousya = filter_input( INPUT_GET, '事業者', FILTER_VALIDATE_INT );
-			$selected      = selected( $author_id, $get_jigyousya, false );
+			$author_id   = (int) $row->ID;
+			$author_name = $row->display_name;
+			if ( $author_id === $get_jigyousya_id ) {
+				$show_author = $author_name;
+			}
 			if ( '' !== $author_name ) {
-				echo "<option value='{$author_id}'{$selected}>{$author_name}</option>";
+				echo "<option value='{$author_name}' data-id='{$author_id}'>";
 			}
 		}
-		echo '</select>';
+		echo '</datalist>';
+
+		// 表示用と送信用にinput生成
+		echo "<input type='text' name='' id='jigyousya-list-tag' list='jigyousya-list' value='{$show_author}'>";
+		echo '<input id="jigyousya-value" type="hidden" name="事業者" value="">';
+		// ここまで事業者 ===========================================================
 
 		// 返礼品コード検索
 		echo '<select name="返礼品コード[]" multiple>';
