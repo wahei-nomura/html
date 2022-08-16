@@ -28,11 +28,6 @@ export default () => {
 			const data = new FormData();
 			data.append("id", id);
 			const xhr = new XMLHttpRequest();
-			xhr.onreadystatechange = ()=>{
-				if (xhr.readyState === 4){
-					$('.not-click').removeClass("not-click"); 
-				}
-			}
 			xhr.open("POST", url + "?action=" + action, true);
 			xhr.responseType = "blob";
 			xhr.onload = function (e) {
@@ -51,6 +46,29 @@ export default () => {
 				a.remove();
 			};
 			xhr.send(data);
+			downloadProgress(xhr);
+		}		
+		function downloadProgress(xhr){
+			var dlper = 0;
+			xhr.addEventListener('progress', (e) => {
+				// p要素に進捗状況を表示
+				if( e.lengthComputable ) {
+					dlper = Math.floor((e.loaded / e.total) * 100) + "%";
+					text_loading.textContent = "ダウンロード中… " + dlper;
+					$('#text_loading').css('width',dlper);
+					console.log(Math.floor((e.loaded / e.total) * 100) + "%");
+				} else {
+					text_loading.textContent = "読み込み中";
+					console.log("読み込み中");
+				}
+			});
+			xhr.onreadystatechange = ()=>{
+				if (xhr.readyState === 4 && xhr.status === 200){
+					$('.not-click').removeClass("not-click"); 
+					text_loading.textContent = "";
+					$('#text_loading').css('width', dlper);
+				}
+			}
 		}
 	});
 };

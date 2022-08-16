@@ -103,7 +103,7 @@ tbody#the-list>tr>td {
 				bottom: 0;
 				left: 0;
 				right: 0;
-				height: 1em;
+				height: 2em;
 				background-color: #c80000;
 				background-image: -webkit-gradient(linear, 0 0, 100% 100%,color-stop(.25, #930000), color-stop(.25, transparent),color-stop(.5, transparent), color-stop(.5, #930000),color-stop(.75, #930000), color-stop(.75, transparent),to(transparent));
 				background-size: 70px 70px;
@@ -123,4 +123,38 @@ tbody#the-list>tr>td {
 	0%{color: white;}
 	50%{color: rgba(255,255,255,.5);}
 	100%{color: white;}
+}
+.loading_background {
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	background: rgba(255,255,255,.5);
+	top: 0;
+	left: 0;
+	display: flex;
+	align-items: center;
+	pointer-events: none;
+	user-select: none;
+	display: none;
+	z-index: 999;
+	.not-click &{
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+	#text_loading{
+		display: block;
+		color: #000;
+		width: 0%;
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		font-size: 3em;
+		background-color: #c80000;
+		background-image: -webkit-gradient(linear, 0 0, 100% 100%,color-stop(.25, #930000), color-stop(.25, transparent),color-stop(.5, transparent), color-stop(.5, #930000),color-stop(.75, #930000), color-stop(.75, transparent),to(transparent));
+		background-size: 70px 70px;
+		text-align: center;
+		animation: bg 1s linear infinite;
+	}
 }
