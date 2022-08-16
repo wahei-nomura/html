@@ -304,6 +304,9 @@ class N2_Postlist {
 			echo "<option value='{$i}'{$selected}>{$text}</option>";
 		}
 		echo '</select>';
+
+		// クリアボタン
+		echo '<button id="ss-search-clear" type="button">条件クリア</button>';
 	}
 
 	/**

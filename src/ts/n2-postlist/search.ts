@@ -58,5 +58,12 @@ export default () => {
 			changeItemcode();
 		})
 
+		// 条件クリアボタン
+		$('#ss-search-clear').on('click', () => {
+			$('#posts-filter .actions select[name="ステータス"] option:selected').prop('selected', false)
+			$('#posts-filter .actions select[name="定期便"] option:selected').prop('selected',false)
+			$('#posts-filter .actions input[name="事業者"], #jigyousya-list-tag').val('')
+		})
+
 	});
 };
