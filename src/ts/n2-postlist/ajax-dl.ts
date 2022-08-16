@@ -52,7 +52,6 @@ export default () => {
 			var dlper = 0;
 			var dlfontsize = 0;
 			xhr.addEventListener('progress', (e) => {
-				// p要素に進捗状況を表示
 				if( e.lengthComputable ) {
 					dlper = Math.floor((e.loaded / e.total) * 100) + "%";
 					text_loading.textContent = "ダウンロード中… " + dlper;
