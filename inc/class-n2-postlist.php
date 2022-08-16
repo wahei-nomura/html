@@ -258,8 +258,8 @@ class N2_Postlist {
 		echo '</datalist>';
 
 		// 表示用と送信用にinput生成
-		echo "<input type='text' name='' id='jigyousya-list-tag' list='jigyousya-list' value='{$show_author}'>";
-		echo '<input id="jigyousya-value" type="hidden" name="事業者" value="">';
+		echo "<input type='text' name='' id='jigyousya-list-tag' list='jigyousya-list' value='{$show_author}' placeholder='事業者入力'>";
+		echo "<input id='jigyousya-value' type='hidden' name='事業者' value='{$get_jigyousya_id}'>";
 		// ここまで事業者 ===========================================================
 
 		// 返礼品コード検索
