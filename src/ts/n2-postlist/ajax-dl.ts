@@ -5,6 +5,7 @@ export default () => {
 	jQuery(function ($) {
 		$(".dlbtn").on("click", (e) => {
 			$(e.target).addClass("not-click"); // クリックと同時にclass付けて二重クリックできないようにする
+			text_loading.textContent = "登録画像確認中… ";
 			const btnName = $(e.target).attr("id");
 			e.preventDefault();
 			download(ajaxUrl(window), btnName, getIds());
