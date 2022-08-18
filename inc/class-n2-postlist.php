@@ -126,7 +126,7 @@ class N2_Postlist {
 			}
 		}
 
-		$image        = ! empty( $post_data['画像'] ) ? "<img class='n2-postlist-imgicon' src='{$post_data['画像'][0]}'>" : 'なし';
+		$image        = ! empty( $post_data['商品画像'] ) ? "<img class='n2-postlist-imgicon' src='{$post_data['商品画像'][0]}'>" : 'なし';
 		$money        = ! empty( $post_data['寄附金額'] ) ? $post_data['寄附金額'] : 0;
 		$poster       = ! empty( $post_data['post_author'] ) ? get_userdata( $post->post_author )->display_name : '';
 		$code         = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '';
