@@ -109,7 +109,7 @@ class N2_Setpost {
 	public function add_customfields() {
 
 		$ss_fields      = yaml_parse_file( get_template_directory() . '/config/n2-ss-fields.yml' );
-		$default_fields = yaml_parse_file( get_template_directory() . '/config/n2-fields.yml' );
+		$default_fields = $this->get_notportal( yaml_parse_file( get_template_directory() . '/config/n2-fields.yml' ) );
 
 		// 既存のフィールドの位置を変更したい際にプラグイン側からフィールドを削除するためのフック
 		list($ss_fields,$default_fields) = apply_filters( 'n2_setpost_delete_customfields', array( $ss_fields, $default_fields ) );
@@ -415,7 +415,7 @@ class N2_Setpost {
 	 * @return Array $image_data 上に同じ
 	 */
 	public function image_compression( $image_data ) {
-		$imagick  = new Imagick( $image_data['file'] );
+		$imagick = new Imagick( $image_data['file'] );
 		// 写真拡張子取得
 		$file_extension = pathinfo( $image_data['file'], PATHINFO_EXTENSION );
 		$max_size       = 2000;
@@ -429,11 +429,29 @@ class N2_Setpost {
 		if ( 'png' === $file_extension ) {
 			exec( "pngquant --ext .png {$image_data['file']} --force --quality 50-80" );
 		} else {
-		// jpg
+			// jpg
 			$imagick->setImageCompressionQuality( 80 );
 			$imagick->writeImage( $image_data['file'] );
 		}
 
 		return $image_data;
+	}
+
+	/**
+	 * 有効化してあるポータルサイトプラグインによって出品禁止ポータルフィールドに選択肢を自動追加
+	 *
+	 * @param Array $fields fields
+	 * @return Array $fields fields
+	 */
+	private function get_notportal( $fields ) {
+		$plugins = get_plugins();
+		foreach ( $plugins as $path => $plugin ) {
+			if ( is_plugin_active( $path ) && 'N2のポータル拡張プラグイン' === $plugin['Description'] ) {
+				$portal_name = trim( preg_replace( '/\[ N2 \]/', '', $plugin['Name'] ) );
+				$fields['出品禁止ポータル']['option'][ $portal_name ] = $portal_name;
+			}
+		}
+
+		return $fields;
 	}
 }
