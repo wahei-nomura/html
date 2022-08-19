@@ -416,7 +416,7 @@ class N2_Setpost {
 	 * @return Array $image_data 上に同じ
 	 */
 	public function image_compression( $image_data ) {
-		$imagick  = new Imagick( $image_data['file'] );
+		$imagick = new Imagick( $image_data['file'] );
 		// 写真拡張子取得
 		$file_extension = pathinfo( $image_data['file'], PATHINFO_EXTENSION );
 		$max_size       = 2000;
@@ -430,7 +430,7 @@ class N2_Setpost {
 		if ( 'png' === $file_extension ) {
 			exec( "pngquant --ext .png {$image_data['file']} --force --quality 50-80" );
 		} else {
-		// jpg
+			// jpg
 			$imagick->setImageCompressionQuality( 80 );
 			$imagick->writeImage( $image_data['file'] );
 		}
