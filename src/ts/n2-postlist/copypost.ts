@@ -7,18 +7,19 @@ export default () => {
 	 * 
 	================================================================== */
 	jQuery(function ($) {
-		const createCopyPost = (id: number): void => {
+		const createCopyPost = (id: number,setData): void => {
 			$.ajax({
 				type: "POST",
 				url: ajaxUrl(window),
 				data: {
 					action: "N2_Copypost",
 					original_id: id,
+					set_data: setData,
 				},
 			})
 				.done((res) => {
 					alert(`「${res}」を複製しました`);
-					location.reload();
+					// location.reload();
 				})
 				.fail((error) => {
 					console.log(error);
@@ -27,14 +28,33 @@ export default () => {
 		};
 
 		$(`.${prefix}-copypost-btn`).on("click", (e) => {
+			const itemTr = $(e.target).parent().parent();
 			const originalId: number = Number(
-				$(e.target)
-					.parent()
-					.parent()
-					.find("th.check-column input")
-					.val()
+				itemTr.find("th.check-column input").val()
 			);
-			createCopyPost(originalId);
+			const itemTitle = itemTr.find(".item-title a").text();
+			// createCopyPost(originalId);
+			openModal(originalId, itemTitle);
+		});
+
+		const openModal = (id, title) => {
+			// テンプレートディレクトリからHTMLをロード
+			$("#wpbody-content").append(`<div id="${prefix}-content"></div>`);
+			$(`#${prefix}-content`).load(
+				neoNengPath(window) + "/template/copy-post.html",
+				() => {
+					$("#n2-copypost-modal p").text(title);
+					$("#n2-copypost-modal input[name='id']").val(id);
+				}
+			);
+		};
+
+		$("body").on("click", "#n2-copypost-modal button", () => {
+			const setData={
+				teiki: $('select[name="定期"] option:selected').val()
+			}
+
+			createCopyPost(Number($("#n2-copypost-modal input[name='id']").val()),setData);
 		});
 	});
 };
