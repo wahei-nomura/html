@@ -43,6 +43,7 @@ class N2_Setpost {
 		add_action( "wp_ajax_{$this->cls}_image", array( $this, 'ajax_imagedata' ) );
 		add_filter( 'intermediate_image_sizes_advanced', array( $this, 'not_create_image' ) );
 		add_filter( 'wp_handle_upload', array( $this, 'image_compression' ) );
+		add_filter( 'post_link', array( $this, 'set_post_paermalink' ), 10, 3 );
 	}
 
 	/**
@@ -435,5 +436,19 @@ class N2_Setpost {
 		}
 
 		return $image_data;
+	}
+
+	/**
+	 * 投稿パーマリンクをid=○○にする
+	 *
+	 * @param string $url url
+	 * @param Object $post post
+	 * @param string $leavename false
+	 * @return string $url url
+	 */
+	public function set_post_paermalink( $url, $post, $leavename = false ) {
+
+		return 'post' === $post->post_type ? home_url( '?p=' . $post->ID ) : $url;
+
 	}
 }
