@@ -24,10 +24,9 @@
 			<p>事業者HP</p>
 			<a href="">あり</a> <a href="">なし</a>
 			<p>ポータルサイト</p>
-			<label for="rakuten"><input type="checkbox" name="rakuten" id="rakuten">楽天</label>
-			<label for="choice"><input type="checkbox" name="choice" id="choice">チョイス</label>
-			<label for="furunavi"><input type="checkbox" name="furunavi" id="furunavi">ふるなび</label>
-			<p>カテゴリー</p>
+			<label for="rakuten"><input type="checkbox" name="portalsite[]" id="rakuten" class="portalsite" checked="checked">楽天</label>
+			<label for="choice"><input type="checkbox" name="portalsite[]" id="choice" class="portalsite" checked="checked">チョイス</label>
+			<label for="furunavi"><input type="checkbox" name="portalsite[]" id="furunavi" class="portalsite" checked="checked">ふるなび</label>
 		</section>
 		<section class="product-list-wrap">
 			<?php 
@@ -55,6 +54,7 @@
 						$wp_query->the_post();
 						$meta_pic_arr = get_post_meta( get_the_ID(), '商品画像', true );
 						$post_status = get_post_status();
+						// var_dump(get_post_meta(get_the_ID(), '出品禁止ポータル', true));
 				?>
 				<li class="<?php echo $post_status; ?>">
 				<a href="<?php the_permalink(); ?>">

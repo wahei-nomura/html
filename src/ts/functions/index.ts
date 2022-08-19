@@ -16,3 +16,8 @@ export const neoNengPath = (window): string => {
 export const ajaxUrl = (window): string => {
 	return window.tmp_path.ajax_url;
 };
+
+// PHPからWordpressのトップパスを受け取っている
+export const homeUrl = (window): string => {
+	return window.tmp_path.home_url;
+};

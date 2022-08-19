@@ -10,13 +10,13 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./src/scss/front-test.scss":
-/*!**********************************!*\
-  !*** ./src/scss/front-test.scss ***!
-  \**********************************/
+/***/ "./src/scss/front.scss":
+/*!*****************************!*\
+  !*** ./src/scss/front.scss ***!
+  \*****************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-eval("__webpack_require__.r(__webpack_exports__);\n// extracted by mini-css-extract-plugin\n\n\n//# sourceURL=webpack://neo-neng/./src/scss/front-test.scss?");
+eval("__webpack_require__.r(__webpack_exports__);\n// extracted by mini-css-extract-plugin\n\n\n//# sourceURL=webpack://neo-neng/./src/scss/front.scss?");
 
 /***/ }),
 
@@ -26,7 +26,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n// extracted by mini-css-extr
   \*************************/
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
-eval("\nvar __importDefault = (this && this.__importDefault) || function (mod) {\n    return (mod && mod.__esModule) ? mod : { \"default\": mod };\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\n__webpack_require__(/*! ../scss/front-test.scss */ \"./src/scss/front-test.scss\");\nvar n2_front_1 = __importDefault(__webpack_require__(/*! ./n2-front */ \"./src/ts/n2-front/index.ts\"));\n(0, n2_front_1.default)();\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/front.ts?");
+eval("\nvar __importDefault = (this && this.__importDefault) || function (mod) {\n    return (mod && mod.__esModule) ? mod : { \"default\": mod };\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\n__webpack_require__(/*! ../scss/front.scss */ \"./src/scss/front.scss\");\nvar n2_front_1 = __importDefault(__webpack_require__(/*! ./n2-front */ \"./src/ts/n2-front/index.ts\"));\n(0, n2_front_1.default)();\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/front.ts?");
 
 /***/ }),
 
@@ -36,7 +36,7 @@ eval("\nvar __importDefault = (this && this.__importDefault) || function (mod) {
   \***********************************/
 /***/ ((__unused_webpack_module, exports) => {
 
-eval("\n/**\n * 複数ファイルで使いまわしたい変数や関数があればここに\n *\n * 読み込むファイルではimport { prefix, neoNengPath, ajaxUrl } from '../n2-functions/index'を記載\n */\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.ajaxUrl = exports.neoNengPath = exports.prefix = void 0;\n// クラス名にプレフィックスを付けてるところがある\nexports.prefix = \"neo-neng\";\n// PHPからこのテーマのディレクトリパスを受けとっている\nvar neoNengPath = function (window) {\n    return window.tmp_path.tmp_url;\n};\nexports.neoNengPath = neoNengPath;\n// wp_ajax用のパスを受け取っている\nvar ajaxUrl = function (window) {\n    return window.tmp_path.ajax_url;\n};\nexports.ajaxUrl = ajaxUrl;\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/functions/index.ts?");
+eval("\n/**\n * 複数ファイルで使いまわしたい変数や関数があればここに\n *\n * 読み込むファイルではimport { prefix, neoNengPath, ajaxUrl } from '../n2-functions/index'を記載\n */\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.homeUrl = exports.ajaxUrl = exports.neoNengPath = exports.prefix = void 0;\n// クラス名にプレフィックスを付けてるところがある\nexports.prefix = \"neo-neng\";\n// PHPからこのテーマのディレクトリパスを受けとっている\nvar neoNengPath = function (window) {\n    return window.tmp_path.tmp_url;\n};\nexports.neoNengPath = neoNengPath;\n// wp_ajax用のパスを受け取っている\nvar ajaxUrl = function (window) {\n    return window.tmp_path.ajax_url;\n};\nexports.ajaxUrl = ajaxUrl;\n// PHPからWordpressのトップパスを受け取っている\nvar homeUrl = function (window) {\n    return window.tmp_path.home_url;\n};\nexports.homeUrl = homeUrl;\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/functions/index.ts?");
 
 /***/ }),
 
@@ -46,7 +46,7 @@ eval("\n/**\n * 複数ファイルで使いまわしたい変数や関数があ�
   \***************************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nvar index_1 = __webpack_require__(/*! ../functions/index */ \"./src/ts/functions/index.ts\");\nexports[\"default\"] = (function () {\n    /** ===============================================================\n     *\n     * 寄附金額計算\n     *\n    ================================================================== */\n    jQuery(function ($) {\n        // 計算パターンを受け取ってから処理\n        console.log(\"ajaxtest2\");\n        $.ajax({\n            url: (0, index_1.ajaxUrl)(window),\n            // url: \"https://ore.steamship.co.jp/wp/kawatana/wp-admin/admin-ajax.php\",\n            data: {\n                action: \"SS_Portal_Scraper\",\n                id: \"FBM003\",\n                town: \"yoshinogari\",\n            },\n        }).done(function (res) {\n            var data = JSON.parse(res);\n            console.log(data);\n        });\n        // ここまで寄附金額計算 ==============================================================================================================================\n    });\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/n2-front/front-ajax.ts?");
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nvar index_1 = __webpack_require__(/*! ../functions/index */ \"./src/ts/functions/index.ts\");\nexports[\"default\"] = (function () {\n    /** ===============================================================\n     *\n     * フロントページajax関連\n     *\n    ================================================================== */\n    jQuery(function ($) {\n        // 計算パターンを受け取ってから処理\n        var siteHomeUrl = (0, index_1.homeUrl)(window) + '/'; // locationと合わせるため'/'追加\n        var nowUrl = location.href;\n        var scrapingItem = function () {\n            $.ajax({\n                url: (0, index_1.ajaxUrl)(window),\n                data: {\n                    action: \"SS_Portal_Scraper\",\n                    id: \"FBM003\",\n                    town: \"yoshinogari\",\n                },\n            }).done(function (res) {\n                var data = JSON.parse(res);\n                console.log(data);\n            });\n        };\n        var searchFrontItem = function () {\n            console.log($('input[name=\"portalsite\"]').val());\n            $.ajax({\n                url: (0, index_1.ajaxUrl)(window),\n                data: {\n                    action: \"N2_Front\",\n                    portalsitecheck: $('input[name=\"portalsite\"]').val(),\n                },\n            }).done(function (res) {\n                var data = JSON.parse(res);\n                console.log(data);\n            });\n        };\n        if (nowUrl !== siteHomeUrl) { // トップページでない(=single)場合にスクレイピング\n            scrapingItem();\n        }\n        else {\n            console.log('test1');\n            searchFrontItem();\n            $('.portalsite').on(\"change\", function () {\n                searchFrontItem();\n            });\n        }\n    });\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/n2-front/front-ajax.ts?");
 
 /***/ }),
 
