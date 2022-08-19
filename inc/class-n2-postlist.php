@@ -77,7 +77,8 @@ class N2_Postlist {
 			$columns = array_merge(
 				$columns,
 				array(
-					'ssmemo' => 'SSメモ',
+					'ssmemo'    => 'SSメモ',
+					'copy-post' => '複製',
 				)
 			);
 		}
@@ -150,7 +151,7 @@ class N2_Postlist {
 
 		switch ( $column_name ) {
 			case 'item-title':
-				echo "<div><a href='{$post_url}'>{$title}</a><button type='button' class='copypost-btn'>テスト用</button></div>";
+				echo "<div><a href='{$post_url}'>{$title}</a>";
 				break;
 			case 'poster':
 				echo "<div>{$poster}</div>";
@@ -172,6 +173,9 @@ class N2_Postlist {
 				break;
 			case 'ssmemo':
 				echo "<div class='{$ssmemo_isset}'><p>{$ssmemo}</p></div>";
+				break;
+			case 'copy-post':
+				echo "<button type='button' class='neo-neng-copypost-btn'>複製</button></div>";
 				break;
 		}
 	}

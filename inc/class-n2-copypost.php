@@ -39,14 +39,26 @@ class N2_Copypost {
 	 * @return void
 	 */
 	public function copy_create_post() {
-		$post = array(
-			'post_title'  => '複製テスト',
+		// 複製元の返礼品情報取得
+		$post          = get_post( filter_input( INPUT_POST, 'original_id', FILTER_VALIDATE_INT ) );
+		$post_all_meta = N2_Functions::get_all_meta( $post );
+
+		// 新しい返礼品情報設定
+		$new_post = array(
+			'post_title'  => get_the_title( $post ),
 			'post_status' => 'draft',
-			'post_author' => 'admin',
+			'post_author' => get_userdata( $post->post_author )->ID,
 		);
 
-		$newpost_id = wp_insert_post( $post );
-		echo $newpost_id;
+		// 作成
+		$newpost_id = wp_insert_post( $new_post );
+
+		// metaを上書き
+		foreach ( $post_all_meta as $key => $value ) {
+			update_post_meta( $newpost_id, $key, $value );
+		}
+
+		echo get_the_title( get_post( $newpost_id ) );
 		die();
 	}
 }

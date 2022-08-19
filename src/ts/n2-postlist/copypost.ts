@@ -7,24 +7,34 @@ export default () => {
 	 * 
 	================================================================== */
 	jQuery(function ($) {
-
-		const createCopyPost = (): void => {
+		const createCopyPost = (id: number): void => {
 			$.ajax({
 				type: "POST",
 				url: ajaxUrl(window),
 				data: {
 					action: "N2_Copypost",
-					post_data: '',
+					original_id: id,
 				},
-			}).done((res) => {
-				const data = JSON.parse(res);
-				console.log(data);
-				alert(data);
-			});
+			})
+				.done((res) => {
+					alert(`「${res}」を複製しました`);
+					location.reload();
+				})
+				.fail((error) => {
+					console.log(error);
+					alert("複製に失敗しました");
+				});
 		};
 
-		$('.copypost-btn').on('click', e => {
-			createCopyPost()
-		})
+		$(`.${prefix}-copypost-btn`).on("click", (e) => {
+			const originalId: number = Number(
+				$(e.target)
+					.parent()
+					.parent()
+					.find("th.check-column input")
+					.val()
+			);
+			createCopyPost(originalId);
+		});
 	});
 };
