@@ -60,13 +60,23 @@ eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nvar 
 
 /***/ }),
 
+/***/ "./src/ts/n2-postlist/copypost.ts":
+/*!****************************************!*\
+  !*** ./src/ts/n2-postlist/copypost.ts ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nvar index_1 = __webpack_require__(/*! ../functions/index */ \"./src/ts/functions/index.ts\");\nexports[\"default\"] = (function () {\n    /** ===============================================================\n     *\n     * 投稿複製用\n     *\n    ================================================================== */\n    jQuery(function ($) {\n        var createCopyPost = function () {\n            $.ajax({\n                type: \"POST\",\n                url: (0, index_1.ajaxUrl)(window),\n                data: {\n                    action: \"N2_Copypost\",\n                    post_data: '',\n                },\n            }).done(function (res) {\n                var data = JSON.parse(res);\n                console.log(data);\n                alert(data);\n            });\n        };\n        $('.copypost-btn').on('click', function (e) {\n            createCopyPost();\n        });\n    });\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/n2-postlist/copypost.ts?");
+
+/***/ }),
+
 /***/ "./src/ts/n2-postlist/index.ts":
 /*!*************************************!*\
   !*** ./src/ts/n2-postlist/index.ts ***!
   \*************************************/
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
-eval("\nvar __importDefault = (this && this.__importDefault) || function (mod) {\n    return (mod && mod.__esModule) ? mod : { \"default\": mod };\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nvar ajax_1 = __importDefault(__webpack_require__(/*! ./ajax */ \"./src/ts/n2-postlist/ajax.ts\"));\nvar search_1 = __importDefault(__webpack_require__(/*! ./search */ \"./src/ts/n2-postlist/search.ts\"));\nexports[\"default\"] = (function () {\n    (0, ajax_1.default)();\n    (0, search_1.default)();\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/n2-postlist/index.ts?");
+eval("\nvar __importDefault = (this && this.__importDefault) || function (mod) {\n    return (mod && mod.__esModule) ? mod : { \"default\": mod };\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nvar ajax_1 = __importDefault(__webpack_require__(/*! ./ajax */ \"./src/ts/n2-postlist/ajax.ts\"));\nvar search_1 = __importDefault(__webpack_require__(/*! ./search */ \"./src/ts/n2-postlist/search.ts\"));\nvar copypost_1 = __importDefault(__webpack_require__(/*! ./copypost */ \"./src/ts/n2-postlist/copypost.ts\"));\nexports[\"default\"] = (function () {\n    (0, ajax_1.default)();\n    (0, search_1.default)();\n    (0, copypost_1.default)();\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/n2-postlist/index.ts?");
 
 /***/ }),
 

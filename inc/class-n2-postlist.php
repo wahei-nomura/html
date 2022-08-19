@@ -150,7 +150,7 @@ class N2_Postlist {
 
 		switch ( $column_name ) {
 			case 'item-title':
-				echo "<div><a href='{$post_url}'>{$title}</a></div>";
+				echo "<div><a href='{$post_url}'>{$title}</a><button type='button' class='copypost-btn'>テスト用</button></div>";
 				break;
 			case 'poster':
 				echo "<div>{$poster}</div>";
