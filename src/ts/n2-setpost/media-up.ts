@@ -82,6 +82,13 @@ export default () => {
 
 					customUploader.open();
 
+					$(".media-button").on("click", (e) => {
+						alert("押した");
+						console.log(
+							$(".attachments-wrapper li")
+						);
+					});
+
 					// 画像選択時にHTML生成
 					customUploader.on("select", () => {
 						parent.find(`.${prefix}-image-block`).remove();
