@@ -29,7 +29,7 @@ export default () => {
 				url: ajaxUrl(window),
 				data: {
 					action: "N2_Front",
-					portalsitecheck: $('input[name="portalsite"]').val(),
+					// portalsitecheck: $('input[name="portalsite"]').val(),
 				},
 			}).done((res) => {
 				const data = JSON.parse(res);
@@ -39,7 +39,7 @@ export default () => {
 		if( nowUrl !== siteHomeUrl ){ // トップページでない(=single)場合にスクレイピング
 			scrapingItem();
 		}else{
-			console.log('test1');
+			console.log('test2');
 			searchFrontItem();
 			$('.portalsite').on("change", () => {
 				searchFrontItem();

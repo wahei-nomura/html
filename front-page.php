@@ -7,17 +7,19 @@
 
 ?>
 <?php get_header(); ?>
+	<div class="dn" style="display:none;">
 	<article class="product-wrap">
 		<section class="product-sidebar">
+			<form method="get">
 			<p>【探す】</p>
-			<input type="text" placeholder="キーワードを入力">
+			<input type="text" name="s" placeholder="キーワードを入力">
 			<p>金額</p>
 			<select name="price" id="">
 				<option value="1">0〜5,000</option>
-				<option value="1">5,001〜10,000</option>
-				<option value="1">10,001〜50,000</option>
-				<option value="1">50,001〜100,000</option>
-				<option value="1">100,001〜</option>
+				<option value="2">5,001〜10,000</option>
+				<option value="3">10,001〜50,000</option>
+				<option value="4">50,001〜100,000</option>
+				<option value="5">100,001〜</option>
 			</select>
 			<p>登録日</p>
 			<a href="">新しい順</a> <a href="">古い順</a>
@@ -27,6 +29,10 @@
 			<label for="rakuten"><input type="checkbox" name="portalsite[]" id="rakuten" class="portalsite" checked="checked">楽天</label>
 			<label for="choice"><input type="checkbox" name="portalsite[]" id="choice" class="portalsite" checked="checked">チョイス</label>
 			<label for="furunavi"><input type="checkbox" name="portalsite[]" id="furunavi" class="portalsite" checked="checked">ふるなび</label>
+			<div class="front-submit-wrap">
+			<input type="submit" value="絞り込み">
+			</div>
+			</form>
 		</section>
 		<section class="product-list-wrap">
 			<?php 
@@ -86,4 +92,5 @@
 		</section>
 
 	</article>
+	</div><!--dn-->
 <?php get_footer(); ?>
