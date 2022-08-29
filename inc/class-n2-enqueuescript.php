@@ -61,6 +61,7 @@ class N2_Enqueuescript {
 		return array(
 			'tmp_url'  => get_template_directory_uri(),
 			'ajax_url' => admin_url( 'admin-ajax.php' ),
+			'home_url' => home_url(),
 		);
 	}
 }
