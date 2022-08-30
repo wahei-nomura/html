@@ -109,7 +109,7 @@ class N2_Setpost {
 	public function add_customfields() {
 
 		$ss_fields      = yaml_parse_file( get_template_directory() . '/config/n2-ss-fields.yml' );
-		$default_fields = $this->get_notportal( yaml_parse_file( get_template_directory() . '/config/n2-fields.yml' ) );
+		$default_fields = apply_filters( 'n2_setpost_plugin_portal', yaml_parse_file( get_template_directory() . '/config/n2-fields.yml' ) );
 
 		// 既存のフィールドの位置を変更したい際にプラグイン側からフィールドを削除するためのフック
 		list($ss_fields,$default_fields) = apply_filters( 'n2_setpost_delete_customfields', array( $ss_fields, $default_fields ) );
@@ -437,21 +437,4 @@ class N2_Setpost {
 		return $image_data;
 	}
 
-	/**
-	 * 有効化してあるポータルサイトプラグインによって出品禁止ポータルフィールドに選択肢を自動追加
-	 *
-	 * @param Array $fields fields
-	 * @return Array $fields fields
-	 */
-	private function get_notportal( $fields ) {
-		$plugins = get_plugins();
-		foreach ( $plugins as $path => $plugin ) {
-			if ( is_plugin_active( $path ) && 'N2のポータル拡張プラグイン' === $plugin['Description'] ) {
-				$portal_name = trim( preg_replace( '/\[ N2 \]/', '', $plugin['Name'] ) );
-				$fields['出品禁止ポータル']['option'][ $portal_name ] = $portal_name;
-			}
-		}
-
-		return $fields;
-	}
 }
