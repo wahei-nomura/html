@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Require config.php
  */
-require_once get_template_directory() . '/config/config.php';
+require_once get_theme_file_path() . '/config/config.php';
 
 /**
  * Require inc
@@ -33,5 +33,5 @@ $incs = array(
 	'class-n2-front',
 );
 foreach ( $incs as $name ) {
-	require_once get_template_directory() . "/inc/{$name}.php";
+	require_once get_theme_file_path() . "/inc/{$name}.php";
 }
