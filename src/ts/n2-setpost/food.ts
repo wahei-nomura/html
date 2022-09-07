@@ -85,6 +85,21 @@ export default () => {
 					transition: ".3s",
 				});
 			}
+
+			public displaySanchi() {
+				const sanchiBlock = $(
+					'label[for="原料原産地"],label[for="加工地"]'
+				)
+					.parent()
+					.parent();
+
+				sanchiBlock.css({
+					visibility: `${this.food ? "visible" : "hidden"}`,
+					opacity: `${this.food ? 1 : 0}`,
+					height: `${this.food ? "auto" : 0}`,
+					transition: ".3s",
+				});
+			}
 		}
 
 		$.ajax({
@@ -114,6 +129,7 @@ export default () => {
 			foodState.displayAllergenBool();
 			foodState.displayAllergenList();
 			foodState.displayKigen();
+			foodState.displaySanchi();
 
 			// 	checkboxイベント
 			$('input[name="食品確認[]"]').on("change", (e) => {
@@ -130,6 +146,7 @@ export default () => {
 					.val("食品である")
 					.prop("checked");
 				foodState.displayKigen();
+				foodState.displaySanchi();
 				foodState.displayAllergenBool();
 
 				foodState.allergenBool = $(
