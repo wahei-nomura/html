@@ -65,7 +65,7 @@ class N2_Item_Export {
 	public function ledghome() {
 		// itemの情報を配列か
 		$items_arr  = array();
-		$header_data = yaml_parse_file( get_template_directory() . '/config/n2-file-header.yml' );
+		$header_data = yaml_parse_file( get_theme_file_path() . '/config/n2-file-header.yml' );
 
 		// あとでヘッダの上の連結するのに必要
 		$csv_title = $header_data['ledghome']['csv_header']['title'];
