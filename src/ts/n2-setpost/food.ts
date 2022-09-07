@@ -79,7 +79,10 @@ export default () => {
 			},
 		}).done((res) => {
 			// 事業者の食品取り扱いパラメーターが「有」の時のみ新規ページで食品にデフォルトチェック
-			if (JSON.parse(res).food_param === "有" && location.href.match(/post-new\.php/)) {
+			if (
+				JSON.parse(res).food_param === "有" &&
+				location.href.match(/post-new\.php/)
+			) {
 				$('input[name="食品確認[]"]')
 					.val("食品である")
 					.prop("checked", true);
@@ -98,6 +101,15 @@ export default () => {
 
 			// 	checkboxイベント
 			$('input[name="食品確認[]"]').on("change", (e) => {
+				if (
+					!$(e.target).val("食品である").prop("checked") &&
+					!confirm(
+						"このチェックを外すと入力中のアレルギーに関するものが消えますがよろしいですか？"
+					)
+				) {
+					$(e.target).val("食品である").prop("checked",true)
+					return;
+				}
 				allergenState.foodBool = $('input[name="食品確認[]"]')
 					.val("食品である")
 					.prop("checked");

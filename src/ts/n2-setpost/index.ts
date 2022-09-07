@@ -2,12 +2,12 @@ import main from "./main";
 import price from "./price";
 import rakutenTag from "./rakuten-tag";
 import mediaUp from "./media-up";
-import allergen from "./allergen";
+import food from "./food";
 
 export default () => {
 	main();
 	price();
 	rakutenTag();
 	mediaUp();
-	allergen();
+	food();
 };
