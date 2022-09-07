@@ -110,7 +110,7 @@ class N2_Setpost {
 	public function add_customfields() {
 
 		$ss_fields      = yaml_parse_file( get_theme_file_path() . '/config/n2-ss-fields.yml' );
-		$default_fields = yaml_parse_file( get_theme_file_path() . '/config/n2-fields.yml' );
+		$default_fields = apply_filters( 'n2_setpost_plugin_portal', yaml_parse_file( get_theme_file_path() . '/config/n2-fields.yml' ) );
 
 		// 既存のフィールドの位置を変更したい際にプラグイン側からフィールドを削除するためのフック
 		list($ss_fields,$default_fields) = apply_filters( 'n2_setpost_delete_customfields', array( $ss_fields, $default_fields ) );
