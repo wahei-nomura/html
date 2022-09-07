@@ -59,8 +59,9 @@ class N2_Enqueuescript {
 	 */
 	private function get_tmp_path(){
 		return array(
-			'tmp_url'  => get_template_directory_uri(),
+			'tmp_url'  => get_theme_file_uri(),
 			'ajax_url' => admin_url( 'admin-ajax.php' ),
+			'home_url' => home_url(),
 		);
 	}
 }

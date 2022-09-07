@@ -46,7 +46,7 @@ eval("\nvar __importDefault = (this && this.__importDefault) || function (mod) {
   \***********************************/
 /***/ ((__unused_webpack_module, exports) => {
 
-eval("\n/**\n * 複数ファイルで使いまわしたい変数や関数があればここに\n *\n * 読み込むファイルではimport { prefix, neoNengPath, ajaxUrl } from '../n2-functions/index'を記載\n */\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.ajaxUrl = exports.neoNengPath = exports.prefix = void 0;\n// クラス名にプレフィックスを付けてるところがある\nexports.prefix = \"neo-neng\";\n// PHPからこのテーマのディレクトリパスを受けとっている\nvar neoNengPath = function (window) {\n    return window.tmp_path.tmp_url;\n};\nexports.neoNengPath = neoNengPath;\n// wp_ajax用のパスを受け取っている\nvar ajaxUrl = function (window) {\n    return window.tmp_path.ajax_url;\n};\nexports.ajaxUrl = ajaxUrl;\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/functions/index.ts?");
+eval("\n/**\n * 複数ファイルで使いまわしたい変数や関数があればここに\n *\n * 読み込むファイルではimport { prefix, neoNengPath, ajaxUrl } from '../n2-functions/index'を記載\n */\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.homeUrl = exports.ajaxUrl = exports.neoNengPath = exports.prefix = void 0;\n// クラス名にプレフィックスを付けてるところがある\nexports.prefix = \"neo-neng\";\n// PHPからこのテーマのディレクトリパスを受けとっている\nvar neoNengPath = function (window) {\n    return window.tmp_path.tmp_url;\n};\nexports.neoNengPath = neoNengPath;\n// wp_ajax用のパスを受け取っている\nvar ajaxUrl = function (window) {\n    return window.tmp_path.ajax_url;\n};\nexports.ajaxUrl = ajaxUrl;\n// PHPからWordpressのトップパスを受け取っている\nvar homeUrl = function (window) {\n    return window.tmp_path.home_url;\n};\nexports.homeUrl = homeUrl;\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/functions/index.ts?");
 
 /***/ }),
 
