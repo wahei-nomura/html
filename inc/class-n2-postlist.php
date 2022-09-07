@@ -251,7 +251,7 @@ class N2_Postlist {
 			if ( $author_id === $get_jigyousya_id ) {
 				$show_author = $author_name;
 			}
-			if ( '' !== $author_name ) {
+			if ( '' !== $author_name && 'jigyousya' === get_userdata( $author_id )->roles[0] ) {
 				echo "<option value='{$author_name}' data-id='{$author_id}'>";
 			}
 		}
