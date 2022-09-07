@@ -7,7 +7,7 @@ export default () => {
 	 * 
 	================================================================== */
 	jQuery(function ($) {
-		class ControlAllergen {
+		class ControlFood {
 			public food: boolean;
 			public allergen: boolean;
 
@@ -70,6 +70,21 @@ export default () => {
 					$(v).prop("checked", this.allergen && $(v).prop("checked"));
 				});
 			}
+
+			public displayKigen() {
+				const kigenBlock = $(
+					'label[for="賞味期限"],label[for="消費期限"]'
+				)
+					.parent()
+					.parent();
+
+				kigenBlock.css({
+					visibility: `${this.food ? "visible" : "hidden"}`,
+					opacity: `${this.food ? 1 : 0}`,
+					height: `${this.food ? "auto" : 0}`,
+					transition: ".3s",
+				});
+			}
 		}
 
 		$.ajax({
@@ -89,47 +104,49 @@ export default () => {
 			}
 
 			// インスタンス生成
-			const allergenState = new ControlAllergen(
+			const foodState = new ControlFood(
 				$('input[name="食品確認[]"]').val("食品である").prop("checked"),
 				$('input[name="アレルギー有無確認[]"]')
 					.val("アレルギー品目あり")
 					.prop("checked")
 			);
 			// 初期表示
-			allergenState.displayAllergenBool();
-			allergenState.displayAllergenList();
+			foodState.displayAllergenBool();
+			foodState.displayAllergenList();
+			foodState.displayKigen();
 
 			// 	checkboxイベント
 			$('input[name="食品確認[]"]').on("change", (e) => {
 				if (
 					!$(e.target).val("食品である").prop("checked") &&
 					!confirm(
-						"このチェックを外すと入力中のアレルギーに関するものが消えますがよろしいですか？"
+						"このチェックを外すとアレルギーのチェックもリセットされますがよろしいですか？"
 					)
 				) {
-					$(e.target).val("食品である").prop("checked",true)
+					$(e.target).val("食品である").prop("checked", true);
 					return;
 				}
-				allergenState.foodBool = $('input[name="食品確認[]"]')
+				foodState.foodBool = $('input[name="食品確認[]"]')
 					.val("食品である")
 					.prop("checked");
-				allergenState.displayAllergenBool();
+				foodState.displayKigen();
+				foodState.displayAllergenBool();
 
-				allergenState.allergenBool = $(
+				foodState.allergenBool = $(
 					'input[name="アレルギー有無確認[]"]'
 				)
 					.val("アレルギー品目あり")
 					.prop("checked");
-				allergenState.displayAllergenList();
+				foodState.displayAllergenList();
 			});
 
 			$('input[name="アレルギー有無確認[]"]').on("change", (e) => {
-				allergenState.allergenBool = $(
+				foodState.allergenBool = $(
 					'input[name="アレルギー有無確認[]"]'
 				)
 					.val("アレルギー品目あり")
 					.prop("checked");
-				allergenState.displayAllergenList();
+				foodState.displayAllergenList();
 			});
 		});
 	});
