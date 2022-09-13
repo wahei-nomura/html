@@ -31,16 +31,18 @@ class N2_Sync {
 	 * @return void
 	 */
 	public function sync() {
-		$town = 'kawatana';
-		$url  = "https://steamship.co.jp/{$town}/wp-json/wp/v2/posts";
+		global $current_blog;
+		$town = $current_blog->path;
+		$url  = "https://steamship.co.jp{$town}wp-json/wp/v2/posts";
 		// params
 		$params = array(
-			'per_page' => 3,
+			'per_page' => 100,
 			'page'     => 1,
 		);
-		// ページ
+		// トータルページ数（仮）
 		$pages = 1;
-		while ( $params['page'] <= 1 ) {
+		while ( $params['page'] <= $pages ) {
+			// $http_response_header使いたいので鬼教官許して
 			$data    = file_get_contents( "{$url}?" . http_build_query( $params ) );
 			$headers = iconv_mime_decode_headers( implode( "\n", $http_response_header ) );
 			// 合計情報
