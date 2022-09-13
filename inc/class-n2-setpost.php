@@ -41,6 +41,9 @@ class N2_Setpost {
 		add_filter( 'enter_title_here', array( $this, 'change_title' ) );
 		add_action( "wp_ajax_{$this->cls}", array( $this, 'ajax' ) );
 		add_action( "wp_ajax_{$this->cls}_image", array( $this, 'ajax_imagedata' ) );
+		add_filter( 'intermediate_image_sizes_advanced', array( $this, 'not_create_image' ) );
+		add_filter( 'wp_handle_upload', array( $this, 'image_compression' ) );
+		add_filter( 'post_link', array( $this, 'set_post_paermalink' ), 10, 3 );
 	}
 
 	/**
@@ -106,8 +109,8 @@ class N2_Setpost {
 	 */
 	public function add_customfields() {
 
-		$ss_fields      = parse_ini_file( get_template_directory() . '/config/n2-ss-fields.ini', true );
-		$default_fields = parse_ini_file( get_template_directory() . '/config/n2-fields.ini', true );
+		$ss_fields      = yaml_parse_file( get_theme_file_path() . '/config/n2-ss-fields.yml' );
+		$default_fields = apply_filters( 'n2_setpost_plugin_portal', yaml_parse_file( get_theme_file_path() . '/config/n2-fields.yml' ) );
 
 		// 既存のフィールドの位置を変更したい際にプラグイン側からフィールドを削除するためのフック
 		list($ss_fields,$default_fields) = apply_filters( 'n2_setpost_delete_customfields', array( $ss_fields, $default_fields ) );
@@ -152,21 +155,8 @@ class N2_Setpost {
 
 		// プラグインn2-developのn2_setpost_show_customfields呼び出し
 		$fields = apply_filters( 'n2_setpost_show_customfields', $fields, $type );
-
-		// optionを配列化、valueにDBの値をセット
-		// 「,」で配列に分けて、「\」でkey=>valueにわけている
+		// valueにDBの値をセット
 		foreach ( $fields as $key => $field ) {
-			if ( isset( $fields[ $key ]['option'] ) ) {
-				$new_options = array();
-				$options     = explode( ',', $fields[ $key ]['option'] );
-				foreach ( $options as $option ) {
-					$new_options[ explode( '\\', $option )[0] ] = explode( '\\', $option )[1];
-				}
-				$fields[ $key ]['option'] = $new_options;
-			} else {
-				$fields[ $key ]['option'] = '';
-			}
-
 			$fields[ $key ]['value'] = ! empty( $post_data[ $key ] ) ? $post_data[ $key ] : '';
 		}
 
@@ -372,7 +362,7 @@ class N2_Setpost {
 	 */
 	private function delivery_pattern() {
 
-		$pattern = parse_ini_file( get_template_directory() . '/config/n2-delivery.ini', true, INI_SCANNER_TYPED );
+		$pattern = yaml_parse_file( get_theme_file_path() . '/config/n2-delivery.yml' );
 
 		// プラグイン側で上書き
 		$pattern = apply_filters( 'n2_setpost_change_delivary_pattern', $pattern );
@@ -402,5 +392,63 @@ class N2_Setpost {
 		);
 
 		die();
+	}
+
+	/**
+	 * 画像アップロード時不要なサイズの自動生成をストップ
+	 *
+	 * @param Array $sizes デフォルトサイズ
+	 * @return Array $sizes 加工後
+	 */
+	public function not_create_image( $sizes ) {
+		unset( $sizes['medium'] );
+		unset( $sizes['large'] );
+		unset( $sizes['medium_large'] );
+		unset( $sizes['1536x1536'] );
+		unset( $sizes['2048x2048'] );
+		return $sizes;
+	}
+
+	/**
+	 * 画像アップロード時に自動圧縮
+	 *
+	 * @param Array $image_data アップロード画像データ
+	 * @return Array $image_data 上に同じ
+	 */
+	public function image_compression( $image_data ) {
+		$imagick = new Imagick( $image_data['file'] );
+		// 写真拡張子取得
+		$file_extension = pathinfo( $image_data['file'], PATHINFO_EXTENSION );
+		$max_size       = 2000;
+
+		// width heightリサイズ
+		if ( $imagick->getImageGeometry()['width'] > $max_size || $imagick->getImageGeometry()['height'] > $max_size ) {
+			$imagick->scaleImage( $max_size, $max_size, true );
+		}
+
+		// png
+		if ( 'png' === $file_extension ) {
+			exec( "pngquant --ext .png {$image_data['file']} --force --quality 50-80" );
+		} else {
+			// jpg
+			$imagick->setImageCompressionQuality( 80 );
+			$imagick->writeImage( $image_data['file'] );
+		}
+
+		return $image_data;
+	}
+
+	/**
+	 * 投稿パーマリンクをid=○○にする
+	 *
+	 * @param string $url url
+	 * @param Object $post post
+	 * @param string $leavename false
+	 * @return string $url url
+	 */
+	public function set_post_paermalink( $url, $post, $leavename = false ) {
+
+		return 'post' === $post->post_type ? home_url( '?p=' . $post->ID ) : $url;
+
 	}
 }
