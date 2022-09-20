@@ -40,7 +40,10 @@ class N2_Sync {
 			'page'     => 1,
 		);
 		// トータルページ数（仮）
-		$pages = 1;
+		$pages  = 1;
+		$before = microtime( true );
+		wp_defer_term_counting( true );
+		wp_defer_comment_counting( true );
 		while ( $params['page'] <= $pages ) {
 			// $http_response_header使いたいので鬼教官許して
 			$data    = file_get_contents( "{$url}?" . http_build_query( $params ) );
@@ -85,6 +88,10 @@ class N2_Sync {
 				remove_filter( 'wp_insert_post_data', array( $this, 'alter_post_modification_time' ) );
 			}
 		}
+		wp_defer_term_counting( false );
+		wp_defer_comment_counting( false );
+		$after = microtime( true );
+		echo ( $after - $before ) . ' sec';
 		exit;
 	}
 	/**
