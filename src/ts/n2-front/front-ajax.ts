@@ -7,9 +7,15 @@ export default () => {
 	 * 
 	================================================================== */
 	jQuery(function ($) {
+		const url = new URL(location.href);
+		const params = url.searchParams;
+		const searchStrings = url.search;
+		let searchStringsArray = [];
+		let paramArray = [];
+		let key = null;
 		// 計算パターンを受け取ってから処理
-		var siteHomeUrl = homeUrl(window) + '/'; // locationと合わせるため'/'追加
-		var nowUrl = location.href;
+		let siteHomeUrl = homeUrl(window) + '/'; // locationと合わせるため'/'追加
+		let nowUrl = location.href;
 		const scrapingItem = (): void => {
 			$.ajax({
 				url: ajaxUrl(window),
@@ -20,31 +26,56 @@ export default () => {
 				},
 			}).done((res) => {
 				const data = JSON.parse(res);
-				console.log(data);
 			});
 		};
 		const searchFrontItem = (): void => {
-			console.log($('input[name="portalsite"]').val())
 			$.ajax({
 				url: ajaxUrl(window),
 				data: {
 					action: "N2_Front",
-					// portalsitecheck: $('input[name="portalsite"]').val(),
 				},
 			}).done((res) => {
 				const data = JSON.parse(res);
-				console.log(data);
 			});
 		};
-		if( nowUrl !== siteHomeUrl ){ // トップページでない(=single)場合にスクレイピング
-			scrapingItem();
-		}else{
-			console.log('test2');
-			searchFrontItem();
-			$('.portalsite').on("change", () => {
-				searchFrontItem();
-			});
+		// if( nowUrl === siteHomeUrl ){ // トップページでない(=single)場合にスクレイピング
+		// 	console.log('test2');
+		// 	// searchFrontItem();
+		// 	$('.portalsite').on("change", () => {
+		// 		console.log($(this).prop('id'));
+		// 		searchFrontItem();
+		// 	});
+		// }else if(searchStrings !== ''){
+		// 	console.log('search');
+		// }else{
+		// 	scrapingItem();
+		// }
+		if("" != searchStrings){
+			const newSearchStrings = searchStrings.replace("?","");
+			searchStringsArray = newSearchStrings.split('&');
+			for(var i = 0; i < searchStringsArray.length; i++){
+				key = searchStringsArray[i].split("=");
+				paramArray[key[0]] = key[1];
+				let terms = decodeURIComponent(key[1]);
+				$('input').each(function(index,elem){
+					let val = $(this).val();
+					if($(this).attr('name') == key[0]){
+						if('checkbox' == $(this).attr('type')){
+							if('1' == terms){
+								$(this).prop("checked", true);
+							}
+						}else{
+							$(this).val(terms);
+						}
+					}
+				});
+			}
 		}
+		searchFrontItem();
+		$('.portalsite').on("change", () => {
+			searchFrontItem();
+		});
+
 	});
 };
 	
