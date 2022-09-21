@@ -36,4 +36,35 @@ ledghome:
         - 出荷依頼操作期間（開始日）
         - 出荷依頼操作期間（終了日）
         - 配送サイズコード"
-    normal : false            
+    normal : false
+rakuten :
+    item_csv :
+        title: コントロールカラム
+        values:
+        - 商品管理番号（商品URL）
+        - 商品番号
+        - 全商品ディレクトリID
+        - タグID
+        - PC用キャッチコピー
+        - モバイル用キャッチコピー
+        - 商品名
+        - 販売価格
+        - 送料
+        - のし対応
+        - PC用商品説明文
+        - スマートフォン用商品説明文
+        - PC用販売説明文
+        - 商品画像URL
+        - 在庫タイプ
+        - 在庫数
+        - カタログID
+        - カタログIDなしの理由
+    select_csv :
+        title: 項目選択肢用コントロールカラム
+        values:
+        - 商品管理番号（商品URL）
+        - 選択肢タイプ
+        - 項目選択肢項目名
+        - 項目選択肢
+        - 項目選択肢選択必須"
+    img_dir: https://image.rakuten.co.jp/n2-towncode/cabinet/item

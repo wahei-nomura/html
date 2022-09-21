@@ -8,23 +8,26 @@ export default () => {
 	================================================================== */
 	jQuery(function ($) {
 		// 計算パターンを受け取ってから処理
-		var siteHomeUrl = homeUrl(window) + '/'; // locationと合わせるため'/'追加
+		var siteHomeUrl = homeUrl(window) + "/"; // locationと合わせるため'/'追加
 		var nowUrl = location.href;
+		const townName = homeUrl(window).match(/[^/]*$/)[0];
+		console.log("siteHomeUrl", townName);
+		let itemDetail;
 		const scrapingItem = (): void => {
-			$.ajax({
+			 $.ajax({
 				url: ajaxUrl(window),
 				data: {
 					action: "SS_Portal_Scraper",
-					id: "FBM003",
-					town: "yoshinogari",
+					id: "DAJ009",
+					town: townName,
 				},
 			}).done((res) => {
 				const data = JSON.parse(res);
-				console.log(data);
+				itemDetail = data;
 			});
 		};
 		const searchFrontItem = (): void => {
-			console.log($('input[name="portalsite"]').val())
+			console.log($('input[name="portalsite"]').val());
 			$.ajax({
 				url: ajaxUrl(window),
 				data: {
@@ -36,15 +39,15 @@ export default () => {
 				console.log(data);
 			});
 		};
-		if( nowUrl !== siteHomeUrl ){ // トップページでない(=single)場合にスクレイピング
+		if (nowUrl !== siteHomeUrl) {
+			// トップページでない(=single)場合にスクレイピング
 			scrapingItem();
-		}else{
-			console.log('test2');
+		} else {
+			console.log("test2");
 			searchFrontItem();
-			$('.portalsite').on("change", () => {
+			$(".portalsite").on("change", () => {
 				searchFrontItem();
 			});
 		}
 	});
 };
-	
