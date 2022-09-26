@@ -18,8 +18,10 @@ export default () => {
 				},
 			})
 				.done((res) => {
-					alert(`「${res}」を複製しました`);
-					// location.reload();
+					const response = JSON.parse(res)
+					alert(`「${response['title']}」を作成しました`);
+					console.log(response)
+					location.reload();
 				})
 				.fail((error) => {
 					console.log(error);
@@ -51,6 +53,7 @@ export default () => {
 
 		$("body").on("click", "#n2-copypost-modal button", () => {
 			const setData={
+				title: $('input[name="複写後商品名"]').val(),
 				teiki: $('select[name="定期"] option:selected').val()
 			}
 
