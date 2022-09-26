@@ -7,7 +7,7 @@
 
 global $post;
 $post_data = N2_Functions::get_all_meta( $post );
-echo esc_html(get_post_type_object(get_post_type())->name);
+echo esc_html( get_post_type_object( get_post_type() ) -> name );
 $ini = parse_ini_file( get_template_directory() . '/config/n2-fields.ini', true );
 
 // プラグインn2-developのn2_setpost_show_customfields呼び出し
@@ -56,6 +56,9 @@ if ( have_posts() ) :
 
 		<h1><?php the_title(); ?></h1>	
 
+		<p>
+			<?php var_dump($fields); ?>
+		</p>
 
 		<table>
 			<tr><th width="30%">項目</th><th width="70%">内容</th></tr>

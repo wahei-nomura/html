@@ -28,7 +28,7 @@ class N2_Front {
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		$this->cls  = get_class( $this );
+		$this->cls = get_class( $this );
 		add_action( 'posts_request', array( $this, 'front_request' ) );
 	}
 
@@ -40,7 +40,7 @@ class N2_Front {
 	 * @return string $query sql
 	 */
 	public function front_request( $query ) {
-		if(!is_search()){
+		if ( ! is_search() ) {
 			return $query;
 		}
 		global $wpdb;
@@ -89,54 +89,38 @@ class N2_Front {
 		}
 		// ここまでキーワード ------------------------------------
 		// 出品禁止ポータル絞り込み ---------------------------------
-		/*if( ! empty( $_GET['portalsite'] ) && '' !== $_GET['portalsite'] ) {
-			$portal_arr = $_GET['portalsite'];
-			$where   .= 'AND (';
-			foreach ( $portal_arr as $key => $portal ) {
-				if ( 0 !== $key ) {
-					$where .= ' AND '; // 出品禁止ポータルをOR検索(前後の空白必須)
-				}
-				$where .= "
-				{$wpdb->postmeta}.meta_key = '出品禁止ポータル'
-				AND {$wpdb->postmeta}.meta_value NOT LIKE '%%%s%%'
-				";
-			array_push( $args, $portal );
-			}
-			$where .= ')';
-		}*/
-		if( ! empty( $_GET['portal_rakuten'] ) && '' !== $_GET['portal_rakuten'] ) { // 楽天除外
+		if ( ! empty( $_GET['portal_rakuten'] ) && '' !== $_GET['portal_rakuten'] ) { // 楽天除外
 			$portal_rakuten = $_GET['portal_rakuten'];
-			$where   .= 'AND (';
-				$where .= "
-				{$wpdb->postmeta}.meta_key = '出品禁止ポータル'
-				AND {$wpdb->postmeta}.meta_value NOT LIKE '%%%s%%'
-				";
+			$where         .= 'AND (';
+			$where         .= "
+			{$wpdb->postmeta}.meta_key = '出品禁止ポータル'
+			AND {$wpdb->postmeta}.meta_value NOT LIKE '%%%s%%'
+			";
 			array_push( $args, '楽天' );
 			$where .= ')';
 		}
 
-		if( ! empty( $_GET['portal_choice'] ) && '' !== $_GET['portal_choice'] ) { // チョイス除外
+		if ( ! empty( $_GET['portal_choice'] ) && '' !== $_GET['portal_choice'] ) { // チョイス除外
 			$portal_choice = $_GET['portal_choice'];
-			$where   .= 'AND (';
-				$where .= "
-				{$wpdb->postmeta}.meta_key = '出品禁止ポータル'
-				AND {$wpdb->postmeta}.meta_value NOT LIKE '%%%s%%'
-				";
+			$where        .= 'AND (';
+			$where        .= "
+			{$wpdb->postmeta}.meta_key = '出品禁止ポータル'
+			AND {$wpdb->postmeta}.meta_value NOT LIKE '%%%s%%'
+			";
 			array_push( $args, 'チョイス' );
 			$where .= ')';
 		}
 
-		if( ! empty( $_GET['portal_furunavi'] ) && '' !== $_GET['portal_furunavi'] ) { // チョイス除外
+		if ( ! empty( $_GET['portal_furunavi'] ) && '' !== $_GET['portal_furunavi'] ) { // チョイス除外
 			$portal_furunavi = $_GET['portal_furunavi'];
-			$where   .= 'AND (';
-				$where .= "
-				{$wpdb->postmeta}.meta_key = '出品禁止ポータル'
-				AND {$wpdb->postmeta}.meta_value NOT LIKE '%%%s%%'
-				";
+			$where          .= 'AND (';
+			$where          .= "
+			{$wpdb->postmeta}.meta_key = '出品禁止ポータル'
+			AND {$wpdb->postmeta}.meta_value NOT LIKE '%%%s%%'
+			";
 			array_push( $args, 'ふるなび' );
 			$where .= ')';
 		}
-
 
 		// WHER句末尾連結
 		$where .= '))';
