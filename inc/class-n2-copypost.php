@@ -46,7 +46,7 @@ class N2_Copypost {
 
 		// 新しい返礼品情報設定
 		$new_post = array(
-			'post_title'  => $set_data['title'],
+			'post_title'  => '' !== $set_data['teiki'] ? "【全{$set_data['teiki']}回定期便】{$set_data['title']}" : $set_data['title'],
 			'post_status' => 'draft',
 			'post_author' => get_userdata( $post->post_author )->ID,
 		);
