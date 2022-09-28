@@ -3,9 +3,11 @@ import { prefix, neoNengPath, ajaxUrl } from "../functions/index";/**
  */
 export default () => {
 	jQuery(function ($) {
-		$(".dlbtn").on("click", (e) => {
+		// loading要素を追加
+		$('#download_img').after('<span class="loading_background"><span id="text_loading"></span><span class="progressbar"></span></span>');
+		$(document).on("click", '.dlbtn', (e) => {
 			$(e.target).addClass("not-click"); // クリックと同時にclass付けて二重クリックできないようにする
-			text_loading.textContent = "登録画像確認中… ";
+			text_loading.textContent = "登録画像確認中… "; // #text_loadingのテキスト書き換え(追加)
 			const btnName = $(e.target).attr("id");
 			e.preventDefault();
 			download(ajaxUrl(window), btnName, getIds());

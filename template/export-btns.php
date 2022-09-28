@@ -31,7 +31,7 @@
 		<a href="#" class="button button-primary siserror" id="error_log">楽天エラーログ</a>
 		<a href="#" class="button button-primary sisbtn" id="ana">ANA</a>
 		<a href="#" class="button button-primary dlbtn" id="download_img">画像をダウンロード</a>
-		<span class="loading_background"><span id="text_loading"></span><span class="progressbar"></span></span>
+		
 	</div>
 </div>
 
