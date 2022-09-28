@@ -359,7 +359,7 @@ class N2_Item_Export {
 
 				);
 				// ========エラー項目追加用hook========
-				$error_list = apply_filters( 'n2_item_export_item_csv_check_error', $error_list );
+				$error_list = apply_filters( 'n2_item_export_item_csv_add_error_item', $error_list );
 
 				foreach ( $error_list as $error ) {
 					if ( $error['condition'] ) {
