@@ -323,7 +323,7 @@ class N2_Setpost {
 
 		$arr = array(
 			'ss_crew'           => wp_get_current_user()->allcaps['ss_crew'] ? 'true' : 'false',
-			'kifu_auto_pattern' => N2_Functions::kifu_auto_pattern(),
+			'kifu_auto_pattern' => N2_Functions::kifu_auto_pattern( 'js' ),
 			'delivery_pattern'  => $this->delivery_pattern(),
 		);
 

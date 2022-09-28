@@ -54,13 +54,17 @@ class N2_Copypost {
 		// 作成
 		$newpost_id = wp_insert_post( $new_post );
 
+		$auto_price = N2_Functions::kifu_auto_pattern( 'php', array( $post_all_meta['価格'], $post_all_meta['送料'] ) ) * $set_data['teiki'];
+
 		// metaを上書き
 		foreach ( $post_all_meta as $key => $value ) {
 			if ( '定期便' === $key ) {
 				update_post_meta( $newpost_id, $key, $set_data['teiki'] );
-				continue;
+			} elseif ( '寄附金額' === $key ) {
+				update_post_meta( $newpost_id, $key, $auto_price );
+			} else {
+				update_post_meta( $newpost_id, $key, $value );
 			}
-			update_post_meta( $newpost_id, $key, $value );
 		}
 
 		echo wp_json_encode( $set_data );
