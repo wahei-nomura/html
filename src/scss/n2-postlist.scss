@@ -138,6 +138,9 @@ tbody#the-list>tr>td {
 	align-items: center;
 	display: none;
 	z-index: 9999;
+	&.active{
+		display: flex;
+	}
 	#text_loading{
 		font-size: 2em;
 		color: #000;
@@ -161,10 +164,3 @@ tbody#the-list>tr>td {
 	}
 }
 
-.not-click{
-	+ .loading_background {
-		display: flex;
-		
-	}
-
-}
