@@ -44,7 +44,7 @@ class N2_Setupmenu {
 	 * @return void
 	 */
 	public function update_setupmenu() {
-		
+
 		$opt = get_option( $this->cls );
 		extract( $_POST );
 		$opt = array_merge( (array) $opt, ${$this->cls} );
@@ -173,6 +173,6 @@ class N2_Setupmenu {
 	 * @return void
 	 */
 	public function setup_menu_style() {
-		wp_enqueue_style( 'n2-setupmenu', get_template_directory_uri() . '/dist/setupmenu.css', array(), wp_get_theme()->get( 'Version' ) );
+		wp_enqueue_style( 'n2-setupmenu', get_theme_file_uri() . '/dist/setupmenu.css', array(), wp_get_theme()->get( 'Version' ) );
 	}
 }

@@ -35,12 +35,12 @@ class N2_Jigyousyaparam {
 	}
 
 	/**
-	 * usermetaに登録させたい項目をiniから取得
+	 * usermetaに登録させたい項目をymlから取得
 	 *
 	 * @return Array $params
 	 */
 	private function params() {
-		$params = parse_ini_file( get_template_directory() . '/config/n2-jigyousya-params.ini', true );
+		$params = yaml_parse_file( get_theme_file_path() . '/config/n2-jigyousya-params.yml' );
 
 		return apply_filters( 'n2_jigyousyaparam_params', $params );
 	}

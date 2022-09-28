@@ -32,7 +32,7 @@ class N2_Sync {
 	 */
 	public function sync() {
 		$data = file_get_contents( 'https://steamship.co.jp/shiroishi/wp-json/wp/v2/posts?sku=test002' );
-		$arr = json_decode( $data, true );
+		$arr  = json_decode( $data, true );
 		foreach ( $arr as $v ) {
 
 			$postarr = array(

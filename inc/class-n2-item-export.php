@@ -78,9 +78,9 @@ class N2_Item_Export {
 		$townname    = end( explode( '/', get_option( 'home' ) ) );
 		$n2_towncode = $n2_towncodes[ $townname ];
 		// ========楽天商品画像のパス=======
-		$rakuten_img_dir = fn() => $n2_towncode['rakuten']
-			? str_replace( 'n2-towncode', $n2_towncode['rakuten'], $n2_file_header['rakuten']['img_dir'] )
-			: $n2_file_header['rakuten']['img_dir'];
+		$rakuten_img_dir = $n2_towncode['楽天']
+		? str_replace( 'n2-towncode', $n2_towncode['楽天'], $n2_file_header['rakuten']['img_dir'] )
+		: $n2_file_header['rakuten']['img_dir'];
 		// ========header========
 		if ( 'item_csv' === $ajax_str || 'select_csv' === $ajax_str ) {// 楽天の場合
 			$header_str = $n2_file_header['rakuten'][ $ajax_str ];
@@ -94,12 +94,12 @@ class N2_Item_Export {
 
 		$arr = array(
 			// あとでヘッダの上の連結するのに必要
-			'csv_title'             => explode( "\n", $header_str )[0],
+			'csv_title'             => $header_str['title'],
 			// プラグイン側でヘッダーを編集
-			'header'                => apply_filters( 'n2_item_export_' . $ajax_str . '_header', explode( ',', explode( "\n", $header_str )[1] ) ),
+			'header'                => apply_filters( 'n2_item_export_' . $ajax_str . '_header', $header_str['values'] ),
 			// ajaxで渡ってきたpostidの配列
 			'ids'                   => explode( ',', filter_input( INPUT_POST, $ajax_str, FILTER_SANITIZE_ENCODED ) ),
-			'rakuten_img_dir'       => $rakuten_img_dir(),
+			'rakuten_img_dir'       => $rakuten_img_dir,
 			'allergens'             => $allergens_list,
 			'rakuten_select_option' => $rakuten_select_option,
 		);
@@ -113,7 +113,7 @@ class N2_Item_Export {
 	 * @return void
 	 */
 	public function ledghome() {
-		$ini_arr = $this->get_yml( __FUNCTION__ );
+		$ymr_arr = $this->get_yml( __FUNCTION__ );
 
 		// itemの情報を配列か
 		$items_arr = array();
@@ -132,7 +132,7 @@ class N2_Item_Export {
 			'発送サイズ',
 		);
 
-		foreach ( $ini_arr['ids'] as $id ) {
+		foreach ( $ymr_arr['ids'] as $id ) {
 			// get_post_metaを一括取得
 			$post_meta_list = N2_Functions::get_post_meta_multiple( $id, $post_keys );
 			$teiki          = $post_meta_list['定期便'];
@@ -141,7 +141,7 @@ class N2_Item_Export {
 				$key_id   = 1 < $teiki ? "{$id}_{$i}" : $id;
 				$teikinum = 1 < $teiki ? "_{$i}/{$teiki}" : '';
 				// headerの項目を取得する
-				$items_arr[ $key_id ] = N2_Functions::get_post_meta_multiple( $id, $ini_arr['header'] );
+				$items_arr[ $key_id ] = N2_Functions::get_post_meta_multiple( $id, $ymr_arr['header'] );
 
 				$item_num = trim( strtoupper( $post_meta_list['返礼品コード'] ) ) . $teikinum;
 
@@ -171,7 +171,7 @@ class N2_Item_Export {
 			}
 		}
 
-		$this->download_csv( 'ledghome', $ini_arr['header'], $items_arr, $ini_arr['csv_title'] );
+		$this->download_csv( 'ledghome', $ymr_arr['header'], $items_arr, $ymr_arr['csv_title'] );
 	}
 
 	/**
@@ -181,7 +181,7 @@ class N2_Item_Export {
 	 */
 	public function item_csv() {
 		// iniから情報を取得
-		$ini_arr = $this->get_yml( __FUNCTION__ );
+		$yml_arr = $this->get_yml( __FUNCTION__ );
 
 		// 初期化
 		$items_arr = array();
@@ -201,9 +201,9 @@ class N2_Item_Export {
 			'楽天カテゴリー',
 		);
 
-		foreach ( $ini_arr['ids'] as $post_id ) {
+		foreach ( $yml_arr['ids'] as $post_id ) {
 			// headerの項目を取得
-			$items_arr[ $post_id ] = N2_Functions::get_post_meta_multiple( $post_id, $ini_arr['header'] );
+			$items_arr[ $post_id ] = N2_Functions::get_post_meta_multiple( $post_id, $yml_arr['header'] );
 
 			// 初期化
 			foreach ( $items_arr[ $post_id ] as $k => $v ) {
@@ -222,7 +222,7 @@ class N2_Item_Export {
 			$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
 			$item_num       = trim( strtoupper( $post_meta_list['返礼品コード'] ) );
 			$item_num_low   = trim( mb_strtolower( $post_meta_list['返礼品コード'] ) );
-			$img_dir        = $ini_arr['rakuten_img_dir'];
+			$img_dir        = $yml_arr['rakuten_img_dir'];
 
 			// GOLD（ne.jp）とキャビネット（co.jp）を判定してキャビネットは事業者コードディレクトリを追加
 			preg_match( '/^[a-z]{2,3}/', $item_num_low, $m );// 事業者コード
@@ -230,34 +230,36 @@ class N2_Item_Export {
 				$img_dir .= "/{$m[0]}";// キャビネットの場合事業者コード追加
 			}
 
-			// サーバーにある画像urlを文字連結
+			// 存在する画像urlだけを文字連結
 			$check_img_urls = function () use ( $item_num_low, $img_dir ) {
-				$arr      = '';
-				$img_url  = "{$img_dir}/{$item_num_low}.jpg";
-				$response = wp_remote_get( $img_url );
-				if ( ! is_wp_error( $response ) && 200 === $response['response']['code'] ) {
-					$arr = $img_url;
-				}
-				for ( $i = 1;$i < 15; $i++ ) {
-					$img_url  = "{$img_dir}/{$item_num_low}-{$i}.jpg";
+				$result = array();
+				for ( $i = 0; $i < 15; ++$i ) {
+					$img_url = "{$img_dir}/{$item_num_low}";
+					if ( 0 === $i ) {
+						$img_url .= '.jpg';
+					} else {
+						$img_url .= "-{$i}.jpg";
+					}
 					$response = wp_remote_get( $img_url );
 					if ( ! is_wp_error( $response ) && 200 === $response['response']['code'] ) {
-						$arr .= ' ' . $img_url;
+						$result[ $i ] = $img_url;
 					}
 				}
-				return $arr;
+				return implode( ' ', $result );
 			};
 			// 画像URL一覧(文字列)
 			$img_urls_str = $check_img_urls();
+
 			// [html]画像URL一覧
 			$img_urls_html = function() use ( $img_urls_str ) {
 				$img_urls_arr = explode( ' ', $img_urls_str );
 				?>
 				<?php foreach ( $img_urls_arr as $index => $img_url ) : ?>
-					<?php if ( array_key_last( $img_urls_arr ) === $index ) : ?>
-					<img src=""<?php echo $img_url; ?>"" width=""100%""><br><br>
-				<?php else : ?>
-					<img src=""<?php echo $img_url; ?>"" width=""100%"">
+				<img src=""<?php echo $img_url; ?>"" width=""100%"">
+									  <?php
+				if ( array_key_last( $img_urls_arr ) === $index ) :
+?>
+<br><br>
 				<?php endif; ?>
 				<?php endforeach; ?>
 				<?php
@@ -270,7 +272,11 @@ class N2_Item_Export {
 				?>
 				<?php $img_urls_html(); ?>
 				<?php $itemtable_html(); ?><br><br>
-				<?php echo get_option( 'N2_setupmenu' )['add_text'][ get_bloginfo( 'name' ) ] . apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $post_id, 'PC用販売説明文' ) . str_replace( '\"', '""', get_option( 'N2_setupmenu' )['rakuten']['html'] ); ?>
+				<?php
+				echo get_option( 'N2_setupmenu' )['add_text'][ get_bloginfo( 'name' ) ]
+					. apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $post_id, 'PC用販売説明文' )
+					. str_replace( '\"', '""', get_option( 'N2_setupmenu' )['rakuten']['html'] );
+				?>
 				<?php
 			};
 
@@ -287,7 +293,10 @@ class N2_Item_Export {
 				<?php if ( $post_meta_list['楽天カテゴリー'] ) : ?>
 					<br><br><?php echo $sp_formatter( '楽天カテゴリー' ); ?>
 				<?php endif ?>
-				<?php echo get_option( 'N2_setupmenu' )['add_text'][ get_bloginfo( 'name' ) ] . str_replace( '\"', '""', get_option( 'N2_setupmenu' )['rakuten']['html'] ); ?>
+				<?php
+				echo get_option( 'N2_setupmenu' )['add_text'][ get_bloginfo( 'name' ) ]
+					. str_replace( '\"', '""', get_option( 'N2_setupmenu' )['rakuten']['html'] );
+				?>
 				<?php
 			};
 
@@ -297,8 +306,6 @@ class N2_Item_Export {
 				'商品番号'          => $item_num,
 				'全商品ディレクトリID'   => $post_meta_list['全商品ディレクトリID'],
 				'タグID'          => $post_meta_list['タグID'],
-				// '商品名' => "【ふるさと納税】 ".$items_arr[$post_id]['商品番号']." ".N2_Functions::_s(get_the_title($post_id)),
-				// '商品名' => "【ふるさと納税】".N2_Functions::_s(get_the_title($post_id))." ".$items_arr[$post_id]['商品番号'],
 				'商品名'           => '【ふるさと納税】' . N2_Functions::_s( get_the_title( $post_id ) ) . " [{$item_num}]",
 				'販売価格'          => $post_meta_list['寄附金額'],
 				'のし対応'          => ( '有り' === $post_meta_list['のし対応'] ) ? 1 : '',
@@ -313,8 +320,10 @@ class N2_Item_Export {
 			// 内容を追加、または上書きするためのフック
 			$items_arr[ $post_id ] = array_merge(
 				$items_arr[ $post_id ],
-				apply_filters( 'n2_item_export_item_csv', $item_arr, $post_id ),
+				apply_filters( 'n2_item_export_item_csv_items', $item_arr, $post_id ),
 			);
+
+			// ================ エラー関連　================
 
 			// ymlファイルに自治体名が設定されていない場合
 			if ( strpos( $img_dir, 'n2-towncode' ) ) {
@@ -327,7 +336,6 @@ class N2_Item_Export {
 						width : 100%;
 						font-size : 40px;
 						margin-top : -200px;
-
 					}
 				</style>
 				<div class="towncode-error">
@@ -433,7 +441,7 @@ class N2_Item_Export {
 			<?php
 		} else {
 			// csv出力
-			$this->download_csv( 'rakuten_' . __FUNCTION__, $ini_arr['header'], $items_arr, $ini_arr['csv_title'] );
+			$this->download_csv( 'rakuten_item', $yml_arr['header'], $items_arr, $yml_arr['csv_title'] );
 		}
 		die();
 	}
@@ -499,7 +507,7 @@ class N2_Item_Export {
 	 * @return string 商品説明テーブル
 	 */
 	public function make_itemtable( $post_id, $return_string = true ) {
-		$ini_arr        = $this->get_yml( 'item_csv' );
+		$yml_arr        = $this->get_yml( 'item_csv' );
 		$post_keys      = array(
 			'表示名称',
 			'略称',
@@ -515,12 +523,12 @@ class N2_Item_Export {
 		$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
 
 		// アレルギー表示
-		$allergy_display     = function() use ( $post_meta_list, $ini_arr ) {
+		$allergy_display     = function() use ( $post_meta_list, $yml_arr ) {
 			$result = '';
 			if ( $post_meta_list['アレルゲン'] || $post_meta_list['アレルゲン注釈'] ) {
 				$allergens = '';
 				foreach ( $post_meta_list['アレルゲン']  as $v ) {
-					$allergens .= $ini_arr['allergens'][ $v ] . '・';
+					$allergens .= $yml_arr['allergens'][ $v ] . '・';
 				}
 				$result .= rtrim( $allergens, '・' );
 				if ( $result && $post_meta_list['アレルゲン注釈'] ) {
@@ -573,7 +581,7 @@ class N2_Item_Export {
 		);
 
 		// 内容を追加、または上書きするためのフック
-		$arr = apply_filters( 'n2_item_export_make_itemtable', $trs, $post_id );
+		$trs = apply_filters( 'n2_item_export_make_itemtable', $trs, $post_id );
 
 		// ========[html]商品説明テーブル========
 		$itemtable_html = function() use ( $trs ) {
@@ -607,12 +615,12 @@ class N2_Item_Export {
 	public function select_csv() {
 		// itemの情報を配列化
 		$items_arr = array();
-		$ini_arr   = $this->get_yml( __FUNCTION__ );
+		$yml_arr   = $this->get_yml( __FUNCTION__ );
 
 		// select項目名 => array(選択肢)の形式に変換
 		$select = array();
 
-		foreach ( $ini_arr['rakuten_select_option'] as $v ) {
+		foreach ( $yml_arr['rakuten_select_option'] as $v ) {
 			if ( $v ) {
 				$arr                      = explode( "\n", $v );
 				$select_header            = trim( array_shift( $arr ) );
@@ -621,7 +629,7 @@ class N2_Item_Export {
 		}
 		// 初期化
 		$i = 0;
-		foreach ( $ini_arr['ids'] as $post_id ) {
+		foreach ( $yml_arr['ids'] as $post_id ) {
 			// get_post_metaのkey一覧
 			$post_keys = array(
 				'返礼品コード',
@@ -634,8 +642,7 @@ class N2_Item_Export {
 			foreach ( $select as $key => $value ) {
 				foreach ( $value as $v ) {
 					// headerの項目を取得
-					$items_arr[ $i ] = N2_Functions::get_post_meta_multiple( $post_id, $ini_arr['header'] );
-
+					$items_arr[ $i ] = N2_Functions::get_post_meta_multiple( $post_id, $yml_arr['header'] );
 					$item_arr        = array(
 						'項目選択肢用コントロールカラム' => 'n',
 						'商品管理番号（商品URL）'   => $item_num,
@@ -651,9 +658,9 @@ class N2_Item_Export {
 			// 内容を追加、または上書きするためのフック
 			$items_arr[ $post_id ] = array_merge(
 				$items_arr[ $post_id ],
-				apply_filters( 'n2_item_export_' . __FUNCTION__ . '_items', $item_arr, $post_id ),
+				apply_filters( 'n2_item_export_select_csv_items', $item_arr, $post_id ),
 			);
 		}
-		$this->download_csv( 'rakuten_' . __FUNCTION__, $ini_arr['header'], $items_arr, $ini_arr['csv_title'] );
+		$this->download_csv( 'rakuten_select', $yml_arr['header'], $items_arr, $yml_arr['csv_title'] );
 	}
 }
