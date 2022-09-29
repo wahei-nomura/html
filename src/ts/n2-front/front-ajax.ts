@@ -10,6 +10,7 @@ export default () => {
 		const url = new URL(location.href);
 		const params = url.searchParams;
 		const searchStrings = url.search;
+		console.log('prms:'+ params + ',sStr:'+searchStrings);
 		let searchStringsArray = [];
 		let paramArray = [];
 		let key = null;
@@ -52,6 +53,7 @@ export default () => {
 		// }
 		if("" != searchStrings){
 			const newSearchStrings = searchStrings.replace("?","");
+			console.log(newSearchStrings);
 			searchStringsArray = newSearchStrings.split('&');
 			for(var i = 0; i < searchStringsArray.length; i++){
 				key = searchStringsArray[i].split("=");
@@ -70,6 +72,8 @@ export default () => {
 					}
 				});
 			}
+		}else{ // 
+			$('.front-portal-wrap').find('input').prop("checked", true);
 		}
 		searchFrontItem();
 		$('.portalsite').on("change", () => {

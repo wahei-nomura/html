@@ -24,9 +24,11 @@
 	<a href="">あり</a> <a href="">なし</a>
 	*/ ?>
 	<p>ポータルサイト</p>
-	<label for="portal_rakuten"><input type="checkbox" name="portal_rakuten" class="portalsite" id="portal_rakuten" value="1">楽天</label>
-	<label for="portal_choice"><input type="checkbox" name="portal_choice" class="portalsite" id="portal_choice" value="1">チョイス</label>
-	<label for="portal_furunavi"><input type="checkbox" name="portal_furunavi" class="portalsite" id="portal_furunavi" value="1">ふるなび</label>
+	<div class="front-portal-wrap">
+		<label for="portal_rakuten"><input type="checkbox" name="portal_rakuten" class="portalsite" id="portal_rakuten" value="1">楽天</label>
+		<label for="portal_choice"><input type="checkbox" name="portal_choice" class="portalsite" id="portal_choice" value="1">チョイス</label>
+		<label for="portal_furunavi"><input type="checkbox" name="portal_furunavi" class="portalsite" id="portal_furunavi" value="1">ふるなび</label>
+	</div>
 	<div class="front-submit-wrap">
 	<input type="submit" value="絞り込み">
 	</div>
