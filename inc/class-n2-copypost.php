@@ -47,7 +47,7 @@ class N2_Copypost {
 		// 新しい返礼品情報設定
 		$new_post = array(
 			'post_title'  => '' !== $set_data['teiki'] ? "【全{$set_data['teiki']}回定期便】{$set_data['title']}" : $set_data['title'],
-			'post_status' => 'draft',
+			'post_status' => 'pending',
 			'post_author' => get_userdata( $post->post_author )->ID,
 		);
 
@@ -62,6 +62,12 @@ class N2_Copypost {
 				update_post_meta( $newpost_id, $key, $set_data['teiki'] );
 			} elseif ( '寄附金額' === $key ) {
 				update_post_meta( $newpost_id, $key, $auto_price );
+			} elseif ( '説明文' === $key && $set_data['teiki'] > 1 ) {
+				$converted_item_description = preg_match( '/全[0-9]{1,2}回/', $post_all_meta['説明文'] ) ?
+					preg_replace( '/全[0-9]{1,2}回/', "全{$set_data['teiki']}回", $post_all_meta['説明文'] ) :
+					"※こちらは全{$set_data['teiki']}回お届けいたします。\n{$post_all_meta['説明文']}";
+
+				update_post_meta( $newpost_id, $key, $converted_item_description );
 			} else {
 				update_post_meta( $newpost_id, $key, $value );
 			}
