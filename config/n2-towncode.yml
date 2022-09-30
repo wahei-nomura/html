@@ -1,82 +1,82 @@
 iki:
-    tokanji: 壱岐市
-    rakuten: f422100-iki
-    furunavi: 1557
-    ana: 42210
+    漢字: 壱岐市
+    楽天: f422100-iki
+    ふるなび: 1557
+    ANA: 42210
 itoshima:
-    tokanji: 糸島市
-    rakuten: f402303-itoshima
-    furunavi: 1496
-    ana: 40230
+    漢字: 糸島市
+    楽天: f402303-itoshima
+    ふるなび: 1496
+    ANA: 40230
 ureshino:
-    tokanji: 嬉野市
-    rakuten: f412091-ureshino
-    ana: 41209
+    漢字: 嬉野市
+    楽天: f412091-ureshino
+    ANA: 41209
 ojika:
-    tokanji: 小値賀町
-    rakuten: f423831-ojika
-kawatana:
-    tokanji: 川棚町
-    rakuten: f423220-kawatana
+    漢字: 小値賀町
+    楽天: f423831-ojika
+kawatANA:
+    漢字: 川棚町
+    楽天: f423220-kawatana
 kouhoku:
-    tokanji: 江北町
-    rakuten: f414247-kouhoku
-    furunavi: 1546
-    ana: 41424
+    漢字: 江北町
+    楽天: f414247-kouhoku
+    ふるなび: 1546
+    ANA: 41424
 goto:
-    tokanji: 五島市
-    rakuten: f422118-goto
-    furunavi: 1558
-    ana: 42211
+    漢字: 五島市
+    楽天: f422118-goto
+    ふるなび: 1558
+    ANA: 42211
 saikai:
-    tokanji: 西海市
-    rakuten: f422126-saikai
-    ana: 42212
+    漢字: 西海市
+    楽天: f422126-saikai
+    ANA: 42212
 saza:
-    tokanji: 佐々町
-    rakuten: f423912-saza
+    漢字: 佐々町
+    楽天: f423912-saza
 shiroishi:
-    tokanji: 白石町
-    rakuten: f414255-shiroishi
-    furunavi: 1547
-    ana: 41425
+    漢字: 白石町
+    楽天: f414255-shiroishi
+    ふるなび: 1547
+    ANA: 41425
 shinkamigoto:
-    tokanji: 新上五島町
-    rakuten: f424111-shinkamigoto
-    ana: 42411
+    漢字: 新上五島町
+    楽天: f424111-shinkamigoto
+    ANA: 42411
 tajimi:
-    tokanji: 多治見市
+    漢字: 多治見市
 toki:
-    tokanji: 土岐市
-    rakuten: f212121-toki
-    furunavi: 920
+    漢字: 土岐市
+    楽天: f212121-toki
+    ふるなび: 920
 hasami:
-    tokanji: 波佐見町
-    rakuten: f423238-hasami
-    furunavi: 1566
-    ana: 42323
+    漢字: 波佐見町
+    楽天: f423238-hasami
+    ふるなび: 1566
+    ANA: 42323
 higasisonogi:
-    tokanji: 東彼杵町
-    rakuten: f423211-higashisonogi
-    furunavi: 1564
-    ana: 42321
+    漢字: 東彼杵町
+    楽天: f423211-higashisonogi
+    ふるなび: 1564
+    ANA: 42321
 hirado:
-    tokanji: 平戸市
-    rakuten: f422070-hirado
-    furunavi: 1554
+    漢字: 平戸市
+    楽天: f422070-hirado
+    ふるなび: 1554
 nakagawa:
-    tokanji: 那珂川市
-    rakuten: f402311-nakagawa
+    漢字: 那珂川市
+    楽天: f402311-nakagawa
 nagasaki:
-    tokanji: 長崎市
-    rakuten: f422011-nagasaki
-    furunavi: 1549
+    漢字: 長崎市
+    楽天: f422011-nagasaki
+    ふるなび: 1549
 nagayo:
-    tokanji: 長与町
-    rakuten: f423076-nagayo
-    furunavi: 1562
+    漢字: 長与町
+    楽天: f423076-nagayo
+    ふるなび: 1562
 yoshinogari:
-    tokanji: 吉野ヶ里町
-    rakuten: f413275-yoshinogari
-    furunavi: 1539
-    ana: 41327
+    漢字: 吉野ヶ里町
+    楽天: f413275-yoshinogari
+    ふるなび: 1539
+    ANA: 41327
