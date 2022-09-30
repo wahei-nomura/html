@@ -68,9 +68,9 @@ class N2_Copypost {
 					"※こちらは全{$set_data['teiki']}回お届けいたします。\n{$post_all_meta['説明文']}";
 
 				update_post_meta( $newpost_id, $key, $converted_item_description );
-			} elseif ( '配送期間' === $key && $set_date['teiki'] > 1 ) {
+			} elseif ( '配送期間' === $key && $set_data['teiki'] > 1 ) {
 				$comverted_delivery_date = preg_match( '/毎月[0-9]{1,2}日/', $post_all_meta['配送期間'] ) ?
-					preg_match( '/翌月の[0-9]{1,2}日/', "翌月の{$set_data['firstDate']}", preg_replace( '/毎月[0-9]{1,2}/', "毎月{$set_data['everyDate']}", $post_all_meta['配送期間'] ) ) :
+					preg_replace( '/翌月の[0-9]{1,2}日/', "翌月の{$set_data['firstDate']}日", preg_replace( '/毎月[0-9]{1,2}日/', "毎月{$set_data['everyDate']}日", $post_all_meta['配送期間'] ) ) :
 					"※初回発送はお申込み翌月の{$set_data['firstDate']}日までに発送致します。なお2回目以降も毎月{$set_data['everyDate']}日までに発送致します。\n{$post_all_meta['配送期間']}";
 				update_post_meta( $newpost_id, $key, $comverted_delivery_date );
 			} else {
