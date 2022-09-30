@@ -428,7 +428,8 @@ class N2_Setpost {
 
 		// png
 		if ( 'png' === $file_extension ) {
-			exec( "pngquant --ext .png {$image_data['file']} --force --quality 50-80" );
+			$png_file = escapeshellarg( $image_data['file'] );
+			exec( "pngquant --ext .png {$png_file} --force --quality 50-80" );
 		} else {
 			// jpg
 			$imagick->setImageCompressionQuality( 80 );
