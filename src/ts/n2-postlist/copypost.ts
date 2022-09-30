@@ -54,7 +54,9 @@ export default () => {
 		$("body").on("click", "#n2-copypost-modal button", () => {
 			const setData={
 				title: $('input[name="複写後商品名"]').val(),
-				teiki: $('select[name="定期"] option:selected').val()
+				teiki: $('select[name="定期"] option:selected').val(),
+				firstDate: $('input[name="初回発送日"]').val(),
+				everyDate: $('input[name="毎月発送日"]').val()
 			}
 
 			createCopyPost(Number($("#n2-copypost-modal input[name='id']").val()),setData);
