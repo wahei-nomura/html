@@ -6,6 +6,7 @@
 }
 .product-sidebar{
 	width: 20%;
+	padding-right: 4%;
 }
 .product-list-wrap{
 	width: 80%;
@@ -74,5 +75,33 @@
 				width: 50%;
 			}
 		}
+	}
+}
+.n2-search-form{
+
+}
+.n2-checkbox-wrap{
+	display: flex;
+	font-size: .5rem;
+	justify-content: space-between;
+	input[type="checkbox"]{
+		display: none;
+		&:checked{
+			+label{
+				background: #f90;
+				color: #fff;
+				border-color: #f90;
+			}
+		}
+	}
+	label{
+		padding: 8px 20px;
+		border: 1px solid #ccc;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		margin: 0 0 .5rem;
+		border-radius: 50px;
+		flex-wrap: wrap;
 	}
 }
