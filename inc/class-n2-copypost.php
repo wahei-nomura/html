@@ -43,12 +43,14 @@ class N2_Copypost {
 		$post     = get_post( filter_input( INPUT_POST, 'original_id', FILTER_VALIDATE_INT ) );
 		$set_data = filter_input( INPUT_POST, 'set_data', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
 		$post_all_meta = N2_Functions::get_all_meta( $post );
+		$author_id = $post->post_author;
+
 
 		// 新しい返礼品情報設定
 		$new_post = array(
 			'post_title'  => '' !== $set_data['teiki'] ? "【全{$set_data['teiki']}回定期便】{$set_data['title']}" : $set_data['title'],
 			'post_status' => 'pending',
-			'post_author' => get_userdata( $post->post_author )->ID,
+			'post_author' => $author_id,
 		);
 
 		// 作成
@@ -73,6 +75,28 @@ class N2_Copypost {
 					preg_replace( '/翌月の[0-9]{1,2}日/', "翌月の{$set_data['firstDate']}日", preg_replace( '/毎月[0-9]{1,2}日/', "毎月{$set_data['everyDate']}日", $post_all_meta['配送期間'] ) ) :
 					"※初回発送はお申込み翌月の{$set_data['firstDate']}日までに発送致します。なお2回目以降も毎月{$set_data['everyDate']}日までに発送致します。\n{$post_all_meta['配送期間']}";
 				update_post_meta( $newpost_id, $key, $comverted_delivery_date );
+			} elseif ( '返礼品コード' === $key ) {
+				// 返礼品コード検索
+				$item_ids = array_map(
+					function ( $item ) {
+						return get_post_meta( $item->ID, '返礼品コード', true );
+					},
+					get_posts( "author={$author_id}&post_status=any" )
+				);
+
+				// 一番大きいコード抽出
+				$count = count( $item_ids );
+				$max = 0;
+				$prefix = preg_replace( '/[0-9]{2,3}/', '', $post_all_meta['返礼品コード'] );
+				$num_length = mb_strlen( $post_all_meta['返礼品コード'] ) - mb_strlen( $prefix );
+				for ( $i = 0; $i < $count; $i ++ ) {
+					preg_match( '/[0-9]{2,3}/', $item_ids[$i], $m );
+					$max = $max < (int) $m[0] ? (int) $m[0] : $max;
+				};
+
+				$max = sprintf( "%0{$num_length}d", $max+1 );
+				update_post_meta( $newpost_id, $key, $prefix . $max );
+
 			} else {
 				update_post_meta( $newpost_id, $key, $value );
 			}
