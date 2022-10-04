@@ -238,22 +238,18 @@ class N2_Postlist {
 
 		global $wpdb;
 		// 事業者検索 ===============================================================
-		$users_sql        = "SELECT * FROM $wpdb->users ;";
-		$users_results    = $wpdb->get_results( $users_sql );
 		$show_author      = '';
 		$get_jigyousya_id = filter_input( INPUT_GET, '事業者', FILTER_VALIDATE_INT );
 
 		// datalist生成
 		echo '<datalist id="jigyousya-list">';
-		foreach ( $users_results as $row ) {
+		foreach ( get_users('role=jigyousya') as $row ) {
 			$author_id   = (int) $row->ID;
 			$author_name = $row->display_name;
 			if ( $author_id === $get_jigyousya_id ) {
 				$show_author = $author_name;
 			}
-			if ( '' !== $author_name && ! empty( get_userdata( $author_id )->roles[0] ) && 'jigyousya' === get_userdata( $author_id )->roles[0] ) {
-				echo "<option value='{$author_name}' data-id='{$author_id}'>";
-			}
+			echo "<option value='{$author_name}' data-id='{$author_id}'>";
 		}
 		echo '</datalist>';
 
