@@ -46,7 +46,7 @@ export default () => {
 		// アップローダーオープン時に動かしたい処理
 		const uploaderOpen = (customUploader, parent) => {
 			const imgUrls = [];
-			$.each($(`input[name="画像[]"]`), (i, v) => {
+			$.each($(`input[name="商品画像[]"]`), (i, v) => {
 				imgUrls[i] = $(v).val();
 			});
 
@@ -89,7 +89,7 @@ export default () => {
 						datas.each((data) => {
 							parent.append(
 								$(`<div class="${prefix}-image-block">
-				<input type="hidden" name="画像[]" class="${prefix}-image-input" value="${
+				<input type="hidden" name="商品画像[]" class="${prefix}-image-input" value="${
 									data.attributes.url
 								}">
 				<span class="dashicons dashicons-no-alt ${prefix}-image-delete"></span><span class="${prefix}-image-big dashicons dashicons-editor-expand"></span><span class="${prefix}-image-num"></span>
@@ -113,13 +113,13 @@ export default () => {
 		};
 
 		// 画像選択ボタン表示
-		$('label[for="画像"]')
+		$('label[for="商品画像"]')
 			.parent()
 			.next()
 			.next()
 			.before(
 				$(
-					`<button class="button button-primary ${prefix}-media-toggle">画像選択</button><input type="hidden" name="画像" value=""><div class="${prefix}-image-wrapper"></div>`
+					`<button class="button button-primary ${prefix}-media-toggle">画像選択</button><input type="hidden" name="商品画像" value=""><div class="${prefix}-image-wrapper"></div>`
 				)
 			);
 

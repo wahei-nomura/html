@@ -65,12 +65,12 @@ class N2_Item_Export {
 	public function ledghome() {
 		// itemの情報を配列か
 		$items_arr  = array();
-		$header_str = parse_ini_file( get_template_directory() . '/config/n2-file-header.ini', true )['ledghome']['csv_header'];
+		$header_data = yaml_parse_file( get_theme_file_path() . '/config/n2-file-header.yml' );
 
 		// あとでヘッダの上の連結するのに必要
-		$csv_title = explode( "\n", $header_str )[0];
+		$csv_title = $header_data['ledghome']['csv_header']['title'];
 
-		$header = explode( ',', explode( "\n", $header_str )[1] );
+		$header = $header_data['ledghome']['csv_header']['values'];
 
 		// プラグイン側でヘッダーを編集
 		$header = apply_filters( 'n2_item_export_ledghome_header', $header );

@@ -1,3 +1,3 @@
-import "../scss/front-test.scss";
-
-console.log("front.js読み込み中");
+import "../scss/front.scss";
+import n2_front from './n2-front';
+n2_front();

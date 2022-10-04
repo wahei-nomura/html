@@ -7,8 +7,8 @@
 
 global $post;
 $post_data = N2_Functions::get_all_meta( $post );
-
-$ini = parse_ini_file( get_template_directory() . '/config/n2-fields.ini', true );
+echo esc_html(get_post_type_object(get_post_type())->name);
+$ini = parse_ini_file( get_theme_file_path() . '/config/n2-fields.ini', true );
 
 // プラグインn2-developのn2_setpost_show_customfields呼び出し
 $fields = apply_filters( 'n2_setpost_show_customfields', $ini, 'default' );
@@ -49,12 +49,13 @@ if ( have_posts() ) :
 	while ( have_posts() ) :
 		the_post();
 		?>
-		<?php if ( 'publish' !== get_post_status() ) : ?>
+				<?php if ( 'publish' !== get_post_status() ) : ?>
+		<!-- プログレストラッカー -->
+		<?php get_template_part( 'template/progress' ); ?>
+					<?php endif; ?>
 
 		<h1><?php the_title(); ?></h1>	
 
-		<!-- プログレストラッカー -->
-			<?php get_template_part( 'template/progress' ); ?>
 
 		<table>
 			<tr><th width="30%">項目</th><th width="70%">内容</th></tr>
@@ -63,10 +64,17 @@ if ( have_posts() ) :
 					preg_match( '/画像/', $key, $m );
 					if ( ! empty( $m[0] ) && $m[0] && ! empty( $post_data[ $key ] ) ) :
 						?>
+						<?php
+						foreach( $post_data[ $key ] as $pickey => $postpicture):
+							$picno = $pickey + 1;
+						?>
 					<tr>
-						<td><?php echo $key; ?></td>
-						<td><img src="<?php echo ! empty( $post_data[ $key ] ) ? $post_data[ $key ] : ''; ?>" width='200px'></td>
+						<td><?php echo $key . $picno ; ?></td>
+						<td><img src="<?php echo ! empty( $postpicture ) ? $postpicture : ''; ?>" width='200px'></td>
 					</tr>
+						<?php
+						endforeach;
+						?>
 						<?php
 						elseif ( 'checkbox' === $value['type'] || 'select' === $value['type'] ) :
 							$new_options = array();
@@ -97,8 +105,8 @@ if ( have_posts() ) :
 				<?php endif; ?>
 				<?PHP endforeach; ?>
 		</table>
-	<?php else : ?>
-		<?php echo is_user_logged_in() ? get_template_part( 'template/progress' ) : ''; ?>
+	<?php if ( 'publish' === get_post_status() ) : ?>
+		<?php /* echo is_user_logged_in() ? get_template_part( 'template/progress' ) : '';*/ ?>
 		<p>公開中の商品は違う感じの表示にする。</p>
 
 </body>
