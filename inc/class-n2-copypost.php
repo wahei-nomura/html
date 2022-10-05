@@ -83,7 +83,7 @@ class N2_Copypost {
 					get_posts( "author={$author_id}&post_status=any" )
 				);
 
-				$prefix     = preg_replace( '/[0-9]{2,3}/', '', $post_all_meta['返礼品コード'] );
+				$prefix = preg_replace( '/[0-9]{2,3}/', '', $post_all_meta['返礼品コード'] );
 
 				// 桁違い対応
 				$num_length = mb_strlen( $post_all_meta['返礼品コード'] ) - mb_strlen( $prefix );
