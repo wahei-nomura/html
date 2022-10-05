@@ -69,6 +69,11 @@ class N2_Copypost {
 					"※こちらは全{$set_data['teiki']}回お届けいたします。\n{$post_all_meta['説明文']}";
 
 				update_post_meta( $newpost_id, $key, $converted_item_description );
+			} elseif ( '内容量・規格等' === $key && $set_data['teiki'] > 1 ) {
+				$comverted_monthly_number = preg_match( '/月[0-9]{1,2}回/', $post_all_meta[ $key ] ) ?
+					preg_replace( '/月[0-9]{1,2}回/', "月{$set_data['monthlyNumber']}回", $post_all_meta[ $key ] ) :
+					"以下の内容を全{$set_data['teiki']}回（月{$set_data['monthlyNumber']}回）お届けいたします。\n{$post_all_meta[$key]}";
+					update_post_meta( $newpost_id, $key, $comverted_monthly_number );
 			} elseif ( '配送期間' === $key && $set_data['teiki'] > 1 ) {
 				$comverted_delivery_date = preg_match( '/毎月[0-9]{1,2}日/', $post_all_meta['配送期間'] ) ?
 					preg_replace( '/翌月の[0-9]{1,2}日/', "翌月の{$set_data['firstDate']}日", preg_replace( '/毎月[0-9]{1,2}日/', "毎月{$set_data['everyDate']}日", $post_all_meta['配送期間'] ) ) :

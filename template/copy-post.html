@@ -1,13 +1,58 @@
 <!DOCTYPE html>
+
+<style>
+	#n2-copypost-modal {
+		padding: 24px;
+	}
+	.new-title span {
+		display: inline-block;
+		font-size: 16px;
+	}
+	label {
+		display: block;
+		font-size: 18px;
+		font-weight: bold;
+		margin-bottom: 8px;
+	}
+	input[type="number"] {
+		width: 60px;
+	}
+	input[type="text"] {
+		width: 100%;
+	}
+	.form-block {
+		margin: 16px 0;
+		padding: 16px;
+		background-color: azure;
+	}
+	.close-btn {
+		position: absolute;
+		right: 16px;
+		top: 16px;
+		z-index: 1000;
+		cursor: pointer;
+	}
+	.close-btn span {
+		width: 32px;
+		height: 32px;
+		font-size: 32px;
+	}
+
+	.is-teiki {
+		display: none;
+	}
+</style>
+
 <div id="n2-copypost-modal-wrapper">
 	<div id="n2-copypost-modal" class="media-modal-content">
-		複製元：<p></p>
+		<div class="close-btn"><span class="dashicons dashicons-no"></span></div>
 		<input type="hidden" name="id" value="">
+		<h1>さあ返礼品を複製しよう！</h1>
 		<div>
-			<label for="">つけたい商品名（◯◯定期便の記載不要）</label>
-			<input type="text" name="複写後商品名" id="">
+			複製元：<span class="original-title"></span>
 		</div>
-		<div>
+		<hr>
+		<div class="form-block">
 			<label for="">定期便として複製しますか？</label>
 			<select name="定期">
 				<option value="">定期便ではない</option>
@@ -24,13 +69,20 @@
 				<option value="12">12回定期便として複製</option>
 			</select>
 		</div>
-		<div>
-			<label for="">内容量・規格等挿入文</label>
+		<hr>
+		<div class="form-block">
+			<label>返礼品名(【全〇〇回定期便】は自動追加されます)</label>
+			<p class="new-title"><span></span><input type="text" name="複写後商品名" id=""></p>
+		</div>
+		<hr>
+		<div class="form-block is-teiki">
+			<label for="">内容量・規格(追加または置換されます)</label>
 			<div>※以下の内容を全◯◯回（月<input type="number" name="同月回数" id="">回）お届けいたします。</div>
 		</div>
-		<div>
-			<label for="">配送期間挿入文</label>
+		<hr>
+		<div class="form-block is-teiki">
+			<label for="">配送期間(追加または置換されます)</label>
 			<div>※初回発送はお申込み翌月の<input type="number" name="初回発送日" id="">日までに発送致します。なお2回目以降も毎月<input type="number" name="毎月発送日" id="">日までに発送致します。</div>
 		</div>
-		<button type="button">複製する</button>
+		<button class="button button-primary submit" type="button">複製する</button>
 	</div>
