@@ -10,14 +10,8 @@
 	<form method="get" class="n2-search-form">
 	<p>【探す】</p>
 	<input type="text" class="s" name="s" placeholder="キーワードを入力">
-<p>金額</p>
-	<?php /*<select name="price" class="price" id="">
-		<option value="1">0〜5,000</option>
-		<option value="2">5,001〜10,000</option>
-		<option value="3">10,001〜50,000</option>
-		<option value="4">50,001〜100,000</option>
-		<option value="5">100,001〜</option>
-	</select> */ ?>
+	<p>金額</p>
+	<input type="text" class="min-price" name="min-price" placeholder="MIN"><span>〜</span><input type="text" class="max-price" name="max-price" placeholder="MAX">
 	<?php /*<p>登録日</p>
 	<a href="">新しい順</a> <a href="">古い順</a>
 	<p>事業者HP</p>

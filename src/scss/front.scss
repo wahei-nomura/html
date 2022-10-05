@@ -78,7 +78,9 @@
 	}
 }
 .n2-search-form{
-
+	input[type="text"]{
+		padding: 12px;
+	}
 }
 .n2-checkbox-wrap{
 	display: flex;
