@@ -75,28 +75,23 @@ class N2_Copypost {
 					"※初回発送はお申込み翌月の{$set_data['firstDate']}日までに発送致します。なお2回目以降も毎月{$set_data['everyDate']}日までに発送致します。\n{$post_all_meta['配送期間']}";
 				update_post_meta( $newpost_id, $key, $comverted_delivery_date );
 			} elseif ( '返礼品コード' === $key ) {
-				// 同事業者の返礼品コードを配列化
-				$item_ids = array_map(
+				// 同事業者の返礼品コードの数字部分のみを配列化
+				$item_code_numbers = array_map(
 					function ( $item ) {
-						return get_post_meta( $item->ID, '返礼品コード', true );
+						return (int) preg_replace( '/[A-Z]/', '', get_post_meta( $item->ID, '返礼品コード', true ) );
 					},
 					get_posts( "author={$author_id}&post_status=any" )
 				);
 
-				// 数値が一番大きい返礼品コードをもとに新しいコード生成
-				$count      = count( $item_ids );
-				$max        = 0;
 				$prefix     = preg_replace( '/[0-9]{2,3}/', '', $post_all_meta['返礼品コード'] );
+
+				// 桁違い対応
 				$num_length = mb_strlen( $post_all_meta['返礼品コード'] ) - mb_strlen( $prefix );
-				for ( $i = 0; $i < $count; $i ++ ) {
-					preg_match( '/[0-9]{2,3}/', $item_ids[ $i ], $m );
-					$max = $max < (int) $m[0] ? (int) $m[0] : $max;
-				};
 
 				// 0詰め
-				$max = sprintf( "%0{$num_length}d", $max + 1 );
+				$new_item_code = $prefix . sprintf( "%0{$num_length}d", max( ...$item_code_numbers ) + 1 );
 
-				update_post_meta( $newpost_id, $key, $prefix . $max );
+				update_post_meta( $newpost_id, $key, $new_item_code );
 
 			} else {
 				update_post_meta( $newpost_id, $key, $value );
