@@ -121,7 +121,22 @@ class N2_Front {
 			array_push( $args, 'ふるなび' );
 			$where .= ')';
 		}
+		// ここまで出品禁止ポータル ------------------------------------
+		// 価格絞り込み ---------------------------------
+		if ( empty( $_GET['min-price'] ) && '' !== $_GET['min-price'] ) { // 楽天除外
+			$min_price = $_GET['min-price'];
+			var_dump($min_price);
+			$where    .= 'AND (';
+			$where    .= "
+			{$wpdb->postmeta}.meta_key = '寄附金額'
+			AND {$wpdb->postmeta}.meta_value >= '%s'
+			";
+			array_push( $args, $min_price );
+			$where .= ')';
+		}
 
+
+		// ここまで価格 ------------------------------------
 		// WHER句末尾連結
 		$where .= '))';
 
