@@ -7,7 +7,16 @@ export default () => {
 	 * 
 	================================================================== */
 	jQuery(function($) {
-		const createCopyPost=(id: number, setData): void => {
+
+		type setData = {
+			title: string,
+			teiki: number | null,
+			monthlyNumber: number | null,
+			firstDate: number | null,
+			everyDate: number | null,
+		}
+
+		const createCopyPost=(id: number, setData: setData): void => {
 			$.ajax({
 				type: "POST",
 				url: ajaxUrl(window),
@@ -35,11 +44,10 @@ export default () => {
 				itemTr.find("th.check-column input").val()
 			);
 			const itemTitle=itemTr.find(".item-title a").text();
-			// createCopyPost(originalId);
 			openModal(originalId, itemTitle);
 		});
 
-		const openModal=(id, title) => {
+		const openModal=(id:number, title:string):void => {
 			// テンプレートディレクトリからHTMLをロード
 			$("#wpbody-content").append(`<div id="${prefix}-content"></div>`);
 			$(`#${prefix}-content`).load(
@@ -80,12 +88,12 @@ export default () => {
 				return
 			}
 
-			const setData={
-				title: $('input[name="複写後商品名"]').val(),
-				teiki: $('select[name="定期"] option:selected').val(),
-				monthlyNumber: $('input[name="同月回数"]').val(),
-				firstDate: $('input[name="初回発送日"]').val(),
-				everyDate: $('input[name="毎月発送日"]').val()
+			const setData:setData={
+				title: String($('input[name="複写後商品名"]').val()),
+				teiki: Number($('select[name="定期"] option:selected').val()),
+				monthlyNumber: Number($('input[name="同月回数"]').val()),
+				firstDate: Number($('input[name="初回発送日"]').val()),
+				everyDate: Number($('input[name="毎月発送日"]').val())
 			}
 
 			createCopyPost(Number($("#n2-copypost-modal input[name='id']").val()),setData);
