@@ -90,7 +90,7 @@ export default () => {
 
 			const setData: setData = {
 				title: String($('input[name="複写後商品名"]').val()),
-				teiki: Number($('select[name="定期"] option:selected').val()),
+				teiki: $('select[name="定期"] option:selected').val() ? Number($('select[name="定期"] option:selected').val()) : null,
 				monthlyNumber: Number($('input[name="同月回数"]').val()),
 				firstDate: Number($('input[name="初回発送日"]').val()),
 				everyDate: Number($('input[name="毎月発送日"]').val())
