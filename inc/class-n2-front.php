@@ -89,8 +89,7 @@ class N2_Front {
 		}
 		// ここまでキーワード ------------------------------------
 		// 出品禁止ポータル絞り込み ---------------------------------
-		if ( empty( $_GET['portal_rakuten'] ) && '' !== $_GET['portal_rakuten'] ) { // 楽天除外
-			$portal_rakuten = $_GET['portal_rakuten'];
+		if ( empty( $_GET['portal_rakuten'] ) ) { // 楽天除外
 			$where         .= 'AND (';
 			$where         .= "
 			{$wpdb->postmeta}.meta_key = '出品禁止ポータル'
@@ -100,8 +99,7 @@ class N2_Front {
 			$where .= ')';
 		}
 
-		if ( empty( $_GET['portal_choice'] ) && '' !== $_GET['portal_choice'] ) { // チョイス除外
-			$portal_choice = $_GET['portal_choice'];
+		if ( empty( $_GET['portal_choice'] ) ) { // チョイス除外
 			$where        .= 'AND (';
 			$where        .= "
 			{$wpdb->postmeta}.meta_key = '出品禁止ポータル'
@@ -111,8 +109,7 @@ class N2_Front {
 			$where .= ')';
 		}
 
-		if ( empty( $_GET['portal_furunavi'] ) && '' !== $_GET['portal_furunavi'] ) { // チョイス除外
-			$portal_furunavi = $_GET['portal_furunavi'];
+		if ( empty( $_GET['portal_furunavi'] ) ) { // チョイス除外
 			$where          .= 'AND (';
 			$where          .= "
 			{$wpdb->postmeta}.meta_key = '出品禁止ポータル'

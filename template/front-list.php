@@ -35,8 +35,10 @@
 				// var_dump(get_post_meta(get_the_ID(), '出品禁止ポータル', true));
 				$meta_portals = get_post_meta( get_the_ID(), '出品禁止ポータル', true );
 				$meta_portal_section = '';
-				foreach($meta_portals as $key => $meta_portal){
-					$meta_portal_section .= $meta_portal;
+				if(!empty($meta_portals)){
+					foreach($meta_portals as $key => $meta_portal){
+						$meta_portal_section .= $meta_portal;
+					}	
 				}
 		?>
 		<li class="<?php echo $post_status; ?>">
@@ -47,7 +49,9 @@
 			<span class="product-list-price"><?php echo get_post_meta( get_the_ID(), '寄附金額', true ); ?></span>
 			<span class="product-list-auther"><?php echo get_the_author_meta( 'display_name', get_post_field( 'post_author', get_the_ID() ) ); ?></span>
 			<span class="product-list-code"><?php echo get_post_meta( get_the_ID(), '返礼品コード', true ); ?></span>
+			<?php if("" !== $meta_portal_section): ?>
 			<span class="product-list-code"><?php echo $meta_portal_section; ?></span>
+			<?php endif; ?>
 		</a>
 		</li>
 		<?php
