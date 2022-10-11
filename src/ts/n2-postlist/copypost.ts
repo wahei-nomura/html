@@ -38,15 +38,6 @@ export default () => {
 				});
 		};
 
-		$(`.${prefix}-copypost-btn`).on("click", (e) => {
-			const itemTr = $(e.target).parent().parent();
-			const originalId: number = Number(
-				itemTr.find("th.check-column input").val()
-			);
-			const itemTitle = itemTr.find(".item-title a").text();
-			openModal(originalId, itemTitle);
-		});
-
 		const openModal = (id: number, title: string): void => {
 			// テンプレートディレクトリからHTMLをロード
 			$("#wpbody-content").append(`<div id="${prefix}-content"></div>`);
@@ -59,6 +50,15 @@ export default () => {
 				}
 			);
 		};
+
+		$(`.${prefix}-copypost-btn`).on("click", (e) => {
+			const itemTr = $(e.target).parent().parent();
+			const originalId: number = Number(
+				itemTr.find("th.check-column input").val()
+			);
+			const itemTitle = itemTr.find(".item-title a").text();
+			openModal(originalId, itemTitle);
+		});
 
 		$('body').on('change', 'select[name="定期"]', e => {
 			const teikiNum = $(e.target).val();
