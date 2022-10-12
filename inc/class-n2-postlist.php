@@ -236,7 +236,6 @@ class N2_Postlist {
 			return;
 		}
 
-		global $wpdb;
 		// 事業者検索 ===============================================================
 		$show_author      = '';
 		$get_jigyousya_id = filter_input( INPUT_GET, '事業者', FILTER_VALIDATE_INT );
@@ -249,7 +248,8 @@ class N2_Postlist {
 			if ( $author_id === $get_jigyousya_id ) {
 				$show_author = $author_name;
 			}
-			echo "<option value='{$author_name}' data-id='{$author_id}'>";
+
+			printf( '<option value="%s" data-id="%s">', $author_name, $author_id );
 		}
 		echo '</datalist>';
 
@@ -262,13 +262,12 @@ class N2_Postlist {
 		echo '<select name="返礼品コード[]" multiple>';
 		echo '<option value="">返礼品コード</option>';
 		if ( empty( $_GET['事業者'] ) || '' === $_GET['事業者'] ) {
-			$posts_results = get_posts( 'post_status=any' );
-			foreach ( $posts_results as $row ) {
-				$post_id  = $row->ID;
-				$code     = get_post_meta( $post_id, '返礼品コード', 'true' );
-				$get_code = filter_input( INPUT_GET, '返礼品コード', FILTER_SANITIZE_ENCODED );
+			$get_code = filter_input( INPUT_GET, '返礼品コード', FILTER_SANITIZE_ENCODED );
+			$posts    = get_posts( 'post_status=any' );
+			foreach ( $posts as $post ) {
+				$code = get_post_meta( $post->ID, '返礼品コード', 'true' );
 				if ( '' !== $code ) {
-					echo "<option value='{$post_id}'>{$code}</option>";
+					printf( '<option value="%s">%s</option>', $post->ID, $code );
 				}
 			}
 		}
@@ -284,8 +283,7 @@ class N2_Postlist {
 		echo '<option value="">ステータス</option>';
 		foreach ( $status as $key => $value ) {
 			$get_status = filter_input( INPUT_GET, 'ステータス', FILTER_SANITIZE_ENCODED );
-			$selected   = selected( $key, $get_status, false );
-			echo "<option value='{$key}'{$selected}>{$value}</option>";
+			printf( '<option value="%s" %s>%s</option>', $key, selected( $key, $get_status, false ), $value );
 		}
 		echo '</select>';
 
@@ -293,10 +291,8 @@ class N2_Postlist {
 		echo '<select name="定期便">';
 		echo '<option value="">定期便検索</option>';
 		for ( $i = 1; $i <= 12; $i++ ) {
-			$text      = $i > 1 ? "{$i}回定期便のみ" : '定期便以外';
 			$get_teiki = filter_input( INPUT_GET, '定期便', FILTER_VALIDATE_INT );
-			$selected  = selected( $i, $get_teiki, false );
-			echo "<option value='{$i}'{$selected}>{$text}</option>";
+			printf( '<option value="%s" %s>%s</option>', $i, selected( $i, $get_teiki, false ), $i > 1 ? "{$i}回定期便のみ" : '定期便以外' );
 		}
 		echo '</select>';
 
