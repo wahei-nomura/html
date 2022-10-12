@@ -1,5 +1,7 @@
 .product-wrap{
 	display: flex;
+	max-width: 75vw;
+	margin: 0 auto;
 	section{
 		flex-shrink: 0;
 	}
@@ -9,7 +11,7 @@
 	padding: 1% 4% 1% 1%;
 }
 .product-list-wrap{
-	width: 80%;
+	width: 74%;
 	padding: 1%;
 	.page-numbers{
 		display: flex;
@@ -86,6 +88,11 @@
 			width: 40%;
 		}
 	}
+	.n2-search-price-wrap{
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
 	.n2-search-section{
 		padding: 0 2%;
 	}
@@ -105,7 +112,7 @@
 		}
 	}
 	label{
-		padding: 8px 20px;
+		padding: 8px 0;
 		border: 1px solid #ccc;
 		display: flex;
 		justify-content: center;
@@ -113,5 +120,6 @@
 		margin: 0 0 .5rem;
 		border-radius: 50px;
 		flex-wrap: wrap;
+		width: 30%;
 	}
 }

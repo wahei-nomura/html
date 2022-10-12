@@ -11,7 +11,9 @@
 	<p>【探す】</p>
 	<input type="text" class="s" name="s" placeholder="キーワードを入力">
 	<p>金額</p>
+	<div class="n2-search-price-wrap">
 	<input type="text" class="min-price" name="min-price" placeholder="MIN"><span class="n2-search-section">〜</span><input type="text" class="max-price" name="max-price" placeholder="MAX">
+	</div>
 	<?php /*<p>登録日</p>
 	<a href="">新しい順</a> <a href="">古い順</a>
 	<p>事業者HP</p>

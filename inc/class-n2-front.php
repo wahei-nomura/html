@@ -120,15 +120,24 @@ class N2_Front {
 		}
 		// ここまで出品禁止ポータル ------------------------------------
 		// 価格絞り込み ---------------------------------
-		if ( empty( $_GET['min-price'] ) && '' !== $_GET['min-price'] ) { // 楽天除外
+		if ( ! empty( $_GET['min-price'] ) && '' !== $_GET['min-price'] ) { // 最低額
 			$min_price = $_GET['min-price'];
-			var_dump($min_price);
 			$where    .= 'AND (';
 			$where    .= "
 			{$wpdb->postmeta}.meta_key = '寄附金額'
 			AND {$wpdb->postmeta}.meta_value >= '%s'
 			";
 			array_push( $args, $min_price );
+			$where .= ')';
+		}
+		if ( ! empty( $_GET['max-price'] ) && '' !== $_GET['max-price'] ) { // 最高額
+			$max_price = $_GET['max-price'];
+			$where    .= 'AND (';
+			$where    .= "
+			{$wpdb->postmeta}.meta_key = '寄附金額'
+			AND {$wpdb->postmeta}.meta_value <= '%s'
+			";
+			array_push( $args, $max_price );
 			$where .= ')';
 		}
 
