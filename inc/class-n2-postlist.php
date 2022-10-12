@@ -243,9 +243,9 @@ class N2_Postlist {
 
 		// datalist生成
 		echo '<datalist id="jigyousya-list">';
-		foreach ( get_users('role=jigyousya') as $row ) {
-			$author_id   = (int) $row->ID;
-			$author_name = $row->display_name;
+		foreach ( get_users( 'role=jigyousya' ) as $user ) {
+			$author_id   = (int) $user->ID;
+			$author_name = $user->display_name;
 			if ( $author_id === $get_jigyousya_id ) {
 				$show_author = $author_name;
 			}
@@ -262,8 +262,7 @@ class N2_Postlist {
 		echo '<select name="返礼品コード[]" multiple>';
 		echo '<option value="">返礼品コード</option>';
 		if ( empty( $_GET['事業者'] ) || '' === $_GET['事業者'] ) {
-			$posts_sql     = "SELECT * FROM $wpdb->posts ;";
-			$posts_results = $wpdb->get_results( $posts_sql );
+			$posts_results = get_posts( 'post_status=any' );
 			foreach ( $posts_results as $row ) {
 				$post_id  = $row->ID;
 				$code     = get_post_meta( $post_id, '返礼品コード', 'true' );
@@ -425,26 +424,20 @@ class N2_Postlist {
 	 * @return void
 	 */
 	public function ajax() {
-		global $wpdb;
 		$jigyousya = filter_input( INPUT_GET, '事業者', FILTER_VALIDATE_INT );
 
-		if ( ! empty( $jigyousya ) && '' !== $jigyousya ) {
-			$sql = "SELECT * FROM $wpdb->posts WHERE $wpdb->posts.post_author = $jigyousya ;";
-		} else {
-			$sql = "SELECT * FROM $wpdb->posts ;";
-		}
-		$result = $wpdb->get_results( $sql );
-		$arr    = array();
-		foreach ( $result as $row ) {
+		$posts = get_posts( "author={$jigyousya}&post_status=any" );
+		$arr   = array();
+		foreach ( $posts as $post ) {
 			if (
-				! empty( get_post_meta( $row->ID, '返礼品コード', 'true' ) ) &&
-				'' !== get_post_meta( $row->ID, '返礼品コード', 'true' )
+				! empty( get_post_meta( $post->ID, '返礼品コード', 'true' ) ) &&
+				'' !== get_post_meta( $post->ID, '返礼品コード', 'true' )
 				) {
-				$arr[ $row->ID ] = get_post_meta( $row->ID, '返礼品コード', 'true' );
+				$arr[ $post->ID ] = get_post_meta( $post->ID, '返礼品コード', 'true' );
 			}
 		}
 
-		echo json_encode( $arr );
+		echo wp_json_encode( $arr );
 
 		die();
 	}
