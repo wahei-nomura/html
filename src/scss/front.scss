@@ -1,7 +1,23 @@
+$breakpoint: (
+  sp: 'screen and (max-width: 576px)',
+//   tab: 'screen and (min-width: 577px)',
+//   pc: 'screen and (min-width: 1025px)'
+);
+
+@mixin mq($bp) {
+  @media #{map-get($breakpoint, $bp)} {
+   @content;
+  }
+}
+
 .product-wrap{
 	display: flex;
 	max-width: 75vw;
 	margin: 0 auto;
+	@include mq(sp){
+		max-width: 90vw;
+		flex-direction: column-reverse;
+	}
 	section{
 		flex-shrink: 0;
 	}
@@ -9,10 +25,16 @@
 .product-sidebar{
 	width: 20%;
 	padding: 1% 4% 1% 1%;
+	@include mq(sp){
+		width: 100%;
+	}
 }
 .product-list-wrap{
 	width: 74%;
 	padding: 1%;
+	@include mq(sp){
+		width: 100%;
+	}
 	.page-numbers{
 		display: flex;
 		justify-content: center;
@@ -39,6 +61,10 @@
 		box-shadow: 0 2px 0 0 #e5e5e5;
 		border: 1px solid #e5e5e5;
 		border-radius: 4px;
+		@include mq(sp){
+			width: 49%;
+			margin-bottom: 2%;
+		}	
 		&.draft{
 			border-left: solid 6px #888;
 			background: #eee;
