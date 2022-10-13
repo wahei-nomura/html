@@ -45,13 +45,15 @@
 		<a href="<?php the_permalink(); ?>">
 			<figure><img src="<?php echo $meta_pic_arr[0]; ?>" alt=""></figure>
 			<?php /*<span class="product-list-date"><?php the_date( 'y/m/d' ); ?></span>*/ ?>
+			<span class="product-list-item">
 			<span class="product-list-title"><?php the_title(); ?></span>
-			<span class="product-list-price"><?php echo get_post_meta( get_the_ID(), '寄附金額', true ); ?></span>
+			<span class="product-list-price"><?php echo number_format(get_post_meta( get_the_ID(), '寄附金額', true )) . ' 円'; ?></span>
 			<span class="product-list-auther"><?php echo get_the_author_meta( 'display_name', get_post_field( 'post_author', get_the_ID() ) ); ?></span>
 			<span class="product-list-code"><?php echo get_post_meta( get_the_ID(), '返礼品コード', true ); ?></span>
 			<?php if("" !== $meta_portal_section): ?>
 			<span class="product-list-code"><?php echo $meta_portal_section; ?></span>
 			<?php endif; ?>
+			</span><!--product-list-item-->
 		</a>
 		</li>
 		<?php
