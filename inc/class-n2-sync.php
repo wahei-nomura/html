@@ -56,12 +56,6 @@ class N2_Sync {
 					break;
 			}
 
-			// metaをセット
-			$usermeta = $userdata['meta'];
-			unset( $userdata['meta'] );
-			foreach ( array( 'nickname', 'first_name', 'last_name', 'description' ) as $key ) {
-				$userdata[ $key ] = $usermeta[ $key ][0];
-			}
 			add_filter( 'wp_pre_insert_user_data', array( $this, 'insert_raw_user_pass' ), 10, 4 );
 			$user_id = wp_insert_user( $userdata );
 			remove_filter( 'wp_pre_insert_user_data', array( $this, 'insert_raw_user_pass' ) );
@@ -102,6 +96,7 @@ class N2_Sync {
 			$params['page']++;
 			$arr = json_decode( $data, true );
 			foreach ( $arr as $v ) {
+
 				// 返礼品情報を生成
 				$postarr = array(
 					'status'            => $v['status'],
