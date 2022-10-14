@@ -22,7 +22,75 @@ class N2_Sync {
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		add_action( 'wp_ajax_n2sync', array( $this, 'sync' ) );
+		add_action( 'wp_ajax_n2_sync_posts', array( $this, 'sync_posts' ) );
+		add_action( 'wp_ajax_n2_sync_users', array( $this, 'sync_users' ) );
+	}
+
+	/**
+	 * 強制生パスワード注入
+	 * https://github.com/WordPress/wordpress-develop/blob/6.0.2/src/wp-includes/user.php#L2328
+	 *
+	 * @param array    $data {
+	 *     Values and keys for the user.
+	 *
+	 *     @type string $user_login      The user's login. Only included if $update == false
+	 *     @type string $user_pass       The user's password.
+	 *     @type string $user_email      The user's email.
+	 *     @type string $user_url        The user's url.
+	 *     @type string $user_nicename   The user's nice name. Defaults to a URL-safe version of user's login
+	 *     @type string $display_name    The user's display name.
+	 *     @type string $user_registered MySQL timestamp describing the moment when the user registered. Defaults to
+	 *                                   the current UTC timestamp.
+	 * }
+	 * @param bool     $update   Whether the user is being updated rather than created.
+	 * @param int|null $user_id  ID of the user to be updated, or NULL if the user is being created.
+	 * @param array    $userdata The raw array of data passed to wp_insert_user().
+	 */
+	public function insert_raw_user_pass( $data, $update, $user_id, $userdata ) {
+		$data['user_pass'] = wp_unslash( $userdata['user_pass'] );
+		return $data;
+	}
+
+	/**
+	 * N2ユーザーデータ吸い上げ
+	 */
+	public function sync_users() {
+		if ( ! WP_Filesystem() ) {
+			return;
+		}
+		global $wp_filesystem, $current_blog;
+		$data = $wp_filesystem->get_contents( "https://steamship.co.jp/{$current_blog->path}/wp-admin/admin-ajax.php?action=userdata" );
+		$data = json_decode( $data, true );
+		foreach ( $data as $k => $v ) {
+			$userdata = $v['data'];
+			unset( $userdata['ID'] );
+
+			// 既存ユーザーは更新するのでIDを突っ込む
+			$user = get_user_by( 'login', $userdata['user_login'] );
+			if ( $user ) {
+				$userdata['ID'] = $user->ID;
+			}
+
+			// 権限変換（NENG → NEONENG）
+			switch ( $v['roles'][0] ) {
+				case 'administrator':
+					$userdata['role'] = 'ss-crew';
+					break;
+				case 'contributor':
+					$userdata['role'] = 'jigyousya';
+					break;
+			}
+
+			add_filter( 'wp_pre_insert_user_data', array( $this, 'insert_raw_user_pass' ), 10, 4 );
+			$user_id = wp_insert_user( $userdata );
+			remove_filter( 'wp_pre_insert_user_data', array( $this, 'insert_raw_user_pass' ) );
+
+			// // 特定のユーザーを特権管理者に昇格（不要？）
+			// if ( 'ss-crew' === $userdata['role'] ) {
+			// 	grant_super_admin( $user_id );
+			// }
+		}
+		exit;
 	}
 
 	/**
@@ -30,7 +98,7 @@ class N2_Sync {
 	 *
 	 * @return void
 	 */
-	public function sync() {
+	public function sync_posts() {
 		global $current_blog;
 		$town = $current_blog->path;
 		$url  = "https://steamship.co.jp{$town}wp-json/wp/v2/posts";
@@ -109,4 +177,5 @@ class N2_Sync {
 		}
 		return $data;
 	}
+
 }

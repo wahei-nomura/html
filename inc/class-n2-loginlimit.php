@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( class_exists( 'N2_Loginlimit' ) ) {
-	new N2_Loginlimit();
+	// new N2_Loginlimit();
 	return;
 }
 
@@ -47,7 +47,7 @@ class N2_Loginlimit {
 			'183.177.128.173', // 土岐
 			'217.178.116.13', // 大村
 			'175.41.201.54', // SSVPN
-			'127.0.0.1', // 自分
+			'192.168.48.2', // 自分
 		);
 
 		if ( ! preg_match( '/ore\.steamship\.co\.jp|local/', $_SERVER['HTTP_HOST'] ) && ! in_array( $_SERVER['REMOTE_ADDR'], $ips ) ) {
