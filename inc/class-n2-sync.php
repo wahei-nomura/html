@@ -56,6 +56,12 @@ class N2_Sync {
 					break;
 			}
 
+			// metaをセット
+			$usermeta = $userdata['meta'];
+			unset( $userdata['meta'] );
+			foreach ( array( 'nickname', 'first_name', 'last_name', 'description' ) as $key ) {
+				$userdata[ $key ] = $usermeta[ $key ][0];
+			}
 			add_filter( 'wp_pre_insert_user_data', array( $this, 'insert_raw_user_pass' ), 10, 4 );
 			$user_id = wp_insert_user( $userdata );
 			remove_filter( 'wp_pre_insert_user_data', array( $this, 'insert_raw_user_pass' ) );
@@ -65,6 +71,7 @@ class N2_Sync {
 			// grant_super_admin( $user_id );
 			// }
 		}
+		echo 'ユーザーデータ更新完了！';
 		exit;
 	}
 
