@@ -66,7 +66,7 @@ eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nvar 
   \*************************************/
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
-eval("\nvar __importDefault = (this && this.__importDefault) || function (mod) {\n    return (mod && mod.__esModule) ? mod : { \"default\": mod };\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nvar ajax_1 = __importDefault(__webpack_require__(/*! ./ajax */ \"./src/ts/n2-postlist/ajax.ts\"));\nvar search_1 = __importDefault(__webpack_require__(/*! ./search */ \"./src/ts/n2-postlist/search.ts\"));\nexports[\"default\"] = (function () {\n    (0, ajax_1.default)();\n    (0, search_1.default)();\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/n2-postlist/index.ts?");
+eval("\nvar __importDefault = (this && this.__importDefault) || function (mod) {\n    return (mod && mod.__esModule) ? mod : { \"default\": mod };\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nvar ajax_1 = __importDefault(__webpack_require__(/*! ./ajax */ \"./src/ts/n2-postlist/ajax.ts\"));\nvar search_1 = __importDefault(__webpack_require__(/*! ./search */ \"./src/ts/n2-postlist/search.ts\"));\n// import ajax_dl from \"./ajax-dl\";\nexports[\"default\"] = (function () {\n    (0, ajax_1.default)();\n    (0, search_1.default)();\n    // ajax_dl();\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/n2-postlist/index.ts?");
 
 /***/ }),
 

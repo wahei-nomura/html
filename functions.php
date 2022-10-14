@@ -31,6 +31,7 @@ $incs = array(
 	'class-n2-sync',
 	'class-n2-item-export',
 	'class-n2-front',
+	'class-n2-img-download',
 );
 foreach ( $incs as $name ) {
 	require_once get_theme_file_path() . "/inc/{$name}.php";
