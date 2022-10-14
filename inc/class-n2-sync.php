@@ -97,6 +97,15 @@ class N2_Sync {
 			$arr = json_decode( $data, true );
 			foreach ( $arr as $v ) {
 
+				// 返礼品コードから事業者判定
+				preg_match( '/[A-Z]{2,3}/', $v['acf']['返礼品コード'], $m );
+				// 事業者コードが取得できない場合はスキップ
+				if ( empty( $m ) ) {
+					echo '<pre>事業者コードがありません。</pre>';
+					continue;
+				}
+				$user_id = $this->get_userid_by_last_name( $m[0] );
+
 				// 返礼品情報を生成
 				$postarr = array(
 					'status'            => $v['status'],
@@ -106,7 +115,7 @@ class N2_Sync {
 					'post_modified_gmt' => $v['modified_gmt'],
 					'type'              => $v['type'],
 					'post_title'        => $v['title']['rendered'],
-					'post_author'       => $v['author'],
+					'post_author'       => $user_id,
 					'meta_input'        => $v['acf'],
 				);
 				// 「返礼品コード」が既に登録済みか調査
@@ -177,6 +186,23 @@ class N2_Sync {
 			$data['post_modified_gmt'] = $postarr['post_modified_gmt'];
 		}
 		return $data;
+	}
+
+	/**
+	 * last_nameからユーザーIDゲットだぜ
+	 *
+	 * @param string $last_name 名
+	 */
+	public function get_userid_by_last_name( $last_name ) {
+		global $wpdb;
+		$id = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT user_id FROM $wpdb->usermeta WHERE meta_key = %s AND meta_value = %s LIMIT 1",
+				'last_name',
+				$last_name
+			)
+		);
+		return $id;
 	}
 
 }
