@@ -13,5 +13,3 @@
 
 
 get_template_part('template/item_details');
-
-

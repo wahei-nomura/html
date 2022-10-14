@@ -28,7 +28,7 @@ class N2_Front {
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		$this->cls  = get_class( $this );
+		$this->cls = get_class( $this );
 		add_action( 'posts_request', array( $this, 'front_request' ) );
 	}
 
@@ -40,11 +40,10 @@ class N2_Front {
 	 * @return string $query sql
 	 */
 	public function front_request( $query ) {
-		if(!is_front_page()){
+		if ( ! is_search() ) {
 			return $query;
 		}
 		global $wpdb;
-
 		// 最終的に$query内に代入するWHERE句
 		$where = "
 		AND (
@@ -61,7 +60,6 @@ class N2_Front {
 
 		// $wpdbのprepareでプレイスフォルダーに代入するための配列
 		$args = array();
-
 		// キーワード検索 ----------------------------------------
 		if ( ! empty( $_GET['s'] ) && '' !== $_GET['s'] ) {
 			// 全角空白は半角空白へ変換し、複数キーワードを配列に
@@ -90,45 +88,64 @@ class N2_Front {
 			$where .= ')';
 		}
 		// ここまでキーワード ------------------------------------
-
-		// 事業者絞り込み ----------------------------------------
-		if ( ! empty( $_GET['事業者'] ) && '' !== $_GET['事業者'] ) {
-			$where .= "AND {$wpdb->posts}.post_author = '%s'";
-			array_push( $args, filter_input( INPUT_GET, '事業者', FILTER_VALIDATE_INT ) );
-		}
-
-		// 返礼品コード絞り込み------------------------------------
-		if ( ! empty( $_GET['返礼品コード'] ) && '' !== $_GET['返礼品コード'] ) {
-			$code_arr = $_GET['返礼品コード'];
-			$where   .= 'AND (';
-			foreach ( $code_arr as $key => $code ) {
-				if ( 0 !== $key ) {
-					$where .= ' OR '; // 複数返礼品コードをOR検索(前後の空白必須)
-				}
-				$where .= "{$wpdb->posts}.ID = '%s'";
-				array_push( $args, $code );
-			}
+		// 出品禁止ポータル絞り込み ---------------------------------
+		if ( empty( $_GET['portal_rakuten'] ) ) { // 楽天除外
+			$where .= 'AND (';
+			$where .= "
+			{$wpdb->postmeta}.meta_key = '出品禁止ポータル'
+			AND {$wpdb->postmeta}.meta_value NOT LIKE '%%%s%%'
+			";
+			array_push( $args, '楽天' );
 			$where .= ')';
 		}
 
-		// ステータス絞り込み ------------------------------------
-		if ( ! empty( $_GET['ステータス'] ) && '' !== $_GET['ステータス'] ) {
-			$where .= "AND {$wpdb->posts}.post_status = '%s'";
-			array_push( $args, filter_input( INPUT_GET, 'ステータス' ) );
-		}
-
-		// 定期便絞り込み ---------------------------------------
-		if ( ! empty( $_GET['定期便'] ) && '' !== $_GET['定期便'] ) {
+		if ( empty( $_GET['portal_choice'] ) ) { // チョイス除外
+			$where .= 'AND (';
 			$where .= "
-					AND {$wpdb->postmeta}.meta_key = '定期便'
-					AND {$wpdb->postmeta}.meta_value = '%s'
-				";
-			array_push( $args, filter_input( INPUT_GET, '定期便', FILTER_VALIDATE_INT ) );
+			{$wpdb->postmeta}.meta_key = '出品禁止ポータル'
+			AND {$wpdb->postmeta}.meta_value NOT LIKE '%%%s%%'
+			";
+			array_push( $args, 'チョイス' );
+			$where .= ')';
 		}
 
+		if ( empty( $_GET['portal_furunavi'] ) ) { // チョイス除外
+			$where .= 'AND (';
+			$where .= "
+			{$wpdb->postmeta}.meta_key = '出品禁止ポータル'
+			AND {$wpdb->postmeta}.meta_value NOT LIKE '%%%s%%'
+			";
+			array_push( $args, 'ふるなび' );
+			$where .= ')';
+		}
+		// ここまで出品禁止ポータル ------------------------------------
+		// 価格絞り込み ---------------------------------
+		if ( ! empty( $_GET['min-price'] ) && '' !== $_GET['min-price'] ) { // 最低額
+			$min_price = $_GET['min-price'];
+			$where    .= 'AND (';
+			$where    .= "
+			{$wpdb->postmeta}.meta_key = '寄附金額'
+			AND {$wpdb->postmeta}.meta_value >= '%s'
+			";
+			array_push( $args, $min_price );
+			$where .= ')';
+		}
+		if ( ! empty( $_GET['max-price'] ) && '' !== $_GET['max-price'] ) { // 最高額
+			$max_price = $_GET['max-price'];
+			$where    .= 'AND (';
+			$where    .= "
+			{$wpdb->postmeta}.meta_key = '寄附金額'
+			AND {$wpdb->postmeta}.meta_value <= '%s'
+			";
+			array_push( $args, $max_price );
+			$where .= ')';
+		}
+
+
+		// ここまで価格 ------------------------------------
 		// WHER句末尾連結
 		$where .= '))';
-		// var_dump($where);
+
 		// SQL（postsとpostmetaテーブルを結合）
 		$sql = "
 		SELECT SQL_CALC_FOUND_ROWS *
@@ -141,9 +158,7 @@ class N2_Front {
 
 		// 検索用GETパラメータがある場合のみ$queryを上書き
 		$query = count( $args ) > 0 ? $wpdb->prepare( $sql, ...$args ) : $query;
-
 		return $query;
 	}
-
 
 }

@@ -7,6 +7,12 @@ export default () => {
 	 * 
 	================================================================== */
 	jQuery(function ($) {
+		const url = new URL(location.href);
+		const params = url.searchParams;
+		const searchStrings = url.search;
+		let searchStringsArray = [];
+		let paramArray = [];
+		let key = null;
 		// 計算パターンを受け取ってから処理
 		var siteHomeUrl = homeUrl(window) + "/"; // locationと合わせるため'/'追加
 		var nowUrl = location.href;
@@ -32,11 +38,9 @@ export default () => {
 				url: ajaxUrl(window),
 				data: {
 					action: "N2_Front",
-					// portalsitecheck: $('input[name="portalsite"]').val(),
 				},
 			}).done((res) => {
 				const data = JSON.parse(res);
-				console.log(data);
 			});
 		};
 		if (nowUrl !== siteHomeUrl) {
@@ -49,5 +53,10 @@ export default () => {
 				searchFrontItem();
 			});
 		}
+		searchFrontItem();
+		$('.portalsite').on("change", () => {
+			searchFrontItem();
+		});
+
 	});
 };
