@@ -10,8 +10,11 @@ $breakpoint: (
 
 .product-wrap {
 	display: flex;
+	max-width: 75vw;
+	margin: 0 auto;
 	@include mq(sp){
 		flex-direction: column-reverse;
+		max-width: 96vw;
 	}
 	section {
 		flex-shrink: 0;
