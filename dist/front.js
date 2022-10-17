@@ -70,7 +70,7 @@ eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nvar 
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
-eval("\nvar __importDefault = (this && this.__importDefault) || function (mod) {\n    return (mod && mod.__esModule) ? mod : { \"default\": mod };\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nvar front_ajax_1 = __importDefault(__webpack_require__(/*! ./front-ajax */ \"./src/ts/n2-front/front-ajax.ts\"));\nvar item_detail_1 = __importDefault(__webpack_require__(/*! ./item-detail */ \"./src/ts/n2-front/item-detail.ts\"));\nexports[\"default\"] = (function () {\n    (0, front_ajax_1.default)();\n    if (location.search.match(/[&?]max/))\n        (0, item_detail_1.default)();\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/n2-front/index.ts?");
+eval("\nvar __importDefault = (this && this.__importDefault) || function (mod) {\n    return (mod && mod.__esModule) ? mod : { \"default\": mod };\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nvar front_ajax_1 = __importDefault(__webpack_require__(/*! ./front-ajax */ \"./src/ts/n2-front/front-ajax.ts\"));\nvar item_detail_1 = __importDefault(__webpack_require__(/*! ./item-detail */ \"./src/ts/n2-front/item-detail.ts\"));\nexports[\"default\"] = (function () {\n    (0, front_ajax_1.default)();\n    if (location.search.match(/[&?]p=/))\n        (0, item_detail_1.default)();\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/n2-front/index.ts?");
 
 /***/ }),
 
