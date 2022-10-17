@@ -127,6 +127,11 @@ export default () => {
         });
         jQuery(window).resize(function(){
             jQuery('.sub-img').imgResize();
+            if($(this).width() > 576){
+                $('.sub').append($('.worker, .portal-links, .related-links'));
+            }else{
+                $('.main').append($('.worker, .portal-links, .related-links'));
+            }
         })
         window.setInterval(
             function(e){
@@ -153,5 +158,7 @@ export default () => {
         jQuery(window).on('load',function(){
             jQuery('.sub-img').imgResize();
         })
+
+        // PCサイズ切替
     })
 }

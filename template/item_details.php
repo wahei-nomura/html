@@ -164,7 +164,7 @@ if ( have_posts() ) :
 				</div>
 			</section>
 			
-
+			<?php if($tashiro): ?>
 			<section class='portal-scraper'>
 				<h2 class="mordal-btn">ポータル比較</h2>
 				<table border="1" style="display:none;" class="is-block">
@@ -197,6 +197,7 @@ if ( have_posts() ) :
 					</tbody>
 				</table>
 			</section>
+			<?php endif; ?>
 			<section class="portal-links">
 				<h2>各ポータルサイト</h2>
 				<ul class="portal-link-list">
@@ -212,10 +213,10 @@ if ( have_posts() ) :
 			<section class="related-links">
 				<h2>関連リンク</h2>
 			</section>
+			<aside class="sub">
+				
+			</aside>
 		</main>
-		<aside class="sub">
-			
-		</aside>
 		<div class="mordal" style="display: none;">
 			<div class="mordal-box">
 				<div class="close-btn"></div>
