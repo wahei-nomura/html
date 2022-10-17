@@ -66,7 +66,7 @@ class N2_Loginlimit {
 	 * @return void
 	 */
 	public function judge_sscrew_ip( $user_login, $user ) {
-		if ( ( ! empty( $user->roles[0] ) && 'ss-crew' !== $user->roles[0] ) || 'ore.steamship.co.jp' === $_SERVER['HTTP_HOST'] ) {
+		if ( ( ! empty( $user->roles[0] ) && 'ss-crew' !== $user->roles[0] ) || preg_match('/local/', $_SERVER['HTTP_HOST'] ) ) {
 			return;
 		}
 
