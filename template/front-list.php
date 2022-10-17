@@ -11,7 +11,7 @@
 		$args = array(
 			'paged' => $paged,
 			'posts_per_page' => 20,
-			'post_status' => 'any',
+			'post_status' => 'publish',
 
 		);
 		$wp_query = new WP_Query( $args );
