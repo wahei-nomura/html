@@ -31,17 +31,15 @@
 			while ( $wp_query->have_posts() ) {
 				$wp_query->the_post();
 
-				$url_parse      = explode( '/', get_option( 'home' ) );
+				$url_parse      = explode( '/', get_option( 'home' ) ); // items_detailsより拝借(rakutenに画像がある場合はそちらを使用)
 				$town_code      = end( $url_parse );
-				var_dump($town_code);
 				$n2_fields      = yaml_parse_file( get_theme_file_path() . '/config/n2-fields.yml' );
 				$n2_file_header = yaml_parse_file( get_theme_file_path() . '/config/n2-file-header.yml' );
 				$n2_towncode    = yaml_parse_file( get_theme_file_path() . '/config/n2-towncode.yml' );
 				$img_dir        = str_replace( 'n2-towncode', $n2_towncode[ $town_code ]['楽天'], $n2_file_header['rakuten']['img_dir'] );
 				$portals        = array( '楽天', 'チョイス' );
 				
-				$item_num_low = mb_strtolower( get_post_meta( get_the_ID(), '返礼品コード', true ) ); // items_detailsより拝借
-				var_dump($item_num_low);
+				$item_num_low = mb_strtolower( get_post_meta( get_the_ID(), '返礼品コード', true ) );
 				preg_match( '/^[a-z]{2,3}/', $item_num_low, $m );// 事業者コード
 							if ( ! preg_match( '/ne\.jp/', $img_dir ) ) {
 								$img_dir .= "/{$m[0]}";// キャビネットの場合事業者コード追加
@@ -61,12 +59,7 @@
 					}
 					return $arr;
 				};
-				// $post_data['商品画像'] = $check_img_urls() ?: $post_data['商品画像'];
-				// var_dump($post_data);
-
-				// $meta_pic_arr = get_post_meta( get_the_ID(), '商品画像', true );
 				$meta_pic_arr = $check_img_urls() ?: get_post_meta( get_the_ID(), '商品画像', true );
-				// var_dump($meta_pic_arr);
 
 				$post_status = get_post_status();
 				// var_dump(get_post_meta(get_the_ID(), '出品禁止ポータル', true));
