@@ -54,7 +54,7 @@ class N2_Img_Download {
 			// 画像数保持
 			$file_length  = 0;
 			$fname        = mb_strtolower( $item_code );
-			$meta_pic_arr = get_post_meta( $id, '画像', true );
+			$meta_pic_arr = get_post_meta( $id, '商品画像', true );
 			foreach ( $meta_pic_arr as $pickey => $meta_pic ) {
 				$fname     = mb_strtolower( $item_code );
 				$pic_id    = attachment_url_to_postid( $meta_pic );
