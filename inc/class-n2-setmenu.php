@@ -54,13 +54,13 @@ class N2_Setmenu {
 
 		// クルーのメニュー削除
 		if ( 'ss-crew' === wp_get_current_user()->roles[0] ) {
-			array_push( $menus, 'themes.php' );
-			array_push( $menus, 'upload.php' );
+			$menus[] = 'themes.php';
+			$menus[] = 'upload.php';
 		}
 
 		// 事業者のメニュー削除
 		if ( 'jigyousya' === wp_get_current_user()->roles[0] ) {
-			array_push( $menus, 'index.php' );
+			$menus[] = 'index.php';
 		}
 
 		foreach ( $menus as $menu ) {
