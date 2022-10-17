@@ -5,6 +5,7 @@ export default () => {
 	jQuery(function ($) {
 		// loading要素を追加
 		$('#download_img').after('<span class="loading_background"><span id="text_loading"></span><span class="progressbar"></span></span>');
+		const text_loading = document.getElementById("text_loading");
 		$(document).on("click", '.dlbtn', (e) => {
 			$('.loading_background').addClass("active"); // クリックと同時にオーバーレイ要素(loading_background)class付けて二重クリックできないようにする
 			text_loading.textContent = "登録画像確認中… "; // #text_loadingのテキスト書き換え(追加)
@@ -52,7 +53,7 @@ export default () => {
 			downloadProgress(xhr);
 		}		
 		function downloadProgress(xhr){
-			var dlper = 0;
+			var dlper = '';
 			var dlfontsize = 0;
 			xhr.addEventListener('progress', (e) => {
 				if( e.lengthComputable ) {
