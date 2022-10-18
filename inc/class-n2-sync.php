@@ -35,6 +35,10 @@ class N2_Sync {
 		}
 		global $wp_filesystem, $current_blog;
 		$data = $wp_filesystem->get_contents( "https://steamship.co.jp/{$current_blog->path}/wp-admin/admin-ajax.php?action=userdata" );
+		if ( ! $data ) {
+			echo 'データ取得失敗！ >_<';
+			exit;
+		}
 		$data = json_decode( $data, true );
 		foreach ( $data as $k => $v ) {
 			$userdata = $v['data'];
