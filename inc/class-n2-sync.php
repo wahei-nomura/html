@@ -62,6 +62,7 @@ class N2_Sync {
 
 			add_filter( 'wp_pre_insert_user_data', array( $this, 'insert_raw_user_pass' ), 10, 4 );
 			$user_id = wp_insert_user( $userdata );
+			echo "<pre>{$user_id}更新</pre>";
 			remove_filter( 'wp_pre_insert_user_data', array( $this, 'insert_raw_user_pass' ) );
 
 			// // 特定のユーザーを特権管理者に昇格（不要？）
