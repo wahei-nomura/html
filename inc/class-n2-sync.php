@@ -108,7 +108,7 @@ class N2_Sync {
 
 				// 返礼品情報を生成
 				$postarr = array(
-					'status'            => $v['status'],
+					'post_status'       => $v['status'],
 					'post_date'         => $v['date'],
 					'post_date_gmt'     => $v['date_gmt'],
 					'post_modified'     => $v['modified'],

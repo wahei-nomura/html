@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( class_exists( 'N2_Loginlimit' ) ) {
-	// new N2_Loginlimit();
+	new N2_Loginlimit();
 	return;
 }
 
