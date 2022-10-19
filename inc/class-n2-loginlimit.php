@@ -49,7 +49,7 @@ class N2_Loginlimit {
 			'175.41.201.54', // SSVPN
 		);
 
-		if ( ! preg_match( '/https:\/\/wp-multi\.ss\.localhost/', home_url() ) && ! in_array( $_SERVER['REMOTE_ADDR'], $ips ) ) {
+		if ( 'wp-multi.ss.localhost' !== get_network()->domain && ! in_array( $_SERVER['REMOTE_ADDR'], $ips ) ) {
 			wp_logout();
 			echo $_SERVER['REMOTE_ADDR'];
 			exit;
@@ -65,7 +65,7 @@ class N2_Loginlimit {
 	 * @return void
 	 */
 	public function judge_sscrew_ip( $user_login, $user ) {
-		if ( ( ! empty( $user->roles[0] ) && 'ss-crew' !== $user->roles[0] ) || preg_match( '/https:\/\/wp-multi\.ss\.localhost/', home_url() ) ) {
+		if ( ( ! empty( $user->roles[0] ) && 'ss-crew' !== $user->roles[0] ) || 'wp-multi.ss.localhost' === get_network()->domain ) {
 			return;
 		}
 
