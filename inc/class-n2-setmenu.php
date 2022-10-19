@@ -77,11 +77,17 @@ class N2_Setmenu {
 		if ( ! current_user_can( 'jigyousya' ) ) {
 			return;
 		}
-		if ( 'index.php' === $pagenow || 'tools.php' === $pagenow || 'upload.php' === $pagenow ) {
+
+		$hide_pages = array(
+			'index.php',
+			'tooles.php',
+			'upload.php',
+		);
+		if ( in_array( $pagenow, $hide_pages, true ) ) {
 			wp_redirect( admin_url( 'edit.php' ) );
 		}
 		if ( 'profile.php' === $pagenow ) {
-			wp_die( 'ユーザープロフィールを変更したい場合は「Steamship」へお問い合わせください。<p><a class="button" href="' . $_SERVER['HTTP_REFERER'] . '">前に戻る</a></p>' );
+			wp_die( 'ユーザープロフィールを変更したい場合は「Steamship」へお問い合わせください。<p><a class="button" href="' . admin_url( 'edit.php' ) . '">返礼品一覧へ戻る</a></p>' );
 		}
 	}
 }
