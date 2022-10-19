@@ -261,7 +261,7 @@ class N2_Postlist {
 		// 返礼品コード検索
 		echo '<select name="返礼品コード[]" multiple>';
 		echo '<option value="">返礼品コード</option>';
-		if ( empty( $_GET['事業者'] ) || '' === $_GET['事業者'] ) {
+		if ( empty( $_GET['事業者'] ) ) {
 			$get_code = filter_input( INPUT_GET, '返礼品コード', FILTER_SANITIZE_ENCODED );
 			$posts    = get_posts( 'post_status=any' );
 			foreach ( $posts as $post ) {
@@ -332,7 +332,7 @@ class N2_Postlist {
 		$args = array();
 
 		// キーワード検索 ----------------------------------------
-		if ( ! empty( $_GET['s'] ) && '' !== $_GET['s'] ) {
+		if ( ! empty( $_GET['s'] ) ) {
 			// 全角空白は半角空白へ変換し、複数キーワードを配列に
 			$s_arr = explode( ' ', mb_convert_kana( $_GET['s'], 's' ) );
 			// キーワード前後の空白
@@ -361,13 +361,13 @@ class N2_Postlist {
 		// ここまでキーワード ------------------------------------
 
 		// 事業者絞り込み ----------------------------------------
-		if ( ! empty( $_GET['事業者'] ) && '' !== $_GET['事業者'] ) {
+		if ( ! empty( $_GET['事業者'] ) ) {
 			$where .= "AND {$wpdb->posts}.post_author = '%s'";
 			array_push( $args, filter_input( INPUT_GET, '事業者', FILTER_VALIDATE_INT ) );
 		}
 
 		// 返礼品コード絞り込み------------------------------------
-		if ( ! empty( $_GET['返礼品コード'] ) && '' !== $_GET['返礼品コード'] ) {
+		if ( ! empty( $_GET['返礼品コード'] ) ) {
 			$code_arr = $_GET['返礼品コード'];
 			$where   .= 'AND (';
 			foreach ( $code_arr as $key => $code ) {
@@ -381,13 +381,13 @@ class N2_Postlist {
 		}
 
 		// ステータス絞り込み ------------------------------------
-		if ( ! empty( $_GET['ステータス'] ) && '' !== $_GET['ステータス'] ) {
+		if ( ! empty( $_GET['ステータス'] ) ) {
 			$where .= "AND {$wpdb->posts}.post_status = '%s'";
 			array_push( $args, filter_input( INPUT_GET, 'ステータス' ) );
 		}
 
 		// 定期便絞り込み ---------------------------------------
-		if ( ! empty( $_GET['定期便'] ) && '' !== $_GET['定期便'] ) {
+		if ( ! empty( $_GET['定期便'] ) ) {
 			$where .= "
 					AND {$wpdb->postmeta}.meta_key = '定期便'
 					AND {$wpdb->postmeta}.meta_value = '%s'
@@ -425,10 +425,7 @@ class N2_Postlist {
 		$posts = get_posts( "author={$jigyousya}&post_status=any" );
 		$arr   = array();
 		foreach ( $posts as $post ) {
-			if (
-				! empty( get_post_meta( $post->ID, '返礼品コード', 'true' ) ) &&
-				'' !== get_post_meta( $post->ID, '返礼品コード', 'true' )
-				) {
+			if ( ! empty( get_post_meta( $post->ID, '返礼品コード', 'true' ) ) ) {
 				$arr[ $post->ID ] = get_post_meta( $post->ID, '返礼品コード', 'true' );
 			}
 		}
