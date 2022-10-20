@@ -87,9 +87,19 @@ class N2_Functions {
 		global $pagenow, $post_type;
 		return ! is_admin() || ! current_user_can( $user ) || $page !== $pagenow || $type !== $post_type;
 	}
+	/**
+	 * get_template_partのwrapper
+	 *
+	 * @param string $slug The slug name for the generic template.
+	 * @param string $name The name of the specialised template.
+	 * @param array  $args Optional. Additional arguments passed to the template.
+	 *               	   Default empty array.
+	 * @return void|false Void on success, false if the template does not exist.
+	 */
 	public static function get_template_part_with_args( $slug, $name, $args ) {
-		if ( $args ) {
+		if ( $args ) { // $argsが無ければ何もしない
 			get_template_part( $slug, $name, $args );
 		}
+		return false;
 	}
 }
