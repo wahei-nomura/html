@@ -87,4 +87,9 @@ class N2_Functions {
 		global $pagenow, $post_type;
 		return ! is_admin() || ! current_user_can( $user ) || $page !== $pagenow || $type !== $post_type;
 	}
+	public static function get_template_part_with_args( $slug, $name, $args ) {
+		if ( $args ) {
+			get_template_part( $slug, $name, $args );
+		}
+	}
 }
