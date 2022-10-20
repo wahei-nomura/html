@@ -24,7 +24,7 @@ class N2_Setmenu {
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'change_menulabel' ) );
 		add_action( 'admin_menu', array( $this, 'remove_menulabel' ) );
-		add_action( 'init', array( $this, 'not_edit_user' ) );
+		add_action( 'admin_init', array( $this, 'not_edit_user' ) );
 
 	}
 
@@ -74,7 +74,7 @@ class N2_Setmenu {
 	 */
 	public function not_edit_user() {
 		global $pagenow;
-		if ( ! current_user_can( 'jigyousya' ) ) {
+		if ( current_user_can( 'ss_crew' ) ) {
 			return;
 		}
 
