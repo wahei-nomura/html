@@ -10,6 +10,30 @@
 	<form method="get" class="n2-search-form">
 	<p>【探す】</p>
 	<input type="text" class="s" name="s" placeholder="キーワードを入力">
+	<p>出品事業者</p>
+	<div>
+		<?php
+			// 事業者検索 ===============================================================
+			$show_author      = '';
+			$get_jigyousya_id = filter_input( INPUT_GET, 'author', FILTER_VALIDATE_INT );
+		?>
+
+		<datalist id="jigyousya-list">
+			<?php foreach ( get_users( 'role=jigyousya' ) as $user ) : ?>
+				<?php
+					$author_id   = (int) $user->ID;
+					$author_name = $user->display_name;
+					if ( $author_id === $get_jigyousya_id ) {
+						$show_author = $author_name;
+					}
+				?>
+				<option value="<?php echo $author_name; ?>" data-id="<?php echo $author_id; ?>">
+			<?php endforeach; ?>
+		</datalist>
+
+		<input type='text' name='' id='jigyousya-list-tag' list='jigyousya-list' value='<?php echo $show_author; ?>' placeholder='事業者入力'>
+		<input id='jigyousya-value' type='hidden' name='author' value='<?php echo $get_jigyousya_id; ?>'>
+	</div>
 	<p>金額</p>
 	<div class="n2-search-price-wrap">
 	<input type="text" class="min-price" name="min-price" placeholder="MIN"><span class="n2-search-section">〜</span><input type="text" class="max-price" name="max-price" placeholder="MAX">

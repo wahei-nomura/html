@@ -137,6 +137,13 @@ class N2_Front {
 			$where .= ')';
 		}
 
+		// 事業者絞り込み ----------------------------------------
+		if ( ! empty( $_GET['author'] ) ) {
+			$where .= "AND {$wpdb->posts}.post_author = '%s'";
+			array_push( $args, filter_input( INPUT_GET, 'author', FILTER_VALIDATE_INT ) );
+		}
+		// ここまで事業者 ----------------------------------------
+
 
 		// ここまで価格 ------------------------------------
 		// WHER句末尾連結
