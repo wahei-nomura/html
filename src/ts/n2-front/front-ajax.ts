@@ -28,16 +28,27 @@ export default () => {
 				const data = JSON.parse(res);
 			});
 		};
-		const searchFrontItem = (): void => {
+		const updateItemConfirm = (postId: number): void => {
 			$.ajax({
 				url: ajaxUrl(window),
+				type: "POST",
+				dataType: "json",
 				data: {
-					action: "N2_Front",
+					action: "N2_Front_item_confirm",
+					post_id: postId,
 				},
 			}).done((res) => {
-				const data = JSON.parse(res);
+				console.log('更新OK')
+			}).fail(error => {
+				console.log(error)
 			});
 		};
+
+		$('button.ok-btn').on('click', e => {
+			$(e.target).prop('disabled',true);
+			updateItemConfirm(Number($(e.target).val()))
+		})
+
 		// if( nowUrl === siteHomeUrl ){ // トップページでない(=single)場合にスクレイピング
 		// 	console.log('test2');
 		// 	// searchFrontItem();
@@ -50,34 +61,39 @@ export default () => {
 		// }else{
 		// 	scrapingItem();
 		// }
-		if("" != searchStrings){
-			const newSearchStrings = searchStrings.replace("?","");
-			searchStringsArray = newSearchStrings.split('&');
-			for(var i = 0; i < searchStringsArray.length; i++){
-				key = searchStringsArray[i].split("=");
-				paramArray[key[0]] = key[1];
-				let terms = decodeURIComponent(key[1]);
-				$('input').each(function(index,elem){
-					let val = $(this).val();
-					if($(this).attr('name') == key[0]){
-						if('checkbox' == $(this).attr('type')){
-							if('1' == terms){
-								$(this).prop("checked", true);
-							}
-						}else{
-							$(this).val(terms);
-						}
-					}
-				});
-			}
-		}else{ // 
-			$('.front-portal-wrap').find('input').prop("checked", true);
-		}
+
+
+		// ============================================================================= 
+		// この下の処理は全てPHPだけで完結すると思うのでできれば消したいです。Taiki
+
+		// if("" != searchStrings){
+		// 	const newSearchStrings = searchStrings.replace("?","");
+		// 	searchStringsArray = newSearchStrings.split('&');
+		// 	for(var i = 0; i < searchStringsArray.length; i++){
+		// 		key = searchStringsArray[i].split("=");
+		// 		paramArray[key[0]] = key[1];
+		// 		let terms = decodeURIComponent(key[1]);
+		// 		$('input').each(function(index,elem){
+		// 			let val = $(this).val();
+		// 			if($(this).attr('name') == key[0]){
+		// 				if('checkbox' == $(this).attr('type')){
+		// 					if('1' == terms){
+		// 						$(this).prop("checked", true);
+		// 					}
+		// 				}else{
+		// 					$(this).val(terms);
+		// 				}
+		// 			}
+		// 		});
+		// 	}
+		// }else{ // 
+		// 	$('.front-portal-wrap').find('input').prop("checked", true);
+		// }
 		// searchFrontItem();
-		$('.portalsite').on("change", () => {
-			// searchFrontItem();
-		});
+		// $('.portalsite').on("change", () => {
+		// searchFrontItem();
+		// });
+		// ここまで ======================================================================
 
 	});
 };
-	

@@ -126,6 +126,9 @@ $breakpoint: (
 			width: 100%;
 			background-color: #ad0003;
 			color: #fff;
+			&:disabled {
+				background-color: #888;
+			}
 		}
 	}
 }

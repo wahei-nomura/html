@@ -72,8 +72,15 @@
 			<?php endif; */ ?>
 			</span><!--product-list-item-->
 		</a>
-		<?php if ( ! empty( $_GET['look'] ) && 'true' === $_GET['look'] ) : ?>
-			<button type='button' class='ok-btn'>確認OK</button>
+		<?php if ( ! empty( $_GET['look'] ) && ! empty( $_GET['author'] ) ) : ?>
+			<button
+				type='button'
+				class='ok-btn'
+				value='<?php the_ID(); ?>'
+				<?php echo '' !== get_post_meta( get_the_ID(), '事業者確認', true ) ? 'disabled' : ''; ?>
+			>
+			確認OK
+			</button>
 		<?php endif; ?>
 		</li>
 		<?php
