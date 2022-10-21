@@ -73,9 +73,9 @@ export default () => {
 		}else{ // 
 			$('.front-portal-wrap').find('input').prop("checked", true);
 		}
-		searchFrontItem();
+		// searchFrontItem();
 		$('.portalsite').on("change", () => {
-			searchFrontItem();
+			// searchFrontItem();
 		});
 
 	});
