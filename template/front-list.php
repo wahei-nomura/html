@@ -72,6 +72,9 @@
 			<?php endif; */ ?>
 			</span><!--product-list-item-->
 		</a>
+		<?php if ( ! empty( $_GET['look'] ) && 'true' === $_GET['look'] ) : ?>
+			<button type='button' class='ok-btn'>確認OK</button>
+		<?php endif; ?>
 		</li>
 		<?php
 			}
