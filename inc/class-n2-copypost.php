@@ -59,16 +59,16 @@ class N2_Copypost {
 
 		// 定期便
 		if ( $set_data['定期'] > 1 ) {
-			$post_all_meta['説明文'] = preg_match( '/全[0-9]{1,2}回/', $post_all_meta['説明文'] ) ?
-			preg_replace( '/全[0-9]{1,2}回/', "全{$set_data['定期']}回", $post_all_meta['説明文'] ) : "※こちらは全{$set_data['定期']}回お届けいたします。\n{$post_all_meta['説明文']}";
+			$post_all_meta['説明文'] = preg_match( '/全[0-9]{1,2}回/', mb_convert_kana( $post_all_meta['説明文'], 'n' ) ) ?
+			preg_replace( '/全[0-9]{1,2}回/', "全{$set_data['定期']}回", mb_convert_kana( $post_all_meta['説明文'], 'n' ) ) : "※こちらは全{$set_data['定期']}回お届けいたします。\n{$post_all_meta['説明文']}";
 
-			$post_all_meta['内容量・規格等'] = preg_match( '/月[0-9]{1,2}回/', $post_all_meta[ $key ] ) ?
-			preg_replace( '/月[0-9]{1,2}回/', "月{$set_data['同月回数']}回", $post_all_meta[ $key ] ) :
-			"以下の内容を全{$set_data['定期']}回（月{$set_data['同月回数']}回）お届けいたします。\n{$post_all_meta[$key]}";
-			"以下の内容を全{$set_data['定期']}回（月{$set_data['同月回数']}回）お届けいたします。\n{$post_all_meta[$key]}";
+			$post_all_meta['内容量・規格等'] = preg_match( '/月[0-9]{1,2}回/', mb_convert_kana( $post_all_meta['内容量・規格等'], 'n' ) ) ?
+			preg_replace( '/月[0-9]{1,2}回/', "月{$set_data['同月回数']}回", mb_convert_kana( $post_all_meta['内容量・規格等'], 'n' ) ) :
+			"以下の内容を全{$set_data['定期']}回（月{$set_data['同月回数']}回）お届けいたします。\n{$post_all_meta['内容量・規格等']}";
+			"以下の内容を全{$set_data['定期']}回（月{$set_data['同月回数']}回）お届けいたします。\n{$post_all_meta['内容量・規格等']}";
 
-			$post_all_meta['配送期間'] = preg_match( '/毎月[0-9]{1,2}日/', $post_all_meta['配送期間'] ) ?
-			preg_replace( '/翌月の[0-9]{1,2}日/', "翌月の{$set_data['初回発送日']}日", preg_replace( '/毎月[0-9]{1,2}日/', "毎月{$set_data['毎月発送日']}日", $post_all_meta['配送期間'] ) ) :
+			$post_all_meta['配送期間'] = preg_match( '/毎月[0-9]{1,2}日/', mb_convert_kana( $post_all_meta['配送期間'], 'n' ) ) ?
+			preg_replace( '/翌月の[0-9]{1,2}日/', "翌月の{$set_data['初回発送日']}日", preg_replace( '/毎月[0-9]{1,2}日/', "毎月{$set_data['毎月発送日']}日", mb_convert_kana( $post_all_meta['配送期間'], 'n' ) ) ) :
 			"※初回発送はお申込み翌月の{$set_data['初回発送日']}日までに発送致します。なお2回目以降も毎月{$set_data['毎月発送日']}日までに発送致します。\n{$post_all_meta['配送期間']}";
 		}
 
