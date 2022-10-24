@@ -98,7 +98,7 @@ class N2_Copypost {
 			'meta_input'  => $post_all_meta,
 		);
 
-		// wp_insert_post( $new_post );
+		wp_insert_post( $new_post );
 
 		wp_safe_redirect( $_SERVER['HTTP_REFERER'] );
 		exit;
