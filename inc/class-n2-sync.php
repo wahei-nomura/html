@@ -22,8 +22,9 @@ class N2_Sync {
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		add_action( 'wp_ajax_n2_sync_posts', array( $this, 'sync_posts' ) );
 		add_action( 'wp_ajax_n2_sync_users', array( $this, 'sync_users' ) );
+		add_action( 'wp_ajax_n2_sync_posts', array( $this, 'sync_posts' ) );
+		add_action( 'wp_ajax_n2_sync_posts_by_rest_api', array( $this, 'sync_posts_by_rest_api' ) );
 	}
 
 	/**
@@ -77,6 +78,75 @@ class N2_Sync {
 	 * N2返礼品吸い上げ
 	 */
 	public function sync_posts() {
+		if ( ! WP_Filesystem() ) {
+			return;
+		}
+		global $wp_filesystem, $current_blog;
+		$town = $current_blog->path;
+		$url  = "https://steamship.co.jp{$town}wp-admin/admin-ajax.php";
+		// params
+		$params = array(
+			'action' => 'postsdata',
+		);
+		$before = microtime( true );
+		wp_defer_term_counting( true );
+		wp_defer_comment_counting( true );
+		$data = $wp_filesystem->get_contents( "{$url}?" . http_build_query( $params ) );
+		$arr  = json_decode( $data, true );
+		foreach ( $arr as $k => $v ) {
+			// 返礼品コードから事業者判定
+			preg_match( '/^[A-Z]{2,3}$/m', $v['post_author_last_name'], $m );
+			// 事業者コードが取得できない場合はスキップ
+			if ( empty( $m ) ) {
+				echo "<pre>「{$v['post_author_last_name']}」は事業者ではないのでスキップしました。</pre>";
+				continue;
+			}
+			$user_id = $this->get_userid_by_last_name( $m[0] );
+
+			// 返礼品情報を生成
+			$postarr = array(
+				'post_status'       => $v['post_status'],
+				'post_date'         => $v['post_date'],
+				'post_date_gmt'     => $v['post_date_gmt'],
+				'post_modified'     => $v['post_modified'],
+				'post_modified_gmt' => $v['post_modified_gmt'],
+				'type'              => $v['type'],
+				'post_title'        => $v['post_title'],
+				'post_author'       => $user_id,
+				'meta_input'        => $v['acf'],
+			);
+			// 「返礼品コード」が既に登録済みか調査
+			$args = array(
+				'post_type'   => 'post',
+				'meta_key'    => '返礼品コード',
+				'meta_value'  => $v['acf']['返礼品コード'],
+				'post_status' => 'any',
+			);
+			// 返礼品の投稿IDを取得
+			$p = get_posts( $args )[0];
+			// 登録済みの場合
+			if ( $p->ID ) {
+				// 更新されてない場合はスキップ
+				if ( new DateTime( $p->post_modified ) === new DateTime( $postarr['post_modified'] ) ) {
+					continue;
+				}
+				$postarr['ID'] = $p->ID;
+			}
+			add_filter( 'wp_insert_post_data', array( $this, 'alter_post_modification_time' ), 99, 2 );
+			wp_insert_post( $postarr );
+			remove_filter( 'wp_insert_post_data', array( $this, 'alter_post_modification_time' ) );
+		}
+		wp_defer_term_counting( false );
+		wp_defer_comment_counting( false );
+		$after = microtime( true );
+		echo ( $after - $before ) . ' sec';
+		exit;
+	}
+
+	/**
+	 * REST API経由でN2返礼品吸い上げ
+	 */
+	public function sync_posts_by_rest_api() {
 		global $current_blog;
 		$town = $current_blog->path;
 		$url  = "https://steamship.co.jp{$town}wp-json/wp/v2/posts";
