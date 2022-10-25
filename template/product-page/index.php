@@ -89,7 +89,8 @@ if ( have_posts() ) :
 			<?php N2_Functions::get_template_part_with_args( 'template/product-page/portal-links', '', $tashiro ) ?>
 			
 			<!-- 関連リンク -->
-			<?php N2_Functions::get_template_part_with_args( 'template/product-page/related-links', '', $tashiro ) ?>
+			<?php $related_links = array() ?>
+			<?php N2_Functions::get_template_part_with_args( 'template/product-page/related-links', '', $related_links ) ?>
 			
 			<aside class="sub">
 				<div class="sticky"></div>
