@@ -119,6 +119,15 @@ $breakpoint: (
 			font-weight: 700;
 			margin: 0.2rem 0;
 		}
+		.ok-btn {
+			display: block;
+			width: 100%;
+			background-color: #ad0003;
+			color: #fff;
+			&:disabled {
+				background-color: #888;
+			}
+		}
 	}
 }
 .n2-search-form {
@@ -165,7 +174,6 @@ $breakpoint: (
 		width: 30%;
 	}
 }
-
 .wrapper {
 	width: 100%;
 	box-sizing: border-box;
@@ -681,4 +689,7 @@ $breakpoint: (
 			content: "■";
 		}
 	}
+}
+.front-submit-wrap{
+	margin-top: 30px;
 }

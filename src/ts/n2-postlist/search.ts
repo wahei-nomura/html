@@ -17,7 +17,7 @@ export default () => {
 				url: ajaxUrl(window),
 				data: {
 					action: "N2_Postlist",
-					事業者: $('select[name="事業者"]').val(),
+					事業者: $('#jigyousya-value').val(),
 				},
 			}).done((res) => {
 				const data = JSON.parse(res);
@@ -42,10 +42,6 @@ export default () => {
 		// ページ表示時と事業者選択変更時に返礼品コードを監視、変更
 		changeItemcode();
 
-		$('select[name="事業者"]').on("change", () => {
-			changeItemcode();
-		});
-
 		// キーワード検索にOR用チェックボックス
 		const checked: string = params.get("or") === "1" ? "checked" : "";
 		$("#post-search-input").before(
@@ -53,5 +49,21 @@ export default () => {
 				`<label style="float:left"><input name="or" value="1" type="checkbox" ${checked}>OR検索</label>`
 			)
 		);
+
+		// 事業者絞り込みコンボボックス
+		$('#jigyousya-list-tag').on('change', e => {
+			const id:number=$(`#jigyousya-list option[value="${$(e.target).val()}"]`).data('id')
+			$('#jigyousya-value').val(id)
+
+			changeItemcode();
+		})
+
+		// 条件クリアボタン
+		$('#ss-search-clear').on('click', () => {
+			$('#posts-filter .actions select[name="ステータス"] option:selected').prop('selected', false)
+			$('#posts-filter .actions select[name="定期便"] option:selected').prop('selected',false)
+			$('#posts-filter .actions input[name="事業者"], #jigyousya-list-tag').val('')
+		})
+
 	});
 };

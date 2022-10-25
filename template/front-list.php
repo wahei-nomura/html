@@ -40,27 +40,15 @@
 				$portals        = array( '楽天', 'チョイス' );
 				
 				$item_num_low = mb_strtolower( get_post_meta( get_the_ID(), '返礼品コード', true ) );
-				preg_match( '/^[a-z]{2,3}/', $item_num_low, $m );// 事業者コード
-							if ( ! preg_match( '/ne\.jp/', $img_dir ) ) {
-								$img_dir .= "/{$m[0]}";// キャビネットの場合事業者コード追加
-							}
-				$check_img_urls    = function () use ( $item_num_low, $img_dir ) {
-					$arr = array();
-					for ( $i = 0;$i < 15; $i++ ) {
-						if ( 0 === $i ) {
-							$img_url = "{$img_dir}/{$item_num_low}.jpg";
-						} else {
-							$img_url = "{$img_dir}/{$item_num_low}-{$i}.jpg";
-						}
-						$response = wp_remote_get( $img_url );
-						if ( ! is_wp_error( $response ) && 200 === $response['response']['code'] ) {
-							array_push( $arr, $img_url );
-						}
+				preg_match('/...(?=[0-9])/',$item_num_low, $item_code);
+				$meta_pic_arr = get_post_meta( get_the_ID(), '商品画像', true );
+				if($item_num_low != '' && !empty($item_code)){
+					$new_meta_pic = $img_dir . '/' . $item_code[0] . '/' . $item_num_low . ".jpg";
+					if(@file_get_contents($new_meta_pic)){
+						$meta_pic_arr[0] = $new_meta_pic;
 					}
-					return $arr;
-				};
-				$meta_pic_arr = $check_img_urls() ?: get_post_meta( get_the_ID(), '商品画像', true );
-
+				}
+				
 				$post_status = get_post_status();
 				// var_dump(get_post_meta(get_the_ID(), '出品禁止ポータル', true));
 				$meta_portals = get_post_meta( get_the_ID(), '出品禁止ポータル', true );
@@ -84,6 +72,16 @@
 			<?php endif; */ ?>
 			</span><!--product-list-item-->
 		</a>
+		<?php if ( ! empty( $_GET['look'] ) && ! empty( $_GET['author'] ) ) : ?>
+			<button
+				type='button'
+				class='ok-btn'
+				value='<?php the_ID(); ?>'
+				<?php echo '' !== get_post_meta( get_the_ID(), '事業者確認', true ) ? 'disabled' : ''; ?>
+			>
+			確認OK
+			</button>
+		<?php endif; ?>
 		</li>
 		<?php
 			}

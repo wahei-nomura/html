@@ -196,7 +196,6 @@ export default () => {
 						) + 1
 					)
 					.data("mx", jQuery(".sub-img").width() + 10);
-				console.log(jQuery(".sub-imgs").data());
 			}
 		}, 2000);
 
