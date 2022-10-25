@@ -47,64 +47,58 @@ if ( have_posts() ) :
 	while ( have_posts() ) :
 		the_post();
 ?>
-	<?php if ( 'publish' !== get_post_status() ) : ?>
-		<!-- プログレストラッカー -->
-		<?php get_template_part( 'template/progress' ); ?>
-	<?php endif; ?>
-		<main class="wrapper">
-			<!-- 商品画像 -->
-			<?php N2_Functions::get_template_part_with_args( 'template/product-page/product-imgs', '', $post_data['商品画像'] ) ?>
-			<h1 class='title'><?php the_title(); ?></h1>
-			<section class="worker">
-				<h2>提供事業者</h2>
-				<?php if ( get_the_author_meta( 'user_url' ) ) : ?>
-					<a href="<?php the_author_meta( 'user_url' ); ?>">
-						<?php the_author(); ?>
-						<span class="material-symbols-outlined">open_in_new</span>
-					</a>
-				<?php else : ?>
-					<?php the_author(); ?>
-				<?php endif; ?>
-			</section>
-			<section class='donation-amount'>
-				<h2>寄附金額</h2>
-				<div class="price"><?php echo number_format( $post_data['寄附金額'] ); ?></div>
-			</section>
-			<section class="description">
-				<h2>説明文</h3>
-				<div>
-					<div>
-						<?php echo str_replace( array( "\r\n", "\r" ), '<br>', $post_data['説明文'] ); ?>
-					</div>
-				</div>
-			</section>
-			
-			
-			<!-- 商品詳細 -->
-			<?php N2_Functions::get_template_part_with_args( 'template/product-page/product-info', '', $post_data ) ?>
-			<!-- ポータル比較 -->
-			<?php N2_Functions::get_template_part_with_args( 'template/product-page/product-scraping', '', $tashiro ) ?>
-
-			<!-- ポータルサイト一覧 -->
-			<?php N2_Functions::get_template_part_with_args( 'template/product-page/portal-links', '', $tashiro ) ?>
-			
-			<!-- 関連リンク -->
-			<?php $related_links = array() ?>
-			<?php N2_Functions::get_template_part_with_args( 'template/product-page/related-links', '', $related_links ) ?>
-			
-			<aside class="sub">
-				<div class="sticky"></div>
-			</aside>
-		</main>
-		<div class="mordal" style="display: none;">
-			<div class="mordal-box">
-				<div class="close-btn"></div>
-				<div class="mordal-wrapper"></div>
+<main class="wrapper">
+	<!-- 商品画像 -->
+	<?php N2_Functions::get_template_part_with_args( 'template/product-page/product-imgs', '', $post_data['商品画像'] ) ?>
+	<h1 class='title'><?php the_title(); ?></h1>
+	<section class="worker">
+		<h2>提供事業者</h2>
+		<?php if ( get_the_author_meta( 'user_url' ) ) : ?>
+			<a href="<?php the_author_meta( 'user_url' ); ?>">
+				<?php the_author(); ?>
+				<span class="material-symbols-outlined">open_in_new</span>
+			</a>
+		<?php else : ?>
+			<?php the_author(); ?>
+		<?php endif; ?>
+	</section>
+	<section class='donation-amount'>
+		<h2>寄附金額</h2>
+		<div class="price"><?php echo number_format( $post_data['寄附金額'] ); ?></div>
+	</section>
+	<section class="description">
+		<h2>説明文</h3>
+		<div>
+			<div>
+				<?php echo str_replace( array( "\r\n", "\r" ), '<br>', $post_data['説明文'] ); ?>
 			</div>
 		</div>
+	</section>
+	
+	
+	<!-- 商品詳細 -->
+	<?php N2_Functions::get_template_part_with_args( 'template/product-page/product-info', '', $post_data ) ?>
+	<!-- ポータル比較 -->
+	<?php N2_Functions::get_template_part_with_args( 'template/product-page/product-scraping', '', $tashiro ) ?>
 
-
-		<?php
+	<!-- ポータルサイト一覧 -->
+	<?php N2_Functions::get_template_part_with_args( 'template/product-page/portal-links', '', $tashiro ) ?>
+	
+	<!-- 関連リンク -->
+	<?php $related_links = array() ?>
+	<?php N2_Functions::get_template_part_with_args( 'template/product-page/related-links', '', $related_links ) ?>
+	
+	<aside class="sub">
+		<div class="sticky"></div>
+	</aside>
+</main>
+<div class="mordal" style="display: none;">
+	<div class="mordal-box">
+		<div class="close-btn"></div>
+		<div class="mordal-wrapper"></div>
+	</div>
+</div>
+<?php
 endwhile;
 endif;
 ?>
