@@ -43,7 +43,6 @@ $check_img_urls    = function () use ( $product_code_l
 $post_data['商品画像'] = $check_img_urls() ?: $post_data['商品画像'];
 // var_dump( $post_data );
 $tashiro = apply_filters( 'wp_ajax_SS_Portal_Scraper', array(), $town_name, $post_data['返礼品コード'] );
-
 if ( have_posts() ) :
 	while ( have_posts() ) :
 		the_post();
@@ -58,10 +57,14 @@ if ( have_posts() ) :
 			<h1 class='title'><?php the_title(); ?></h1>
 			<section class="worker">
 				<h2>提供事業者</h2>
-				<a href="<?php the_author_meta( 'user_url' ); ?>">
+				<?php if ( get_the_author_meta( 'user_url' ) ) : ?>
+					<a href="<?php the_author_meta( 'user_url' ); ?>">
+						<?php the_author(); ?>
+						<span class="material-symbols-outlined">open_in_new</span>
+					</a>
+				<?php else : ?>
 					<?php the_author(); ?>
-					<span class="material-symbols-outlined">open_in_new</span>
-				</a>
+				<?php endif; ?>
 			</section>
 			<section class='donation-amount'>
 				<h2>寄附金額</h2>
