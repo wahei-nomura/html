@@ -18,13 +18,96 @@ if ( class_exists( 'N2_Sync' ) ) {
  * Setusers
  */
 class N2_Sync {
+
+	/**
+	 * NENG AJAX URL
+	 *
+	 * @var string
+	 */
+	private $neng_ajax_url;
+
 	/**
 	 * コンストラクタ
 	 */
 	public function __construct() {
+		global $current_blog;
+		$town                = $current_blog->path;
+		$this->neng_ajax_url = "https://steamship.co.jp{$town}wp-admin/admin-ajax.php";
+
 		add_action( 'wp_ajax_n2_sync_users', array( $this, 'sync_users' ) );
 		add_action( 'wp_ajax_n2_sync_posts', array( $this, 'sync_posts' ) );
+		add_action( 'wp_ajax_nopriv_n2_sync_posts', array( $this, 'sync_posts' ) );
+		add_action( 'wp_ajax_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
 		add_action( 'wp_ajax_n2_sync_posts_by_rest_api', array( $this, 'sync_posts_by_rest_api' ) );
+	}
+
+	/**
+	 * 超爆速 multi_sync_posts
+	 */
+	public function multi_sync_posts() {
+		$before = microtime( true );
+
+		if ( ! WP_Filesystem() ) {
+			return;
+		}
+		global $wp_filesystem;
+
+		// params
+		$params = array(
+			'action'         => 'postsdata',
+			'post_type'      => 'post',
+			'posts_per_page' => $_GET['posts_per_page'] ?? 10,
+			'paged'          => 1,
+		);
+
+		$json = $wp_filesystem->get_contents( "{$this->neng_ajax_url}?" . http_build_query( $params ) );
+		$data = json_decode( $json, true );
+
+		// IP制限等で終了のケース
+		if ( ! $data ) {
+			echo $json;
+			exit;
+		}
+
+		// ページ数取得
+		$max_num_pages = $data['max_num_pages'];
+
+		// $params変更
+		$params['action'] = 'n2_sync_posts';
+
+		// n2_sync_posts に Multi cURL
+		$mh       = curl_multi_init();
+		$ch_array = array();
+		while ( $max_num_pages >= $params['paged'] ) {
+			$ch         = curl_init();
+			$ch_array[] = $ch;
+			// localでSSLでうまくアクセスできないので$schema必須
+			$schema     = preg_match( '/localhost/', get_network()->domain ) ? 'http' : 'admin';
+			$options    = array(
+				CURLOPT_URL            => admin_url( 'admin-ajax.php?', $schema ) . http_build_query( $params ),
+				CURLOPT_HEADER         => false,
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_SSL_VERIFYPEER => false,
+				CURLOPT_FOLLOWLOCATION => true,
+				CURLOPT_TIMEOUT        => 30,
+			);
+			curl_setopt_array( $ch, $options );
+			curl_multi_add_handle( $mh, $ch );
+			$params['paged']++;
+		}
+		do {
+			curl_multi_exec( $mh, $running );
+			curl_multi_select( $mh );
+		} while ( $running > 0 );
+
+		foreach ( $ch_array as $ch ) {
+			curl_multi_remove_handle( $mh, $ch );
+			curl_close( $ch );
+		}
+		curl_multi_close( $mh );
+		$after = microtime( true );
+		echo 'N2-Multi-Sync-Posts「' . get_bloginfo( 'name' ) . 'の返礼品」旧NENGとシンクロ完了！（' . number_format( $after - $before, 2 ) . ' 秒）';
+		exit;
 	}
 
 	/**
@@ -34,13 +117,17 @@ class N2_Sync {
 		if ( ! WP_Filesystem() ) {
 			return;
 		}
-		global $wp_filesystem, $current_blog;
-		$json = $wp_filesystem->get_contents( "https://steamship.co.jp{$current_blog->path}wp-admin/admin-ajax.php?action=userdata" );
+		global $wp_filesystem;
+		$json = $wp_filesystem->get_contents( "{$this->neng_ajax_url}?action=userdata" );
 		$data = json_decode( $json, true );
+
+		// IP制限等で終了のケース
 		if ( ! $data ) {
 			echo $json;
 			exit;
 		}
+
+		// ユーザー登録
 		foreach ( $data as $k => $v ) {
 			$userdata = $v['data'];
 			unset( $userdata['ID'] );
@@ -70,30 +157,32 @@ class N2_Sync {
 			// grant_super_admin( $user_id );
 			// }
 		}
-		echo 'ユーザーデータ更新完了！';
+		echo 'N2-User-Sync「' . get_bloginfo( 'name' ) . '」ユーザーデータ旧NENGとシンクロ完了！';
 		exit;
 	}
 
 	/**
 	 * N2返礼品吸い上げ
+	 * posts_per_page
 	 */
 	public function sync_posts() {
 		if ( ! WP_Filesystem() ) {
 			return;
 		}
-		global $wp_filesystem, $current_blog;
-		$town = $current_blog->path;
-		$url  = "https://steamship.co.jp{$town}wp-admin/admin-ajax.php";
+		global $wp_filesystem;
+
 		// params
-		$params = array(
-			'action' => 'postsdata',
-		);
+		$params           = $_GET;
+		$params['action'] = 'postsdata';
+
 		$before = microtime( true );
+
+		// 投稿を部分同期
+		$json = $wp_filesystem->get_contents( "{$this->neng_ajax_url}?" . http_build_query( $params ) );
+		$arr  = json_decode( $json, true );
 		wp_defer_term_counting( true );
 		wp_defer_comment_counting( true );
-		$data = $wp_filesystem->get_contents( "{$url}?" . http_build_query( $params ) );
-		$arr  = json_decode( $data, true );
-		foreach ( $arr as $k => $v ) {
+		foreach ( $arr['posts'] as $k => $v ) {
 			// 返礼品コードから事業者判定
 			preg_match( '/^[A-Z]{2,3}$/m', $v['post_author_last_name'], $m );
 			// 事業者コードが取得できない場合はスキップ
@@ -138,8 +227,9 @@ class N2_Sync {
 		}
 		wp_defer_term_counting( false );
 		wp_defer_comment_counting( false );
+
 		$after = microtime( true );
-		echo ( $after - $before ) . ' sec';
+		echo number_format( $after - $before, 2 ) . ' sec';
 		exit;
 	}
 
