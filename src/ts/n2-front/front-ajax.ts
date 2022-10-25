@@ -45,6 +45,10 @@ export default () => {
 		};
 
 		$('button.ok-btn').on('click', e => {
+			if( !confirm('この商品を確認済みにして良いですか？')){
+				return;
+			}
+
 			$(e.target).prop('disabled',true);
 			updateItemConfirm(Number($(e.target).val()))
 		})
