@@ -145,6 +145,19 @@ class N2_Front {
 		}
 		// ここまで事業者 ----------------------------------------
 
+		// 返礼品コード絞り込み ----------------------------------------
+		if ( ! empty( $_GET['code'] )  && '' !== $_GET['code'] ) { 
+			$code = $_GET['code'];
+			$where .= 'AND (';
+			$where .= "
+			{$wpdb->postmeta}.meta_key = '返礼品コード'
+			AND {$wpdb->postmeta}.meta_value LIKE '%%%s%%'
+			";
+			array_push( $args, $code );
+			$where .= ')';
+		}
+		// ここまで返礼品コード ----------------------------------------
+
 		// 事業者確認未 -------------------------------------------
 		if ( ! empty( $_GET['look'] ) && 'true' === $_GET['look'] ) {
 			$where .= "
