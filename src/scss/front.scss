@@ -167,10 +167,12 @@ $breakpoint: (
 }
 
 .wrapper {
-	margin: 20px;
+	width: 100%;
+	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
-	grid-row-gap: 30px;
+	row-gap: 30px;
+	padding: 20px;
 	@include mq(pc) {
 		display: grid;
 		grid-template:
