@@ -160,10 +160,13 @@ class N2_Front {
 
 		// 事業者確認未 -------------------------------------------
 		if ( ! empty( $_GET['look'] ) && 'true' === $_GET['look'] ) {
-			$where .= "
-				AND {$wpdb->postmeta}.meta_key = '%s'
+			$where .= "AND(
+				(
+				{$wpdb->postmeta}.meta_key = '%s'
 				AND {$wpdb->postmeta}.meta_value = ''
-			";
+				) 
+				OR {$wpdb->postmeta}.post_id NOT IN (SELECT {$wpdb->postmeta}.post_id FROM {$wpdb->postmeta} WHERE {$wpdb->postmeta}.meta_key = '事業者確認') 
+			)";
 			array_push( $args, '事業者確認' );
 		}
 		// ここまで事業者確認 ------------------------------------
