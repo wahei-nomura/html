@@ -30,6 +30,7 @@ class N2_Front {
 	public function __construct() {
 		$this->cls = get_class( $this );
 		add_action( 'posts_request', array( $this, 'front_request' ) );
+		add_action( "wp_ajax_{$this->cls}_item_confirm", array( $this, 'update_item_confirm' ) );
 	}
 
 
@@ -51,10 +52,6 @@ class N2_Front {
 				{$wpdb->posts}.post_type = 'post'
 				AND (
 					{$wpdb->posts}.post_status = 'publish'
-					OR {$wpdb->posts}.post_status = 'future'
-					OR {$wpdb->posts}.post_status = 'draft'
-					OR {$wpdb->posts}.post_status = 'pending'
-					OR {$wpdb->posts}.post_status = 'private'
 					)
 		";
 
@@ -89,35 +86,35 @@ class N2_Front {
 		}
 		// ここまでキーワード ------------------------------------
 		// 出品禁止ポータル絞り込み ---------------------------------
-		if ( empty( $_GET['portal_rakuten'] ) ) { // 楽天除外
-			$where .= 'AND (';
-			$where .= "
-			{$wpdb->postmeta}.meta_key = '出品禁止ポータル'
-			AND {$wpdb->postmeta}.meta_value NOT LIKE '%%%s%%'
-			";
-			array_push( $args, '楽天' );
-			$where .= ')';
-		}
+		// if ( empty( $_GET['portal_rakuten'] ) ) { // 楽天除外
+		// 	$where .= 'AND (';
+		// 	$where .= "
+		// 	{$wpdb->postmeta}.meta_key = '出品禁止ポータル'
+		// 	AND {$wpdb->postmeta}.meta_value NOT LIKE '%%%s%%'
+		// 	";
+		// 	array_push( $args, '楽天' );
+		// 	$where .= ')';
+		// }
 
-		if ( empty( $_GET['portal_choice'] ) ) { // チョイス除外
-			$where .= 'AND (';
-			$where .= "
-			{$wpdb->postmeta}.meta_key = '出品禁止ポータル'
-			AND {$wpdb->postmeta}.meta_value NOT LIKE '%%%s%%'
-			";
-			array_push( $args, 'チョイス' );
-			$where .= ')';
-		}
+		// if ( empty( $_GET['portal_choice'] ) ) { // チョイス除外
+		// 	$where .= 'AND (';
+		// 	$where .= "
+		// 	{$wpdb->postmeta}.meta_key = '出品禁止ポータル'
+		// 	AND {$wpdb->postmeta}.meta_value NOT LIKE '%%%s%%'
+		// 	";
+		// 	array_push( $args, 'チョイス' );
+		// 	$where .= ')';
+		// }
 
-		if ( empty( $_GET['portal_furunavi'] ) ) { // チョイス除外
-			$where .= 'AND (';
-			$where .= "
-			{$wpdb->postmeta}.meta_key = '出品禁止ポータル'
-			AND {$wpdb->postmeta}.meta_value NOT LIKE '%%%s%%'
-			";
-			array_push( $args, 'ふるなび' );
-			$where .= ')';
-		}
+		// if ( empty( $_GET['portal_furunavi'] ) ) { // チョイス除外
+		// 	$where .= 'AND (';
+		// 	$where .= "
+		// 	{$wpdb->postmeta}.meta_key = '出品禁止ポータル'
+		// 	AND {$wpdb->postmeta}.meta_value NOT LIKE '%%%s%%'
+		// 	";
+		// 	array_push( $args, 'ふるなび' );
+		// 	$where .= ')';
+		// }
 		// ここまで出品禁止ポータル ------------------------------------
 		// 価格絞り込み ---------------------------------
 		if ( ! empty( $_GET['min-price'] ) && '' !== $_GET['min-price'] ) { // 最低額
@@ -141,6 +138,35 @@ class N2_Front {
 			$where .= ')';
 		}
 
+		// 事業者絞り込み ----------------------------------------
+		if ( ! empty( $_GET['author'] ) ) {
+			$where .= "AND {$wpdb->posts}.post_author = '%s'";
+			array_push( $args, filter_input( INPUT_GET, 'author', FILTER_VALIDATE_INT ) );
+		}
+		// ここまで事業者 ----------------------------------------
+
+		// 返礼品コード絞り込み ----------------------------------------
+		if ( ! empty( $_GET['code'] )  && '' !== $_GET['code'] ) { 
+			$code = $_GET['code'];
+			$where .= 'AND (';
+			$where .= "
+			{$wpdb->postmeta}.meta_key = '返礼品コード'
+			AND {$wpdb->postmeta}.meta_value LIKE '%%%s%%'
+			";
+			array_push( $args, $code );
+			$where .= ')';
+		}
+		// ここまで返礼品コード ----------------------------------------
+
+		// 事業者確認未 -------------------------------------------
+		if ( ! empty( $_GET['look'] ) && 'true' === $_GET['look'] ) {
+			$where .= "
+				AND {$wpdb->postmeta}.meta_key = '%s'
+				AND {$wpdb->postmeta}.meta_value = ''
+			";
+			array_push( $args, '事業者確認' );
+		}
+		// ここまで事業者確認 ------------------------------------
 
 		// ここまで価格 ------------------------------------
 		// WHER句末尾連結
@@ -159,6 +185,15 @@ class N2_Front {
 		// 検索用GETパラメータがある場合のみ$queryを上書き
 		$query = count( $args ) > 0 ? $wpdb->prepare( $sql, ...$args ) : $query;
 		return $query;
+	}
+
+	/**
+	 * update_item_confirm
+	 * ajaxで事業者確認パラメーターを更新
+	 */
+	public function update_item_confirm() {
+		$post_id = filter_input( INPUT_POST, 'post_id', FILTER_SANITIZE_NUMBER_INT );
+		update_post_meta( $post_id, '事業者確認', array( '確認済み' ) );
 	}
 
 }
