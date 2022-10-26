@@ -7,15 +7,6 @@
 
 ?>
 <section class="product-list-wrap">
-	<?php 
-		$args = array(
-			'paged' => $paged,
-			'posts_per_page' => 20,
-			'post_status' => 'publish',
-
-		);
-		$wp_query = new WP_Query( $args );
-	?>
 	<?php the_posts_pagination(
 		array(
 			// 'mid_size'      => 2, // 現在ページの左右に表示するページ番号の数
@@ -27,9 +18,9 @@
 	); ?>
 	<ul class="product-list">
 		<?php
-		if ( $wp_query->have_posts() ) {
-			while ( $wp_query->have_posts() ) {
-				$wp_query->the_post();
+		if ( have_posts() ) {
+			while ( have_posts() ) {
+				the_post();
 
 				$url_parse      = explode( '/', get_option( 'home' ) ); // items_detailsより拝借(rakutenに画像がある場合はそちらを使用)
 				$town_code      = end( $url_parse );
@@ -87,7 +78,6 @@
 			}
 		}
 		?>
-		<?php wp_reset_postdata(); ?>
 
 	</ul>
 	<?php the_posts_pagination(

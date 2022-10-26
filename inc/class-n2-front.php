@@ -31,6 +31,7 @@ class N2_Front {
 		$this->cls = get_class( $this );
 		add_action( 'posts_request', array( $this, 'front_request' ) );
 		add_action( "wp_ajax_{$this->cls}_item_confirm", array( $this, 'update_item_confirm' ) );
+		add_action( 'pre_get_posts', array( $this, 'change_posts_per_page' ) );
 	}
 
 
@@ -87,33 +88,33 @@ class N2_Front {
 		// ここまでキーワード ------------------------------------
 		// 出品禁止ポータル絞り込み ---------------------------------
 		// if ( empty( $_GET['portal_rakuten'] ) ) { // 楽天除外
-		// 	$where .= 'AND (';
-		// 	$where .= "
-		// 	{$wpdb->postmeta}.meta_key = '出品禁止ポータル'
-		// 	AND {$wpdb->postmeta}.meta_value NOT LIKE '%%%s%%'
-		// 	";
-		// 	array_push( $args, '楽天' );
-		// 	$where .= ')';
+		// $where .= 'AND (';
+		// $where .= "
+		// {$wpdb->postmeta}.meta_key = '出品禁止ポータル'
+		// AND {$wpdb->postmeta}.meta_value NOT LIKE '%%%s%%'
+		// ";
+		// array_push( $args, '楽天' );
+		// $where .= ')';
 		// }
 
 		// if ( empty( $_GET['portal_choice'] ) ) { // チョイス除外
-		// 	$where .= 'AND (';
-		// 	$where .= "
-		// 	{$wpdb->postmeta}.meta_key = '出品禁止ポータル'
-		// 	AND {$wpdb->postmeta}.meta_value NOT LIKE '%%%s%%'
-		// 	";
-		// 	array_push( $args, 'チョイス' );
-		// 	$where .= ')';
+		// $where .= 'AND (';
+		// $where .= "
+		// {$wpdb->postmeta}.meta_key = '出品禁止ポータル'
+		// AND {$wpdb->postmeta}.meta_value NOT LIKE '%%%s%%'
+		// ";
+		// array_push( $args, 'チョイス' );
+		// $where .= ')';
 		// }
 
 		// if ( empty( $_GET['portal_furunavi'] ) ) { // チョイス除外
-		// 	$where .= 'AND (';
-		// 	$where .= "
-		// 	{$wpdb->postmeta}.meta_key = '出品禁止ポータル'
-		// 	AND {$wpdb->postmeta}.meta_value NOT LIKE '%%%s%%'
-		// 	";
-		// 	array_push( $args, 'ふるなび' );
-		// 	$where .= ')';
+		// $where .= 'AND (';
+		// $where .= "
+		// {$wpdb->postmeta}.meta_key = '出品禁止ポータル'
+		// AND {$wpdb->postmeta}.meta_value NOT LIKE '%%%s%%'
+		// ";
+		// array_push( $args, 'ふるなび' );
+		// $where .= ')';
 		// }
 		// ここまで出品禁止ポータル ------------------------------------
 		// 価格絞り込み ---------------------------------
@@ -146,8 +147,8 @@ class N2_Front {
 		// ここまで事業者 ----------------------------------------
 
 		// 返礼品コード絞り込み ----------------------------------------
-		if ( ! empty( $_GET['code'] )  && '' !== $_GET['code'] ) { 
-			$code = $_GET['code'];
+		if ( ! empty( $_GET['code'] ) && '' !== $_GET['code'] ) {
+			$code   = $_GET['code'];
 			$where .= 'AND (';
 			$where .= "
 			{$wpdb->postmeta}.meta_key = '返礼品コード'
@@ -197,6 +198,19 @@ class N2_Front {
 	public function update_item_confirm() {
 		$post_id = filter_input( INPUT_POST, 'post_id', FILTER_SANITIZE_NUMBER_INT );
 		update_post_meta( $post_id, '事業者確認', array( '確認済み' ) );
+	}
+
+	/**
+	 * change_posts_per_page
+	 * ページネーションの件数設定
+	 */
+	function change_posts_per_page( $query ) {
+		if ( is_admin() || ! $query->is_main_query() ) {
+			return;
+		}
+		if ( $query->is_main_query() || $query->is_search() ) { // メインページおよび検索結果で適用
+			$query->set( 'posts_per_page', 20 );
+		}
 	}
 
 }
