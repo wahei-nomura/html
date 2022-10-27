@@ -28,8 +28,10 @@ class N2_Front {
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		$this->cls  = get_class( $this );
+		$this->cls = get_class( $this );
 		add_action( 'posts_request', array( $this, 'front_request' ) );
+		add_action( "wp_ajax_nopriv_{$this->cls}_item_confirm", array( $this, 'update_item_confirm' ) );
+		add_action( 'pre_get_posts', array( $this, 'change_posts_per_page' ) );
 	}
 
 
@@ -40,11 +42,10 @@ class N2_Front {
 	 * @return string $query sql
 	 */
 	public function front_request( $query ) {
-		if(!is_front_page()){
+		if ( ! is_search() ) {
 			return $query;
 		}
 		global $wpdb;
-
 		// 最終的に$query内に代入するWHERE句
 		$where = "
 		AND (
@@ -52,16 +53,11 @@ class N2_Front {
 				{$wpdb->posts}.post_type = 'post'
 				AND (
 					{$wpdb->posts}.post_status = 'publish'
-					OR {$wpdb->posts}.post_status = 'future'
-					OR {$wpdb->posts}.post_status = 'draft'
-					OR {$wpdb->posts}.post_status = 'pending'
-					OR {$wpdb->posts}.post_status = 'private'
 					)
 		";
 
 		// $wpdbのprepareでプレイスフォルダーに代入するための配列
 		$args = array();
-
 		// キーワード検索 ----------------------------------------
 		if ( ! empty( $_GET['s'] ) && '' !== $_GET['s'] ) {
 			// 全角空白は半角空白へ変換し、複数キーワードを配列に
@@ -90,45 +86,96 @@ class N2_Front {
 			$where .= ')';
 		}
 		// ここまでキーワード ------------------------------------
+		// 出品禁止ポータル絞り込み ---------------------------------
+		// if ( empty( $_GET['portal_rakuten'] ) ) { // 楽天除外
+		// $where .= 'AND (';
+		// $where .= "
+		// {$wpdb->postmeta}.meta_key = '出品禁止ポータル'
+		// AND {$wpdb->postmeta}.meta_value NOT LIKE '%%%s%%'
+		// ";
+		// array_push( $args, '楽天' );
+		// $where .= ')';
+		// }
 
-		// 事業者絞り込み ----------------------------------------
-		if ( ! empty( $_GET['事業者'] ) && '' !== $_GET['事業者'] ) {
-			$where .= "AND {$wpdb->posts}.post_author = '%s'";
-			array_push( $args, filter_input( INPUT_GET, '事業者', FILTER_VALIDATE_INT ) );
+		// if ( empty( $_GET['portal_choice'] ) ) { // チョイス除外
+		// $where .= 'AND (';
+		// $where .= "
+		// {$wpdb->postmeta}.meta_key = '出品禁止ポータル'
+		// AND {$wpdb->postmeta}.meta_value NOT LIKE '%%%s%%'
+		// ";
+		// array_push( $args, 'チョイス' );
+		// $where .= ')';
+		// }
+
+		// if ( empty( $_GET['portal_furunavi'] ) ) { // チョイス除外
+		// $where .= 'AND (';
+		// $where .= "
+		// {$wpdb->postmeta}.meta_key = '出品禁止ポータル'
+		// AND {$wpdb->postmeta}.meta_value NOT LIKE '%%%s%%'
+		// ";
+		// array_push( $args, 'ふるなび' );
+		// $where .= ')';
+		// }
+		// ここまで出品禁止ポータル ------------------------------------
+		// 価格絞り込み ---------------------------------
+		if ( ! empty( $_GET['min-price'] ) && '' !== $_GET['min-price'] ) { // 最低額
+			$min_price = $_GET['min-price'];
+			$where    .= 'AND (';
+			$where    .= "
+			{$wpdb->postmeta}.meta_key = '寄附金額'
+			AND {$wpdb->postmeta}.meta_value >= '%s'
+			";
+			array_push( $args, $min_price );
+			$where .= ')';
 		}
-
-		// 返礼品コード絞り込み------------------------------------
-		if ( ! empty( $_GET['返礼品コード'] ) && '' !== $_GET['返礼品コード'] ) {
-			$code_arr = $_GET['返礼品コード'];
-			$where   .= 'AND (';
-			foreach ( $code_arr as $key => $code ) {
-				if ( 0 !== $key ) {
-					$where .= ' OR '; // 複数返礼品コードをOR検索(前後の空白必須)
-				}
-				$where .= "{$wpdb->posts}.ID = '%s'";
-				array_push( $args, $code );
-			}
+		if ( ! empty( $_GET['max-price'] ) && '' !== $_GET['max-price'] ) { // 最高額
+			$max_price = $_GET['max-price'];
+			$where    .= 'AND (';
+			$where    .= "
+			{$wpdb->postmeta}.meta_key = '寄附金額'
+			AND {$wpdb->postmeta}.meta_value <= '%s'
+			";
+			array_push( $args, $max_price );
 			$where .= ')';
 		}
 
-		// ステータス絞り込み ------------------------------------
-		if ( ! empty( $_GET['ステータス'] ) && '' !== $_GET['ステータス'] ) {
-			$where .= "AND {$wpdb->posts}.post_status = '%s'";
-			array_push( $args, filter_input( INPUT_GET, 'ステータス' ) );
+		// 事業者絞り込み ----------------------------------------
+		if ( ! empty( $_GET['author'] ) ) {
+			$where .= "AND {$wpdb->posts}.post_author = '%s'";
+			array_push( $args, filter_input( INPUT_GET, 'author', FILTER_VALIDATE_INT ) );
 		}
+		// ここまで事業者 ----------------------------------------
 
-		// 定期便絞り込み ---------------------------------------
-		if ( ! empty( $_GET['定期便'] ) && '' !== $_GET['定期便'] ) {
+		// 返礼品コード絞り込み ----------------------------------------
+		if ( ! empty( $_GET['code'] ) && '' !== $_GET['code'] ) {
+			$code   = $_GET['code'];
+			$where .= 'AND (';
 			$where .= "
-					AND {$wpdb->postmeta}.meta_key = '定期便'
-					AND {$wpdb->postmeta}.meta_value = '%s'
-				";
-			array_push( $args, filter_input( INPUT_GET, '定期便', FILTER_VALIDATE_INT ) );
+			{$wpdb->postmeta}.meta_key = '返礼品コード'
+			AND {$wpdb->postmeta}.meta_value LIKE '%%%s%%'
+			";
+			array_push( $args, $code );
+			$where .= ')';
 		}
+		// ここまで返礼品コード ----------------------------------------
 
+		// 事業者確認未 -------------------------------------------
+		if ( ! empty( $_GET['look'] ) && 'true' === $_GET['look'] ) {
+			$where .= "AND(
+				(
+				{$wpdb->postmeta}.meta_key = '%s'
+				AND {$wpdb->postmeta}.meta_value = ''
+				) 
+				OR {$wpdb->postmeta}.post_id NOT IN (SELECT {$wpdb->postmeta}.post_id FROM {$wpdb->postmeta} WHERE {$wpdb->postmeta}.meta_key = '事業者確認') 
+			)";
+			array_push( $args, '事業者確認' );
+		}
+		// ここまで事業者確認 ------------------------------------
+
+		// ここまで価格 ------------------------------------
 		// WHER句末尾連結
 		$where .= '))';
-		// var_dump($where);
+
 		// SQL（postsとpostmetaテーブルを結合）
 		$sql = "
 		SELECT SQL_CALC_FOUND_ROWS *
@@ -141,9 +188,29 @@ class N2_Front {
 
 		// 検索用GETパラメータがある場合のみ$queryを上書き
 		$query = count( $args ) > 0 ? $wpdb->prepare( $sql, ...$args ) : $query;
-
 		return $query;
 	}
 
+	/**
+	 * update_item_confirm
+	 * ajaxで事業者確認パラメーターを更新
+	 */
+	public function update_item_confirm() {
+		$post_id = filter_input( INPUT_POST, 'post_id', FILTER_SANITIZE_NUMBER_INT );
+		update_post_meta( $post_id, '事業者確認', array( '確認済み' ) );
+	}
+
+	/**
+	 * change_posts_per_page
+	 * ページネーションの件数設定
+	 */
+	function change_posts_per_page( $query ) {
+		if ( is_admin() || ! $query->is_main_query() ) {
+			return;
+		}
+		if ( $query->is_main_query() || $query->is_search() ) { // メインページおよび検索結果で適用
+			$query->set( 'posts_per_page', 20 );
+		}
+	}
 
 }
