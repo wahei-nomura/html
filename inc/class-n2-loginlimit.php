@@ -47,10 +47,9 @@ class N2_Loginlimit {
 			'183.177.128.173', // 土岐
 			'217.178.116.13', // 大村
 			'175.41.201.54', // SSVPN
-			'192.168.48.2', // 自分
 		);
 
-		if ( ! preg_match( '/ore\.steamship\.co\.jp|local/', $_SERVER['HTTP_HOST'] ) && ! in_array( $_SERVER['REMOTE_ADDR'], $ips ) ) {
+		if ( 'wp-multi.ss.localhost' !== get_network()->domain && ! in_array( $_SERVER['REMOTE_ADDR'], $ips ) ) {
 			wp_logout();
 			echo $_SERVER['REMOTE_ADDR'];
 			exit;
@@ -66,7 +65,7 @@ class N2_Loginlimit {
 	 * @return void
 	 */
 	public function judge_sscrew_ip( $user_login, $user ) {
-		if ( ( ! empty( $user->roles[0] ) && 'ss-crew' !== $user->roles[0] ) || 'ore.steamship.co.jp' === $_SERVER['HTTP_HOST'] ) {
+		if ( ( ! empty( $user->roles[0] ) && 'ss-crew' !== $user->roles[0] ) || 'wp-multi.ss.localhost' === get_network()->domain ) {
 			return;
 		}
 
