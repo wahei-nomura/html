@@ -30,7 +30,7 @@ class N2_Front {
 	public function __construct() {
 		$this->cls = get_class( $this );
 		add_action( 'posts_request', array( $this, 'front_request' ) );
-		add_action( "wp_ajax_{$this->cls}_item_confirm", array( $this, 'update_item_confirm' ) );
+		add_action( "wp_ajax_nopriv_{$this->cls}_item_confirm", array( $this, 'update_item_confirm' ) );
 	}
 
 
