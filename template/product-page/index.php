@@ -89,7 +89,18 @@ if ( have_posts() ) :
 	<?php N2_Functions::get_template_part_with_args( 'template/product-page/related-links', '', $related_links ) ?>
 	
 	<aside class="sub">
-		<div class="sticky"></div>
+		<div class="sticky">
+		<?php if ( ! empty( $_GET['look'] ) ) : ?>
+			<button
+				type='button'
+				class='ok-btn'
+				value='<?php the_ID(); ?>'
+				<?php echo '' !== get_post_meta( get_the_ID(), '事業者確認', true ) ? 'disabled' : ''; ?>
+			>
+			確認OK
+			</button>
+		<?php endif; ?>
+		</div>
 	</aside>
 </main>
 <div class="mordal" style="display: none;">
