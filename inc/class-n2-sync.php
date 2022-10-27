@@ -34,11 +34,12 @@ class N2_Sync {
 		$this->neng_ajax_url = "https://steamship.co.jp{$current_blog->path}wp-admin/admin-ajax.php";
 
 		add_action( 'wp_ajax_n2_sync_users', array( $this, 'sync_users' ) );
+		add_action( 'wp_ajax_nopriv_n2_sync_users', array( $this, 'sync_users' ) );
 		add_action( 'wp_ajax_n2_sync_posts', array( $this, 'sync_posts' ) );
 		add_action( 'wp_ajax_nopriv_n2_sync_posts', array( $this, 'sync_posts' ) );
 		add_action( 'wp_ajax_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
 		add_action( 'wp_ajax_nopriv_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
-		add_action( 'wp_ajax_n2_sync_posts_by_rest_api', array( $this, 'sync_posts_by_rest_api' ) );
+		// add_action( 'wp_ajax_n2_sync_posts_by_rest_api', array( $this, 'sync_posts_by_rest_api' ) );
 	}
 
 	/**
