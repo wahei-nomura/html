@@ -102,19 +102,27 @@ class N2_Sync {
 			curl_multi_add_handle( $mh, $ch );
 			$params['paged']++;
 		}
+		$active = null;
 		do {
-			curl_multi_exec( $mh, $running );
-			curl_multi_select( $mh );
-		} while ( $running > 0 );
+			$mrc = curl_multi_exec( $mh, $active );
+		} while ( CURLM_CALL_MULTI_PERFORM === $mrc );
+
+		while ( $active && CURLM_OK === $mrc ) {
+			if ( curl_multi_select( $mh ) === -1 ) {
+				usleep( 1 );
+			}
+			do {
+				$mrc = curl_multi_exec( $mh, $active );
+			} while ( CURLM_CALL_MULTI_PERFORM === $mrc );
+		}
 
 		foreach ( $ch_array as $ch ) {
 			curl_multi_remove_handle( $mh, $ch );
 			curl_close( $ch );
 		}
 		curl_multi_close( $mh );
-		$after = microtime( true );
-		echo 'N2-Multi-Sync-Posts「' . get_bloginfo( 'name' ) . 'の返礼品」旧NENGとシンクロ完了！（' . number_format( $after - $before, 2 ) . ' 秒）';
-		$logs[] = '返礼品シンクロ完了 ' . number_format( $after - $before, 2 ) . ' sec';
+		echo 'N2-Multi-Sync-Posts「' . get_bloginfo( 'name' ) . 'の返礼品」旧NENGとシンクロ完了！（' . number_format( microtime( true ) - $before, 2 ) . ' 秒）';
+		$logs[] = '返礼品シンクロ完了 ' . number_format( microtime( true ) - $before, 2 ) . ' sec';
 		$this->log( $logs );
 		exit;
 	}
@@ -123,6 +131,7 @@ class N2_Sync {
 	 * N2ユーザーデータ吸い上げ
 	 */
 	public function sync_users() {
+		$before = microtime( true );
 		if ( ! WP_Filesystem() ) {
 			return;
 		}
@@ -130,8 +139,14 @@ class N2_Sync {
 		$json = $wp_filesystem->get_contents( "{$this->neng_ajax_url}?action=userdata" );
 		$data = json_decode( $json, true );
 
+		// ログテキスト
+		$logs   = array();
+		$logs[] = __METHOD__;
+
 		// IP制限等で終了のケース
 		if ( ! $data ) {
+			$logs[] = $json;
+			$this->log( $logs );
 			echo $json;
 			exit;
 		}
@@ -167,6 +182,8 @@ class N2_Sync {
 			// }
 		}
 		echo 'N2-User-Sync「' . get_bloginfo( 'name' ) . '」ユーザーデータ旧NENGとシンクロ完了！';
+		$logs[] = 'ユーザーシンクロ完了 ' . number_format( microtime( true ) - $before, 2 ) . ' sec';
+		$this->log( $logs );
 		exit;
 	}
 
