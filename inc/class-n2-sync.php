@@ -31,18 +31,19 @@ class N2_Sync {
 	 */
 	public function __construct() {
 		global $current_blog;
-		$town                = $current_blog->path;
-		$this->neng_ajax_url = "https://steamship.co.jp{$town}wp-admin/admin-ajax.php";
+		$this->neng_ajax_url = "https://steamship.co.jp{$current_blog->path}wp-admin/admin-ajax.php";
 
 		add_action( 'wp_ajax_n2_sync_users', array( $this, 'sync_users' ) );
 		add_action( 'wp_ajax_n2_sync_posts', array( $this, 'sync_posts' ) );
 		add_action( 'wp_ajax_nopriv_n2_sync_posts', array( $this, 'sync_posts' ) );
 		add_action( 'wp_ajax_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
+		add_action( 'wp_ajax_nopriv_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
 		add_action( 'wp_ajax_n2_sync_posts_by_rest_api', array( $this, 'sync_posts_by_rest_api' ) );
 	}
 
 	/**
 	 * 超爆速 multi_sync_posts
+	 * posts_per_page=10 が最速なのかはまだ未検証
 	 */
 	public function multi_sync_posts() {
 		$before = microtime( true );
@@ -63,8 +64,14 @@ class N2_Sync {
 		$json = $wp_filesystem->get_contents( "{$this->neng_ajax_url}?" . http_build_query( $params ) );
 		$data = json_decode( $json, true );
 
+		// ログテキスト
+		$logs   = array();
+		$logs[] = __METHOD__;
+
 		// IP制限等で終了のケース
 		if ( ! $data ) {
+			$logs[] = $json;
+			$this->log( $logs );
 			echo $json;
 			exit;
 		}
@@ -107,6 +114,8 @@ class N2_Sync {
 		curl_multi_close( $mh );
 		$after = microtime( true );
 		echo 'N2-Multi-Sync-Posts「' . get_bloginfo( 'name' ) . 'の返礼品」旧NENGとシンクロ完了！（' . number_format( $after - $before, 2 ) . ' 秒）';
+		$logs[] = '返礼品シンクロ完了 ' . number_format( $after - $before, 2 ) . ' sec';
+		$this->log( $logs );
 		exit;
 	}
 
@@ -172,25 +181,29 @@ class N2_Sync {
 		global $wp_filesystem;
 
 		// params
-		$params           = $_GET;
-		$params['action'] = 'postsdata';
-
-		$before = microtime( true );
+		$params            = $_GET;
+		$params['action']  = 'postsdata';
+		$params['orderby'] = 'ID';
 
 		// 投稿を部分同期
 		$json = $wp_filesystem->get_contents( "{$this->neng_ajax_url}?" . http_build_query( $params ) );
-		$arr  = json_decode( $json, true );
+		$data  = json_decode( $json, true );
+
+		// ログテキスト
+		$logs   = array();
+		$logs[] = __METHOD__;
+
+		// IP制限等で終了のケース
+		if ( ! $data ) {
+			$logs[] = $json;
+			$this->log( $logs );
+			echo $json;
+			exit;
+		}
+
 		wp_defer_term_counting( true );
 		wp_defer_comment_counting( true );
-		foreach ( $arr['posts'] as $k => $v ) {
-			// 返礼品コードから事業者判定
-			preg_match( '/^[A-Z]{2,3}$/m', $v['post_author_last_name'], $m );
-			// 事業者コードが取得できない場合はスキップ
-			if ( empty( $m ) ) {
-				echo "<pre>「{$v['post_author_last_name']}」は事業者ではないのでスキップしました。</pre>";
-				continue;
-			}
-			$user_id = $this->get_userid_by_last_name( $m[0] );
+		foreach ( $data['posts'] as $k => $v ) {
 
 			// 返礼品情報を生成
 			$postarr = array(
@@ -201,25 +214,29 @@ class N2_Sync {
 				'post_modified_gmt' => $v['post_modified_gmt'],
 				'type'              => $v['type'],
 				'post_title'        => $v['post_title'],
-				'post_author'       => $user_id,
+				'post_author'       => $this->get_userid_by_last_name( $v['post_author_last_name'] ),
 				'meta_input'        => $v['acf'],
 			);
-			// 「返礼品コード」が既に登録済みか調査
+			$postarr['meta_input']['_neng_id'] = $v['ID']; // 同期用 裏カスタムフィールドNENGのID追加
+
+			// 登録済みか調査
 			$args = array(
 				'post_type'   => 'post',
-				'meta_key'    => '返礼品コード',
-				'meta_value'  => $v['acf']['返礼品コード'],
+				'meta_key'    => '_neng_id',
+				'meta_value'  => $v['ID'],
 				'post_status' => 'any',
 			);
-			// 返礼品の投稿IDを取得
+			// 裏カスタムフィールドのNENGの投稿IDで登録済み調査
 			$p = get_posts( $args )[0];
 			// 登録済みの場合
 			if ( $p->ID ) {
 				// 更新されてない場合はスキップ
-				if ( new DateTime( $p->post_modified ) === new DateTime( $postarr['post_modified'] ) ) {
+				if ( $p->post_modified === $postarr['post_modified'] ) {
 					continue;
 				}
 				$postarr['ID'] = $p->ID;
+				// ログ生成
+				$this->log( array( ...$logs, "「{$p->post_title}」を更新しました。{$p->post_modified}  {$v['post_modified']}" ) );
 			}
 			add_filter( 'wp_insert_post_data', array( $this, 'alter_post_modification_time' ), 99, 2 );
 			wp_insert_post( $postarr );
@@ -227,9 +244,6 @@ class N2_Sync {
 		}
 		wp_defer_term_counting( false );
 		wp_defer_comment_counting( false );
-
-		$after = microtime( true );
-		echo number_format( $after - $before, 2 ) . ' sec';
 		exit;
 	}
 
@@ -309,6 +323,20 @@ class N2_Sync {
 		$after = microtime( true );
 		echo ( $after - $before ) . ' sec';
 		exit;
+	}
+
+	/**
+	 * ログファイル生成
+	 *
+	 * @param array $arr ログ用の追加配列
+	 */
+	private function log( $arr ) {
+		$logs = array(
+			date_i18n( 'Y/m/d H:i:s' ),
+			get_bloginfo( 'name' ),
+			...$arr,
+		);
+		error_log( implode( ' | ', $logs ) . PHP_EOL, 3, ABSPATH . '/n2-sync.log' );
 	}
 
 	/**
