@@ -42,7 +42,7 @@ class N2_Front {
 	 * @return string $query sql
 	 */
 	public function front_request( $query ) {
-		if ( ! is_search() ) {
+		if ( ! is_search() && ! is_front_page() ) {
 			return $query;
 		}
 		global $wpdb;
@@ -187,7 +187,7 @@ class N2_Front {
 		";
 
 		// 検索用GETパラメータがある場合のみ$queryを上書き
-		$query = count( $args ) > 0 ? $wpdb->prepare( $sql, ...$args ) : $query;
+		$query = count( $args ) > 0 ? $wpdb->prepare( $sql, ...$args ) : $sql;
 		return $query;
 	}
 
