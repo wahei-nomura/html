@@ -205,5 +205,8 @@ export default () => {
 
 		$(window).trigger("resize");
 		// PCサイズ切替
+		$('.hilight-layer').on('click',function(){
+			$(this).remove();
+		})
 	});
 };

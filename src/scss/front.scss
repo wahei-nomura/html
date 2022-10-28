@@ -176,11 +176,15 @@ $breakpoint: (
 }
 .wrapper {
 	width: 100%;
+	max-width: 75vw;
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
 	row-gap: 30px;
 	padding: 20px;
+	margin-right: auto;
+	margin-left: auto;
+
 	@include mq(pc) {
 		display: grid;
 		grid-template:
@@ -475,12 +479,60 @@ $breakpoint: (
 	}
 	.sub {
 		grid-area: sub;
+		@include mq(pc){
+			border-left: 1px solid #000;
+			padding: 20px;
+			text-align: center;
+		}
 		.sticky{
 			position: sticky;
-			top: 20px;
+			top: 40px;
 			display: flex;
 			flex-direction: column;
 			row-gap: 40px;
+			.hilight-layer{
+				position: fixed;
+				top: 0;
+				left: 0;
+				background: #0008;
+				width: 100vw;
+				height: 100vh;
+				cursor: pointer;
+				& + button{
+					animation: flashing infinite 3s ease;
+				}
+				@keyframes flashing {
+					0%,100%{
+						box-shadow: none;
+					}
+					50%{
+						box-shadow:
+							0px 0px 10px 1px #fff,
+							0px 0px 20px 2px #fff,
+							0px 0px 50px 5px #fff,
+							inset 0px 0px 10px 5px #ff0,
+							inset 0px 0px 20px 2px #ff0b,
+							inset 0px 0px 30px 0px #ff08
+							;
+					}
+				}
+			}
+			button{
+				z-index: 1;
+				width: 110%;
+				transform: translateX(-5%);
+				padding: 10px 20px;
+				cursor: pointer;
+			}
+
+		}
+		h2 {
+			background-color: orange;
+			padding: 10px 20px;
+			color: whitesmoke;
+			@include mq(pc){
+				margin-bottom: 20px;
+			}
 		}
 	}
 	@include mq(pc) {
