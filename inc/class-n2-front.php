@@ -42,6 +42,7 @@ class N2_Front {
 	 * @return string $query sql
 	 */
 	public function front_request( $query ) {
+		// var_dump($query);
 		if ( ! is_search() && ! is_front_page() ) {
 			return $query;
 		}
@@ -140,21 +141,23 @@ class N2_Front {
 		}
 
 		// 事業者絞り込み ----------------------------------------
-		if ( ! empty( $_GET['author'] ) ) {
+		if ( ! empty( $_GET['author'] ) && '' !== $_GET['author'] ) {
 			$where .= "AND {$wpdb->posts}.post_author = '%s'";
 			array_push( $args, filter_input( INPUT_GET, 'author', FILTER_VALIDATE_INT ) );
 		}
 		// ここまで事業者 ----------------------------------------
 
-		// 返礼品コード絞り込み ----------------------------------------
-		if ( ! empty( $_GET['code'] ) && '' !== $_GET['code'] ) {
-			$code   = $_GET['code'];
-			$where .= 'AND (';
-			$where .= "
-			{$wpdb->postmeta}.meta_key = '返礼品コード'
-			AND {$wpdb->postmeta}.meta_value LIKE '%%%s%%'
-			";
-			array_push( $args, $code );
+		// 返礼品コード絞り込み------------------------------------
+		if ( ! empty( $_GET['返礼品コード'] ) ) {
+			$code_arr = $_GET['返礼品コード'];
+			$where   .= 'AND (';
+			foreach ( $code_arr as $key => $code ) {
+				if ( 0 !== $key ) {
+					$where .= ' OR '; // 複数返礼品コードをOR検索(前後の空白必須)
+				}
+				$where .= "{$wpdb->posts}.ID = '%s'";
+				array_push( $args, $code );
+			}
 			$where .= ')';
 		}
 		// ここまで返礼品コード ----------------------------------------
@@ -185,7 +188,6 @@ class N2_Front {
 		GROUP BY {$wpdb->posts}.ID
 		ORDER BY {$wpdb->posts}.post_date DESC
 		";
-
 		// 検索用GETパラメータがある場合のみ$queryを上書き
 		$query = count( $args ) > 0 ? $wpdb->prepare( $sql, ...$args ) : $sql;
 		return $query;
