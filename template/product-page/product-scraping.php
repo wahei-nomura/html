@@ -15,8 +15,13 @@
             <tr>
                 <th><?php echo $th; ?></th>
                 <?php foreach ( $args as $portal => $params ) : ?>
-                    <?php if ( '寄付額' === $th ) : ?>
+
+                    <?php if ( ! isset($params[ $th ]) ) : ?>
+                        <td></td>
+                    <?php elseif ( '寄付額' === $th && is_numeric($params[ $th ]) ) : ?>
                         <td class="price"><?php echo number_format( $params[ $th ] ); ?></td>
+                    <?php elseif ( '寄付額' === $th  ) : ?>
+                        <td class="price"><?php echo $params[ $th ]; ?></td>
                     <?php else : ?>
                         <td><?php echo $params[ $th ]; ?></td>
                     <?php endif; ?>
