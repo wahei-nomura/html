@@ -5,6 +5,11 @@
  * @package neoneng
  */
 
+$args  = array(
+	'posts_per_page' => -1,
+);
+$query = new WP_Query( $args );
+
 ?>
 <!-- Load sass.js -->
 <script src="https://cdn.jsdelivr.net/gh/steamships/in-browser-sass/dist/in-browser-sass.bundle.min.js"></script>
@@ -61,9 +66,9 @@
 			<th>公開日</th>
 		</tr>
 	<?php
-	if ( have_posts() ) :
-		while ( have_posts() ) :
-			the_post();
+	if ( $query->have_posts() ) :
+		while ( $query->have_posts() ) :
+			$query->the_post();
 			$item_checked = ! empty( get_post_meta( get_the_ID(), '事業者確認', true ) ) ? true : false;
 			?>
 			<tr class="<?php echo ! $item_checked ? 'aleart' : 'normal'; ?>">
