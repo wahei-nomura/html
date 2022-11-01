@@ -210,8 +210,9 @@ class N2_Front {
 		if ( is_admin() || ! $query->is_main_query() ) {
 			return;
 		}
-		if ( $query->is_main_query() || $query->is_search() ) { // メインページおよび検索結果で適用
-			$query->set( 'posts_per_page', 20 );
+		if ( $query->is_front_page() || $query->is_search() ) { // メインページおよび検索結果で適用
+			$query->set( 'posts_per_page', '20' );
+			return;
 		}
 	}
 

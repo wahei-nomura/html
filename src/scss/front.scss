@@ -700,3 +700,11 @@ $breakpoint: (
 		padding: 2px 0;
 	}
 }
+.product-img-box{
+	width: 100%;
+	height: 150px;
+	background-color: #ccc;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
