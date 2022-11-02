@@ -41,6 +41,7 @@
 
 		$args      = array(
 			'post_status' => 'publish',
+			'posts_per_page' => -1,
 		);
 		$the_query = new WP_Query( $args );
 		if ( $the_query->have_posts() ) {
