@@ -745,3 +745,18 @@ $breakpoint: (
 .front-submit-wrap{
 	margin-top: 30px;
 }
+.search-code-list{
+	width: 100%;
+	padding: 12px;
+	option{
+		padding: 2px 0;
+	}
+}
+.product-img-box{
+	width: 100%;
+	height: 150px;
+	background-color: #ccc;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
