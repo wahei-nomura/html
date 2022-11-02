@@ -31,6 +31,7 @@ class N2_Front {
 		$this->cls = get_class( $this );
 		add_action( 'posts_request', array( $this, 'front_request' ) );
 		add_action( "wp_ajax_nopriv_{$this->cls}_item_confirm", array( $this, 'update_item_confirm' ) );
+		add_action( "wp_ajax_{$this->cls}_item_confirm", array( $this, 'update_item_confirm' ) );
 		add_action( 'pre_get_posts', array( $this, 'change_posts_per_page' ) );
 	}
 
@@ -191,8 +192,12 @@ class N2_Front {
 		WHERE 1 = 1 {$where}
 		GROUP BY {$wpdb->posts}.ID
 		ORDER BY {$wpdb->posts}.post_date DESC
-		LIMIT {$now_page}, 20
 		";
+
+		// クルー確認ページでは全件表示
+		if ( empty( $_GET['crew'] ) ) {
+			$sql .= "LIMIT {$now_page}, 20";
+		}
 		// 検索用GETパラメータがある場合のみ$queryを上書き
 		$query = count( $args ) > 0 ? $wpdb->prepare( $sql, ...$args ) : $sql;
 		return $query;
