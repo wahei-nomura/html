@@ -188,10 +188,11 @@ $breakpoint: (
 	@include mq(pc) {
 		display: grid;
 		grid-template:
-			"mr1 img_box  img_box mr2  title       title       sub" auto
-			"mr1 img_box  img_box mr2  amount      comp        sub" auto
-			"mr1 img_box  img_box mr2  description description sub" auto
-			"mr1 info     info    info info        info        sub" minmax(
+			"mr1 return   return  return return      return      return" auto
+			"mr1 img_box  img_box mr2    title       title       sub" auto
+			"mr1 img_box  img_box mr2    amount      comp        sub" auto
+			"mr1 img_box  img_box mr2    description description sub" auto
+			"mr1 info     info    info   info        info        sub" minmax(
 				1rem,
 				auto
 			);
@@ -258,6 +259,17 @@ $breakpoint: (
 					color: #fff;
 				}
 			}
+		}
+	}
+	.return{
+		&-link{
+			grid-area: return;
+		}
+		&-btn{
+			width: fit-content;
+			border: 1px solid;
+			border-radius: 100px;
+			padding: 10px 20px;
 		}
 	}
 	.product-imgs {

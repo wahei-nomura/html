@@ -43,11 +43,22 @@ $check_img_urls    = function () use ( $product_code_l
 $post_data['商品画像'] = $check_img_urls() ?: $post_data['商品画像'];
 // var_dump( $post_data );
 $tashiro = apply_filters( 'wp_ajax_SS_Portal_Scraper', array(), $town_name, $post_data['返礼品コード'] );
+
+// post idのみ削除する
+$return_url = explode('?',"https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}")[0]; 
+$get_param = $_GET;
+unset($get_param['p']);
+$return_url .= '?' . http_build_query($get_param);
 if ( have_posts() ) :
 	while ( have_posts() ) :
 		the_post();
 ?>
 <main class="wrapper">
+	<a class="return-link" href="<?php echo $return_url; ?>">
+		<div class="return-btn">
+			一覧へ戻る
+		</div>
+	</a>
 	<!-- 商品画像 -->
 	<?php N2_Functions::get_template_part_with_args( 'template/product-page/product-imgs', '', $post_data['商品画像'] ) ?>
 	<h1 class='title'><?php the_title(); ?></h1>
