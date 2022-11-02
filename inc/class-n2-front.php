@@ -48,6 +48,10 @@ class N2_Front {
 		}
 		global $wpdb;
 		// 最終的に$query内に代入するWHERE句
+		$page_number = 20;
+		$current_pgae = get_query_var( 'paged' );  // ページ数取得
+		$current_pgae = $current_pgae == 0 ? '1' : $current_pgae;
+		$now_page = ($current_pgae -1 ) * $page_number;
 		$where = "
 		AND (
 			(
@@ -187,6 +191,7 @@ class N2_Front {
 		WHERE 1 = 1 {$where}
 		GROUP BY {$wpdb->posts}.ID
 		ORDER BY {$wpdb->posts}.post_date DESC
+		LIMIT {$now_page}, 20
 		";
 		// 検索用GETパラメータがある場合のみ$queryを上書き
 		$query = count( $args ) > 0 ? $wpdb->prepare( $sql, ...$args ) : $sql;
