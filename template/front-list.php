@@ -30,21 +30,17 @@
 			$portals        = array( '楽天', 'チョイス' );
 			while ( have_posts() ) {
 				the_post();
+				$new_rakuten_pic = '';
 				$new_meta_pic = '';
 
 				$item_num_low = mb_strtolower( get_post_meta( get_the_ID(), '返礼品コード', true ) );
 				preg_match( '/...(?=[0-9])/', $item_num_low, $item_code );
 				if ( $item_num_low != '' && ! empty( $item_code ) ) {
-					if ( @file_get_contents( $img_dir . '/' . $item_code[0] . '/' . $item_num_low . '.jpg' ) ) {
-						$new_meta_pic = $img_dir . '/' . $item_code[0] . '/' . $item_num_low . '.jpg';
-					} else {
-						$meta_pic_arr = get_post_meta( get_the_ID(), '商品画像', true );
-						if ( ! empty( $meta_pic_arr ) ) {
-							$new_meta_pic = $meta_pic_arr[0];
-						}
-					}
+					$new_rakuten_pic = $img_dir . '/' . $item_code[0] . '/' . $item_num_low . '.jpg';
 				}
-
+				if( ! empty( $meta_pic_arr ) ){
+					$new_meta_pic = $meta_pic_arr[0];
+				}
 				$post_status = get_post_status();
 				// var_dump(get_post_meta(get_the_ID(), '出品禁止ポータル', true));
 				$meta_portals        = get_post_meta( get_the_ID(), '出品禁止ポータル', true );
@@ -57,7 +53,7 @@
 				?>
 		<li class="<?php echo $post_status; ?>">
 		<a href="<?php the_permalink(); ?>">
-			<div class="product-img-box" <?php print $new_meta_pic != '' ? 'style="background-image:url(' . $new_meta_pic . '); background-size:cover;"' : ''; ?>><?php print $new_meta_pic == '' ? '<span class="product-img-section">No Image</span>' : ''; ?></div>
+			<div class="product-img-box" style="background-image:url( <?php echo $new_rakuten_pic; ?>  ), url(<?php echo $new_meta_pic; ?>); background-size:cover;"><?php print $new_meta_pic == '' && $new_rakuten_pic == '' ? '<span class="product-img-section">No Image</span>' : ''; ?></div>
 				<?php /*<span class="product-list-date"><?php the_date( 'y/m/d' ); ?></span>*/ ?>
 			<span class="product-list-item">
 			<span class="product-list-title"><?php echo '【' . get_post_meta( get_the_ID(), '返礼品コード', true ) . '】'; ?><?php the_title(); ?></span>
