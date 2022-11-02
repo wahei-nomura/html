@@ -90,32 +90,22 @@ class N2_Sync {
 			$ch         = curl_init();
 			$ch_array[] = $ch;
 			// localでSSLでうまくアクセスできないので$schema必須
-			$schema     = preg_match( '/localhost/', get_network()->domain ) ? 'http' : 'admin';
-			$options    = array(
+			$schema  = preg_match( '/localhost/', get_network()->domain ) ? 'http' : 'admin';
+			$options = array(
 				CURLOPT_URL            => admin_url( 'admin-ajax.php?', $schema ) . http_build_query( $params ),
 				CURLOPT_HEADER         => false,
 				CURLOPT_RETURNTRANSFER => true,
 				CURLOPT_SSL_VERIFYPEER => false,
-				CURLOPT_FOLLOWLOCATION => true,
 				CURLOPT_TIMEOUT        => 30,
 			);
 			curl_setopt_array( $ch, $options );
 			curl_multi_add_handle( $mh, $ch );
 			$params['paged']++;
 		}
-		$active = null;
 		do {
-			$mrc = curl_multi_exec( $mh, $active );
-		} while ( CURLM_CALL_MULTI_PERFORM === $mrc );
-
-		while ( $active && CURLM_OK === $mrc ) {
-			if ( curl_multi_select( $mh ) === -1 ) {
-				usleep( 1 );
-			}
-			do {
-				$mrc = curl_multi_exec( $mh, $active );
-			} while ( CURLM_CALL_MULTI_PERFORM === $mrc );
-		}
+			curl_multi_exec( $mh, $running );
+			curl_multi_select( $mh );
+		} while ( $running > 0 );
 
 		foreach ( $ch_array as $ch ) {
 			curl_multi_remove_handle( $mh, $ch );
