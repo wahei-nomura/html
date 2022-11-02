@@ -700,11 +700,19 @@ $breakpoint: (
 		padding: 2px 0;
 	}
 }
-.product-img-box{
+.product-img-wrap{
 	width: 100%;
 	height: 150px;
+	position: relative;
 	background-color: #ccc;
 	display: flex;
 	align-items: center;
 	justify-content: center;
+}
+.product-img-box{
+	width: 100%;
+	height: 150px;
+	position: absolute;
+	top: 0;
+	left: 0;
 }
