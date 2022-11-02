@@ -81,7 +81,7 @@
 				<?php if ( ! empty( $_GET['look'] ) && ! empty( $_GET['author'] ) ) : ?>
 			<button
 				type='button'
-				class='ok-btn'
+				class='ok-btn btn btn-danger'
 				value='<?php the_ID(); ?>'
 					<?php echo '' !== get_post_meta( get_the_ID(), '事業者確認', true ) ? 'disabled' : ''; ?>
 			>
