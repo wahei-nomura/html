@@ -11,15 +11,12 @@
 
 <style type="text/scss">
 	.n2-crew-check {
+		width: 90%;
+		overflow-x: scroll;
 		table{
-			width: 100%;
 			border-spacing: 0;
 			
 			tr {
-				background: #eee;
-				&.aleart {
-					background-color: pink;
-				}
 				&.normal.none {
 					display: none;
 				}
@@ -28,30 +25,17 @@
 			th{
 				border-bottom: solid 2px #fb5144;
 				padding: 10px 0;
-			}
-			
-			td{
-				border-bottom: solid 2px #ddd;
 				text-align: center;
-				padding: 4px 16px;
-				max-width: 500px; /* 省略せずに表示するサイズを指定 */
-				white-space: nowrap;
-				overflow: hidden;
-				text-overflow: ellipsis;
 			}
-		}
-		.change-btn {
-			cursor: pointer;
-			margin-bottom: 8px;
-			padding: 4px 8px;
 		}
 	}
 </style>
 
 <section class="n2-crew-check">
-	<h1>事業者確認状況（クルー専用ページ）</h1>
-	<button class="change-btn">確認済みを非表示</button>
-	<table>
+	<h2 class="display-12 p-2 border-bottom border-success border-3">クルー専用事業者確認状況チェック</h2>
+	<p>事業者の返礼品確認状況（<span class="text-danger">確認ボタンを押したかどうか</span>）を確認することができます。</p>
+	<button class="change-btn btn btn-success m-1">確認済みを非表示</button>
+	<table class="table table-secondary table-hover">
 	<tbody>
 		<tr>
 			<th>事業者名</th>
@@ -66,7 +50,7 @@
 			the_post();
 			$item_checked = ! empty( get_post_meta( get_the_ID(), '事業者確認', true ) ) ? true : false;
 			?>
-			<tr class="<?php echo ! $item_checked ? 'aleart' : 'normal'; ?>">
+			<tr class="<?php echo ! $item_checked ? 'table-danger' : 'normal'; ?>">
 				<td><?php the_author(); ?></td>
 				<td><?php echo get_post_meta( get_the_ID(), '返礼品コード', true ); ?></td>
 				<td><a href="<?php the_permalink(); ?>" target=”_blank”><?php the_title(); ?></a></td>
