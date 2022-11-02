@@ -7,6 +7,12 @@
 
 ?>
 <section class="product-list-wrap">
+
+	<?php if ( ! empty( $_GET['look'] ) && ! empty( $_GET['author'] ) ) : ?>
+		<h2 class="display-12 p-2 border-bottom border-success border-3"><span class="text-success"><?php echo get_userdata( filter_input( INPUT_GET, 'author', FILTER_VALIDATE_INT ) )->display_name; ?></span> 様 専用確認ページ</h2>
+		<p>お手数ですが、各商品をご確認されましたら<span class="text-danger">「確認OK」</span>ボタンを押してください。（ご不明点はスチームシップまでお問い合わせください。）</p>
+	<?php endif; ?>
+
 	<?php
 	the_posts_pagination(
 		array(
