@@ -53,8 +53,10 @@
 				?>
 		<li class="<?php echo $post_status; ?>">
 		<a href="<?php the_permalink(); ?>">
-			<div class="product-img-box" style="background-image:url( <?php echo $new_rakuten_pic; ?>  ), url(<?php echo $new_meta_pic; ?>); background-size:cover;"><?php print $new_meta_pic == '' && $new_rakuten_pic == '' ? '<span class="product-img-section">No Image</span>' : ''; ?></div>
-				<?php /*<span class="product-list-date"><?php the_date( 'y/m/d' ); ?></span>*/ ?>
+			<div class="product-img-wrap">
+				<div class="product-img-box" style="background-image:url( <?php echo $new_rakuten_pic; ?>  ), url(<?php echo $new_meta_pic; ?>); background-size:cover;"><?php print $new_meta_pic == '' && $new_rakuten_pic == '' ? '<span class="product-img-section">No Image</span>' : ''; ?></div>
+				<span class="product-img-section">No Image</span>
+			</div>
 			<span class="product-list-item">
 			<span class="product-list-title"><?php echo '【' . get_post_meta( get_the_ID(), '返礼品コード', true ) . '】'; ?><?php the_title(); ?></span>
 				<?php
