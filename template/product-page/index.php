@@ -77,7 +77,7 @@ if ( have_posts() ) :
 	
 	
 	<!-- 商品詳細 -->
-	<?php N2_Functions::get_template_part_with_args( 'template/product-page/product-info', '', $post_data ) ?>
+	<?php # N2_Functions::get_template_part_with_args( 'template/product-page/product-info', '', $post_data ) ?>
 	<!-- ポータル比較 -->
 	<?php N2_Functions::get_template_part_with_args( 'template/product-page/product-scraping', '', $tashiro ) ?>
 
