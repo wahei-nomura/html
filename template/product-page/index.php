@@ -54,7 +54,7 @@ if ( have_posts() ) :
 	<section class="worker">
 		<h2>提供事業者</h2>
 		<?php if ( get_the_author_meta( 'user_url' ) ) : ?>
-			<a href="<?php the_author_meta( 'user_url' ); ?>">
+			<a href="<?php the_author_meta( 'user_url' ); ?>" target="_blank">
 				<?php the_author(); ?>
 				<span class="material-symbols-outlined">open_in_new</span>
 			</a>
