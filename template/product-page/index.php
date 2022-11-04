@@ -9,6 +9,7 @@ $img_dir        = str_replace( 'n2-towncode', $n2_towncode[ $town_name ]['楽天
 $portals        = array( '楽天', 'チョイス' );
 
 
+
 $product_code_l
  = mb_strtolower( $post_data['返礼品コード'] );
 if ($product_code_l
@@ -45,10 +46,10 @@ $post_data['商品画像'] = $check_img_urls() ?: $post_data['商品画像'];
 $tashiro = apply_filters( 'wp_ajax_SS_Portal_Scraper', array(), $town_name, $post_data['返礼品コード'] );
 
 // post idのみ削除する
-$return_url = explode('?',"https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}")[0]; 
-$get_param = $_GET;
-unset($get_param['p']);
-$return_url .= '?' . http_build_query($get_param);
+$return_url = explode( '?', "https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}" )[0];
+$get_param  = $_GET;
+unset( $get_param['p'] );
+$return_url .= '?' . http_build_query( $get_param );
 if ( have_posts() ) :
 	while ( have_posts() ) :
 		the_post();
@@ -60,8 +61,8 @@ if ( have_posts() ) :
 		</div>
 	</a>
 	<!-- 商品画像 -->
-	<?php N2_Functions::get_template_part_with_args( 'template/product-page/product-imgs', '', $post_data['商品画像'] ) ?>
-	<h1 class='title'><?php the_title(); ?></h1>
+	<?php N2_Functions::get_template_part_with_args( 'template/product-page/product-imgs', '', $post_data['商品画像'] ); ?>
+	<h1 class='title'><?php the_title(); ?>【<?php echo $post_data['返礼品コード']; ?>】</h1>
 	<section class="worker">
 		<h2>提供事業者</h2>
 		<?php if ( get_the_author_meta( 'user_url' ) ) : ?>
