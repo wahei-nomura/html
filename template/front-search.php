@@ -16,6 +16,7 @@
 			// 事業者検索 ===============================================================
 			$show_author      = '';
 			$get_jigyousya_id = filter_input( INPUT_GET, 'author', FILTER_VALIDATE_INT );
+			$get_henreihin_codes = filter_input(INPUT_GET, '返礼品コード', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
 		?>
 
 		<datalist id="jigyousya-list">
@@ -48,7 +49,11 @@
 				$the_query->the_post();
 				$code = get_post_meta( get_the_ID(), '返礼品コード', 'true' );
 				if ( '' !== $code ) {
-					printf( '<option value="%s">%s</option>', get_the_ID(), $code );
+					if(in_array(get_the_ID(), $get_henreihin_codes)){
+						printf( '<option value="%s" selected>%s</option>', get_the_ID(), $code );
+					}else{
+						printf( '<option value="%s">%s</option>', get_the_ID(), $code );
+					}
 				}
 			}
 		}
