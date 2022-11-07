@@ -40,6 +40,52 @@ class N2_Sync {
 		add_action( 'wp_ajax_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
 		add_action( 'wp_ajax_nopriv_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
 		// add_action( 'wp_ajax_n2_sync_posts_by_rest_api', array( $this, 'sync_posts_by_rest_api' ) );
+		// multi_curlテスト用
+		add_action( 'wp_ajax_unko', array( $this, 'unko' ) );
+		add_action( 'wp_ajax_nopriv_unko', array( $this, 'unko' ) );
+	}
+
+	public function unko(){
+		if ( isset( $_GET['single'] ) ){
+			echo '<pre>';print_r("single unko{$_GET['count']}");echo '</pre>';
+			exit;
+		}
+		$mh       = curl_multi_init();
+		$ch_array = array();
+		$i        = 1;
+		while ( 5 >= $i ) {
+			$ch         = curl_init();
+			$ch_array[] = $ch;
+			$params     = array(
+				'action' => 'unko',
+				'single' => true,
+				'count'  => $i,
+			);
+			// localでSSLでうまくアクセスできないので$schema必須
+			$schema  = preg_match( '/localhost/', get_network()->domain ) ? 'http' : 'admin';
+			$options = array(
+				CURLOPT_URL            => admin_url( 'admin-ajax.php?', $schema ) . http_build_query( $params ),
+				CURLOPT_HEADER         => false,
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_SSL_VERIFYPEER => false,
+				CURLOPT_TIMEOUT        => 30,
+			);
+			curl_setopt_array( $ch, $options );
+			curl_multi_add_handle( $mh, $ch );
+			$i++;
+		}
+		do {
+			curl_multi_exec( $mh, $running );
+			curl_multi_select( $mh );
+		} while ( $running > 0 );
+
+		foreach ( $ch_array as $ch ) {
+			echo curl_multi_getcontent($ch);
+			curl_multi_remove_handle( $mh, $ch );
+			curl_close( $ch );
+		}
+		curl_multi_close( $mh );
+		exit;
 	}
 
 	/**
@@ -90,32 +136,22 @@ class N2_Sync {
 			$ch         = curl_init();
 			$ch_array[] = $ch;
 			// localでSSLでうまくアクセスできないので$schema必須
-			$schema     = preg_match( '/localhost/', get_network()->domain ) ? 'http' : 'admin';
-			$options    = array(
+			$schema  = preg_match( '/localhost/', get_network()->domain ) ? 'http' : 'admin';
+			$options = array(
 				CURLOPT_URL            => admin_url( 'admin-ajax.php?', $schema ) . http_build_query( $params ),
 				CURLOPT_HEADER         => false,
 				CURLOPT_RETURNTRANSFER => true,
 				CURLOPT_SSL_VERIFYPEER => false,
-				CURLOPT_FOLLOWLOCATION => true,
 				CURLOPT_TIMEOUT        => 30,
 			);
 			curl_setopt_array( $ch, $options );
 			curl_multi_add_handle( $mh, $ch );
 			$params['paged']++;
 		}
-		$active = null;
 		do {
-			$mrc = curl_multi_exec( $mh, $active );
-		} while ( CURLM_CALL_MULTI_PERFORM === $mrc );
-
-		while ( $active && CURLM_OK === $mrc ) {
-			if ( curl_multi_select( $mh ) === -1 ) {
-				usleep( 1 );
-			}
-			do {
-				$mrc = curl_multi_exec( $mh, $active );
-			} while ( CURLM_CALL_MULTI_PERFORM === $mrc );
-		}
+			curl_multi_exec( $mh, $running );
+			curl_multi_select( $mh );
+		} while ( $running > 0 );
 
 		foreach ( $ch_array as $ch ) {
 			curl_multi_remove_handle( $mh, $ch );
@@ -155,6 +191,10 @@ class N2_Sync {
 		// ユーザー登録
 		foreach ( $data as $k => $v ) {
 			$userdata = $v['data'];
+			// フルフロンタルは除外
+			if ( 'fullfrontal' === $userdata['user_login'] ) {
+				continue;
+			}
 			unset( $userdata['ID'] );
 
 			// 既存ユーザーは更新するのでIDを突っ込む
