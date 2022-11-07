@@ -546,6 +546,15 @@ $breakpoint: (
 				margin-bottom: 20px;
 			}
 		}
+		.ok-btn {
+			display: block;
+			width: 100%;
+			background-color: crimson;
+			color: #fff;
+			&.confirmed {
+				background-color: mediumseagreen;
+			}
+		}
 	}
 	@include mq(pc) {
 		& > .application {

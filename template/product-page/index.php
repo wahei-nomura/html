@@ -53,6 +53,10 @@ $return_url .= '?' . http_build_query( $get_param );
 if ( have_posts() ) :
 	while ( have_posts() ) :
 		the_post();
+		// 事業者確認フラグ用　------------------------------------------------------------------------
+		$check_param = get_post_meta( get_the_ID(), '事業者確認', true );
+		$confirmed   = '' === $check_param || '確認未' === $check_param[0] ? false : true;
+		// -----------------------------------------------------------------------------------------
 ?>
 <main class="wrapper">
 	<a class="return-link" href="<?php echo $return_url; ?>">
@@ -106,11 +110,10 @@ if ( have_posts() ) :
 			<div class="hilight-layer"></div>
 			<button
 				type='button'
-				class='ok-btn'
+				class='ok-btn btn <?php echo $confirmed ? 'confirmed' : ''; ?>'
 				value='<?php the_ID(); ?>'
-				<?php echo '' !== get_post_meta( get_the_ID(), '事業者確認', true ) ? 'disabled' : ''; ?>
 			>
-			確認OK
+				<?php echo $confirmed ? '確認済み' : '確認未'; ?>
 			</button>
 		<?php endif; ?>
 		</div>
