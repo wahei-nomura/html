@@ -122,10 +122,10 @@ $breakpoint: (
 		.ok-btn {
 			display: block;
 			width: 100%;
-			background-color: #ad0003;
+			background-color: crimson;
 			color: #fff;
-			&:disabled {
-				background-color: #888;
+			&.confirmed {
+				background-color: mediumseagreen;
 			}
 		}
 	}

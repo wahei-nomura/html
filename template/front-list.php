@@ -88,9 +88,8 @@
 				type='button'
 				class='ok-btn btn btn-danger <?php echo $confirmed ? 'confirmed' : ''; ?>'
 				value='<?php the_ID(); ?>'
-					<?php echo $confirmed ? 'disabled' : ''; ?>
 			>
-			確認OK
+				<?php echo $confirmed ? '確認済み' : '確認未'; ?>
 			</button>
 		<?php endif; ?>
 		</li>

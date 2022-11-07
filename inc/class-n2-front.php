@@ -208,8 +208,9 @@ class N2_Front {
 	 * ajaxで事業者確認パラメーターを更新
 	 */
 	public function update_item_confirm() {
-		$post_id = filter_input( INPUT_POST, 'post_id', FILTER_SANITIZE_NUMBER_INT );
-		update_post_meta( $post_id, '事業者確認', array( '確認済み' ) );
+		$post_id      = filter_input( INPUT_POST, 'post_id', FILTER_SANITIZE_NUMBER_INT );
+		$confirm_flag = filter_input( INPUT_POST, 'confirm_flag', FILTER_VALIDATE_BOOLEAN ) ? '確認未' : '確認済み';
+		update_post_meta( $post_id, '事業者確認', array( $confirm_flag ) );
 	}
 
 	/**
