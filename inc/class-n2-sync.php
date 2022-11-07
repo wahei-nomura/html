@@ -39,7 +39,6 @@ class N2_Sync {
 		add_action( 'wp_ajax_nopriv_n2_sync_posts', array( $this, 'sync_posts' ) );
 		add_action( 'wp_ajax_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
 		add_action( 'wp_ajax_nopriv_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
-		// add_action( 'wp_ajax_n2_sync_posts_by_rest_api', array( $this, 'sync_posts_by_rest_api' ) );
 
 		// cron登録処理
 		add_filter( 'cron_schedules', array( $this, 'intervals' ) );
@@ -71,11 +70,6 @@ class N2_Sync {
 	public function multi_sync_posts() {
 		$before = microtime( true );
 
-		if ( ! WP_Filesystem() ) {
-			return;
-		}
-		global $wp_filesystem;
-
 		// params
 		$params = array(
 			'action'         => 'postsdata',
@@ -83,9 +77,8 @@ class N2_Sync {
 			'posts_per_page' => $_GET['posts_per_page'] ?? 10,
 			'paged'          => 1,
 		);
-
-		$json = $wp_filesystem->get_contents( "{$this->neng_ajax_url}?" . http_build_query( $params ) );
-		$data = json_decode( $json, true );
+		$json   = wp_remote_get( "{$this->neng_ajax_url}?" . http_build_query( $params ) )['body'];
+		$data   = json_decode( $json, true );
 
 		// ログテキスト
 		$logs   = array();
@@ -145,12 +138,8 @@ class N2_Sync {
 	 */
 	public function sync_users() {
 		$before = microtime( true );
-		if ( ! WP_Filesystem() ) {
-			return;
-		}
-		global $wp_filesystem;
-		$json = $wp_filesystem->get_contents( "{$this->neng_ajax_url}?action=userdata" );
-		$data = json_decode( $json, true );
+		$json   = wp_remote_get( "{$this->neng_ajax_url}?action=userdata" )['body'];
+		$data   = json_decode( $json, true );
 
 		// ログテキスト
 		$logs   = array();
@@ -209,10 +198,6 @@ class N2_Sync {
 	 * posts_per_page
 	 */
 	public function sync_posts() {
-		if ( ! WP_Filesystem() ) {
-			return;
-		}
-		global $wp_filesystem;
 
 		// params
 		$params            = $_GET;
@@ -220,8 +205,8 @@ class N2_Sync {
 		$params['orderby'] = 'ID';
 
 		// 投稿を部分同期
-		$json = $wp_filesystem->get_contents( "{$this->neng_ajax_url}?" . http_build_query( $params ) );
-		$data  = json_decode( $json, true );
+		$json = wp_remote_get( "{$this->neng_ajax_url}?" . http_build_query( $params ) )['body'];
+		$data = json_decode( $json, true );
 
 		// ログテキスト
 		$logs   = array();
@@ -278,84 +263,6 @@ class N2_Sync {
 		}
 		wp_defer_term_counting( false );
 		wp_defer_comment_counting( false );
-		exit;
-	}
-
-	/**
-	 * REST API経由でN2返礼品吸い上げ
-	 */
-	public function sync_posts_by_rest_api() {
-		global $current_blog;
-		$town = $current_blog->path;
-		$url  = "https://steamship.co.jp{$town}wp-json/wp/v2/posts";
-		// params
-		$params = array(
-			'per_page' => 100,
-			'page'     => 1,
-		);
-		// トータルページ数（仮）
-		$pages  = 1;
-		$before = microtime( true );
-		wp_defer_term_counting( true );
-		wp_defer_comment_counting( true );
-		while ( $params['page'] <= $pages ) {
-			// $http_response_header使いたいので鬼教官許して
-			$data    = file_get_contents( "{$url}?" . http_build_query( $params ) );
-			$headers = iconv_mime_decode_headers( implode( "\n", $http_response_header ) );
-			// 合計情報
-			$total = $headers['X-WP-Total'];
-			$pages = $headers['X-WP-TotalPages'];
-			$params['page']++;
-			$arr = json_decode( $data, true );
-			foreach ( $arr as $v ) {
-
-				// 返礼品コードから事業者判定
-				preg_match( '/[A-Z]{2,3}/', $v['acf']['返礼品コード'], $m );
-				// 事業者コードが取得できない場合はスキップ
-				if ( empty( $m ) ) {
-					echo '<pre>事業者コードがありません。</pre>';
-					continue;
-				}
-				$user_id = $this->get_userid_by_last_name( $m[0] );
-
-				// 返礼品情報を生成
-				$postarr = array(
-					'post_status'       => $v['status'],
-					'post_date'         => $v['date'],
-					'post_date_gmt'     => $v['date_gmt'],
-					'post_modified'     => $v['modified'],
-					'post_modified_gmt' => $v['modified_gmt'],
-					'type'              => $v['type'],
-					'post_title'        => $v['title']['rendered'],
-					'post_author'       => $user_id,
-					'meta_input'        => $v['acf'],
-				);
-				// 「返礼品コード」が既に登録済みか調査
-				$args = array(
-					'post_type'   => 'post',
-					'meta_key'    => '返礼品コード',
-					'meta_value'  => $v['acf']['返礼品コード'],
-					'post_status' => 'any',
-				);
-				// 返礼品の投稿IDを取得
-				$p = get_posts( $args )[0];
-				// 登録済みの場合
-				if ( $p->ID ) {
-					// 更新されてない場合はスキップ
-					if ( new DateTime( $p->post_modified ) === new DateTime( $postarr['post_modified'] ) ) {
-						continue;
-					}
-					$postarr['ID'] = $p->ID;
-				}
-				add_filter( 'wp_insert_post_data', array( $this, 'alter_post_modification_time' ), 99, 2 );
-				wp_insert_post( $postarr );
-				remove_filter( 'wp_insert_post_data', array( $this, 'alter_post_modification_time' ) );
-			}
-		}
-		wp_defer_term_counting( false );
-		wp_defer_comment_counting( false );
-		$after = microtime( true );
-		echo ( $after - $before ) . ' sec';
 		exit;
 	}
 
