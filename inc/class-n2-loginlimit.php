@@ -38,18 +38,8 @@ class N2_Loginlimit {
 			return;
 		}
 
-		$ips = array(
-			'219.111.49.195', // 波佐見
-			'121.2.77.80', // 吉野ヶ里
-			'202.241.189.211', // 糸島
-			'219.111.24.202', // 有田
-			'122.103.81.78', // 出島
-			'183.177.128.173', // 土岐
-			'217.178.116.13', // 大村
-			'175.41.201.54', // SSVPN
-		);
-
-		if ( 'wp-multi.ss.localhost' !== get_network()->domain && ! in_array( $_SERVER['REMOTE_ADDR'], $ips ) ) {
+		// N2_IPSはconfig/config.phpで定義
+		if ( 'wp-multi.ss.localhost' !== get_network()->domain && ! in_array( $_SERVER['REMOTE_ADDR'], N2_IPS ) ) {
 			wp_logout();
 			echo $_SERVER['REMOTE_ADDR'];
 			exit;

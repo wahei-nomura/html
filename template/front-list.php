@@ -56,6 +56,11 @@
 						$meta_portal_section .= $meta_portal;
 					}
 				}
+
+				// 事業者確認フラグ用　------------------------------------------------------------------------
+				$check_param = get_post_meta( get_the_ID(), '事業者確認', true );
+				$confirmed   = '' === $check_param || '確認未' === $check_param[0] ? false : true;
+				// -----------------------------------------------------------------------------------------
 				?>
 		<li class="<?php echo $post_status; ?>">
 		<a href="<?php the_permalink(); ?>">
@@ -81,11 +86,10 @@
 				<?php if ( ! empty( $_GET['look'] ) && ! empty( $_GET['author'] ) ) : ?>
 			<button
 				type='button'
-				class='ok-btn btn btn-danger'
+				class='ok-btn btn btn-danger <?php echo $confirmed ? 'confirmed' : ''; ?>'
 				value='<?php the_ID(); ?>'
-					<?php echo '' !== get_post_meta( get_the_ID(), '事業者確認', true ) ? 'disabled' : ''; ?>
 			>
-			確認OK
+				<?php echo $confirmed ? '確認済み' : '確認未'; ?>
 			</button>
 		<?php endif; ?>
 		</li>
