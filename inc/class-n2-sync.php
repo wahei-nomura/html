@@ -58,7 +58,7 @@ class N2_Sync {
 	public function intervals( $schedules ) {
 		$schedules['30min'] = array(
 			'interval' => 1800,
-			'display'  => '5分毎',
+			'display'  => '30分毎',
 		);
 		$schedules['5min'] = array(
 			'interval' => 300,
