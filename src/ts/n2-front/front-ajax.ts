@@ -8,7 +8,7 @@ export default () => {
 	================================================================== */
 	jQuery(function ($) {
 		// 計算パターンを受け取ってから処理
-		const updateItemConfirm = (postId: number): void => {
+		const updateItemConfirm = (postId: number, confirmFlag: boolean): void => {
 			$.ajax({
 				url: ajaxUrl(window),
 				type: "POST",
@@ -16,6 +16,7 @@ export default () => {
 				data: {
 					action: "N2_Front_item_confirm",
 					post_id: postId,
+					confirm_flag: confirmFlag,
 				},
 			}).done((res) => {
 				console.log('更新OK')
@@ -24,12 +25,14 @@ export default () => {
 			});
 		};
 		$('button.ok-btn').on('click', e => {
-			if( !confirm('この商品を確認済みにして良いですか？')){
+			console.log($(e.target).hasClass('confirmed'))
+			const confirmFlag = $(e.target).hasClass('confirmed')
+			if( !confirm(`この商品を確認${confirmFlag ? '未' : '済み'}にして良いですか？`)){
 				return;
 			}
 
-			$(e.target).prop('disabled',true);
-			updateItemConfirm(Number($(e.target).val()))
+			$(e.target).toggleClass('confirmed').text(`確認${confirmFlag ? '未' : '済み'}`);
+			updateItemConfirm(Number($(e.target).val()), confirmFlag);
 		});
 	})
 };
