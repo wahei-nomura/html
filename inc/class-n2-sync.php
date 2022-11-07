@@ -40,6 +40,29 @@ class N2_Sync {
 		add_action( 'wp_ajax_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
 		add_action( 'wp_ajax_nopriv_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
 		// add_action( 'wp_ajax_n2_sync_posts_by_rest_api', array( $this, 'sync_posts_by_rest_api' ) );
+
+		// cron登録処理
+		add_filter( 'cron_schedules', array( $this, 'intervals' ) );
+		if ( ! wp_next_scheduled( 'wp_ajax_nopriv_n2_sync_users' ) ) {
+			wp_schedule_event( time(), '5min', 'wp_ajax_nopriv_n2_sync_users' );
+		}
+		if ( ! wp_next_scheduled( 'wp_ajax_n2_multi_sync_posts' ) ) {
+			wp_schedule_event( time(), '5min', 'wp_ajax_n2_multi_sync_posts' );
+		}
+	}
+
+
+	/**
+	 * WP CRONのオリジナルスケジュール
+	 *
+	 * @param array $schedules スケジュール配列
+	 */
+	public function intervals( $schedules ) {
+		$schedules['5min'] = array(
+			'interval' => 300,
+			'display'  => '5分毎',
+		);
+		return $schedules;
 	}
 
 	/**
