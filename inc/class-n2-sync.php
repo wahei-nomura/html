@@ -33,6 +33,7 @@ class N2_Sync {
 		global $current_blog;
 		$this->neng_ajax_url = "https://steamship.co.jp{$current_blog->path}wp-admin/admin-ajax.php";
 
+		add_action( 'unko', array( $this, 'unko' ) );
 		add_action( 'wp_ajax_n2_sync_users', array( $this, 'sync_users' ) );
 		add_action( 'wp_ajax_nopriv_n2_sync_users', array( $this, 'sync_users' ) );
 		add_action( 'wp_ajax_n2_sync_posts', array( $this, 'sync_posts' ) );
@@ -43,12 +44,13 @@ class N2_Sync {
 
 		// cron登録処理
 		add_filter( 'cron_schedules', array( $this, 'intervals' ) );
-		if ( ! wp_next_scheduled( 'wp_ajax_nopriv_n2_sync_users' ) ) {
-			wp_schedule_event( time(), '5min', 'wp_ajax_nopriv_n2_sync_users' );
+		if ( ! wp_next_scheduled( 'unko' ) ) {
+			wp_schedule_event( time(), '5min', 'unko' );
 		}
-		if ( ! wp_next_scheduled( 'wp_ajax_n2_multi_sync_posts' ) ) {
-			wp_schedule_event( time(), '5min', 'wp_ajax_n2_multi_sync_posts' );
-		}
+	}
+
+	public function unko() {
+		error_log( 'unko' . PHP_EOL, 3, ABSPATH . '/n2-unko.log' );
 	}
 
 
