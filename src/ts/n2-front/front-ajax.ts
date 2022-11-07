@@ -8,43 +8,28 @@ export default () => {
 	================================================================== */
 	jQuery(function ($) {
 		// 計算パターンを受け取ってから処理
-		var siteHomeUrl = homeUrl(window) + '/'; // locationと合わせるため'/'追加
-		var nowUrl = location.href;
-		const scrapingItem = (): void => {
+		const updateItemConfirm = (postId: number): void => {
 			$.ajax({
 				url: ajaxUrl(window),
+				type: "POST",
+				dataType: "json",
 				data: {
-					action: "SS_Portal_Scraper",
-					id: "FBM003",
-					town: "yoshinogari",
+					action: "N2_Front_item_confirm",
+					post_id: postId,
 				},
 			}).done((res) => {
-				const data = JSON.parse(res);
-				console.log(data);
+				console.log('更新OK')
+			}).fail(error => {
+				console.log(error)
 			});
 		};
-		const searchFrontItem = (): void => {
-			console.log($('input[name="portalsite"]').val())
-			$.ajax({
-				url: ajaxUrl(window),
-				data: {
-					action: "N2_Front",
-					// portalsitecheck: $('input[name="portalsite"]').val(),
-				},
-			}).done((res) => {
-				const data = JSON.parse(res);
-				console.log(data);
-			});
-		};
-		if( nowUrl !== siteHomeUrl ){ // トップページでない(=single)場合にスクレイピング
-			scrapingItem();
-		}else{
-			console.log('test2');
-			searchFrontItem();
-			$('.portalsite').on("change", () => {
-				searchFrontItem();
-			});
-		}
-	});
+		$('button.ok-btn').on('click', e => {
+			if( !confirm('この商品を確認済みにして良いですか？')){
+				return;
+			}
+
+			$(e.target).prop('disabled',true);
+			updateItemConfirm(Number($(e.target).val()))
+		});
+	})
 };
-	
