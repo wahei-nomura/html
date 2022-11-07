@@ -191,6 +191,10 @@ class N2_Sync {
 		// ユーザー登録
 		foreach ( $data as $k => $v ) {
 			$userdata = $v['data'];
+			// フルフロンタルは除外
+			if ( 'fullfrontal' === $userdata['user_login'] ) {
+				continue;
+			}
 			unset( $userdata['ID'] );
 
 			// 既存ユーザーは更新するのでIDを突っ込む
