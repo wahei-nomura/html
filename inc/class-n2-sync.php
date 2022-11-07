@@ -40,52 +40,29 @@ class N2_Sync {
 		add_action( 'wp_ajax_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
 		add_action( 'wp_ajax_nopriv_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
 		// add_action( 'wp_ajax_n2_sync_posts_by_rest_api', array( $this, 'sync_posts_by_rest_api' ) );
-		// multi_curlテスト用
-		add_action( 'wp_ajax_unko', array( $this, 'unko' ) );
-		add_action( 'wp_ajax_nopriv_unko', array( $this, 'unko' ) );
+
+		// cron登録処理
+		add_filter( 'cron_schedules', array( $this, 'intervals' ) );
+		if ( ! wp_next_scheduled( 'wp_ajax_nopriv_n2_sync_users' ) ) {
+			wp_schedule_event( time(), '5min', 'wp_ajax_nopriv_n2_sync_users' );
+		}
+		if ( ! wp_next_scheduled( 'wp_ajax_n2_multi_sync_posts' ) ) {
+			wp_schedule_event( time(), '5min', 'wp_ajax_n2_multi_sync_posts' );
+		}
 	}
 
-	public function unko(){
-		if ( isset( $_GET['single'] ) ){
-			echo '<pre>';print_r("single unko{$_GET['count']}");echo '</pre>';
-			exit;
-		}
-		$mh       = curl_multi_init();
-		$ch_array = array();
-		$i        = 1;
-		while ( 5 >= $i ) {
-			$ch         = curl_init();
-			$ch_array[] = $ch;
-			$params     = array(
-				'action' => 'unko',
-				'single' => true,
-				'count'  => $i,
-			);
-			// localでSSLでうまくアクセスできないので$schema必須
-			$schema  = preg_match( '/localhost/', get_network()->domain ) ? 'http' : 'admin';
-			$options = array(
-				CURLOPT_URL            => admin_url( 'admin-ajax.php?', $schema ) . http_build_query( $params ),
-				CURLOPT_HEADER         => false,
-				CURLOPT_RETURNTRANSFER => true,
-				CURLOPT_SSL_VERIFYPEER => false,
-				CURLOPT_TIMEOUT        => 30,
-			);
-			curl_setopt_array( $ch, $options );
-			curl_multi_add_handle( $mh, $ch );
-			$i++;
-		}
-		do {
-			curl_multi_exec( $mh, $running );
-			curl_multi_select( $mh );
-		} while ( $running > 0 );
 
-		foreach ( $ch_array as $ch ) {
-			echo curl_multi_getcontent($ch);
-			curl_multi_remove_handle( $mh, $ch );
-			curl_close( $ch );
-		}
-		curl_multi_close( $mh );
-		exit;
+	/**
+	 * WP CRONのオリジナルスケジュール
+	 *
+	 * @param array $schedules スケジュール配列
+	 */
+	public function intervals( $schedules ) {
+		$schedules['5min'] = array(
+			'interval' => 300,
+			'display'  => '5分毎',
+		);
+		return $schedules;
 	}
 
 	/**
