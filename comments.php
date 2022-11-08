@@ -17,6 +17,8 @@
 			list-style: none;
 		}
 		ol {
+			max-height: 600px;
+			overflow: scroll;
 			background-color: lightgray;
 			padding: 16px;
 		}
@@ -61,7 +63,7 @@
 
 <?php if ( comments_open() ) : ?>
 	<div id="comments" class="container">
-		<h2>事業者とスチームシップ</h2>
+		<h2>スチームシップとこのページの返礼品について連絡コーナー</h2>
 		<?php if ( have_comments() ) : ?>
 			<ol>
 				<?php wp_list_comments(); ?>

@@ -249,19 +249,21 @@ class N2_Front {
 	 * @return Array $arg コメント表示設定
 	 */
 	public function comment_form_default_fields( $arg ) {
+		global $post;
 		unset( $arg['url'] );
 		unset( $arg['email'] );
 		unset( $arg['cookies'] );
-		$arg['author'] = '
-			<p class="comment-form-author">
-				<label for="author">送信者</label>
-				<select id="author" name="author">
-					<option value="">未選択</option>
-					<option value="事業者">事業者</option>
-					<option value="スチームシップ">スチームシップ</option>
+		$selected = selected( in_array( $_SERVER['REMOTE_ADDR'], N2_IPS ), true );
+		$author = get_userdata( $post->post_author )->display_name;
+		$arg['author'] = "
+			<p class='comment-form-author'>
+				<label for='author'>送信者</label>
+				<select id='author' name='author'>
+					<option value='{$author}'>{$author}</option>
+					<option value='スチームシップ' {$selected}>スチームシップ</option>
 				</select>
 			</p>
-		';
+		";
 		return $arg;
 	}
 
