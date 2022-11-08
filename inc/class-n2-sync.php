@@ -239,6 +239,7 @@ class N2_Sync {
 				'post_title'        => $v['post_title'],
 				'post_author'       => $this->get_userid_by_last_name( $v['post_author_last_name'] ),
 				'meta_input'        => $v['acf'],
+				'comment_status'    => 'open',
 			);
 			$postarr['meta_input']['_neng_id'] = $v['ID']; // 同期用 裏カスタムフィールドNENGのID追加
 
