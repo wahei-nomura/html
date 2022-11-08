@@ -36,6 +36,7 @@ class N2_Front {
 		add_filter( 'comments_open', array( $this, 'commets_open' ), 10, 2 );
 		add_filter( 'comment_form_default_fields', array( $this, 'comment_form_default_fields' ) );
 		add_filter( 'comment_form_defaults', array( $this, 'comment_form_defaults' ) );
+		add_filter( 'comment_post_redirect', array( $this, 'comment_post_redirect') );
 	}
 
 
@@ -277,6 +278,16 @@ class N2_Front {
 		$defaults['comment_notes_before'] = '';
 		$defaults['title_reply'] = '返礼品に関する変更要望など';
 		return $defaults;
+	}
+
+	/**
+	 * コメント送信時のリダイレクトURLにlookパラメータ付与
+	 *
+	 * @param string $location デフォルトURL
+	 * @return string $location 変更後URL
+	 */
+	public function comment_post_redirect( $location ) {
+		return preg_replace( '/\/#/', '&look=true/#', $location );
 	}
 
 }
