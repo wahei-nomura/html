@@ -34,7 +34,8 @@ class N2_Front {
 		add_action( "wp_ajax_{$this->cls}_item_confirm", array( $this, 'update_item_confirm' ) );
 		add_action( 'pre_get_posts', array( $this, 'change_posts_per_page' ) );
 		add_filter( 'comments_open', array( $this, 'commets_open' ), 10, 2 );
-		add_filter( 'comments_form_defaults', array( $this, 'commets_from_defaults' ) );
+		add_filter( 'comment_form_default_fields', array( $this, 'comment_form_default_fields' ) );
+		add_filter( 'comment_form_defaults', array( $this, 'comment_form_defaults' ) );
 	}
 
 
@@ -242,17 +243,37 @@ class N2_Front {
 	}
 
 	/**
-	 * コメントの表示設定
+	 * デフォルトのフィールド変更
 	 *
-	 * @param Array $defaults コメント表示設定
-	 * @return Array $defaults コメント表示設定
+	 * @param Array $arg コメント表示設定
+	 * @return Array $arg コメント表示設定
 	 */
-	public function commets_from_defaults( $defaults ) {
-		$defaults['comment_notes_before'] = ''; // コメント上部の文章（メールアドレスが公開されることはありません。）
-		// $defaults['fields']['author']     = ''; // 名前
-		$defaults['fields']['email']      = ''; // メールアドレス
-		$defaults['fields']['url']        = ''; // ウェブサイト
-		$defaults['label_submit']         = '送信'; // 送信ボタンのラベル
+	public function comment_form_default_fields( $arg ) {
+		unset( $arg['url'] );
+		unset( $arg['email'] );
+		unset( $arg['cookies'] );
+		$arg['author'] = '
+			<p class="comment-form-author">
+				<label for="author">送信者</label>
+				<select id="author" name="author">
+					<option value="">未選択</option>
+					<option value="事業者">事業者</option>
+					<option value="スチームシップ">スチームシップ</option>
+				</select>
+			</p>
+		';
+		return $arg;
+	}
+
+	/**
+	 * コメント文言変更
+	 *
+	 * @param Array $defaults defaults
+	 * @return Array $defaults defaults
+	 */
+	public function comment_form_defaults( $defaults ){
+		$defaults['comment_notes_before'] = '';
+		$defaults['title_reply'] = '返礼品に関する変更要望など';
 		return $defaults;
 	}
 
