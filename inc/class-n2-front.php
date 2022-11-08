@@ -33,6 +33,7 @@ class N2_Front {
 		add_action( "wp_ajax_nopriv_{$this->cls}_item_confirm", array( $this, 'update_item_confirm' ) );
 		add_action( "wp_ajax_{$this->cls}_item_confirm", array( $this, 'update_item_confirm' ) );
 		add_action( 'pre_get_posts', array( $this, 'change_posts_per_page' ) );
+		add_filter( 'comments_open', array( $this, 'commets_open' ), 10, 2 );
 	}
 
 
@@ -227,6 +228,16 @@ class N2_Front {
 			$query->set( 'posts_per_page', '20' );
 			return;
 		}
+	}
+
+	/**
+	 * 事業者確認のコメント機能open
+	 */
+	public function commets_open( $open ) {
+		if ( ! empty( $_GET['look'] ) ) {
+			$open = true;
+		}
+		return $open;
 	}
 
 }
