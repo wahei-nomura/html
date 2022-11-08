@@ -56,9 +56,16 @@
 						$meta_portal_section .= $meta_portal;
 					}
 				}
+
+				// 事業者確認フラグ用　------------------------------------------------------------------------
+				$check_param = get_post_meta( get_the_ID(), '事業者確認', true );
+				$confirmed   = '' === $check_param || '確認未' === $check_param[0] ? false : true;
+				// -----------------------------------------------------------------------------------------
+
+				$item_link = strpos( $_SERVER['REQUEST_URI'], '?' ) ? get_the_permalink() . '&' . explode( '?', $_SERVER['REQUEST_URI'] )[1] : get_the_permalink();
 				?>
 		<li class="<?php echo $post_status; ?>">
-		<a href="<?php the_permalink(); ?>">
+		<a href="<?php echo $item_link; ?>">
 			<div class="product-img-wrap">
 				<div class="product-img-box" style="background-image:url( <?php echo $new_rakuten_pic; ?>  ), url(<?php echo $new_meta_pic; ?>); background-size:cover;"></div>
 				<span class="product-img-section">No Image</span>
@@ -81,11 +88,10 @@
 				<?php if ( ! empty( $_GET['look'] ) && ! empty( $_GET['author'] ) ) : ?>
 			<button
 				type='button'
-				class='ok-btn btn btn-danger'
+				class='ok-btn btn btn-danger <?php echo $confirmed ? 'confirmed' : ''; ?>'
 				value='<?php the_ID(); ?>'
-					<?php echo '' !== get_post_meta( get_the_ID(), '事業者確認', true ) ? 'disabled' : ''; ?>
 			>
-			確認OK
+				<?php echo $confirmed ? '確認済み' : '確認未'; ?>
 			</button>
 		<?php endif; ?>
 		</li>
