@@ -34,6 +34,7 @@ class N2_Front {
 		add_action( "wp_ajax_{$this->cls}_item_confirm", array( $this, 'update_item_confirm' ) );
 		add_action( 'pre_get_posts', array( $this, 'change_posts_per_page' ) );
 		add_filter( 'comments_open', array( $this, 'commets_open' ), 10, 2 );
+		add_filter( 'comments_form_defaults', array( $this, 'commets_from_defaults' ) );
 	}
 
 
@@ -238,6 +239,21 @@ class N2_Front {
 			$open = true;
 		}
 		return $open;
+	}
+
+	/**
+	 * コメントの表示設定
+	 *
+	 * @param Array $defaults コメント表示設定
+	 * @return Array $defaults コメント表示設定
+	 */
+	public function commets_from_defaults( $defaults ) {
+		$defaults['comment_notes_before'] = ''; // コメント上部の文章（メールアドレスが公開されることはありません。）
+		// $defaults['fields']['author']     = ''; // 名前
+		$defaults['fields']['email']      = ''; // メールアドレス
+		$defaults['fields']['url']        = ''; // ウェブサイト
+		$defaults['label_submit']         = '送信'; // 送信ボタンのラベル
+		return $defaults;
 	}
 
 }
