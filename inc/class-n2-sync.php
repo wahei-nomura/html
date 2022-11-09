@@ -125,12 +125,20 @@ class N2_Sync {
 			curl_multi_exec( $mh, $running );
 			curl_multi_select( $mh );
 		} while ( $running > 0 );
-
+		$neng_ids = array();
 		foreach ( $ch_array as $ch ) {
+			$neng_ids = array( ...$neng_ids, ...json_decode( curl_multi_getcontent( $ch ) ) );
 			curl_multi_remove_handle( $mh, $ch );
 			curl_close( $ch );
 		}
 		curl_multi_close( $mh );
+
+		// NENGから削除されているものを削除
+		$deleted_ids = array_diff( get_posts( 'posts_per_page=-1&post_status=any&fields=ids' ), $neng_ids );
+		foreach ( $deleted_ids as $del ) {
+			wp_delete_post( $del );
+		}
+
 		echo 'N2-Multi-Sync-Posts「' . get_bloginfo( 'name' ) . 'の返礼品」旧NENGとシンクロ完了！（' . number_format( microtime( true ) - $before, 2 ) . ' 秒）';
 		$logs[] = '返礼品シンクロ完了 ' . number_format( microtime( true ) - $before, 2 ) . ' sec';
 		$this->log( $logs );
@@ -223,7 +231,8 @@ class N2_Sync {
 			echo $json;
 			exit;
 		}
-
+		// NENGにあるものの投稿ID（削除用）
+		$neng_ids = array();
 		wp_defer_term_counting( true );
 		wp_defer_comment_counting( true );
 		foreach ( $data['posts'] as $k => $v ) {
@@ -245,15 +254,16 @@ class N2_Sync {
 
 			// 登録済みか調査
 			$args = array(
-				'post_type'   => 'post',
-				'meta_key'    => '_neng_id',
-				'meta_value'  => $v['ID'],
-				'post_status' => 'any',
+				'post_type'      => 'post',
+				'meta_key'       => '_neng_id',
+				'meta_value'     => $v['ID'],
+				'post_status'    => 'any',
 			);
 			// 裏カスタムフィールドのNENGの投稿IDで登録済み調査
 			$p = get_posts( $args )[0];
 			// 登録済みの場合
 			if ( $p->ID ) {
+				$neng_ids[] = $p->ID;
 				// 更新されてない場合はスキップ
 				if ( $p->post_modified === $postarr['post_modified'] ) {
 					continue;
@@ -263,11 +273,15 @@ class N2_Sync {
 				$this->log( array( ...$logs, "「{$p->post_title}」を更新しました。{$p->post_modified}  {$v['post_modified']}" ) );
 			}
 			add_filter( 'wp_insert_post_data', array( $this, 'alter_post_modification_time' ), 99, 2 );
-			wp_insert_post( $postarr );
+			$neng_ids[] = wp_insert_post( $postarr );
 			remove_filter( 'wp_insert_post_data', array( $this, 'alter_post_modification_time' ) );
 		}
 		wp_defer_term_counting( false );
 		wp_defer_comment_counting( false );
+
+		// NENG登録済みの投稿idをjsonで返す
+		echo wp_json_encode( $neng_ids );
+
 		exit;
 	}
 

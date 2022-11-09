@@ -52,8 +52,10 @@ class N2_Front {
 			return $query;
 		}
 		global $wpdb;
+		global $template;
+		$temp_name = basename($template);
 		// 最終的に$query内に代入するWHERE句
-		$page_number = 20;
+		$page_number = 100;
 		$current_pgae = get_query_var( 'paged' );  // ページ数取得
 		$current_pgae = $current_pgae == 0 ? '1' : $current_pgae;
 		$now_page = ($current_pgae -1 ) * $page_number;
@@ -150,24 +152,26 @@ class N2_Front {
 		}
 
 		// 事業者絞り込み ----------------------------------------
-		if ( ! empty( $_GET['author'] ) && '' !== $_GET['author'] ) {
+		if ( ! empty( $_GET['jigyousya'] ) && '' !== $_GET['jigyousya'] ) {
 			$where .= "AND {$wpdb->posts}.post_author = '%s'";
-			array_push( $args, filter_input( INPUT_GET, 'author', FILTER_VALIDATE_INT ) );
+			array_push( $args, filter_input( INPUT_GET, 'jigyousya', FILTER_VALIDATE_INT ) );
 		}
 		// ここまで事業者 ----------------------------------------
 
 		// 返礼品コード絞り込み------------------------------------
 		if ( ! empty( $_GET['返礼品コード'] ) ) {
 			$code_arr = $_GET['返礼品コード'];
-			$where   .= 'AND (';
-			foreach ( $code_arr as $key => $code ) {
-				if ( 0 !== $key ) {
-					$where .= ' OR '; // 複数返礼品コードをOR検索(前後の空白必須)
+			if($temp_name != 'front-list'){
+				$where   .= 'AND (';
+				foreach ( $code_arr as $key => $code ) {
+					if ( 0 !== $key ) {
+						$where .= ' OR '; // 複数返礼品コードをOR検索(前後の空白必須)
+					}
+					$where .= "{$wpdb->posts}.ID = '%s'";
+					array_push( $args, $code );
 				}
-				$where .= "{$wpdb->posts}.ID = '%s'";
-				array_push( $args, $code );
+				$where .= ')';
 			}
-			$where .= ')';
 		}
 		// ここまで返礼品コード ----------------------------------------
 
@@ -186,8 +190,8 @@ class N2_Front {
 		";
 
 		// クルー確認ページでは全件表示
-		if ( empty( $_GET['crew'] ) ) {
-			$sql .= "LIMIT {$now_page}, 20";
+		if ( empty( $_GET['crew'] ) && $temp_name != 'front-list') {
+			$sql .= "LIMIT {$now_page}, 100";
 		}
 		// 検索用GETパラメータがある場合のみ$queryを上書き
 		$query = count( $args ) > 0 ? $wpdb->prepare( $sql, ...$args ) : $sql;
@@ -215,7 +219,7 @@ class N2_Front {
 			return;
 		}
 		if ( $query->is_front_page() || $query->is_search() ) { // メインページおよび検索結果で適用
-			$query->set( 'posts_per_page', '20' );
+			$query->set( 'posts_per_page', '100' );
 			return;
 		}
 	}

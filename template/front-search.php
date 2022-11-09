@@ -7,7 +7,11 @@
 
 ?>
 <section class="product-sidebar">
-	<form method="get" class="n2-search-form">
+	<?php 
+		$home_url = get_home_url() . '/';
+	?>
+
+	<form method="get" action="<?php echo $home_url; ?>" class="n2-search-form">
 	<p>フリーワード検索</p>
 	<input type="text" class="s" name="s" placeholder="キーワードを入力">
 	<p>出品事業者</p>
@@ -15,7 +19,8 @@
 		<?php
 			// 事業者検索 ===============================================================
 			$show_author      = '';
-			$get_jigyousya_id = filter_input( INPUT_GET, 'author', FILTER_VALIDATE_INT );
+			$get_jigyousya_id = filter_input( INPUT_GET, 'jigyousya', FILTER_VALIDATE_INT );
+			$get_henreihin_codes = filter_input(INPUT_GET, '返礼品コード', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
 		?>
 
 		<datalist id="jigyousya-list">
@@ -32,7 +37,7 @@
 		</datalist>
 
 		<input type='text' name='' id='jigyousya-list-tag' list='jigyousya-list' value='<?php echo $show_author; ?>' placeholder='事業者入力'>
-		<input id='jigyousya-value' type='hidden' name='author' value='<?php echo $get_jigyousya_id; ?>'>
+		<input id='jigyousya-value' type='hidden' name='jigyousya' value='<?php echo $get_jigyousya_id; ?>'>
 		<p>返礼品コード</p>
 
 		<?php
@@ -48,7 +53,11 @@
 				$the_query->the_post();
 				$code = get_post_meta( get_the_ID(), '返礼品コード', 'true' );
 				if ( '' !== $code ) {
-					printf( '<option value="%s">%s</option>', get_the_ID(), $code );
+					if(in_array(get_the_ID(), $get_henreihin_codes)){
+						printf( '<option value="%s" selected>%s</option>', get_the_ID(), $code );
+					}else{
+						printf( '<option value="%s">%s</option>', get_the_ID(), $code );
+					}
 				}
 			}
 		}
@@ -98,8 +107,10 @@
 		<input type="checkbox" name="portal_furunavi" class="portalsite" id="portal_furunavi" value="1"><label for="portal_furunavi">ふるなび</label>
 	</div>*/
 	?>
-	<div class="front-submit-wrap">
+	<div class="front-move-wrap">
 	<input type="submit" value="絞り込み">
+	<a href="<?php echo $home_url; ?>">条件クリア</a>
 	</div>
+
 	</form>
 </section>
