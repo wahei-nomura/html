@@ -24,14 +24,8 @@ export default () => {
 				console.log(error)
 			});
 		};
-		$('button.ok-btn').on('click', e => {
-			console.log($(e.target).hasClass('confirmed'))
-			const confirmFlag = $(e.target).hasClass('confirmed')
-			if( !confirm(`この商品を確認${confirmFlag ? '未' : '済み'}にして良いですか？`)){
-				return;
-			}
-
-			$(e.target).toggleClass('confirmed').text(`確認${confirmFlag ? '未' : '済み'}`);
+		$('.check-toggle').on('change', e => {
+			const confirmFlag = $(e.target).prop('checked')
 			updateItemConfirm(Number($(e.target).val()), confirmFlag);
 		});
 	})
