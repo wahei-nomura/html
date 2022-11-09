@@ -287,7 +287,7 @@ class N2_Front {
 	 * @return string $location 変更後URL
 	 */
 	public function comment_post_redirect( $location ) {
-		return preg_replace( '/\/#/', '&look=true/#', $location );
+		return preg_replace( '/\/#/', '&look=true#', $location );
 	}
 
 }
