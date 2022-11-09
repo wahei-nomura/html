@@ -22,12 +22,10 @@
 	</div>
 	<div class="wrapper-img-list">
 		<ul class='sub-imgs'>
-		<?php for ( $i = 0; $i < 10; $i++ ) : ?>
-			<?php foreach ( $args as $img_url ) : ?>
-				<div class="product-img-wrap">
-					<span class="product-img-section">No Image</span>
-				</div>
-			<?php endforeach; ?>
+		<?php for ( $i = 0; $i < 5; $i++ ) : ?>
+			<div class="product-img-wrap">
+				<span class="product-img-section">No Image</span>
+			</div>
 		<?php endfor; ?>
 		</ul>
 	</div>
