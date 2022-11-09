@@ -24,7 +24,7 @@ class N2_Loginlimit {
 	public function __construct() {
 		add_action( 'wp_login', array( $this, 'judge_administrator_ip' ), 10, 2 );
 		add_action( 'wp_login', array( $this, 'judge_sscrew_ip' ), 10, 2 );
-		add_action( 'after_switch_theme', array( $this, 'set_aio_wp_security_configs' ), 10, 2 );
+		add_action( 'after_switch_theme', array( $this, 'set_aio_wp_security_configs' ) );
 	}
 
 	/**
