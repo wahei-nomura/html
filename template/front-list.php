@@ -8,7 +8,9 @@
 ?>
 <section class="product-list-wrap">
 
-	<?php if ( ! empty( $_GET['look'] ) && ! empty( $_GET['author'] ) ) : ?>
+	<?php 
+	$item_amount = 0; //表示されている返礼品数用
+	if ( ! empty( $_GET['look'] ) && ! empty( $_GET['author'] ) ) : ?>
 		<h2 class="display-12 p-2 border-bottom border-success border-3"><span class="text-success"><?php echo get_userdata( filter_input( INPUT_GET, 'author', FILTER_VALIDATE_INT ) )->display_name; ?></span> 様 専用確認ページ</h2>
 		<p>お手数ですが、各商品をご確認されましたら<span class="text-danger">「確認OK」</span>ボタンを押してください。（ご不明点はスチームシップまでお問い合わせください。）</p>
 	<?php endif; ?>
@@ -96,6 +98,7 @@
 		<?php endif; ?>
 		</li>
 				<?php
+				$item_amount++; //表示されている返礼品数をカウント
 			}
 		}
 		wp_reset_postdata();
@@ -112,6 +115,24 @@
 			'type'      => 'list', // 戻り値の指定 (plain/list)
 		)
 	);
+	?>
+
+	<?php
+		if(!isset($_GET['author'])){ //事業者パラメーターが存在しない場合
+
+			//何もしない
+
+		}elseif($item_amount == 0 && $_GET['author'] != "" ){ //返礼品が一つもない　かつ　事業者パラメーターが空
+			
+			$e_state = "事業者の返礼品が存在しない";
+			include(get_theme_file_path()."/404.php");
+			echo "<script>console.log('検索エラー');</script>";
+
+		}elseif(!isset($item_amount)){ //イレギュラー
+			
+			//何もしない
+			
+		}
 	?>
 
 </section>
