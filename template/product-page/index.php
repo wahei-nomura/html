@@ -37,13 +37,12 @@ if ( have_posts() ) :
 			}
 			return $arr;
 		};
-		if ( isset( $post_data['商品画像'] ) ) {
-			// 楽天に画像があるか確認 ------------------------------------------------------------------------
-			$post_data['商品画像'] = $check_img_urls() ?: $post_data['商品画像'];
-		}
-		else {
+		if ( ! isset( $post_data['商品画像'] ) ) {
 			$post_data['商品画像'] = array();
 		}
+			// 楽天に画像があるか確認 ------------------------------------------------------------------------
+		$post_data['商品画像'] = $check_img_urls() ?: $post_data['商品画像'];
+		
 		// 田代する　------------------------------------------------------------------------
 		$tashiro = apply_filters( 'wp_ajax_n2_tashiro\N2_Portal_Scraper', array(), $town_name, $post_data['返礼品コード'] );
 	}
