@@ -7,7 +7,11 @@
 
 ?>
 <section class="product-sidebar">
-	<form method="get" class="n2-search-form">
+	<?php 
+		$home_url = get_home_url() . '/';
+	?>
+
+	<form method="get" action="<?php echo $home_url; ?>" class="n2-search-form">
 	<p>フリーワード検索</p>
 	<input type="text" class="s" name="s" placeholder="キーワードを入力">
 	<p>出品事業者</p>
@@ -105,9 +109,6 @@
 	?>
 	<div class="front-move-wrap">
 	<input type="submit" value="絞り込み">
-	<?php 
-	$home_url = get_home_url();
-	?>
 	<a href="<?php echo $home_url; ?>">条件クリア</a>
 	</div>
 
