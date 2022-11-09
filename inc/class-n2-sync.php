@@ -43,10 +43,10 @@ class N2_Sync {
 		// cron登録処理
 		add_filter( 'cron_schedules', array( $this, 'intervals' ) );
 		if ( ! wp_next_scheduled( 'wp_ajax_n2_sync_users' ) ) {
-			wp_schedule_event( time() + 100, 'daily', 'wp_ajax_n2_sync_users' );
+			wp_schedule_event( time(), 'daily', 'wp_ajax_n2_sync_users' );
 		}
 		if ( ! wp_next_scheduled( 'wp_ajax_n2_multi_sync_posts' ) ) {
-			wp_schedule_event( time(), '30min', 'wp_ajax_n2_multi_sync_posts' );
+			wp_schedule_event( time() + 100, '30min', 'wp_ajax_n2_multi_sync_posts' );
 		}
 	}
 
