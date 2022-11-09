@@ -6,6 +6,7 @@
  */
 
 ?>
+
 <!-- Load sass.js -->
 <script src="https://cdn.jsdelivr.net/gh/steamships/in-browser-sass/dist/in-browser-sass.bundle.min.js"></script>
 
@@ -21,13 +22,13 @@
 					display: none;
 				}
 			}
-						
+			
 			th{
 				border-bottom: solid 2px #fb5144;
 				padding: 10px 0;
 				text-align: center;
 			}
-
+			
 			td {
 				.check-state {
 					position: relative;
@@ -56,6 +57,8 @@
 		}
 	}
 </style>
+
+<?php if ( 'check' === $_GET['crew'] ) : ?>
 
 <section class="n2-crew-check">
 	<h2 class="display-12 p-2 border-bottom border-success border-3">クルー専用事業者確認状況チェック</h2>
@@ -108,3 +111,51 @@
 		})
 	})
 </script>
+
+<?php endif ?>
+
+<?php if ( 'comment' === $_GET['crew'] ) : ?>
+	<section class="n2-crew-check">
+	<h2 class="display-12 p-2 border-bottom border-success border-3">クルー専用コメント確認ページ</h2>
+	<p>返礼品ごとのコメント状況を確認できます</p>
+	<div class='accordion accordion-flush' id='accordionFlushExample'>
+
+	<?php
+	// コメントを取得するための引数
+	$get_comments_args = array(
+		'type'    => 'comment',
+		'orderby' => 'comment_post_ID',
+	);
+
+	$now_id = '';
+	// コメント一覧を取得して1つずつ出力
+	foreach ( get_comments( $get_comments_args ) as $comment ) :
+		if ( $now_id === $comment->comment_post_ID ) {
+			continue;
+		}
+		$now_id = $comment->comment_post_ID;
+
+		if ( 'スチームシップ' !== $comment->comment_author ) :
+		?>
+		<div class="accordion-item">
+			<h2 class="accordion-header" id="headingOne">
+				<button class="row accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-<?php echo $comment->comment_post_ID; ?>" aria-expanded="false" aria-controls="flush-collapseOne">
+					<span class="col"><?php echo $comment->comment_author ; ?></span>
+					<span class="col"><?php echo $comment->comment_date ; ?></span>
+				</button>
+			</h2>
+			<div id="flush-<?php echo $comment->comment_post_ID; ?>" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+				<div class="accordion-body">
+					<p><a href="<?php echo get_the_permalink( $comment->comment_post_ID ) . '?look=true'; ?>" target="_blank"><?php echo get_the_title( $comment->comment_post_ID ) ; ?></a></p>
+					<p><?php echo $comment->comment_content ; ?></p>
+				</div>
+			</div>
+		</div>
+	<?php
+		endif;
+	endforeach;
+	?>
+
+	</div>
+</sectoin>
+<?php endif ?>
