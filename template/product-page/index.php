@@ -110,7 +110,6 @@ if ( have_posts() ) :
 		<aside class="sub">
 			<div class="sticky">
 			<?php if ( ! empty( $_GET['look'] ) ) : ?>
-				<div class="hilight-layer"></div>
 				<button
 					type='button'
 					class='ok-btn btn-outline-info btn <?php echo $confirmed_class[ $is_confirmed ]; ?>'
