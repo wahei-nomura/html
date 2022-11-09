@@ -120,11 +120,7 @@ if ( have_posts() ) :
 		<aside class="sub">
 			<div class="sticky">
 			<?php if ( ! empty( $_GET['look'] ) ) : ?>
-				<button
-					type='button'
-					class='ok-btn btn-outline-info btn <?php echo $confirmed_class[ $is_confirmed ]; ?>'
-					value='<?php the_ID(); ?>'
-				><?php echo $confirmed_text[ $is_confirmed ]; ?></button>
+				<input class="check-toggle" <?php echo checked( $is_confirmed, true ); ?> type="checkbox" data-toggle="toggle" data-on="確認済み" data-off="未確認" data-onstyle="success" data-offstyle="danger" value="<?php the_ID(); ?>">
 			<?php endif; ?>
 			</div>
 		</aside>
@@ -141,3 +137,6 @@ else :
 
 endif;
 ?>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap5-toggle@4.3.4/css/bootstrap5-toggle.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap5-toggle@4.3.4/js/bootstrap5-toggle.min.js"></script>
