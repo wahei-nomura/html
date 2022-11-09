@@ -146,7 +146,7 @@
 			</h2>
 			<div id="flush-<?php echo $comment->comment_post_ID; ?>" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
 				<div class="accordion-body">
-					<p><a href="<?php echo get_the_permalink( $comment->comment_post_ID ) . '?look=true'; ?>" target="_blank"><?php echo get_the_title( $comment->comment_post_ID ) ; ?></a></p>
+					<p><a href="<?php echo get_the_permalink( $comment->comment_post_ID ) . '&look=true'; ?>" target="_blank"><?php echo get_the_title( $comment->comment_post_ID ) ; ?></a></p>
 					<p><?php echo $comment->comment_content ; ?></p>
 				</div>
 			</div>
