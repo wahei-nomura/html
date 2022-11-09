@@ -18,6 +18,8 @@ if ( have_posts() ) :
 		if ( ! preg_match( '/ne\.jp/', $img_dir ) && isset( $m[0] ) ) {
 			$img_dir .= "/{$m[0]}";// キャビネットの場合事業者コード追加
 		}
+		$scraping_meta_key = 'スクレイピング';
+		
 		// 画像の存在判定 CSV出力機能でも使用するので統一したい
 		$check_img_urls = function () use ( $product_code, $img_dir ) {
 			// 初期化
@@ -33,18 +35,27 @@ if ( have_posts() ) :
 				$response = wp_remote_get( $img_url );
 				if ( ! is_wp_error( $response ) && 200 === $response['response']['code'] ) {
 					array_push( $arr, $img_url );
+				} else {
+					break;
 				}
 			}
 			return $arr;
 		};
-		if ( ! isset( $post_data['商品画像'] ) ) {
-			$post_data['商品画像'] = array();
-		}
-			// 楽天に画像があるか確認 ------------------------------------------------------------------------
-		$post_data['商品画像'] = $check_img_urls() ?: $post_data['商品画像'];
-		
 		// 田代する　------------------------------------------------------------------------
-		$tashiro = apply_filters( 'wp_ajax_n2_tashiro\N2_Portal_Scraper', array(), $town_name, $post_data['返礼品コード'] );
+		if ( ! isset( $post_data[$scraping_meta_key] ) ){
+			// ポータル田代
+			$post_data[$scraping_meta_key] = apply_filters( 'wp_ajax_n2_tashiro\N2_Portal_Scraper', array(), $town_name, $post_data['返礼品コード'] );
+			// 画像リンク田代
+			$post_data[$scraping_meta_key]['商品画像'] = $check_img_urls() 
+				?: (isset($post_data['商品画像']) 
+					? $post_data['商品画像']
+					: array() );
+			// 田代の結果をDBへ保存
+			update_post_meta(get_the_ID(),$scraping_meta_key,$post_data[$scraping_meta_key] );
+		}
+		// 田代済みの画像へ変更
+		$post_data['商品画像'] = $post_data[$scraping_meta_key]['商品画像'];
+		unset($post_data[$scraping_meta_key]['商品画像']);
 	}
 
 	// 一覧へ戻る用 ------------------------------------------------------------------------------
@@ -96,10 +107,10 @@ if ( have_posts() ) :
 		<!-- 商品詳細 -->
 		<?php # N2_Functions::get_template_part_with_args( 'template/product-page/product-info', '', $post_data ); ?>
 		<!-- ポータル比較 -->
-		<?php N2_Functions::get_template_part_with_args( 'template/product-page/product-scraping', '', $tashiro ); ?>
+		<?php N2_Functions::get_template_part_with_args( 'template/product-page/product-scraping', '', $post_data[$scraping_meta_key] ); ?>
 
 		<!-- ポータルサイト一覧 -->
-		<?php N2_Functions::get_template_part_with_args( 'template/product-page/portal-links', '', $tashiro ); ?>
+		<?php N2_Functions::get_template_part_with_args( 'template/product-page/portal-links', '', $post_data[$scraping_meta_key] ); ?>
 		
 		<!-- 関連リンク -->
 		<!-- 未実装 -->
