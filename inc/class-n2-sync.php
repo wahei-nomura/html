@@ -78,7 +78,7 @@ class N2_Sync {
 		$params = array(
 			'action'         => 'postsdata',
 			'post_type'      => 'post',
-			'posts_per_page' => $_GET['posts_per_page'] ?? 10,
+			'posts_per_page' => $_GET['posts_per_page'] ?? 100,
 			'paged'          => 1,
 		);
 		$json   = wp_remote_get( "{$this->neng_ajax_url}?" . http_build_query( $params ) )['body'];
