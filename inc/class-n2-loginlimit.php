@@ -24,6 +24,7 @@ class N2_Loginlimit {
 	public function __construct() {
 		add_action( 'wp_login', array( $this, 'judge_administrator_ip' ), 10, 2 );
 		add_action( 'wp_login', array( $this, 'judge_sscrew_ip' ), 10, 2 );
+		add_action( 'after_switch_theme', array( $this, 'set_aio_wp_security_configs' ), 10, 2 );
 	}
 
 	/**
@@ -78,5 +79,19 @@ class N2_Loginlimit {
 			exit;
 		}
 
+	}
+
+	/**
+	 * All In One WP Securityの初期設定
+	 */
+	public function set_aio_wp_security_configs() {
+		$configs = get_option( 'aio_wp_security_configs' );
+		if ( empty( $configs ) ) {
+			return;
+		}
+		// ログインページ変更設定
+		$configs['aiowps_enable_rename_login_page'] = 1;
+		$configs['aiowps_login_page_slug']          = 'MSN-06S';
+		update_option( 'aio_wp_security_configs', $configs );
 	}
 }
