@@ -32,7 +32,7 @@ class N2_Front {
 		add_action( 'posts_request', array( $this, 'front_request' ) );
 		add_action( "wp_ajax_nopriv_{$this->cls}_item_confirm", array( $this, 'update_item_confirm' ) );
 		add_action( "wp_ajax_{$this->cls}_item_confirm", array( $this, 'update_item_confirm' ) );
-		// add_action( 'pre_get_posts', array( $this, 'change_posts_per_page' ) );
+		add_action( 'pre_get_posts', array( $this, 'change_posts_per_page' ) );
 		add_filter( 'comments_open', array( $this, 'commets_open' ), 10, 2 );
 		add_filter( 'comment_form_default_fields', array( $this, 'comment_form_default_fields' ) );
 		add_filter( 'comment_form_defaults', array( $this, 'comment_form_defaults' ) );
@@ -55,7 +55,7 @@ class N2_Front {
 		global $template;
 		$temp_name = basename($template);
 		// 最終的に$query内に代入するWHERE句
-		$page_number = 20;
+		$page_number = 100;
 		$current_pgae = get_query_var( 'paged' );  // ページ数取得
 		$current_pgae = $current_pgae == 0 ? '1' : $current_pgae;
 		$now_page = ($current_pgae -1 ) * $page_number;
@@ -204,7 +204,7 @@ class N2_Front {
 
 		// クルー確認ページでは全件表示
 		if ( empty( $_GET['crew'] ) && $temp_name != 'front-list') {
-			$sql .= "LIMIT {$now_page}, 20";
+			$sql .= "LIMIT {$now_page}, 100";
 		}
 		// 検索用GETパラメータがある場合のみ$queryを上書き
 		$query = count( $args ) > 0 ? $wpdb->prepare( $sql, ...$args ) : $sql;
@@ -227,15 +227,15 @@ class N2_Front {
 	 * change_posts_per_page
 	 * ページネーションの件数設定
 	 */
-	// function change_posts_per_page( $query ) {
-	// 	if ( is_admin() || ! $query->is_main_query() ) {
-	// 		return;
-	// 	}
-	// 	if ( $query->is_front_page() || $query->is_search() ) { // メインページおよび検索結果で適用
-	// 		$query->set( 'posts_per_page', '10' );
-	// 		return;
-	// 	}
-	// }
+	function change_posts_per_page( $query ) {
+		if ( is_admin() || ! $query->is_main_query() ) {
+			return;
+		}
+		if ( $query->is_front_page() || $query->is_search() ) { // メインページおよび検索結果で適用
+			$query->set( 'posts_per_page', '100' );
+			return;
+		}
+	}
 
 	/**
 	 * 事業者確認のコメント機能open
