@@ -41,7 +41,7 @@
 				// echo '<option value="">返礼品コード</option>';
 
 		$args      = array(
-			'post_status' => 'private',
+			'post_status' => 'publish',
 		);
 		$the_query = new WP_Query( $args );
 		if ( $the_query->have_posts() ) {
@@ -103,8 +103,13 @@
 		<input type="checkbox" name="portal_furunavi" class="portalsite" id="portal_furunavi" value="1"><label for="portal_furunavi">ふるなび</label>
 	</div>*/
 	?>
-	<div class="front-submit-wrap">
+	<div class="front-move-wrap">
 	<input type="submit" value="絞り込み">
+	<?php 
+	$home_url = get_home_url();
+	?>
+	<a href="<?php echo $home_url; ?>">条件クリア</a>
 	</div>
+
 	</form>
 </section>
