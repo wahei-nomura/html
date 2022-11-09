@@ -41,7 +41,7 @@
 				// echo '<option value="">返礼品コード</option>';
 
 		$args      = array(
-			'post_status' => 'publish',
+			'post_status' => 'private',
 		);
 		$the_query = new WP_Query( $args );
 		if ( $the_query->have_posts() ) {

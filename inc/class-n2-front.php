@@ -32,7 +32,7 @@ class N2_Front {
 		add_action( 'posts_request', array( $this, 'front_request' ) );
 		add_action( "wp_ajax_nopriv_{$this->cls}_item_confirm", array( $this, 'update_item_confirm' ) );
 		add_action( "wp_ajax_{$this->cls}_item_confirm", array( $this, 'update_item_confirm' ) );
-		add_action( 'pre_get_posts', array( $this, 'change_posts_per_page' ) );
+		// add_action( 'pre_get_posts', array( $this, 'change_posts_per_page' ) );
 	}
 
 
@@ -48,6 +48,8 @@ class N2_Front {
 			return $query;
 		}
 		global $wpdb;
+		global $template;
+		$temp_name = basename($template);
 		// 最終的に$query内に代入するWHERE句
 		$page_number = 20;
 		$current_pgae = get_query_var( 'paged' );  // ページ数取得
@@ -155,15 +157,17 @@ class N2_Front {
 		// 返礼品コード絞り込み------------------------------------
 		if ( ! empty( $_GET['返礼品コード'] ) ) {
 			$code_arr = $_GET['返礼品コード'];
-			$where   .= 'AND (';
-			foreach ( $code_arr as $key => $code ) {
-				if ( 0 !== $key ) {
-					$where .= ' OR '; // 複数返礼品コードをOR検索(前後の空白必須)
+			if($temp_name != 'front-list'){
+				$where   .= 'AND (';
+				foreach ( $code_arr as $key => $code ) {
+					if ( 0 !== $key ) {
+						$where .= ' OR '; // 複数返礼品コードをOR検索(前後の空白必須)
+					}
+					$where .= "{$wpdb->posts}.ID = '%s'";
+					array_push( $args, $code );
 				}
-				$where .= "{$wpdb->posts}.ID = '%s'";
-				array_push( $args, $code );
+				$where .= ')';
 			}
-			$where .= ')';
 		}
 		// ここまで返礼品コード ----------------------------------------
 
@@ -195,7 +199,7 @@ class N2_Front {
 		";
 
 		// クルー確認ページでは全件表示
-		if ( empty( $_GET['crew'] ) ) {
+		if ( empty( $_GET['crew'] ) && $temp_name != 'front-list') {
 			$sql .= "LIMIT {$now_page}, 20";
 		}
 		// 検索用GETパラメータがある場合のみ$queryを上書き
@@ -219,14 +223,14 @@ class N2_Front {
 	 * change_posts_per_page
 	 * ページネーションの件数設定
 	 */
-	function change_posts_per_page( $query ) {
-		if ( is_admin() || ! $query->is_main_query() ) {
-			return;
-		}
-		if ( $query->is_front_page() || $query->is_search() ) { // メインページおよび検索結果で適用
-			$query->set( 'posts_per_page', '20' );
-			return;
-		}
-	}
+	// function change_posts_per_page( $query ) {
+	// 	if ( is_admin() || ! $query->is_main_query() ) {
+	// 		return;
+	// 	}
+	// 	if ( $query->is_front_page() || $query->is_search() ) { // メインページおよび検索結果で適用
+	// 		$query->set( 'posts_per_page', '10' );
+	// 		return;
+	// 	}
+	// }
 
 }
