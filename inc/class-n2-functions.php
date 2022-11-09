@@ -97,7 +97,7 @@ class N2_Functions {
 	 * @return void|false Void on success, false if the template does not exist.
 	 */
 	public static function get_template_part_with_args( $slug, $name, $args ) {
-		if ( $args ) { // $argsが無ければ何もしない
+		if ( isset( $args ) && $args ) { // $argsが無ければ何もしない
 			get_template_part( $slug, $name, $args );
 		}
 		return false;

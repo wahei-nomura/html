@@ -445,7 +445,11 @@ $breakpoint: (
 			@include mq(pc) {
 				width: 80%;
 			}
-			&:hover {
+			&.disable{
+				background-color: #999;
+				cursor: default;
+			}
+			&:not(.disable):hover {
 				background-color: #000;
 				a {
 					color: #fff;
