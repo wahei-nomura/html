@@ -201,7 +201,7 @@ class N2_Front {
 	public function update_item_confirm() {
 		date_default_timezone_set( 'Asia/Tokyo' );
 		$post_id      = filter_input( INPUT_POST, 'post_id', FILTER_SANITIZE_NUMBER_INT );
-		$confirm_flag = filter_input( INPUT_POST, 'confirm_flag', FILTER_VALIDATE_BOOLEAN ) ? '確認未' : '確認済み';
+		$confirm_flag = filter_input( INPUT_POST, 'confirm_flag', FILTER_VALIDATE_BOOLEAN ) ? '確認済み' : '確認未';
 		$is_ssoffice  = in_array( $_SERVER['REMOTE_ADDR'], N2_IPS ) ? 'ssofice' : 'no-ssofice';
 		update_post_meta( $post_id, '事業者確認', array( $confirm_flag, date( 'Y-m-d G:i:s' ) , $is_ssoffice ) );
 	}
