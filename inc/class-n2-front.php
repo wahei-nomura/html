@@ -33,6 +33,10 @@ class N2_Front {
 		add_action( "wp_ajax_nopriv_{$this->cls}_item_confirm", array( $this, 'update_item_confirm' ) );
 		add_action( "wp_ajax_{$this->cls}_item_confirm", array( $this, 'update_item_confirm' ) );
 		// add_action( 'pre_get_posts', array( $this, 'change_posts_per_page' ) );
+		add_filter( 'comments_open', array( $this, 'commets_open' ), 10, 2 );
+		add_filter( 'comment_form_default_fields', array( $this, 'comment_form_default_fields' ) );
+		add_filter( 'comment_form_defaults', array( $this, 'comment_form_defaults' ) );
+		add_filter( 'comment_post_redirect', array( $this, 'comment_post_redirect') );
 	}
 
 
@@ -232,5 +236,62 @@ class N2_Front {
 	// 		return;
 	// 	}
 	// }
+
+	/**
+	 * 事業者確認のコメント機能open
+	 */
+	public function commets_open( $open ) {
+		if ( ! empty( $_GET['look'] ) ) {
+			$open = true;
+		}
+		return $open;
+	}
+
+	/**
+	 * デフォルトのフィールド変更
+	 *
+	 * @param Array $arg コメント表示設定
+	 * @return Array $arg コメント表示設定
+	 */
+	public function comment_form_default_fields( $arg ) {
+		global $post;
+		unset( $arg['url'] );
+		unset( $arg['email'] );
+		unset( $arg['cookies'] );
+		$selected = selected( in_array( $_SERVER['REMOTE_ADDR'], N2_IPS ), true );
+		$author = get_userdata( $post->post_author )->display_name;
+		$arg['author'] = "
+			<p class='comment-form-author'>
+				<label for='author'>送信者</label>
+				<select id='author' name='author'>
+					<option value='{$author}'>{$author}</option>
+					<option value='スチームシップ' {$selected}>スチームシップ</option>
+				</select>
+			</p>
+		";
+		return $arg;
+	}
+
+	/**
+	 * コメント文言変更
+	 *
+	 * @param Array $defaults defaults
+	 * @return Array $defaults defaults
+	 */
+	public function comment_form_defaults( $defaults ){
+		$defaults['comment_notes_before'] = '';
+		$defaults['title_reply'] = '返礼品に関する変更要望など';
+		return $defaults;
+	}
+
+	/**
+	 * コメント送信時のリダイレクトURLにlookパラメータ付与
+	 *
+	 * @param string $location デフォルトURL
+	 * @return string $location 変更後URL
+	 */
+	public function comment_post_redirect( $location ) {
+		return preg_replace( '/\/#/', '&look=true#', $location );
+	}
 
 }
