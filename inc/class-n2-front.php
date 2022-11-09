@@ -52,8 +52,10 @@ class N2_Front {
 			return $query;
 		}
 		global $wpdb;
+		global $template;
+		$temp_name = basename($template);
 		// 最終的に$query内に代入するWHERE句
-		$page_number = 20;
+		$page_number = 100;
 		$current_pgae = get_query_var( 'paged' );  // ページ数取得
 		$current_pgae = $current_pgae == 0 ? '1' : $current_pgae;
 		$now_page = ($current_pgae -1 ) * $page_number;
@@ -159,30 +161,19 @@ class N2_Front {
 		// 返礼品コード絞り込み------------------------------------
 		if ( ! empty( $_GET['返礼品コード'] ) ) {
 			$code_arr = $_GET['返礼品コード'];
-			$where   .= 'AND (';
-			foreach ( $code_arr as $key => $code ) {
-				if ( 0 !== $key ) {
-					$where .= ' OR '; // 複数返礼品コードをOR検索(前後の空白必須)
+			if($temp_name != 'front-list'){
+				$where   .= 'AND (';
+				foreach ( $code_arr as $key => $code ) {
+					if ( 0 !== $key ) {
+						$where .= ' OR '; // 複数返礼品コードをOR検索(前後の空白必須)
+					}
+					$where .= "{$wpdb->posts}.ID = '%s'";
+					array_push( $args, $code );
 				}
-				$where .= "{$wpdb->posts}.ID = '%s'";
-				array_push( $args, $code );
+				$where .= ')';
 			}
-			$where .= ')';
 		}
 		// ここまで返礼品コード ----------------------------------------
-
-		// 事業者確認未 -------------------------------------------
-		if ( ! empty( $_GET['look'] ) && 'true' === $_GET['look'] ) {
-			$where .= "AND(
-				(
-				{$wpdb->postmeta}.meta_key = '%s'
-				AND {$wpdb->postmeta}.meta_value = ''
-				) 
-				OR {$wpdb->postmeta}.post_id NOT IN (SELECT {$wpdb->postmeta}.post_id FROM {$wpdb->postmeta} WHERE {$wpdb->postmeta}.meta_key = '事業者確認') 
-			)";
-			array_push( $args, '事業者確認' );
-		}
-		// ここまで事業者確認 ------------------------------------
 
 		// ここまで価格 ------------------------------------
 		// WHER句末尾連結
@@ -199,8 +190,8 @@ class N2_Front {
 		";
 
 		// クルー確認ページでは全件表示
-		if ( empty( $_GET['crew'] ) ) {
-			$sql .= "LIMIT {$now_page}, 20";
+		if ( empty( $_GET['crew'] ) && $temp_name != 'front-list') {
+			$sql .= "LIMIT {$now_page}, 100";
 		}
 		// 検索用GETパラメータがある場合のみ$queryを上書き
 		$query = count( $args ) > 0 ? $wpdb->prepare( $sql, ...$args ) : $sql;
@@ -214,7 +205,7 @@ class N2_Front {
 	public function update_item_confirm() {
 		date_default_timezone_set( 'Asia/Tokyo' );
 		$post_id      = filter_input( INPUT_POST, 'post_id', FILTER_SANITIZE_NUMBER_INT );
-		$confirm_flag = filter_input( INPUT_POST, 'confirm_flag', FILTER_VALIDATE_BOOLEAN ) ? '確認未' : '確認済み';
+		$confirm_flag = filter_input( INPUT_POST, 'confirm_flag', FILTER_VALIDATE_BOOLEAN ) ? '確認済み' : '確認未';
 		$is_ssoffice  = in_array( $_SERVER['REMOTE_ADDR'], N2_IPS ) ? 'ssofice' : 'no-ssofice';
 		update_post_meta( $post_id, '事業者確認', array( $confirm_flag, date( 'Y-m-d G:i:s' ) , $is_ssoffice ) );
 	}
@@ -228,7 +219,7 @@ class N2_Front {
 			return;
 		}
 		if ( $query->is_front_page() || $query->is_search() ) { // メインページおよび検索結果で適用
-			$query->set( 'posts_per_page', '20' );
+			$query->set( 'posts_per_page', '100' );
 			return;
 		}
 	}

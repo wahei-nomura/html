@@ -8,7 +8,9 @@
 ?>
 <section class="product-list-wrap">
 
-	<?php if ( ! empty( $_GET['look'] ) && ! empty( $_GET['author'] ) ) : ?>
+	<?php 
+	$item_amount = 0; //表示されている返礼品数用
+	if ( ! empty( $_GET['look'] ) && ! empty( $_GET['author'] ) ) : ?>
 		<h2 class="display-12 p-2 border-bottom border-success border-3"><span class="text-success"><?php echo get_userdata( filter_input( INPUT_GET, 'author', FILTER_VALIDATE_INT ) )->display_name; ?></span> 様 専用確認ページ</h2>
 		<p>お手数ですが、各商品をご確認されましたら<span class="text-danger">「確認OK」</span>ボタンを押してください。（ご不明点はスチームシップまでお問い合わせください。）</p>
 	<?php endif; ?>
@@ -85,17 +87,12 @@
 				?>
 			</span><!--product-list-item-->
 		</a>
-				<?php if ( ! empty( $_GET['look'] ) && ! empty( $_GET['author'] ) ) : ?>
-			<button
-				type='button'
-				class='ok-btn btn btn-danger <?php echo $confirmed ? 'confirmed' : ''; ?>'
-				value='<?php the_ID(); ?>'
-			>
-				<?php echo $confirmed ? '確認済み' : '確認未'; ?>
-			</button>
+		<?php if ( ! empty( $_GET['look'] ) && ! empty( $_GET['author'] ) ) : ?>
+			<input class="check-toggle" <?php echo checked( $confirmed, true ); ?> type="checkbox" data-toggle="toggle" data-on="確認済み" data-off="未確認" data-onstyle="success" data-offstyle="danger" value="<?php the_ID(); ?>">
 		<?php endif; ?>
 		</li>
 				<?php
+				$item_amount++; //表示されている返礼品数をカウント
 			}
 		}
 		wp_reset_postdata();
@@ -114,4 +111,25 @@
 	);
 	?>
 
+	<?php
+		if(!isset($_GET['author'])){ //事業者パラメーターが存在しない場合
+
+			//何もしない
+
+		}elseif($item_amount == 0 && $_GET['author'] != "" ){ //返礼品が一つもない　かつ　事業者パラメーターが空
+			
+			$e_state = "事業者の返礼品が存在しない";
+			include(get_theme_file_path()."/404.php");
+			echo "<script>console.log('検索エラー');</script>";
+
+		}elseif(!isset($item_amount)){ //イレギュラー
+			
+			//何もしない
+			
+		}
+	?>
+
 </section>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap5-toggle@4.3.4/css/bootstrap5-toggle.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap5-toggle@4.3.4/js/bootstrap5-toggle.min.js"></script>
