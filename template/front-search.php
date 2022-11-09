@@ -19,7 +19,7 @@
 		<?php
 			// 事業者検索 ===============================================================
 			$show_author      = '';
-			$get_jigyousya_id = filter_input( INPUT_GET, 'author', FILTER_VALIDATE_INT );
+			$get_jigyousya_id = filter_input( INPUT_GET, 'jigyousya', FILTER_VALIDATE_INT );
 			$get_henreihin_codes = filter_input(INPUT_GET, '返礼品コード', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
 		?>
 
@@ -37,7 +37,7 @@
 		</datalist>
 
 		<input type='text' name='' id='jigyousya-list-tag' list='jigyousya-list' value='<?php echo $show_author; ?>' placeholder='事業者入力'>
-		<input id='jigyousya-value' type='hidden' name='author' value='<?php echo $get_jigyousya_id; ?>'>
+		<input id='jigyousya-value' type='hidden' name='jigyousya' value='<?php echo $get_jigyousya_id; ?>'>
 		<p>返礼品コード</p>
 
 		<?php

@@ -152,9 +152,9 @@ class N2_Front {
 		}
 
 		// 事業者絞り込み ----------------------------------------
-		if ( ! empty( $_GET['author'] ) && '' !== $_GET['author'] ) {
+		if ( ! empty( $_GET['jigyousya'] ) && '' !== $_GET['jigyousya'] ) {
 			$where .= "AND {$wpdb->posts}.post_author = '%s'";
-			array_push( $args, filter_input( INPUT_GET, 'author', FILTER_VALIDATE_INT ) );
+			array_push( $args, filter_input( INPUT_GET, 'jigyousya', FILTER_VALIDATE_INT ) );
 		}
 		// ここまで事業者 ----------------------------------------
 
