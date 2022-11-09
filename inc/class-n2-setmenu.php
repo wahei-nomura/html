@@ -46,7 +46,6 @@ class N2_Setmenu {
 		// クルー事業者共通で削除
 		$menus = array(
 			'edit.php?post_type=page', // 固定ページ
-			'edit-comments.php', // コメント
 			'tools.php',
 			'upload.php',
 			'profile.php',
@@ -61,6 +60,7 @@ class N2_Setmenu {
 		// 事業者のメニュー削除
 		if ( 'jigyousya' === wp_get_current_user()->roles[0] ) {
 			$menus[] = 'index.php';
+			$menus[] = 'edit-comments.php';
 		}
 
 		foreach ( $menus as $menu ) {
