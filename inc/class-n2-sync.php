@@ -254,10 +254,10 @@ class N2_Sync {
 
 			// 登録済みか調査
 			$args = array(
-				'post_type'      => 'post',
-				'meta_key'       => '_neng_id',
-				'meta_value'     => $v['ID'],
-				'post_status'    => 'any',
+				'post_type'   => 'post',
+				'meta_key'    => '_neng_id',
+				'meta_value'  => $v['ID'],
+				'post_status' => 'any',
 			);
 			// 裏カスタムフィールドのNENGの投稿IDで登録済み調査
 			$p = get_posts( $args )[0];
