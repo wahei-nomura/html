@@ -506,33 +506,6 @@ $breakpoint: (
 			display: flex;
 			flex-direction: column;
 			row-gap: 40px;
-			.hilight-layer{
-				position: fixed;
-				top: 0;
-				left: 0;
-				background: #0008;
-				width: 100vw;
-				height: 100vh;
-				cursor: pointer;
-				& + button{
-					animation: flashing infinite 3s ease;
-				}
-				@keyframes flashing {
-					0%,100%{
-						box-shadow: none;
-					}
-					50%{
-						box-shadow:
-							0px 0px 10px 1px #fff,
-							0px 0px 20px 2px #fff,
-							0px 0px 50px 5px #fff,
-							inset 0px 0px 10px 5px #ff0,
-							inset 0px 0px 20px 2px #ff0b,
-							inset 0px 0px 30px 0px #ff08
-							;
-					}
-				}
-			}
 			button{
 				z-index: 1;
 				width: 110%;
