@@ -64,7 +64,7 @@
 				$confirmed   = '' === $check_param || '確認未' === $check_param[0] ? false : true;
 				// -----------------------------------------------------------------------------------------
 
-				$item_link = strpos( $_SERVER['REQUEST_URI'], '?' ) ? get_the_permalink() . '&' . explode( '?', $_SERVER['REQUEST_URI'] )[1] : get_the_permalink();
+				$item_link = ! empty( $_GET['look'] ) && ! empty( $_GET['jigyousya'] ) ? get_the_permalink() . '&look=' . $_GET['look'] : get_the_permalink();
 				?>
 		<li class="<?php echo $post_status; ?>">
 		<a href="<?php echo $item_link; ?>">
