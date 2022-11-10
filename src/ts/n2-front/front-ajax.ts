@@ -28,5 +28,32 @@ export default () => {
 			const confirmFlag = $(e.target).prop('checked')
 			updateItemConfirm(Number($(e.target).val()), confirmFlag);
 		});
+
+		// 返礼品コード絞り込み用
+
+		const searchItemCode = ( authorId: number) => {
+			$.ajax({
+				url: ajaxUrl(window),
+				dataType: "json",
+				data: {
+					action: "N2_Front_search_code",
+					author_id: authorId,
+				},
+			}).done((res) => {
+				console.log(res)
+				res.forEach((v:string)=>{
+					console.log(v)
+					$('.search-code-list').append($(`<option value="${v}">${v}</option>`))
+				})
+			}).fail(error => {
+				console.log(error)
+			});
+		}
+
+		$('#jigyousya-list-tag').on('change', e => {
+			setTimeout(()=>{
+				searchItemCode(Number($('#jigyousya-value').val()))
+			},300)
+		})
 	})
 };
