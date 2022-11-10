@@ -109,7 +109,7 @@
 	?>
 	<div class="front-move-wrap">
 	<input type="submit" value="絞り込み">
-	<a href="<?php echo $home_url; ?>">条件クリア</a>
+	<a href="<?php echo $home_url; ?>" class="front-search-clear">条件クリア</a>
 	</div>
 
 	</form>
