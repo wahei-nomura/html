@@ -44,13 +44,9 @@
 				echo '<select name="返礼品コード[]" class="search-code-list" multiple>';
 				// echo '<option value="">返礼品コード</option>';
 
-		$args      = array(
-			'post_status' => 'publish',
-		);
-		$the_query = new WP_Query( $args );
-		if ( $the_query->have_posts() ) {
-			while ( $the_query->have_posts() ) {
-				$the_query->the_post();
+		if ( have_posts() ) {
+			while ( have_posts() ) {
+				the_post();
 				$code = get_post_meta( get_the_ID(), '返礼品コード', 'true' );
 				if ( '' !== $code ) {
 					if(in_array(get_the_ID(), $get_henreihin_codes)){
