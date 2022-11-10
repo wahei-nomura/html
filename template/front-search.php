@@ -38,27 +38,27 @@
 
 		<input type='text' name='' id='jigyousya-list-tag' list='jigyousya-list' value='<?php echo $show_author; ?>' placeholder='事業者入力'>
 		<input id='jigyousya-value' type='hidden' name='jigyousya' value='<?php echo $get_jigyousya_id; ?>'>
-		<p>返礼品コード</p>
+		<!-- <p>返礼品コード</p> -->
 
 		<?php
-				echo '<select name="返礼品コード[]" class="search-code-list" multiple>';
+				// echo '<select name="返礼品コード[]" class="search-code-list" multiple>';
 				// echo '<option value="">返礼品コード</option>';
 
-		if ( have_posts() ) {
-			while ( have_posts() ) {
-				the_post();
-				$code = get_post_meta( get_the_ID(), '返礼品コード', 'true' );
-				if ( '' !== $code ) {
-					if(in_array(get_the_ID(), $get_henreihin_codes)){
-						printf( '<option value="%s" selected>%s</option>', get_the_ID(), $code );
-					}else{
-						printf( '<option value="%s">%s</option>', get_the_ID(), $code );
-					}
-				}
-			}
-		}
-		wp_reset_postdata();
-		echo '</select>';
+		// if ( have_posts() ) {
+		// 	while ( have_posts() ) {
+		// 		the_post();
+		// 		$code = get_post_meta( get_the_ID(), '返礼品コード', 'true' );
+		// 		if ( '' !== $code ) {
+		// 			if(in_array(get_the_ID(), $get_henreihin_codes)){
+		// 				printf( '<option value="%s" selected>%s</option>', get_the_ID(), $code );
+		// 			}else{
+		// 				printf( '<option value="%s">%s</option>', get_the_ID(), $code );
+		// 			}
+		// 		}
+		// 	}
+		// }
+		// wp_reset_postdata();
+		// echo '</select>';
 
 		?>
 		<?php
