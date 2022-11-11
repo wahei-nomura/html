@@ -205,7 +205,7 @@ $breakpoint: (
 	}
 	* {
 		margin: 0;
-		padding: 0;
+		// padding: 0;
 		line-height: 1.4;
 		font-size: 1rem;
 	}
@@ -428,6 +428,7 @@ $breakpoint: (
 	}
 	.link-list {
 		display: flex;
+		padding: 0;
 		@include mq(pc) {
 			grid-row-gap: 10px;
 			flex-direction: column;
