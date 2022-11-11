@@ -262,6 +262,11 @@ class N2_Sync {
 			);
 			$postarr['meta_input']['_neng_id'] = $v['ID']; // 同期用 裏カスタムフィールドNENGのID追加
 
+			// 事業者確認を強制執行
+			if ( strtotime( '-1 week' ) > strtotime( $v['post_modified'] ) ) {
+				$postarr['meta_input']['事業者確認'] = array( '確認済', '2022-10-30 00:00:00', 'ssofice' );
+			}
+
 			// 登録済みか調査
 			$args = array(
 				'post_type'   => 'post',
@@ -273,6 +278,12 @@ class N2_Sync {
 			$p = get_posts( $args )[0];
 			// 登録済みの場合
 			if ( $p->ID ) {
+				// 事業者確認を強制執行
+				$confirm = (array) get_post_meta( $p->ID, '事業者確認', true );
+				if ( empty( $confirm ) && strtotime( '-1 week' ) > strtotime( $p->post_modified ) ) {
+					$confirm = array( '確認済', '2022-10-30 00:00:00', 'ssofice' );
+					update_post_meta( $p->ID, '事業者確認', $confirm );
+				}
 				$neng_ids[] = $p->ID;
 				// 更新されてない場合はスキップ
 				if ( $p->post_modified === $postarr['post_modified'] ) {
