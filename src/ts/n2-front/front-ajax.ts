@@ -40,14 +40,16 @@ export default () => {
 					author_id: authorId,
 				},
 			}).done((res) => {
-				console.log(res)
-				res.forEach((v:string)=>{
-					console.log(v)
-					$('.search-code-list').append($(`<option value="${v}">${v}</option>`))
-				})
+				for(let key in res){
+					$('.search-code-list').append($(`<option value="${key}">${res[key]}</option>`))
+				}
 			}).fail(error => {
 				console.log(error)
 			});
+		}
+
+		if($('#jigyousya-value').val() !== ''){
+			searchItemCode(Number($('#jigyousya-value').val()))
 		}
 
 		$('#jigyousya-list-tag').on('change', e => {

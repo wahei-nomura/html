@@ -42,24 +42,6 @@
 		<p>返礼品コード</p>
 		<select name="返礼品コード[]" class="search-code-list" multiple>
 		</select>
-		
-		<?php
-		// 返礼品コード検索
-		/*
-		echo '<select name="返礼品コード[]" multiple>';
-		echo '<option value="">返礼品コード</option>';
-		if ( empty( $_GET['事業者'] ) ) {
-			$get_code = filter_input( INPUT_GET, '返礼品コード', FILTER_SANITIZE_ENCODED );
-			$posts    = get_posts( 'post_status=any' );
-			foreach ( $posts as $post ) {
-				$code = get_post_meta( $post->ID, '返礼品コード', 'true' );
-				if ( '' !== $code ) {
-					printf( '<option value="%s">%s</option>', $post->ID, $code );
-				}
-			}
-		}
-		echo '</select>';*/
-		?>
 	</div>
 	<?php
 	/*
