@@ -60,7 +60,7 @@ class N2_Sync {
 			'interval' => 1800,
 			'display'  => '30分毎',
 		);
-		$schedules['5min'] = array(
+		$schedules['5min']  = array(
 			'interval' => 300,
 			'display'  => '5分毎',
 		);
@@ -107,6 +107,14 @@ class N2_Sync {
 		$mh       = curl_multi_init();
 		$ch_array = array();
 		while ( $max_num_pages >= $params['paged'] ) {
+
+			// ツイン起動しないためにSync中のフラグをチェックして終了
+			$sleep = 300;
+			if ( $sleep > ( strtotime( 'now' ) - get_option( "n2syncing-{$params['paged']}", strtotime( 'now' ) ) ) ) {
+				$logs[] = '2重起動防止のため終了';
+				$this->log( $logs );
+				exit;
+			}
 			$ch         = curl_init();
 			$ch_array[] = $ch;
 			// localでSSLでうまくアクセスできないので$schema必須
@@ -226,6 +234,9 @@ class N2_Sync {
 		$params['action']  = 'postsdata';
 		$params['orderby'] = 'ID';
 
+		// Syncフラグを記録
+		update_option( "n2syncing-{$params['paged']}", strtotime( 'now' ) );
+
 		// 投稿を部分同期
 		$json = wp_remote_get( "{$this->neng_ajax_url}?" . http_build_query( $params ) )['body'];
 		$data = json_decode( $json, true );
@@ -279,7 +290,7 @@ class N2_Sync {
 			// 登録済みの場合
 			if ( $p->ID ) {
 				// 事業者確認を強制執行
-				$confirm = (array) get_post_meta( $p->ID, '事業者確認', true );
+				$confirm = get_post_meta( $p->ID, '事業者確認', true );
 				if ( empty( $confirm ) && strtotime( '-1 week' ) > strtotime( $p->post_modified ) ) {
 					$confirm = array( '確認済', '2022-10-30 00:00:00', 'ssofice' );
 					update_post_meta( $p->ID, '事業者確認', $confirm );
