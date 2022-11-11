@@ -64,6 +64,16 @@
 	<h2 class="display-12 p-2 border-bottom border-success border-3">クルー専用事業者確認状況チェック</h2>
 	<p>事業者の返礼品確認状況（<span class="text-danger">確認ボタンを押したかどうか</span>）を確認することができます。</p>
 	<button class="change-btn btn btn-success m-1">確認済みを非表示</button>
+	<?php
+	the_posts_pagination(
+		array(
+			'mid_size'      => 5, // 現在ページの左右に表示するページ番号の数
+			'prev_next' => true, // 「前へ」「次へ」のリンクを表示する場合はtrue
+			'prev_text' => __( '前へ' ), // 「前へ」リンクのテキスト
+			'next_text' => __( '次へ' ), // 「次へ」リンクのテキスト
+		)
+	);
+	?>
 	<table class="table table-secondary table-hover">
 	<tbody>
 		<tr>
@@ -100,8 +110,18 @@
 		endwhile;
 	endif;
 	?>
-</tbody>
-</table>
+	</tbody>
+	</table>
+	<?php
+		the_posts_pagination(
+			array(
+				'mid_size'      => 5, // 現在ページの左右に表示するページ番号の数
+				'prev_next' => true, // 「前へ」「次へ」のリンクを表示する場合はtrue
+				'prev_text' => __( '前へ' ), // 「前へ」リンクのテキスト
+				'next_text' => __( '次へ' ), // 「次へ」リンクのテキスト
+			)
+		);
+	?>
 </sectoin>
 
 <script>
