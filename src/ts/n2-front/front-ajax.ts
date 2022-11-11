@@ -8,7 +8,7 @@ export default () => {
 	================================================================== */
 	jQuery(function ($) {
 		// 計算パターンを受け取ってから処理
-		const updateItemConfirm = (postId: number): void => {
+		const updateItemConfirm = (postId: number, confirmFlag: boolean): void => {
 			$.ajax({
 				url: ajaxUrl(window),
 				type: "POST",
@@ -16,6 +16,7 @@ export default () => {
 				data: {
 					action: "N2_Front_item_confirm",
 					post_id: postId,
+					confirm_flag: confirmFlag,
 				},
 			}).done((res) => {
 				console.log('更新OK')
@@ -23,13 +24,41 @@ export default () => {
 				console.log(error)
 			});
 		};
-		$('button.ok-btn').on('click', e => {
-			if( !confirm('この商品を確認済みにして良いですか？')){
-				return;
-			}
-
-			$(e.target).prop('disabled',true);
-			updateItemConfirm(Number($(e.target).val()))
+		$('.check-toggle').on('change', e => {
+			const confirmFlag = $(e.target).prop('checked')
+			updateItemConfirm(Number($(e.target).val()), confirmFlag);
 		});
+
+		// 返礼品コード絞り込み用
+
+		const searchItemCode = ( authorId: number) => {
+			$.ajax({
+				url: ajaxUrl(window),
+				dataType: "json",
+				data: {
+					action: "N2_Front_search_code",
+					author_id: authorId,
+				},
+			}).done((res) => {
+				for(let key in res){
+					if(res[key] !== ''){
+						$('.search-code-list').append($(`<option value="${key}">${res[key]}</option>`))
+					}
+				}
+			}).fail(error => {
+				console.log(error)
+			});
+		}
+
+		if($('#jigyousya-value').val() !== ''){
+			searchItemCode(Number($('#jigyousya-value').val()))
+		}
+
+		$('#jigyousya-list-tag').on('change', e => {
+			setTimeout(()=>{
+				$('.search-code-list option').remove()
+				searchItemCode(Number($('#jigyousya-value').val()))
+			},300)
+		})
 	})
 };

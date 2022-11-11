@@ -1,5 +1,15 @@
+<?php
+    // 比較で表示する見出し一覧
+    $args_th = array( '寄付額', '納期', '在庫' );
+    // 田代出来てるポータルのみに絞る
+    foreach ( $args as $portal => $params) {
+        if ( $params['status'] === 'NG' ){
+            unset( $args[ $portal ] );
+        }
+    }
+?>
 <section class='portal-scraper'>
-    <h2 class="mordal-btn">ポータル比較</h2>
+    <h2 class="mordal-btn">主要ポータル比較</h2>
     <table border="1" style="display:none;" class="is-block">
         <thead>
             <tr>
@@ -10,7 +20,6 @@
             </tr>
         </thead>
         <tbody>
-            <?php $args_th = array( '寄付額', '納期', '在庫' ); ?>
             <?php foreach ( $args_th as $th ) : ?>
             <tr>
                 <th><?php echo $th; ?></th>

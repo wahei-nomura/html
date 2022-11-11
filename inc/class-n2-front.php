@@ -32,7 +32,13 @@ class N2_Front {
 		add_action( 'posts_request', array( $this, 'front_request' ) );
 		add_action( "wp_ajax_nopriv_{$this->cls}_item_confirm", array( $this, 'update_item_confirm' ) );
 		add_action( "wp_ajax_{$this->cls}_item_confirm", array( $this, 'update_item_confirm' ) );
+		add_action( "wp_ajax_nopriv_{$this->cls}_search_code", array( $this, 'search_code' ) );
+		add_action( "wp_ajax_{$this->cls}_search_code", array( $this, 'search_code' ) );
 		add_action( 'pre_get_posts', array( $this, 'change_posts_per_page' ) );
+		add_filter( 'comments_open', array( $this, 'commets_open' ), 10, 2 );
+		add_filter( 'comment_form_default_fields', array( $this, 'comment_form_default_fields' ) );
+		add_filter( 'comment_form_defaults', array( $this, 'comment_form_defaults' ) );
+		add_filter( 'comment_post_redirect', array( $this, 'comment_post_redirect') );
 	}
 
 
@@ -48,8 +54,10 @@ class N2_Front {
 			return $query;
 		}
 		global $wpdb;
+		global $template;
+		$temp_name = basename($template);
 		// 最終的に$query内に代入するWHERE句
-		$page_number = 20;
+		$page_number = 100;
 		$current_pgae = get_query_var( 'paged' );  // ページ数取得
 		$current_pgae = $current_pgae == 0 ? '1' : $current_pgae;
 		$now_page = ($current_pgae -1 ) * $page_number;
@@ -146,39 +154,26 @@ class N2_Front {
 		}
 
 		// 事業者絞り込み ----------------------------------------
-		if ( ! empty( $_GET['author'] ) && '' !== $_GET['author'] ) {
+		if ( ! empty( $_GET['jigyousya'] ) && '' !== $_GET['jigyousya'] ) {
 			$where .= "AND {$wpdb->posts}.post_author = '%s'";
-			array_push( $args, filter_input( INPUT_GET, 'author', FILTER_VALIDATE_INT ) );
+			array_push( $args, filter_input( INPUT_GET, 'jigyousya', FILTER_VALIDATE_INT ) );
 		}
 		// ここまで事業者 ----------------------------------------
 
 		// 返礼品コード絞り込み------------------------------------
 		if ( ! empty( $_GET['返礼品コード'] ) ) {
 			$code_arr = $_GET['返礼品コード'];
-			$where   .= 'AND (';
-			foreach ( $code_arr as $key => $code ) {
-				if ( 0 !== $key ) {
-					$where .= ' OR '; // 複数返礼品コードをOR検索(前後の空白必須)
+				$where   .= 'AND (';
+				foreach ( $code_arr as $key => $code ) {
+					if ( 0 !== $key ) {
+						$where .= ' OR '; // 複数返礼品コードをOR検索(前後の空白必須)
+					}
+					$where .= "{$wpdb->posts}.ID = '%s'";
+					array_push( $args, $code );
 				}
-				$where .= "{$wpdb->posts}.ID = '%s'";
-				array_push( $args, $code );
-			}
-			$where .= ')';
+				$where .= ')';
 		}
 		// ここまで返礼品コード ----------------------------------------
-
-		// 事業者確認未 -------------------------------------------
-		if ( ! empty( $_GET['look'] ) && 'true' === $_GET['look'] ) {
-			$where .= "AND(
-				(
-				{$wpdb->postmeta}.meta_key = '%s'
-				AND {$wpdb->postmeta}.meta_value = ''
-				) 
-				OR {$wpdb->postmeta}.post_id NOT IN (SELECT {$wpdb->postmeta}.post_id FROM {$wpdb->postmeta} WHERE {$wpdb->postmeta}.meta_key = '事業者確認') 
-			)";
-			array_push( $args, '事業者確認' );
-		}
-		// ここまで事業者確認 ------------------------------------
 
 		// ここまで価格 ------------------------------------
 		// WHER句末尾連結
@@ -192,12 +187,9 @@ class N2_Front {
 		WHERE 1 = 1 {$where}
 		GROUP BY {$wpdb->posts}.ID
 		ORDER BY {$wpdb->posts}.post_date DESC
+		LIMIT {$now_page}, 100
 		";
 
-		// クルー確認ページでは全件表示
-		if ( empty( $_GET['crew'] ) ) {
-			$sql .= "LIMIT {$now_page}, 20";
-		}
 		// 検索用GETパラメータがある場合のみ$queryを上書き
 		$query = count( $args ) > 0 ? $wpdb->prepare( $sql, ...$args ) : $sql;
 		return $query;
@@ -208,8 +200,11 @@ class N2_Front {
 	 * ajaxで事業者確認パラメーターを更新
 	 */
 	public function update_item_confirm() {
-		$post_id = filter_input( INPUT_POST, 'post_id', FILTER_SANITIZE_NUMBER_INT );
-		update_post_meta( $post_id, '事業者確認', array( '確認済み' ) );
+		date_default_timezone_set( 'Asia/Tokyo' );
+		$post_id      = filter_input( INPUT_POST, 'post_id', FILTER_SANITIZE_NUMBER_INT );
+		$confirm_flag = filter_input( INPUT_POST, 'confirm_flag', FILTER_VALIDATE_BOOLEAN ) ? '確認済み' : '確認未';
+		$is_ssoffice  = in_array( $_SERVER['REMOTE_ADDR'], N2_IPS ) ? 'ssofice' : 'no-ssofice';
+		update_post_meta( $post_id, '事業者確認', array( $confirm_flag, date( 'Y-m-d G:i:s' ) , $is_ssoffice ) );
 	}
 
 	/**
@@ -221,9 +216,80 @@ class N2_Front {
 			return;
 		}
 		if ( $query->is_front_page() || $query->is_search() ) { // メインページおよび検索結果で適用
-			$query->set( 'posts_per_page', '20' );
+			$query->set( 'posts_per_page', '100' );
 			return;
 		}
 	}
 
+	/**
+	 * 事業者確認のコメント機能open
+	 */
+	public function commets_open( $open ) {
+		if ( ! empty( $_GET['look'] ) ) {
+			$open = true;
+		}
+		return $open;
+	}
+
+	/**
+	 * デフォルトのフィールド変更
+	 *
+	 * @param Array $arg コメント表示設定
+	 * @return Array $arg コメント表示設定
+	 */
+	public function comment_form_default_fields( $arg ) {
+		global $post;
+		unset( $arg['url'] );
+		unset( $arg['email'] );
+		unset( $arg['cookies'] );
+		$selected = selected( in_array( $_SERVER['REMOTE_ADDR'], N2_IPS ), true );
+		$author = get_userdata( $post->post_author )->display_name;
+		$arg['author'] = "
+			<p class='comment-form-author'>
+				<label for='author'>送信者</label>
+				<select id='author' name='author'>
+					<option value='{$author}'>{$author}</option>
+					<option value='スチームシップ' {$selected}>スチームシップ</option>
+				</select>
+			</p>
+		";
+		return $arg;
+	}
+
+	/**
+	 * コメント文言変更
+	 *
+	 * @param Array $defaults defaults
+	 * @return Array $defaults defaults
+	 */
+	public function comment_form_defaults( $defaults ){
+		$defaults['comment_notes_before'] = '';
+		$defaults['title_reply'] = '返礼品に関する変更要望など';
+		return $defaults;
+	}
+
+	/**
+	 * コメント送信時のリダイレクトURLにlookパラメータ付与
+	 *
+	 * @param string $location デフォルトURL
+	 * @return string $location 変更後URL
+	 */
+	public function comment_post_redirect( $location ) {
+		return preg_replace( '/\/#/', '&look=true#', $location );
+	}
+
+	/**
+	 * ajaxで事業者idを受け取って返礼品コード一覧を返す
+	 */
+	public function search_code() {
+		$author_id = filter_input( INPUT_GET, 'author_id', FILTER_VALIDATE_INT );
+		$posts = get_posts( "post_status=any&author={$author_id}" );
+		$codes = array();
+		foreach ( $posts as $post ) {
+			$codes[ $post->ID ] = get_post_meta( $post->ID, '返礼品コード', true );
+		};
+
+		echo wp_json_encode( $codes );
+		exit;
+	}
 }
