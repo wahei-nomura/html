@@ -45,8 +45,8 @@
 </div>
   <div class="mb-3">
   <label class="form-label">返礼品コード</label>
-  <select name="返礼品コード[]" class="form-select" multiple>
-		</select>
+  <select name="返礼品コード[]" class="form-select search-code-list" multiple>
+</select>
   </div>
 	<?php
 	/*
