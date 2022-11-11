@@ -7,23 +7,26 @@
 
 ?>
 <section class="product-sidebar">
-	<?php 
+	<?php
 		$home_url = get_home_url() . '/';
 	?>
 
 	<form method="get" action="<?php echo $home_url; ?>" class="n2-search-form">
-	<p>フリーワード検索</p>
-	<input type="text" class="s" name="s" placeholder="キーワードを入力">
-	<p>出品事業者</p>
-	<div>
-		<?php
-			// 事業者検索 ===============================================================
-			$show_author      = '';
-			$get_jigyousya_id = filter_input( INPUT_GET, 'jigyousya', FILTER_VALIDATE_INT );
-			$get_henreihin_codes = filter_input(INPUT_GET, '返礼品コード', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
-		?>
 
-		<datalist id="jigyousya-list">
+  <div class="mb-3">
+	<label for="inputFreeword" class="form-label">フリーワード検索</label>
+	<input type="text" class="s form-control" id="inputFreeword" name="s" placeholder="キーワードを入力">
+  </div>
+  <div class="mb-3">
+  <?php
+			// 事業者検索 ===============================================================
+			$show_author         = '';
+			$get_jigyousya_id    = filter_input( INPUT_GET, 'jigyousya', FILTER_VALIDATE_INT );
+			$get_henreihin_codes = filter_input( INPUT_GET, '返礼品コード', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
+	?>
+
+	<label for="exampleInputPassword1" class="form-label">出品事業者</label>
+	<datalist id="jigyousya-list">
 			<?php foreach ( get_users( 'role=jigyousya' ) as $user ) : ?>
 				<?php
 					$author_id   = (int) $user->ID;
@@ -36,53 +39,15 @@
 			<?php endforeach; ?>
 		</datalist>
 
-		<input type='text' name='' id='jigyousya-list-tag' list='jigyousya-list' value='<?php echo $show_author; ?>' placeholder='事業者入力'>
+		<input type='text' name='' class="form-control" id='jigyousya-list-tag' list='jigyousya-list' value='<?php echo $show_author; ?>' placeholder='事業者入力'>
 		<input id='jigyousya-value' type='hidden' name='jigyousya' value='<?php echo $get_jigyousya_id; ?>'>
-		<p>返礼品コード</p>
 
-		<?php
-				echo '<select name="返礼品コード[]" class="search-code-list" multiple>';
-				// echo '<option value="">返礼品コード</option>';
-
-		$args      = array(
-			'post_status' => 'publish',
-		);
-		$the_query = new WP_Query( $args );
-		if ( $the_query->have_posts() ) {
-			while ( $the_query->have_posts() ) {
-				$the_query->the_post();
-				$code = get_post_meta( get_the_ID(), '返礼品コード', 'true' );
-				if ( '' !== $code ) {
-					if(in_array(get_the_ID(), $get_henreihin_codes)){
-						printf( '<option value="%s" selected>%s</option>', get_the_ID(), $code );
-					}else{
-						printf( '<option value="%s">%s</option>', get_the_ID(), $code );
-					}
-				}
-			}
-		}
-		wp_reset_postdata();
-		echo '</select>';
-
-		?>
-		<?php
-		// 返礼品コード検索
-		/*
-		echo '<select name="返礼品コード[]" multiple>';
-		echo '<option value="">返礼品コード</option>';
-		if ( empty( $_GET['事業者'] ) ) {
-			$get_code = filter_input( INPUT_GET, '返礼品コード', FILTER_SANITIZE_ENCODED );
-			$posts    = get_posts( 'post_status=any' );
-			foreach ( $posts as $post ) {
-				$code = get_post_meta( $post->ID, '返礼品コード', 'true' );
-				if ( '' !== $code ) {
-					printf( '<option value="%s">%s</option>', $post->ID, $code );
-				}
-			}
-		}
-		echo '</select>';*/
-		?>
-	</div>
+</div>
+  <div class="mb-3">
+  <label class="form-label">返礼品コード</label>
+  <select name="返礼品コード[]" class="form-select search-code-list" multiple>
+</select>
+  </div>
 	<?php
 	/*
 	<p>金額</p>
@@ -107,10 +72,11 @@
 		<input type="checkbox" name="portal_furunavi" class="portalsite" id="portal_furunavi" value="1"><label for="portal_furunavi">ふるなび</label>
 	</div>*/
 	?>
-	<div class="front-move-wrap">
-	<input type="submit" value="絞り込み">
-	<a href="<?php echo $home_url; ?>">条件クリア</a>
+	<div class="mb-3">
+	<button type="submit" class="btn btn-primary">絞り込み</button>
 	</div>
-
+	<div class="mb-3">
+	<button type="reset" class="btn btn-secondary front-search-clear">条件クリア</button>
+	</div>
 	</form>
 </section>

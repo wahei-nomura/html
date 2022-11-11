@@ -31,17 +31,15 @@ if ( have_posts() ) :
 		}
 	}
 
-	// 一覧へ戻る用 ------------------------------------------------------------------------------
-	$return_url = explode( '?', "https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}" )[0];
-	$get_param  = $_GET;
-	unset( $get_param['p'] );
-	$return_url .= '?' . http_build_query( $get_param );
 	// 事業者確認フラグ用　------------------------------------------------------------------------
 	$check_param = get_post_meta( get_the_ID(), '事業者確認', true );
 	$is_confirmed   = '' === $check_param || '確認未' === $check_param[0] ? false : true;
 	$confirmed_text = array( '確認未','確認済み' );
 	$confirmed_class = array( '', ' confirmed' );
 	// ------------------------------------------------------------------------------------------
+
+	$host       = $_SERVER['HTTP_HOST'];
+	$return_url = ! empty( $_SERVER['HTTP_REFERER'] ) && ( strpos( $_SERVER['HTTP_REFERER'], $host ) !== false ) ? $_SERVER['HTTP_REFERER'] : home_url();
 	?>
 	<main class="wrapper">
 		<input type="hidden" id="product_id" value="<?php echo $post_data['返礼品コード']; ?>">
@@ -49,7 +47,7 @@ if ( have_posts() ) :
 		<input type="hidden" id="imgs_key" value="<?php echo $imgs_meta_key ?>">
 		<a class="return-link" href="<?php echo $return_url; ?>">
 			<div class="return-btn">
-				一覧へ戻る
+				戻る
 			</div>
 		</a>
 		<!-- 商品画像 -->

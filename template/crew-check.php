@@ -64,6 +64,7 @@
 	<h2 class="display-12 p-2 border-bottom border-success border-3">クルー専用事業者確認状況チェック</h2>
 	<p>事業者の返礼品確認状況（<span class="text-danger">確認ボタンを押したかどうか</span>）を確認することができます。</p>
 	<button class="change-btn btn btn-success m-1">確認済みを非表示</button>
+	<?php get_template_part( 'template/pagination' ); ?>
 	<table class="table table-secondary table-hover">
 	<tbody>
 		<tr>
@@ -100,8 +101,9 @@
 		endwhile;
 	endif;
 	?>
-</tbody>
-</table>
+	</tbody>
+	</table>
+	<?php get_template_part( 'template/pagination' ); ?>
 </sectoin>
 
 <script>
@@ -146,7 +148,7 @@
 			</h2>
 			<div id="flush-<?php echo $comment->comment_post_ID; ?>" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
 				<div class="accordion-body">
-					<p><a href="<?php echo get_the_permalink( $comment->comment_post_ID ) . '?look=true'; ?>" target="_blank"><?php echo get_the_title( $comment->comment_post_ID ) ; ?></a></p>
+					<p><a href="<?php echo get_the_permalink( $comment->comment_post_ID ) . '&look=true'; ?>" target="_blank"><?php echo get_the_title( $comment->comment_post_ID ) ; ?></a></p>
 					<p><?php echo $comment->comment_content ; ?></p>
 				</div>
 			</div>

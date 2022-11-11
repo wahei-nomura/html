@@ -32,6 +32,8 @@ class N2_Front {
 		add_action( 'posts_request', array( $this, 'front_request' ) );
 		add_action( "wp_ajax_nopriv_{$this->cls}_item_confirm", array( $this, 'update_item_confirm' ) );
 		add_action( "wp_ajax_{$this->cls}_item_confirm", array( $this, 'update_item_confirm' ) );
+		add_action( "wp_ajax_nopriv_{$this->cls}_search_code", array( $this, 'search_code' ) );
+		add_action( "wp_ajax_{$this->cls}_search_code", array( $this, 'search_code' ) );
 		add_action( 'pre_get_posts', array( $this, 'change_posts_per_page' ) );
 		add_filter( 'comments_open', array( $this, 'commets_open' ), 10, 2 );
 		add_filter( 'comment_form_default_fields', array( $this, 'comment_form_default_fields' ) );
@@ -161,7 +163,6 @@ class N2_Front {
 		// 返礼品コード絞り込み------------------------------------
 		if ( ! empty( $_GET['返礼品コード'] ) ) {
 			$code_arr = $_GET['返礼品コード'];
-			if($temp_name != 'front-list'){
 				$where   .= 'AND (';
 				foreach ( $code_arr as $key => $code ) {
 					if ( 0 !== $key ) {
@@ -171,7 +172,6 @@ class N2_Front {
 					array_push( $args, $code );
 				}
 				$where .= ')';
-			}
 		}
 		// ここまで返礼品コード ----------------------------------------
 
@@ -187,12 +187,9 @@ class N2_Front {
 		WHERE 1 = 1 {$where}
 		GROUP BY {$wpdb->posts}.ID
 		ORDER BY {$wpdb->posts}.post_date DESC
+		LIMIT {$now_page}, 100
 		";
 
-		// クルー確認ページでは全件表示
-		if ( empty( $_GET['crew'] ) && $temp_name != 'front-list') {
-			$sql .= "LIMIT {$now_page}, 100";
-		}
 		// 検索用GETパラメータがある場合のみ$queryを上書き
 		$query = count( $args ) > 0 ? $wpdb->prepare( $sql, ...$args ) : $sql;
 		return $query;
@@ -281,4 +278,18 @@ class N2_Front {
 		return preg_replace( '/\/#/', '&look=true#', $location );
 	}
 
+	/**
+	 * ajaxで事業者idを受け取って返礼品コード一覧を返す
+	 */
+	public function search_code() {
+		$author_id = filter_input( INPUT_GET, 'author_id', FILTER_VALIDATE_INT );
+		$posts = get_posts( "post_status=any&author={$author_id}" );
+		$codes = array();
+		foreach ( $posts as $post ) {
+			$codes[ $post->ID ] = get_post_meta( $post->ID, '返礼品コード', true );
+		};
+
+		echo wp_json_encode( $codes );
+		exit;
+	}
 }

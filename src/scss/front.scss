@@ -10,7 +10,8 @@ $breakpoint: (
 
 .product-wrap {
 	display: flex;
-	max-width: 75vw;
+	justify-content: space-around;
+	max-width: 75%;
 	margin: 0 auto;
 	@include mq(sp) {
 		flex-direction: column-reverse;
@@ -28,7 +29,7 @@ $breakpoint: (
 	}
 }
 .product-list-wrap {
-	width: 74%;
+	width: 90%;
 	padding: 1%;
 	@include mq(sp) {
 		width: 100%;

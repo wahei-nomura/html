@@ -12,5 +12,17 @@ export default () => {
 			const id: number = $(`#jigyousya-list option[value="${$(e.target).val()}"]`).data('id')
 			$('#jigyousya-value').val(id)
 		})
+		// 検索条件をクリア
+		$('.front-search-clear').on('click', e => {
+			$('.s').val('');
+			$('#jigyousya-list-tag').val('');
+			$('#jigyousya-value').val('');
+			$('.search-code-list option').each(function(index,elem){
+				if(true == $(this).prop("selected")){
+					$(this).prop("selected", false);
+				}
+			});
+			return false;
+		})
 	})
 }
