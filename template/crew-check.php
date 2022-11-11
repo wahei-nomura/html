@@ -64,7 +64,6 @@
 	<h2 class="display-12 p-2 border-bottom border-success border-3">クルー専用事業者確認状況チェック</h2>
 	<p>事業者の返礼品確認状況（<span class="text-danger">確認ボタンを押したかどうか</span>）を確認することができます。</p>
 	<button class="change-btn btn btn-success m-1">確認済みを非表示</button>
-	<?php get_template_part( 'template/pagination' ); ?>
 	<table class="table table-secondary table-hover">
 	<tbody>
 		<tr>
@@ -75,14 +74,41 @@
 			<th>公開日</th>
 		</tr>
 	<?php
-	if ( have_posts() ) :
-		while ( have_posts() ) :
-			the_post();
+	$posts = get_posts(
+				array(
+					'post_type' => 'post',
+					'post_status' => 'any',
+					'meta_query' => array(
+						'relation' => 'OR',
+						array(
+							array(
+								'meta_key' => '事業者確認',
+								'meta_value' => '確認未',
+								'compare' => 'LIKE',
+							),
+							array(
+								'meta_key' => '事業者確認',
+								'meta_value' => null,
+							),
+						),
+					),
+				)
+		);
 
-			$check_param = get_post_meta( get_the_ID(), '事業者確認', true );
-			$confirmed   = '' === $check_param || '確認未' === $check_param[0] ? false : true;
+		foreach( $posts as $post ){
+			// var_dump(get_post_meta($post->ID, '事業者確認', true));
+			var_dump($post->post_title);
+		}
+
+
+	// if ( have_posts() ) :
+	// 	while ( have_posts() ) :
+	// 		the_post();
+
+	// 		$check_param = get_post_meta( get_the_ID(), '事業者確認', true );
+	// 		$confirmed   = '' === $check_param || '確認未' === $check_param[0] ? false : true;
 			?>
-			<tr class="<?php echo ! $confirmed ? 'table-danger' : 'normal'; ?>">
+			<!-- <tr class="<?php echo ! $confirmed ? 'table-danger' : 'normal'; ?>">
 				<td><?php the_author(); ?></td>
 				<td><?php echo get_post_meta( get_the_ID(), '返礼品コード', true ); ?></td>
 				<td><a href="<?php the_permalink(); ?>" target=”_blank”><?php the_title(); ?></a></td>
@@ -96,14 +122,13 @@
 					</div>
 				</td>
 				<td><?php the_modified_date(); ?></td>
-			</tr>
+			</tr> -->
 			<?php
-		endwhile;
-	endif;
+	// 	endwhile;
+	// endif;
 	?>
 	</tbody>
 	</table>
-	<?php get_template_part( 'template/pagination' ); ?>
 </sectoin>
 
 <script>
