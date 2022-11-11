@@ -72,6 +72,7 @@ class N2_Sync {
 	 * posts_per_page=10 が最速なのかはまだ未検証
 	 */
 	public function multi_sync_posts() {
+
 		$before = microtime( true );
 
 		// params
@@ -95,9 +96,9 @@ class N2_Sync {
 			echo $json;
 			exit;
 		}
-
 		// ページ数取得
 		$max_num_pages = $data['max_num_pages'];
+		$found_posts   = $data['found_posts'];
 
 		// $params変更
 		$params['action'] = 'n2_sync_posts';
@@ -125,18 +126,27 @@ class N2_Sync {
 			curl_multi_exec( $mh, $running );
 			curl_multi_select( $mh );
 		} while ( $running > 0 );
-		$neng_ids = array();
+
+		$neng_ids = array();// NENGに登録済みの投稿ID配列
 		foreach ( $ch_array as $ch ) {
-			$neng_ids = array( ...$neng_ids, ...json_decode( curl_multi_getcontent( $ch ) ) );
+			$ids = json_decode( curl_multi_getcontent( $ch ) );
+			if ( is_array( $ids ) ) {
+				$neng_ids = array( ...$neng_ids, ...$ids );
+			}
 			curl_multi_remove_handle( $mh, $ch );
 			curl_close( $ch );
 		}
 		curl_multi_close( $mh );
 
-		// NENGから削除されているものを削除
-		$deleted_ids = array_diff( get_posts( 'posts_per_page=-1&post_status=any&fields=ids' ), $neng_ids );
-		foreach ( $deleted_ids as $del ) {
-			wp_delete_post( $del );
+		// NENGとNEONENGの差分を抽出するための準備
+		$neng_ids    = array_values( $neng_ids );
+		$neoneng_ids = get_posts( 'posts_per_page=-1&post_status=any&fields=ids' );
+		// NENGから削除されているものを削除（こうしとかないと初回登録時に片っ端から消してしまう）
+		if ( $found_posts < count( $neoneng_ids ) ) {
+			$deleted_ids = array_diff( $neoneng_ids, $neng_ids );
+			foreach ( $deleted_ids as $del ) {
+				wp_delete_post( $del );
+			}
 		}
 
 		echo 'N2-Multi-Sync-Posts「' . get_bloginfo( 'name' ) . 'の返礼品」旧NENGとシンクロ完了！（' . number_format( microtime( true ) - $before, 2 ) . ' 秒）';
@@ -254,10 +264,10 @@ class N2_Sync {
 
 			// 登録済みか調査
 			$args = array(
-				'post_type'      => 'post',
-				'meta_key'       => '_neng_id',
-				'meta_value'     => $v['ID'],
-				'post_status'    => 'any',
+				'post_type'   => 'post',
+				'meta_key'    => '_neng_id',
+				'meta_value'  => $v['ID'],
+				'post_status' => 'any',
 			);
 			// 裏カスタムフィールドのNENGの投稿IDで登録済み調査
 			$p = get_posts( $args )[0];
