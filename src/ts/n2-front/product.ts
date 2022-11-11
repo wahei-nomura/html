@@ -1,4 +1,6 @@
 import jQuery from "jquery";
+import { prefix, neoNengPath, ajaxUrl, homeUrl } from "../functions/index";
+import {getPortalScraping,saveScraping,getImgsScraping} from "../n2-front/front-ajax";
 // jQuery拡張用に型定義
 declare global {
 	interface JQuery {
@@ -7,6 +9,60 @@ declare global {
 	}
 }
 export default () => {
+	console.log(window['tmp_path']['ajax_url']);
+	const element:HTMLInputElement = <HTMLInputElement>document.getElementById('product_id');
+	const productId:string = element.value;
+	const town = homeUrl(window).split('/').slice(-1)[0];
+	
+	const urlSearchParams = new URLSearchParams(window.location.search);
+	const getParams = Object.fromEntries(urlSearchParams.entries());
+	const postID = Number(getParams.p);
+	
+	
+	getPortalScraping( productId ,town)
+		.done(res =>{
+			// save
+			const element:HTMLInputElement = <HTMLInputElement>document.getElementById('scraping_key');
+			const key = element.value
+			saveScraping(postID,key,res);
+			// 各ポータルサイトのリンク修正
+			jQuery('.link-btn a').each((index,elem)=>{
+				const portalName = jQuery(elem).text();
+				jQuery(elem).attr('href',res[portalName]['item_url']);
+			});
+			let successPortal = Object.keys(res).filter((x)=>res[x].status === 'OK')
+			// ポータル比較th
+			jQuery('.portal-scraper thead th').each((index,elem)=>{
+				const portal = jQuery(elem).text();
+				if( index === 0 ){
+					return;
+				} else if ( successPortal.indexOf( portal ) !== -1 ){
+					successPortal = successPortal.filter( x => x !== portal);
+					return;
+				}
+				jQuery(elem).parent().append(`<th>${portal}</th>`);
+			})
+			// ポータル比較td
+			jQuery('.portal-scraper tbody tr').each((index,elem)=>{
+				const th = jQuery(elem).find('th').text();
+				successPortal.forEach(portal=>{
+					const td = successPortal[portal]?.params?.[th].trim();
+					jQuery(elem).append(`<td>${td}</td>`);
+				})
+			});
+
+		}).catch(err=>{
+			console.log(err.responseText);
+		})
+	getImgsScraping(productId ,town)
+		.done(res =>{
+			const element:HTMLInputElement = <HTMLInputElement>document.getElementById('imgs_key');
+			const key = element.value
+			saveScraping(postID,key,res);
+		}).catch(err=>{
+			console.log(err.responseText);
+		})
+	
 	jQuery(function ($) {
 		// transformの各パラメータ
 		// transform用のアニメーション
@@ -209,4 +265,5 @@ export default () => {
 			$(this).remove();
 		})
 	});
+
 };

@@ -1,4 +1,5 @@
 import { prefix, neoNengPath, ajaxUrl, homeUrl } from "../functions/index";
+import $ from 'jquery';
 
 export default () => {
 	/** ===============================================================
@@ -30,3 +31,40 @@ export default () => {
 		});
 	})
 };
+
+export const getPortalScraping = (productID:string, town:string) => {
+    return $.ajax({
+        url: ajaxUrl(window),
+        type: "GET",
+        dataType: "json",
+        data: {
+            action: "N2_Portal_Scraper",
+            id: productID,
+            town: town,
+        },
+    })
+};
+export const saveScraping = ( postID:number, key:string, scraping:object ) => {
+	return $.ajax({
+        url: ajaxUrl(window) + '?action=N2_Portal_Scraper_save',
+        type: "POST",
+        dataType: "json",
+        data: {
+            postID: postID,
+			key: key,
+            value: scraping,
+        },
+    })
+}
+export const getImgsScraping = ( productID:string, town:string ) => {
+	return $.ajax({
+        url: ajaxUrl(window),
+        type: "GET",
+        dataType: "json",
+        data: {
+			action: 'N2_Portal_Scraper_imgs',
+            id: productID,
+			town: town,
+        },
+    })
+}

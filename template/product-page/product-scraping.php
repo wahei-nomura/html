@@ -25,14 +25,14 @@
                 <th><?php echo $th; ?></th>
                 <?php foreach ( $args as $portal => $params ) : ?>
 
-                    <?php if ( ! isset($params[ $th ]) ) : ?>
+                    <?php if ( ! isset($params['params'][ $th ]) ) : ?>
                         <td></td>
-                    <?php elseif ( '寄付額' === $th && is_numeric($params[ $th ]) ) : ?>
-                        <td class="price"><?php echo number_format( $params[ $th ] ); ?></td>
+                    <?php elseif ( '寄付額' === $th && is_numeric($params['params'][ $th ]) ) : ?>
+                        <td class="price"><?php echo number_format( $params['params'][ $th ] ); ?></td>
                     <?php elseif ( '寄付額' === $th  ) : ?>
-                        <td class="price"><?php echo $params[ $th ]; ?></td>
+                        <td class="price"><?php echo $params['params'][ $th ]; ?></td>
                     <?php else : ?>
-                        <td><?php echo $params[ $th ]; ?></td>
+                        <td><?php echo $params['params'][ $th ]; ?></td>
                     <?php endif; ?>
                 <?php endforeach; ?>
             </tr>
