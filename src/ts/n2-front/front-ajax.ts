@@ -41,7 +41,9 @@ export default () => {
 				},
 			}).done((res) => {
 				for(let key in res){
-					$('.search-code-list').append($(`<option value="${key}">${res[key]}</option>`))
+					if(res[key] !== ''){
+						$('.search-code-list').append($(`<option value="${key}">${res[key]}</option>`))
+					}
 				}
 			}).fail(error => {
 				console.log(error)
@@ -54,6 +56,7 @@ export default () => {
 
 		$('#jigyousya-list-tag').on('change', e => {
 			setTimeout(()=>{
+				$('.search-code-list option').remove()
 				searchItemCode(Number($('#jigyousya-value').val()))
 			},300)
 		})
