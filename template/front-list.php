@@ -15,17 +15,8 @@
 		<p>お手数ですが、各商品をご確認されましたら<span class="text-danger">「確認OK」</span>ボタンを押してください。（ご不明点はスチームシップまでお問い合わせください。）</p>
 	<?php endif; ?>
 
-	<?php
-	the_posts_pagination(
-		array(
-			// 'mid_size'      => 2, // 現在ページの左右に表示するページ番号の数
-			'prev_next' => true, // 「前へ」「次へ」のリンクを表示する場合はtrue
-			'prev_text' => __( '前へ' ), // 「前へ」リンクのテキスト
-			'next_text' => __( '次へ' ), // 「次へ」リンクのテキスト
-			'type'      => 'list', // 戻り値の指定 (plain/list)
-		)
-	);
-	?>
+	<?php get_template_part( 'template/pagination' ); ?>
+
 	<ul class="product-list">
 		<?php
 		if ( have_posts() ) {
@@ -35,16 +26,19 @@
 			$n2_file_header = yaml_parse_file( get_theme_file_path() . '/config/n2-file-header.yml' );
 			$n2_towncode    = yaml_parse_file( get_theme_file_path() . '/config/n2-towncode.yml' );
 			$img_dir        = str_replace( 'n2-towncode', $n2_towncode[ $town_code ]['楽天'], $n2_file_header['rakuten']['img_dir'] );
+			$img_dir_ex     = str_replace( 'n2-towncode', $n2_towncode[ $town_code ]['楽天'], 'https://www.rakuten.ne.jp/gold/n2-towncode/img/item');
 			$portals        = array( '楽天', 'チョイス' );
 			while ( have_posts() ) {
 				the_post();
 				$new_rakuten_pic = '';
+				$new_rakuten_pic_ex = ''; // 波佐見など一部特殊な画像urlがある時用
 				$new_meta_pic = '';
 
 				$item_num_low = mb_strtolower( get_post_meta( get_the_ID(), '返礼品コード', true ) );
 				preg_match( '/...(?=[0-9])/', $item_num_low, $item_code );
 				if ( $item_num_low != '' && ! empty( $item_code ) ) {
 					$new_rakuten_pic = $img_dir . '/' . $item_code[0] . '/' . $item_num_low . '.jpg';
+					$new_rakuten_pic_ex = $img_dir_ex . '/' . $item_num_low . '.jpg';
 				}
 				if( ! empty( $meta_pic_arr ) ){
 					$new_meta_pic = $meta_pic_arr[0];
@@ -64,12 +58,12 @@
 				$confirmed   = '' === $check_param || '確認未' === $check_param[0] ? false : true;
 				// -----------------------------------------------------------------------------------------
 
-				$item_link = strpos( $_SERVER['REQUEST_URI'], '?' ) ? get_the_permalink() . '&' . explode( '?', $_SERVER['REQUEST_URI'] )[1] : get_the_permalink();
+				$item_link = ! empty( $_GET['look'] ) && ! empty( $_GET['jigyousya'] ) ? get_the_permalink() . '&look=' . $_GET['look'] : get_the_permalink();
 				?>
 		<li class="<?php echo $post_status; ?>">
 		<a href="<?php echo $item_link; ?>">
 			<div class="product-img-wrap">
-				<div class="product-img-box" style="background-image:url( <?php echo $new_rakuten_pic; ?>  ), url(<?php echo $new_meta_pic; ?>); background-size:cover;"></div>
+				<div class="product-img-box" style="background-image:url( <?php echo $new_rakuten_pic_ex; ?>  ),url( <?php echo $new_rakuten_pic; ?>  ), url(<?php echo $new_meta_pic; ?>); background-size:cover;"></div>
 				<span class="product-img-section">No Image</span>
 			</div>
 			<span class="product-list-item">
@@ -99,17 +93,7 @@
 		?>
 
 	</ul>
-	<?php
-	the_posts_pagination(
-		array(
-			// 'mid_size'      => 2, // 現在ページの左右に表示するページ番号の数
-			'prev_next' => true, // 「前へ」「次へ」のリンクを表示する場合はtrue
-			'prev_text' => __( '前へ' ), // 「前へ」リンクのテキスト
-			'next_text' => __( '次へ' ), // 「次へ」リンクのテキスト
-			'type'      => 'list', // 戻り値の指定 (plain/list)
-		)
-	);
-	?>
+	<?php get_template_part( 'template/pagination' ); ?>
 
 	<?php
 		if(!isset($_GET['jigyousya'])){ //事業者パラメーターが存在しない場合
