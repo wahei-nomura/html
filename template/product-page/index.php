@@ -3,59 +3,32 @@ if ( have_posts() ) :
 	the_post();
 	global $post;
 	$post_data      = N2_Functions::get_all_meta( $post );
+	
 	$url_parse      = explode( '/', get_option( 'home' ) );
 	$town_name      = end( $url_parse ); //urlから自治体を取得
 	$n2_file_header = yaml_parse_file( get_theme_file_path() . '/config/n2-file-header.yml' );
 	$n2_towncode    = yaml_parse_file( get_theme_file_path() . '/config/n2-towncode.yml' );
 	$img_dir        = str_replace( 'n2-towncode', $n2_towncode[ $town_name ]['楽天'], $n2_file_header['rakuten']['img_dir'] );
+	// DB登録用のキー
+	$scraping_meta_key = 'スクレイピング';
+	$imgs_meta_key = '商品詳細画像';
+	$product_imgs = $post_data[$imgs_meta_key] ?? array();
+
+	// 寄付金額の表示を楽天に変えておく
+	$product_amount = $post_data[$scraping_meta_key]['楽天']['寄付額'] ?? $post_data['寄附金額'];
+
 	if ( isset( $post_data['返礼品コード'] ) ) {
-		$product_code = mb_strtolower( $post_data['返礼品コード'] );
-		preg_match(
-			'/^[a-z]{2,3}/',
-			$product_code,
-			$m
-		);// 事業者コード
-		if ( ! preg_match( '/ne\.jp/', $img_dir ) && isset( $m[0] ) ) {
-			$img_dir .= "/{$m[0]}";// キャビネットの場合事業者コード追加
-		}
-		$scraping_meta_key = 'スクレイピング';
-		
-		// 画像の存在判定 CSV出力機能でも使用するので統一したい
-		$check_img_urls = function () use ( $product_code, $img_dir ) {
-			// 初期化
-			$arr = array();
-			for ( $i = 0;$i < 15; $i++ ) {
-				if ( 0 === $i ) {
-					$img_url = "{$img_dir}/{$product_code
-					}.jpg";
-				} else {
-					$img_url = "{$img_dir}/{$product_code
-					}-{$i}.jpg";
-				}
-				$response = wp_remote_get( $img_url );
-				if ( ! is_wp_error( $response ) && 200 === $response['response']['code'] ) {
-					array_push( $arr, $img_url );
-				} else {
-					break;
-				}
-			}
-			return $arr;
-		};
 		// 田代する　------------------------------------------------------------------------
 		if ( ! isset( $post_data[$scraping_meta_key] ) ){
 			// ポータル田代
 			$post_data[$scraping_meta_key] = apply_filters( 'wp_ajax_n2_tashiro\N2_Portal_Scraper', array(), $town_name, $post_data['返礼品コード'] );
 			// 画像リンク田代
-			$post_data[$scraping_meta_key]['商品画像'] = $check_img_urls() 
-				?: (isset($post_data['商品画像']) 
-					? $post_data['商品画像']
-					: array() );
+			$product_imgs = apply_filters( 'wp_ajax_n2_tashiro\N2_Portal_Scraper_imgs', array(), $town_name, $post_data['返礼品コード'] )
+				?: $post_data['商品画像'] ?? array();
 			// 田代の結果をDBへ保存
 			update_post_meta(get_the_ID(),$scraping_meta_key,$post_data[$scraping_meta_key] );
+			update_post_meta(get_the_ID(),$imgs_meta_key,$product_imgs );
 		}
-		// 田代済みの画像へ変更
-		$post_data['商品画像'] = $post_data[$scraping_meta_key]['商品画像'];
-		unset($post_data[$scraping_meta_key]['商品画像']);
 	}
 
 	// 事業者確認フラグ用　------------------------------------------------------------------------
@@ -69,14 +42,18 @@ if ( have_posts() ) :
 	$return_url = ! empty( $_SERVER['HTTP_REFERER'] ) && ( strpos( $_SERVER['HTTP_REFERER'], $host ) !== false ) ? $_SERVER['HTTP_REFERER'] : home_url();
 	?>
 	<main class="wrapper">
+		<input type="hidden" id="product_id" value="<?php echo $post_data['返礼品コード']; ?>">
+		<input type="hidden" id="scraping_key" value="<?php echo $scraping_meta_key ?>">
+		<input type="hidden" id="imgs_key" value="<?php echo $imgs_meta_key ?>">
 		<a class="return-link" href="<?php echo $return_url; ?>">
 			<div class="return-btn">
 				戻る
 			</div>
 		</a>
 		<!-- 商品画像 -->
-		<?php get_template_part( 'template/product-page/product-imgs', '', $post_data['商品画像'] ); ?>
+		<?php get_template_part( 'template/product-page/product-imgs', '', $product_imgs ); ?>
 		<h1 class='title'><?php the_title(); ?>【<?php echo $post_data['返礼品コード']; ?>】</h1>
+		<!-- 事業者 -->
 		<section class="worker">
 			<h2>提供事業者</h2>
 			<?php if ( get_the_author_meta( 'user_url' ) ) : ?>
@@ -88,10 +65,12 @@ if ( have_posts() ) :
 				<?php the_author(); ?>
 			<?php endif; ?>
 		</section>
+		<!-- 寄付額 -->
 		<section class='donation-amount'>
 			<h2>寄附金額</h2>
 			<div class="price"><?php echo number_format( $post_data['寄附金額'] ); ?></div>
 		</section>
+		<!-- 商品説明文 -->
 		<section class="description">
 			<h2>説明文</h3>
 			<div>
@@ -135,6 +114,5 @@ else :
 
 endif;
 ?>
-
 <link href="https://cdn.jsdelivr.net/npm/bootstrap5-toggle@4.3.4/css/bootstrap5-toggle.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap5-toggle@4.3.4/js/bootstrap5-toggle.min.js"></script>
