@@ -113,7 +113,7 @@ class N2_Sync {
 			if ( $sleep > ( strtotime( 'now' ) - get_option( "n2syncing-{$params['paged']}", strtotime( '-1 hour' ) ) ) ) {
 				$logs[] = '2重起動防止のため終了';
 				$this->log( $logs );
-				// exit;
+				exit;
 			}
 			$ch         = curl_init();
 			$ch_array[] = $ch;
