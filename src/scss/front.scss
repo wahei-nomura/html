@@ -435,6 +435,9 @@ $breakpoint: (
 			align-items: center;
 			justify-content: space-between;
 		}
+		.link-error {
+			color: red;
+		}
 		.link-btn {
 			width: 40%;
 			border: 2px solid #000;

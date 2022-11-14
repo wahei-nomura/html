@@ -264,6 +264,16 @@ export default () => {
 		$('.hilight-layer').on('click',function(){
 			$(this).remove();
 		})
+
+		$('.portal-links').on('change','.link-btn',function(){
+			const $error = $('.portal-links .link-error');
+			if ( $('.portal-links .link-btn a').length > 0 ){
+				$error.hide();
+			}else {
+				$error.show();
+			}
+		})
+		$('.portal-links  .link-btn').trigger('change');
 	});
 
 };
