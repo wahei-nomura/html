@@ -34,11 +34,11 @@ $template = ! empty( $_GET['crew'] ) ? 'crew-check' : 'front-list';
 						$codes = $code_meta_data['返礼品コード'];
 						foreach($codes as $cdKey => $cd){
 							$search_result .= $cd;
-							if($cdKey != array_key_last($codes)){
-								$search_result .= '/';
-							}
 						}
+					if($codeKey != array_key_last($sch_prm)){
+						$search_result .= '/';
 					}
+				}
 				}else{
 					$search_result .= $sch_prm;
 				}
