@@ -12,16 +12,16 @@
 <section class="container">
 	<h2 class="display-12 p-2 border-bottom border-success border-3">クルー専用事業者確認状況チェック</h2>
 	<p>事業者の返礼品確認状況（<span class="text-danger">確認ボタンを押したかどうか</span>）を確認することができます。</p>
-	<button class="change-btn btn btn-success m-1">確認済みを非表示</button>
+	<p>※確認未の商品のみ表示しております</p>
 	<table class="table table-hover">
 	<tbody>
 		<tr class='text-center'>
-			<th>事業者名</th>
-			<th>コード</th>
-			<th>商品名</th>
-			<th>公開日</th>
-			<th>確認状況</th>
-			<th>確認パラメータ最終更新日</th>
+			<th class='col-2'>事業者名</th>
+			<th class='col'>コード</th>
+			<th class='col'>商品名</th>
+			<th class='col'>公開日</th>
+			<th class='col-1'>確認状況</th>
+			<th class='col'>確認パラメータ最終更新日</th>
 		</tr>
 	<?php
 	$posts = get_posts(
@@ -51,7 +51,7 @@
 			<td><?php echo get_post_meta( $post->ID, '返礼品コード', true ); ?></td>
 			<td><a href="<?php echo get_permalink( $post->ID ); ?>&look=true" target='_blank'><?php echo $post->post_title; ?></a></td>
 			<td><?php echo $post->post_date; ?></td>
-			<td>未</td>
+			<td class='text-center'>未</td>
 			<td>
 				<?php echo ! empty( get_post_meta( $post->ID, '事業者確認', true ) ) ? get_post_meta( $post->ID, '事業者確認', true )[1] : '更新なし'; ?><br>
 				<?php echo ! empty( get_post_meta( $post->ID, '事業者確認', true ) ) ? get_post_meta( $post->ID, '事業者確認', true )[2] : ''; ?>
