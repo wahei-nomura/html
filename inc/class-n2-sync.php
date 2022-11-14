@@ -111,7 +111,7 @@ class N2_Sync {
 			// ツイン起動しないためにSync中のフラグをチェックして終了
 			$sleep = 300;
 			if ( $sleep > ( strtotime( 'now' ) - get_option( "n2syncing-{$params['paged']}", strtotime( 'now' ) ) ) ) {
-				var_dump($sleep > ( strtotime( 'now' ) - get_option( "n2syncing-{$params['paged']}", strtotime( 'now' ) ) ) );
+				echo strtotime( 'now' ) - get_option( "n2syncing-{$params['paged']}", strtotime( 'now' ) );
 				$logs[] = '2重起動防止のため終了';
 				$this->log( $logs );
 				exit;
