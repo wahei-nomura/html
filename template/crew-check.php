@@ -64,69 +64,52 @@
 	<h2 class="display-12 p-2 border-bottom border-success border-3">クルー専用事業者確認状況チェック</h2>
 	<p>事業者の返礼品確認状況（<span class="text-danger">確認ボタンを押したかどうか</span>）を確認することができます。</p>
 	<button class="change-btn btn btn-success m-1">確認済みを非表示</button>
-	<table class="table table-secondary table-hover">
+	<table class="table table-hover">
 	<tbody>
 		<tr>
 			<th>事業者名</th>
 			<th>コード</th>
 			<th>商品名</th>
-			<th>確認状況</th>
 			<th>公開日</th>
+			<th>確認状況</th>
+			<th>確認パラメータ最終更新日</th>
 		</tr>
 	<?php
 	$posts = get_posts(
+		array(
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'posts_per_page' => -1,
+			'meta_query' => array(
+				'relation' => 'OR',
 				array(
-					'post_type' => 'post',
-					'post_status' => 'any',
-					'meta_query' => array(
-						'relation' => 'OR',
-						array(
-							array(
-								'meta_key' => '事業者確認',
-								'meta_value' => '確認未',
-								'compare' => 'LIKE',
-							),
-							array(
-								'meta_key' => '事業者確認',
-								'meta_value' => null,
-							),
-						),
-					),
-				)
-		);
+					'key' => '事業者確認',
+					'value' => '確認未',
+					'compare' => 'LIKE',
+				),
+				array(
+					'key' => '事業者確認',
+					'compare' => 'NOT EXISTS',
+				),
+			),
+		)
+	);
 
-		foreach( $posts as $post ){
-			// var_dump(get_post_meta($post->ID, '事業者確認', true));
-			var_dump($post->post_title);
-		}
-
-
-	// if ( have_posts() ) :
-	// 	while ( have_posts() ) :
-	// 		the_post();
-
-	// 		$check_param = get_post_meta( get_the_ID(), '事業者確認', true );
-	// 		$confirmed   = '' === $check_param || '確認未' === $check_param[0] ? false : true;
+		foreach ( $posts as $post ) :
+			// var_dump($post);
+			// $check_param = get_post_meta( get_the_ID(), '事業者確認', true );
+			// $confirmed   = '' === $check_param || '確認未' === $check_param[0] ? false : true;
 			?>
-			<!-- <tr class="<?php echo ! $confirmed ? 'table-danger' : 'normal'; ?>">
-				<td><?php the_author(); ?></td>
-				<td><?php echo get_post_meta( get_the_ID(), '返礼品コード', true ); ?></td>
-				<td><a href="<?php the_permalink(); ?>" target=”_blank”><?php the_title(); ?></a></td>
-				<td>
-					<div class='<?php echo '' !== $check_param ? 'check-state' : ''; ?>'>
-						<?php echo $confirmed ? '済' : '未'; ?>
-						<div class='hidden'>
-							<?php echo '' !== $check_param ? $check_param[1] : ''; ?>
-							<?php echo '' !== $check_param ? $check_param[2] : ''; ?>
-						</div>
-					</div>
-				</td>
-				<td><?php the_modified_date(); ?></td>
-			</tr> -->
-			<?php
-	// 	endwhile;
-	// endif;
-	?>
+			<tr>
+				<td><a href="<?php echo home_url() . '?jigyousya=' . $post->post_author . '&look=true'; ?>" target='_blank'><?php echo get_the_author_meta( 'display_name', $post->post_author ); ?></a></td>
+				<td><?php echo get_post_meta( $post->ID, '返礼品コード', true ); ?></td>
+				<td><a href="<?php echo get_permalink( $post->ID ); ?>&look=true" target='_blank'><?php echo $post->post_title; ?></a></td>
+				<td><?php echo $post->post_date; ?></td>
+				<td>未</td>
+				<td><?php echo ! empty( get_post_meta( $post->ID, '事業者確認', true ) ) ? get_post_meta( $post->ID, '事業者確認', true )[1] : '更新なし'; ?></td>
+			</tr>
+		
+		<?php endforeach; ?>
 	</tbody>
 	</table>
 </sectoin>
