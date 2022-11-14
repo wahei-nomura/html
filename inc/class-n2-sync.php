@@ -125,6 +125,7 @@ class N2_Sync {
 				CURLOPT_RETURNTRANSFER => true,
 				CURLOPT_SSL_VERIFYPEER => false,
 				CURLOPT_TIMEOUT        => 30,
+				CURLOPT_USERPWD        => 'ss:ss',
 			);
 			curl_setopt_array( $ch, $options );
 			curl_multi_add_handle( $mh, $ch );
