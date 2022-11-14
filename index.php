@@ -28,6 +28,13 @@ $template = ! empty( $_GET['crew'] ) ? 'crew-check' : 'front-list';
 				if( 'jigyousya' == $key){
 					$keyNo = array_search($sch_prm, array_column($user_lists, 'ID'));
 					$search_result .= $user_lists[$keyNo]->display_name;
+				}elseif('返礼品コード' == $key){
+					foreach( $sch_prm as $codeKey => $code_prm){
+						$search_result .= $code_prm;
+						if($codeKey != array_key_last($sch_prm)){
+							$search_result .= '/';
+						}
+					}
 				}else{
 					$search_result .= $sch_prm;
 				}
