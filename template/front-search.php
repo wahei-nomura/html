@@ -42,12 +42,11 @@
 		<input type='text' name='' class="form-control" id='jigyousya-list-tag' list='jigyousya-list' value='<?php echo $show_author; ?>' placeholder='事業者入力'>
 		<input id='jigyousya-value' type='hidden' name='jigyousya' value='<?php echo $get_jigyousya_id; ?>'>
 
-</div>
-  <div class="mb-3">
-  <label class="form-label">返礼品コード</label>
-  <select name="返礼品コード[]" class="form-select search-code-list" multiple>
-</select>
-  </div>
+	</div>
+	<div class="mb-3 d-none" id='search-code-list'>
+		<label class="form-label">返礼品コード</label>
+		<select name="返礼品コード[]" class="form-select search-code-list" multiple></select>
+	</div>
 	<?php
 	/*
 	<p>金額</p>

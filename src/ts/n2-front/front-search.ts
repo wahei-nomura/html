@@ -22,6 +22,7 @@ export default () => {
 					$(this).prop("selected", false);
 				}
 			});
+			$('#search-code-list').addClass('d-none');
 			return false;
 		})
 	})
