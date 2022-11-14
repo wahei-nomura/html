@@ -110,7 +110,7 @@ class N2_Sync {
 
 			// ツイン起動しないためにSync中のフラグをチェックして終了
 			$sleep = 300;
-			if ( $sleep > ( strtotime( 'now' ) - get_option( "n2syncing-{$params['paged']}", strtotime( 'now' ) ) ) ) {
+			if ( $sleep > ( strtotime( 'now' ) - get_option( "n2syncing-{$params['paged']}", strtotime( '-1 hour' ) ) ) ) {
 				$logs[] = '2重起動防止のため終了';
 				$this->log( $logs );
 				exit;
@@ -125,6 +125,7 @@ class N2_Sync {
 				CURLOPT_RETURNTRANSFER => true,
 				CURLOPT_SSL_VERIFYPEER => false,
 				CURLOPT_TIMEOUT        => 30,
+				CURLOPT_USERPWD        => 'ss:ss',
 			);
 			curl_setopt_array( $ch, $options );
 			curl_multi_add_handle( $mh, $ch );
@@ -291,8 +292,12 @@ class N2_Sync {
 			if ( $p->ID ) {
 				// 事業者確認を強制執行
 				$confirm = get_post_meta( $p->ID, '事業者確認', true );
-				if ( empty( $confirm ) && strtotime( '-1 week' ) > strtotime( $p->post_modified ) ) {
-					$confirm = array( '確認済', '2022-10-30 00:00:00', 'ssofice' );
+				if ( empty( $confirm ) ) {
+					$confirm = array(
+						strtotime( '-2 week' ) > strtotime( $p->post_modified ) ? '確認済' : '確認未',
+						'2022-10-30 00:00:00',
+						'ssofice',
+					);
 					update_post_meta( $p->ID, '事業者確認', $confirm );
 				}
 				$neng_ids[] = $p->ID;
@@ -310,6 +315,7 @@ class N2_Sync {
 		}
 		wp_defer_term_counting( false );
 		wp_defer_comment_counting( false );
+		update_option( "n2syncing-{$params['paged']}", 0 );
 
 		// NENG登録済みの投稿idをjsonで返す
 		echo wp_json_encode( $neng_ids );
