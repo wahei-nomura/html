@@ -15,7 +15,7 @@
 
   <div class="mb-3">
 	<label for="inputFreeword" class="form-label">フリーワード検索</label>
-	<input type="text" class="s form-control" id="inputFreeword" name="s" placeholder="キーワードを入力" value="<?php echo $_GET['s']; ?>">
+	<input type="text" class="s form-control" id="inputFreeword" name="s" placeholder="キーワードを入力" value="<?php echo empty( $_GET['s'] ) ? '' : $_GET['s']; ?>">
   </div>
   <div class="mb-3">
   <?php
