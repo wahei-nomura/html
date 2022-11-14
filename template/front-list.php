@@ -35,7 +35,7 @@
 				$new_meta_pic = '';
 
 				$item_num_low = mb_strtolower( get_post_meta( get_the_ID(), '返礼品コード', true ) );
-				preg_match( '/...(?=[0-9])/', $item_num_low, $item_code );
+				preg_match( '/.*(?=[0-9])/', $item_num_low, $item_code );
 				if ( $item_num_low != '' && ! empty( $item_code ) ) {
 					$new_rakuten_pic = $img_dir . '/' . $item_code[0] . '/' . $item_num_low . '.jpg';
 					$new_rakuten_pic_ex = $img_dir_ex . '/' . $item_num_low . '.jpg';
