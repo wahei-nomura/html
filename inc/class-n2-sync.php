@@ -110,7 +110,7 @@ class N2_Sync {
 
 			// ツイン起動しないためにSync中のフラグをチェックして終了
 			$sleep = 300;
-			if ( $sleep > ( strtotime( 'now' ) - get_option( "n2syncing-{$params['paged']}", strtotime( 'now' ) ) ) ) {
+			if ( $sleep > ( strtotime( 'now' ) - get_option( "n2syncing-{$params['paged']}", strtotime( '-1 hour' ) ) ) ) {
 				$logs[] = '2重起動防止のため終了';
 				$this->log( $logs );
 				exit;
@@ -125,6 +125,7 @@ class N2_Sync {
 				CURLOPT_RETURNTRANSFER => true,
 				CURLOPT_SSL_VERIFYPEER => false,
 				CURLOPT_TIMEOUT        => 30,
+				CURLOPT_USERPWD        => 'ss:ss',
 			);
 			curl_setopt_array( $ch, $options );
 			curl_multi_add_handle( $mh, $ch );
@@ -310,6 +311,7 @@ class N2_Sync {
 		}
 		wp_defer_term_counting( false );
 		wp_defer_comment_counting( false );
+		update_option( "n2syncing-{$params['paged']}", 0 );
 
 		// NENG登録済みの投稿idをjsonで返す
 		echo wp_json_encode( $neng_ids );
