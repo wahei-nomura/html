@@ -63,14 +63,35 @@
 <?php if ( comments_open() ) : ?>
 	<div id="comments" class="container">
 		<h2>スチームシップとこのページの返礼品について連絡コーナー</h2>
+
+		<?php
+			global $post;
+
+			$comments = get_comments(
+				array(
+					'post_id' => $post->ID,
+					'order'   => 'ASC',
+				)
+			);
+		?>
+
 		<?php if ( have_comments() ) : ?>
-			<ol>
-				<?php wp_list_comments(); ?>
-			</ol>
+			<ul class='list-group mb-4 shadow'>
+			<?php foreach ( $comments as $comment ) : ?>
+				<li class="list-group-item list-group-item-action bg-second p-4 bg-light" id="comment-<?php echo $comment->comment_ID; ?>">
+					<div class='d-flex justify-content-between text-primary'>
+						<div class='fs-4'><?php echo $comment->comment_author; ?></div>
+						<div><?php echo $comment->comment_date; ?></div>
+					</div>
+					<div class='border border-primary p-2 rounded-2 bg-white'>
+						<p><?php echo $comment->comment_content; ?></p>
+					</div>
+				</li>
+				<?php endforeach; ?>
+			</ul>
 		<?php endif; ?>
 
 		<?php
-		global $post;
 		$selected = selected( in_array( $_SERVER['REMOTE_ADDR'], N2_IPS ), true );
 		$author = get_userdata( $post->post_author )->display_name;
 		?>
