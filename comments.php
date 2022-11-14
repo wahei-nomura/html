@@ -69,17 +69,32 @@
 				<?php wp_list_comments(); ?>
 			</ol>
 		<?php endif; ?>
+
 		<?php
-			$args = array(
-				'comment_field' => '
-						<p class="comment-form-comment">
-							<label>内容</label>
-							<textarea id="comment" name="comment" cols="45" rows="8" maxlength="65525" required="required"></textarea>
-						</p>
-					'
-				,
-			);
-			comment_form( $args );
+		global $post;
+		$selected = selected( in_array( $_SERVER['REMOTE_ADDR'], N2_IPS ), true );
+		$author = get_userdata( $post->post_author )->display_name;
 		?>
+
+		<div id="respond" class="comment-respond">
+			<h3 id="reply-title" class="comment-reply-title">返礼品に関する変更要望など <small><a rel="nofollow" id="cancel-comment-reply-link" href="/ojika/?p=3990&amp;look=true#respond" style="display:none;">コメントをキャンセル</a></small></h3>
+			<form action="<?php echo home_url( '/wp-comments-post.php' ); ?>" method="post" id="commentform" class="comment-form">
+				<p class="comment-form-comment">
+					<label>内容</label>
+					<textarea id="comment" name="comment" cols="45" rows="8" maxlength="65525" required="required"></textarea>
+				</p>		
+				<p class="comment-form-author">
+					<label for="author">送信者</label>
+					<select id="author" name="author">
+						<option value="<?php echo $author; ?>"><?php echo $author; ?></option>
+						<option value="スチームシップ" <?php echo $selected; ?>>スチームシップ</option>
+					</select>
+				</p>
+				<p class="form-submit"><input name="submit" type="submit" id="submit" class="submit" value="コメントを送信">
+					<input type="hidden" name="comment_post_ID" value="<?php echo $post->ID; ?>" id="comment_post_ID">
+					<input type="hidden" name="comment_parent" id="comment_parent" value="0">
+				</p>
+			</form>
+		</div>
 	</div>
 <?php endif; ?>
