@@ -21,6 +21,16 @@ $breakpoint: (
 		flex-shrink: 0;
 	}
 }
+.search-result-header{
+	border-bottom: 2px dashed;
+    font-size: 1.5rem;
+    margin: 0 auto 3rem;
+    max-width: 75%;
+    padding: 2rem 0 1rem;
+	@include mq(sp){
+		max-width: 96vw;
+	}
+}
 .product-sidebar {
 	width: 20%;
 	padding: 1% 4% 1% 1%;
@@ -29,7 +39,7 @@ $breakpoint: (
 	}
 }
 .product-list-wrap {
-	width: 90%;
+	width: 80%;
 	padding: 1%;
 	@include mq(sp) {
 		width: 100%;
