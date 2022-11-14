@@ -30,9 +30,13 @@ $template = ! empty( $_GET['crew'] ) ? 'crew-check' : 'front-list';
 					$search_result .= $user_lists[$keyNo]->display_name;
 				}elseif('返礼品コード' == $key){
 					foreach( $sch_prm as $codeKey => $code_prm){
-						$search_result .= $code_prm;
-						if($codeKey != array_key_last($sch_prm)){
-							$search_result .= '/';
+						$code_meta_data = get_post_meta($code_prm);
+						$codes = $code_meta_data['返礼品コード'];
+						foreach($codes as $cdKey => $cd){
+							$search_result .= $cd;
+							if($cdKey != array_key_last($codes)){
+								$search_result .= '/';
+							}
 						}
 					}
 				}else{
