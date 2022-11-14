@@ -66,7 +66,7 @@
 <?php endif ?>
 
 <?php if ( 'comment' === $_GET['crew'] ) : ?>
-	<section class="n2-crew-check">
+	<section class="n2-crew-check container">
 	<h2 class="display-12 p-2 border-bottom border-success border-3">クルー専用コメント確認ページ</h2>
 	<p>返礼品ごとのコメント状況を確認できます</p>
 	<div class='accordion accordion-flush' id='accordionFlushExample'>
