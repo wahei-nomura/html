@@ -18,7 +18,7 @@ $template = ! empty( $_GET['crew'] ) ? 'crew-check' : 'front-list';
 
 <article class="product-wrap search">
 	<?php
-	if ( empty( $_GET['look'] ) ) {
+	if ( empty( $_GET['look'] ) && empty( $_GET['crew'] ) ) {
 		get_template_part( 'template/front-search' );
 	}
 	get_template_part( "template/{$template}" );
