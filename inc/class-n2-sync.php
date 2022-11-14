@@ -311,6 +311,7 @@ class N2_Sync {
 		}
 		wp_defer_term_counting( false );
 		wp_defer_comment_counting( false );
+		update_option( "n2syncing-{$params['paged']}", 0 );
 
 		// NENG登録済みの投稿idをjsonで返す
 		echo wp_json_encode( $neng_ids );
