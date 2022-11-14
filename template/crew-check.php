@@ -7,66 +7,15 @@
 
 ?>
 
-<!-- Load sass.js -->
-<script src="https://cdn.jsdelivr.net/gh/steamships/in-browser-sass/dist/in-browser-sass.bundle.min.js"></script>
-
-<style type="text/scss">
-	.n2-crew-check {
-		width: 90%;
-		overflow-x: scroll;
-		table{
-			border-spacing: 0;
-			
-			tr {
-				&.normal.none {
-					display: none;
-				}
-			}
-			
-			th{
-				border-bottom: solid 2px #fb5144;
-				padding: 10px 0;
-				text-align: center;
-			}
-			
-			td {
-				.check-state {
-					position: relative;
-					cursor: pointer;
-					color: green;
-					&:hover {
-						.hidden {
-							display: block;
-							opacity: 1;
-						}
-					}
-					.hidden {
-						display: none;
-						opacity: 0;
-						position: absolute;
-						top: 0;
-						right: 0;
-						z-index: 100;
-						width: 200px;
-						background: white;
-						padding: 16px;
-						transition: .3s;
-					}
-				}
-			}
-		}
-	}
-</style>
-
 <?php if ( 'check' === $_GET['crew'] ) : ?>
 
-<section class="n2-crew-check">
+<section class="container">
 	<h2 class="display-12 p-2 border-bottom border-success border-3">クルー専用事業者確認状況チェック</h2>
 	<p>事業者の返礼品確認状況（<span class="text-danger">確認ボタンを押したかどうか</span>）を確認することができます。</p>
 	<button class="change-btn btn btn-success m-1">確認済みを非表示</button>
 	<table class="table table-hover">
 	<tbody>
-		<tr>
+		<tr class='text-center'>
 			<th>事業者名</th>
 			<th>コード</th>
 			<th>商品名</th>
@@ -95,32 +44,24 @@
 		)
 	);
 
-		foreach ( $posts as $post ) :
-			// var_dump($post);
-			// $check_param = get_post_meta( get_the_ID(), '事業者確認', true );
-			// $confirmed   = '' === $check_param || '確認未' === $check_param[0] ? false : true;
-			?>
-			<tr>
-				<td><a href="<?php echo home_url() . '?jigyousya=' . $post->post_author . '&look=true'; ?>" target='_blank'><?php echo get_the_author_meta( 'display_name', $post->post_author ); ?></a></td>
-				<td><?php echo get_post_meta( $post->ID, '返礼品コード', true ); ?></td>
-				<td><a href="<?php echo get_permalink( $post->ID ); ?>&look=true" target='_blank'><?php echo $post->post_title; ?></a></td>
-				<td><?php echo $post->post_date; ?></td>
-				<td>未</td>
-				<td><?php echo ! empty( get_post_meta( $post->ID, '事業者確認', true ) ) ? get_post_meta( $post->ID, '事業者確認', true )[1] : '更新なし'; ?></td>
-			</tr>
-		
-		<?php endforeach; ?>
+	foreach ( $posts as $post ) :
+		?>
+		<tr>
+			<td><a href="<?php echo home_url() . '?jigyousya=' . $post->post_author . '&look=true'; ?>" target='_blank'><?php echo get_the_author_meta( 'display_name', $post->post_author ); ?></a></td>
+			<td><?php echo get_post_meta( $post->ID, '返礼品コード', true ); ?></td>
+			<td><a href="<?php echo get_permalink( $post->ID ); ?>&look=true" target='_blank'><?php echo $post->post_title; ?></a></td>
+			<td><?php echo $post->post_date; ?></td>
+			<td>未</td>
+			<td>
+				<?php echo ! empty( get_post_meta( $post->ID, '事業者確認', true ) ) ? get_post_meta( $post->ID, '事業者確認', true )[1] : '更新なし'; ?><br>
+				<?php echo ! empty( get_post_meta( $post->ID, '事業者確認', true ) ) ? get_post_meta( $post->ID, '事業者確認', true )[2] : ''; ?>
+			</td>
+		</tr>
+	
+	<?php endforeach; ?>
 	</tbody>
 	</table>
 </sectoin>
-
-<script>
-	jQuery(function($){
-		$('.n2-crew-check .change-btn').on('click', ()=>{
-			$('.n2-crew-check .normal').toggle('none')
-		})
-	})
-</script>
 
 <?php endif ?>
 
