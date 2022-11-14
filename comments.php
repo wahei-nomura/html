@@ -92,7 +92,7 @@
 		<?php endif; ?>
 
 		<?php
-		$selected = selected( in_array( $_SERVER['REMOTE_ADDR'], N2_IPS ), true );
+		$selected = selected( in_array( $_SERVER['REMOTE_ADDR'], N2_IPS ), true, false );
 		$author = get_userdata( $post->post_author )->display_name;
 		?>
 
