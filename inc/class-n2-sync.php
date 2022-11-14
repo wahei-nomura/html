@@ -292,8 +292,12 @@ class N2_Sync {
 			if ( $p->ID ) {
 				// 事業者確認を強制執行
 				$confirm = get_post_meta( $p->ID, '事業者確認', true );
-				if ( empty( $confirm ) && strtotime( '-1 week' ) > strtotime( $p->post_modified ) ) {
-					$confirm = array( '確認済', '2022-10-30 00:00:00', 'ssofice' );
+				if ( empty( $confirm ) ) {
+					$confirm = array(
+						strtotime( '-2 week' ) > strtotime( $p->post_modified ) ? '確認済' : '確認未',
+						'2022-10-30 00:00:00',
+						'ssofice',
+					);
 					update_post_meta( $p->ID, '事業者確認', $confirm );
 				}
 				$neng_ids[] = $p->ID;
