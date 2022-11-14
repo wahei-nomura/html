@@ -57,8 +57,10 @@ export default () => {
 
 		$('#jigyousya-list-tag').on('change', e => {
 			setTimeout(()=>{
-				$('.search-code-list option').remove()
-				searchItemCode(Number($('#jigyousya-value').val()))
+				if($('#jigyousya-value').val() !== ''){	
+					$('.search-code-list option').remove()
+					searchItemCode(Number($('#jigyousya-value').val()))
+				}
 			},300)
 		})
 	})
