@@ -72,7 +72,9 @@ class N2_Sync {
 	 * posts_per_page=10 が最速なのかはまだ未検証
 	 */
 	public function multi_sync_posts() {
-
+		if ( is_main_site() ) {
+			exit;
+		}
 		$before = microtime( true );
 
 		// params
@@ -168,6 +170,9 @@ class N2_Sync {
 	 * N2ユーザーデータ吸い上げ
 	 */
 	public function sync_users() {
+		if ( is_main_site() ) {
+			exit;
+		}
 		$before = microtime( true );
 		$json   = wp_remote_get( "{$this->neng_ajax_url}?action=userdata" )['body'];
 		$data   = json_decode( $json, true );
