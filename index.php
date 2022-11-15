@@ -22,7 +22,7 @@ $template = ! empty( $_GET['crew'] ) ? 'crew-check' : 'front-list';
 			$search_params = $_GET;
 			$search_result = '';
 			foreach ( $search_params as $key => $sch_prm ) {
-				if('' != $sch_prm){
+				if('' != $sch_prm && 'paged' != $key){
 					if ( '' != $search_result ) {
 						$search_result .= ', ';
 					}
