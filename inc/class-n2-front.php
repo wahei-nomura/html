@@ -48,7 +48,7 @@ class N2_Front {
 	 */
 	public function front_request( $query ) {
 		// var_dump($query);
-		if ( ! is_search() && ! is_front_page() ) {
+		if ( ! is_search() ) {
 			return $query;
 		}
 		global $wpdb;
