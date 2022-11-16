@@ -96,11 +96,7 @@
 	<?php get_template_part( 'template/pagination' ); ?>
 
 	<?php
-	if ( ! isset( $_GET['jigyousya'] ) ) { // 事業者パラメーターが存在しない場合
-
-		// 何もしない
-
-	} elseif ( $item_amount == 0 && $_GET['jigyousya'] != '' ) { // 返礼品が一つもない　かつ　事業者パラメーターが空
+	if ( $item_amount == 0 ) { // 返礼品が一つもない
 
 		$e_state = '事業者の返礼品が存在しない';
 		include get_theme_file_path() . '/404.php';
