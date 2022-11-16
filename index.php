@@ -13,6 +13,7 @@ $template = ! empty( $_GET['crew'] ) ? 'crew-check' : 'front-list';
 <?php
 	if ( ! empty( $_GET['look'] ) ) {
 		get_template_part( 'template/front-manual' );
+		get_template_part( 'template/look-alert' );
 	}
 ?>
 	<?php
