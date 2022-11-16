@@ -141,6 +141,36 @@ $breakpoint: (
 		}
 	}
 }
+.n2-jigyousya-radiobox {
+	.form-check {
+		padding: 0;
+	}
+	label {
+		display: block;
+	}
+	input[type="radio"] {
+		display: none;
+	}
+	.no-check{
+		&:checked+label {
+			background-color: #dc3545;
+			color: white;
+		}
+	}
+	.want-fix{
+		&:checked+label {
+			background-color: #ffc107;
+			color: white;
+		}
+	}
+	.no-fix {
+		&:checked+label {
+			background-color: #198754;
+			color: white;
+		}
+	}
+}
+
 .n2-search-form {
 	input[type="text"] {
 		padding: 12px;

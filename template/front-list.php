@@ -81,8 +81,29 @@
 				?>
 			</span><!--product-list-item-->
 		</a>
-				<?php if ( ! empty( $_GET['look'] ) && ! empty( $_GET['jigyousya'] ) ) : ?>
-			<input class="check-toggle" <?php echo checked( $confirmed, true ); ?> type="checkbox" data-toggle="toggle" data-on="確認済み" data-off="未確認" data-onstyle="success" data-offstyle="danger" value="<?php the_ID(); ?>">
+
+		<?php if ( ! empty( $_GET['look'] ) && ! empty( $_GET['jigyousya'] ) ) : ?>
+			<div class='n2-jigyousya-radiobox card p-2 bg-light'>
+				<div class="form-check text-danger border border-danger text-center">
+					<input type="radio" class="form-check-input no-check" name="jigyousya-check-<?php echo the_ID(); ?>" id="no-check-<?php echo the_ID(); ?>" checked>
+					<label for="no-check-<?php echo the_ID(); ?>" class="form-check-label">
+					確認未
+				</label>
+				</div>
+				<div class="form-check text-warning border border-warning text-center">
+					<input type="radio" class="form-check-input want-fix" name="jigyousya-check-<?php echo the_ID(); ?>" id="want-fix-<?php echo the_ID(); ?>">
+					<label for="want-fix-<?php echo the_ID(); ?>" class="form-check-label">
+						修正してほしい
+					</label>
+				</div>
+				<div class="form-check text-success border border-success text-center">
+					<input type="radio" class="form-check-input no-fix" name="jigyousya-check-<?php echo the_ID(); ?>" id="no-fix-<?php echo the_ID(); ?>">
+					<label for="no-fix-<?php echo the_ID(); ?>" class="form-check-label">
+						修正しなくていい
+					</label>
+				</div>
+			</div>
+
 		<?php endif; ?>
 		</li>
 				<?php
