@@ -24,27 +24,28 @@
 			<th class='col'>確認パラメータ最終更新日</th>
 		</tr>
 	<?php
+
+	$ids = get_posts(
+		array(
+			'post_type'     => 'post',
+			'posts_per_page' => -1,
+			'fields'        => 'ids',
+			'meta_key'      => '事業者確認',
+			'meta_value'    => '確認済',
+			'meta_compare'  => 'LIKE',
+		)
+	);
+
 	$posts = get_posts(
 		array(
-			'post_type' => 'post',
-			'post_status' => 'publish',
+			'post_type'     => 'post',
 			'posts_per_page' => -1,
-			'meta_query' => array(
-				'relation' => 'OR',
-				array(
-					'key' => '事業者確認',
-					'value' => '確認未',
-					'compare' => 'LIKE',
-				),
-				array(
-					'key' => '事業者確認',
-					'value' => '修正希望',
-					'compare' => 'LIKE',
-				),
-				array(
-					'key' => '事業者確認',
-					'compare' => 'NOT EXISTS',
-				),
+			'exclude'       => implode( ',', $ids ),
+			'fields'        => array(
+				'ID',
+				'post_author',
+				'post_title',
+				'post_data',
 			),
 		)
 	);
