@@ -32,11 +32,9 @@ if ( have_posts() ) :
 	}
 
 	// 事業者確認フラグ用　------------------------------------------------------------------------
-	$check_param = get_post_meta( get_the_ID(), '事業者確認', true );
-	$is_confirmed   = '' === $check_param || '確認未' === $check_param[0] ? false : true;
-	$confirmed_text = array( '確認未','確認済み' );
-	$confirmed_class = array( '', ' confirmed' );
-	// ------------------------------------------------------------------------------------------
+	$check_param   = get_post_meta( get_the_ID(), '事業者確認', true );
+	$checked_value = empty( $check_param ) ? '確認未' : $check_param[0];
+	// ---------
 
 	$host       = $_SERVER['HTTP_HOST'];
 	$return_url = ! empty( $_SERVER['HTTP_REFERER'] ) && ( strpos( $_SERVER['HTTP_REFERER'], $host ) !== false ) ? $_SERVER['HTTP_REFERER'] : home_url();
@@ -97,7 +95,26 @@ if ( have_posts() ) :
 		<aside class="sub">
 			<div class="sticky">
 			<?php if ( ! empty( $_GET['look'] ) ) : ?>
-				<input class="check-toggle" <?php echo checked( $is_confirmed, true ); ?> type="checkbox" data-toggle="toggle" data-on="確認済み" data-off="未確認" data-onstyle="success" data-offstyle="danger" value="<?php the_ID(); ?>">
+				<div class='n2-jigyousya-radiobox card p-2 bg-light'>
+					<div class="form-check text-danger text-center">
+						<input type="radio" class="form-check-input no-check" name="jigyousya-check-<?php echo the_ID(); ?>" id="no-check-<?php echo the_ID(); ?>" value='確認未' <?php echo checked( $checked_value, '確認未', false ); ?>>
+						<label for="no-check-<?php echo the_ID(); ?>" class="form-check-label">
+						確認未
+					</label>
+					</div>
+					<div class="form-check text-warning text-center">
+						<input type="radio" class="form-check-input want-fix" name="jigyousya-check-<?php echo the_ID(); ?>" id="want-fix-<?php echo the_ID(); ?>" value='修正希望' <?php echo checked( $checked_value, '修正希望', false ); ?>>
+						<label for="want-fix-<?php echo the_ID(); ?>" class="form-check-label">
+							修正してほしい
+						</label>
+					</div>
+					<div class="form-check text-success text-center">
+						<input type="radio" class="form-check-input no-fix" name="jigyousya-check-<?php echo the_ID(); ?>" id="no-fix-<?php echo the_ID(); ?>" value='確認済'<?php echo checked( $checked_value, '確認済', false ); ?>>
+						<label for="no-fix-<?php echo the_ID(); ?>" class="form-check-label">
+							修正しなくていい
+						</label>
+					</div>
+				</div>
 			<?php endif; ?>
 			</div>
 		</aside>

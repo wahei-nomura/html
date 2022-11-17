@@ -141,6 +141,51 @@ $breakpoint: (
 		}
 	}
 }
+.n2-jigyousya-radiobox {
+	.form-check {
+		padding: 0;
+	}
+	label {
+		display: block;
+		cursor: pointer;
+		background-color: gray;
+		color: white;
+	}
+	input[type="radio"] {
+		display: none;
+	}
+	.no-check{
+		&:hover+label {
+			background-color: #dc3545;
+			color: white;
+		}
+		&:checked+label {
+			background-color: #dc3545;
+			color: white;
+		}
+	}
+	.want-fix{
+		&:hover+label {
+			background-color: #ffc107;
+			color: white;
+		}
+		&:checked+label {
+			background-color: #ffc107;
+			color: white;
+		}
+	}
+	.no-fix {
+		&:hover+label {
+			background-color: #198754;
+			color: white;
+		}
+		&:checked+label {
+			background-color: #198754;
+			color: white;
+		}
+	}
+}
+
 .n2-search-form {
 	input[type="text"] {
 		padding: 12px;
