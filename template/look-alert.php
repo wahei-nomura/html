@@ -32,7 +32,7 @@
 	.ledText span {
 		display: inline-block;
 		white-space: nowrap;
-		padding-left: 100%;
+		padding-left: 50%;
 		-webkit-animation-name: marquee;
 		-webkit-animation-timing-function: linear;
 		-webkit-animation-iteration-count: infinite;
