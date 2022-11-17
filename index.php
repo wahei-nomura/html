@@ -37,10 +37,16 @@ $template = ! empty( $_GET['crew'] ) ? 'crew-check' : 'front-list';
 							foreach($codes as $cdKey => $cd){
 								$search_result .= $cd;
 							}
-						if($codeKey != array_key_last($sch_prm)){
-							$search_result .= '/';
+							if($codeKey != array_key_last($sch_prm)){
+								$search_result .= '/';
+							}
 						}
-					}
+					}elseif( 'sortcode' == $key){
+						if( 'sortbycode' == $sch_prm){
+							$search_result .= 'コード順に表示';
+						}else{
+							$search_result .= '登録順に表示';
+						}
 					}else{
 						$search_result .= $sch_prm;
 					}

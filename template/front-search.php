@@ -72,6 +72,21 @@
 	</div>*/
 	?>
 	<div class="mb-3">
+		<label class="form-label">並び順選択</label><br>
+		<div class="form-check">
+			<input class="form-check-input" type="radio" name="sortcode" id="flexRadioDefault1" value="sortbyday" checked>
+			<label class="form-check-label" for="flexRadioDefault1">
+				登録順
+			</label>
+			</div>
+			<div class="form-check">
+			<input class="form-check-input" type="radio" name="sortcode" id="flexRadioDefault2" value="sortbycode">
+			<label class="form-check-label" for="flexRadioDefault2">
+				コード順
+			</label>
+			</div>	
+	</div>
+	<div class="mb-3">
 	<button type="submit" class="btn btn-primary">絞り込み</button>
 	</div>
 	<div class="mb-3">

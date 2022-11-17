@@ -47,7 +47,6 @@ class N2_Front {
 	 * @return string $query sql
 	 */
 	public function front_request( $query ) {
-		// var_dump($query);
 		if ( ! is_search() ) {
 			return $query;
 		}
@@ -173,6 +172,17 @@ class N2_Front {
 		}
 		// ここまで返礼品コード ----------------------------------------
 
+		// 並び替え------------------------------------
+		if( ! empty( $_GET['sortcode'] ) ){
+			if( 'sortbycode' == $_GET['sortcode'] ){ // 返礼品コードで並び替え
+				$where .= 'AND (';
+				$where .= "{$wpdb->postmeta}.meta_key = '返礼品コード'";
+				$where .= ')';	
+			}
+		}
+
+		// ここまで並び替え ----------------------------------------
+
 		// ここまで価格 ------------------------------------
 		// WHER句末尾連結
 		$where .= '))';
@@ -184,10 +194,15 @@ class N2_Front {
 		INNER JOIN {$wpdb->postmeta} ON {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id
 		WHERE 1 = 1 {$where}
 		GROUP BY {$wpdb->posts}.ID
-		ORDER BY {$wpdb->posts}.post_date DESC
-		LIMIT {$now_page}, 100
 		";
 
+		// 返礼品コード並び替え
+		if( ! empty( $_GET['sortcode'] ) && 'sortbycode' == $_GET['sortcode'] ){
+			$sql .= " ORDER BY {$wpdb->postmeta}.meta_value ASC";
+		}else{
+			$sql .= " ORDER BY {$wpdb->posts}.post_date DESC";
+		}
+		$sql .= " LIMIT {$now_page}, 100";
 		// 検索用GETパラメータがある場合のみ$queryを上書き
 		$query = count( $args ) > 0 ? $wpdb->prepare( $sql, ...$args ) : $sql;
 		return $query;

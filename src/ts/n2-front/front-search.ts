@@ -25,5 +25,9 @@ export default () => {
 			$('#search-code-list').addClass('d-none');
 			return false;
 		})
+		if(location.search.match(/sortcode=/)){
+			$('input[name="sortcode"]').each(function(int,val){
+			});
+		}
 	})
 }
