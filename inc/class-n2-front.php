@@ -246,7 +246,7 @@ class N2_Front {
 		$author_id = filter_input( INPUT_GET, 'author_id', FILTER_VALIDATE_INT );
 		$posts = get_posts(
 			array(
-				'post_status'    => 'any',
+				'post_status'    => 'publish',
 				'posts_per_page' => -1,
 				'author'         => $author_id,
 			)
