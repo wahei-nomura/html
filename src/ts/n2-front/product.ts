@@ -1,6 +1,6 @@
 import jQuery from "jquery";
 import { prefix, neoNengPath, ajaxUrl, homeUrl } from "../functions/index";
-import {getPortalScraping,saveScraping,getImgsScraping} from "../n2-front/front-ajax";
+import {getPortalScraping,saveScraping} from "../n2-front/front-ajax";
 // jQuery拡張用に型定義
 declare global {
 	interface JQuery {
@@ -51,14 +51,6 @@ export default () => {
 				})
 			});
 
-		}).catch(err=>{
-			console.log(err.responseText);
-		})
-	getImgsScraping(productId ,town, String(postID))
-		.done(res =>{
-			const element:HTMLInputElement = <HTMLInputElement>document.getElementById('imgs_key');
-			const key = element.value
-			saveScraping(postID,key,res);
 		}).catch(err=>{
 			console.log(err.responseText);
 		})

@@ -11,8 +11,9 @@ if ( have_posts() ) :
 	$img_dir        = str_replace( 'n2-towncode', $n2_towncode[ $town_name ]['楽天'], $n2_file_header['rakuten']['img_dir'] );
 	// DB登録用のキー
 	$scraping_meta_key = 'スクレイピング';
-	$imgs_meta_key = '商品詳細画像';
-	$product_imgs = $post_data[$imgs_meta_key] ?? array();
+	$product_imgs = $post_data[$scraping_meta_key]['楽天']['imgs']
+		?? $post_data[$scraping_meta_key]['チョイス']['imgs']
+		?? array();
 
 	// 寄付金額の表示を楽天に変えておく
 	$product_amount = $post_data[$scraping_meta_key]['楽天']['寄付額'] ?? $post_data['寄附金額'];
@@ -27,7 +28,6 @@ if ( have_posts() ) :
 				?: $post_data['商品画像'] ?? array();
 			// 田代の結果をDBへ保存
 			update_post_meta(get_the_ID(),$scraping_meta_key,$post_data[$scraping_meta_key] );
-			update_post_meta(get_the_ID(),$imgs_meta_key,$product_imgs );
 		}
 	}
 
@@ -42,7 +42,6 @@ if ( have_posts() ) :
 	<main class="wrapper">
 		<input type="hidden" id="product_id" value="<?php echo $post_data['返礼品コード']; ?>">
 		<input type="hidden" id="scraping_key" value="<?php echo $scraping_meta_key ?>">
-		<input type="hidden" id="imgs_key" value="<?php echo $imgs_meta_key ?>">
 		<a class="return-link" href="<?php echo $return_url; ?>">
 			<div class="return-btn">
 				戻る
