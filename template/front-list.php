@@ -84,19 +84,19 @@
 
 		<?php if ( ! empty( $_GET['look'] ) && ! empty( $_GET['jigyousya'] ) ) : ?>
 			<div class='n2-jigyousya-radiobox card p-2 bg-light'>
-				<div class="form-check text-danger border border-danger text-center">
+				<div class="form-check text-danger text-center">
 					<input type="radio" class="form-check-input no-check" name="jigyousya-check-<?php echo the_ID(); ?>" id="no-check-<?php echo the_ID(); ?>" value='確認未' <?php echo checked( $checked_value, '確認未', false ); ?>>
 					<label for="no-check-<?php echo the_ID(); ?>" class="form-check-label">
 					確認未
 				</label>
 				</div>
-				<div class="form-check text-warning border border-warning text-center">
+				<div class="form-check text-warning text-center">
 					<input type="radio" class="form-check-input want-fix" name="jigyousya-check-<?php echo the_ID(); ?>" id="want-fix-<?php echo the_ID(); ?>" value='修正希望' <?php echo checked( $checked_value, '修正希望', false ); ?>>
 					<label for="want-fix-<?php echo the_ID(); ?>" class="form-check-label">
 						修正してほしい
 					</label>
 				</div>
-				<div class="form-check text-success border border-success text-center">
+				<div class="form-check text-success text-center">
 					<input type="radio" class="form-check-input no-fix" name="jigyousya-check-<?php echo the_ID(); ?>" id="no-fix-<?php echo the_ID(); ?>" value='確認済'<?php echo checked( $checked_value, '確認済', false ); ?>>
 					<label for="no-fix-<?php echo the_ID(); ?>" class="form-check-label">
 						修正しなくていい
