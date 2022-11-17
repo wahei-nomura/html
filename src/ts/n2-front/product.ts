@@ -54,7 +54,7 @@ export default () => {
 		}).catch(err=>{
 			console.log(err.responseText);
 		})
-	getImgsScraping(productId ,town)
+	getImgsScraping(productId ,town, String(postID))
 		.done(res =>{
 			const element:HTMLInputElement = <HTMLInputElement>document.getElementById('imgs_key');
 			const key = element.value

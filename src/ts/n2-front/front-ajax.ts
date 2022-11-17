@@ -92,7 +92,7 @@ export const saveScraping = ( postID:number, key:string, scraping:object ) => {
         },
     })
 }
-export const getImgsScraping = ( productID:string, town:string ) => {
+export const getImgsScraping = ( productID:string, town:string, postID:string='' ) => {
 	return $.ajax({
         url: ajaxUrl(window),
         type: "GET",
@@ -101,6 +101,7 @@ export const getImgsScraping = ( productID:string, town:string ) => {
 			action: 'N2_Portal_Scraper_imgs',
             id: productID,
 			town: town,
+			postID: postID,
         },
     })
 }
