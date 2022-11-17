@@ -14,6 +14,16 @@
 		?>
 		<h2 class="display-12 p-2 border-bottom border-success border-3"><span class="text-success"><?php echo get_userdata( filter_input( INPUT_GET, 'jigyousya', FILTER_VALIDATE_INT ) )->display_name; ?></span> 様 専用確認ページ</h2>
 		<p>お手数ですが、各商品をご確認されましたら<span class="text-danger">「確認OK」</span>ボタンを押してください。（ご不明点はスチームシップまでお問い合わせください。）</p>
+		<div class="btn-group" id="n2-status-toggle-btns" role="group" aria-label="Basic checkbox toggle button group">
+			<input type="checkbox" class="btn-check" id="no-check" autocomplete="off" checked>
+			<label class="btn btn-outline-danger" for="no-check">確認未</label>
+
+			<input type="checkbox" class="btn-check" id="want-fix" autocomplete="off" checked>
+			<label class="btn btn-outline-warning" for="want-fix">修正してほしい</label>
+
+			<input type="checkbox" class="btn-check" id="no-fix" autocomplete="off" checked>
+			<label class="btn btn-outline-success" for="no-fix">修正しなくていい</label>
+		</div>
 	<?php endif; ?>
 
 	<?php get_template_part( 'template/pagination' ); ?>
