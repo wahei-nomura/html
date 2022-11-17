@@ -9,7 +9,7 @@ export default () => {
 	================================================================== */
 	jQuery(function ($) {
 		// 計算パターンを受け取ってから処理
-		const updateItemConfirm = (postId: number, confirmFlag: boolean): void => {
+		const updateItemConfirm = (postId: number, confirmValue: string): void => {
 			$.ajax({
 				url: ajaxUrl(window),
 				type: "POST",
@@ -17,7 +17,7 @@ export default () => {
 				data: {
 					action: "N2_Front_item_confirm",
 					post_id: postId,
-					confirm_flag: confirmFlag,
+					confirm_value: confirmValue,
 				},
 			}).done((res) => {
 				console.log('更新OK')
@@ -25,10 +25,13 @@ export default () => {
 				console.log(error)
 			});
 		};
-		$('.check-toggle').on('change', e => {
-			const confirmFlag = $(e.target).prop('checked')
-			updateItemConfirm(Number($(e.target).val()), confirmFlag);
-		});
+
+		$('.n2-jigyousya-radiobox input[type="radio"]').on('change', e=>{
+			const value = $(e.target).val()
+			const postId = Number($(e.target).attr('id').match(/\d+/)[0])
+
+			updateItemConfirm(postId, String(value));
+		})
 
 		// 返礼品コード絞り込み用
 

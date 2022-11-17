@@ -38,6 +38,11 @@
 				),
 				array(
 					'key' => '事業者確認',
+					'value' => '修正希望',
+					'compare' => 'LIKE',
+				),
+				array(
+					'key' => '事業者確認',
 					'compare' => 'NOT EXISTS',
 				),
 			),
@@ -45,13 +50,14 @@
 	);
 
 	foreach ( $posts as $post ) :
+		$checked_value = ! empty( get_post_meta( $post->ID, '事業者確認', true ) ) ? get_post_meta( $post->ID, '事業者確認', true )[0] : 確認未;
 		?>
 		<tr>
 			<td><a href="<?php echo home_url() . '?jigyousya=' . $post->post_author . '&look=true'; ?>" target='_blank'><?php echo get_the_author_meta( 'display_name', $post->post_author ); ?></a></td>
 			<td><?php echo get_post_meta( $post->ID, '返礼品コード', true ); ?></td>
 			<td><a href="<?php echo get_permalink( $post->ID ); ?>&look=true" target='_blank'><?php echo $post->post_title; ?></a></td>
 			<td><?php echo $post->post_date; ?></td>
-			<td class='text-center'>未</td>
+			<td class='text-center <?php echo '修正希望' === $checked_value ? 'bg-danger text-white' : ''; ?>'><?php echo $checked_value; ?></td>
 			<td>
 				<?php echo ! empty( get_post_meta( $post->ID, '事業者確認', true ) ) ? get_post_meta( $post->ID, '事業者確認', true )[1] : '更新なし'; ?><br>
 				<?php echo ! empty( get_post_meta( $post->ID, '事業者確認', true ) ) ? get_post_meta( $post->ID, '事業者確認', true )[2] : ''; ?>
