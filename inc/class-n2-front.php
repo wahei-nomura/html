@@ -244,16 +244,16 @@ class N2_Front {
 	 */
 	public function search_code() {
 		$author_id = filter_input( INPUT_GET, 'author_id', FILTER_VALIDATE_INT );
-		$posts = get_posts(
+		$ids = get_posts(
 			array(
-				'post_status'    => 'publish',
+				'fields'         => 'ids',
 				'posts_per_page' => -1,
 				'author'         => $author_id,
 			)
 		);
 		$codes = array();
-		foreach ( $posts as $post ) {
-			$codes[ $post->ID ] = get_post_meta( $post->ID, '返礼品コード', true );
+		foreach ( $ids as $id ) {
+			$codes[ $id ] = get_post_meta( $id, '返礼品コード', true );
 		};
 
 		echo wp_json_encode( $codes );
