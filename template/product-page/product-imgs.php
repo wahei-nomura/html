@@ -20,14 +20,5 @@
 			<span class="product-img-section">No Image</span>
 		</div>
 	</div>
-	<div class="wrapper-img-list">
-		<ul class='sub-imgs'>
-		<?php for ( $i = 0; $i < 5; $i++ ) : ?>
-			<div class="product-img-wrap">
-				<span class="product-img-section">No Image</span>
-			</div>
-		<?php endfor; ?>
-		</ul>
-	</div>
 </section>
 <?php endif; ?>

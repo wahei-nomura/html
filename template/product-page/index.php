@@ -82,7 +82,7 @@ if ( have_posts() ) :
 		<!-- 商品詳細 -->
 		<?php # N2_Functions::get_template_part_with_args( 'template/product-page/product-info', '', $post_data ); ?>
 		<!-- ポータル比較 -->
-		<?php N2_Functions::get_template_part_with_args( 'template/product-page/product-scraping', '', $post_data[$scraping_meta_key] ); ?>
+		<?php N2_Functions::get_template_part_with_args( 'template/product-page/product-comparison', '', $post_data[$scraping_meta_key] ); ?>
 
 		<!-- ポータルサイト一覧 -->
 		<?php N2_Functions::get_template_part_with_args( 'template/product-page/portal-links', '', $post_data[$scraping_meta_key] ); ?>
