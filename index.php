@@ -1,9 +1,15 @@
 <?php
 /**
- * search.php
+ * index.php
  *
  * @package neoneng
  */
+
+// ネットワークトップサイト
+if ( 1 === get_current_blog_id() ) {
+	get_template_part( 'template/all-town' );
+	exit;
+}
 
 $template = ! empty( $_GET['crew'] ) ? 'crew-check' : 'front-list';
 
