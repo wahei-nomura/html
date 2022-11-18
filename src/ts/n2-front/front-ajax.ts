@@ -44,11 +44,11 @@ export default () => {
 					author_id: authorId,
 				},
 			}).done((res) => {
-				for(let key in res){
+				Object.keys(res).forEach(key=>{
 					if(res[key] !== ''){
-						$('.search-code-list').append($(`<option value="${key}">${res[key]}</option>`))
+						$('.search-code-list').append($(`<option value="${res[key]}">${key}</option>`))
 					}
-				}
+				})
 			}).fail(error => {
 				console.log(error)
 			});

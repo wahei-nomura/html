@@ -253,8 +253,12 @@ class N2_Front {
 		);
 		$codes = array();
 		foreach ( $ids as $id ) {
-			$codes[ $id ] = get_post_meta( $id, '返礼品コード', true );
+			if ( '' !== get_post_meta( $id, '返礼品コード', true ) ) {
+				$codes[ get_post_meta( $id, '返礼品コード', true ) ] = $id;
+			}
 		};
+
+		ksort( $codes );
 
 		echo wp_json_encode( $codes );
 
