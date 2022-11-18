@@ -74,13 +74,13 @@
 	<div class="mb-3">
 		<label class="form-label">並び順選択</label><br>
 		<div class="form-check">
-			<input class="form-check-input" type="radio" name="sortcode" id="flexRadioDefault1" value="sortbyday" checked>
+			<input class="form-check-input" type="radio" name="sortcode" id="flexRadioDefault1" value="sortbyday" <?php if( empty($_GET['sortcode']) || (!empty($_GET['sortcode']) && $_GET['sortcode'] === "sortbyday") ){ echo 'checked'; } ?>>
 			<label class="form-check-label" for="flexRadioDefault1">
 				登録順
 			</label>
 			</div>
 			<div class="form-check">
-			<input class="form-check-input" type="radio" name="sortcode" id="flexRadioDefault2" value="sortbycode">
+			<input class="form-check-input" type="radio" name="sortcode" id="flexRadioDefault2" value="sortbycode" <?php if( !empty($_GET['sortcode']) && $_GET['sortcode'] === "sortbycode" ){ echo 'checked'; } ?>>
 			<label class="form-check-label" for="flexRadioDefault2">
 				コード順
 			</label>

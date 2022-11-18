@@ -25,16 +25,5 @@ export default () => {
 			$('#search-code-list').addClass('d-none');
 			return false;
 		})
-		if(location.search.match(/sortcode=/)){
-			const urlSearchParams = new URLSearchParams(window.location.search);
-			const getParams = Object.fromEntries(urlSearchParams.entries());
-			$('input[name="sortcode"]').prop('checked',false);
-			$('input[name="sortcode"]').each(function(int,val){
-				if(getParams.sortcode == $(this).val()){
-					$(this).prop('checked',true);
-				}
-
-			});
-		}
 	})
 }
