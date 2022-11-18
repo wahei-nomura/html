@@ -6,11 +6,12 @@
  */
 
 // ネットワークトップサイト
-if ( 1 === get_current_blog_id() ) {
+if ( is_main_site() ) {
 	if ( 'wp-multi.ss.localhost' === get_network()->domain || in_array( $_SERVER['REMOTE_ADDR'], N2_IPS ) ) {
 		get_template_part( 'template/all-town' );
+	} else {
+		echo "このページにはアクセスできません（{$_SERVER['REMOTE_ADDR']}）";
 	}
-	echo "このページにはアクセスできません（{$_SERVER['REMOTE_ADDR']}）";
 	exit;
 }
 
