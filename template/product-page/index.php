@@ -11,26 +11,24 @@ if ( have_posts() ) :
 	$img_dir        = str_replace( 'n2-towncode', $n2_towncode[ $town_name ]['楽天'], $n2_file_header['rakuten']['img_dir'] );
 	// DB登録用のキー
 	$scraping_meta_key = 'スクレイピング';
-	$product_imgs = $post_data[$scraping_meta_key]['楽天']['imgs']
-		?? $post_data[$scraping_meta_key]['チョイス']['imgs']
-		?? array();
-
-	// 寄付金額の表示を楽天に変えておく
-	$product_amount = $post_data[$scraping_meta_key]['楽天']['寄付額'] ?? $post_data['寄附金額'];
 
 	if ( isset( $post_data['返礼品コード'] ) ) {
-		// 田代する　------------------------------------------------------------------------
+		// 初回田代　------------------------------------------------------------------------
 		if ( ! isset( $post_data[$scraping_meta_key] ) ){
 			// ポータル田代
 			$post_data[$scraping_meta_key] = apply_filters( 'wp_ajax_n2_tashiro\N2_Portal_Scraper', array(), $town_name, $post_data['返礼品コード'] );
-			// 画像リンク田代
-			$product_imgs = apply_filters( 'wp_ajax_n2_tashiro\N2_Portal_Scraper_imgs', array(), $town_name, $post_data['返礼品コード'] )
-				?: $post_data['商品画像'] ?? array();
+			
 			// 田代の結果をDBへ保存
 			update_post_meta(get_the_ID(),$scraping_meta_key,$post_data[$scraping_meta_key] );
 		}
 	}
-
+	// 寄付金額の表示を楽天に変えておく
+	$product_amount = $post_data[$scraping_meta_key]['楽天']['寄付額'] ?? $post_data['寄附金額'];
+	// 商品画像
+	$product_imgs = $post_data[$scraping_meta_key]['楽天']['imgs']
+		?? $post_data[$scraping_meta_key]['チョイス']['imgs']
+		?? $post_data['商品画像']
+		?? array();
 	// 事業者確認フラグ用　------------------------------------------------------------------------
 	$check_param   = get_post_meta( get_the_ID(), '事業者確認', true );
 	$checked_value = empty( $check_param ) ? '確認未' : $check_param[0];
