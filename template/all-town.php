@@ -28,7 +28,7 @@ $town_datas = array();
 	foreach ( $all_site as $site ) :
 		$site_details = get_blog_details( $site->blog_id );
 		if ( '1' !== $site->blog_id ) :
-			$town_datas[ $site_details->blogname ] = $site_details->siteurl . '/wp-admin/admin-ajax.php';
+			$town_datas[ $site_details->blogname ] = $site_details->siteurl;
 
 ?>
 	<tr>
@@ -50,16 +50,18 @@ $town_datas = array();
 		const townDatas = <?php echo $town_datas; ?>;
 		// console.log(townDatas)
 		for( town in townDatas ){
+			console.log(town)
 			$.ajax({
-				url: townDatas[town],
+				url: townDatas[town] + '/wp-admin/admin-ajax.php',
 				dataType: "json",
 				data: {
 					action: "N2_All_Town_getdata",
 					townName: town,
+					siteUrl: townDatas[town],
 				},
 			}).done(res=>{
 				console.log(res)
-				$(`#${res}`).text(res)
+				$(`#${res.townName}`).html(`<a href="${res.townUrl}?crew=check" target="_blank">${res.count}</a>`)
 			})
 		}
 	})
