@@ -54,10 +54,30 @@ class N2_All_Town {
 			)
 		);
 
+		$comments = get_comments(
+			array(
+				'type'    => 'comment',
+				'orderby' => 'comment_post_ID',
+			)
+		);
+
+		$comment_count = 0;
+		$now_id = '';
+		foreach ( $comments as $comment ) {
+			if ( $now_id === $comment->comment_post_ID ) {
+				continue;
+			}
+			$now_id = $comment->comment_post_ID;
+			if ( 'スチームシップ' !== $comment->comment_author ) {
+				$comment_count ++;
+			}
+		}
+
 		$result = array(
-			'townName' => $town_name,
-			'count'    => count( $posts ),
-			'townUrl'  => $site_url,
+			'townName'     => $town_name,
+			'count'        => count( $posts ),
+			'townUrl'      => $site_url,
+			'commentCount' => $comment_count,
 		);
 
 		echo wp_json_encode( $result );

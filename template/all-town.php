@@ -15,7 +15,7 @@ $town_datas = array();
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 <script src="https://code.jquery.com/jquery-3.6.1.js" integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI=" crossorigin="anonymous"></script>
 
-<table class="table table-dark table-hover">
+<table class="table table-dark table-hover text-center fs-4">
   <thead>
 	<tr>
 		<th scope="col">自治体</th>
@@ -32,9 +32,9 @@ $town_datas = array();
 
 ?>
 	<tr>
-		<td><a href="<?php echo $site_details->siteurl; ?>" target="_blank"><?php echo $site_details->blogname; ?></a></td>
+		<td><a class="link-info" href="<?php echo $site_details->siteurl; ?>" target="_blank"><?php echo $site_details->blogname; ?></a></td>
 		<td id="<?php echo $site_details->blogname; ?>"></td>
-		<td></td>
+		<td id="<?php echo $site_details->blogname . '-comment'; ?>"></td>
 	</tr>
 	<?php
 		endif;
@@ -60,8 +60,8 @@ $town_datas = array();
 					siteUrl: townDatas[town],
 				},
 			}).done(res=>{
-				console.log(res)
-				$(`#${res.townName}`).html(`<a href="${res.townUrl}?crew=check" target="_blank">${res.count}</a>`)
+				$(`#${res.townName}`).html(`<a href="${res.townUrl}?crew=check" target="_blank" class="${res.count > 0 ? 'link-warning' : 'link-info'}">${res.count}</a>`)
+				$(`#${res.townName}-comment`).html(`<a href="${res.townUrl}?crew=comment" target="_blank"  class="${res.commentCount > 0 ? 'link-warning' : 'link-info'}">${res.commentCount}</a>`)
 			})
 		}
 	})
