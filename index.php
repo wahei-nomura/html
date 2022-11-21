@@ -1,9 +1,19 @@
 <?php
 /**
- * search.php
+ * index.php
  *
  * @package neoneng
  */
+
+// ネットワークトップサイト
+if ( is_main_site() ) {
+	if ( 'wp-multi.ss.localhost' === get_network()->domain || in_array( $_SERVER['REMOTE_ADDR'], N2_IPS ) ) {
+		get_template_part( 'template/all-town' );
+	} else {
+		echo "このページにはアクセスできません（{$_SERVER['REMOTE_ADDR']}）";
+	}
+	exit;
+}
 
 $template = ! empty( $_GET['crew'] ) ? 'crew-check' : 'front-list';
 
