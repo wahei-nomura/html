@@ -27,6 +27,7 @@ $breakpoint: (
     margin: 0 auto 3rem;
     max-width: 75%;
     padding: 2rem 0 1rem;
+	word-wrap: break-all;
 	@include mq(sp){
 		max-width: 96vw;
 	}
