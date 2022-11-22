@@ -47,7 +47,6 @@ class N2_Front {
 	 * @return string $query sql
 	 */
 	public function front_request( $query ) {
-		// var_dump($query);
 		if ( ! is_search() ) {
 			return $query;
 		}
@@ -67,6 +66,7 @@ class N2_Front {
 					{$wpdb->posts}.post_status = 'publish'
 					)
 		";
+		$order = "{$wpdb->posts}.post_date DESC";
 
 		// $wpdbのprepareでプレイスフォルダーに代入するための配列
 		$args = array();
@@ -173,6 +173,19 @@ class N2_Front {
 		}
 		// ここまで返礼品コード ----------------------------------------
 
+		// 並び替え------------------------------------
+		if( ! empty( $_GET['sortcode'] ) ){
+			if( 'sortbycode' == $_GET['sortcode'] ){ // 返礼品コードで並び替え
+				$where .= 'AND (';
+				$where .= "{$wpdb->postmeta}.meta_key = '返礼品コード'";
+				$where .= ')';
+				// order文入れ替え(コード順(昇順)に)
+				$order = "{$wpdb->postmeta}.meta_value ASC";
+			}
+		}
+
+		// ここまで並び替え ----------------------------------------
+
 		// ここまで価格 ------------------------------------
 		// WHER句末尾連結
 		$where .= '))';
@@ -184,7 +197,7 @@ class N2_Front {
 		INNER JOIN {$wpdb->postmeta} ON {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id
 		WHERE 1 = 1 {$where}
 		GROUP BY {$wpdb->posts}.ID
-		ORDER BY {$wpdb->posts}.post_date DESC
+		ORDER BY {$order}
 		LIMIT {$now_page}, 100
 		";
 

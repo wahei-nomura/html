@@ -72,6 +72,27 @@
 	</div>*/
 	?>
 	<div class="mb-3">
+		<label class="form-label">並び順選択</label><br>
+		<div class="form-check">
+			<?php 
+				$sort_key = 'sortbyday'; // 並び替え初期値は登録順
+				if( !empty($_GET['sortcode']) ){
+					$sort_key = $_GET['sortcode'];
+				}
+			?>
+			<input class="form-check-input" type="radio" name="sortcode" id="flexRadioDefault1" value="sortbyday" <?php checked($sort_key, "sortbyday"); ?>>
+			<label class="form-check-label" for="flexRadioDefault1">
+				登録順
+			</label>
+			</div>
+			<div class="form-check">
+			<input class="form-check-input" type="radio" name="sortcode" id="flexRadioDefault2" value="sortbycode" <?php checked($sort_key, "sortbycode"); ?>>
+			<label class="form-check-label" for="flexRadioDefault2">
+				コード順
+			</label>
+			</div>	
+	</div>
+	<div class="mb-3">
 	<button type="submit" class="btn btn-primary">絞り込み</button>
 	</div>
 	<div class="mb-3">
