@@ -35,6 +35,8 @@
 			'meta_compare'  => 'LIKE',
 		)
 	);
+		
+	var_dump($ids);
 
 	$posts = get_posts(
 		array(
@@ -49,6 +51,8 @@
 			),
 		)
 	);
+	
+	var_dump($posts);
 
 	foreach ( $posts as $post ) :
 		$checked_value = ! empty( get_post_meta( $post->ID, '事業者確認', true ) ) ? get_post_meta( $post->ID, '事業者確認', true )[0] : 確認未;
