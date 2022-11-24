@@ -115,6 +115,10 @@
 							</select>
 						</div>
 					</div>
+					<div>
+						<input type="file" name="image" id="image">
+					</div>
+
 					<div class="row">
 						<input name="submit" type="submit" class="btn btn-outline-primary" value="コメントを送信">
 						<input type="hidden" name="comment_post_ID" value="<?php echo $post->ID; ?>" id="comment_post_ID">
