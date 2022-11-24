@@ -7,6 +7,14 @@
 
 ?>
 <section class="product-sidebar">
+	<div class="accordion">
+	<div class="accordion-item">
+	<p class="accordion-header" id="headingOne"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+        検索
+      </button>
+</p>
+<div id="collapseOne" class="accordion-collapse collapse<?php if(!wp_is_mobile()){ echo ' show';} ?>" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+
 	<?php
 		$home_url = get_home_url() . '/';
 	?>
@@ -95,8 +103,11 @@
 	<div class="mb-3">
 	<button type="submit" class="btn btn-primary">絞り込み</button>
 	</div>
-	<div class="mb-3">
+	<div class="mb-3 mb-sm-0">
 	<button type="reset" class="btn btn-secondary front-search-clear">条件クリア</button>
 	</div>
 	</form>
+			</div><!--accordion-collapse-->
+	</div><!--accordion-item-->
+			</div><!--accordion-->
 </section>
