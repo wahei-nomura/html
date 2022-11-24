@@ -43,7 +43,6 @@
 			'post_type'     => 'post',
 			'posts_per_page' => -1,
 			'exclude'       => implode( ',', $ids ),
-			'fields'        => 'ids,post_author,post_title,post_date',
 			),
 		)
 	);
