@@ -21,11 +21,11 @@
 
 	<form method="get" action="<?php echo $home_url; ?>" class="n2-search-form">
 
-  <div class="mb-3 mb-sm-0 me-sm-3">
+  <div class="mb-3">
 	<label for="inputFreeword" class="form-label">フリーワード検索</label>
 	<input type="text" class="s form-control" id="inputFreeword" name="s" placeholder="キーワードを入力" value="<?php echo empty( $_GET['s'] ) ? '' : $_GET['s']; ?>">
   </div>
-  <div class="mb-3 mb-sm-0 me-sm-3">
+  <div class="mb-3">
   <?php
 			// 事業者検索 ===============================================================
 			$show_author         = '';
@@ -79,7 +79,7 @@
 		<input type="checkbox" name="portal_furunavi" class="portalsite" id="portal_furunavi" value="1"><label for="portal_furunavi">ふるなび</label>
 	</div>*/
 	?>
-	<div class="mb-3 mb-sm-0 me-sm-3">
+	<div class="mb-3">
 		<label class="form-label">並び順選択</label><br>
 		<div class="form-check">
 			<?php 
@@ -100,7 +100,7 @@
 			</label>
 			</div>	
 	</div>
-	<div class="mb-3 mb-sm-0 me-sm-3">
+	<div class="mb-3">
 	<button type="submit" class="btn btn-primary">絞り込み</button>
 	</div>
 	<div class="mb-3 mb-sm-0">

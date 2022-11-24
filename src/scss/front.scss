@@ -10,11 +10,12 @@ $breakpoint: (
 
 .product-wrap {
 	display: flex;
-	justify-content: space-around;
+	justify-content: end;
 	max-width: 75%;
 	margin: 0 auto;
 	@include mq(sp) {
 		flex-direction: column-reverse;
+		justify-content: space-around;
 		max-width: 96vw;
 	}
 	section {
@@ -35,17 +36,17 @@ $breakpoint: (
 .product-sidebar {
 	position: fixed;
 	width: 100%;
-	bottom: 0;
 	z-index: 5;
+	@include mq(pc){
+		top: 8rem;
+		left: 12.5%;
+		width: 15%;
+	}
 	@include mq(sp){
 		width: calc(100% - 4vw);
+		bottom: 0;
 	}
 	form{
-		@include mq(pc){
-			display: flex;
-			max-width: 75%;
-			margin: 0 auto;
-		}
 		.form-check{
 			@include mq(pc){
 				display: inline-block;
@@ -53,14 +54,22 @@ $breakpoint: (
 		}
 	}
 	.accordion{
+		.accordion-header{
+			@include mq(pc){
+				display: none;
+			}
+		}
 		.accordion-collapse{
 			padding: 1%;
+			@include mq(pc){
+				padding: 1% 4%;
+			}
 		}
 	}
 
 }
 .product-list-wrap {
-	width: 100%;
+	width: 80%;
 	padding: 1%;
 	@include mq(sp) {
 		width: 100%;
