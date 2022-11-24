@@ -63,6 +63,16 @@
 					}
 				}
 
+				//詳細ページで保存された楽天画像
+				$get_meta_rakuten_pic =""; 
+				$get_post_meta =  get_post_meta(get_the_ID(), 'スクレイピング', true);
+				if( !empty($get_post_meta) ){
+					$meta_imgs = array_column( $get_post_meta, 'imgs');
+					if( !empty($meta_imgs[0]) ){
+						$get_meta_rakuten_pic = $meta_imgs[0][0];
+					}
+				}
+
 				// 事業者確認フラグ用　------------------------------------------------------------------------
 				$check_param   = get_post_meta( get_the_ID(), '事業者確認', true );
 				$checked_value = empty( $check_param ) ? '確認未' : $check_param[0];
@@ -73,7 +83,7 @@
 		<li class="<?php echo $post_status; ?>">
 		<a href="<?php echo $item_link; ?>">
 			<div class="product-img-wrap">
-				<div class="product-img-box" style="background-image:url( <?php echo $new_rakuten_pic_ex; ?>  ),url( <?php echo $new_rakuten_pic; ?>  ), url(<?php echo $new_meta_pic; ?>); background-size:cover;"></div>
+				<div class="product-img-box" style="background-image:url( <?php echo $new_rakuten_pic_ex; ?>  ),url( <?php echo $new_rakuten_pic; ?>  ), url(<?php echo $new_meta_pic; ?>), url(<?php echo $get_meta_rakuten_pic; ?>); background-size:cover;"></div>
 				<span class="product-img-section">No Image</span>
 			</div>
 			<span class="product-list-item">
