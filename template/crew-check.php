@@ -47,7 +47,7 @@
 				'ID',
 				'post_author',
 				'post_title',
-				'post_data',
+				'post_date',
 			),
 		)
 	);
