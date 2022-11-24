@@ -33,14 +33,34 @@ $breakpoint: (
 	}
 }
 .product-sidebar {
-	width: 20%;
-	padding: 1% 4% 1% 1%;
-	@include mq(sp) {
-		width: 100%;
+	position: fixed;
+	width: 100%;
+	bottom: 0;
+	z-index: 5;
+	@include mq(sp){
+		width: calc(100% - 4vw);
 	}
+	form{
+		@include mq(pc){
+			display: flex;
+			max-width: 75%;
+			margin: 0 auto;
+		}
+		.form-check{
+			@include mq(pc){
+				display: inline-block;
+			}
+		}
+	}
+	.accordion{
+		.accordion-collapse{
+			padding: 1%;
+		}
+	}
+
 }
 .product-list-wrap {
-	width: 80%;
+	width: 100%;
 	padding: 1%;
 	@include mq(sp) {
 		width: 100%;

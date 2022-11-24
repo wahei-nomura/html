@@ -7,17 +7,25 @@
 
 ?>
 <section class="product-sidebar">
+	<div class="accordion">
+	<div class="accordion-item">
+	<p class="accordion-header" id="headingOne"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+        検索
+      </button>
+</p>
+<div id="collapseOne" class="accordion-collapse collapse<?php if(!wp_is_mobile()){ echo ' show';} ?>" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+
 	<?php
 		$home_url = get_home_url() . '/';
 	?>
 
 	<form method="get" action="<?php echo $home_url; ?>" class="n2-search-form">
 
-  <div class="mb-3">
+  <div class="mb-3 mb-sm-0 me-sm-3">
 	<label for="inputFreeword" class="form-label">フリーワード検索</label>
 	<input type="text" class="s form-control" id="inputFreeword" name="s" placeholder="キーワードを入力" value="<?php echo empty( $_GET['s'] ) ? '' : $_GET['s']; ?>">
   </div>
-  <div class="mb-3">
+  <div class="mb-3 mb-sm-0 me-sm-3">
   <?php
 			// 事業者検索 ===============================================================
 			$show_author         = '';
@@ -71,7 +79,7 @@
 		<input type="checkbox" name="portal_furunavi" class="portalsite" id="portal_furunavi" value="1"><label for="portal_furunavi">ふるなび</label>
 	</div>*/
 	?>
-	<div class="mb-3">
+	<div class="mb-3 mb-sm-0 me-sm-3">
 		<label class="form-label">並び順選択</label><br>
 		<div class="form-check">
 			<?php 
@@ -92,11 +100,14 @@
 			</label>
 			</div>	
 	</div>
-	<div class="mb-3">
+	<div class="mb-3 mb-sm-0 me-sm-3">
 	<button type="submit" class="btn btn-primary">絞り込み</button>
 	</div>
-	<div class="mb-3">
+	<div class="mb-3 mb-sm-0">
 	<button type="reset" class="btn btn-secondary front-search-clear">条件クリア</button>
 	</div>
 	</form>
+			</div><!--accordion-collapse-->
+	</div><!--accordion-item-->
+			</div><!--accordion-->
 </section>
