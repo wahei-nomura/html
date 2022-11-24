@@ -48,7 +48,7 @@
 		$checked_value = ! empty( get_post_meta( $post->ID, '事業者確認', true ) ) ? get_post_meta( $post->ID, '事業者確認', true )[0] : 確認未;
 		?>
 		<tr>
-			<?php echo $post->post_title; ?>
+			<td><?php echo $post->post_title; ?></td>
 		</tr>
 	
 	<?php endforeach; ?>
