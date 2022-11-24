@@ -46,6 +46,11 @@ $breakpoint: (
 		width: calc(100% - 4vw);
 		bottom: 0;
 	}
+	.search-result & {
+		@include mq(pc){
+			top: 16rem;
+		}
+	}
 	form{
 		.form-check{
 			@include mq(pc){

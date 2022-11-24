@@ -68,7 +68,7 @@ $template = ! empty( $_GET['crew'] ) ? 'crew-check' : 'front-list';
 		}
 	?>
 
-<article class="product-wrap search">
+<article class="product-wrap search<?php if(is_search()){ echo ' search-result'; } ?>">
 	<?php
 	if ( empty( $_GET['look'] ) && empty( $_GET['crew'] ) ) {
 		get_template_part( 'template/front-search' );
