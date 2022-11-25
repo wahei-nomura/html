@@ -83,14 +83,14 @@
 						<div class='fs-4'><?php echo $comment->comment_author; ?></div>
 						<div><?php echo $comment->comment_date; ?></div>
 					</div>
-					<div class='border border-primary p-2 rounded-2 bg-white'>
-						<p><?php echo $comment->comment_content; ?></p>
+					<div class='d-flex justify-content-between'>
+						<p class='col-<?php echo ! empty( get_comment_meta( $comment->comment_ID, 'image', true ) ) ? '10' : '12'; ?> border border-primary p-2 rounded-2 bg-white'><?php echo $comment->comment_content; ?></p>
+						<?php if ( ! empty( get_comment_meta( $comment->comment_ID, 'image', true ) ) ) : ?>
+							<div class='col-1'>
+								<a href="<?php echo get_comment_meta( $comment->comment_ID, 'image', true); ?>" target="_blank"><img style="width: 100%;" src="<?php echo get_comment_meta( $comment->comment_ID, 'image', true); ?>" alt=""></a>
+							</div>
+						<?php endif ?>
 					</div>
-					<?php if ( ! empty( get_comment_meta( $comment->comment_ID, 'image', true ) ) ) : ?>
-						<div>
-							<img src="<?php echo get_comment_meta( $comment->comment_ID, 'image', true); ?>" alt="">
-						</div>
-					<?php endif ?>
 				</li>
 				<?php endforeach; ?>
 			</ul>
