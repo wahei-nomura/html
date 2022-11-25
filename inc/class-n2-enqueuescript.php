@@ -77,7 +77,7 @@ class N2_Enqueuescript {
 		// $email = NENG_OPTION['contact']['email'];
 		echo "<noscript>
 		<pre style='padding: 16px; font-size: 18px;'>
-		<span style='color:red;font-weight:bold;'>※ NENGシステムをご利用になるためにはブラウザのJavaScript機能をオンにする必要があります。</span><br>
+		<span style='color:red;font-weight:bold;'>※ NEONENGシステムをご利用になるためにはブラウザのJavaScript機能をオンにする必要があります。</span><br>
 		JavaScriptをオンにする方法はこちらの<a href='https://support.biglobe.ne.jp/settei/browser/chrome/chrome-010.html#:~:text=%E3%83%A1%E3%83%8B%E3%83%A5%E3%83%BC%E4%B8%8B%E3%81%AE%5B%E8%A8%AD%E5%AE%9A%5D%E3%82%92,%E3%82%92%5B%E3%82%AA%E3%83%B3%5D%E3%81%AB%E3%81%99%E3%82%8B%E3%80%82'>リンク</a>をご覧ください。<br><br>
 		ご不明な場合は以下までご連絡くださいますようお願いいたします。<br><br>
 		【株式会社スチームシップ】<br>
