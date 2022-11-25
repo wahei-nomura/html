@@ -86,6 +86,11 @@
 					<div class='border border-primary p-2 rounded-2 bg-white'>
 						<p><?php echo $comment->comment_content; ?></p>
 					</div>
+					<?php if ( ! empty( get_comment_meta( $comment->comment_ID, 'image', true ) ) ) : ?>
+						<div>
+							<img src="<?php echo get_comment_meta( $comment->comment_ID, 'image', true); ?>" alt="">
+						</div>
+					<?php endif ?>
 				</li>
 				<?php endforeach; ?>
 			</ul>
@@ -99,7 +104,7 @@
 		<div class='card shadow text-dark bg-light mb-3 p-4'>
 			<div class='card-body'>
 				<h3 class='card-title text-primary mb-5'>返礼品に関する変更要望など <small><a rel="nofollow" href="/ojika/?p=3990&amp;look=true#respond" style="display:none;">コメントをキャンセル</a></small></h3>
-				<form action="<?php echo home_url( '/wp-comments-post.php' ); ?>" method="post" id="commentform" class="comment-form">
+				<form action="<?php echo home_url( '/wp-comments-post.php' ); ?>" method="post" id="commentform" class="comment-form" enctype="multipart/form-data">
 					<div class="row mb-3">
 						<label class='col-sm-2 col-form-label col-form-label-sm fs-5'>内容</label>
 						<div class='col-sm-10'>
@@ -115,8 +120,8 @@
 							</select>
 						</div>
 					</div>
-					<div>
-						<input type="file" name="image" id="image">
+					<div class="row mb-5">
+						<input type="file" name="image" id="image" class="form-control" multiple="false">
 					</div>
 
 					<div class="row">
