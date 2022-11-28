@@ -33,6 +33,7 @@ $incs = array(
 	'class-n2-front',
 	'class-n2-img-download',
 	'class-n2-all-town',
+	'class-n2-front-comment',
 );
 foreach ( $incs as $name ) {
 	require_once get_theme_file_path() . "/inc/{$name}.php";
