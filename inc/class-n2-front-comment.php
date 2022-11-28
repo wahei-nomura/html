@@ -44,8 +44,8 @@ class N2_Front_Comment {
 		}
 
 		$field_name = 'image';
-		$post_id = 0;
-		$ids = array();
+		$post_id    = 0;
+		$ids        = array();
 
 		$attachments = $_FILES[ $field_name ];
 
@@ -56,13 +56,14 @@ class N2_Front_Comment {
 		$sizes       = (array) $attachments['size'];
 
 		foreach ( $names as $key => $value ) {
-			$file                  = array(
+			$file = array(
 				'name'     => $value,
 				'type'     => $types[ $key ],
 				'tmp_name' => $tmp_names[ $key ],
 				'error'    => $error_codes[ $key ],
 				'size'     => $sizes[ $key ],
 			);
+
 			$_FILES[ $field_name ] = $file;
 
 			$attachment_id = media_handle_upload( $field_name, $post_id );
