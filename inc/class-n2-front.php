@@ -36,7 +36,7 @@ class N2_Front {
 		add_action( "wp_ajax_{$this->cls}_search_code", array( $this, 'search_code' ) );
 		add_action( 'pre_get_posts', array( $this, 'change_posts_per_page' ) );
 		add_filter( 'comments_open', array( $this, 'commets_open' ), 10, 2 );
-		add_filter( 'comment_post_redirect', array( $this, 'comment_post_redirect') );
+		add_filter( 'comment_post_redirect', array( $this, 'comment_post_redirect' ) );
 	}
 
 
@@ -52,13 +52,13 @@ class N2_Front {
 		}
 		global $wpdb;
 		global $template;
-		$temp_name = basename($template);
+		$temp_name = basename( $template );
 		// 最終的に$query内に代入するWHERE句
-		$page_number = 100;
+		$page_number  = 100;
 		$current_pgae = get_query_var( 'paged' );  // ページ数取得
-		$current_pgae = $current_pgae == 0 ? '1' : $current_pgae;
-		$now_page = ($current_pgae -1 ) * $page_number;
-		$where = "
+		$current_pgae = 0 === $current_pgae ? '1' : $current_pgae;
+		$now_page     = ( $current_pgae - 1 ) * $page_number;
+		$where        = "
 		AND (
 			(
 				{$wpdb->posts}.post_type = 'post'
@@ -66,7 +66,7 @@ class N2_Front {
 					{$wpdb->posts}.post_status = 'publish'
 					)
 		";
-		$order = "{$wpdb->posts}.post_date DESC";
+		$order        = "{$wpdb->posts}.post_date DESC";
 
 		// $wpdbのprepareでプレイスフォルダーに代入するための配列
 		$args = array();
@@ -160,22 +160,22 @@ class N2_Front {
 
 		// 返礼品コード絞り込み------------------------------------
 		if ( ! empty( $_GET['返礼品コード'] ) ) {
-			$code_arr = $_GET['返礼品コード'];
-				$where   .= 'AND (';
-				foreach ( $code_arr as $key => $code ) {
-					if ( 0 !== $key ) {
-						$where .= ' OR '; // 複数返礼品コードをOR検索(前後の空白必須)
-					}
-					$where .= "{$wpdb->posts}.ID = '%s'";
-					array_push( $args, $code );
+			$code_arr   = $_GET['返礼品コード'];
+				$where .= 'AND (';
+			foreach ( $code_arr as $key => $code ) {
+				if ( 0 !== $key ) {
+					$where .= ' OR '; // 複数返礼品コードをOR検索(前後の空白必須)
 				}
+				$where .= "{$wpdb->posts}.ID = '%s'";
+				array_push( $args, $code );
+			}
 				$where .= ')';
 		}
 		// ここまで返礼品コード ----------------------------------------
 
 		// 並び替え------------------------------------
-		if( ! empty( $_GET['sortcode'] ) ){
-			if( 'sortbycode' == $_GET['sortcode'] ){ // 返礼品コードで並び替え
+		if ( ! empty( $_GET['sortcode'] ) ) {
+			if ( 'sortbycode' == $_GET['sortcode'] ) { // 返礼品コードで並び替え
 				$where .= 'AND (';
 				$where .= "{$wpdb->postmeta}.meta_key = '返礼品コード'";
 				$where .= ')';
@@ -212,10 +212,10 @@ class N2_Front {
 	 */
 	public function update_item_confirm() {
 		date_default_timezone_set( 'Asia/Tokyo' );
-		$post_id      = filter_input( INPUT_POST, 'post_id', FILTER_SANITIZE_NUMBER_INT );
+		$post_id       = filter_input( INPUT_POST, 'post_id', FILTER_SANITIZE_NUMBER_INT );
 		$confirm_value = filter_input( INPUT_POST, 'confirm_value' );
-		$is_ssoffice  = in_array( $_SERVER['REMOTE_ADDR'], N2_IPS ) ? 'ssofice' : 'no-ssofice';
-		update_post_meta( $post_id, '事業者確認', array( $confirm_value, date( 'Y-m-d G:i:s' ) , $is_ssoffice ) );
+		$is_ssoffice   = in_array( $_SERVER['REMOTE_ADDR'], N2_IPS ) ? 'ssofice' : 'no-ssofice';
+		update_post_meta( $post_id, '事業者確認', array( $confirm_value, date( 'Y-m-d G:i:s' ), $is_ssoffice ) );
 	}
 
 	/**
@@ -257,14 +257,14 @@ class N2_Front {
 	 */
 	public function search_code() {
 		$author_id = filter_input( INPUT_GET, 'author_id', FILTER_VALIDATE_INT );
-		$ids = get_posts(
+		$ids       = get_posts(
 			array(
 				'fields'         => 'ids',
 				'posts_per_page' => -1,
 				'author'         => $author_id,
 			)
 		);
-		$codes = array();
+		$codes     = array();
 		foreach ( $ids as $id ) {
 			if ( '' !== get_post_meta( $id, '返礼品コード', true ) ) {
 				$codes[ get_post_meta( $id, '返礼品コード', true ) ] = $id;
