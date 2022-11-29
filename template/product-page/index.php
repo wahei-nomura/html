@@ -91,8 +91,8 @@ if ( have_posts() ) :
 		
 		<aside class="sub">
 			<div class="sticky">
-			<?php if ( ! empty( $_GET['look'] ) ) : ?>
-				<div class='n2-jigyousya-radiobox card p-2 bg-light'>
+			<?php # if ( ! empty( $_GET['look'] ) ) : ?>
+				<!-- <div class='n2-jigyousya-radiobox card p-2 bg-light'>
 					<div class="form-check text-danger text-center">
 						<input type="radio" class="form-check-input no-check" name="jigyousya-check-<?php echo the_ID(); ?>" id="no-check-<?php echo the_ID(); ?>" value='確認未' <?php echo checked( $checked_value, '確認未', false ); ?>>
 						<label for="no-check-<?php echo the_ID(); ?>" class="form-check-label">
@@ -111,8 +111,8 @@ if ( have_posts() ) :
 							修正しなくていい
 						</label>
 					</div>
-				</div>
-			<?php endif; ?>
+				</div> -->
+			<?php # endif; ?>
 			</div>
 		</aside>
 	</main>
