@@ -34,15 +34,16 @@ if ( have_posts() ) :
 	$checked_value = empty( $check_param ) ? '確認未' : $check_param[0];
 	// ---------
 
-	$host       = $_SERVER['HTTP_HOST'];
-	$return_url = ! empty( $_SERVER['HTTP_REFERER'] ) && ( strpos( $_SERVER['HTTP_REFERER'], $host ) !== false ) ? $_SERVER['HTTP_REFERER'] : home_url();
+	// 2022-11-29 コメントアウト taiki
+	// $host       = $_SERVER['HTTP_HOST'];
+	// $return_url = ! empty( $_SERVER['HTTP_REFERER'] ) && ( strpos( $_SERVER['HTTP_REFERER'], $host ) !== false ) ? $_SERVER['HTTP_REFERER'] : home_url();
 	?>
 	<main class="wrapper">
 		<input type="hidden" id="product_id" value="<?php echo $post_data['返礼品コード']; ?>">
 		<input type="hidden" id="scraping_key" value="<?php echo $scraping_meta_key ?>">
-		<a class="return-link" href="<?php echo $return_url; ?>">
+		<a class="return-link" href="<?php echo home_url(); ?>">
 			<div class="return-btn">
-				戻る
+				トップへ戻る
 			</div>
 		</a>
 		<!-- 商品画像 -->
