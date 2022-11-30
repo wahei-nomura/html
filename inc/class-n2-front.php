@@ -175,7 +175,7 @@ class N2_Front {
 
 		// 並び替え------------------------------------
 		if ( ! empty( $_GET['sortcode'] ) ) {
-			if ( 'sortbycode' == $_GET['sortcode'] ) { // 返礼品コードで並び替え
+			if ( 'sortbycode' === $_GET['sortcode'] ) { // 返礼品コードで並び替え
 				$where .= 'AND (';
 				$where .= "{$wpdb->postmeta}.meta_key = '返礼品コード'";
 				$where .= ')';
@@ -221,6 +221,8 @@ class N2_Front {
 	/**
 	 * change_posts_per_page
 	 * ページネーションの件数設定
+	 *
+	 * @param string $query sql
 	 */
 	function change_posts_per_page( $query ) {
 		if ( is_admin() || ! $query->is_main_query() ) {
@@ -235,6 +237,9 @@ class N2_Front {
 	// 2022-11-29 コメントアウト taiki
 	/**
 	 * 事業者確認のコメント機能open
+	 *
+	 * @param bool $open Whether look param is exists
+	 * @return bool $open
 	 */
 	// public function commets_open( $open ) {
 	// 	if ( ! empty( $_GET['look'] ) ) {
