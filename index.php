@@ -19,11 +19,6 @@
 // 2022-11-29 コメントアウト taiki
 // $template = ! empty( $_GET['crew'] ) ? 'crew-check' : 'front-list';
 
-if ( is_main_site() ) {
-	get_template_part( 'template/all-town' );
-	exit;
-}
-
 ?>
 <?php get_header(); ?>
 
@@ -35,6 +30,7 @@ if ( is_main_site() ) {
 	// }
 ?>
 
+<?php if ( ! is_main_site() ) { ?>
 <article class="product-wrap search<?php if(is_search()){ echo ' search-result'; } ?>">
 	<?php
 	// 2022-11-29 コメントアウト taiki
@@ -45,4 +41,9 @@ if ( is_main_site() ) {
 	get_template_part( "template/front-list" );
 	?>
 </article>
+<?php
+	} else {
+		get_template_part( 'template/all-town' );
+	}
+?>
 <?php get_footer(); ?>
