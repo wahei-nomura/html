@@ -19,8 +19,8 @@ $town_datas = array();
   <thead>
 	<tr>
 		<th scope="col">自治体</th>
-		<th scope="col">事業者確認状況</th>
-		<th scope="col">コメント状況</th>
+		<!-- <th scope="col">事業者確認状況</th>
+		<th scope="col">コメント状況</th> -->
 	</tr>
   </thead>
   <tbody>
@@ -33,36 +33,37 @@ $town_datas = array();
 ?>
 	<tr>
 		<td><a class="link-info" href="<?php echo $site_details->siteurl; ?>" target="_blank"><?php echo $site_details->blogname; ?></a></td>
-		<td id="<?php echo $site_details->blogname; ?>"></td>
-		<td id="<?php echo $site_details->blogname . '-comment'; ?>"></td>
+		<!-- <td id="<?php echo $site_details->blogname; ?>"></td>
+		<td id="<?php echo $site_details->blogname . '-comment'; ?>"></td> -->
 	</tr>
 	<?php
 		endif;
 	endforeach;
 
-	$town_datas = json_encode( $town_datas );
+	// $town_datas = json_encode( $town_datas );
 ?>
   </tbody>
 </table>
 
 <script>
-	jQuery(($)=>{
-		const townDatas = <?php echo $town_datas; ?>;
-		// console.log(townDatas)
-		for( town in townDatas ){
-			console.log(town)
-			$.ajax({
-				url: townDatas[town] + '/wp-admin/admin-ajax.php',
-				dataType: "json",
-				data: {
-					action: "N2_All_Town_getdata",
-					townName: town,
-					siteUrl: townDatas[town],
-				},
-			}).done(res=>{
-				$(`#${res.townName}`).html(`<a href="${res.townUrl}?crew=check" target="_blank" class="${res.count > 0 ? 'link-warning' : 'link-info'}">${res.count}</a>`)
-				$(`#${res.townName}-comment`).html(`<a href="${res.townUrl}?crew=comment" target="_blank"  class="${res.commentCount > 0 ? 'link-warning' : 'link-info'}">${res.commentCount}</a>`)
-			})
-		}
-	})
+	// 2022-11-29 コメントアウト taiki
+	// jQuery(($)=>{
+	// 	const townDatas = <?php echo $town_datas; ?>;
+	// 	// console.log(townDatas)
+	// 	for( town in townDatas ){
+	// 		console.log(town)
+	// 		$.ajax({
+	// 			url: townDatas[town] + '/wp-admin/admin-ajax.php',
+	// 			dataType: "json",
+	// 			data: {
+	// 				action: "N2_All_Town_getdata",
+	// 				townName: town,
+	// 				siteUrl: townDatas[town],
+	// 			},
+	// 		}).done(res=>{
+	// 			$(`#${res.townName}`).html(`<a href="${res.townUrl}?crew=check" target="_blank" class="${res.count > 0 ? 'link-warning' : 'link-info'}">${res.count}</a>`)
+	// 			$(`#${res.townName}-comment`).html(`<a href="${res.townUrl}?crew=comment" target="_blank"  class="${res.commentCount > 0 ? 'link-warning' : 'link-info'}">${res.commentCount}</a>`)
+	// 		})
+	// 	}
+	// })
 </script>

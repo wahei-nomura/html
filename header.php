@@ -18,5 +18,5 @@
 <?php wp_body_open(); ?>
 
 <header class="p-3 bg-dark text-white text-center">
-	<h1><a href="<?php echo empty( $_GET['look'] ) ? home_url() : ''; ?>" style="text-decoration:none;color:inherit">NEO NENG(仮)【<?php bloginfo( 'name' ); ?>】</a></h1>
+	<h1><a href="<?php echo home_url(); ?>" style="text-decoration:none;color:inherit">NEO NENG(仮)【<?php bloginfo( 'name' ); ?>】</a></h1>
 </header>
