@@ -9,7 +9,6 @@
 <section class="product-list-wrap">
 
 <?php
-		// if( empty( $_GET['look']) && empty( $_GET['crew'])){
 			$user_lists = get_users( 'role=jigyousya' );
 			// var_dump($user_lists);
 			$search_params = $_GET;
@@ -39,7 +38,7 @@
 						}else{
 							$search_result .= '登録順に表示';
 						}
-					}else{
+					}elseif( 's' == $key ){
 						$search_result .= $sch_prm;
 					}
 				}
@@ -47,7 +46,6 @@
 			if ( '' != $search_result ) {
 				echo '<h2 class="search-result-header text-primary">絞り込み：' . $search_result . '</h2>';
 			}
-		// }
 	?>
 
 	<?php
