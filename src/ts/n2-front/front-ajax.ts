@@ -44,25 +44,29 @@ export default () => {
 					author_id: authorId,
 				},
 			}).done((res) => {
-				Object.keys(res).forEach(key=>{
-					if(res[key] !== ''){
-						$('.search-code-list').append($(`<option value="${res[key]}">${key}</option>`))
-					}
-				})
+				if(Object.keys(res).length){
+					$('#search-code-list').removeClass('d-none');
+					Object.keys(res).forEach(key=>{
+						if(res[key] !== ''){
+							$('.search-code-list').append($(`<option value="${res[key]}">${key}</option>`))
+						}
+					})
+				} else {
+					$('.jigyousa-search-wrap').append($('<p class="jigyousya-search-alert text-danger">この事業者の返礼品はありません</p>'))
+				}
 			}).fail(error => {
 				console.log(error)
 			});
 		}
 
 		if($('#jigyousya-value').val() !== ''){
-			$('#search-code-list').removeClass('d-none');
 			searchItemCode(+$('#jigyousya-value').val())
 		}
 
 		$('#jigyousya-list-tag').on('change', e => {
+			$('.jigyousya-search-alert').remove()
 			setTimeout(()=>{
 				if($('#jigyousya-value').val() !== ''){	
-					$('#search-code-list').removeClass('d-none');
 					$('.search-code-list option').remove()
 					searchItemCode(+$('#jigyousya-value').val())
 				}
