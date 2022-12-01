@@ -56,7 +56,7 @@ export default () => {
 
 		if($('#jigyousya-value').val() !== ''){
 			$('#search-code-list').removeClass('d-none');
-			searchItemCode(Number($('#jigyousya-value').val()))
+			searchItemCode(+$('#jigyousya-value').val())
 		}
 
 		$('#jigyousya-list-tag').on('change', e => {
@@ -64,7 +64,7 @@ export default () => {
 				if($('#jigyousya-value').val() !== ''){	
 					$('#search-code-list').removeClass('d-none');
 					$('.search-code-list option').remove()
-					searchItemCode(Number($('#jigyousya-value').val()))
+					searchItemCode(+$('#jigyousya-value').val())
 				}
 			},300)
 		})
