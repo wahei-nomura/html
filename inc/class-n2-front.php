@@ -224,7 +224,7 @@ class N2_Front {
 	 *
 	 * @param string $query sql
 	 */
-	function change_posts_per_page( $query ) {
+	public function change_posts_per_page( $query ) {
 		if ( is_admin() || ! $query->is_main_query() ) {
 			return;
 		}
@@ -242,10 +242,10 @@ class N2_Front {
 	 * @return bool $open
 	 */
 	// public function commets_open( $open ) {
-	// 	if ( ! empty( $_GET['look'] ) ) {
-	// 		$open = true;
-	// 	}
-	// 	return $open;
+	// if ( ! empty( $_GET['look'] ) ) {
+	// $open = true;
+	// }
+	// return $open;
 	// }
 
 	// 2022-11-29 コメントアウト taiki
@@ -256,7 +256,7 @@ class N2_Front {
 	 * @return string $location 変更後URL
 	 */
 	// public function comment_post_redirect( $location ) {
-	// 	return preg_replace( '/\/#/', '&look=true#', $location );
+	// return preg_replace( '/\/#/', '&look=true#', $location );
 	// }
 
 	/**
