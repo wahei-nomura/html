@@ -21,9 +21,6 @@ if(location.href.match(/edit\.php/)) {
 	n2_postlist();
 }
 // JSが読み込まれたら管理画面表示
-const adminmain = document.getElementById('adminmenumain');
-const wpcontent = document.getElementById('wpcontent');
-const wpfooter = document.getElementById('wpfooter');
-adminmain.style.display = 'block';
-wpcontent.style.display = 'block';
-wpfooter.style.display = 'block';
+document.getElementById('adminmenumain').style.display = 'block';
+document.getElementById('wpcontent').style.display = 'block';
+document.getElementById('wpfooter').style.display = 'block';
