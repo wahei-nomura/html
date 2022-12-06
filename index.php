@@ -31,7 +31,7 @@
 ?>
 
 <?php if ( ! is_main_site() ) { ?>
-<article class="product-wrap search<?php if ( is_search() ) { echo ' search-result'; } ?>">
+<article class="product-wrap search<?php echo is_search() ? ' search-result' : ''; ?>">
 	<?php
 	// 2022-11-29 コメントアウト taiki
 	// if ( empty( $_GET['look'] ) && empty( $_GET['crew'] ) ) {
