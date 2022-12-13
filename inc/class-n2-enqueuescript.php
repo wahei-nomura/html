@@ -24,7 +24,7 @@ class N2_Enqueuescript {
 	public function __construct() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_setpost_script' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_front_script' ) );
-		add_action( 'admin_footer', array( $this, 'noscript' ) );
+		add_action( 'wp_footer', array( $this, 'noscript' ) );
 	}
 
 	/**
