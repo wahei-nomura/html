@@ -76,14 +76,12 @@ class N2_Front {
 			$s_arr = explode( ' ', mb_convert_kana( $_GET['s'], 's' ) );
 			// キーワード前後の空白
 			$s_arr = array_filter( $s_arr );
-			// OR検索対応
-			$sql_pattern = ! empty( $_GET['or'] ) && '1' === $_GET['or'] ? 'OR' : 'AND';
 
 			// WHERE句連結
 			$where .= 'AND(';
 			foreach ( $s_arr as $key => $s ) {
 				if ( 0 !== $key ) {
-					$where .= $sql_pattern;
+					$where .= 'AND';
 				}
 
 				$where .= "
