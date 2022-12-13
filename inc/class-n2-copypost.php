@@ -55,7 +55,7 @@ class N2_Copypost {
 
 		// metaを上書き ----------------------------------------------------------------------------------------------------------------------------------------
 		$post_all_meta['定期便']  = $set_data['定期'];
-		$post_all_meta['寄附金額'] = N2_Functions::kifu_auto_pattern( 'php', array( $post_all_meta['価格'], $post_all_meta['送料'] ) ) * $set_data['定期'];
+		$post_all_meta['寄附金額'] = N2_Functions::kifu_auto_pattern( 'php', array( (int) $post_all_meta['価格'], (int) $post_all_meta['送料'] ) ) * $set_data['定期'];
 
 		// 定期便
 		if ( $set_data['定期'] > 1 ) {
@@ -92,7 +92,7 @@ class N2_Copypost {
 
 		// 新しい返礼品情報設定
 		$new_post = array(
-			'post_title'  => '' !== $set_data['定期'] ? "【全{$set_data['定期']}回定期便】{$set_data['複写後商品名']}" : $set_data['複写後商品名'],
+			'post_title'  => $set_data['定期'] > 1 ? "【全{$set_data['定期']}回定期便】{$set_data['複写後商品名']}" : $set_data['複写後商品名'],
 			'post_status' => 'pending',
 			'post_author' => $author_id,
 			'meta_input'  => $post_all_meta,
