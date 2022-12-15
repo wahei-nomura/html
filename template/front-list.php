@@ -24,10 +24,7 @@ foreach ( $search_params as $key => $sch_prm ) {
 		} elseif ( '返礼品コード' === $key ) {
 			foreach ( $sch_prm as $code_key => $code_prm ) {
 				$code_meta_data = get_post_meta( $code_prm );
-				$codes          = $code_meta_data['返礼品コード'];
-				foreach ( $codes as $cd_key => $cd ) {
-					$search_result .= $cd;
-				}
+				$search_result .= get_post_meta( $code_prm, '返礼品コード', true );
 				if ( array_key_last( $sch_prm ) !== $code_key ) {
 					$search_result .= '/';
 				}
@@ -87,7 +84,7 @@ if ( '' !== $search_result ) {
 
 				$item_num_low = mb_strtolower( get_post_meta( get_the_ID(), '返礼品コード', true ) );
 				preg_match( '/[a-z]+/', $item_num_low, $item_code );
-				if ( '' && ! empty( $item_code ) !== $item_num_low ) {
+				if ( $item_num_low != '' && ! empty( $item_code ) !== $item_num_low ) {
 					$new_rakuten_pic    = $img_dir . '/' . $item_code[0] . '/' . $item_num_low . '.jpg';
 					$new_rakuten_pic_ex = $img_dir_ex . '/' . $item_num_low . '.jpg';
 				}
@@ -105,15 +102,9 @@ if ( '' !== $search_result ) {
 				}
 
 				// 詳細ページで保存された楽天画像
-				$get_meta_rakuten_pic = '';
 				$get_post_meta        = get_post_meta( get_the_ID(), 'スクレイピング', true );
-				if ( ! empty( $get_post_meta ) ) {
-					$meta_imgs = array_column( $get_post_meta, 'imgs' );
-					if ( ! empty( $meta_imgs[0] ) ) {
-						$get_meta_rakuten_pic = $meta_imgs[0][0];
-					}
-				}
-
+				$meta_imgs = ! empty( $get_post_meta ) ? array_column( $get_post_meta, 'imgs' ) : "";
+				$get_meta_rakuten_pic = ! empty( $meta_imgs[0] ) ? $meta_imgs[0][0] : "";
 				// 2022-11-29 コメントアウト taiki
 				// 事業者確認フラグ用　------------------------------------------------------------------------
 				// $check_param   = get_post_meta( get_the_ID(), '事業者確認', true );

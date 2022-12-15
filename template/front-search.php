@@ -13,12 +13,7 @@
 		検索
 	  </button>
 </p>
-<div id="collapseOne" class="accordion-collapse collapse
-<?php
-if ( ! wp_is_mobile() ) {
-	echo ' show';}
-?>
-" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+<div id="collapseOne" class="accordion-collapse collapse<?php ! wp_is_mobile() ? print ' show' : print ''; ?>" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
 
 	<?php
 		$home_url = get_home_url() . '/';
