@@ -37,7 +37,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n// extracted by mini-css-extr
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
-eval("\nvar __importDefault = (this && this.__importDefault) || function (mod) {\n    return (mod && mod.__esModule) ? mod : { \"default\": mod };\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\n__webpack_require__(/*! ../scss/front.scss */ \"./src/scss/front.scss\");\nvar n2_front_1 = __importDefault(__webpack_require__(/*! ./n2-front */ \"./src/ts/n2-front/index.ts\"));\n(0, n2_front_1.default)();\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/front.ts?");
+eval("\nvar __importDefault = (this && this.__importDefault) || function (mod) {\n    return (mod && mod.__esModule) ? mod : { \"default\": mod };\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\n__webpack_require__(/*! ../scss/front.scss */ \"./src/scss/front.scss\");\nvar n2_front_1 = __importDefault(__webpack_require__(/*! ./n2-front */ \"./src/ts/n2-front/index.ts\"));\n(0, n2_front_1.default)();\n// JSが読み込まれたら管理画面表示\ndocument.getElementById('public-container').style.display = 'block';\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/front.ts?");
 
 /***/ }),
 
