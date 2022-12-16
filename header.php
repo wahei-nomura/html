@@ -15,7 +15,7 @@
 	<?php wp_head(); ?>
 </head>
 <body>
-	<div id="public-container">
+	<div id="toggle-display-js">
 <?php wp_body_open(); ?>
 
 <header class="p-3 bg-dark text-white text-center">

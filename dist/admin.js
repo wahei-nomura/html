@@ -46,7 +46,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n// extracted by mini-css-extr
   \*************************/
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
-eval("\nvar __importDefault = (this && this.__importDefault) || function (mod) {\n    return (mod && mod.__esModule) ? mod : { \"default\": mod };\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\n__webpack_require__(/*! ../scss/admin.scss */ \"./src/scss/admin.scss\");\n__webpack_require__(/*! ../scss/n2-postlist.scss */ \"./src/scss/n2-postlist.scss\");\n__webpack_require__(/*! ../scss/n2-setpost.scss */ \"./src/scss/n2-setpost.scss\");\nvar n2_setpost_1 = __importDefault(__webpack_require__(/*! ./n2-setpost */ \"./src/ts/n2-setpost/index.ts\"));\nvar n2_sissubmit_1 = __importDefault(__webpack_require__(/*! ./n2-sissubmit */ \"./src/ts/n2-sissubmit/index.ts\"));\nvar n2_postlist_1 = __importDefault(__webpack_require__(/*! ./n2-postlist */ \"./src/ts/n2-postlist/index.ts\"));\n// 返礼品編集画面\nif (location.href.match(/(post|post-new)\\.php/)) {\n    (0, n2_setpost_1.default)();\n}\n// 各種セットアップ画面\n/**\n * wp_ajax用のファイル読み込み、ページ制限外しておく\n * 2022/07/14@taiki\n */\n// if(location.href.match(/admin\\.php/)) {\n(0, n2_sissubmit_1.default)();\n// }\nif (location.href.match(/edit\\.php/)) {\n    (0, n2_postlist_1.default)();\n}\n// JSが読み込まれたら管理画面表示\ndocument.getElementById('adminmenumain').style.display = 'block';\ndocument.getElementById('wpcontent').style.display = 'block';\ndocument.getElementById('wpfooter').style.display = 'block';\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/admin.ts?");
+eval("\nvar __importDefault = (this && this.__importDefault) || function (mod) {\n    return (mod && mod.__esModule) ? mod : { \"default\": mod };\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\n__webpack_require__(/*! ../scss/admin.scss */ \"./src/scss/admin.scss\");\n__webpack_require__(/*! ../scss/n2-postlist.scss */ \"./src/scss/n2-postlist.scss\");\n__webpack_require__(/*! ../scss/n2-setpost.scss */ \"./src/scss/n2-setpost.scss\");\nvar n2_admin_1 = __importDefault(__webpack_require__(/*! ./n2-admin */ \"./src/ts/n2-admin/index.ts\"));\nvar n2_setpost_1 = __importDefault(__webpack_require__(/*! ./n2-setpost */ \"./src/ts/n2-setpost/index.ts\"));\nvar n2_sissubmit_1 = __importDefault(__webpack_require__(/*! ./n2-sissubmit */ \"./src/ts/n2-sissubmit/index.ts\"));\nvar n2_postlist_1 = __importDefault(__webpack_require__(/*! ./n2-postlist */ \"./src/ts/n2-postlist/index.ts\"));\n(0, n2_admin_1.default)();\n// 返礼品編集画面\nif (location.href.match(/(post|post-new)\\.php/)) {\n    (0, n2_setpost_1.default)();\n}\n// 各種セットアップ画面\n/**\n * wp_ajax用のファイル読み込み、ページ制限外しておく\n * 2022/07/14@taiki\n */\n// if(location.href.match(/admin\\.php/)) {\n(0, n2_sissubmit_1.default)();\n// }\nif (location.href.match(/edit\\.php/)) {\n    (0, n2_postlist_1.default)();\n}\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/admin.ts?");
 
 /***/ }),
 
@@ -57,6 +57,26 @@ eval("\nvar __importDefault = (this && this.__importDefault) || function (mod) {
 /***/ ((__unused_webpack_module, exports) => {
 
 eval("\n/**\n * 複数ファイルで使いまわしたい変数や関数があればここに\n *\n * 読み込むファイルではimport { prefix, neoNengPath, ajaxUrl } from '../n2-functions/index'を記載\n */\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.homeUrl = exports.ajaxUrl = exports.neoNengPath = exports.prefix = void 0;\n// クラス名にプレフィックスを付けてるところがある\nexports.prefix = \"neo-neng\";\n// PHPからこのテーマのディレクトリパスを受けとっている\nvar neoNengPath = function (window) {\n    return window.tmp_path.tmp_url;\n};\nexports.neoNengPath = neoNengPath;\n// wp_ajax用のパスを受け取っている\nvar ajaxUrl = function (window) {\n    return window.tmp_path.ajax_url;\n};\nexports.ajaxUrl = ajaxUrl;\n// PHPからWordpressのトップパスを受け取っている\nvar homeUrl = function (window) {\n    return window.tmp_path.home_url;\n};\nexports.homeUrl = homeUrl;\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/functions/index.ts?");
+
+/***/ }),
+
+/***/ "./src/ts/n2-admin/index.ts":
+/*!**********************************!*\
+  !*** ./src/ts/n2-admin/index.ts ***!
+  \**********************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+eval("\nvar __importDefault = (this && this.__importDefault) || function (mod) {\n    return (mod && mod.__esModule) ? mod : { \"default\": mod };\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nvar noscript_1 = __importDefault(__webpack_require__(/*! ./noscript */ \"./src/ts/n2-admin/noscript.ts\"));\nexports[\"default\"] = (function () {\n    (0, noscript_1.default)();\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/n2-admin/index.ts?");
+
+/***/ }),
+
+/***/ "./src/ts/n2-admin/noscript.ts":
+/*!*************************************!*\
+  !*** ./src/ts/n2-admin/noscript.ts ***!
+  \*************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports[\"default\"] = (function () {\n    // JSが読み込まれたら管理画面表示(管理画面)\n    document.getElementById('adminmenumain').style.display = 'block';\n    document.getElementById('wpcontent').style.display = 'block';\n    document.getElementById('wpfooter').style.display = 'block';\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/n2-admin/noscript.ts?");
 
 /***/ }),
 
