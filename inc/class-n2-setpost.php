@@ -109,8 +109,8 @@ class N2_Setpost {
 	 */
 	public function add_customfields() {
 
-		$ss_fields      = yaml_parse_file( get_template_directory() . '/config/n2-ss-fields.yml' );
-		$default_fields = yaml_parse_file( get_template_directory() . '/config/n2-fields.yml' );
+		$ss_fields      = yaml_parse_file( get_theme_file_path() . '/config/n2-ss-fields.yml' );
+		$default_fields = apply_filters( 'n2_setpost_plugin_portal', yaml_parse_file( get_theme_file_path() . '/config/n2-fields.yml' ) );
 
 		// 既存のフィールドの位置を変更したい際にプラグイン側からフィールドを削除するためのフック
 		list($ss_fields,$default_fields) = apply_filters( 'n2_setpost_delete_customfields', array( $ss_fields, $default_fields ) );
@@ -188,7 +188,7 @@ class N2_Setpost {
 
 			<div>
 				<?php foreach ( $fields as $field => $detail ) : ?>
-				<div style="border:solid 2px <?php echo $color; ?>; margin: 24px auto; border-radius:8px; width:80%; min-width:800px;">
+				<div style="border:solid 2px <?php echo $color; ?>; margin: 24px auto; border-radius:8px; width:80%; min-width:800px; <?php echo '事業者確認' === $field ? 'visibility: hidden; height: 0;' : 'visibility: visible'; ?>">
 					<!-- ラベル -->
 					<p style="margin: 0;"><label style="margin: 0;padding:16px 0;background-color:<?php echo $color; ?>; color: white;font-size:20px;font-weight:bold;padding:4px 8px;display:block;text-align:center;" for="<?php echo $field; ?>"><?php echo ! empty( $detail['label'] ) ? $detail['label'] : $field; ?></label></p>
 					<!-- 説明 -->
@@ -362,7 +362,7 @@ class N2_Setpost {
 	 */
 	private function delivery_pattern() {
 
-		$pattern = yaml_parse_file( get_template_directory() . '/config/n2-delivery.yml' );
+		$pattern = yaml_parse_file( get_theme_file_path() . '/config/n2-delivery.yml' );
 
 		// プラグイン側で上書き
 		$pattern = apply_filters( 'n2_setpost_change_delivary_pattern', $pattern );
@@ -428,7 +428,8 @@ class N2_Setpost {
 
 		// png
 		if ( 'png' === $file_extension ) {
-			exec( "pngquant --ext .png {$image_data['file']} --force --quality 50-80" );
+			$png_file = escapeshellarg( $image_data['file'] );
+			exec( "pngquant --ext .png {$png_file} --force --quality 50-80" );
 		} else {
 			// jpg
 			$imagick->setImageCompressionQuality( 80 );
