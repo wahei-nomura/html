@@ -2,7 +2,13 @@ import { RuleTester } from "eslint";
 import {prefix, neoNengPath, ajaxUrl} from "../functions/index";
 
 export default () => {
-	jQuery(function ($: any) {
+	jQuery(function($: any) {
+		
+		const checkImgblockLength=() => {
+			const color = $('.neo-neng-image-block').length < 8 ? 'red' : '#87cefa'
+			$('label[for="商品画像"]').css('background',color)
+		}
+
 		/**
 		 *  wordpressのメディアアップロード呼び出し
 		 */
@@ -85,13 +91,13 @@ export default () => {
 
 					// 画像選択時にHTML生成
 					customUploader.on("select", () => {
-						parent.find(`.${prefix}-image-block`).remove();
 						const datas=customUploader.state().get("selection");
 						// 画層は最大25枚
 						if(datas.length>25) {
 							alert('画像は最大25枚まででお願いします。')
 							return
 						}
+						parent.find(`.${prefix}-image-block`).remove();
 						datas.each((data) => {
 							parent.append(
 								$(`<div class="${prefix}-image-block">
@@ -108,6 +114,7 @@ export default () => {
 						});
 
 						imgSortable();
+						checkImgblockLength()
 					});
 				})
 				.fail((error) => {
@@ -117,6 +124,8 @@ export default () => {
 					);
 				});
 		};
+
+		checkImgblockLength()
 
 		// 画像選択ボタン表示
 		$('label[for="商品画像"]')
@@ -159,6 +168,7 @@ export default () => {
 		$("body").on("click", `.${prefix}-image-delete`, (e) => {
 			$(e.target).parent().remove();
 			setImageNum();
+			checkImgblockLength()
 		});
 	});
 };
