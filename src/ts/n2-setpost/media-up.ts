@@ -1,5 +1,5 @@
 import { RuleTester } from "eslint";
-import { prefix, neoNengPath, ajaxUrl } from "../functions/index";
+import {prefix, neoNengPath, ajaxUrl} from "../functions/index";
 
 export default () => {
 	jQuery(function ($: any) {
@@ -82,17 +82,16 @@ export default () => {
 
 					customUploader.open();
 
-					$(".media-button").on("click", (e) => {
-						alert("押した");
-						console.log(
-							$(".attachments-wrapper li")
-						);
-					});
 
 					// 画像選択時にHTML生成
 					customUploader.on("select", () => {
 						parent.find(`.${prefix}-image-block`).remove();
-						const datas = customUploader.state().get("selection");
+						const datas=customUploader.state().get("selection");
+						// 画層は最大25枚
+						if(datas.length>25) {
+							alert('画像は最大25枚まででお願いします。')
+							return
+						}
 						datas.each((data) => {
 							parent.append(
 								$(`<div class="${prefix}-image-block">
