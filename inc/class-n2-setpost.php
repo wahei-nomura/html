@@ -41,6 +41,7 @@ class N2_Setpost {
 		add_filter( 'enter_title_here', array( $this, 'change_title' ) );
 		add_action( "wp_ajax_{$this->cls}", array( $this, 'ajax' ) );
 		add_action( "wp_ajax_{$this->cls}_image", array( $this, 'ajax_imagedata' ) );
+		add_action( "wp_ajax_{$this->cls}_syncstatus", array( $this, 'sync_post_status' ) );
 		add_filter( 'intermediate_image_sizes_advanced', array( $this, 'not_create_image' ) );
 		add_filter( 'wp_handle_upload', array( $this, 'image_compression' ) );
 		add_filter( 'post_link', array( $this, 'set_post_paermalink' ), 10, 3 );
@@ -391,6 +392,15 @@ class N2_Setpost {
 			)
 		);
 
+		die();
+	}
+
+	/**
+	 * JSに現在のpost_statusを返す
+	 */
+	public function sync_post_status() {
+		$post_id = filter_input( INPUT_GET, 'postId', FILTER_VALIDATE_INT );
+		echo wp_json_encode( get_post_status( $post_id ) );
 		die();
 	}
 
