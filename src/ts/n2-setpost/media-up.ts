@@ -1,12 +1,29 @@
 import { RuleTester } from "eslint";
-import {prefix, neoNengPath, ajaxUrl} from "../functions/index";
+import { prefix, neoNengPath, ajaxUrl } from "../functions/index";
 
 export default () => {
-	jQuery(function($: any) {
-		
-		const checkImgblockLength=() => {
-			const color = $('.neo-neng-image-block').length < 8 ? 'red' : '#87cefa'
-			$('label[for="商品画像"]').css('background',color)
+	jQuery(function ($: any) {
+
+
+		/**
+		 * アップロード画像が8枚に満たない場合のアラート表示
+		 */
+		const checkImgblockLength = () => {
+			$('.neo-neng-image-alert').remove()
+			const interval = setInterval(() => {
+				if ($('.neo-neng-image-block').length < 8) {
+					if (!$('.neo-neng-image-alert').length) {
+						$('.neo-neng-image-wrapper').before('<p class="neo-neng-image-alert">8枚に足りません</p>')
+					}
+					$('.neo-neng-image-wrapper').css('background', 'pink')
+					setTimeout(() => {
+						$('.neo-neng-image-wrapper').css('background', 'none')
+					}, 500)
+				} else {
+					$('.neo-neng-image-wrapper').css('background', 'none')
+					clearInterval(interval)
+				}
+			}, 1000)
 		}
 
 		/**

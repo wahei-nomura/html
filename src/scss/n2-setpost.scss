@@ -351,12 +351,18 @@ $prefix: "n2-setpost";
 .neo-neng-image-wrapper {
 	display: flex;
 	flex-wrap: wrap;
+	transition: .3s;
 	.placeholder {
 		border: 1px dashed red;
 		background-color: pink;
 		width: 150px;
 		height: 150px;
 	}
+}
+
+.neo-neng-image-alert {
+	font-size: 20px;
+	color: red;
 }
 
 .neo-neng-image-num {
