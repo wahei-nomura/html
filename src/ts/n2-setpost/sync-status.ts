@@ -42,6 +42,13 @@ export default () => {
 				}, 2000)
 			}
 		})
+
+		$(document).on("click", ".components-button", (e) => {
+			e.preventDefault();
+			setTimeout(() => {
+				syncPostStatus()
+			}, 2000)
+		})
 	})
 
 }
