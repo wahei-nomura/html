@@ -1,4 +1,3 @@
-import { ajax } from "jquery";
 import { prefix, neoNengPath, ajaxUrl } from "../functions/index";
 
 export default () => {
@@ -8,47 +7,18 @@ export default () => {
 			return window.wp;
 		};
 
-		/**
-		 * wp-ajaxにてpost statusを取得
-		 */
-		const syncPostStatus = () => {
-			$.ajax({
-				url: ajaxUrl(window),
-				data: {
-					action: "N2_Setpost_syncstatus",
-					postId: new URLSearchParams(location.search).get('post')
-				}
-			}).done(res => {
-				console.log(res)
-
-				// プログレストラッカーをリアルタイム更新
+		// プログレストラッカーをリアルタイム更新
+		wp(window).data.subscribe(() => {
+			// 投稿が更新されたかどうかを判定する
+			if (wp(window).data.select('core/editor').isSavingPost()) {
+				// 投稿が更新されている場合の処理をここに記述する
 				$(`#${prefix}-progress-tracker li`).removeClass('active')
 				$(
 					`.${wp(window)
 						.data.select("core/editor")
 						.getEditedPostAttribute("status")}`
 				).addClass("active");
-			})
-		}
-
-		syncPostStatus()
-
-		// 公開時にイベント発火
-		$(document).on("click", ".editor-post-publish-button__button", (e) => {
-			e.preventDefault();
-			if ($(e.target).attr("aria-disabled")) {
-				setTimeout(() => {
-					syncPostStatus()
-				}, 2000)
 			}
-		})
-
-		$(document).on("click", ".components-button", (e) => {
-			e.preventDefault();
-			setTimeout(() => {
-				syncPostStatus()
-			}, 2000)
-		})
+		});
 	})
-
 }
