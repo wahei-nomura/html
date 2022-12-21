@@ -112,6 +112,7 @@ export default () => {
 						// 画層は最大25枚
 						if(datas.length>25) {
 							alert('画像は最大25枚まででお願いします。')
+							customUploader.open();
 							return
 						}
 						parent.find(`.${prefix}-image-block`).remove();
