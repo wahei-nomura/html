@@ -100,16 +100,22 @@ export default () => {
 
 					customUploader.open();
 
+					// 最大25枚選択
+					$("body").on("click", '.media-modal-content .thumbnail', e => {
+						if (customUploader.state().get("selection").length > 25) {
+							alert('画像は最大25枚まででお願いします。')
+							const id = $(e.target).parent().parent().data('id')
+							const selection = customUploader.state().get('selection');
+							const attachment = (
+								window as any
+							).wp.media.attachment(id);
+							selection.remove(attachment)
+						}
+					})
 
 					// 画像選択時にHTML生成
 					customUploader.on("select", () => {
 						const datas = customUploader.state().get("selection");
-						// 画層は最大25枚
-						if (datas.length > 25) {
-							alert('画像は最大25枚まででお願いします。')
-							customUploader.open();
-							return
-						}
 						parent.find(`.${prefix}-image-block`).remove();
 						datas.each((data) => {
 							parent.append(
