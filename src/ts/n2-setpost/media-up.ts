@@ -10,20 +10,15 @@ export default () => {
 		 */
 		const checkImgblockLength = () => {
 			$('.neo-neng-image-alert').remove()
-			const interval = setInterval(() => {
-				if ($('.neo-neng-image-block').length < 8) {
-					if (!$('.neo-neng-image-alert').length) {
-						$('.neo-neng-image-wrapper').before('<p class="neo-neng-image-alert">8枚に足りません</p>')
-					}
-					$('.neo-neng-image-wrapper').css('background', 'pink')
-					setTimeout(() => {
-						$('.neo-neng-image-wrapper').css('background', 'none')
-					}, 500)
-				} else {
-					$('.neo-neng-image-wrapper').css('background', 'none')
-					clearInterval(interval)
+			if ($('.neo-neng-image-block').length < 8) {
+				if (!$('.neo-neng-image-alert').length) {
+					$('.neo-neng-image-wrapper').before('<p class="neo-neng-image-alert">可能であれば8枚以上を推奨いたします</p>')
 				}
-			}, 1000)
+				$('.neo-neng-image-alert').css('background', 'pink')
+				setTimeout(() => {
+					$('.neo-neng-image-alert').css('background', 'none')
+				}, 1000)
+			}
 		}
 
 		/**
@@ -108,9 +103,9 @@ export default () => {
 
 					// 画像選択時にHTML生成
 					customUploader.on("select", () => {
-						const datas=customUploader.state().get("selection");
+						const datas = customUploader.state().get("selection");
 						// 画層は最大25枚
-						if(datas.length>25) {
+						if (datas.length > 25) {
 							alert('画像は最大25枚まででお願いします。')
 							customUploader.open();
 							return
@@ -119,14 +114,13 @@ export default () => {
 						datas.each((data) => {
 							parent.append(
 								$(`<div class="${prefix}-image-block">
-				<input type="hidden" name="商品画像[]" class="${prefix}-image-input" value="${
-									data.attributes.url
-								}">
+				<input type="hidden" name="商品画像[]" class="${prefix}-image-input" value="${data.attributes.url
+									}">
 				<span class="dashicons dashicons-no-alt ${prefix}-image-delete"></span><span class="${prefix}-image-big dashicons dashicons-editor-expand"></span><span class="${prefix}-image-num"></span>
 				<img class="${prefix}-image-url" src="${data.attributes.url.replace(
-									/\.(png|jpg|jpeg)$/,
-									"-150x150.$1"
-								)}" width="100%">
+										/\.(png|jpg|jpeg)$/,
+										"-150x150.$1"
+									)}" width="100%">
 				</div>`)
 							);
 						});
