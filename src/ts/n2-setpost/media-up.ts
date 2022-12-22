@@ -3,6 +3,24 @@ import { prefix, neoNengPath, ajaxUrl } from "../functions/index";
 
 export default () => {
 	jQuery(function ($: any) {
+
+
+		/**
+		 * アップロード画像が8枚に満たない場合のアラート表示
+		 */
+		const checkImgblockLength = () => {
+			$('.neo-neng-image-alert').remove()
+			if ($('.neo-neng-image-block').length < 8) {
+				if (!$('.neo-neng-image-alert').length) {
+					$('.neo-neng-image-wrapper').before('<p class="neo-neng-image-alert">可能であれば8枚以上を推奨いたします</p>')
+				}
+				$('.neo-neng-image-alert').css('background', 'pink')
+				setTimeout(() => {
+					$('.neo-neng-image-alert').css('background', 'none')
+				}, 1000)
+			}
+		}
+
 		/**
 		 *  wordpressのメディアアップロード呼び出し
 		 */
@@ -82,26 +100,39 @@ export default () => {
 
 					customUploader.open();
 
+					// 最大25枚選択
+					$("body").on("click", '.media-modal-content .thumbnail', e => {
+						if (customUploader.state().get("selection").length > 25) {
+							alert('画像は最大25枚まででお願いします。')
+							const id = $(e.target).parent().parent().data('id')
+							const selection = customUploader.state().get('selection');
+							const attachment = (
+								window as any
+							).wp.media.attachment(id);
+							selection.remove(attachment)
+						}
+					})
+
 					// 画像選択時にHTML生成
 					customUploader.on("select", () => {
-						parent.find(`.${prefix}-image-block`).remove();
 						const datas = customUploader.state().get("selection");
+						parent.find(`.${prefix}-image-block`).remove();
 						datas.each((data) => {
 							parent.append(
 								$(`<div class="${prefix}-image-block">
-				<input type="hidden" name="商品画像[]" class="${prefix}-image-input" value="${
-									data.attributes.url
-								}">
+				<input type="hidden" name="商品画像[]" class="${prefix}-image-input" value="${data.attributes.url
+									}">
 				<span class="dashicons dashicons-no-alt ${prefix}-image-delete"></span><span class="${prefix}-image-big dashicons dashicons-editor-expand"></span><span class="${prefix}-image-num"></span>
 				<img class="${prefix}-image-url" src="${data.attributes.url.replace(
-									/\.(png|jpg|jpeg)$/,
-									"-150x150.$1"
-								)}" width="100%">
+										/\.(png|jpg|jpeg)$/,
+										"-150x150.$1"
+									)}" width="100%">
 				</div>`)
 							);
 						});
 
 						imgSortable();
+						checkImgblockLength()
 					});
 				})
 				.fail((error) => {
@@ -111,6 +142,8 @@ export default () => {
 					);
 				});
 		};
+
+		checkImgblockLength()
 
 		// 画像選択ボタン表示
 		$('label[for="商品画像"]')
@@ -153,6 +186,7 @@ export default () => {
 		$("body").on("click", `.${prefix}-image-delete`, (e) => {
 			$(e.target).parent().remove();
 			setImageNum();
+			checkImgblockLength()
 		});
 	});
 };
