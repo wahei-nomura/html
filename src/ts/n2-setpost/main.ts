@@ -323,18 +323,6 @@ export default () => {
 					});
 				} // end if(!$('#n2-setpost-check-modal').length)
 				// ここまで確認用モーダル==========================================================================================================================
-				$(
-					`.${wp(window)
-						.data.select("core/editor")
-						.getEditedPostAttribute("status")}.active`
-				).removeClass("active");
-				setTimeout(() => {
-					$(
-						`.${wp(window)
-							.data.select("core/editor")
-							.getEditedPostAttribute("status")}`
-					).addClass("active");
-				}, 100);
 			});
 		});
 
