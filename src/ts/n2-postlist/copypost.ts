@@ -31,16 +31,17 @@ export default () => {
 		});
 
 		$('body').on('change', 'select[name="定期"]', e => {
-			const teikiNum = $(e.target).val();
-			$('#n2-copypost-modal .new-title span').text(teikiNum ? `【全${teikiNum}回定期便】` : '');
-
-			if (teikiNum) {
+			const teikiNum = +$(e.target).val();
+			
+			if (teikiNum > 1) {
 				$('.is-teiki').css('display', 'block')
+				$('#n2-copypost-modal .new-title span').text(`【全${teikiNum}回定期便】`);
 			} else {
 				$('.is-teiki').css('display', 'none')
 				$('input[name="同月回数"]').val(''),
-					$('input[name="初回発送日"]').val(''),
-					$('input[name="毎月発送日"]').val('')
+				$('input[name="初回発送日"]').val(''),
+				$('input[name="毎月発送日"]').val('')
+				$('#n2-copypost-modal .new-title span').text('');
 			}
 		})
 
