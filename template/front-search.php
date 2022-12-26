@@ -14,34 +14,34 @@
 				検索
 				</button>
 			</p>
-			<div id="collapseOne" class="accordion-collapse collapse<?php ! wp_is_mobile() ? print ' show' : print ''; ?>" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-<?php
-	$home_url = get_home_url() . '/';
-?>
+			<div id="collapseOne" class="accordion-collapse collapse<?php echo ! wp_is_mobile() ? ' show' : ''; ?>" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+				<?php
+					$home_url = get_home_url() . '/';
+				?>
 				<form method="get" action="<?php echo $home_url; ?>" class="n2-search-form">
 					<div class="mb-3">
 						<label for="inputFreeword" class="form-label">フリーワード検索</label>
 						<input type="text" class="s form-control" id="inputFreeword" name="s" placeholder="キーワードを入力" value="<?php echo empty( $_GET['s'] ) ? '' : $_GET['s']; ?>">
 					</div>
 					<div class="mb-3 jigyousa-search-wrap">
-  <?php
-			// 事業者検索 ===============================================================
-			$show_author         = '';
-			$get_jigyousya_id    = filter_input( INPUT_GET, 'jigyousya', FILTER_VALIDATE_INT );
-			$get_henreihin_codes = filter_input( INPUT_GET, '返礼品コード', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
-	?>
+						<?php
+							// 事業者検索 ===============================================================
+							$show_author         = '';
+							$get_jigyousya_id    = filter_input( INPUT_GET, 'jigyousya', FILTER_VALIDATE_INT );
+							$get_henreihin_codes = filter_input( INPUT_GET, '返礼品コード', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
+						?>
 						<label for="exampleInputPassword1" class="form-label">出品事業者</label>
 						<datalist id="jigyousya-list">
-<?php foreach ( get_users( 'role=jigyousya' ) as $user ) : ?>
-	<?php
-		$author_id   = (int) $user->ID;
-		$author_name = $user->display_name;
-	if ( $author_id === $get_jigyousya_id ) {
-		$show_author = $author_name;
-	}
-?>
+							<?php foreach ( get_users( 'role=jigyousya' ) as $user ) : ?>
+								<?php
+									$author_id   = (int) $user->ID;
+									$author_name = $user->display_name;
+								if ( $author_id === $get_jigyousya_id ) {
+									$show_author = $author_name;
+								}
+							?>
 							<option value="<?php echo $author_name; ?>" data-id="<?php echo $author_id; ?>">
-<?php endforeach; ?>
+							<?php endforeach; ?>
 						</datalist>
 						<input type='text' name='' class="form-control" id='jigyousya-list-tag' list='jigyousya-list' value='<?php echo $show_author; ?>' placeholder='事業者入力'>
 						<input id='jigyousya-value' type='hidden' name='jigyousya' value='<?php echo $get_jigyousya_id; ?>'>
@@ -79,19 +79,13 @@
 					<div class="mb-3">
 						<label class="form-label">並び順選択</label><br>
 						<div class="form-check">
-							<?php
-								$sort_key = 'sortbyday'; // 並び替え初期値は登録順
-							if ( ! empty( $_GET['sortcode'] ) ) {
-								$sort_key = $_GET['sortcode'];
-							}
-							?>
-							<input class="form-check-input" type="radio" name="sortcode" id="flexRadioDefault1" value="sortbyday" <?php checked( $sort_key, 'sortbyday' ); ?>>
+							<input class="form-check-input" type="radio" name="sortcode" id="flexRadioDefault1" value="sortbyday" checked>
 							<label class="form-check-label" for="flexRadioDefault1">
 								登録順
 							</label>
 						</div>
 						<div class="form-check">
-							<input class="form-check-input" type="radio" name="sortcode" id="flexRadioDefault2" value="sortbycode" <?php checked( $sort_key, 'sortbycode' ); ?>>
+							<input class="form-check-input" type="radio" name="sortcode" id="flexRadioDefault2" value="sortbycode" <?php echo ! empty( $_GET['sortcode'] ) && 'sortbycode' === $_GET['sortcode'] ? 'checked' : ''; ?>>
 							<label class="form-check-label" for="flexRadioDefault2">
 								コード順
 							</label>
