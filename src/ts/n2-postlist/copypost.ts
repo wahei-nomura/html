@@ -8,6 +8,10 @@ export default () => {
 	================================================================== */
 	jQuery(function($) {
 		
+		/**
+		 * フォーム内の表示やinput内容切り替え
+		 * @param teikiNum 定期回数
+		 */
 		const formControll=(teikiNum: number) => {
 			if(teikiNum>1) {
 				$('.is-teiki').css('display', 'block')
@@ -24,6 +28,11 @@ export default () => {
 			}
 		}
 
+		/**
+		 * 複製用テンプレートにてモーダル表示
+		 * @param id 
+		 * @param title 
+		 */
 		const openModal = (id: number, title: string): void => {
 			// テンプレートディレクトリからHTMLをロード
 			$("#wpbody-content").append(`<div id="${prefix}-content"></div>`);
@@ -39,6 +48,7 @@ export default () => {
 			);
 		};
 
+		// モーダル展開クリックイベント
 		$(`.${prefix}-copypost-btn`).on("click", (e) => {
 			const itemTr = $(e.target).parent().parent();
 			const originalId: number = Number(
@@ -48,17 +58,20 @@ export default () => {
 			openModal(originalId, itemTitle);
 		});
 
+		// 定期便、単品切り替え
 		$('body').on('change', 'select[name="定期"]', e => {
 			const teikiNum = +$(e.target).val();
 			formControll(teikiNum)
 		})
 
+		// モーダルキャンセル
 		$("body").on("click", "#n2-copypost-modal .close-btn,#n2-copypost-modal-wrapper", (e) => {
 			if($(e.target).attr('id')==='n2-copypost-modal-wrapper' || $(e.target).hasClass('dashicons-no')) {	
 				$(`#${prefix}-content`).remove();
 			}
 		});
 
+		// 複製submit
 		$("body").on("submit", '#n2-copypost-form', () => {
 
 			// inputのvalueに空のものがあるか判定
