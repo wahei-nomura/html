@@ -6,7 +6,23 @@ export default () => {
 	 * 投稿複製用
 	 * 
 	================================================================== */
-	jQuery(function ($) {
+	jQuery(function($) {
+		
+		const formControll=(teikiNum: number) => {
+			if(teikiNum>1) {
+				$('.is-teiki').css('display', 'block')
+				$('#n2-copypost-modal .new-title span').text(`【全${teikiNum}回定期便】`);
+				$('input[name="同月回数"]').prop('disabled',false)
+				$('input[name="初回発送日"]').prop('disabled',false)
+				$('input[name="毎月発送日"]').prop('disabled',false)
+			} else {
+				$('.is-teiki').css('display', 'none')
+				$('input[name="同月回数"]').val('').prop('disabled',true)
+				$('input[name="初回発送日"]').val('').prop('disabled',true)
+				$('input[name="毎月発送日"]').val('').prop('disabled',true)
+				$('#n2-copypost-modal .new-title span').text('');
+			}
+		}
 
 		const openModal = (id: number, title: string): void => {
 			// テンプレートディレクトリからHTMLをロード
@@ -17,6 +33,8 @@ export default () => {
 					$("#n2-copypost-modal .original-title").text(title);
 					$('input[name="複写後商品名"]').val(title);
 					$("#n2-copypost-modal input[name='id']").val(id);
+
+					formControll(1)
 				}
 			);
 		};
@@ -26,23 +44,13 @@ export default () => {
 			const originalId: number = Number(
 				itemTr.find("th.check-column input").val()
 			);
-			const itemTitle = itemTr.find(".item-title a").text();
+			const itemTitle=itemTr.find(".item-title a").text();
 			openModal(originalId, itemTitle);
 		});
 
 		$('body').on('change', 'select[name="定期"]', e => {
 			const teikiNum = +$(e.target).val();
-			
-			if (teikiNum > 1) {
-				$('.is-teiki').css('display', 'block')
-				$('#n2-copypost-modal .new-title span').text(`【全${teikiNum}回定期便】`);
-			} else {
-				$('.is-teiki').css('display', 'none')
-				$('input[name="同月回数"]').val(''),
-				$('input[name="初回発送日"]').val(''),
-				$('input[name="毎月発送日"]').val('')
-				$('#n2-copypost-modal .new-title span').text('');
-			}
+			formControll(teikiNum)
 		})
 
 		$("body").on("click", "#n2-copypost-modal .close-btn,#n2-copypost-modal-wrapper", (e) => {
@@ -53,12 +61,10 @@ export default () => {
 
 		$("body").on("submit", '#n2-copypost-form', () => {
 
-			if (
-				$('select[name="定期"] option:selected').val() > 1 &&
-				($('input[name="同月回数"]').val() === '' || $('input[name="初回発送日"]').val() === '' || $('input[name="毎月発送日"]').val() === '')
-			) {
+			// inputのvalueに空のものがあるか判定
+			if($('#n2-copypost-form').serializeArray().length && $('#n2-copypost-form').serializeArray().map(v => v.value).includes('')) {
 				alert('全ての項目を入力してください')
-				return false;
+				return false;	
 			}
 
 		});
