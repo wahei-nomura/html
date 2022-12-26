@@ -45,8 +45,10 @@ export default () => {
 			}
 		})
 
-		$("body").on("click", "#n2-copypost-modal .close-btn", () => {
-			$(`#${prefix}-content`).remove();
+		$("body").on("click", "#n2-copypost-modal .close-btn,#n2-copypost-modal-wrapper", (e) => {
+			if($(e.target).attr('id')==='n2-copypost-modal-wrapper' || $(e.target).hasClass('dashicons-no')) {	
+				$(`#${prefix}-content`).remove();
+			}
 		});
 
 		$("body").on("submit", '#n2-copypost-form', () => {
