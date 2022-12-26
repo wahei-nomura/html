@@ -97,9 +97,9 @@ class N2_Copypost {
 			'meta_input'  => $post_all_meta,
 		);
 
-		wp_insert_post( $new_post );
+		$new_id = wp_insert_post( $new_post );
 
-		wp_safe_redirect( $_SERVER['HTTP_REFERER'] );
+		wp_safe_redirect( admin_url( "post.php?post={$new_id}&action=edit" ) );
 		exit;
 	}
 }
