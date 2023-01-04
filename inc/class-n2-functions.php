@@ -16,6 +16,37 @@ if ( ! defined( 'ABSPATH' ) ) {
 class N2_Functions {
 
 	/**
+	 * 寄附金額計算式をそのままJSの構文として渡す
+	 *
+	 * @param string $lang php or js
+	 * @param Array  $price_data 価格 送料
+	 * @return string
+	 */
+	public static function kifu_auto_pattern( $lang, $price_data = null ) {
+
+		if ( 'php' === $lang ) {
+			list( $kakaku, $souryou ) = $price_data;
+		}
+
+		$pattern = array(
+			'零号機' => 'php' === $lang ? ceil( ( $kakaku + $souryou ) / 300 ) * 1000 : 'Math.ceil((kakaku + souryou) / 300) * 1000',
+			'初号機' => 'php' === $lang ? ceil( $kakaku / 300 ) * 1000 : 'Math.ceil(kakaku / 300) * 1000',
+			'弐号機' => 'php' === $lang ? ceil( ( $kakaku + $souryou ) / 350 ) * 1000 : 'Math.ceil((kakaku + souryou) / 350) * 1000',
+		);
+
+		if ( 'php' === $lang ) {
+			$pattern['使徒'] = $pattern['初号機'] > $pattern['弐号機'] ? $pattern['初号機'] : $pattern['弐号機'];
+		} else {
+			$pattern['使徒'] = "{$pattern['初号機']}>{$pattern['弐号機']}?{$pattern['初号機']}:{$pattern['弐号機']}";
+		}
+
+		$pattern_type = '初号機';
+		$pattern_type = apply_filters( 'n2_setpost_change_kifu_pattern', $pattern_type );
+
+		return $pattern[ $pattern_type ];
+	}
+
+	/**
 	 * カスタムフィールド全取得
 	 *
 	 * @param Object $object 現在の投稿の詳細データ

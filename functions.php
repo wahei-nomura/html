@@ -30,6 +30,7 @@ $incs = array(
 	'class-n2-enqueuescript',
 	'class-n2-sync',
 	'class-n2-item-export',
+	'class-n2-copypost',
 	'class-n2-front',
 	'class-n2-img-download',
 );

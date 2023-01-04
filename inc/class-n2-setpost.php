@@ -324,35 +324,13 @@ class N2_Setpost {
 
 		$arr = array(
 			'ss_crew'           => wp_get_current_user()->allcaps['ss_crew'] ? 'true' : 'false',
-			'kifu_auto_pattern' => $this->kifu_auto_pattern(),
+			'kifu_auto_pattern' => N2_Functions::kifu_auto_pattern( 'js' ),
 			'delivery_pattern'  => $this->delivery_pattern(),
 		);
 
 		echo json_encode( $arr );
 
 		die();
-	}
-
-	/**
-	 * 寄附金額計算式をそのままJSの構文として渡す
-	 *
-	 * @return string
-	 */
-	private function kifu_auto_pattern() {
-
-		// パターンを配列で置いておく
-		$pattern = array(
-			'零号機' => 'Math.ceil((kakaku + souryou) / 300) * 1000',
-			'初号機' => 'Math.ceil(kakaku / 300) * 1000',
-			'弐号機' => 'Math.ceil((kakaku + souryou) / 350) * 1000',
-		);
-
-		$pattern['使徒'] = "{$pattern['初号機']}>{$pattern['弐号機']}?{$pattern['初号機']}:{$pattern['弐号機']}";
-
-		$pattern_type = '初号機';
-		$pattern_type = apply_filters( 'n2_setpost_change_kifu_pattern', $pattern_type );
-
-		return $pattern[ $pattern_type ];
 	}
 
 	/**
