@@ -1,3 +1,12 @@
+<?php
+	/**
+	 * template/copy-post.php
+	 *
+	 * @package neoneng
+	 */
+
+?>
+
 <!DOCTYPE html>
 
 <style>
@@ -61,18 +70,12 @@
 			<div class="form-block">
 				<label>定期便として複製しますか？</label>
 				<select name="定期">
-					<option value="1">定期便ではない</option>
-					<option value="2">2回定期便として複製</option>
-					<option value="3">3回定期便として複製</option>
-					<option value="4">4回定期便として複製</option>
-					<option value="5">5回定期便として複製</option>
-					<option value="6">6回定期便として複製</option>
-					<option value="7">7回定期便として複製</option>
-					<option value="8">8回定期便として複製</option>
-					<option value="9">9回定期便として複製</option>
-					<option value="10">10回定期便として複製</option>
-					<option value="11">11回定期便として複製</option>
-					<option value="12">12回定期便として複製</option>
+				<?php
+				for ( $i = 1; $i <= 12; $i++ ) {
+					printf( '<option value="%d">%s</option>', $i, $i < 2 ? '定期便ではない' : "{$i}回定期便として複製" );
+				}
+				?>
+					
 				</select>
 			</div>
 			<div class="form-block">

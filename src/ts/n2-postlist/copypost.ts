@@ -37,7 +37,7 @@ export default () => {
 			// テンプレートディレクトリからHTMLをロード
 			$("#wpbody-content").append(`<div id="${prefix}-content"></div>`);
 			$(`#${prefix}-content`).load(
-				neoNengPath(window) + "/template/copy-post.html",
+				neoNengPath(window) + "/template/copy-post.php",
 				() => {
 					$("#n2-copypost-modal .original-title").text(title);
 					$('input[name="複写後商品名"]').val(title);
