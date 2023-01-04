@@ -7,6 +7,8 @@ export default () => {
 	 * 
 	================================================================== */
 	jQuery(function($) {
+
+		
 		
 		/**
 		 * フォーム内の表示やinput内容切り替え
@@ -16,37 +18,33 @@ export default () => {
 			if(teikiNum>1) {
 				$('.is-teiki').css('display', 'block')
 				$('#n2-copypost-modal .new-title span').text(`【全${teikiNum}回定期便】`);
-				$('input[name="同月回数"]').prop('disabled',false)
-				$('input[name="初回発送日"]').prop('disabled',false)
-				$('input[name="毎月発送日"]').prop('disabled',false)
+				$('#n2-copypost-form .is-teiki input').prop('disabled', false)
 			} else {
 				$('.is-teiki').css('display', 'none')
-				$('input[name="同月回数"]').val('').prop('disabled',true)
-				$('input[name="初回発送日"]').val('').prop('disabled',true)
-				$('input[name="毎月発送日"]').val('').prop('disabled',true)
+				$('#n2-copypost-form .is-teiki input').prop('disabled', true)
 				$('#n2-copypost-modal .new-title span').text('');
 			}
 		}
+
+		// 初回読み込み
+		$("#wpbody-content").append(`<div id="${prefix}-content"></div>`);
+		$(`#${prefix}-content`).load(
+			neoNengPath(window) + "/template/copy-post.php"
+		);
 
 		/**
 		 * 複製用テンプレートにてモーダル表示
 		 * @param id 
 		 * @param title 
 		 */
-		const openModal = (id: number, title: string): void => {
-			// テンプレートディレクトリからHTMLをロード
-			$("#wpbody-content").append(`<div id="${prefix}-content"></div>`);
-			$(`#${prefix}-content`).load(
-				neoNengPath(window) + "/template/copy-post.php",
-				() => {
-					$("#n2-copypost-modal .original-title").text(title);
-					$('input[name="複写後商品名"]').val(title);
-					$("#n2-copypost-modal input[name='id']").val(id);
-
-					formControll(1)
-				}
-			);
-		};
+		const setModal = (id: number, title: string): void => {
+			$('#n2-copypost-modal-wrapper').css('display', 'block')
+			$("#n2-copypost-modal .original-title").text(title);
+			$('input[name="複写後商品名"]').val(title);
+			$("#n2-copypost-modal input[name='id']").val(id);
+			$("select[name='定期']>option[value='1']").prop('selected', true)
+			formControll(1)
+		}
 
 		// モーダル展開クリックイベント
 		$(`.${prefix}-copypost-btn`).on("click", (e) => {
@@ -55,7 +53,7 @@ export default () => {
 				itemTr.find("th.check-column input").val()
 			);
 			const itemTitle=itemTr.find(".item-title a").text();
-			openModal(originalId, itemTitle);
+			setModal(originalId, itemTitle);
 		});
 
 		// 定期便、単品切り替え
@@ -67,7 +65,7 @@ export default () => {
 		// モーダルキャンセル
 		$("body").on("click", "#n2-copypost-modal .close-btn,#n2-copypost-modal-wrapper", (e) => {
 			if($(e.target).attr('id')==='n2-copypost-modal-wrapper' || $(e.target).hasClass('dashicons-no')) {	
-				$(`#${prefix}-content`).remove();
+				$('#n2-copypost-modal-wrapper').css('display', 'none')
 			}
 		});
 

@@ -10,6 +10,10 @@
 <!DOCTYPE html>
 
 <style>
+	#n2-copypost-modal-wrapper {
+		display: none;
+	}
+
 	#n2-copypost-modal {
 		padding: 24px;
 	}
