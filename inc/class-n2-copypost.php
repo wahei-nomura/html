@@ -85,7 +85,7 @@ class N2_Copypost {
 		$num_length = mb_strlen( $post_all_meta['返礼品コード'] ) - mb_strlen( $prefix );
 
 		// 0詰め
-		$new_item_code           = $prefix . sprintf( "%0{$num_length}d", max( ...$item_code_numbers ) + 1 );
+		$new_item_code           = count( $item_code_numbers ) > 1 ? $prefix . sprintf( "%0{$num_length}d", max( ...$item_code_numbers ) + 1 ) : $prefix . sprintf( "%0{$num_length}d", $item_code_numbers[0] + 1 );
 		$post_all_meta['返礼品コード'] = $new_item_code;
 		// meta上書き　ここまで ------------------------------------------------------------------------------------------------------------------------------
 
