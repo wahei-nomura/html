@@ -14,11 +14,13 @@ export default () => {
 		 */
 		const formControll=(teikiNum: number) => {
 			if(teikiNum>1) {
+				$('.is-teiki').css('display', 'block')
 				$('#n2-copypost-modal .new-title span').text(`【全${teikiNum}回定期便】`);
 				$('input[name="同月回数"]').prop('disabled',false)
 				$('input[name="初回発送日"]').prop('disabled',false)
 				$('input[name="毎月発送日"]').prop('disabled',false)
 			} else {
+				$('.is-teiki').css('display', 'none')
 				$('input[name="同月回数"]').val('').prop('disabled',true)
 				$('input[name="初回発送日"]').val('').prop('disabled',true)
 				$('input[name="毎月発送日"]').val('').prop('disabled',true)
