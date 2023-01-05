@@ -3,6 +3,7 @@ import price from "./price";
 import rakutenTag from "./rakuten-tag";
 import mediaUp from "./media-up";
 import syncStatus from "./sync-status";
+import food from "./food";
 
 export default () => {
 	main();
@@ -10,4 +11,5 @@ export default () => {
 	rakutenTag();
 	mediaUp();
 	syncStatus();
+	food();
 };
