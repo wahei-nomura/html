@@ -14,6 +14,13 @@ export default () => {
 			constructor(food: boolean = false, allergen: boolean = false) {
 				this.food = food;
 				this.allergen = allergen;
+
+				// 初期表示
+				this.displayAllergenBool();
+				this.displayAllergenList();
+				this.displayKigen();
+				this.displaySanchi();
+
 			}
 
 			get foodBool() {
@@ -125,11 +132,6 @@ export default () => {
 					.val("アレルギー品目あり")
 					.prop("checked")
 			);
-			// 初期表示
-			foodState.displayAllergenBool();
-			foodState.displayAllergenList();
-			foodState.displayKigen();
-			foodState.displaySanchi();
 
 			// 	checkboxイベント
 			$('input[name="食品確認[]"]').on("change", (e) => {
