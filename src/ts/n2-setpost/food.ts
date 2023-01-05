@@ -44,10 +44,8 @@ export default () => {
 
 			public displayAllergenBool() {
 				const allergenBoolBlock = $(
-					'label[for="アレルギー有無確認"],label[for="アレルギーの特記事項"]'
+					'div[title="アレルギー有無確認"],div[title="アレルギーの特記事項"]'
 				)
-					.parent()
-					.parent();
 
 				allergenBoolBlock.css({
 					visibility: `${this.food ? "visible" : "hidden"}`,
@@ -62,10 +60,7 @@ export default () => {
 			}
 
 			public displayAllergenList() {
-				const allergenListBlock = $('label[for="アレルゲン"]')
-					.parent()
-					.parent();
-
+				const allergenListBlock = $('div[title="アレルゲン"]')
 				allergenListBlock.css({
 					visibility: `${this.allergen ? "visible" : "hidden"}`,
 					opacity: `${this.allergen ? 1 : 0}`,
@@ -80,10 +75,8 @@ export default () => {
 
 			public displayKigen() {
 				const kigenBlock = $(
-					'label[for="賞味期限"],label[for="消費期限"]'
+					'div[title="賞味期限"],div[title="消費期限"]'
 				)
-					.parent()
-					.parent();
 
 				kigenBlock.css({
 					visibility: `${this.food ? "visible" : "hidden"}`,
@@ -95,10 +88,8 @@ export default () => {
 
 			public displaySanchi() {
 				const sanchiBlock = $(
-					'label[for="原料原産地"],label[for="加工地"]'
+					'div[title="原料原産地"],div[title="加工地"]'
 				)
-					.parent()
-					.parent();
 
 				sanchiBlock.css({
 					visibility: `${this.food ? "visible" : "hidden"}`,
