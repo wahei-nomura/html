@@ -17,29 +17,29 @@
 	#n2-copypost-modal {
 		padding: 24px;
 	}
-	.new-title span {
+	#n2-copypost-modal .new-title span {
 		display: inline-block;
 		font-size: 16px;
 	}
-	label {
+	#n2-copypost-modal label {
 		display: block;
 		font-size: 18px;
 		font-weight: bold;
 		margin-bottom: 8px;
 	}
-	input[type="number"] {
+	#n2-copypost-modal input[type="number"] {
 		width: 60px;
 	}
-	input[type="text"] {
+	#n2-copypost-modal input[type="text"] {
 		width: 100%;
 	}
-	.form-block {
+	#n2-copypost-modal .form-block {
 		position: relative;
 		margin: 16px 0;
 		padding: 16px;
 		background-color: azure;
 	}
-	.form-block::after {
+	#n2-copypost-modal .form-block::after {
 		content: '';
 		position: absolute;
 		bottom: -8px;
@@ -48,14 +48,14 @@
 		height: 1px;
 		background-color: lightgray;
 	}
-	.close-btn {
+	#n2-copypost-modal .close-btn {
 		position: absolute;
 		right: 16px;
 		top: 16px;
 		z-index: 1000;
 		cursor: pointer;
 	}
-	.close-btn span {
+	#n2-copypost-modal .close-btn span {
 		width: 32px;
 		height: 32px;
 		font-size: 32px;
