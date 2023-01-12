@@ -136,7 +136,7 @@ export default () => {
 					.split("(")[1]
 					.split(")")[0]
 					.split(", ");
-				if (6 === transform.length) {
+				if (transform.length === 6) {
 					matrix = {
 						"scale-x": transform[0],
 						"rotate-p": transform[1],
@@ -145,7 +145,7 @@ export default () => {
 						"translate-x": transform[4],
 						"translate-y": transform[5],
 					};
-				} else if (16 === transform.length) {
+				} else if (transform.length === 16) {
 					matrix = {
 						"scale-x": transform[0],
 						"rotate-z-p": transform[1],
