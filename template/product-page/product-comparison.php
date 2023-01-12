@@ -1,6 +1,7 @@
 <?php
     // 比較で表示する見出し一覧
     $args_th = array( '寄付額', '納期', '在庫' );
+	
     // 田代出来てるポータルのみに絞る
     foreach ( $args as $portal => $params) {
         if ( $params['status'] === 'NG' ){

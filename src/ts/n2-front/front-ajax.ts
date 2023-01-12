@@ -75,27 +75,11 @@ export default () => {
 	})
 };
 
-export const getPortalScraping = (productID:string, town:string) => {
+export const portalScrapingAjax = ( method:string, data:object) => {
     return $.ajax({
-        url: ajaxUrl(window),
-        type: "GET",
+        url: ajaxUrl(window) + "?action=N2_Portal_Scraper",
+        type: method == "GET" ? "GET" : "POST",
         dataType: "json",
-        data: {
-            action: "N2_Portal_Scraper",
-            id: productID,
-            town: town,
-        },
+        data: { ...data},
     })
 };
-export const saveScraping = ( postID:number, key:string, scraping:object ) => {
-	return $.ajax({
-        url: ajaxUrl(window) + '?action=N2_Portal_Scraper_save',
-        type: "POST",
-        dataType: "json",
-        data: {
-            postID: postID,
-			key: key,
-            value: scraping,
-        },
-    })
-}

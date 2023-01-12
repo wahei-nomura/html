@@ -25,6 +25,7 @@ class N2_Enqueuescript {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_setpost_script' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_front_script' ) );
 		add_action( 'admin_footer', array( $this, 'noscript' ) );
+		add_action( 'wp_footer', array( $this, 'noscript' ) );
 	}
 
 	/**
@@ -58,7 +59,7 @@ class N2_Enqueuescript {
 	 *
 	 * @return Array tmp_path
 	 */
-	private function get_tmp_path(){
+	private function get_tmp_path() {
 		return array(
 			'tmp_url'  => get_theme_file_uri(),
 			'ajax_url' => admin_url( 'admin-ajax.php' ),
@@ -70,8 +71,7 @@ class N2_Enqueuescript {
 	 *
 	 * @return void
 	 */
-	public function noscript()
-	{
+	public function noscript() {
 		// 事業者ごとの電話番号、メール設定は一旦保留
 		// $tel = NENG_OPTION['contact']['tel'];
 		// $email = NENG_OPTION['contact']['email'];
