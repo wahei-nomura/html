@@ -9,7 +9,6 @@
 <section class="product-list-wrap">
 
 <?php
-		if( empty( $_GET['look']) && empty( $_GET['crew'])){
 			$user_lists = get_users( 'role=jigyousya' );
 			// var_dump($user_lists);
 			$search_params = $_GET;
@@ -39,7 +38,7 @@
 						}else{
 							$search_result .= '登録順に表示';
 						}
-					}else{
+					}elseif( 's' == $key ){
 						$search_result .= $sch_prm;
 					}
 				}
@@ -47,14 +46,14 @@
 			if ( '' != $search_result ) {
 				echo '<h2 class="search-result-header text-primary">絞り込み：' . $search_result . '</h2>';
 			}
-		}
 	?>
 
 	<?php
 	$item_amount = 0; // 表示されている返礼品数用
-	if ( ! empty( $_GET['look'] ) && ! empty( $_GET['jigyousya'] ) ) :
+	// 2022-11-29 コメントアウト taiki
+	// if ( ! empty( $_GET['look'] ) && ! empty( $_GET['jigyousya'] ) ) :
 		?>
-		<h2 class="display-12 p-2 border-bottom border-success border-3"><span class="text-success"><?php echo get_userdata( filter_input( INPUT_GET, 'jigyousya', FILTER_VALIDATE_INT ) )->display_name; ?></span> 様 専用確認ページ</h2>
+		<!-- <h2 class="display-12 p-2 border-bottom border-success border-3"><span class="text-success"><?php echo get_userdata( filter_input( INPUT_GET, 'jigyousya', FILTER_VALIDATE_INT ) )->display_name; ?></span> 様 専用確認ページ</h2>
 		<p>お手数ですが、各商品をご確認されましたら<span class="text-danger">「確認OK」</span>ボタンを押してください。（ご不明点はスチームシップまでお問い合わせください。）</p>
 		<div class="btn-group" id="n2-status-toggle-btns" role="group" aria-label="Basic checkbox toggle button group">
 			<input type="checkbox" class="btn-check" id="no-check" autocomplete="off" checked>
@@ -65,8 +64,8 @@
 
 			<input type="checkbox" class="btn-check" id="no-fix" autocomplete="off" checked>
 			<label class="btn btn-outline-success" for="no-fix">修正しなくていい</label>
-		</div>
-	<?php endif; ?>
+		</div> -->
+	<?php # endif; ?>
 
 	<?php get_template_part( 'template/pagination' ); ?>
 	<ul class="product-list">
@@ -115,12 +114,14 @@
 					}
 				}
 
+				// 2022-11-29 コメントアウト taiki
 				// 事業者確認フラグ用　------------------------------------------------------------------------
-				$check_param   = get_post_meta( get_the_ID(), '事業者確認', true );
-				$checked_value = empty( $check_param ) ? '確認未' : $check_param[0];
+				// $check_param   = get_post_meta( get_the_ID(), '事業者確認', true );
+				// $checked_value = empty( $check_param ) ? '確認未' : $check_param[0];
 				// -----------------------------------------------------------------------------------------
 
-				$item_link = ! empty( $_GET['look'] ) && ! empty( $_GET['jigyousya'] ) ? get_the_permalink() . '&look=' . $_GET['look'] : get_the_permalink();
+				// $item_link = ! empty( $_GET['look'] ) && ! empty( $_GET['jigyousya'] ) ? get_the_permalink() . '&look=' . $_GET['look'] : get_the_permalink();
+				$item_link = get_the_permalink();
 				?>
 		<li class="<?php echo $post_status; ?>">
 		<a href="<?php echo $item_link; ?>">
@@ -144,8 +145,9 @@
 			</span><!--product-list-item-->
 		</a>
 
-		<?php if ( ! empty( $_GET['look'] ) && ! empty( $_GET['jigyousya'] ) ) : ?>
-			<div class='n2-jigyousya-radiobox card p-2 bg-light'>
+		<!-- 2022-11-29 コメントアウト taiki -->
+		<?php # if ( ! empty( $_GET['look'] ) && ! empty( $_GET['jigyousya'] ) ) : ?>
+			<!-- <div class='n2-jigyousya-radiobox card p-2 bg-light'>
 				<div class="form-check text-danger text-center">
 					<input type="radio" class="form-check-input no-check" name="jigyousya-check-<?php echo the_ID(); ?>" id="no-check-<?php echo the_ID(); ?>" value='確認未' <?php echo checked( $checked_value, '確認未', false ); ?>>
 					<label for="no-check-<?php echo the_ID(); ?>" class="form-check-label">
@@ -164,9 +166,9 @@
 						修正しなくていい
 					</label>
 				</div>
-			</div>
+			</div> -->
 
-		<?php endif; ?>
+		<?php # endif; ?>
 		</li>
 				<?php
 				$item_amount++; // 表示されている返礼品数をカウント

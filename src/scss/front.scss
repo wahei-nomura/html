@@ -867,8 +867,9 @@ $breakpoint: (
 .search-code-list{
 	width: 100%;
 	padding: 12px;
+	min-height: 200px;
 	option{
-		padding: 2px 0;
+		padding: 4px 0;
 	}
 }
 .product-img-wrap{
@@ -901,4 +902,7 @@ $breakpoint: (
 	display: flex;
 	justify-content: center;
 	align-items: center;
+}
+#toggle-display-js{
+	display: none;
 }
