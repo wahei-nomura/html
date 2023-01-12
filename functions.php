@@ -33,7 +33,7 @@ $incs = array(
 	'class-n2-front',
 	'class-n2-img-download',
 	'class-n2-all-town',
-	'item-export/class-n2-ledghome',
+	'class-n2-item-export',
 	// 'class-n2-front-comment', // 2022-11-29 コメントアウト taiki
 );
 foreach ( $incs as $name ) {
