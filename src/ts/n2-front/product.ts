@@ -99,7 +99,7 @@ export default () => {
 		};
 		const transform = () => {
 			let matrix = {};
-			if (jQuery(".sub-imgs").css("transform") !== "none") {
+			if ("none" !== jQuery(".sub-imgs").css("transform")) {
 				const transform = jQuery(".sub-imgs")
 					.css("transform")
 					.split("(")[1]
