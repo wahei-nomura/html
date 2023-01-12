@@ -39,7 +39,32 @@ class N2_Sync {
 		add_action( 'wp_ajax_nopriv_n2_sync_posts', array( $this, 'sync_posts' ) );
 		add_action( 'wp_ajax_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
 		add_action( 'wp_ajax_nopriv_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
-		// add_action( 'wp_ajax_n2_sync_posts_by_rest_api', array( $this, 'sync_posts_by_rest_api' ) );
+
+		// cron登録処理
+		add_filter( 'cron_schedules', array( $this, 'intervals' ) );
+		if ( ! wp_next_scheduled( 'wp_ajax_n2_sync_users' ) ) {
+			wp_schedule_event( time(), 'daily', 'wp_ajax_n2_sync_users' );
+		}
+		if ( ! wp_next_scheduled( 'wp_ajax_n2_multi_sync_posts' ) ) {
+			wp_schedule_event( time() + 100, '30min', 'wp_ajax_n2_multi_sync_posts' );
+		}
+	}
+
+	/**
+	 * WP CRONのオリジナルスケジュール
+	 *
+	 * @param array $schedules スケジュール配列
+	 */
+	public function intervals( $schedules ) {
+		$schedules['30min'] = array(
+			'interval' => 1800,
+			'display'  => '30分毎',
+		);
+		$schedules['5min']  = array(
+			'interval' => 300,
+			'display'  => '5分毎',
+		);
+		return $schedules;
 	}
 
 	/**
@@ -47,23 +72,20 @@ class N2_Sync {
 	 * posts_per_page=10 が最速なのかはまだ未検証
 	 */
 	public function multi_sync_posts() {
-		$before = microtime( true );
-
-		if ( ! WP_Filesystem() ) {
-			return;
+		if ( is_main_site() ) {
+			exit;
 		}
-		global $wp_filesystem;
+		$before = microtime( true );
 
 		// params
 		$params = array(
 			'action'         => 'postsdata',
 			'post_type'      => 'post',
-			'posts_per_page' => $_GET['posts_per_page'] ?? 10,
+			'posts_per_page' => $_GET['posts_per_page'] ?? 100,
 			'paged'          => 1,
 		);
-
-		$json = $wp_filesystem->get_contents( "{$this->neng_ajax_url}?" . http_build_query( $params ) );
-		$data = json_decode( $json, true );
+		$json   = wp_remote_get( "{$this->neng_ajax_url}?" . http_build_query( $params ) )['body'];
+		$data   = json_decode( $json, true );
 
 		// ログテキスト
 		$logs   = array();
@@ -76,9 +98,9 @@ class N2_Sync {
 			echo $json;
 			exit;
 		}
-
 		// ページ数取得
 		$max_num_pages = $data['max_num_pages'];
+		$found_posts   = $data['found_posts'];
 
 		// $params変更
 		$params['action'] = 'n2_sync_posts';
@@ -87,41 +109,57 @@ class N2_Sync {
 		$mh       = curl_multi_init();
 		$ch_array = array();
 		while ( $max_num_pages >= $params['paged'] ) {
+
+			// ツイン起動しないためにSync中のフラグをチェックして終了
+			$sleep = 300;
+			if ( $sleep > ( strtotime( 'now' ) - get_option( "n2syncing-{$params['paged']}", strtotime( '-1 hour' ) ) ) ) {
+				$logs[] = '2重起動防止のため終了';
+				$this->log( $logs );
+				exit;
+			}
 			$ch         = curl_init();
 			$ch_array[] = $ch;
 			// localでSSLでうまくアクセスできないので$schema必須
-			$schema     = preg_match( '/localhost/', get_network()->domain ) ? 'http' : 'admin';
-			$options    = array(
+			$schema  = preg_match( '/localhost/', get_network()->domain ) ? 'http' : 'admin';
+			$options = array(
 				CURLOPT_URL            => admin_url( 'admin-ajax.php?', $schema ) . http_build_query( $params ),
 				CURLOPT_HEADER         => false,
 				CURLOPT_RETURNTRANSFER => true,
 				CURLOPT_SSL_VERIFYPEER => false,
-				CURLOPT_FOLLOWLOCATION => true,
 				CURLOPT_TIMEOUT        => 30,
+				CURLOPT_USERPWD        => 'ss:ss',
 			);
 			curl_setopt_array( $ch, $options );
 			curl_multi_add_handle( $mh, $ch );
 			$params['paged']++;
 		}
-		$active = null;
 		do {
-			$mrc = curl_multi_exec( $mh, $active );
-		} while ( CURLM_CALL_MULTI_PERFORM === $mrc );
+			curl_multi_exec( $mh, $running );
+			curl_multi_select( $mh );
+		} while ( $running > 0 );
 
-		while ( $active && CURLM_OK === $mrc ) {
-			if ( curl_multi_select( $mh ) === -1 ) {
-				usleep( 1 );
-			}
-			do {
-				$mrc = curl_multi_exec( $mh, $active );
-			} while ( CURLM_CALL_MULTI_PERFORM === $mrc );
-		}
-
+		$neng_ids = array();// NENGに登録済みの投稿ID配列
 		foreach ( $ch_array as $ch ) {
+			$ids = json_decode( curl_multi_getcontent( $ch ) );
+			if ( is_array( $ids ) ) {
+				$neng_ids = array( ...$neng_ids, ...$ids );
+			}
 			curl_multi_remove_handle( $mh, $ch );
 			curl_close( $ch );
 		}
 		curl_multi_close( $mh );
+
+		// NENGとNEONENGの差分を抽出するための準備
+		$neng_ids    = array_values( $neng_ids );
+		$neoneng_ids = get_posts( 'posts_per_page=-1&post_status=any&fields=ids' );
+		// NENGから削除されているものを削除（こうしとかないと初回登録時に片っ端から消してしまう）
+		if ( $found_posts < count( $neoneng_ids ) ) {
+			$deleted_ids = array_diff( $neoneng_ids, $neng_ids );
+			foreach ( $deleted_ids as $del ) {
+				wp_delete_post( $del );
+			}
+		}
+
 		echo 'N2-Multi-Sync-Posts「' . get_bloginfo( 'name' ) . 'の返礼品」旧NENGとシンクロ完了！（' . number_format( microtime( true ) - $before, 2 ) . ' 秒）';
 		$logs[] = '返礼品シンクロ完了 ' . number_format( microtime( true ) - $before, 2 ) . ' sec';
 		$this->log( $logs );
@@ -132,13 +170,12 @@ class N2_Sync {
 	 * N2ユーザーデータ吸い上げ
 	 */
 	public function sync_users() {
-		$before = microtime( true );
-		if ( ! WP_Filesystem() ) {
-			return;
+		if ( is_main_site() ) {
+			exit;
 		}
-		global $wp_filesystem;
-		$json = $wp_filesystem->get_contents( "{$this->neng_ajax_url}?action=userdata" );
-		$data = json_decode( $json, true );
+		$before = microtime( true );
+		$json   = wp_remote_get( "{$this->neng_ajax_url}?action=userdata" )['body'];
+		$data   = json_decode( $json, true );
 
 		// ログテキスト
 		$logs   = array();
@@ -155,6 +192,10 @@ class N2_Sync {
 		// ユーザー登録
 		foreach ( $data as $k => $v ) {
 			$userdata = $v['data'];
+			// フルフロンタルは除外
+			if ( 'fullfrontal' === $userdata['user_login'] ) {
+				continue;
+			}
 			unset( $userdata['ID'] );
 
 			// 既存ユーザーは更新するのでIDを突っ込む
@@ -193,19 +234,18 @@ class N2_Sync {
 	 * posts_per_page
 	 */
 	public function sync_posts() {
-		if ( ! WP_Filesystem() ) {
-			return;
-		}
-		global $wp_filesystem;
 
 		// params
 		$params            = $_GET;
 		$params['action']  = 'postsdata';
 		$params['orderby'] = 'ID';
 
+		// Syncフラグを記録
+		update_option( "n2syncing-{$params['paged']}", strtotime( 'now' ) );
+
 		// 投稿を部分同期
-		$json = $wp_filesystem->get_contents( "{$this->neng_ajax_url}?" . http_build_query( $params ) );
-		$data  = json_decode( $json, true );
+		$json = wp_remote_get( "{$this->neng_ajax_url}?" . http_build_query( $params ) )['body'];
+		$data = json_decode( $json, true );
 
 		// ログテキスト
 		$logs   = array();
@@ -218,7 +258,8 @@ class N2_Sync {
 			echo $json;
 			exit;
 		}
-
+		// NENGにあるものの投稿ID（削除用）
+		$neng_ids = array();
 		wp_defer_term_counting( true );
 		wp_defer_comment_counting( true );
 		foreach ( $data['posts'] as $k => $v ) {
@@ -234,8 +275,14 @@ class N2_Sync {
 				'post_title'        => $v['post_title'],
 				'post_author'       => $this->get_userid_by_last_name( $v['post_author_last_name'] ),
 				'meta_input'        => $v['acf'],
+				'comment_status'    => 'open',
 			);
 			$postarr['meta_input']['_neng_id'] = $v['ID']; // 同期用 裏カスタムフィールドNENGのID追加
+
+			// 事業者確認を強制執行
+			if ( strtotime( '-1 week' ) > strtotime( $v['post_modified'] ) ) {
+				$postarr['meta_input']['事業者確認'] = array( '確認済', '2022-10-30 00:00:00', 'ssofice' );
+			}
 
 			// 登録済みか調査
 			$args = array(
@@ -248,6 +295,17 @@ class N2_Sync {
 			$p = get_posts( $args )[0];
 			// 登録済みの場合
 			if ( $p->ID ) {
+				// 事業者確認を強制執行
+				$confirm = get_post_meta( $p->ID, '事業者確認', true );
+				if ( empty( $confirm ) ) {
+					$confirm = array(
+						strtotime( '-2 week' ) > strtotime( $p->post_modified ) ? '確認済' : '確認未',
+						'2022-10-30 00:00:00',
+						'ssofice',
+					);
+					update_post_meta( $p->ID, '事業者確認', $confirm );
+				}
+				$neng_ids[] = $p->ID;
 				// 更新されてない場合はスキップ
 				if ( $p->post_modified === $postarr['post_modified'] ) {
 					continue;
@@ -257,89 +315,16 @@ class N2_Sync {
 				$this->log( array( ...$logs, "「{$p->post_title}」を更新しました。{$p->post_modified}  {$v['post_modified']}" ) );
 			}
 			add_filter( 'wp_insert_post_data', array( $this, 'alter_post_modification_time' ), 99, 2 );
-			wp_insert_post( $postarr );
+			$neng_ids[] = wp_insert_post( $postarr );
 			remove_filter( 'wp_insert_post_data', array( $this, 'alter_post_modification_time' ) );
 		}
 		wp_defer_term_counting( false );
 		wp_defer_comment_counting( false );
-		exit;
-	}
+		update_option( "n2syncing-{$params['paged']}", 0 );
 
-	/**
-	 * REST API経由でN2返礼品吸い上げ
-	 */
-	public function sync_posts_by_rest_api() {
-		global $current_blog;
-		$town = $current_blog->path;
-		$url  = "https://steamship.co.jp{$town}wp-json/wp/v2/posts";
-		// params
-		$params = array(
-			'per_page' => 100,
-			'page'     => 1,
-		);
-		// トータルページ数（仮）
-		$pages  = 1;
-		$before = microtime( true );
-		wp_defer_term_counting( true );
-		wp_defer_comment_counting( true );
-		while ( $params['page'] <= $pages ) {
-			// $http_response_header使いたいので鬼教官許して
-			$data    = file_get_contents( "{$url}?" . http_build_query( $params ) );
-			$headers = iconv_mime_decode_headers( implode( "\n", $http_response_header ) );
-			// 合計情報
-			$total = $headers['X-WP-Total'];
-			$pages = $headers['X-WP-TotalPages'];
-			$params['page']++;
-			$arr = json_decode( $data, true );
-			foreach ( $arr as $v ) {
+		// NENG登録済みの投稿idをjsonで返す
+		echo wp_json_encode( $neng_ids );
 
-				// 返礼品コードから事業者判定
-				preg_match( '/[A-Z]{2,3}/', $v['acf']['返礼品コード'], $m );
-				// 事業者コードが取得できない場合はスキップ
-				if ( empty( $m ) ) {
-					echo '<pre>事業者コードがありません。</pre>';
-					continue;
-				}
-				$user_id = $this->get_userid_by_last_name( $m[0] );
-
-				// 返礼品情報を生成
-				$postarr = array(
-					'post_status'       => $v['status'],
-					'post_date'         => $v['date'],
-					'post_date_gmt'     => $v['date_gmt'],
-					'post_modified'     => $v['modified'],
-					'post_modified_gmt' => $v['modified_gmt'],
-					'type'              => $v['type'],
-					'post_title'        => $v['title']['rendered'],
-					'post_author'       => $user_id,
-					'meta_input'        => $v['acf'],
-				);
-				// 「返礼品コード」が既に登録済みか調査
-				$args = array(
-					'post_type'   => 'post',
-					'meta_key'    => '返礼品コード',
-					'meta_value'  => $v['acf']['返礼品コード'],
-					'post_status' => 'any',
-				);
-				// 返礼品の投稿IDを取得
-				$p = get_posts( $args )[0];
-				// 登録済みの場合
-				if ( $p->ID ) {
-					// 更新されてない場合はスキップ
-					if ( new DateTime( $p->post_modified ) === new DateTime( $postarr['post_modified'] ) ) {
-						continue;
-					}
-					$postarr['ID'] = $p->ID;
-				}
-				add_filter( 'wp_insert_post_data', array( $this, 'alter_post_modification_time' ), 99, 2 );
-				wp_insert_post( $postarr );
-				remove_filter( 'wp_insert_post_data', array( $this, 'alter_post_modification_time' ) );
-			}
-		}
-		wp_defer_term_counting( false );
-		wp_defer_comment_counting( false );
-		$after = microtime( true );
-		echo ( $after - $before ) . ' sec';
 		exit;
 	}
 

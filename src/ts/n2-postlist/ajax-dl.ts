@@ -3,6 +3,15 @@ import { prefix, neoNengPath, ajaxUrl } from "../functions/index";/**
  */
 export default () => {
 	jQuery(function ($) {
+		// チェックが入った返礼品のidを配列で返す
+		const getIds = (): string => {
+			const checkbox = $.makeArray($('input[name="post[]"]'));
+			const checked = checkbox.flatMap((v) =>
+				$(v).prop("checked") ? $(v).val() : []
+			);
+			return checked.length ? checked.join() : "";
+		};
+
 		// loading要素を追加
 		$('#download_img').after('<span class="loading_background"><span id="text_loading"></span><span class="progressbar"></span></span>');
 		const text_loading = document.getElementById("text_loading");
@@ -12,20 +21,11 @@ export default () => {
 			const btnName = $(e.target).attr("id");
 			e.preventDefault();
 			download(ajaxUrl(window), btnName, getIds());
-			// setTimeout(function(){
-			// 	$(e.target).removeClass("not-click"); // 2秒待ってから再度クリックできるようにする
-			// },2000);
+			setTimeout(function(){
+				$(e.target).removeClass("not-click"); // 2秒待ってから再度クリックできるようにする
+			},2000);
 				
 		});
-
-		// チェックが入った返礼品のidを配列で返す
-		const getIds = (): string => {
-			const checkbox = $.makeArray($('input[name="post[]"]'));
-			const checked = checkbox.flatMap((v) =>
-				$(v).prop("checked") ? $(v).val() : []
-			);
-			return checked.length ? checked.join() : "";
-		};
 
 		// downloadさせる
 		function download(url, action, id) {

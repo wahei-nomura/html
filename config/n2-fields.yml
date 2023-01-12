@@ -17,7 +17,7 @@
     type: checkbox
     option:
         確認済み: 確認済み
-
+        確認未: 確認未
 #共通
 出品禁止ポータル:
     label: 出品禁止ポータルサイト選択
@@ -28,23 +28,23 @@
         楽天ふるさと納税: 楽天ふるさと納税
 
 価格:
-    type : text
-    label : 価格（税込）
-    validation : 必須
+    type: text
+    label: 価格（税込）
+    validation: 必須
 
 キャッチコピー:
-    type : text
-    description : 30文字以内
-    maxlength : 30
+    type: text
+    description: 30文字以内
+    maxlength: 30
 
 説明文:
-    type : textarea
-    description : 900文字以内
-    maxlength : 900
+    type: textarea
+    description: 900文字以内
+    maxlength: 900
 
 内容量・規格等:
-    type : textarea
-    description : 内容量、数量、サイズ、重さなど詳しくお書きください。<br>※器の容量は「満量時」でご記入ください！　満量時ではない場合は「8分目」など必ずどの分量かがわかるようにお願いいたします。<br>※色・柄・セットいの商品を登録する場合は、必ず別の商品として登録していただくようお願いいたします（注文時に色などを選択していただくような形式には対応しておりません）。
+    type: textarea
+    description: 内容量、数量、サイズ、重さなど詳しくお書きください。<br>※器の容量は「満量時」でご記入ください！　満量時ではない場合は「8分目」など必ずどの分量かがわかるようにお願いいたします。<br>※色・柄・セットいの商品を登録する場合は、必ず別の商品として登録していただくようお願いいたします（注文時に色などを選択していただくような形式には対応しておりません）。
 
 食品確認:
     type : checkbox
@@ -67,9 +67,9 @@
         アレルギー品目あり: アレルギー品目あり
 
 アレルゲン:
-    type : checkbox
-    description : 当てはまるアレルゲンがある場合は選択してください。
-    option :
+    type: checkbox
+    description: 当てはまるアレルゲンがある場合は選択してください。
+    option:
         0: 卵
         1: 乳
         2: 小麦
@@ -103,10 +103,14 @@
     type : text
     description : アレルギー品目なしの場合でもなにか特記があればご記載ください。
 
+アレルゲン注釈:
+    type: text
+    description: アレルゲンに関連する注釈があれば入力してください。（例）同じ工場で〇〇を含む製品を製造しております。
+
 申込期間:
-    type : text
-    description : 通年4月〜6月など
-    default : 通年
+    type: text
+    description: 通年4月〜6月など
+    default: 通年
 
 配送期間:
     type : textarea
@@ -115,31 +119,31 @@
     validation : 必須
 
 賞味期限:
-    type : textarea
-    description : 配送から５日間冷凍庫９０日間など
-    maxlength : 200
+    type: textarea
+    description: 配送から５日間冷凍庫９０日間など
+    maxlength: 200
 
 消費期限:
-    type : textarea
-    description : 配送から５日間冷凍庫９０日間など
+    type: textarea
+    description: 配送から５日間冷凍庫９０日間など
 
 限定数量:
-    type : text
-    description : 指定なし<br>100セット限定など
+    type: text
+    description: 指定なし<br>100セット限定など
 
 のし対応:
     type: select
     option:
-        '': 未選択
+        "": 未選択
         無し: 無し
         有り: 有り
-    validation : 必須
+    validation: 必須
 
 取り扱い方法1:
-    type : select
-    description : 配送時の取り扱い方法で該当するものを選択してください（1つ目）。
-    option :
-        '': 未選択
+    type: select
+    description: 配送時の取り扱い方法で該当するものを選択してください（1つ目）。
+    option:
+        "": 未選択
         ビン・ワレモノ: ビン・ワレモノ
         天地無用: 天地無用
         下積み禁止: 下積み禁止
@@ -148,10 +152,10 @@
         水濡厳禁: 水濡厳禁
 
 取り扱い方法2:
-    type : select
-    description : 配送時の取り扱い方法で該当するものを選択してください（2つ目）。
-    option :
-        '': 未選択
+    type: select
+    description: 配送時の取り扱い方法で該当するものを選択してください（2つ目）。
+    option:
+        "": 未選択
         ビン・ワレモノ: ビン・ワレモノ
         天地無用: 天地無用
         下積み禁止: 下積み禁止
@@ -160,8 +164,8 @@
         水濡厳禁: 水濡厳禁
 
 発送方法:
-    type : select
-    option :
+    type: select
+    option:
         常温: 常温
         冷蔵: 冷蔵
         冷凍: 冷凍
@@ -181,22 +185,22 @@
         '0108': 200サイズ
         レターパックプラス: レターパックプラス
         その他: その他
-    validation : 必須
+    validation: 必須
 
 送料:
-    type : number
-    value : 0
+    type: number
+    value: 0
 
 配送伝票表示名:
-    type : text
-    description : 配送伝票に表示したい自社での品番・名称等がある場合はご記入ください。（20文字以内）
-    maxlength : 20
-    placeholder : 20文字以内
+    type: text
+    description: 配送伝票に表示したい自社での品番・名称等がある場合はご記入ください。（20文字以内）
+    maxlength: 20
+    placeholder: 20文字以内
 
 定期便:
-    type : select
-    option :
-        '': 未選択
+    type: select
+    option:
+        "": 未選択
         1: 定期便では無い
         2: ２回定期便
         3: ３回定期便
@@ -209,12 +213,12 @@
         10: １０回定期便
         11: １１回定期便
         12: １２回定期便
-    validation : 必須
+    validation: 必須
 
 カテゴリー:
-    type : select
-    option :
-        '': 未選択
+    type: select
+    option:
+        "": 未選択
 
 商品画像:
     type : image
