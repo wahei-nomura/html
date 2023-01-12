@@ -133,4 +133,36 @@ class N2_Functions {
 		}
 		return false;
 	}
+
+	/**
+	 * download_csv
+	 *
+	 * @param string $name データ名
+	 * @param Array  $header header
+	 * @param Array  $items_arr 商品情報配列
+	 * @param string $csv_title あれば連結する
+	 * @return void
+	 */
+	public static function download_csv( $name, $header, $items_arr, $csv_title = '' ) {
+		$csv  = $csv_title . PHP_EOL;
+		$csv .= implode( ',', $header ) . PHP_EOL;
+
+		// CSV文字列生成
+		foreach ( $items_arr as $item ) {
+			foreach ( $header as $head ) {
+				$csv .= '"' . $item[ $head ] . '",';
+			}
+			$csv  = rtrim( $csv, ',' );
+			$csv .= PHP_EOL;
+		}
+
+		// sjisに変換
+		$csv = mb_convert_encoding( $csv, 'SJIS-win', 'utf-8' );
+
+		header( 'Content-Type: application/octet-stream' );
+		header( "Content-Disposition: attachment; filename={$name}.csv" );
+		echo htmlspecialchars_decode( $csv );
+
+		die();
+	}
 }
