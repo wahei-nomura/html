@@ -1,6 +1,6 @@
 <?php
 /**
- * class-n2-item-export.php
+ * class-n2-ledghome.php
  *
  * @package neoneng
  */
@@ -9,52 +9,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( class_exists( 'N2_Item_Export' ) ) {
-	new N2_Item_Export();
+if ( class_exists( 'N2_Ledghome' ) ) {
+	new N2_Ledghome();
 	return;
 }
 
 /**
- * Item_Export
+ * Legehome
  */
-class N2_Item_Export {
+class N2_Ledghome {
 	/**
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		add_action( 'wp_ajax_ledghome', array( $this, 'ledghome' ) );
-	}
-
-	/**
-	 * download_csv
-	 *
-	 * @param string $name データ名
-	 * @param Array  $header header
-	 * @param Array  $items_arr 商品情報配列
-	 * @param string $csv_title あれば連結する
-	 * @return void
-	 */
-	private function download_csv( $name, $header, $items_arr, $csv_title = '' ) {
-		$csv  = $csv_title . PHP_EOL;
-		$csv .= implode( ',', $header ) . PHP_EOL;
-
-		// CSV文字列生成
-		foreach ( $items_arr as $item ) {
-			foreach ( $header as $head ) {
-				$csv .= '"' . $item[ $head ] . '",';
-			}
-			$csv  = rtrim( $csv, ',' );
-			$csv .= PHP_EOL;
-		}
-
-		// sjisに変換
-		$csv = mb_convert_encoding( $csv, 'SJIS-win', 'utf-8' );
-
-		header( 'Content-Type: application/octet-stream' );
-		header( "Content-Disposition: attachment; filename={$name}.csv" );
-		echo htmlspecialchars_decode( $csv );
-
-		die();
+		add_action( 'wp_ajax_ledghome', array( $this, 'create_csv' ) );
 	}
 
 	/**
@@ -62,9 +30,9 @@ class N2_Item_Export {
 	 *
 	 * @return void
 	 */
-	public function ledghome() {
+	public function create_csv() {
 		// itemの情報を配列か
-		$items_arr  = array();
+		$items_arr   = array();
 		$header_data = yaml_parse_file( get_theme_file_path() . '/config/n2-file-header.yml' );
 
 		// あとでヘッダの上の連結するのに必要
@@ -100,7 +68,7 @@ class N2_Item_Export {
 					'謝礼品カテゴリー'  => get_post_meta( $id, 'カテゴリー', true ),
 					'セット内容'     => N2_Functions::_s( get_post_meta( $id, '内容量・規格等', true ) ),
 					'謝礼品紹介文'    => N2_Functions::_s( get_post_meta( $id, '説明文', true ) ),
-					'ステータ'      => '受付中',
+					'ステータス'      => '受付中',
 					'状態'        => '表示',
 					'寄附設定金額'    => $i < 2 ? get_post_meta( $id, '寄附金額', true ) : 0,
 					'送料'        => get_post_meta( $id, '送料', true ),
@@ -116,6 +84,6 @@ class N2_Item_Export {
 			}
 		}
 
-		$this->download_csv( 'ledghome', $header, $items_arr, $csv_title );
+		N2_Functions::download_csv( 'ledghome', $header, $items_arr, $csv_title );
 	}
 }
