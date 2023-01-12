@@ -185,16 +185,24 @@ class N2_Setpost {
 		$color = 'ss' === $type ? '#ffb6c1' : '#87cefa';
 
 		?>
-
-			<div>
+			<style>
+			.postbox .inside{padding:0 !important;}
+			.postbox ::placeholder{color: #ccc;}
+			</style>
+			<table class="widefat striped fixed" style="border:none;">
 				<?php foreach ( $fields as $field => $detail ) : ?>
-				<div style="border:solid 2px <?php echo $color; ?>; margin: 24px auto; border-radius:8px; width:80%; min-width:800px; <?php echo '事業者確認' === $field ? 'visibility: hidden; height: 0;' : ''; ?>" title="<?php echo $field; ?>">
-					<!-- ラベル -->
-					<p style="margin: 0;"><label style="margin: 0;padding:16px 0;background-color:<?php echo $color; ?>; color: white;font-size:20px;font-weight:bold;padding:4px 8px;display:block;text-align:center;" for="<?php echo $field; ?>"><?php echo ! empty( $detail['label'] ) ? $detail['label'] : $field; ?></label></p>
-					<!-- 説明 -->
-					<p style="padding: 24px;"><?php echo ! empty( $detail['description'] ) ? $detail['description'] : ''; ?></p>
-					<div style="padding:0 24px 24px 24px;">
-						<?php
+				<tr title="<?php echo $detail['description']; ?>">
+					<th style="width: 15em;padding: 1em;">
+						<label for="<?php echo $field; ?>" id="<?php echo $field; ?>">
+							<?php echo ! empty( $detail['label'] ) ? $detail['label'] : $field; ?>
+							<?php if ( ! empty( $detail['description'] ) ) : ?>
+							<span class="dashicons dashicons-info" style="color: #aaa;"></span>
+							<?php endif; ?>
+						</label>
+					</th>
+					<td style="padding: 1em;">
+
+					<?php
 						// optionを文字列連結してselectに挿入
 						if ( 'select' === $detail['type'] ) {
 							$options = '';
@@ -249,15 +257,15 @@ class N2_Setpost {
 							// valueにデフォルト値やmaxlength,placeholderをセットするか判定
 							$value       = '' !== $detail['value'] ? $detail['value'] : ( ! empty( $detail['default'] ) ? $detail['default'] : '' );
 							$maxlength   = ! empty( $detail['maxlength'] ) ? $detail['maxlength'] : '';
-							$placeholder = ! empty( $detail['placeholder'] ) ? $detail['placeholder'] : '';
+							$placeholder = $detail['placeholder'];
 							$validation  = ! empty( $detail['validation'] ) ? N2_THEME_NAME . $validation_class[ $detail['validation'] ] : '';
 							printf( $input_tags[ $detail['type'] ], $field, $value, $maxlength, $placeholder, $validation );
 						};
 						?>
-					</div>
-				</div>
+					</td>
+				</tr>
 				<?php endforeach; ?>
-			</div>
+			</table>
 			<?php
 	}
 
