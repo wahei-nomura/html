@@ -85,7 +85,10 @@
 							</label>
 						</div>
 						<div class="form-check">
-							<input class="form-check-input" type="radio" name="sortcode" id="flexRadioDefault2" value="sortbycode" <?php echo ! empty( $_GET['sortcode'] ) && 'sortbycode' === $_GET['sortcode'] ? 'checked' : ''; ?>>
+							<?php 
+								$sort_code = isset( $_GET['sortcode'] ) ? esc_html( $_GET['sortcode'] ) : '';
+							?>
+							<input class="form-check-input" type="radio" name="sortcode" id="flexRadioDefault2" value="sortbycode" <?php checked( $sort_code, 'sortbycode' ) ?>>
 							<label class="form-check-label" for="flexRadioDefault2">
 								コード順
 							</label>

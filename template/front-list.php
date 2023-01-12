@@ -84,7 +84,7 @@ if ( '' !== $search_result ) {
 
 				$item_num_low = mb_strtolower( get_post_meta( get_the_ID(), '返礼品コード', true ) );
 				preg_match( '/[a-z]+/', $item_num_low, $item_code );
-				if ( $item_num_low != '' && ! empty( $item_code ) !== $item_num_low ) {
+				if ( '' != $item_num_low && ! empty( $item_code ) !== $item_num_low ) {
 					$new_rakuten_pic    = $img_dir . '/' . $item_code[0] . '/' . $item_num_low . '.jpg';
 					$new_rakuten_pic_ex = $img_dir_ex . '/' . $item_num_low . '.jpg';
 				}
@@ -103,8 +103,8 @@ if ( '' !== $search_result ) {
 
 				// 詳細ページで保存された楽天画像
 				$get_post_meta        = get_post_meta( get_the_ID(), 'スクレイピング', true );
-				$meta_imgs = ! empty( $get_post_meta ) ? array_column( $get_post_meta, 'imgs' ) : "";
-				$get_meta_rakuten_pic = ! empty( $meta_imgs[0] ) ? $meta_imgs[0][0] : "";
+				$meta_imgs = ! empty( $get_post_meta ) ? array_column( $get_post_meta, 'imgs' ) : '';
+				$get_meta_rakuten_pic = ! empty( $meta_imgs[0] ) ? $meta_imgs[0][0] : '';
 				// 2022-11-29 コメントアウト taiki
 				// 事業者確認フラグ用　------------------------------------------------------------------------
 				// $check_param   = get_post_meta( get_the_ID(), '事業者確認', true );
@@ -131,7 +131,7 @@ if ( '' !== $search_result ) {
 				/*
 				if("" !== $meta_portal_section): ?>
 				<span class="product-list-code"><?php echo $meta_portal_section; ?></span>
-				<?php endif;
+				<?php endif; 
 				*/
 				?>
 			</span><!--product-list-item-->
