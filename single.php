@@ -11,7 +11,8 @@
 		get_template_part( 'template/front-manual' );
 	}
 	// 商品詳細ページ
-	get_template_part('template/product-page/index');
+	get_template_part( 'template/product-page/index' );
+
 	if ( ! empty( $_GET['look'] ) ) {
 		get_template_part( 'template/look-alert' );
 		comments_template();
