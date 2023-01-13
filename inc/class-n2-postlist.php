@@ -62,12 +62,16 @@ class N2_Postlist {
 	 * @return array $columns 一覧に追加するカラム
 	 */
 	public function add_posts_columns( $columns ) {
+
+		$sort_base_url = admin_url();
+		$asc_or_desc = empty( $_GET['order'] ) || 'desc' === $_GET['order'] ? 'asc' : 'desc';
+
 		$columns = array(
 			'cb'            => '<input type="checkbox" />',
 			'item-title'    => '返礼品名',
 			'progress-bar'  => '進捗',
 			'poster'        => '事業者名',
-			'code'          => '返礼品コード',
+			'code'          => "<a href='{$sort_base_url}edit.php?orderby=返礼品コード&order={$asc_or_desc}'>返礼品コード</a>",
 			'money'         => '寄附金額',
 			'thumbnail'     => '画像',
 			'modified-last' => '最終更新日',
