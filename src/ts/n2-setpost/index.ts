@@ -8,7 +8,7 @@ import food from "./food";
 export default () => {
 	main();
 	price();
-	rakutenTag();
+	// rakutenTag();
 	mediaUp();
 	syncStatus();
 	food();

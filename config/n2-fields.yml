@@ -28,7 +28,7 @@
         楽天ふるさと納税: 楽天ふるさと納税
 
 価格:
-    type : text
+    type : number
     label : 価格（税込）
     validation : 必須
 
@@ -105,14 +105,15 @@
 
 申込期間:
     type : text
-    description : 通年4月〜6月など
+    placeholder : 例）通年4月〜6月など
     default : 通年
 
 配送期間:
     type : textarea
-    description : 発送までにかかる<b>最大納期</b>を入力ください。「即納」表記は避けていただき、<b>最短でも2週間以内</b>で入力をお願いいたします。<br>（例：入金確認後1ヶ月以内にお届けいたします。）
+    description : 発送までにかかる最大納期を入力ください。「即納」表記は避けていただき、最短でも2週間以内で入力をお願いいたします。
     maxlength : 200
     validation : 必須
+    placeholder: 例）入金確認後1ヶ月以内にお届けいたします。
 
 賞味期限:
     type : textarea
@@ -125,7 +126,7 @@
 
 限定数量:
     type : text
-    description : 指定なし<br>100セット限定など
+    placeholder : 例）指定なし
 
 のし対応:
     type: select

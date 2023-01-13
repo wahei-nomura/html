@@ -44,7 +44,7 @@ export default () => {
 
 			public displayAllergenBool() {
 				const allergenBoolBlock = $(
-					'div[title="アレルギー有無確認"],div[title="アレルギーの特記事項"]'
+					'#アレルギー有無確認, #アレルギーの特記事項'
 				)
 
 				allergenBoolBlock.css(this.blockCss(this.food));
@@ -55,7 +55,7 @@ export default () => {
 			}
 
 			public displayAllergenList() {
-				const allergenListBlock = $('div[title="アレルゲン"]')
+				const allergenListBlock = $('#アレルゲン')
 				allergenListBlock.css(this.blockCss(this.allergen));
 
 				$.each($('input[name="アレルゲン[]"]'), (i, v) => {
@@ -65,7 +65,7 @@ export default () => {
 
 			public displayKigen() {
 				const kigenBlock = $(
-					'div[title="賞味期限"],div[title="消費期限"]'
+					'#賞味期限, #消費期限'
 				)
 
 				kigenBlock.css(this.blockCss(this.food));
@@ -73,7 +73,7 @@ export default () => {
 
 			public displaySanchi() {
 				const sanchiBlock = $(
-					'div[title="原料原産地"],div[title="加工地"]'
+					'#原料原産地, #加工地'
 				)
 
 				sanchiBlock.css(this.blockCss(this.food));
@@ -81,7 +81,7 @@ export default () => {
 
 			private blockCss(pattern: Boolean) {
 				return {
-					display: `${pattern ? "block" : "none"}`,
+					display: `${pattern ? "revert" : "none"}`,
 					animation: `${pattern ? "appear .5s ease" : ""}`,
 				}
 			}
