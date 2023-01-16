@@ -68,13 +68,13 @@ class N2_Postlist {
 
 		$columns = array(
 			'cb'            => '<input type="checkbox" />',
-			'item-title'    => '返礼品名',
+			'item-title'    => "<a href='{$sort_base_url}edit.php?orderby=返礼品名&order={$asc_or_desc}'>返礼品名</a>",
 			'progress-bar'  => '進捗',
-			'poster'        => '事業者名',
+			'poster'        => "<a href='{$sort_base_url}edit.php?orderby=事業者&order={$asc_or_desc}'>事業者名</a>",
 			'code'          => "<a href='{$sort_base_url}edit.php?orderby=返礼品コード&order={$asc_or_desc}'>返礼品コード</a>",
-			'money'         => '寄附金額',
+			'money'         => "<a href='{$sort_base_url}edit.php?orderby=寄附金額&order={$asc_or_desc}'>寄附金額</a>",
 			'thumbnail'     => '画像',
-			'modified-last' => '最終更新日',
+			'modified-last' => "<a href='{$sort_base_url}edit.php?orderby=date&order={$asc_or_desc}'>最終更新日</a>",
 		);
 
 		if ( 'jigyousya' !== wp_get_current_user()->roles[0] ) {
