@@ -64,7 +64,7 @@ class N2_Postlist {
 	public function add_posts_columns( $columns ) {
 
 		$sort_base_url = admin_url();
-		$asc_or_desc = empty( $_GET['order'] ) || 'desc' === $_GET['order'] ? 'asc' : 'desc';
+		$asc_or_desc   = empty( $_GET['order'] ) || 'desc' === $_GET['order'] ? 'asc' : 'desc';
 
 		$columns = array(
 			'cb'              => '<input type="checkbox" />',
@@ -131,12 +131,12 @@ class N2_Postlist {
 			}
 		}
 
-		$image        = ! empty( $post_data['商品画像'] ) ? "<img class='n2-postlist-imgicon' src='{$post_data['商品画像'][0]}'>" : 'なし';
-		$donation_amount        = ! empty( $post_data['寄附金額'] ) && 0 !== $post_data['寄附金額'] ? $post_data['寄附金額'] : '-';
-		$poster       = ! empty( get_userdata( $post->post_author ) ) ? get_userdata( $post->post_author )->display_name : '';
-		$code         = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '';
-		$ssmemo       = ! empty( $post_data['社内共有事項'] ) ? nl2br( $post_data['社内共有事項'] ) : '';
-		$ssmemo_isset = $ssmemo ? 'n2-postlist-ssmemo' : '';
+		$image           = ! empty( $post_data['商品画像'] ) ? "<img class='n2-postlist-imgicon' src='{$post_data['商品画像'][0]}'>" : 'なし';
+		$donation_amount = ! empty( $post_data['寄附金額'] ) && 0 !== $post_data['寄附金額'] ? $post_data['寄附金額'] : '-';
+		$poster          = ! empty( get_userdata( $post->post_author ) ) ? get_userdata( $post->post_author )->display_name : '';
+		$code            = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '';
+		$ssmemo          = ! empty( $post_data['社内共有事項'] ) ? nl2br( $post_data['社内共有事項'] ) : '';
+		$ssmemo_isset    = $ssmemo ? 'n2-postlist-ssmemo' : '';
 
 		$status     = '';
 		$status_bar = 0;
