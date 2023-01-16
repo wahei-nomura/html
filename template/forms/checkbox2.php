@@ -1,6 +1,8 @@
 <?php
 /**
- * form checkbox
+ * form checkbox2
+ * valueとlabelの両方を保存
+ * [{value,label},{value,label},...]
  *
  * @package neoneng
  */
@@ -18,18 +20,25 @@ unset( $args['option'], $args['name'], $args['value'], $args['style'] );
 foreach ( $args as $k => $v ) {
 	$attr .= " {$k}=\"{$v}\"";
 }
-foreach ( $option as $v ) :
+$i = 0;
+foreach ( $option as $k => $v ) :
 ?>
 <label style="<?php echo $style; ?>">
 	<input
 		type="checkbox"
-		name="<?php echo $name; ?>[]"
-		value="<?php echo $v; ?>"
+		name="<?php echo "{$name}[{$i}]"; ?>[value]"
+		value="<?php echo $k; ?>"
 		<?php echo $attr; ?>
-		<?php checked( in_array( (string) $v, $value, true ) ); ?>
+		<?php checked( in_array( (string) $k, array_column( $value, 'value' ), true ) ); ?>
+	>
+	<input
+		type="hidden"
+		name="<?php echo "{$name}[{$i}]"; ?>[label]"
+		value="<?php echo $v; ?>"
 	>
 	<?php echo $v; ?>
 </label>
+<?php $i++; ?>
 <?php endforeach; ?>
 <!-- 全チェック外しも保存するために必須 -->
-<input type="hidden" name="<?php echo $name; ?>[]">
+<input type="hidden" name="<?php echo $name; ?>[checkbox2]">

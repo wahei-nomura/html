@@ -6,10 +6,10 @@
  */
 
 $defaults = array(
-	'style' => 'width: 100%; height: 15em;',
+	'style' => 'width: 100%; height: 10em;',
 );
 $args     = wp_parse_args( $args, $defaults );
-$value = $args['value'] ?? '';
+$value    = $args['value'] ?? '';
 unset( $args['value'] );
 $attr = '';
 foreach ( $args as $k => $v ) {
