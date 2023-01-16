@@ -23,6 +23,7 @@
     label: 出品禁止ポータルサイト選択
     type: checkbox
     description: この返礼品を出品しないポータルサイトがあればチェックを入れてください。
+    v-model: 出品禁止ポータル
     option:
         ふるさとチョイス: ふるさとチョイス
         楽天ふるさと納税: 楽天ふるさと納税
@@ -31,11 +32,13 @@
     type : number
     label : 価格（税込）
     validation : 必須
+    style: 'width: 10em'
 
 キャッチコピー:
     type : text
     description : 30文字以内
     maxlength : 30
+    style: 'width: 100%'
 
 説明文:
     type : textarea
@@ -46,11 +49,6 @@
     type : textarea
     description : 内容量、数量、サイズ、重さなど詳しくお書きください。<br>※器の容量は「満量時」でご記入ください！　満量時ではない場合は「8分目」など必ずどの分量かがわかるようにお願いいたします。<br>※色・柄・セットいの商品を登録する場合は、必ず別の商品として登録していただくようお願いいたします（注文時に色などを選択していただくような形式には対応しておりません）。
 
-食品確認:
-    type : checkbox
-    description : この返礼品が食品である場合はチェックを入れてください。（チェックを入れるとアレルギー入力を表示します）
-    option : 
-        食品である: この返礼品は食品です
 
 原料原産地:
     type : textarea
@@ -60,15 +58,25 @@
     type : text
     description : 加工食品の加工地（製造地）を記載ください。<br>※例：「○○市」など
 
+食品確認:
+    type : checkbox
+    description : この返礼品が食品である場合はチェックを入れてください。（チェックを入れるとアレルギー入力を表示します）
+    v-model: 食品確認
+    option : 
+        - 食品である
+
 アレルギー有無確認:
     type : checkbox
     description : アレルギー27品目に該当する場合はチェックを入れてください。（下部に品目選択を表示します）
+    v-model: アレルギー有無確認
+    v-if: 食品確認
     option :
-        アレルギー品目あり: アレルギー品目あり
+        - アレルギー品目あり
 
 アレルゲン:
-    type : checkbox
+    type : checkbox2
     description : 当てはまるアレルゲンがある場合は選択してください。
+    v-if: 食品確認&&アレルギー有無確認
     option :
         0: 卵
         1: 乳
@@ -102,11 +110,28 @@
 アレルギーの特記事項:
     type : text
     description : アレルギー品目なしの場合でもなにか特記があればご記載ください。
+    style: 'width: 100%'
+    v-if: 食品確認&&アレルギー有無確認
+
+賞味期限:
+    type : textarea
+    description : 配送から５日間冷凍庫９０日間など
+    maxlength : 200
+    style: 'width: 100%;height: 4em;'
+    v-if: 食品確認
+
+消費期限:
+    type : textarea
+    description : 配送から５日間冷凍庫９０日間など
+    style: 'width: 100%;height: 4em;'
+    v-if: 食品確認
 
 申込期間:
     type : text
     placeholder : 例）通年4月〜6月など
     default : 通年
+    style: 'width: 100%'
+
 
 配送期間:
     type : textarea
@@ -114,15 +139,7 @@
     maxlength : 200
     validation : 必須
     placeholder: 例）入金確認後1ヶ月以内にお届けいたします。
-
-賞味期限:
-    type : textarea
-    description : 配送から５日間冷凍庫９０日間など
-    maxlength : 200
-
-消費期限:
-    type : textarea
-    description : 配送から５日間冷凍庫９０日間など
+    style: 'width: 100%;height: 4em;'
 
 限定数量:
     type : text
@@ -187,12 +204,14 @@
 送料:
     type : number
     value : 0
+    style: 'width: 6em'
 
 配送伝票表示名:
     type : text
     description : 配送伝票に表示したい自社での品番・名称等がある場合はご記入ください。（20文字以内）
     maxlength : 20
     placeholder : 20文字以内
+    style: 'width: 20em;'
 
 定期便:
     type : select
@@ -221,8 +240,3 @@
     type : image
     label : 商品画像（8枚以上推奨）
     description : 画像を複数選択、またはアップロードしてください。<br>画像は可能であれば8枚以上を推奨いたします。(最大25枚)<br>※ 画質・サイズなどによっては使用できない場合もあります。 
-
-# zipはいったんコメントアウト　2022/07/27@taiki
-# zip:
-# type : zip
-# label : 商品画像をzipファイルでまとめて送る

@@ -30,21 +30,24 @@ LH表示名:
 
 # 固定のため変更不可
 全商品ディレクトリID:
-    type: rakuten_genreid
+    type: text
     description: 楽天登録に必要なディレクトリIDを１つ選択してください。
     validation: 必須
+    v-if: "!出品禁止ポータル.includes('楽天ふるさと納税')"
 
 # 固定のため変更不可
 タグID:
-    type: rakuten_tagid
+    type: textarea
     description: 楽天登録に必要なタグを複数選択します。
     validation: 必須
+    v-if: "!出品禁止ポータル.includes('楽天ふるさと納税')"
 
 # 固定のため変更不可
 楽天カテゴリー:
-    type: rakuten_category
+    type: textarea
     description: 当てはまるカテゴリーを選択すると、下の入力欄に反映されます。複数選択する場合は、続けてカテゴリー一覧から選ぶと追記されます。
     validation: 必須
+    v-if: "!出品禁止ポータル.includes('楽天ふるさと納税')"
 
 検索キーワード:
     type: text

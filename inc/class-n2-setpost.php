@@ -73,7 +73,30 @@ class N2_Setpost {
 	 * @return void
 	 */
 	public function show_progress() {
-		get_template_part( 'template/progress' );
+		global $post;
+		?>
+			<!-- <link href="//cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous"> -->
+			<script src="//cdn.jsdelivr.net/npm/vue@2.x"></script>
+			<script>
+				const n2field = <?php echo wp_json_encode( (array) N2_Functions::get_all_meta( $post ) ); ?>;
+				console.log(n2field)
+				// このdataをプラグイン側で上書きする
+				const data = {
+					出品禁止ポータル: n2field.出品禁止ポータル || [],
+					食品確認: n2field.食品確認 ? n2field.食品確認[0] : false,// ※食品事業者はデフォルトでONにしとくのまだ
+					アレルギー有無確認: n2field.アレルギー有無確認 ? n2field.アレルギー有無確認[0] : false,
+				};
+				jQuery(function($){
+					$(".edit-post-layout__metaboxes").ready(() => {
+						new Vue({
+							el: '.edit-post-layout__metaboxes',
+							data,
+						})
+					})
+				})
+			</script>
+		<?php
+		// get_template_part( 'template/progress' );
 	}
 
 	/**
@@ -148,6 +171,8 @@ class N2_Setpost {
 	public function show_customfields( $post, $args ) {
 		// カスタムフィールド全取得
 		$post_meta = N2_Functions::get_all_meta( $post );
+		// echo '<pre>';print_r($post_meta);echo '</pre>';
+		// echo '<pre>';print_r(get_post_meta($post->ID));echo '</pre>';
 		/**
 		 * Filters カスタムフィールドメタボックス
 		 *
@@ -155,129 +180,54 @@ class N2_Setpost {
 		*/
 		$args = apply_filters( 'n2_setpost_show_customfields', $args );
 		unset( $args['args']['事業者確認'] );
-		// タグ管理(printfで使う)
-		$input_tags = array(
-			'text'             => '<input type="text" style="width:100%%" id="%1$s" name="%1$s" value="%2$s" maxlength="%3$s" placeholder="%4$s" class="n2-input %5$s">',
-			'textarea'         => '<textarea style="width:100%%; height:200px" id="%1$s" name="%1$s" maxlength="%3$s" placeholder="%4$s" class="n2-input %5$s">%2$s</textarea>',
-			'number'           => '<input type="number" id="%1$s" name="%1$s" value="%2$s" step="%3$s" class="n2-input %4$s">',
-			'checkbox'         => '<li style="display:inline-block; margin-right:20px"><label><input type=checkbox name="%1$s" value="%2$s" %3$s class="n2-input">%4$s</label></li>',
-			'select'           => '<select id="%1$s" name="%1$s" class="n2-input %3$s">%2$s</select>',
-			'option'           => '<option value="%1$s" %3$s>%2$s</option>',
-			'image'            => '<div class="%1$s-image-block"><input type="hidden" class="%1$s-image-input" name="%2$s[]" value="%3$s"><span class="%1$s-image-delete dashicons dashicons-no-alt"></span><span class="%1$s-image-big dashicons dashicons-editor-expand"></span><span class="%1$s-image-num"></span><img class="%1$s-image-url" src="%4$s" alt="" width="100%%" height="100%%" /></div>',
-			// zipはいったんコメントアウト　2022/07/27@taiki
-			// 'zip'              => '<input class="n2-input %1$s-image-input" type="hidden" name="%2$s" value="%3$s"><button type="button" class="button button-primary %1$s-zip-toggle">zip選択</button><div><p class="%1$s-image-url">%4$s</p></div>',
-			'rakuten_genreid'  => '<button type="button" id="neo-neng-genreid-btn" class="button button-primary button-large">ディレクトリID検索</button><input type="hidden" id="%1$s" name="%1$s" value="%2$s"><input type="hidden" id="%3$s" name="%3$s" value="%4$s" class="%5$s">',
-			'rakuten_tagid'    => '<button type="button" id="neo-neng-tagid-btn" class="button button-primary button-large">タグID検索</button><input type="hidden" id="%1$s" name="%1$s" value="%2$s"><input type="hidden" id="%3$s" name="%3$s" value="%4$s" class="%5$s">',
-			'rakuten_category' => '<div><select id="neo-neng-rakutencategory"></select></div><div><textarea style="width:100%%; height:200px" id="%1$s" name="%1$s" maxlength="%3$s" placeholder="%4$s" class="n2-input %5$s">%2$s</textarea></div>',
-		);
-
-		// バリデーション付与用
-		$validation_class = array(
-			'必須'  => '-hissu',
-			'0以外' => '-notzero',
-		);
 		?>
-			<style>
-			.postbox .inside{padding:0 !important;}
-			.postbox ::placeholder{color: #ccc;}
-			</style>
-			<table id="n2-setpost" class="widefat fixed" style="border:none;">
-				<?php foreach ( $args['args'] as $field => $detail ) : ?>
-				<tr title="<?php echo $detail['description']; ?>" id="<?php echo $field; ?>">
-					<th style="width: 15em;padding: 1em;border-top: 1px solid #ccc;">
-						<label for="<?php echo $field; ?>">
-							<?php echo ! empty( $detail['label'] ) ? $detail['label'] : $field; ?>
-							<?php if ( ! empty( $detail['description'] ) ) : ?>
-							<span class="dashicons dashicons-info" style="color: #aaa;"></span>
-							<?php endif; ?>
-						</label>
-					</th>
-					<td style="padding: 1em;border-top: 1px solid #ccc;">
-
-					<?php
-						// templateに渡すために不純物を除去
-						$settings = $detail;
-						unset( $settings['description'], $settings['label'], $settings['validation'] );
-						$settings['value'] = $post_meta[ $field ];
-						// if ( in_array( $settings['type'], array( 'text', 'number', 'select', 'checkbox', 'textarea' ), true ) ) {
-							get_template_part( "template/forms/{$detail['type']}", null, $settings );
-						// }
-// 						// optionを文字列連結してselectに挿入
-// 						if ( 'select' === $detail['type'] ) {
-// 							$options = '';
-// 							foreach ( $detail['option'] as $key => $option ) {
-// 								// DBのvalueと同じものにselectedをつける
-// 								$selected = selected( ! empty( $post_meta[ $field ] ) && (string) $post_meta[ $field ] === (string) $key, true, false );
-// 								$options .= sprintf( $input_tags['option'], $key, $option, $selected );
-// 							}
-// 							$validation = ! empty( $detail['validation'] ) ? N2_THEME_NAME . $validation_class[ $detail['validation'] ] : '';
-// 							printf( $input_tags['select'], $field, $options, $validation );
-// 						} elseif ( 'checkbox' === $detail['type'] ) {
-// 							$checks = '';
-// 							foreach ( $detail['option'] as $key => $check ) {
-// 								// DB内の配列に選択肢が含まれればcheckd
-// 								$checked = checked( ! empty( $post_meta[ $field ] ) && in_array( (string) $key, $post_meta[ $field ], true ), true, false );
-// 								$checks .= sprintf( $input_tags['checkbox'], $field . '[]', $key, $checked, $check );
-// 							}
-// 							printf( '<input type="hidden" name="' . $field . '" value=""><ul>%1$s</ul>', $checks );
-// 						} elseif ( 'number' === $detail['type'] ) {
-// 							$value      = '' !== $post_meta[ $field ] ? $post_meta[ $field ] : 0;
-// 							$step       = ! empty( $detail['step'] ) ? $detail['step'] : '';
-// 							$validation = ! empty( $detail['validation'] ) ? N2_THEME_NAME . $validation_class[ $detail['validation'] ] : '';
-// 							printf( $input_tags[ $detail['type'] ], $field, $value, $step, $validation );
-// 						} elseif ( 'image' === $detail['type'] ) {
-// 							if ( ! empty( $post_meta[ $field ] ) ) {
-// 								foreach ( $post_meta[ $field ] as $img_url ) {
-// 									if ( '' !== $img_url ) {
-// 										$thumb_url = preg_replace( '/\.(png|jpg|jpeg)$/', '-150x150.$1', $img_url );
-// 										printf( $input_tags[ $detail['type'] ], N2_THEME_NAME, $field, $img_url, $thumb_url );
-// 									}
-// 								}
-// 							}
-// } elseif ( 'rakuten_genreid' === $detail['type'] ) {
-// 							// 楽天ディレクトリID検索用
-// 							$value      = '' !== $post_meta[ $field ] ? $post_meta[ $field ] : '';
-// 							$text       = empty( $post_meta['全商品ディレクトリID-text'] ) || '' === $post_meta['全商品ディレクトリID-text'] ? '' : $post_meta['全商品ディレクトリID-text'];
-// 							$validation = ! empty( $detail['validation'] ) ? N2_THEME_NAME . $validation_class[ $detail['validation'] ] : '';
-// 							printf( $input_tags[ $detail['type'] ], $field, $value, $field . '-text', $text, $validation );
-// 						} elseif ( 'rakuten_tagid' === $detail['type'] ) {
-// 							// 楽天ディレクトリID検索用
-// 							$value      = '' !== $post_meta[ $field ] ? $post_meta[ $field ] : '';
-// 							$text       = empty( $post_meta['タグID-text'] ) || '' === $post_meta['タグID-text'] ? '' : $post_meta['タグID-text'];
-// 							$validation = ! empty( $detail['validation'] ) ? N2_THEME_NAME . $validation_class[ $detail['validation'] ] : '';
-// 							printf( $input_tags[ $detail['type'] ], $field, $value, $field . '-text', $text, $validation );
-// 						} else {
-// 							// valueにデフォルト値やmaxlength,placeholderをセットするか判定
-// 							$value       = '' !== $post_meta[ $field ] ? $post_meta[ $field ] : ( ! empty( $detail['default'] ) ? $detail['default'] : '' );
-// 							$maxlength   = ! empty( $detail['maxlength'] ) ? $detail['maxlength'] : '';
-// 							$placeholder = $detail['placeholder'];
-// 							$validation  = ! empty( $detail['validation'] ) ? N2_THEME_NAME . $validation_class[ $detail['validation'] ] : '';
-// 							printf( $input_tags[ $detail['type'] ], $field, $value, $maxlength, $placeholder, $validation );
-// 						};
-						?>
-					</td>
-				</tr>
-				<?php endforeach; ?>
-			</table>
-			<?php
+		<!-- n2field保存の為のnonce -->
+		<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
+		<table class="widefat fixed" style="border:none;">
+			<?php foreach ( $args['args'] as $field => $detail ) : ?>
+			<tr title="<?php echo $detail['description']; ?>" id="<?php echo $field; ?>" class="<?php echo $detail['class'] ?? ''; ?>" v-if="<?php echo $detail['v-if'] ?? ''; ?>">
+				<th>
+					<?php echo ! empty( $detail['label'] ) ? $detail['label'] : $field; ?>
+					<?php if ( ! empty( $detail['description'] ) ) : ?>
+					<span class="dashicons dashicons-info" style="color: #aaa;"></span>
+					<?php endif; ?>
+				</th>
+				<td>
+				<?php
+					// templateに渡すために不純物を除去
+					$settings = $detail;
+					unset( $settings['description'], $settings['label'], $settings['validation'], $settings['class'], $settings['v-if'] );
+					$settings['name']  = sprintf( 'n2field[%s]', $settings['name'] ?? $field );
+					$settings['value'] = $post_meta[ $field ];
+					get_template_part( "template/forms/{$detail['type']}", null, $settings );
+					?>
+				</td>
+			</tr>
+			<?php endforeach; ?>
+		</table>
+		<?php
 	}
 
 	/**
-	 * save_customfields
+	 * カスタムフィールド「n2fields」の保存
+	 * 「n2nonce」を渡さないと発火させない
 	 *
 	 * @param int $post_id first parameter
-	 * @return void
 	 */
 	public function save_customfields( $post_id ) {
-
-		if ( empty( $_POST ) ) {
+		if ( ! wp_verify_nonce( $_POST['n2nonce'], 'n2nonce' ) || ! isset( $_POST['n2field'] ) ) {
 			return;
 		}
-
-		foreach ( $_POST as $key => $value ) {
+		// カスタムフィールド（n2field）の保存
+		foreach ( (array) $_POST['n2field'] as $key => $value ) {
+			// チェックボックスのデータ整形
+			if ( array_key_exists( 'checkbox2', (array) $value ) ) {
+				unset( $value['checkbox2'] );
+				$value = array_filter( $value, fn( $v ) => array_key_exists( 'value', $v ) );
+				$value = array_values( $value );
+			}
 			update_post_meta( $post_id, $key, $value );
 		}
-
 	}
 
 
