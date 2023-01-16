@@ -278,7 +278,15 @@ class N2_Sync {
 				'comment_status'    => 'open',
 			);
 			$postarr['meta_input']['_neng_id'] = $v['ID']; // 同期用 裏カスタムフィールドNENGのID追加
-
+			$allergen = array_column( $postarr['meta_input']['アレルゲン'], 'value' );
+			// 食品確認
+			$postarr['meta_input']['食品確認'] = in_array( '食品ではない', $allergen, true )
+				? array()
+				: array( '食品である' );
+			// アレルギー有無確認
+			$postarr['meta_input']['アレルギー有無確認'] = in_array( 'アレルゲンなし食品', $allergen, true )
+				? array()
+				: array( 'アレルギー品目あり' );
 			// 事業者確認を強制執行
 			if ( strtotime( '-1 week' ) > strtotime( $v['post_modified'] ) ) {
 				$postarr['meta_input']['事業者確認'] = array( '確認済', '2022-10-30 00:00:00', 'ssofice' );
