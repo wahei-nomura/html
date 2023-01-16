@@ -56,21 +56,41 @@ class N2_Postlist {
 	}
 
 	/**
+	 * カラムヘッダーをソート時にアイコン表示
+	 *
+	 * @param string $param_name orderbyのgetパラメータ
+	 * @return string iconタグ
+	 */
+	private function judging_icons_order( $param_name ) {
+		if ( $param_name !== $_GET['orderby'] || empty( $_GET['order'] ) ) {
+			return;
+		}
+
+		return 'asc' === $_GET['order'] ? '<span class="dashicons dashicons-arrow-up"></span>' : '<span class="dashicons dashicons-arrow-down"></span>';
+	}
+
+	/**
 	 * add_posts_columns
 	 *
 	 * @param array $columns カラム名の配列
 	 * @return array $columns 一覧に追加するカラム
 	 */
 	public function add_posts_columns( $columns ) {
+
+		$sort_base_url = admin_url();
+		$asc_or_desc   = empty( $_GET['order'] ) || 'desc' === $_GET['order'] ? 'asc' : 'desc';
+
 		$columns = array(
-			'cb'            => '<input type="checkbox" />',
-			'item-title'    => '返礼品名',
-			'progress-bar'  => '進捗',
-			'poster'        => '事業者名',
-			'code'          => '返礼品コード',
-			'money'         => '寄附金額',
-			'thumbnail'     => '画像',
-			'modified-last' => '最終更新日',
+			'cb'              => '<input type="checkbox" />',
+			'item-title'      => "<a href='{$sort_base_url}edit.php?orderby=返礼品名&order={$asc_or_desc}'>返礼品名{$this->judging_icons_order('返礼品名')}</a>",
+			'progress-bar'    => '進捗',
+			'poster'          => "<a href='{$sort_base_url}edit.php?orderby=事業者&order={$asc_or_desc}'>事業者名{$this->judging_icons_order('事業者')}</a>",
+			'code'            => "<a href='{$sort_base_url}edit.php?orderby=返礼品コード&order={$asc_or_desc}'>返礼品コード{$this->judging_icons_order('返礼品コード')}</a>",
+			'goods_price'     => "<a href='{$sort_base_url}edit.php?orderby=価格&order={$asc_or_desc}'>価格{$this->judging_icons_order('価格')}</a>",
+			'donation_amount' => "<a href='{$sort_base_url}edit.php?orderby=寄附金額&order={$asc_or_desc}'>寄附金額{$this->judging_icons_order('寄附金額')}</a>",
+			'teiki'           => '定期便',
+			'thumbnail'       => '画像',
+			'modified-last'   => "<a href='{$sort_base_url}edit.php?orderby=date&order={$asc_or_desc}'>最終更新日{$this->judging_icons_order('date')}</a>",
 		);
 
 		if ( 'jigyousya' !== wp_get_current_user()->roles[0] ) {
@@ -127,12 +147,14 @@ class N2_Postlist {
 			}
 		}
 
-		$image        = ! empty( $post_data['商品画像'] ) ? "<img class='n2-postlist-imgicon' src='{$post_data['商品画像'][0]}'>" : 'なし';
-		$money        = ! empty( $post_data['寄附金額'] ) && 0 !== $post_data['寄附金額'] ? $post_data['寄附金額'] : '-';
-		$poster       = ! empty( get_userdata( $post->post_author ) ) ? get_userdata( $post->post_author )->display_name : '';
-		$code         = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '';
-		$ssmemo       = ! empty( $post_data['社内共有事項'] ) ? nl2br( $post_data['社内共有事項'] ) : '';
-		$ssmemo_isset = $ssmemo ? 'n2-postlist-ssmemo' : '';
+		$image           = ! empty( $post_data['商品画像'] ) ? "<img class='n2-postlist-imgicon' src='{$post_data['商品画像'][0]}'>" : 'なし';
+		$goods_price     = ! empty( $post_data['価格'] ) && 0 !== $post_data['価格'] ? number_format( $post_data['価格'] ) : '-';
+		$donation_amount = ! empty( $post_data['寄附金額'] ) && 0 !== $post_data['寄附金額'] ? number_format( $post_data['寄附金額'] ) : '-';
+		$teiki           = ! empty( $post_data['定期便'] ) && 1 !== (int) $post_data['定期便'] ? $post_data['定期便'] : '-';
+		$poster          = ! empty( get_userdata( $post->post_author ) ) ? get_userdata( $post->post_author )->display_name : '';
+		$code            = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '';
+		$ssmemo          = ! empty( $post_data['社内共有事項'] ) ? nl2br( $post_data['社内共有事項'] ) : '';
+		$ssmemo_isset    = $ssmemo ? 'n2-postlist-ssmemo' : '';
 
 		$status     = '';
 		$status_bar = 0;
@@ -156,8 +178,14 @@ class N2_Postlist {
 			case 'poster':
 				echo "<div>{$poster}</div>";
 				break;
-			case 'money':
-				echo "<div>{$money}</div>";
+			case 'goods_price':
+				echo "<div>{$goods_price}</div>";
+				break;
+			case 'donation_amount':
+				echo "<div>{$donation_amount}</div>";
+				break;
+			case 'teiki':
+				echo "<div>{$teiki}</div>";
 				break;
 			case 'code':
 				echo "<div>{$code}</div>";
