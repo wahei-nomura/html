@@ -125,10 +125,18 @@ class N2_Setupmenu {
 		<form>
 			<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
 			<input type="hidden" name="judge" value="option">
-			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][ftp_server]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_server'] ?? ''; ?>">
-			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][ftp_server_port]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_server_port'] ?? ''; ?>">
-			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][upload_server]" value="<?php echo get_option( $this->cls )['rakuten']['upload_server'] ?? ''; ?>">
-			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][upload_server_port]" value="<?php echo ( get_option( $this->cls )['rakuten']['upload_server_port'] ?? '' ); ?>">
+			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][ftp_server]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_server'] ?? 'ftp.rakuten.ne.jp'; ?>">
+			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][ftp_server_port]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_server_port'] ?? '16910'; ?>">
+			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][upload_server]" value="<?php echo get_option( $this->cls )['rakuten']['upload_server'] ?? 'upload.rakuten.ne.jp'; ?>">
+			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][upload_server_port]" value="<?php echo ( get_option( $this->cls )['rakuten']['upload_server_port'] ?? '21' ); ?>">
+			<p class="input-text-wrap">
+				FTPユーザー：
+				<input type="text" name="<?php echo $this->cls; ?>[rakuten][ftp_user]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_user'] ?? ''; ?>">
+			</p>
+			<p class="input-text-wrap">
+				FTPパスワード：
+				<input type="text" name="<?php echo $this->cls; ?>[rakuten][ftp_pass]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_pass'] ?? ''; ?>">
+			</p>
 			<p class="textarea-wrap">
 				<label>
 					説明文追加html：

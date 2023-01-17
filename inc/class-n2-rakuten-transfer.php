@@ -22,14 +22,14 @@ class N2_Rakuten_Import {
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		add_action( 'wp_ajax_import_rakuten', array( $this, 'import_rakuten' ) );
+		add_action( 'wp_ajax_transfer_rakuten', array( $this, 'transfer_rakuten' ) );
 	}
 		/**
 	 * ledghomeのエクスポート用CSV生成
 	 *
 	 * @return void
 	 */
-	public function import_rakuten(){
+	public function transfer_rakuten(){
 		$opt = get_option($this->cls);
 		extract($_POST);
 		if ($judge == "ftp_img") {
@@ -41,19 +41,21 @@ class N2_Rakuten_Import {
 				unlink($tmp);
 				mkdir($tmp);
 				extract($opt['rakuten']);
-				$img_dir = rtrim($img_dir, '/') . '/';
+				// $img_dir = rtrim($img_dir, '/') . '/';
+				$img_dir = rtrim('https://image.rakuten.co.jp/f412066-takeo/cabinet/item/', '/') . '/';
 
 				// GOLD（ne.jp）とキャビネット（co.jp）を判定して接続先を変更
 				$server = preg_match('/ne\.jp/', $img_dir) ? 'ftp_server' : 'upload_server';
 				$port = "{$server}_port";
-
-				$conn_id = ftp_connect($$server, $$port); # 可変変数
-				$login = ftp_login($conn_id, $ftp_user, $ftp_pass);
+				echo $server;
+				// $conn_id = ftp_connect($$server, $$port); # 可変変数
+				// $login = ftp_login($conn_id, $ftp_user, $ftp_pass);
+				$conn_id = ftp_connect("upload.rakuten.ne.jp", "21"); # 可変変数
+				$login = ftp_login($conn_id, "f412066-takeo", "00kK9321");
 				if (!$login) $login = ftp_login($conn_id, $ftp_user, substr($ftp_pass, 0, 7) . '2'); #ログインできない場合は末尾を２に変更
 				if ($login) {
 					ftp_pasv($conn_id, true);
 					foreach ($tmp_name as $k => $file) {
-
 						// 画像圧縮処理
 						$quality = isset($quality) ? $quality : 50;
 						move_uploaded_file($file, "{$tmp}/{$name[$k]}");
@@ -86,7 +88,7 @@ class N2_Rakuten_Import {
 									if (ftp_put($conn_id, $remote_file, "{$tmp}/{$name[$k]}", FTP_ASCII)) {
 										echo "キャビネットに転送成功 $name[$k]\n";
 									} else {
-										echo "キャビネットに転送失敗 $name[$k]\n";
+										echo "キャビネットに転送失敗 $remote_file $name[$k] $m[1]\n";
 									}
 								} else {
 									echo "ファイルが違います";
@@ -96,10 +98,14 @@ class N2_Rakuten_Import {
 							echo "ファイルが違います！";
 						}
 					}
+					echo "ログインOk";
 					ftp_close($conn_id);
 				} else {
-					echo "パスワードが違います";
-				}
+					echo "パスワードが違います\n";
+					echo $ftp_user . "\n";
+					echo $ftp_pass . "\n";
+					echo $server . "\n";
+					}
 				exec("rm -Rf {$tmp}");
 			} else {
 				echo "ファイルをセットしてください。";

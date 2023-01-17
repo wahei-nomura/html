@@ -12,13 +12,13 @@ export default () => {
 			fd = new FormData($this[0]),
 			txt = $this.find('[type="submit"]').val();
 			$this.find('[type="submit"]').val(txt.replace("転送","転送中..."));
-			// fd.append('action', "N2_Rakuten_Import");
+			fd.append('action', "transfer_rakuten");
 			fd.append('judge', $this.find('[type="file"]').attr('name').replace("[]",""));
 			console.log($this);
 			console.log(fd);
 			console.log(txt);
 			$.ajax({
-				url: ajaxurl,
+				url: ajaxUrl(window),
 				type: 'POST',
 				data: fd,
 				dataType: 'html',

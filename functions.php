@@ -35,7 +35,7 @@ $incs = array(
 	'class-n2-all-town',
 	'class-n2-item-export',
 	// 'class-n2-front-comment', // 2022-11-29 コメントアウト taiki
-	'class-n2-rakuten-import',
+	'class-n2-rakuten-transfer',
 );
 foreach ( $incs as $name ) {
 	require_once get_theme_file_path() . "/inc/{$name}.php";
