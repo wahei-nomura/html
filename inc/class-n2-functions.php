@@ -71,7 +71,7 @@ class N2_Functions {
 	 * @param string $str きれいにしたい文字列
 	 * @return string $str
 	 */
-	public static function _s( $str ) {
+	public static function special_str_convert( $str ) {
 
 		// 絵文字除去
 		$str = preg_replace( '/([0-9|#][\x{20E3}])|[\x{00ae}|\x{00a9}|\x{203C}|\x{2047}|\x{2048}|\x{2049}|\x{3030}|\x{303D}|\x{2139}|\x{2122}|\x{3297}|\x{3299}][\x{FE00}-\x{FEFF}]?|[\x{2190}-\x{21FF}][\x{FE00}-\x{FEFF}]?|[\x{2300}-\x{23FF}][\x{FE00}-\x{FEFF}]?|[\x{2900}-\x{297F}][\x{FE00}-\x{FEFF}]?|[\x{2B00}-\x{2BF0}][\x{FE00}-\x{FEFF}]?|[\x{1F000}-\x{1F6FF}][\x{FE00}-\x{FEFF}]?/u', '', $str );
@@ -145,14 +145,14 @@ class N2_Functions {
 	 */
 	public static function download_csv( $name, $header, $items_arr, $csv_title = '' ) {
 		$csv  = $csv_title . PHP_EOL;
-		$csv .= implode( ',', $header ) . PHP_EOL;
+		$csv .= implode( '	', $header ) . PHP_EOL;
 
 		// CSV文字列生成
 		foreach ( $items_arr as $item ) {
 			foreach ( $header as $head ) {
-				$csv .= '"' . $item[ $head ] . '",';
+				$csv .= '"' . $item[ $head ] . '"	';
 			}
-			$csv  = rtrim( $csv, ',' );
+			$csv  = rtrim( $csv, '	' );
 			$csv .= PHP_EOL;
 		}
 
@@ -162,6 +162,38 @@ class N2_Functions {
 		header( 'Content-Type: application/octet-stream' );
 		header( "Content-Disposition: attachment; filename={$name}.csv" );
 		echo htmlspecialchars_decode( $csv );
+
+		die();
+	}
+
+	/**
+	 * download_tsv
+	 *
+	 * @param string $name データ名
+	 * @param Array  $header header
+	 * @param Array  $items_arr 商品情報配列
+	 * @param string $tsv_title あれば連結する
+	 * @return void
+	 */
+	public static function download_tsv( $name, $header, $items_arr, $tsv_title = '' ) {
+		//$tsv  = $tsv_title . PHP_EOL;
+		//$tsv .= implode( '	', $header ) . PHP_EOL;
+
+		// TSV文字列生成
+		foreach ( $items_arr as $item ) {
+			foreach ( $header as $head ) {
+				$tsv .= '"' . $item[ $head ] . '"	';
+			}
+			$tsv  = rtrim( $tsv, '	' );
+			$tsv .= PHP_EOL;
+		}
+
+		// sjisに変換
+		$tsv = mb_convert_encoding( $tsv, 'SJIS-win', 'utf-8' );
+
+		header( 'Content-Type: application/octet-stream' );
+		header( "Content-Disposition: attachment; filename={$name}.tsv" );
+		echo htmlspecialchars_decode( $tsv );
 
 		die();
 	}
