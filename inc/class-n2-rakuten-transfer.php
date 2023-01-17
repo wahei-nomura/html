@@ -106,5 +106,36 @@ class N2_Rakuten_Import {
 				echo "ファイルをセットしてください。";
 			}
 		}
+		# 楽天Uにデータ転送
+		elseif ($judge == "ftp_file") {
+			setlocale(LC_ALL, 'ja_JP.UTF-8');
+			extract($_FILES[$judge]);
+			if (!empty($tmp_name[0])) {
+				extract($opt['rakuten']);
+				$conn_id = ftp_connect($upload_server, $upload_server_port);
+				$login = ftp_login($conn_id, $ftp_user, $ftp_pass);
+				if (!$login) $login = ftp_login($conn_id, $ftp_user, substr($ftp_pass, 0, 7) . '2'); #ログインできない場合は末尾を２に変更
+				if ($login) {
+					ftp_pasv($conn_id, true);
+					foreach ($tmp_name as $k => $file) {
+						if (strpos($name[$k], ".csv") !== false) {
+							$remote_file = "ritem/batch/" . $name[$k];
+							if (ftp_put($conn_id, $remote_file, $file, FTP_ASCII)) {
+								echo "転送成功 $name[$k]\n";
+							} else {
+								echo "転送失敗 $name[$k]\n";
+							}
+						} else {
+							echo "ファイルが違います！";
+						}
+					}
+					ftp_close($conn_id);
+				} else {
+					echo "パスワードが違います";
+				}
+			} else {
+				echo "ファイルをセットしてください。";
+			}
+		}
 	}
 }
