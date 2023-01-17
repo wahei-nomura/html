@@ -141,12 +141,16 @@ class N2_Functions {
 	 * @param Array  $header header
 	 * @param Array  $items_arr 商品情報配列
 	 * @param string $csv_title あれば連結する
+	 * @param string $type デフォルト（無記入）ならcsv、"tsv"の時はtsvとして処理
 	 * @return void
 	 */
-	public static function download_csv( $name, $header, $items_arr, $csv_title = '' ) {
-		$csv  = $csv_title . PHP_EOL;
-		$csv .= implode( '	', $header ) . PHP_EOL;
-
+	public static function download_csv( $name, $header, $items_arr, $csv_title = '', $type = null ) {
+		if($type === null || $type !== 'tsv'){ //デフォルトはcsv。イレギュラーも同様
+			$type = 'csv';
+			$csv  = $csv_title . PHP_EOL;
+			$csv .= implode( '	', $header ) . PHP_EOL;
+		}
+		
 		// CSV文字列生成
 		foreach ( $items_arr as $item ) {
 			foreach ( $header as $head ) {
@@ -160,40 +164,8 @@ class N2_Functions {
 		$csv = mb_convert_encoding( $csv, 'SJIS-win', 'utf-8' );
 
 		header( 'Content-Type: application/octet-stream' );
-		header( "Content-Disposition: attachment; filename={$name}.csv" );
+		header( "Content-Disposition: attachment; filename={$name}.{$type}" );
 		echo htmlspecialchars_decode( $csv );
-
-		die();
-	}
-
-	/**
-	 * download_tsv
-	 *
-	 * @param string $name データ名
-	 * @param Array  $header header
-	 * @param Array  $items_arr 商品情報配列
-	 * @param string $tsv_title あれば連結する
-	 * @return void
-	 */
-	public static function download_tsv( $name, $header, $items_arr, $tsv_title = '' ) {
-		//$tsv  = $tsv_title . PHP_EOL;
-		//$tsv .= implode( '	', $header ) . PHP_EOL;
-
-		// TSV文字列生成
-		foreach ( $items_arr as $item ) {
-			foreach ( $header as $head ) {
-				$tsv .= '"' . $item[ $head ] . '"	';
-			}
-			$tsv  = rtrim( $tsv, '	' );
-			$tsv .= PHP_EOL;
-		}
-
-		// sjisに変換
-		$tsv = mb_convert_encoding( $tsv, 'SJIS-win', 'utf-8' );
-
-		header( 'Content-Type: application/octet-stream' );
-		header( "Content-Disposition: attachment; filename={$name}.tsv" );
-		echo htmlspecialchars_decode( $tsv );
 
 		die();
 	}

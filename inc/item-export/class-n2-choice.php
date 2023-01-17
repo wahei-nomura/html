@@ -95,7 +95,7 @@ class N2_Choice {
 
         }
         //var_dump($sumple_header);
-        N2_Functions::download_tsv( 'choice', array_keys($sumple_header), $items_arr, $tsv_title );
+        N2_Functions::download_csv( 'choice', array_keys($sumple_header), $items_arr, $tsv_title ,'tsv');
     }
 }
 
