@@ -137,6 +137,10 @@ class N2_Setupmenu {
 				FTPパスワード：
 				<input type="text" name="<?php echo $this->cls; ?>[rakuten][ftp_pass]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_pass'] ?? ''; ?>">
 			</p>
+			<p class="input-text-wrap">
+				商品画像ディレクトリ：
+				<input type="text" name="<?php echo $this->cls; ?>[rakuten][img_dir]" value="<?php echo get_option( $this->cls )['rakuten']['img_dir'] ?? ''; ?>">
+			</p>
 			<p class="textarea-wrap">
 				<label>
 					説明文追加html：
