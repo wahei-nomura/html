@@ -1,82 +1,121 @@
-iki:
-    漢字: 壱岐市
-    楽天: f422100-iki
-    ふるなび: 1557
-    ANA: 42210
-itoshima:
-    漢字: 糸島市
-    楽天: f402303-itoshima
-    ふるなび: 1496
-    ANA: 40230
-ureshino:
-    漢字: 嬉野市
-    楽天: f412091-ureshino
-    ANA: 41209
-ojika:
-    漢字: 小値賀町
-    楽天: f423831-ojika
-kawatANA:
-    漢字: 川棚町
-    楽天: f423220-kawatana
-kouhoku:
-    漢字: 江北町
-    楽天: f414247-kouhoku
-    ふるなび: 1546
-    ANA: 41424
-goto:
-    漢字: 五島市
-    楽天: f422118-goto
-    ふるなび: 1558
-    ANA: 42211
-saikai:
-    漢字: 西海市
-    楽天: f422126-saikai
-    ANA: 42212
-saza:
-    漢字: 佐々町
-    楽天: f423912-saza
-shiroishi:
-    漢字: 白石町
-    楽天: f414255-shiroishi
-    ふるなび: 1547
-    ANA: 41425
-shinkamigoto:
-    漢字: 新上五島町
-    楽天: f424111-shinkamigoto
-    ANA: 42411
-tajimi:
-    漢字: 多治見市
-toki:
-    漢字: 土岐市
-    楽天: f212121-toki
-    ふるなび: 920
 hasami:
     漢字: 波佐見町
     楽天: f423238-hasami
     ふるなび: 1566
     ANA: 42323
-higasisonogi:
+
+itoshima:
+    漢字: 糸島市
+    楽天: f402303-itoshima
+    ふるなび: 1496
+    ANA: 40230
+
+higashisonogi:
     漢字: 東彼杵町
     楽天: f423211-higashisonogi
     ふるなび: 1564
     ANA: 42321
-hirado:
-    漢字: 平戸市
-    楽天: f422070-hirado
-    ふるなび: 1554
-nakagawa:
-    漢字: 那珂川市
-    楽天: f402311-nakagawa
-nagasaki:
-    漢字: 長崎市
-    楽天: f422011-nagasaki
-    ふるなび: 1549
+
+saikai:
+    漢字: 西海市
+    楽天: f422126-saikai
+    ANA: 42212
+
+ojika:
+    漢字: 小値賀町
+    楽天: f423831-ojika
+
 nagayo:
     漢字: 長与町
     楽天: f423076-nagayo
     ふるなび: 1562
+
 yoshinogari:
     漢字: 吉野ヶ里町
     楽天: f413275-yoshinogari
     ふるなび: 1539
     ANA: 41327
+    auPAY: 413275
+    ふるラボ: 51
+    ふるさとパレット: 86
+    JRE MALL: F122
+    ふるさと本舗: 8b32a995-f7ec-4427-bc9c-12c45bd36697
+
+
+nakagawa:
+    漢字: 那珂川市
+    楽天: f402311-nakagawa
+
+kouhoku:
+    漢字: 江北町
+    楽天: f414247-kouhoku
+    ふるなび: 1546
+    ANA: 41424
+
+iki:
+    漢字: 壱岐市
+    楽天: f422100-iki
+    ふるなび: 1557
+    ANA: 42210
+
+shiroishi:
+    漢字: 白石町
+    楽天: f414255-shiroishi
+    ふるなび: 1547
+    ANA: 41425
+
+nagasaki:
+    漢字: 長崎市
+    楽天: f422011-nagasaki
+    ふるなび: 1549
+
+hirado:
+    漢字: 平戸市
+    楽天: f422070-hirado
+    ふるなび: 1554
+
+toki:
+    漢字: 土岐市
+    楽天: f212121-toki
+    ふるなび: 920
+
+kawatana:
+    漢字: 川棚町
+    楽天: f423220-kawatana  
+
+ureshino:
+    漢字: 嬉野市
+    楽天: f412091-ureshino
+    ふるなび: 1537
+    ANA: 41209
+
+goto:
+    漢字: 五島市
+    楽天: f422118-goto
+    ふるなび: 1558
+    ANA: 42211
+    JAL: 422118
+
+saza:
+    漢字: 佐々町
+    楽天: f423912-saza
+
+shinkamigoto:
+    漢字: 新上五島町
+    楽天: f424111-shinkamigoto
+    ANA: 42411
+
+tajimi:
+    漢字: 多治見市
+    楽天: f212041-tajimi
+    ふるなび: 912
+
+minamishimabara:
+    漢字: 南島原市
+    楽天: f422142-minamisimabara
+    
+takeo:
+    漢字: 武雄市
+    楽天: f412066-takeo
+    ふるなび: 1534
+    ANA: 41206

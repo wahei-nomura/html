@@ -165,7 +165,7 @@ class N2_Setpost {
 			'text'             => '<input type="text" style="width:100%%" id="%1$s" name="%1$s" value="%2$s" maxlength="%3$s" placeholder="%4$s" class="n2-input %5$s">',
 			'textarea'         => '<textarea style="width:100%%; height:200px" id="%1$s" name="%1$s" maxlength="%3$s" placeholder="%4$s" class="n2-input %5$s">%2$s</textarea>',
 			'number'           => '<input type="number" id="%1$s" name="%1$s" value="%2$s" step="%3$s" class="n2-input %4$s">',
-			'checkbox'         => '<li><label><input type=checkbox name="%1$s" value="%2$s" %3$s class="n2-input">%4$s</label></li>',
+			'checkbox'         => '<li style="display:inline-block; margin-right:20px"><label><input type=checkbox name="%1$s" value="%2$s" %3$s class="n2-input">%4$s</label></li>',
 			'select'           => '<select id="%1$s" name="%1$s" class="n2-input %3$s">%2$s</select>',
 			'option'           => '<option value="%1$s" %3$s>%2$s</option>',
 			'image'            => '<div class="%1$s-image-block"><input type="hidden" class="%1$s-image-input" name="%2$s[]" value="%3$s"><span class="%1$s-image-delete dashicons dashicons-no-alt"></span><span class="%1$s-image-big dashicons dashicons-editor-expand"></span><span class="%1$s-image-num"></span><img class="%1$s-image-url" src="%4$s" alt="" width="100%%" height="100%%" /></div>',
@@ -188,7 +188,7 @@ class N2_Setpost {
 
 			<div>
 				<?php foreach ( $fields as $field => $detail ) : ?>
-				<div style="border:solid 2px <?php echo $color; ?>; margin: 24px auto; border-radius:8px; width:80%; min-width:800px;">
+				<div style="border:solid 2px <?php echo $color; ?>; margin: 24px auto; border-radius:8px; width:80%; min-width:800px; <?php echo '事業者確認' === $field ? 'visibility: hidden; height: 0;' : ''; ?>" title="<?php echo $field; ?>">
 					<!-- ラベル -->
 					<p style="margin: 0;"><label style="margin: 0;padding:16px 0;background-color:<?php echo $color; ?>; color: white;font-size:20px;font-weight:bold;padding:4px 8px;display:block;text-align:center;" for="<?php echo $field; ?>"><?php echo ! empty( $detail['label'] ) ? $detail['label'] : $field; ?></label></p>
 					<!-- 説明 -->
@@ -324,35 +324,14 @@ class N2_Setpost {
 
 		$arr = array(
 			'ss_crew'           => wp_get_current_user()->allcaps['ss_crew'] ? 'true' : 'false',
-			'kifu_auto_pattern' => $this->kifu_auto_pattern(),
+			'kifu_auto_pattern' => N2_Functions::kifu_auto_pattern( 'js' ),
 			'delivery_pattern'  => $this->delivery_pattern(),
+			'food_param'        => $this->food_param(),
 		);
 
 		echo json_encode( $arr );
 
 		die();
-	}
-
-	/**
-	 * 寄附金額計算式をそのままJSの構文として渡す
-	 *
-	 * @return string
-	 */
-	private function kifu_auto_pattern() {
-
-		// パターンを配列で置いておく
-		$pattern = array(
-			'零号機' => 'Math.ceil((kakaku + souryou) / 300) * 1000',
-			'初号機' => 'Math.ceil(kakaku / 300) * 1000',
-			'弐号機' => 'Math.ceil((kakaku + souryou) / 350) * 1000',
-		);
-
-		$pattern['使徒'] = "{$pattern['初号機']}>{$pattern['弐号機']}?{$pattern['初号機']}:{$pattern['弐号機']}";
-
-		$pattern_type = '初号機';
-		$pattern_type = apply_filters( 'n2_setpost_change_kifu_pattern', $pattern_type );
-
-		return $pattern[ $pattern_type ];
 	}
 
 	/**
@@ -368,6 +347,20 @@ class N2_Setpost {
 		$pattern = apply_filters( 'n2_setpost_change_delivary_pattern', $pattern );
 
 		return $pattern;
+	}
+
+	/**
+	 * 食品取扱の有無を返す
+	 *
+	 * @return string
+	 */
+	private function food_param() {
+		$user = wp_get_current_user();
+		if ( 'jigyousya' !== $user->roles[0] ) {
+			return '事業者ではない';
+		}
+
+		return empty( get_user_meta( $user->ID, '食品取り扱い', true ) ) ? '未設定' : get_user_meta( $user->ID, '食品取り扱い', true );
 	}
 
 	/**

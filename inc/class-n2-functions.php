@@ -16,6 +16,37 @@ if ( ! defined( 'ABSPATH' ) ) {
 class N2_Functions {
 
 	/**
+	 * 寄附金額計算式をそのままJSの構文として渡す
+	 *
+	 * @param string $lang php or js
+	 * @param Array  $price_data 価格 送料
+	 * @return string
+	 */
+	public static function kifu_auto_pattern( $lang, $price_data = null ) {
+
+		if ( 'php' === $lang ) {
+			list( $kakaku, $souryou ) = $price_data;
+		}
+
+		$pattern = array(
+			'零号機' => 'php' === $lang ? ceil( ( $kakaku + $souryou ) / 300 ) * 1000 : 'Math.ceil((kakaku + souryou) / 300) * 1000',
+			'初号機' => 'php' === $lang ? ceil( $kakaku / 300 ) * 1000 : 'Math.ceil(kakaku / 300) * 1000',
+			'弐号機' => 'php' === $lang ? ceil( ( $kakaku + $souryou ) / 350 ) * 1000 : 'Math.ceil((kakaku + souryou) / 350) * 1000',
+		);
+
+		if ( 'php' === $lang ) {
+			$pattern['使徒'] = $pattern['初号機'] > $pattern['弐号機'] ? $pattern['初号機'] : $pattern['弐号機'];
+		} else {
+			$pattern['使徒'] = "{$pattern['初号機']}>{$pattern['弐号機']}?{$pattern['初号機']}:{$pattern['弐号機']}";
+		}
+
+		$pattern_type = '初号機';
+		$pattern_type = apply_filters( 'n2_setpost_change_kifu_pattern', $pattern_type );
+
+		return $pattern[ $pattern_type ];
+	}
+
+	/**
 	 * カスタムフィールド全取得
 	 *
 	 * @param Object $object 現在の投稿の詳細データ
@@ -129,5 +160,52 @@ class N2_Functions {
 			$post_meta_list[ $key ] = $post_meta[0];
 		}
 		return $post_meta_list;
+	}
+	/**
+	 * get_template_partのwrapper
+	 *
+	 * @param string $slug The slug name for the generic template.
+	 * @param string $name The name of the specialised template.
+	 * @param array  $args Optional. Additional arguments passed to the template.
+	 *               	   Default empty array.
+	 * @return void|false Void on success, false if the template does not exist.
+	 */
+	public static function get_template_part_with_args( $slug, $name, $args ) {
+		if ( isset( $args ) && $args ) { // $argsが無ければ何もしない
+			get_template_part( $slug, $name, $args );
+		}
+		return false;
+	}
+
+	/**
+	 * download_csv
+	 *
+	 * @param string $name データ名
+	 * @param Array  $header header
+	 * @param Array  $items_arr 商品情報配列
+	 * @param string $csv_title あれば連結する
+	 * @return void
+	 */
+	public static function download_csv( $name, $header, $items_arr, $csv_title = '' ) {
+		$csv  = $csv_title . PHP_EOL;
+		$csv .= implode( ',', $header ) . PHP_EOL;
+
+		// CSV文字列生成
+		foreach ( $items_arr as $item ) {
+			foreach ( $header as $head ) {
+				$csv .= '"' . $item[ $head ] . '",';
+			}
+			$csv  = rtrim( $csv, ',' );
+			$csv .= PHP_EOL;
+		}
+
+		// sjisに変換
+		$csv = mb_convert_encoding( $csv, 'SJIS-win', 'utf-8' );
+
+		header( 'Content-Type: application/octet-stream' );
+		header( "Content-Disposition: attachment; filename={$name}.csv" );
+		echo htmlspecialchars_decode( $csv );
+
+		die();
 	}
 }
