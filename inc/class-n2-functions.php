@@ -93,6 +93,8 @@ class N2_Functions {
 			')' => '）',
 			':' => '：',
 			'~' => '～', // winニョロ
+			'吞' => '呑',
+			'麵' => '麺',
 		);
 		$str  = str_replace( array_keys( $conv ), array_values( $conv ), $str );
 
