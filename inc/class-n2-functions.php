@@ -91,7 +91,7 @@ class N2_Functions {
 	}
 
 	/**
-	 * 管理画面、ページ指定、ユーザー権限指定判定
+	 * 管理画面、ページ指定、ユーザー権限指定判定(条件から外れたらtrueを返す)
 	 *
 	 * @param string $page $pegenow
 	 * @param string $type $post_type
