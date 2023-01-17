@@ -454,6 +454,11 @@ class N2_Postlist {
 	public function ajax() {
 		$jigyousya = filter_input( INPUT_GET, '事業者', FILTER_VALIDATE_INT );
 
+		if ( empty( $jigyousya ) ) {
+			echo wp_json_encode( array() );
+			die();
+		}
+
 		$posts = get_posts( "author={$jigyousya}&post_status=any" );
 		$arr   = array();
 		foreach ( $posts as $post ) {
