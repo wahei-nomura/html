@@ -30,37 +30,6 @@ class N2_Rakuten_CSV {
 	}
 
 	/**
-	 * download_csv
-	 *
-	 * @param string $name データ名
-	 * @param array  $header header
-	 * @param array  $items_arr 商品情報配列
-	 * @param string $csv_title あれば連結する
-	 * @return void
-	 */
-	private function download_csv( $name, $header, $items_arr, $csv_title = '' ) {
-		$csv  = $csv_title . PHP_EOL;
-		$csv .= implode( ',', $header ) . PHP_EOL;
-
-		// CSV文字列生成
-		foreach ( $items_arr as $item ) {
-			foreach ( $header as $head ) {
-				$csv .= '"' . $item[ $head ] . '",';
-			}
-			$csv  = rtrim( $csv, ',' );
-			$csv .= PHP_EOL;
-		}
-
-		// sjisに変換
-		$csv = mb_convert_encoding( $csv, 'SJIS-win', 'utf-8' );
-
-		header( 'Content-Type: application/octet-stream' );
-		header( "Content-Disposition: attachment; filename={$name}.csv" );
-		echo htmlspecialchars_decode( $csv );
-		die();
-	}
-
-	/**
 	 * iniファイルから取得したい場合はここに追加する
 	 *
 	 * @param String $ajax_str csvの種類(iniファイルのセクション名)
@@ -75,7 +44,8 @@ class N2_Rakuten_CSV {
 		$n2_file_header = yaml_parse_file( get_template_directory() . '/config/n2-file-header.yml' );
 
 		// ========自治体コード=========
-		$townname    = end( explode( '/', get_option( 'home' ) ) );
+		$option_home = explode( '/', get_option( 'home' ) );
+		$townname    = end( $option_home );
 		$n2_towncode = $n2_towncodes[ $townname ];
 		// ========楽天商品画像のパス=======
 		$rakuten_img_dir = $n2_towncode['楽天']
@@ -98,80 +68,13 @@ class N2_Rakuten_CSV {
 			// プラグイン側でヘッダーを編集
 			'header'                => apply_filters( 'n2_item_export_' . $ajax_str . '_header', $header_str['values'] ),
 			// ajaxで渡ってきたpostidの配列
-			'ids'                   => explode( ',', filter_input( INPUT_POST, $ajax_str, FILTER_SANITIZE_ENCODED ) ),
+			'ids'                   => explode( '%2C', filter_input( INPUT_POST, $ajax_str, FILTER_SANITIZE_ENCODED ) ),
 			'rakuten_img_dir'       => $rakuten_img_dir,
-			'allergens'             => $allergens_list,
+			'アレルゲン'             => $allergens_list,
 			'rakuten_select_option' => $rakuten_select_option,
 		);
 		// 内容を追加、または上書きするためのフック
 		return apply_filters( 'n2_item_export_get_yml', $arr );
-	}
-
-	/**
-	 * ledghomeのエクスポート用CSV生成
-	 *
-	 * @return void
-	 */
-	public function ledghome() {
-		$ymr_arr = $this->get_yml( __FUNCTION__ );
-
-		// itemの情報を配列か
-		$items_arr = array();
-		// get_post_metaのkey
-		$post_keys = array(
-			'定期便',
-			'返礼品コード',
-			'略称',
-			'配送伝票表示名',
-			'カテゴリー',
-			'内容量・規格等',
-			'説明文',
-			'寄附金額',
-			'送料',
-			'発送方法',
-			'発送サイズ',
-		);
-
-		foreach ( $ymr_arr['ids'] as $id ) {
-			// get_post_metaを一括取得
-			$post_meta_list = N2_Functions::get_post_meta_multiple( $id, $post_keys );
-			$teiki          = $post_meta_list['定期便'];
-
-			for ( $i = 1; $i <= $teiki; ++$i ) {
-				$key_id   = 1 < $teiki ? "{$id}_{$i}" : $id;
-				$teikinum = 1 < $teiki ? "_{$i}/{$teiki}" : '';
-				// headerの項目を取得する
-				$items_arr[ $key_id ] = N2_Functions::get_post_meta_multiple( $id, $ymr_arr['header'] );
-
-				$item_num = trim( strtoupper( $post_meta_list['返礼品コード'] ) ) . $teikinum;
-
-				$item_arr = array(
-					'謝礼品番号'     => $item_num,
-					'謝礼品名'      => $item_num . ' ' . ( $post_meta_list['略称'] ? $post_meta_list['略称'] : N2_Functions::_s( get_the_title( $id ) ) ),
-					'事業者'       => get_the_author_meta( 'display_name', get_post_field( 'post_author', $id ) ),
-					'配送名称'      => ( $post_meta_list['配送伝票表示名'] ) ? ( $item_num . ' ' . $post_meta_list['配送伝票表示名'] ) : $item_num,
-					'ふるさとチョイス名' => N2_Functions::_s( get_the_title( $id ) ) . " [{$item_num}]",
-					'楽天名称'      => '【ふるさと納税】' . N2_Functions::_s( get_the_title( $id ) ) . " [{$item_num}]",
-					'謝礼品カテゴリー'  => $post_meta_list['カテゴリー'],
-					'セット内容'     => N2_Functions::_s( $post_meta_list['内容量・規格等'] ),
-					'謝礼品紹介文'    => N2_Functions::_s( $post_meta_list['説明文'] ),
-					'ステータ'      => '受付中',
-					'状態'        => '表示',
-					'寄附設定金額'    => $i < 2 ? $post_meta_list['寄附金額'] : 0,
-					'送料'        => $post_meta_list['送料'],
-					'発送方法'      => $post_meta_list['発送方法'],
-					'申込可能期間'    => '通年',
-					'自由入力欄1'    => date( 'Y/m/d' ) . '：' . wp_get_current_user()->display_name,
-					'自由入力欄2'    => $post_meta_list['送料'],
-					'配送サイズコード'  => ( is_numeric( $post_meta_list['発送サイズ'] ) ) ? $post_meta_list['発送サイズ'] : '',
-				);
-
-				// 内容を追加、または上書きするためのフック
-				$items_arr[ $key_id ] = apply_filters( 'n2_item_export_ledghome_items', $item_arr, $id );
-			}
-		}
-
-		$this->download_csv( 'ledghome', $ymr_arr['header'], $items_arr, $ymr_arr['csv_title'] );
 	}
 
 	/**
@@ -226,7 +129,7 @@ class N2_Rakuten_CSV {
 
 			// GOLD（ne.jp）とキャビネット（co.jp）を判定してキャビネットは事業者コードディレクトリを追加
 			preg_match( '/^[a-z]{2,3}/', $item_num_low, $m );// 事業者コード
-			if ( ! preg_match( '/ne\.jp/', $img_dir ) ) {
+			if ( ! preg_match( '/ne\.jp/', $img_dir ) && array_key_exists( 0, $m ) ) {
 				$img_dir .= "/{$m[0]}";// キャビネットの場合事業者コード追加
 			}
 
@@ -255,10 +158,11 @@ class N2_Rakuten_CSV {
 				$img_urls_arr = explode( ' ', $img_urls_str );
 				?>
 				<?php foreach ( $img_urls_arr as $index => $img_url ) : ?>
-				<img src=""<?php echo $img_url; ?>"" width=""100%"">
-				<?php if ( array_key_last( $img_urls_arr ) === $index ) : ?>
-					<br><br>
-				<?php endif; ?>
+					<?php if ( array_key_last( $img_urls_arr ) === $index ) : ?>
+						<img src=""<?php echo $img_url; ?>"" width=""100%""><br><br>
+					<?php else : ?>
+						<img src=""<?php echo $img_url; ?>"" width=""100%"">
+					<?php endif; ?>
 				<?php endforeach; ?>
 				<?php
 			};
@@ -267,37 +171,43 @@ class N2_Rakuten_CSV {
 
 			// [html]PC用販売説明文
 			$pc_sales_description_html = function() use ( $itemtable_html, $post_id, $img_urls_html ) {
+				$option        = get_option( 'N2_setupmenu' );
+				$add_text_name = $option['add_text'][ get_bloginfo( 'name' ) ] ?? '';
+				$rakuten_html  = $option['rakuten']['html'] ?? '';
 				?>
 				<?php $img_urls_html(); ?>
 				<?php $itemtable_html(); ?><br><br>
 				<?php
-				echo get_option( 'N2_setupmenu' )['add_text'][ get_bloginfo( 'name' ) ]
+				echo $add_text_name
 					. apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $post_id, 'PC用販売説明文' )
-					. str_replace( '\"', '""', get_option( 'N2_setupmenu' )['rakuten']['html'] );
+					. str_replace( '\"', '""', $rakuten_html );
 				?>
 				<?php
 			};
 
 			// [html]スマートフォン用商品説明文
 			$sp_item_description_html = function () use ( $itemtable_html, $post_meta_list, $img_urls_html ) {
-				$sp_formatter = fn( $key ) => nl2br( N2_Functions::_s( $post_meta_list[ $key ] ) );
+				$sp_formatter       = fn( $key ) => N2_Functions::_s( $post_meta_list[ $key ] );
+				$sp_formatter_nl2br = fn( $key ) => nl2br( N2_Functions::_s( $post_meta_list[ $key ] ) );
+				$option             = get_option( 'N2_setupmenu' );
+				$add_text_name      = $option['add_text'][ get_bloginfo( 'name' ) ] ?? '';
+				$rakuten_html       = $option['rakuten']['html'] ?? '';
 				?>
 				<?php $img_urls_html(); ?>
 				<?php echo $sp_formatter( '説明文' ); ?><br><br>
 				<?php $itemtable_html(); ?>
 				<?php if ( $post_meta_list['検索キーワード'] ) : ?>
-					<br><br><?php echo $sp_formatter( '検索キーワード' ); ?>
+					<br><br><?php echo $sp_formatter_nl2br( '検索キーワード' ); ?>
 				<?php endif; ?>
 				<?php if ( $post_meta_list['楽天カテゴリー'] ) : ?>
-					<br><br><?php echo $sp_formatter( '楽天カテゴリー' ); ?>
+					<br><br><?php echo $sp_formatter_nl2br( '楽天カテゴリー' ); ?>
 				<?php endif ?>
 				<?php
-				echo get_option( 'N2_setupmenu' )['add_text'][ get_bloginfo( 'name' ) ]
-					. str_replace( '\"', '""', get_option( 'N2_setupmenu' )['rakuten']['html'] );
+				echo $add_text_name
+					. str_replace( '\"', '""', $rakuten_html );
 				?>
 				<?php
 			};
-
 			$item_arr = array(
 				'コントロールカラム'     => 'n',
 				'商品管理番号（商品URL）' => trim( mb_strtolower( $post_meta_list['返礼品コード'] ) ),
@@ -439,7 +349,7 @@ class N2_Rakuten_CSV {
 			<?php
 		} else {
 			// csv出力
-			$this->download_csv( 'rakuten_item', $yml_arr['header'], $items_arr, $yml_arr['csv_title'] );
+			N2_Functions::download_csv( 'rakuten_item', $yml_arr['header'], $items_arr, $yml_arr['csv_title'] );
 		}
 		die();
 	}
@@ -461,28 +371,39 @@ class N2_Rakuten_CSV {
 			'消費期限',
 			'検索キーワード',
 			'楽天カテゴリー',
+			'原料原産地',
+			'加工地',
 		);
 		// post_meta格納用
 		$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
 
 		// ========[html]PC用商品説明文========
 		$pc_description_html = function() use ( $post_meta_list, $post_id ) {
-			$formatter = fn( $post_key ) => nl2br( N2_Functions::_s( $post_meta_list[ $post_key ] ) );
+			$formatter       = fn( $post_key ) => N2_Functions::_s( $post_meta_list[ $post_key ] );
+			$formatter_nl2br = fn( $post_key ) => nl2br( N2_Functions::_s( $post_meta_list[ $post_key ] ) );
 			?>
 			<?php echo $formatter( '説明文' ); ?><br><br>
 			<?php echo $formatter( '内容量・規格等' ); ?><br>
 			<?php if ( $post_meta_list['賞味期限'] ) : ?>
-				<br>【賞味期限】<br><?php echo $formatter( '賞味期限' ); ?><br>
+				<br>【賞味期限】<br><?php echo $formatter_nl2br( '賞味期限' ); ?><br>
 			<?php endif; ?>
 			<?php if ( $post_meta_list['消費期限'] ) : ?>
-				<br>【消費期限】<br><?php echo $formatter( '消費期限' ); ?><br>
+				<br>【消費期限】<br><?php echo $formatter_nl2br( '消費期限' ); ?><br>
 			<?php endif; ?>
 			<?php echo apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $post_id, '対応機器' ); ?>
+			<?php if ( $post_meta_list['原料原産地'] ) : ?>
+				<br><br>【原料原産地】<br>
+				<?php echo $formatter( '原料原産地' ); ?><br>
+			<?php endif; ?>
+			<?php if ( $post_meta_list['加工地'] ) : ?>
+				<br><br>【加工地】<br>
+				<?php echo $formatter_nl2br( '加工地' ); ?><br>
+			<?php endif; ?>
 			<?php if ( $post_meta_list['検索キーワード'] ) : ?>
-				<br><br><?php echo $formatter( '検索キーワード' ); ?>
+				<br><br><?php echo $formatter_nl2br( '検索キーワード' ); ?>
 			<?php endif; ?>
 			<?php if ( $post_meta_list['楽天カテゴリー'] ) : ?>
-				<br><br><?php echo $formatter( '楽天カテゴリー' ); ?>
+				<br><br><?php echo $formatter_nl2br( '楽天カテゴリー' ); ?>
 			<?php endif; ?>
 			<?php
 		};
@@ -526,7 +447,7 @@ class N2_Rakuten_CSV {
 			if ( $post_meta_list['アレルゲン'] || $post_meta_list['アレルゲン注釈'] ) {
 				$allergens = '';
 				foreach ( $post_meta_list['アレルゲン']  as $v ) {
-					$allergens .= $yml_arr['allergens'][ $v ] . '・';
+					$allergens .= $v['label'] . '・';
 				}
 				$result .= rtrim( $allergens, '・' );
 				if ( $result && $post_meta_list['アレルゲン注釈'] ) {
@@ -538,20 +459,21 @@ class N2_Rakuten_CSV {
 		};
 		$allergy_display_str = $allergy_display();
 
-		$formatter = fn( $post_key ) => N2_Functions::_s( $post_meta_list[ $post_key ] );
+		$formatter       = fn( $post_key ) => N2_Functions::_s( $post_meta_list[ $post_key ] );
+		$formatter_nl2br = fn( $post_key ) => nl2br( N2_Functions::_s( $post_meta_list[ $post_key ] ) );
 		$trs       = array(
 			'名称'      => array(
 				'td' => ( $formatter( '表示名称' ) ?: $formatter( '略称' ) ?: N2_Functions::_s( get_the_title( $post_id ) ) ),
 			),
 			'内容量'     => array(
-				'td' => nl2br( $formatter( '内容量・規格等' ) ),
+				'td' => $formatter_nl2br( '内容量・規格等' ),
 			),
 			'賞味期限'    => array(
-				'td'        => nl2br( $formatter( '賞味期限' ) ),
+				'td'        => $formatter_nl2br( '賞味期限' ),
 				'condition' => $post_meta_list['賞味期限'],
 			),
 			'消費期限'    => array(
-				'td'        => nl2br( $formatter( '消費期限' ) ),
+				'td'        => $formatter_nl2br( '消費期限' ),
 				'condition' => $post_meta_list['消費期限'],
 			),
 			'アレルギー表示' => array(
@@ -559,10 +481,10 @@ class N2_Rakuten_CSV {
 				'condition' => $allergy_display_str,
 			),
 			'配送方法'    => array(
-				'td' => nl2br( $formatter( '発送方法' ) ),
+				'td' => $formatter_nl2br( '発送方法' ),
 			),
 			'配送期日'    => array(
-				'td' => nl2br( $formatter( '配送期間' ) ),
+				'td' => $formatter_nl2br( '配送期間' ),
 			),
 			'提供事業者'   => array(
 				'td'        => $post_meta_list['提供事業者名']
@@ -659,5 +581,6 @@ class N2_Rakuten_CSV {
 				apply_filters( 'n2_item_export_select_csv_items', $item_arr, $post_id ),
 			);
 		}
-		$this->download_csv( 'rakuten_select', $yml_arr['header'], $items_arr, $yml_arr['csv_title'] );
+		N2_Functions::download_csv( 'rakuten_select', $yml_arr['header'], $items_arr, $yml_arr['csv_title'] );
 	}
+}
