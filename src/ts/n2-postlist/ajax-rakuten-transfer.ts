@@ -8,7 +8,7 @@ export default () => {
 		$(".sisfile").on("submit", function(e){
 			e.preventDefault();
 			var
-			$this	= $(this),
+			$this = $(this),
 			fd = new FormData($this[0]),
 			txt = $this.find('[type="submit"]').val();
 			$this.find('[type="submit"]').val(txt.replace("転送","転送中..."));
