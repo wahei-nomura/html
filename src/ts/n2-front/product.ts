@@ -9,6 +9,8 @@ declare global {
 	}
 }
 export default () => {
+	console.log('here');
+	
 	console.log(window['tmp_path']['ajax_url']);
 	const element:HTMLInputElement = <HTMLInputElement>document.getElementById('product_id');
 	const productID:string = element.value;

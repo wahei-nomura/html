@@ -26,6 +26,7 @@ class N2_Rakuten_CSV {
 		add_action( 'wp_ajax_ledghome', array( $this, 'ledghome' ) );
 		add_action( 'wp_ajax_item_csv', array( $this, 'item_csv' ) );
 		add_action( 'wp_ajax_select_csv', array( $this, 'select_csv' ) );
+		add_action( 'wp_ajax_error_log', array( $this, 'output_error_log' ) );
 		add_action( 'wp_ajax_rakuten_pc_item_description', array( $this, 'pc_item_description' ) );
 	}
 
@@ -70,7 +71,7 @@ class N2_Rakuten_CSV {
 			// ajaxで渡ってきたpostidの配列
 			'ids'                   => explode( '%2C', filter_input( INPUT_POST, $ajax_str, FILTER_SANITIZE_ENCODED ) ),
 			'rakuten_img_dir'       => $rakuten_img_dir,
-			'アレルゲン'             => $allergens_list,
+			'アレルゲン'                 => $allergens_list,
 			'rakuten_select_option' => $rakuten_select_option,
 		);
 		// 内容を追加、または上書きするためのフック
@@ -107,7 +108,6 @@ class N2_Rakuten_CSV {
 		foreach ( $yml_arr['ids'] as $post_id ) {
 			// headerの項目を取得
 			$items_arr[ $post_id ] = N2_Functions::get_post_meta_multiple( $post_id, $yml_arr['header'] );
-
 			// 初期化
 			foreach ( $items_arr[ $post_id ] as $k => $v ) {
 				$c0 = array( '在庫数' );
@@ -187,20 +187,20 @@ class N2_Rakuten_CSV {
 
 			// [html]スマートフォン用商品説明文
 			$sp_item_description_html = function () use ( $itemtable_html, $post_meta_list, $img_urls_html ) {
-				$sp_formatter       = fn( $key ) => N2_Functions::_s( $post_meta_list[ $key ] );
-				$sp_formatter_nl2br = fn( $key ) => nl2br( N2_Functions::_s( $post_meta_list[ $key ] ) );
-				$option             = get_option( 'N2_setupmenu' );
-				$add_text_name      = $option['add_text'][ get_bloginfo( 'name' ) ] ?? '';
-				$rakuten_html       = $option['rakuten']['html'] ?? '';
+				$formatter       = fn( $post_key ) => str_replace( '＜br /＞', '<br />', N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
+				$formatter_nl2br = fn( $post_key ) => nl2br( $formatter( $post_key ) );
+				$option          = get_option( 'N2_setupmenu' );
+				$add_text_name   = $option['add_text'][ get_bloginfo( 'name' ) ] ?? '';
+				$rakuten_html    = $option['rakuten']['html'] ?? '';
 				?>
 				<?php $img_urls_html(); ?>
-				<?php echo $sp_formatter( '説明文' ); ?><br><br>
+				<?php echo $formatter( '説明文' ); ?><br><br>
 				<?php $itemtable_html(); ?>
 				<?php if ( $post_meta_list['検索キーワード'] ) : ?>
-					<br><br><?php echo $sp_formatter_nl2br( '検索キーワード' ); ?>
+					<br><br><?php echo $formatter_nl2br( '検索キーワード' ); ?>
 				<?php endif; ?>
 				<?php if ( $post_meta_list['楽天カテゴリー'] ) : ?>
-					<br><br><?php echo $sp_formatter_nl2br( '楽天カテゴリー' ); ?>
+					<br><br><?php echo $formatter_nl2br( '楽天カテゴリー' ); ?>
 				<?php endif ?>
 				<?php
 				echo $add_text_name
@@ -214,11 +214,11 @@ class N2_Rakuten_CSV {
 				'商品番号'          => $item_num,
 				'全商品ディレクトリID'   => $post_meta_list['全商品ディレクトリID'],
 				'タグID'          => $post_meta_list['タグID'],
-				'商品名'           => '【ふるさと納税】' . N2_Functions::_s( get_the_title( $post_id ) ) . " [{$item_num}]",
+				'商品名'           => '【ふるさと納税】' . N2_Functions::special_str_convert( get_the_title( $post_id ) ) . " [{$item_num}]",
 				'販売価格'          => $post_meta_list['寄附金額'],
 				'のし対応'          => ( '有り' === $post_meta_list['のし対応'] ) ? 1 : '',
-				'PC用キャッチコピー'    => N2_Functions::_s( $post_meta_list['キャッチコピー'] ),
-				'モバイル用キャッチコピー'  => N2_Functions::_s( $post_meta_list['キャッチコピー'] ),
+				'PC用キャッチコピー'    => N2_Functions::special_str_convert( $post_meta_list['キャッチコピー'] ),
+				'モバイル用キャッチコピー'  => N2_Functions::special_str_convert( $post_meta_list['キャッチコピー'] ),
 				'商品画像URL'       => $img_urls_str,
 				'PC用商品説明文'      => PHP_EOL . $this->pc_item_description( $post_id ),
 				'PC用販売説明文'      => PHP_EOL . N2_Functions::html2str( $pc_sales_description_html ),
@@ -379,8 +379,8 @@ class N2_Rakuten_CSV {
 
 		// ========[html]PC用商品説明文========
 		$pc_description_html = function() use ( $post_meta_list, $post_id ) {
-			$formatter       = fn( $post_key ) => N2_Functions::_s( $post_meta_list[ $post_key ] );
-			$formatter_nl2br = fn( $post_key ) => nl2br( N2_Functions::_s( $post_meta_list[ $post_key ] ) );
+			$formatter       = fn( $post_key ) => str_replace( '＜br /＞', '<br />', N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
+			$formatter_nl2br = fn( $post_key ) => nl2br( $formatter( $post_key ) );
 			?>
 			<?php echo $formatter( '説明文' ); ?><br><br>
 			<?php echo $formatter( '内容量・規格等' ); ?><br>
@@ -438,35 +438,39 @@ class N2_Rakuten_CSV {
 			'提供事業者名',
 			'アレルゲン',
 			'アレルゲン注釈',
+			'アレルギー品目あり',
 		);
 		$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
 
 		// アレルギー表示
 		$allergy_display     = function() use ( $post_meta_list, $yml_arr ) {
-			$result = '';
+			$result      = '';
+			$has_allergy = $post_meta_list['アレルギー品目あり'] ?: count( (array) $post_meta_list['アレルゲン'] );
 			if ( $post_meta_list['アレルゲン'] || $post_meta_list['アレルゲン注釈'] ) {
-				$allergens = '';
+				$result    = '含んでいる品目：';
+				$allergens = array();
 				foreach ( $post_meta_list['アレルゲン']  as $v ) {
-					$allergens .= $v['label'] . '・';
+					$allergens = array( ...$allergens, $v['label'] );
 				}
-				$result .= rtrim( $allergens, '・' );
-				if ( $result && $post_meta_list['アレルゲン注釈'] ) {
-					$result .= '<br>※';
+				$result .= implode( '・', $allergens ) ?: 'なし';
+				if ( $post_meta_list['アレルゲン注釈'] ) {
+					$result .= '<br>※' . $post_meta_list['アレルゲン注釈'];
 				}
-				$result .= $post_meta_list['アレルゲン注釈'];
+			} elseif ( $has_allergy ) {
+				$result = 'アレルギー品目なし';
 			}
 			return $result;
 		};
 		$allergy_display_str = $allergy_display();
 
-		$formatter       = fn( $post_key ) => N2_Functions::_s( $post_meta_list[ $post_key ] );
-		$formatter_nl2br = fn( $post_key ) => nl2br( N2_Functions::_s( $post_meta_list[ $post_key ] ) );
-		$trs       = array(
+		$formatter       = fn( $post_key ) => str_replace( '＜br /＞', '<br />', N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
+		$formatter_nl2br = fn( $post_key ) => nl2br( $formatter( $post_key ) );
+		$trs             = array(
 			'名称'      => array(
-				'td' => ( $formatter( '表示名称' ) ?: $formatter( '略称' ) ?: N2_Functions::_s( get_the_title( $post_id ) ) ),
+				'td' => ( $formatter( '表示名称' ) ?: $formatter( '略称' ) ?: N2_Functions::special_str_convert( get_the_title( $post_id ) ) ),
 			),
 			'内容量'     => array(
-				'td' => $formatter_nl2br( '内容量・規格等' ),
+				'td' => $formatter( '内容量・規格等' ),
 			),
 			'賞味期限'    => array(
 				'td'        => $formatter_nl2br( '賞味期限' ),
@@ -582,5 +586,57 @@ class N2_Rakuten_CSV {
 			);
 		}
 		N2_Functions::download_csv( 'rakuten_select', $yml_arr['header'], $items_arr, $yml_arr['csv_title'] );
+	}
+
+	/**
+	 * 楽天のエクスポート用(error_log)
+	 *
+	 * @return void
+	 */
+	public function output_error_log() {
+		echo 'test';
+		// setlocale(LC_ALL, 'ja_JP.UTF-8');
+		$n2_file_header = yaml_parse_file( get_template_directory() . '/config/n2-file-header.yml' );
+		$upload_server  = $n2_file_header['rakuten']['upload_server'];
+		$conn_id        = ftp_connect( $upload_server['domain'], $upload_server['port'] );
+		$option         = get_option( 'N2_setupmenu' );
+		$ftp_user       = $option['rakuten']['ftp_user'];
+		$ftp_pass       = $option['rakuten']['ftp_pass'];
+		$login          = ftp_login( $conn_id, $ftp_user, $ftp_pass );
+		if ( ! $login ) {
+			$login = ftp_login( $conn_id, $ftp_user, substr( $ftp_pass, 0, 7 ) . '2' ); // ログインできない場合は末尾を２に変更
+		}
+		if ( $login ) {
+			ftp_pasv( $conn_id, true );
+			$errors   = ftp_nlist( $conn_id, 'ritem/logs/' );
+			$contents = '';
+			arsort( $errors );
+			foreach ( (array) $errors as $error ) {
+				ob_start();
+				if ( ftp_get( $conn_id, 'php://output', $error, FTP_BINARY ) ) {
+					$data      = str_replace( ',', ' ------> ', mb_convert_encoding( ob_get_contents(), 'utf-8', 'sjis' ) );
+					$contents .= <<<EOD
+					<h1 style="background:#000;color:#fff;padding: 10px;margin: 10px 0 0;">{$error}</h1>
+					<pre style="font-size: 16px;line-height: 2;padding: 10px;border: 1px solid #000;margin-top: 0;overflow: scroll;">{$data}</pre>
+EOD;
+				}
+				ob_end_clean();
+			}
+			$contents = ( empty( $contents ) ) ? '<h1>エラーログはありません。</h1>' : $contents;
+			echo <<<EOD
+			<!DOCTYPE html>
+			<html lang="ja">
+			<head>
+				<meta charset="UTF-8">
+				<title>楽天エラーログ</title>
+				<link rel="stylesheet" href="{$print_css}">
+			</head>
+			<body style="padding: 10px;">{$contents}</body>
+			</html>
+EOD;
+			ftp_close( $conn_id );
+		} else {
+			echo 'パスワードが違います';
+		}
 	}
 }

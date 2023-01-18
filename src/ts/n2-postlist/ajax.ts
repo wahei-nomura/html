@@ -11,6 +11,9 @@ export default () => {
 
 			console.log(getIds());
 		});
+		$(document).on("click", '.siserror',(e) => {
+			console.log('error !');
+		});
 
 		// チェックが入った返礼品のidを配列で返す
 		const getIds = (): string => {

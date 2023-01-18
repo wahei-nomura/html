@@ -6,7 +6,7 @@ const admin = {
 	mode: "development",
 	entry: "./src/ts/admin.ts",
 	output: {
-		path: `${__dirname} / dist / `,
+		path: `${__dirname}/dist/`,
 		filename: "admin.js",
 	},
 	module: {
@@ -49,7 +49,7 @@ const front = {
 	mode: "development",
 	entry: "./src/ts/front.ts",
 	output: {
-		path: `${__dirname} / dist / `,
+		path: `${__dirname}/dist/`,
 		filename: "front.js",
 	},
 	module: {
