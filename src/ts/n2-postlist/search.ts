@@ -63,6 +63,10 @@ export default () => {
 			$('#posts-filter .actions select[name="ステータス"] option:selected').prop('selected', false)
 			$('#posts-filter .actions select[name="定期便"] option:selected').prop('selected',false)
 			$('#posts-filter .actions input[name="事業者"], #jigyousya-list-tag').val('')
+			$('select[name="返礼品コード[]"]>*').remove();
+			$('select[name="返礼品コード[]"]').append(
+				'<option value="">返礼品コード</option>'
+			);
 		})
 
 	});

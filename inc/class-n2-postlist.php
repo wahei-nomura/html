@@ -341,7 +341,170 @@ class N2_Postlist {
 	public function posts_request( $query ) {
 
 		if ( N2_Functions::admin_param_judge( $this->page ) ) {
+
+			/**
+			 * ここから超突貫のフロント用query
+			 * 絶対後で綺麗にしてね！
+			 * 2023-1-17 taiki
+			 */
+			if ( ! is_search() ) {
+				return $query;
+			}
+			global $wpdb;
+			global $template;
+			$temp_name = basename( $template );
+			// 最終的に$query内に代入するWHERE句
+			$page_number  = 100;
+			$current_pgae = get_query_var( 'paged' );  // ページ数取得
+			$current_pgae = 0 === $current_pgae ? '1' : $current_pgae;
+			$now_page     = ( $current_pgae - 1 ) * $page_number;
+			$where        = "
+		AND (
+			(
+				{$wpdb->posts}.post_type = 'post'
+				AND (
+					{$wpdb->posts}.post_status = 'publish'
+					)
+		";
+			$order        = "{$wpdb->posts}.post_date DESC";
+
+			// $wpdbのprepareでプレイスフォルダーに代入するための配列
+			$args = array();
+			// キーワード検索 ----------------------------------------
+			if ( ! empty( $_GET['s'] ) && '' !== $_GET['s'] ) {
+				// 全角空白は半角空白へ変換し、複数キーワードを配列に
+				$s_arr = explode( ' ', mb_convert_kana( $_GET['s'], 's' ) );
+				// キーワード前後の空白
+				$s_arr = array_filter( $s_arr );
+
+				// WHERE句連結
+				$where .= 'AND(';
+				foreach ( $s_arr as $key => $s ) {
+					if ( 0 !== $key ) {
+						$where .= 'AND';
+					}
+
+					$where .= "
+						(
+							{$wpdb->postmeta}.meta_value LIKE '%%%s%%'
+							OR {$wpdb->posts}.post_title LIKE '%%%s%%'
+						)
+					";
+					array_push( $args, $s ); // カスタムフィールド
+					array_push( $args, $s ); // タイトル
+				}
+				$where .= ')';
+			}
+			// ここまでキーワード ------------------------------------
+			// 出品禁止ポータル絞り込み ---------------------------------
+			// if ( empty( $_GET['portal_rakuten'] ) ) { // 楽天除外
+			// $where .= 'AND (';
+			// $where .= "
+			// {$wpdb->postmeta}.meta_key = '出品禁止ポータル'
+			// AND {$wpdb->postmeta}.meta_value NOT LIKE '%%%s%%'
+			// ";
+			// array_push( $args, '楽天' );
+			// $where .= ')';
+			// }
+
+			// if ( empty( $_GET['portal_choice'] ) ) { // チョイス除外
+			// $where .= 'AND (';
+			// $where .= "
+			// {$wpdb->postmeta}.meta_key = '出品禁止ポータル'
+			// AND {$wpdb->postmeta}.meta_value NOT LIKE '%%%s%%'
+			// ";
+			// array_push( $args, 'チョイス' );
+			// $where .= ')';
+			// }
+
+			// if ( empty( $_GET['portal_furunavi'] ) ) { // チョイス除外
+			// $where .= 'AND (';
+			// $where .= "
+			// {$wpdb->postmeta}.meta_key = '出品禁止ポータル'
+			// AND {$wpdb->postmeta}.meta_value NOT LIKE '%%%s%%'
+			// ";
+			// array_push( $args, 'ふるなび' );
+			// $where .= ')';
+			// }
+			// ここまで出品禁止ポータル ------------------------------------
+			// 価格絞り込み ---------------------------------
+			if ( ! empty( $_GET['min-price'] ) && '' !== $_GET['min-price'] ) { // 最低額
+				$min_price = $_GET['min-price'];
+				$where    .= 'AND (';
+				$where    .= "
+			{$wpdb->postmeta}.meta_key = '寄附金額'
+			AND {$wpdb->postmeta}.meta_value >= '%s'
+			";
+				array_push( $args, $min_price );
+				$where .= ')';
+			}
+			if ( ! empty( $_GET['max-price'] ) && '' !== $_GET['max-price'] ) { // 最高額
+				$max_price = $_GET['max-price'];
+				$where    .= 'AND (';
+				$where    .= "
+			{$wpdb->postmeta}.meta_key = '寄附金額'
+			AND {$wpdb->postmeta}.meta_value <= '%s'
+			";
+				array_push( $args, $max_price );
+				$where .= ')';
+			}
+
+			// 事業者絞り込み ----------------------------------------
+			if ( ! empty( $_GET['jigyousya'] ) && '' !== $_GET['jigyousya'] ) {
+				$where .= "AND {$wpdb->posts}.post_author = '%s'";
+				array_push( $args, filter_input( INPUT_GET, 'jigyousya', FILTER_VALIDATE_INT ) );
+			}
+			// ここまで事業者 ----------------------------------------
+
+			// 返礼品コード絞り込み------------------------------------
+			if ( ! empty( $_GET['返礼品コード'] ) ) {
+				$code_arr = $_GET['返礼品コード'];
+				$where   .= 'AND (';
+				foreach ( $code_arr as $key => $code ) {
+					if ( 0 !== $key ) {
+						$where .= ' OR '; // 複数返礼品コードをOR検索(前後の空白必須)
+					}
+					$where .= "{$wpdb->posts}.ID = '%s'";
+					array_push( $args, $code );
+				}
+				$where .= ')';
+			}
+			// ここまで返礼品コード ----------------------------------------
+
+			// 並び替え------------------------------------
+			if ( ! empty( $_GET['sortcode'] ) ) {
+				if ( 'sortbycode' === $_GET['sortcode'] ) { // 返礼品コードで並び替え
+					$where .= 'AND (';
+					$where .= "{$wpdb->postmeta}.meta_key = '返礼品コード'";
+					$where .= ')';
+					// order文入れ替え(コード順(昇順)に)
+					$order = "{$wpdb->postmeta}.meta_value ASC";
+				}
+			}
+
+			// ここまで並び替え ----------------------------------------
+
+			// ここまで価格 ------------------------------------
+			// WHER句末尾連結
+			$where .= '))';
+
+			// SQL（postsとpostmetaテーブルを結合）
+			$sql = "
+				SELECT SQL_CALC_FOUND_ROWS *
+				FROM {$wpdb->posts}
+				INNER JOIN {$wpdb->postmeta} ON {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id
+				WHERE 1 = 1 {$where}
+				GROUP BY {$wpdb->posts}.ID
+				ORDER BY {$order}
+				LIMIT {$now_page}, 100
+			";
+
+			// 検索用GETパラメータがある場合のみ$queryを上書き
+			$query = count( $args ) > 0 ? $wpdb->prepare( $sql, ...$args ) : $sql;
 			return $query;
+			/**
+			 * ここまで汚物
+			 */
 		}
 
 		global $wpdb;
@@ -453,6 +616,11 @@ class N2_Postlist {
 	 */
 	public function ajax() {
 		$jigyousya = filter_input( INPUT_GET, '事業者', FILTER_VALIDATE_INT );
+
+		if ( empty( $jigyousya ) ) {
+			echo wp_json_encode( array() );
+			die();
+		}
 
 		$posts = get_posts( "author={$jigyousya}&post_status=any" );
 		$arr   = array();
