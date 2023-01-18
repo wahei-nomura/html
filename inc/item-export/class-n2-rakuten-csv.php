@@ -40,9 +40,9 @@ class N2_Rakuten_CSV {
 		// 初期化
 		$arr = array();
 		// ========ini一覧========
-		$n2_fields      = yaml_parse_file( get_template_directory() . '/config/n2-fields.yml' );
-		$n2_towncodes   = yaml_parse_file( get_template_directory() . '/config/n2-towncode.yml' );
-		$n2_file_header = yaml_parse_file( get_template_directory() . '/config/n2-file-header.yml' );
+		$n2_fields      = yaml_parse_file( get_template_directory( 'config/n2-fields.yml' ) );
+		$n2_towncodes   = yaml_parse_file( get_template_directory( 'config/n2-towncode.yml' ) );
+		$n2_file_header = yaml_parse_file( get_template_directory( 'config/n2-file-header.yml' ) );
 
 		// ========自治体コード=========
 		$option_home = explode( '/', get_option( 'home' ) );
@@ -596,7 +596,7 @@ class N2_Rakuten_CSV {
 	public function output_error_log() {
 		echo 'test';
 		// setlocale(LC_ALL, 'ja_JP.UTF-8');
-		$n2_file_header = yaml_parse_file( get_template_directory() . '/config/n2-file-header.yml' );
+		$n2_file_header = yaml_parse_file( get_template_directory( 'config/n2-file-header.yml' ) );
 		$upload_server  = $n2_file_header['rakuten']['upload_server'];
 		$conn_id        = ftp_connect( $upload_server['domain'], $upload_server['port'] );
 		$option         = get_option( 'N2_setupmenu' );
