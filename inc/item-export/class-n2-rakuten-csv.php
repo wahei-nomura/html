@@ -98,6 +98,7 @@ class N2_Rakuten_CSV {
 			'寄附金額',
 			'のし対応',
 			'キャッチコピー',
+			'キャッチコピー１',
 			'説明文',
 			'賞味期限',
 			'消費期限',
@@ -123,7 +124,6 @@ class N2_Rakuten_CSV {
 
 			// get_post_meta格納用
 			$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
-			var_dump( get_post_meta($post_id) );
 			$item_num       = trim( strtoupper( $post_meta_list['返礼品コード'] ) );
 			$item_num_low   = trim( mb_strtolower( $post_meta_list['返礼品コード'] ) );
 			$img_dir        = $yml_arr['rakuten_img_dir'];
@@ -218,8 +218,8 @@ class N2_Rakuten_CSV {
 				'商品名'           => '【ふるさと納税】' . N2_Functions::special_str_convert( get_the_title( $post_id ) ) . " [{$item_num}]",
 				'販売価格'          => $post_meta_list['寄附金額'],
 				'のし対応'          => ( '有り' === $post_meta_list['のし対応'] ) ? 1 : '',
-				'PC用キャッチコピー'    => N2_Functions::special_str_convert( $post_meta_list['キャッチコピー'] ),
-				'モバイル用キャッチコピー'  => N2_Functions::special_str_convert( $post_meta_list['キャッチコピー'] ),
+				'PC用キャッチコピー'    => N2_Functions::special_str_convert( $post_meta_list['キャッチコピー'] ?: $post_meta_list['キャッチコピー１'] ),
+				'モバイル用キャッチコピー'  => N2_Functions::special_str_convert( $post_meta_list['キャッチコピー'] ?: $post_meta_list['キャッチコピー１'] ),
 				'商品画像URL'       => $img_urls_str,
 				'PC用商品説明文'      => PHP_EOL . $this->pc_item_description( $post_id ),
 				'PC用販売説明文'      => PHP_EOL . N2_Functions::html2str( $pc_sales_description_html ),
