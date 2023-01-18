@@ -53,6 +53,7 @@ LH表示名:
     type: text
     default: '検索キーワード:'
     validation: 必須
+    required: required
 
 地場産品類型:
     type: select

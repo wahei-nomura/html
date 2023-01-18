@@ -1,24 +1,33 @@
 $prefix: "n2-setpost";
 .post-type-post{
 	#editor {
-		.edit-post-header{
-			.edit-post-header-toolbar__inserter-toggle,
-			.editor-history__redo,
-			.editor-history__undo,
-			.components-dropdown{
-				display: none;
+		.edit-post{
+			&-header{
+				.edit-post-header-toolbar__inserter-toggle,
+				.editor-history__redo,
+				.editor-history__undo,
+				.components-dropdown{
+					display: none;
+				}
 			}
-		}
-		.edit-post-editor__list-view-panel{
-			min-width: 200px;
-		}
-		.edit-post-visual-editor__post-title-wrapper{
-			margin: 0;
-			padding: 1em;
-		}
-		.editor-post-title {
-			font-size: 1.5rem;
-			margin: 0;
+			&-visual-editor{
+				position: sticky;
+				top: 0;
+				z-index: 9999;
+				box-shadow: 0 1px 10px #ccc;
+				&__post-title-wrapper{
+					margin: 0;
+					padding: 1em;
+					h1{
+						font-size: 1.2rem;
+						margin: 0;
+						max-width: 100%;
+					}
+				}
+			}
+			&-editor__list-view-panel{
+				min-width: 200px;
+			}
 		}
 		.wp-block-post-content{
 			display: none;

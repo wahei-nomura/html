@@ -75,24 +75,69 @@ class N2_Setpost {
 	public function show_progress() {
 		global $post;
 		?>
-			<!-- <link href="//cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous"> -->
+			<link href="//cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 			<script src="//cdn.jsdelivr.net/npm/vue@2.x"></script>
+			<script src="//cdn.jsdelivr.net/npm/sortablejs@1.8.4/Sortable.min.js"></script>
+			<script src="//cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.20.0/vuedraggable.umd.min.js"></script>
 			<script>
-				const n2field = <?php echo wp_json_encode( (array) N2_Functions::get_all_meta( $post ) ); ?>;
-				console.log(n2field)
+				window.n2 = {};
+				window.n2.field_value = <?php echo wp_json_encode( (array) N2_Functions::get_all_meta( $post ) ); ?>;
+				window.n2.field_list = <?php echo wp_json_encode( (array) array_keys( N2_Functions::get_all_meta( $post ) ) ); ?>;
+				// N1の商品画像をN2互換
+				if ( ! n2.field_value.商品画像 ) {
+					n2.field_value.商品画像 = [];
+					Object.keys(n2.field_value).forEach((k) => {
+						if ( k.match(/^商品画像[０-９]/) && n2.field_value[k] ) {
+							n2.field_value.商品画像.push(n2.field_value[k]);
+						}
+					});
+				}
+				
 				// このdataをプラグイン側で上書きする
 				const data = {
-					出品禁止ポータル: n2field.出品禁止ポータル || [],
-					食品確認: n2field.食品確認 ? n2field.食品確認[0] : false,// ※食品事業者はデフォルトでONにしとくのまだ
-					アレルギー有無確認: n2field.アレルギー有無確認 ? n2field.アレルギー有無確認[0] : false,
+					出品禁止ポータル: n2.field_value.出品禁止ポータル || [],
+					食品確認: n2.field_value.食品確認 ? n2.field_value.食品確認[0] : false,// ※食品事業者はデフォルトでONにしとくのまだ
+					アレルギー有無確認: n2.field_value.アレルギー有無確認 ? n2.field_value.アレルギー有無確認[0] : false,
+					商品画像: n2.field_value.商品画像,
 				};
+				const methods = {
+					add_media(){
+						const images = wp.media({
+							title: "商品画像", 
+							multiple: "add",
+							library: {type: "image"}
+						});
+						images.on( 'open', () => {
+							images.state().get('selection').add( n2.vue.商品画像.map( v=> wp.media.attachment(v.id) ) )
+						});
+						images.on( 'select', () => {
+							n2.vue.商品画像 = images.state().get('selection').map( v => v.attributes );
+						});
+						images.open();
+					}
+				}
+				const components = {
+					draggable: vuedraggable,
+				}
 				jQuery(function($){
 					$(".edit-post-layout__metaboxes").ready(() => {
-						new Vue({
+						n2.vue = new Vue({
 							el: '.edit-post-layout__metaboxes',
 							data,
+							methods,
+							components,
+						});
+					});
+					// 雑な目次
+					$(".edit-post-header-toolbar__list-view-toggle").ready(() => {
+						$('.edit-post-header-toolbar__list-view-toggle').on('click', function(){
+							$(".edit-post-editor__list-view-panel-content").ready(() => {
+								$.each(n2.field_list, (k,v) => {
+									$('.edit-post-editor__list-view-panel-content').append(`<li><a href="#${v}">${v}</a></li>`)
+								})
+							});
 						})
-					})
+					});
 				})
 			</script>
 		<?php
@@ -171,8 +216,6 @@ class N2_Setpost {
 	public function show_customfields( $post, $args ) {
 		// カスタムフィールド全取得
 		$post_meta = N2_Functions::get_all_meta( $post );
-		// echo '<pre>';print_r($post_meta);echo '</pre>';
-		// echo '<pre>';print_r(get_post_meta($post->ID));echo '</pre>';
 		/**
 		 * Filters カスタムフィールドメタボックス
 		 *
@@ -225,6 +268,9 @@ class N2_Setpost {
 				unset( $value['checkbox2'] );
 				$value = array_filter( $value, fn( $v ) => array_key_exists( 'value', $v ) );
 				$value = array_values( $value );
+			}
+			if ( '商品画像' === $key ) {
+				$value = json_decode( stripslashes( $value ), true );
 			}
 			update_post_meta( $post_id, $key, $value );
 		}
