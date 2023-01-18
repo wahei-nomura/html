@@ -610,8 +610,8 @@ class N2_Rakuten_CSV {
 		$upload_server  = $n2_file_header['rakuten']['upload_server'];
 		$conn_id        = ftp_connect( $upload_server['domain'], $upload_server['port'] );
 		$option         = get_option( 'N2_Setupmenu' );
-		$ftp_user       = $option['rakuten']['ftp_user'] ?? 'f423831-ojika';
-		$ftp_pass       = $option['rakuten']['ftp_pass'] ?? 'Ojika002';
+		$ftp_user       = $option['rakuten']['ftp_user'];
+		$ftp_pass       = $option['rakuten']['ftp_pass'];
 		$login          = ftp_login( $conn_id, $ftp_user, $ftp_pass );
 		if ( ! $login ) {
 			$login = ftp_login( $conn_id, $ftp_user, substr( $ftp_pass, 0, 7 ) . '2' ); // ログインできない場合は末尾を２に変更
