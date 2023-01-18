@@ -279,6 +279,9 @@ class N2_Sync {
 			);
 			$postarr['meta_input']['_neng_id'] = $v['ID']; // 同期用 裏カスタムフィールドNENGのID追加
 			$allergen = array_column( $postarr['meta_input']['アレルゲン'], 'value' );
+			// キャッチコピー１をキャッチコピーに変換
+			$postarr['meta_input']['キャッチコピー'] = $postarr['meta_input']['キャッチコピー１'];
+			unset( $postarr['meta_input']['キャッチコピー１'] );
 			// 食品確認
 			$postarr['meta_input']['食品確認'] = in_array( '食品ではない', $allergen, true )
 				? array()
