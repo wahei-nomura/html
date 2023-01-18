@@ -26,7 +26,6 @@ class N2_Choice {
         $header_data = yaml_parse_file( get_theme_file_path( '/config/n2-file-header.yml' ) );
         $items_arr = array();
         $check_arr = array();
-        $delimiter = '" "'; //tsvデータ
         $opt = get_option( 'N2_Setupmenu' );
 
         // あとでヘッダの上の連結するのに必要
@@ -63,7 +62,7 @@ class N2_Choice {
 
             $arr = array(
                 '管理コード'      => strtoupper( get_post_meta( $id, "返礼品コード", true ) ),
-                '（必須）お礼の品名'       => N2_Functions::special_str_convert( get_the_title( $id ) ) . " [{$items_arr[$id]['管理コード']}]",
+                '（必須）お礼の品名'       => N2_Functions::special_str_convert( get_the_title( $id ) ) . " [".strtoupper( get_post_meta( $id, "返礼品コード", true ) )."]",
                 // サイト表示事業者名：ポータル表示用名称が登録されてたら優先。「記載しない」になってたら空欄で出力。
                 'サイト表示事業者名'      => get_post_meta( $id, "提供事業者名", true ) 
                                                 ?: 
