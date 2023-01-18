@@ -143,5 +143,7 @@ class N2_Rakuten_Transfer {
 				echo 'ファイルをセットしてください。';
 			}
 		}
+		exit();
+		die();
 	}
 }

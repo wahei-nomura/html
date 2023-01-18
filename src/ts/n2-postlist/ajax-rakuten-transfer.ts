@@ -14,9 +14,6 @@ export default () => {
 			$this.find('[type="submit"]').val(txt.replace("転送","転送中..."));
 			fd.append('action', "transfer_rakuten");
 			fd.append('judge', $this.find('[type="file"]').attr('name').replace("[]",""));
-			console.log($this);
-			console.log(fd);
-			console.log(txt);
 			$.ajax({
 				url: ajaxUrl(window),
 				type: 'POST',
