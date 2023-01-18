@@ -350,7 +350,7 @@ class N2_Rakuten_CSV {
 			<?php
 		} else {
 			// csv出力
-			N2_Functions::download_csv( 'rakuten_item', $yml_arr['header'], $items_arr );
+			N2_Functions::download_csv( 'item', $yml_arr['header'], $items_arr );
 		}
 		die();
 	}
@@ -596,7 +596,7 @@ class N2_Rakuten_CSV {
 				...apply_filters( 'n2_item_export_select_csv_items', $item_arr, $post_id ),
 			);
 		}
-		N2_Functions::download_csv( 'rakuten_select', $yml_arr['header'], $items_arr );
+		N2_Functions::download_csv( 'select', $yml_arr['header'], $items_arr );
 	}
 
 	/**
