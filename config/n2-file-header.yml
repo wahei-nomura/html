@@ -39,8 +39,8 @@ ledghome:
     normal : false
 rakuten :
     item_csv :
-        title: コントロールカラム
         values:
+        - コントロールカラム
         - 商品管理番号（商品URL）
         - 商品番号
         - 全商品ディレクトリID
@@ -60,13 +60,13 @@ rakuten :
         - カタログID
         - カタログIDなしの理由
     select_csv :
-        title: 項目選択肢用コントロールカラム
         values:
+        - 項目選択肢用コントロールカラム
         - 商品管理番号（商品URL）
         - 選択肢タイプ
         - 項目選択肢項目名
         - 項目選択肢
-        - 項目選択肢選択必須"
+        - 項目選択肢選択必須
     img_dir: https://image.rakuten.co.jp/n2-towncode/cabinet/item
     upload_server:
         domain: upload.rakuten.ne.jp

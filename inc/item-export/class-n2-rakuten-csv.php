@@ -40,9 +40,9 @@ class N2_Rakuten_CSV {
 		// 初期化
 		$arr = array();
 		// ========ini一覧========
-		$n2_fields      = yaml_parse_file( get_template_directory( 'config/n2-fields.yml' ) );
-		$n2_towncodes   = yaml_parse_file( get_template_directory( 'config/n2-towncode.yml' ) );
-		$n2_file_header = yaml_parse_file( get_template_directory( 'config/n2-file-header.yml' ) );
+		$n2_fields      = yaml_parse_file( get_theme_file_path( 'config/n2-fields.yml' ) );
+		$n2_towncodes   = yaml_parse_file( get_theme_file_path( 'config/n2-towncode.yml' ) );
+		$n2_file_header = yaml_parse_file( get_theme_file_path( 'config/n2-file-header.yml' ) );
 
 		// ========自治体コード=========
 		$option_home = explode( '/', get_option( 'home' ) );
@@ -123,6 +123,7 @@ class N2_Rakuten_CSV {
 
 			// get_post_meta格納用
 			$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
+			var_dump( get_post_meta($post_id) );
 			$item_num       = trim( strtoupper( $post_meta_list['返礼品コード'] ) );
 			$item_num_low   = trim( mb_strtolower( $post_meta_list['返礼品コード'] ) );
 			$img_dir        = $yml_arr['rakuten_img_dir'];
@@ -349,7 +350,7 @@ class N2_Rakuten_CSV {
 			<?php
 		} else {
 			// csv出力
-			N2_Functions::download_csv( 'rakuten_item', $yml_arr['header'], $items_arr, $yml_arr['csv_title'] );
+			N2_Functions::download_csv( 'rakuten_item', $yml_arr['header'], $items_arr );
 		}
 		die();
 	}
@@ -439,6 +440,8 @@ class N2_Rakuten_CSV {
 			'アレルゲン',
 			'アレルゲン注釈',
 			'アレルギー品目あり',
+			'原料原産地',
+			'加工地',
 		);
 		$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
 
@@ -479,6 +482,14 @@ class N2_Rakuten_CSV {
 			'消費期限'    => array(
 				'td'        => $formatter_nl2br( '消費期限' ),
 				'condition' => $post_meta_list['消費期限'],
+			),
+			'原料原産地' => array(
+				'td'        => $formatter( '原料原産地' ),
+				'condition' => $post_meta_list['原料原産地'],
+			),
+			'加工地' => array(
+				'td'        => $formatter_nl2br( '加工地' ),
+				'condition' => $post_meta_list['加工地'],
 			),
 			'アレルギー表示' => array(
 				'td'        => $allergy_display_str,
@@ -575,17 +586,17 @@ class N2_Rakuten_CSV {
 						'項目選択肢'           => trim( $v ),
 						'項目選択肢選択必須'       => '1',
 					);
-					$items_arr[ $i ] = array_merge( $items_arr[ $i ], $item_arr );
+					$items_arr[ $i ] = array( ...$items_arr[ $i ], ...$item_arr );
 					++$i;
 				}
 			}
 			// 内容を追加、または上書きするためのフック
-			$items_arr[ $post_id ] = array_merge(
-				$items_arr[ $post_id ],
-				apply_filters( 'n2_item_export_select_csv_items', $item_arr, $post_id ),
+			$items_arr[ $post_id ] = array(
+				...$items_arr[ $post_id ],
+				...apply_filters( 'n2_item_export_select_csv_items', $item_arr, $post_id ),
 			);
 		}
-		N2_Functions::download_csv( 'rakuten_select', $yml_arr['header'], $items_arr, $yml_arr['csv_title'] );
+		N2_Functions::download_csv( 'rakuten_select', $yml_arr['header'], $items_arr );
 	}
 
 	/**
@@ -594,14 +605,13 @@ class N2_Rakuten_CSV {
 	 * @return void
 	 */
 	public function output_error_log() {
-		echo 'test';
 		// setlocale(LC_ALL, 'ja_JP.UTF-8');
-		$n2_file_header = yaml_parse_file( get_template_directory( 'config/n2-file-header.yml' ) );
+		$n2_file_header = yaml_parse_file( get_theme_file_path( 'config/n2-file-header.yml' ) );
 		$upload_server  = $n2_file_header['rakuten']['upload_server'];
 		$conn_id        = ftp_connect( $upload_server['domain'], $upload_server['port'] );
-		$option         = get_option( 'N2_setupmenu' );
-		$ftp_user       = $option['rakuten']['ftp_user'];
-		$ftp_pass       = $option['rakuten']['ftp_pass'];
+		$option         = get_option( 'N2_Setupmenu' );
+		$ftp_user       = $option['rakuten']['ftp_user'] ?? 'f423831-ojika';
+		$ftp_pass       = $option['rakuten']['ftp_pass'] ?? 'Ojika002';
 		$login          = ftp_login( $conn_id, $ftp_user, $ftp_pass );
 		if ( ! $login ) {
 			$login = ftp_login( $conn_id, $ftp_user, substr( $ftp_pass, 0, 7 ) . '2' ); // ログインできない場合は末尾を２に変更
@@ -638,5 +648,6 @@ EOD;
 		} else {
 			echo 'パスワードが違います';
 		}
+		die();
 	}
 }
