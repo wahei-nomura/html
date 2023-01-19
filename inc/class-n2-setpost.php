@@ -136,9 +136,13 @@ class N2_Setpost {
 									$.ajax(`//app.rakuten.co.jp/services/api/IchibaGenre/Search/20140222?applicationId=1002772968546257164&genreId=${this.全商品ディレクトリID.text || 0}`).then(v=>{
 										this.全商品ディレクトリID.list = v;
 										this.タグID.list = [];
-										console.log(this.全商品ディレクトリID.list)
+										if ( this.タグID.text ) {
+											if ( confirm('全商品ディレクトリIDが変更されます。\nそれに伴い入力済みのタグIDをリセットしなければ楽天で地味にエラーがでます。\n\nタグIDをリセットしてよろしいでしょうか？') ) {
+												this.タグID.text = '';
+											}
+										}
 									});
-								}
+								},
 							},
 							components,
 						});
