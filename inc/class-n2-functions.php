@@ -145,18 +145,18 @@ class N2_Functions {
 	 * @return void
 	 */
 	public static function download_csv( $name, $header, $items_arr, $csv_title = '', $type = null ) {
-		if($type === null || $type !== 'tsv'){ //デフォルトはcsv。イレギュラーも同様
+		if($type === null || $type !== 'tsv'){ //デフォルトはcsv。イレギュラーも同様。チョイスはヘッダー無し
 			$type = 'csv';
 			$csv  = $csv_title . PHP_EOL;
-			$csv .= implode( '	', $header ) . PHP_EOL;
+			$csv .= implode( ',', $header ) . PHP_EOL;
 		}
 		
 		// CSV文字列生成
 		foreach ( $items_arr as $item ) {
 			foreach ( $header as $head ) {
-				$csv .= '"' . $item[ $head ] . '"	';
+				$csv .= '"' . $item[ $head ] . ( $type == 'csv' ? '",' : '"	' );
 			}
-			$csv  = rtrim( $csv, '	' );
+			$csv  = $type == 'csv' ? rtrim( $csv, ',' ) : rtrim( $csv, '	' );
 			$csv .= PHP_EOL;
 		}
 

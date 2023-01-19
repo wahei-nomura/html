@@ -25,7 +25,8 @@ class N2_Choice {
     public function create_tsv() {
         $header_data = yaml_parse_file( get_theme_file_path( '/config/n2-file-header.yml' ) );
         $items_arr = array();
-        $check_arr = array(); // 寄付金額が0のチェック用
+        // $check_arr = array(); // 寄付金額が0のチェック用
+		$error_items = '';
         $opt = get_option( 'N2_Setupmenu' );
 
         // あとでヘッダの上の連結するのに必要
@@ -60,7 +61,7 @@ class N2_Choice {
                 }
             }
 
-            $check_arr[ $id ][ '寄付金額エラー' ] = get_post_meta( $id, "寄附金額", true ) == 0 ? $item_code : '';
+            $error_items .= get_post_meta( $id, "寄附金額", true ) == 0 || get_post_meta( $id, "寄附金額", true ) == '' ? "【{$item_code}】" . '<br>' : '';
             echo $check_arr[ $id ][ '寄附金額エラー' ];
 
             $arr = array(
@@ -79,7 +80,8 @@ class N2_Choice {
                                                         : get_the_author_meta( "first_name", get_post_field( "post_author", $id ) )
                                                     ),
                 '（条件付き必須）必要寄付金額'      => get_post_meta( $id, "寄附金額", true ),
-                'キャッチコピー'  => N2_Functions::special_str_convert( get_post_meta( $id, "キャッチコピー１", true ) ),
+				//NENGから同期したデータは「キャッチコピー1」になってるので修正が終わるまで回避処理を入れる
+                'キャッチコピー'  => N2_Functions::special_str_convert( get_post_meta( $id, "キャッチコピー", true ) ?: get_post_meta( $id, "キャッチコピー1", true ) ),
                 '説明'     => N2_Functions::special_str_convert( get_post_meta( $id, "説明文", true ) ) . 
                                 (
                                     get_post_meta( $id, "検索キーワード", true )  
@@ -146,12 +148,11 @@ class N2_Choice {
 
         // アラート文
         $kifukin_alert_str = '【以下の商品コードが寄附金額が０になっていたため、ダウンロードを中止しました】' . '<br>';
-        $kifukin_check_str = '';
-
-        foreach($ids as $id){
-            $kifukin_check_str .= $check_arr[ $id ][ '寄附金額エラー' ] ? $check_arr[ $id ][ '寄附金額エラー' ] . "<br>" : '';
-            echo $check_arr[ $id ][ '寄附金額エラー' ];
-        }
+        $kifukin_check_str = isset( $error_items ) ? $error_items : '';
+		
+		if( $kifukin_check_str ) { // 寄付金額エラーで出力中断
+			exit( $kifukin_alert_str . $kifukin_check_str );
+		}
 
         // tsv出力
         N2_Functions::download_csv( 'choice', array_keys( $sumple_header ), $items_arr, $tsv_title ,'tsv' );
