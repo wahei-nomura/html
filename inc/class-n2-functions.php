@@ -168,18 +168,22 @@ class N2_Functions {
 	 * @param Array  $header header
 	 * @param Array  $items_arr 商品情報配列
 	 * @param string $csv_title あれば連結する
+	 * @param string $type デフォルト（無記入）ならcsv、"tsv"の時はtsvとして処理
 	 * @return void
 	 */
-	public static function download_csv( $name, $header, $items_arr, $csv_title = '' ) {
-		$csv  = $csv_title . PHP_EOL;
-		$csv .= implode( ',', $header ) . PHP_EOL;
-
+	public static function download_csv( $name, $header, $items_arr, $csv_title = '', $type = null ) {
+		if($type === null || $type !== 'tsv'){ //デフォルトはcsv。イレギュラーも同様。チョイスはヘッダー無し
+			$type = 'csv';
+			$csv  = $csv_title . PHP_EOL;
+			$csv .= implode( ',', $header ) . PHP_EOL;
+		}
+		
 		// CSV文字列生成
 		foreach ( $items_arr as $item ) {
 			foreach ( $header as $head ) {
-				$csv .= '"' . $item[ $head ] . '",';
+				$csv .= '"' . $item[ $head ] . ( $type == 'csv' ? '",' : '"	' );
 			}
-			$csv  = rtrim( $csv, ',' );
+			$csv  = $type == 'csv' ? rtrim( $csv, ',' ) : rtrim( $csv, '	' );
 			$csv .= PHP_EOL;
 		}
 
@@ -187,7 +191,7 @@ class N2_Functions {
 		$csv = mb_convert_encoding( $csv, 'SJIS-win', 'utf-8' );
 
 		header( 'Content-Type: application/octet-stream' );
-		header( "Content-Disposition: attachment; filename={$name}.csv" );
+		header( "Content-Disposition: attachment; filename={$name}.{$type}" );
 		echo htmlspecialchars_decode( $csv );
 
 		die();
