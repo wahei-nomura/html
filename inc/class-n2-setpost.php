@@ -99,23 +99,16 @@ class N2_Setpost {
 					食品確認: n2.field_value.食品確認 ? n2.field_value.食品確認[0] : false,// ※食品事業者はデフォルトでONにしとくのまだ
 					アレルギー有無確認: n2.field_value.アレルギー有無確認 ? n2.field_value.アレルギー有無確認[0] : false,
 					商品画像: n2.field_value.商品画像,
-				};
-				const methods = {
-					add_media(){
-						const images = wp.media({
-							title: "商品画像", 
-							multiple: "add",
-							library: {type: "image"}
-						});
-						images.on( 'open', () => {
-							images.state().get('selection').add( n2.vue.商品画像.map( v=> wp.media.attachment(v.id) ) )
-						});
-						images.on( 'select', () => {
-							n2.vue.商品画像 = images.state().get('selection').map( v => v.attributes );
-						});
-						images.open();
+					全商品ディレクトリID: {
+						text: n2.field_value.全商品ディレクトリID,
+						list: [],
+					},
+					タグID: {
+						text: n2.field_value.タグID,
+						group: '',
+						list: [],
 					}
-				}
+				};
 				const components = {
 					draggable: vuedraggable,
 				}
@@ -124,7 +117,29 @@ class N2_Setpost {
 						n2.vue = new Vue({
 							el: '.edit-post-layout__metaboxes',
 							data,
-							methods,
+							methods: {
+								add_media(){
+									const images = wp.media({
+										title: "商品画像", 
+										multiple: "add",
+										library: {type: "image"}
+									});
+									images.on( 'open', () => {
+										images.state().get('selection').add( n2.vue.商品画像.map( v=> wp.media.attachment(v.id) ) )
+									});
+									images.on( 'select', () => {
+										n2.vue.商品画像 = images.state().get('selection').map( v => v.attributes );
+									});
+									images.open();
+								},
+								get_genreid(){
+									$.ajax(`//app.rakuten.co.jp/services/api/IchibaGenre/Search/20140222?applicationId=1002772968546257164&genreId=${this.全商品ディレクトリID.text || 0}`).then(v=>{
+										this.全商品ディレクトリID.list = v;
+										this.タグID.list = [];
+										console.log(this.全商品ディレクトリID.list)
+									});
+								}
+							},
 							components,
 						});
 					});
