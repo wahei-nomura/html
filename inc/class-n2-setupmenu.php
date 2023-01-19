@@ -44,6 +44,7 @@ class N2_Setupmenu {
 	 * @return void
 	 */
 	public function update_setupmenu() {
+
 		$opt = get_option( $this->cls );
 		extract( $_POST );
 		$opt = array_merge( (array) $opt, ${$this->cls} );

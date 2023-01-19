@@ -102,6 +102,49 @@ class N2_Functions {
 		global $pagenow, $post_type;
 		return ! is_admin() || ! current_user_can( $user ) || $page !== $pagenow || $type !== $post_type;
 	}
+
+
+	/**
+	 * html文を文字列出力する
+	 *
+	 * @param function $html_function 関数名を文字列として渡す
+	 * @return null|string html_tags
+	 */
+	public static function html2str( $html_function ) {
+		// 関数でなければ終了
+		if ( ! is_callable( $html_function ) ) {
+			return null;
+		}
+		ob_start();
+		?>
+		<?php $html_function(); ?>
+		<?php
+		return rtrim( str_replace( "\t", '', ob_get_clean() ), PHP_EOL );
+	}
+
+	/**
+	 * get_post_metaをまとめて実行
+	 *
+	 * @param int   $post_id post_id
+	 * @param array $keys keys get_post_meta用にdefaultは空文字
+	 * @return array $post_meta_list 更新後のmetaリスト
+	 */
+	public static function get_post_meta_multiple( $post_id, $keys = '' ) {
+		$post_meta_list = array();
+		if ( ! $keys || ! is_array( $keys ) ) {
+			return get_metadata( 'post', $post_id, $keys, true );
+		}
+		foreach ( $keys as $key ) {
+			// キーが存在しないなら空文字を設定する
+			$post_meta = get_metadata( 'post', $post_id, $key );
+			if ( ! $post_meta ) {
+				$post_meta_list[ $key ] = '';
+				continue;
+			}
+			$post_meta_list[ $key ] = $post_meta[0];
+		}
+		return $post_meta_list;
+	}
 	/**
 	 * get_template_partのwrapper
 	 *
