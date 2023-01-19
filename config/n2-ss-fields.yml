@@ -42,6 +42,7 @@ LH表示名:
 タグID:
     type: rakuten-tagid
     description: 楽天登録に必要なタグを複数選択します。
+    maxlength: 256
     validation: 必須
     v-model: タグID.text
     v-if: "!出品禁止ポータル.includes('楽天ふるさと納税')&&全商品ディレクトリID.text"
