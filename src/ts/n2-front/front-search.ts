@@ -18,7 +18,7 @@ export default () => {
 			$('#jigyousya-list-tag').val('');
 			$('#jigyousya-value').val('');
 			$('.search-code-list option').each(function(index,elem){
-				if(true == $(this).prop("selected")){
+				if( $(this).prop("selected") === true ){
 					$(this).prop("selected", false);
 				}
 			});

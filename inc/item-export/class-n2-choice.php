@@ -43,7 +43,7 @@ class N2_Choice {
 		$ids = explode( ',', filter_input( INPUT_POST, 'choice' ) );
 
         // ヘッダーサンプルの取得
-        $sumple_header = trim( file_get_contents( str_replace( "//", "//{$auth[ 'user' ]}:{$auth[ 'pass' ]}@", "{$auth[ 'url' ]}" ) ) );
+        $sumple_header = trim( file_get_contents( str_replace( "//", "//{$auth[ 'user' ]}:{$auth[ 'pass' ]}@", $auth[ 'url' ] ) ) );
         $sumple_header = array_flip( explode( "\t", $sumple_header ) );
 
         foreach( $ids as $id ){

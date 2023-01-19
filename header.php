@@ -15,11 +15,12 @@
 	<?php wp_head(); ?>
 </head>
 <body>
+	<div id="toggle-display-js">
 <?php wp_body_open(); ?>
 
 <header class="p-3 bg-dark text-white text-center">
 	<div class="container position-relative">
-		<button class="btn btn-info position-absolute start-0"><a href="<?php echo get_blog_details( 1 )->siteurl; ?>" class="link-dark">自治体一覧</a></button>
+		<a href="<?php echo get_blog_details( 1 )->siteurl; ?>" class="link-dark btn btn-info position-absolute start-0">自治体一覧</a>
 		<h1><a href="<?php echo home_url(); ?>" style="text-decoration:none;color:inherit">NEO NENG(仮)【<?php echo is_main_site() ? '全自治体一覧' : bloginfo( 'name' ); ?>】</a></h1>
 	</div>
 </header>

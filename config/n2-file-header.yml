@@ -39,8 +39,8 @@ ledghome:
     normal : false
 rakuten :
     item_csv :
-        title: コントロールカラム
         values:
+        - コントロールカラム
         - 商品管理番号（商品URL）
         - 商品番号
         - 全商品ディレクトリID
@@ -60,8 +60,8 @@ rakuten :
         - カタログID
         - カタログIDなしの理由
     select_csv :
-        title: 項目選択肢用コントロールカラム
         values:
+        - 項目選択肢用コントロールカラム
         - 商品管理番号（商品URL）
         - 選択肢タイプ
         - 項目選択肢項目名
@@ -92,3 +92,9 @@ choice :
         user : guest
         pass : guest
         url : https://www.furusato-cms.jp/files/sample_stg_product_details.tsv
+    upload_server:
+        domain: upload.rakuten.ne.jp
+        port: 21
+    ftp_server:
+        domain: ftp.rakuten.ne.jp
+        port: 16910

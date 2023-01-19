@@ -1,6 +1,6 @@
-import jQuery from "jquery";
+import $ from "jquery";
 import { prefix, neoNengPath, ajaxUrl, homeUrl } from "../functions/index";
-import {getPortalScraping,saveScraping} from "../n2-front/front-ajax";
+import {portalScrapingAjax} from "../n2-front/front-ajax";
 // jQuery拡張用に型定義
 declare global {
 	interface JQuery {
@@ -9,53 +9,86 @@ declare global {
 	}
 }
 export default () => {
+	console.log('here');
+	
 	console.log(window['tmp_path']['ajax_url']);
 	const element:HTMLInputElement = <HTMLInputElement>document.getElementById('product_id');
-	const productId:string = element.value;
-	const town = homeUrl(window).split('/').slice(-1)[0];
+	const productID:string = element.value;
+	const townName = homeUrl(window).split('/').slice(-1)[0];
 	
 	const urlSearchParams = new URLSearchParams(window.location.search);
 	const getParams = Object.fromEntries(urlSearchParams.entries());
 	const postID = Number(getParams.p);
 	
-	
-	getPortalScraping( productId ,town)
-		.done(res =>{
-			// save
-			const element:HTMLInputElement = <HTMLInputElement>document.getElementById('scraping_key');
-			const key = element.value
-			saveScraping(postID,key,res);
-			// 各ポータルサイトのリンク修正
-			jQuery('.link-btn a').each((index,elem)=>{
-				const portalName = jQuery(elem).text();
-				jQuery(elem).attr('href',res[portalName]['item_url']);
-			});
-			let successPortal = Object.keys(res).filter((x)=>res[x].status === 'OK')
-			// ポータル比較th
-			jQuery('.portal-scraper thead th').each((index,elem)=>{
-				const portal = jQuery(elem).text();
-				if( index === 0 ){
-					return;
-				} else if ( successPortal.indexOf( portal ) !== -1 ){
-					successPortal = successPortal.filter( x => x !== portal);
-					return;
-				}
-				jQuery(elem).parent().append(`<th>${portal}</th>`);
-			})
-			// ポータル比較td
-			jQuery('.portal-scraper tbody tr').each((index,elem)=>{
-				const th = jQuery(elem).find('th').text();
-				successPortal.forEach(portal=>{
-					const td = successPortal[portal]?.params?.[th].trim();
-					jQuery(elem).append(`<td>${td}</td>`);
-				})
-			});
+	// ---------ポータル田代のインターバル関連---------
+	const scrapingTimestamp = $("#scraping_timestamp").attr('value') ?? '';
+	const scrapingInterval  = Number($("#scraping_interval").attr('value') ?? '0');
+	const now = new Date();
+	const pre = scrapingTimestamp ? new Date(scrapingTimestamp) : now;
+	const minute_ago = Math.floor((now.getTime() -pre.getTime()) / (1000 *60) );
+	// ----------------------------------------------
+	const skElement:HTMLInputElement = <HTMLInputElement>document.getElementById('scraping_key');
+	const postMetaKey = skElement.value
+	const ajaxData = {
+		product_id:productID,
+		town_name: townName,
+		post_id: postID,
+		post_meta_key: postMetaKey,
+	};
+	portalScrapingAjax('POST', ajaxData ).done(res =>{
+		// スクレイピングしてなければ何もしない
+		if( res['status'] == 'NG' ) return;
+		// 寄付金額の表示を楽天に変えておく
+		const donationAmount = res['params']['楽天']['寄付額'] ?? $('.donation-amount .price').text();
+		$('.donation-amount .price').text(donationAmount);
 
-		}).catch(err=>{
-			console.log(err.responseText);
+		// 商品画像のリンク修正
+		const imgUrl:Array<string> = res['params']['楽天']['imgs'] ?? ['params']['チョイス']['imgs'];
+		const imgUrlLen = imgUrl.length
+		if( imgUrlLen !== 0 ) {
+			const $subImgs = $('.sub-imgs');
+			const $subImg = $('.sub-img').eq(0);
+			const $subImgLen = $('.sub-img').length;
+
+			imgUrl.forEach( url =>{
+				console.log(url);
+				
+			} )
+		}
+
+		
+		// 各ポータルサイトのリンク修正
+		$('.link-btn a').each((index,elem)=>{
+			const portalName = $(elem).text();
+			$(elem).attr('href',res['params'][portalName]['url']);
+		});
+		let successPortal = Object.keys(res).filter((x)=>res[x].status === 'OK')
+		// ポータル比較th
+		$('.portal-scraper thead th').each((index,elem)=>{
+			const portal = $(elem).text();
+			if( index === 0 ){
+				return;
+			} else if ( successPortal.indexOf( portal ) !== -1 ){
+				successPortal = successPortal.filter( x => x !== portal);
+				return;
+			}
+			$(elem).parent().append(`<th>${portal}</th>`);
 		})
+		// ポータル比較td
+		$('.portal-scraper tbody tr').each((index,elem)=>{
+			const th = $(elem).find('th').text();
+			successPortal.forEach(portal=>{
+				const td = successPortal[portal]?.params?.[th].trim();
+				$(elem).append(`<td>${td}</td>`);
+			})
+		});
+
+	}).catch(err=>{
+		console.log(err.responseText);
+	})
+
 	
-	jQuery(function ($) {
+	$(function ($) {
 		// transformの各パラメータ
 		// transform用のアニメーション
 		$.fn.animate2 = function (
@@ -77,35 +110,35 @@ export default () => {
 		};
 		// 画像サイズの小数点以下を切り捨て
 		$.fn.imgResize = function () {
-			jQuery(this).each(function () {
-				jQuery(this)
+			$(this).each(function () {
+				$(this)
 					.css({
 						width: "",
 						height: "",
 					})
 					.css({
-						width: Math.floor(jQuery(this).width()),
-						height: Math.floor(jQuery(this).height()),
+						width: Math.floor($(this).width()),
+						height: Math.floor($(this).height()),
 					});
 			});
-			jQuery(".sub-imgs").css({
+			$(".sub-imgs").css({
 				transform: (function () {
 					return `translate(${
-						-jQuery(".sub-imgs").data("count") *
-						(10 + jQuery(".sub-img").width())
+						-$(".sub-imgs").data("count") *
+						(10 + $(".sub-img").width())
 					}px,0)`;
 				})(),
 			});
 		};
 		const transform = () => {
 			let matrix = {};
-			if ("none" !== jQuery(".sub-imgs").css("transform")) {
-				const transform = jQuery(".sub-imgs")
+			if ("none" !== $(".sub-imgs").css("transform")) {
+				const transform = $(".sub-imgs")
 					.css("transform")
 					.split("(")[1]
 					.split(")")[0]
 					.split(", ");
-				if (6 === transform.length) {
+				if (transform.length === 6) {
 					matrix = {
 						"scale-x": transform[0],
 						"rotate-p": transform[1],
@@ -114,7 +147,7 @@ export default () => {
 						"translate-x": transform[4],
 						"translate-y": transform[5],
 					};
-				} else if (16 === transform.length) {
+				} else if (transform.length === 16) {
 					matrix = {
 						"scale-x": transform[0],
 						"rotate-z-p": transform[1],
@@ -138,65 +171,65 @@ export default () => {
 			return matrix;
 		};
 
-		jQuery(".sub-img").on("click", function () {
-			jQuery(".main-img").attr("src", jQuery(this).attr("src"));
+		$(".sub-img").on("click", function () {
+			$(".main-img").attr("src", $(this).attr("src"));
 		});
-		jQuery(".mordal-btn").on("click", function () {
-			jQuery(".is-mordal").removeClass("is-mordal");
-			console.log(jQuery(this).next());
+		$(".mordal-btn").on("click", function () {
+			$(".is-mordal").removeClass("is-mordal");
+			console.log($(this).next());
 
-			const html = jQuery(this)
+			const html = $(this)
 				.next()
 				.clone(false)
 				.show()
 				.prop("outerHTML");
-			const className = jQuery(this).attr("class");
+			const className = $(this).attr("class");
 			console.log(className);
-			jQuery(this).addClass("is-mordal");
-			jQuery(".mordal")
+			$(this).addClass("is-mordal");
+			$(".mordal")
 				.css({ opacity: 0 })
 				.show()
 				.find(".mordal-wrapper")
 				.html(html);
-			jQuery(".mordal").animate({ opacity: 1 }, 500);
+			$(".mordal").animate({ opacity: 1 }, 500);
 
 			console.log($(this).parent().hasClass("product-info"));
 
 			if ($(this).parent().hasClass("product-info")) {
-				jQuery(".mordal")
+				$(".mordal")
 					.find(".mordal-wrapper")
 					.children()
 					.prepend($(".description").clone(false));
 			}
-			jQuery("body").css("overflow-y", "hidden");
+			$("body").css("overflow-y", "hidden");
 		});
-		jQuery(".mordal").on("click", function () {
-			jQuery(this).hide();
-			jQuery("body").css("overflow-y", "");
+		$(".mordal").on("click", function () {
+			$(this).hide();
+			$("body").css("overflow-y", "");
 		});
-		jQuery(".mordal").on("click", "*", function (e) {
+		$(".mordal").on("click", "*", function (e) {
 			e.stopPropagation();
-			if (jQuery(this).hasClass("close-btn")) {
+			if ($(this).hasClass("close-btn")) {
 				$(this).addClass("close");
 				console.log("close", this);
 				$(".mordal").delay(100).animate({ opacity: 0 }, 700);
 				setTimeout(() => {
-					jQuery(".mordal").hide();
-					jQuery("body").css("overflow-y", "");
+					$(".mordal").hide();
+					$("body").css("overflow-y", "");
 					$(this).removeClass("close");
 				}, 1000);
 			}
 		});
 		// 画像が選択状態か判断
 		let mousedownFlag = false;
-		jQuery(".sub-imgs").on("mousedown", function () {
+		$(".sub-imgs").on("mousedown", function () {
 			mousedownFlag = true;
 		});
-		jQuery(window).on("mouseup dragend", function () {
+		$(window).on("mouseup dragend", function () {
 			mousedownFlag = false;
 		});
-		jQuery(window).resize(function () {
-			jQuery(".sub-img").imgResize();
+		$(window).resize(function () {
+			// $(".sub-img").imgResize();
 			if ($(this).width() > 576) {
 				$(".sub .sticky").append($(".worker, .portal-links, .related-links"));
 			} else {
@@ -205,14 +238,14 @@ export default () => {
 		});
 		window.setInterval(function (e) {
 			if (!mousedownFlag) {
-				jQuery(".sub-imgs")
+				$(".sub-imgs")
 					.css(
 						(function () {
 							if (
-								jQuery(".sub-img").length / 2 ===
+								$(".sub-img").length / 2 ===
 								Math.floor(
 									-Number(transform()["translate-x"]) /
-										(jQuery(".sub-img").width() + 10)
+										($(".sub-img").width() + 10)
 								)
 							) {
 								return {
@@ -228,27 +261,27 @@ export default () => {
 						{
 							transform: `translate(${
 								Number(transform()["translate-x"]) -
-								jQuery(".sub-img").width() -
+								$(".sub-img").width() -
 								10
 							}px,0)`,
 						},
 						500,
 						""
 					);
-				jQuery(".sub-imgs")
+				$(".sub-imgs")
 					.data(
 						"count",
 						Math.floor(
 							-Number(transform()["translate-x"]) /
-								(jQuery(".sub-img").width() + 10)
+								($(".sub-img").width() + 10)
 						) + 1
 					)
-					.data("mx", jQuery(".sub-img").width() + 10);
+					.data("mx", $(".sub-img").width() + 10);
 			}
 		}, 2000);
 
-		jQuery(window).on("load", function () {
-			jQuery(".sub-img").imgResize();
+		$(window).on("load", function () {
+			// $(".sub-img").imgResize();
 		});
 
 		$(window).trigger("resize");
