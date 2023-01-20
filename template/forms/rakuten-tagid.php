@@ -30,7 +30,7 @@ foreach ( $args as $k => $v ) {
 			role="button"
 			v-for="v in タグID.list"
 			:class="`btn btn-sm me-1 mb-1 py-0 ${タグID.text.split('/').includes(v.tag.tagId.toString()) ? 'btn-danger': 'btn-dark'}`"
-			@click="タグID.text = タグID.text.split('/').includes(v.tag.tagId.toString()) ? タグID.text.split('/').filter(a=>a!=v.tag.tagId).join('/'): [...タグID.text.split('/'), v.tag.tagId].filter(a=>a).join('/')"
+			@click="update_tagid(v.tag.tagId)"
 			v-text="v.tag.tagName"
 		></span>
 	</div>

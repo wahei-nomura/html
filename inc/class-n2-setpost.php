@@ -143,6 +143,20 @@ class N2_Setpost {
 										}
 									});
 								},
+								update_tagid(id){
+									const arr = this.タグID.text.split('/');
+									// 削除
+									if ( arr.includes( id.toString() ) ) {
+										this.タグID.text = arr.filter( v => v != id ).join('/')
+									}
+									// 追加
+									else {
+										// 楽天のタグIDの上限
+										if ( arr.length < $('[type="rakuten-tagid"]').attr('maxlength')/8 ) {
+											this.タグID.text = [...arr, id].filter( v => v ).join('/');
+										}
+									}
+								}
 							},
 							components,
 						});
