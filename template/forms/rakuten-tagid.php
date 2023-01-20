@@ -14,7 +14,7 @@ foreach ( $args as $k => $v ) {
 }
 ?>
 <small>{{タグID.text ? タグID.text.length: 0}} / 256 Byte</samll>
-<textarea <?php echo $attr; ?> @click="get_genreid();"><?php echo $value; ?></textarea>
+<textarea <?php echo $attr; ?> @click="get_genreid();"></textarea>
 <div class="d-flex" v-if="全商品ディレクトリID.list.length != 0">
 	<div class="col-5 gap-1 p-1 me-2" style="max-height: 200px; overflow-y: scroll;">
 		<p
@@ -30,7 +30,7 @@ foreach ( $args as $k => $v ) {
 			role="button"
 			v-for="v in タグID.list"
 			:class="`btn btn-sm me-1 mb-1 py-0 ${タグID.text ? ( タグID.text.split('/').includes(v.tag.tagId.toString()) ? 'btn-danger': 'btn-dark' ): 'btn-dark'}`"
-			@click="update_tagid(v.tag.tagId)"
+			@click="update_textarea(v.tag.tagId)"
 			v-text="v.tag.tagName"
 		></span>
 	</div>

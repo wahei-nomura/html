@@ -49,11 +49,13 @@ LH表示名:
     style: 'width: 100%;height:7em;'
 
 # 固定のため変更不可
-楽天カテゴリー:
-    type: textarea
-    description: 当てはまるカテゴリーを選択すると、下の入力欄に反映されます。複数選択する場合は、続けてカテゴリー一覧から選ぶと追記されます。
+楽天SPAカテゴリー:
+    type: rakuten-spa-category
+    description: 楽天SPAのカテゴリーです。RMSのカテゴリーではありません。
     validation: 必須
+    v-model: 楽天SPAカテゴリー.text
     v-if: "!出品禁止ポータル.includes('楽天ふるさと納税')"
+    style: 'width: 100%;height:7em;'
 
 検索キーワード:
     type: text

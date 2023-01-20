@@ -81,6 +81,7 @@ class N2_Setpost {
 			<script src="//cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.20.0/vuedraggable.umd.min.js"></script>
 			<script>
 				window.n2 = {};
+				window.n2.town = '<?php bloginfo( 'name' ); ?>';
 				window.n2.field_value = <?php echo wp_json_encode( (array) N2_Functions::get_all_meta( $post ) ); ?>;
 				window.n2.field_list = <?php echo wp_json_encode( (array) array_keys( N2_Functions::get_all_meta( $post ) ) ); ?>;
 				// N1の商品画像をN2互換
@@ -107,6 +108,10 @@ class N2_Setpost {
 						text: n2.field_value.タグID,
 						group: '',
 						list: [],
+					},
+					楽天SPAカテゴリー: {
+						text: n2.field_value.楽天SPAカテゴリー ? n2.field_value.楽天SPAカテゴリー.replace(/\r/g, ''): '',
+						list: [],
 					}
 				};
 				const components = {
@@ -132,29 +137,61 @@ class N2_Setpost {
 									});
 									images.open();
 								},
-								get_genreid( tagid_reset = false ){
-									$.ajax(`//app.rakuten.co.jp/services/api/IchibaGenre/Search/20140222?applicationId=1002772968546257164&genreId=${this.全商品ディレクトリID.text || 0}`).then(v=>{
-										this.全商品ディレクトリID.list = v;
-										if ( tagid_reset && this.タグID.text ) {
-											this.タグID.list = [];
-											if ( confirm('全商品ディレクトリIDが変更されます。\nそれに伴い入力済みのタグIDをリセットしなければ楽天で地味にエラーがでます。\n\nタグIDをリセットしてよろしいでしょうか？') ) {
-												this.タグID.text = '';
-											}
+								async get_genreid( tagid_reset = false ){
+									const settings = {
+										url: '//app.rakuten.co.jp/services/api/IchibaGenre/Search/20140222',
+										data: {
+											applicationId: '1002772968546257164',
+											genreId: this.全商品ディレクトリID.text || '0',
+										},
+									};
+									this.全商品ディレクトリID.list = await $.ajax(settings);
+									if ( tagid_reset && this.タグID.text ) {
+										this.タグID.list = [];
+										if ( confirm('全商品ディレクトリIDが変更されます。\nそれに伴い入力済みのタグIDをリセットしなければ楽天で地味にエラーがでます。\n\nタグIDをリセットしてよろしいでしょうか？') ) {
+											this.タグID.text = '';
 										}
-									});
+									}
 								},
-								update_tagid(id){
-									const arr = this.タグID.text ? this.タグID.text.split('/'): [];
+								async get_spa_category(){
+									const folderCode = '1p7DlbhcIEVIaH7Rw2mTmqJJKVDZCumYK';
+									let settings = {
+										url: '//www.googleapis.com/drive/v3/files/',
+										data: {
+											key: 'AIzaSyDQ1Mu41-8S5kBpZED421bCP8NPE7pneNU',
+											q: `'${folderCode}' in parents and name = '${n2.town}' and mimeType contains 'spreadsheet'`,
+										}
+									};
+									const d = await $.ajax(settings);
+									if ( ! d.files.length ) {
+										alert('カテゴリー情報の取得失敗');
+										return;
+									}
+									settings.url = `//sheets.googleapis.com/v4/spreadsheets/${d.files[0].id}/values/カテゴリー`;
+									delete settings.data.q;
+									const cat = await $.ajax(settings);
+									delete cat.values[0];
+									this.楽天SPAカテゴリー.list = cat.values.map( (v,k) => {
+										v.forEach((e,i) => {
+											v[i] = e || cat.values[k-1][i];
+											v[i] = v[i].replace('.','');
+										});
+										return `#/${v.join('/')}/`;
+									}).filter(v=>v);
+								},
+								update_textarea(id, target = 'タグID', delimiter = '/'){
+									// 重複削除
+									const arr = this[target].text ? [...new Set( this[target].text.split( delimiter ) )]: [];
+									console.log(arr)
 									// 削除
 									if ( arr.includes( id.toString() ) ) {
-										this.タグID.text = arr.filter( v => v != id ).join('/')
+										this[target].text = arr.filter( v => v != id ).join( delimiter )
 									}
 									// 追加
 									else {
 										// 楽天のタグIDの上限
-										if ( arr.length < $('[type="rakuten-tagid"]').attr('maxlength')/8 ) {
-											this.タグID.text = [...arr, id].filter( v => v ).join('/');
-										}
+										if ( target == 'タグID' && arr.length >= $('[type="rakuten-tagid"]').attr('maxlength')/8 ) return;
+										this[target].text = [...arr, id].filter( v => v ).join( delimiter );
 									}
 								}
 							},
