@@ -123,6 +123,7 @@ class N2_Setpost {
 							el: '.edit-post-layout__metaboxes',
 							data,
 							methods: {
+								// メディアアップローダー関連
 								add_media(){
 									const images = wp.media({
 										title: "商品画像", 
@@ -137,6 +138,7 @@ class N2_Setpost {
 									});
 									images.open();
 								},
+								// 楽天の全商品ディレクトリID取得（タグIDでも利用）
 								async get_genreid( tagid_reset = false ){
 									const settings = {
 										url: '//app.rakuten.co.jp/services/api/IchibaGenre/Search/20140222',
@@ -153,9 +155,10 @@ class N2_Setpost {
 										}
 									}
 								},
+								// 楽天SPAカテゴリーの取得
 								async get_spa_category(){
 									const folderCode = '1p7DlbhcIEVIaH7Rw2mTmqJJKVDZCumYK';
-									let settings = {
+									const settings = {
 										url: '//www.googleapis.com/drive/v3/files/',
 										data: {
 											key: 'AIzaSyDQ1Mu41-8S5kBpZED421bCP8NPE7pneNU',
@@ -179,10 +182,10 @@ class N2_Setpost {
 										return `#/${v.join('/')}/`;
 									}).filter(v=>v);
 								},
+								// タグIDと楽天SPAカテゴリーで利用
 								update_textarea(id, target = 'タグID', delimiter = '/'){
 									// 重複削除
 									const arr = this[target].text ? [...new Set( this[target].text.split( delimiter ) )]: [];
-									console.log(arr)
 									// 削除
 									if ( arr.includes( id.toString() ) ) {
 										this[target].text = arr.filter( v => v != id ).join( delimiter )
