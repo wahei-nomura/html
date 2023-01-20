@@ -135,8 +135,8 @@ class N2_Setpost {
 								get_genreid( tagid_reset = false ){
 									$.ajax(`//app.rakuten.co.jp/services/api/IchibaGenre/Search/20140222?applicationId=1002772968546257164&genreId=${this.全商品ディレクトリID.text || 0}`).then(v=>{
 										this.全商品ディレクトリID.list = v;
-										this.タグID.list = [];
 										if ( tagid_reset && this.タグID.text ) {
+											this.タグID.list = [];
 											if ( confirm('全商品ディレクトリIDが変更されます。\nそれに伴い入力済みのタグIDをリセットしなければ楽天で地味にエラーがでます。\n\nタグIDをリセットしてよろしいでしょうか？') ) {
 												this.タグID.text = '';
 											}
