@@ -26,7 +26,7 @@ $name    = $args['name'];
 		</div>
 	</draggable>
 	<div @click="add_media" class="d-inline-block position-relative selected attachment position-relative" style="width:auto;max-width: 25%;">
-		<div style="width: 150px;maax-width: 25%;padding-top: 100%;background: #c3c4c7;"></div>
+		<div style="width: 150px;max-width: 100%;padding-top: 100%;background: #c3c4c7;"></div>
 		<div class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center">
 			<span class="dashicons dashicons-plus-alt2 text-white"></span>
 		</div>
