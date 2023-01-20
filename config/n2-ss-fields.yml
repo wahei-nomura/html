@@ -17,6 +17,7 @@
 返礼品コード:
     type: text
     placeholder: 例）AAA000
+    v-model: 返礼品コード
 
 LH表示名:
     type: text

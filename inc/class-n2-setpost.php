@@ -96,6 +96,7 @@ class N2_Setpost {
 				
 				// このdataをプラグイン側で上書きする
 				const data = {
+					返礼品コード: n2.field_value.返礼品コード,
 					出品禁止ポータル: n2.field_value.出品禁止ポータル || [],
 					食品確認: n2.field_value.食品確認 ? n2.field_value.食品確認[0] : false,// ※食品事業者はデフォルトでONにしとくのまだ
 					アレルギー有無確認: n2.field_value.アレルギー有無確認 ? n2.field_value.アレルギー有無確認[0] : false,
