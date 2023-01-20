@@ -144,7 +144,7 @@ class N2_Setpost {
 									});
 								},
 								update_tagid(id){
-									const arr = this.タグID.text.split('/');
+									const arr = this.タグID.text ? this.タグID.text.split('/'): [];
 									// 削除
 									if ( arr.includes( id.toString() ) ) {
 										this.タグID.text = arr.filter( v => v != id ).join('/')
