@@ -39,9 +39,9 @@ class N2_Img_Download {
 		$content = wp_remote_get( $url );
 		$headers = $content['headers']->getAll();
 		header( "Content-Type: {$headers['content-type']}" );
-		header( "Content-Disposition:attachment;filename = {$name}" );
+		header( "Content-Disposition:attachment; filename = {$name}" );
 		header( "Content-Length: {$headers['content-length']}" );
-		echo $content;
+		echo $content['body'];
 	}
 
 	/**
