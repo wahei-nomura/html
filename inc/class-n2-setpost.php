@@ -118,6 +118,9 @@ class N2_Setpost {
 					draggable: vuedraggable,
 				}
 				jQuery(function($){
+					wp.data.subscribe(()=>{
+						window.n2.status = wp.data.select("core/editor").getEditedPostAttribute("status");
+					});
 					$(".edit-post-layout__metaboxes").ready(() => {
 						n2.vue = new Vue({
 							el: '.edit-post-layout__metaboxes',
@@ -125,16 +128,22 @@ class N2_Setpost {
 							methods: {
 								// メディアアップローダー関連
 								add_media(){
+									// N1の画像データにはnoncesが無い
 									const images = wp.media({
 										title: "商品画像", 
 										multiple: "add",
 										library: {type: "image"}
 									});
 									images.on( 'open', () => {
-										images.state().get('selection').add( n2.vue.商品画像.map( v=> wp.media.attachment(v.id) ) )
+										// N2のものだけに
+										const add =  this.商品画像.filter( v => v.nonces );
+										images.state().get('selection').add( add.map( v => wp.media.attachment(v.id) ) );
 									});
 									images.on( 'select', () => {
-										n2.vue.商品画像 = images.state().get('selection').map( v => v.attributes );
+										this.商品画像 =  [
+												...this.商品画像.filter( v => !v.nonces ),// N1のみ展開
+												...images.state().get('selection').map( v => v.attributes )
+											];
 									});
 									images.open();
 								},
@@ -211,6 +220,7 @@ class N2_Setpost {
 							});
 						})
 					});
+
 				})
 			</script>
 		<?php

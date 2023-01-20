@@ -22,7 +22,26 @@ class N2_Img_Download {
 	 * コンストラクタ
 	 */
 	public function __construct() {
+		add_action( 'wp_ajax_download_by_url', array( $this, 'download_by_url' ) );
 		add_action( 'wp_ajax_download_img', array( $this, 'download_img' ) );
+	}
+
+	/**
+	 * URLからダウンロード
+	 */
+	public function download_by_url() {
+		$url = $_GET['url'];
+		if ( ! $url ) {
+			exit;
+		}
+		add_filter( 'https_ssl_verify', '__return_false' );
+		$name    = basename( $url );
+		$content = wp_remote_get( $url );
+		$headers = $content['headers']->getAll();
+		header( "Content-Type: {$headers['content-type']}" );
+		header( "Content-Disposition:attachment;filename = {$name}" );
+		header( "Content-Length: {$headers['content-length']}" );
+		echo $content;
 	}
 
 	/**
