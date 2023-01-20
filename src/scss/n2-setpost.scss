@@ -60,6 +60,14 @@ $prefix: "n2-setpost";
 				}
 			}
 		}
+		.interface-interface-skeleton{
+			&__body{
+				padding: 0;
+			}
+			&__footer{
+				display: none;
+			}
+		}
 	}
 	
 	##{$prefix} {
