@@ -50,37 +50,37 @@ class N2_Setupmenu {
 		extract( $_POST );
 		$write_common_yaml = get_theme_file_path( '/config/n2-towninfo.yml' );
 		$write_plugins_yaml_url = WP_PLUGIN_DIR . '/n2-' . $town_name . '/config/n2-setup-menu.yml';
-		$N2_Setupmenu_Common = array_slice($N2_Setupmenu[rakuten], 0, 4, true);
-		$N2_Setupmenu_Personal_Original = array_slice($N2_Setupmenu[rakuten], 4, count($N2_Setupmenu[rakuten]), true);
-		$array_item_csv = explode("	",$N2_Setupmenu_Personal_Original['item_csv']);
-		$array_select_csv = explode("	",$N2_Setupmenu_Personal_Original['select_csv']);
-		$N2_Setupmenu_Personal['rakuten']['ftp']['user'] = $N2_Setupmenu_Personal_Original['ftp_user'];
-		$N2_Setupmenu_Personal['rakuten']['ftp']['pass'] = $N2_Setupmenu_Personal_Original['ftp_pass'];
-		$N2_Setupmenu_Personal['rakuten']['item_csv_header'] = $array_item_csv;
-		$N2_Setupmenu_Personal['rakuten']['select_csv_header'] = $array_select_csv;
-		$N2_Setupmenu_Personal['rakuten']['img_dir'] = $N2_Setupmenu_Personal_Original['img_dir'];
-		$N2_Setupmenu_Personal['rakuten']['tag_id'] = $N2_Setupmenu_Personal_Original['tag_id'];
-		$N2_Setupmenu_Personal['rakuten']['html'] = $N2_Setupmenu_Personal_Original['html'];
-		for($i = 0; $i < 5; $i++){
-			$array_select_original = str_replace(array("\r\n", "\r", "\n"), "\n", $N2_Setupmenu_Personal_Original['select'][$i]);
-			$array_select = explode("\n",$array_select_original);
-			$array_select_title = array_slice($array_select, 0, 1, true);
-			$array_select_title_nono = str_replace($i+1 . '.', "", $array_select_title[0]);
-			$array_select_selector = array_slice($array_select, 1, count($array_select), false);
-			$N2_Setupmenu_Personal['rakuten']['項目選択肢（改行区切）'][$i+1]['内容'] = $array_select_title_nono;
-			if(count($array_select) <= 1){
-				$array_select_selector = "";
+		$n2_setupmenu_common = array_slice( $N2_Setupmenu[ rakuten ], 0, 4, true );
+		$n2_setupmenu_personal_original = array_slice( $N2_Setupmenu[ rakuten ], 4, count( $N2_Setupmenu[ rakuten ] ), true );
+		$array_item_csv = explode( '	', $n2_setupmenu_personal_original['item_csv'] );
+		$array_select_csv = explode( '	', $n2_setupmenu_personal_original['select_csv'] );
+		$n2_setupmenu_personal['rakuten']['ftp']['user'] = $n2_setupmenu_personal_original['ftp_user'];
+		$n2_setupmenu_personal['rakuten']['ftp']['pass'] = $n2_setupmenu_personal_original['ftp_pass'];
+		$n2_setupmenu_personal['rakuten']['item_csv_header'] = $array_item_csv;
+		$n2_setupmenu_personal['rakuten']['select_csv_header'] = $array_select_csv;
+		$n2_setupmenu_personal['rakuten']['img_dir'] = $n2_setupmenu_personal_original['img_dir'];
+		$n2_setupmenu_personal['rakuten']['tag_id'] = $n2_setupmenu_personal_original['tag_id'];
+		$n2_setupmenu_personal['rakuten']['html'] = $n2_setupmenu_personal_original['html'];
+		for ( $i = 0; $i < 5; $i++ ) {
+			$array_select_original = str_replace( array( "\r\n", "\r", "\n" ), "\n", $n2_setupmenu_personal_original['select'][$i] );
+			$array_select = explode( "\n", $array_select_original );
+			$array_select_title = array_slice( $array_select, 0, 1, true );
+			$array_select_title_nono = str_replace( $i + 1 . '.', '', $array_select_title[0] );
+			$array_select_selector = array_slice( $array_select, 1, count( $array_select ), false );
+			$n2_setupmenu_personal['rakuten']['項目選択肢（改行区切）'][$i + 1]['内容'] = $array_select_title_nono;
+			if ( count( $array_select ) <= 1 ) {
+				$array_select_selector = '';
 			}
-			$N2_Setupmenu_Personal['rakuten']['項目選択肢（改行区切）'][$i+1]['選択肢'] = $array_select_selector;
+			$n2_setupmenu_personal['rakuten']['項目選択肢（改行区切）'][$i + 1]['選択肢'] = $array_select_selector;
 		}
-		if(yaml_emit_file($write_common_yaml, $N2_Setupmenu_Common)){
+		if ( yaml_emit_file( $write_common_yaml, $n2_setupmenu_common ) ) {
 			echo 'cyml成功';
-		}else{
+		} else {
 			echo 'cyml失敗';
 		}
-		if(yaml_emit_file($write_plugins_yaml_url, $N2_Setupmenu_Personal, $encoding = YAML_UTF8_ENCODING)){
+		if ( yaml_emit_file( $write_plugins_yaml_url, $n2_setupmenu_personal, $encoding = YAML_UTF8_ENCODING ) ) {
 			echo 'pyml成功';
-		}else{
+		} else {
 			echo 'pyml失敗';
 		}
 		$opt = array_merge( (array) $opt, ${$this->cls} );
@@ -162,49 +162,49 @@ class N2_Setupmenu {
 		<form>
 			<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
 			<input type="hidden" name="judge" value="option">
-			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][ftp_server]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_server'] ?? 'ftp.rakuten.ne.jp'; ?>">
-			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][ftp_server_port]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_server_port'] ?? '16910'; ?>">
-			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][upload_server]" value="<?php echo get_option( $this->cls )['rakuten']['upload_server'] ?? 'upload.rakuten.ne.jp'; ?>">
-			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][upload_server_port]" value="<?php echo ( get_option( $this->cls )['rakuten']['upload_server_port'] ?? '21' ); ?>">
+			<input type="hidden" name="<?php echo $this->cls; ?>[ rakuten ][ftp_server]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_server'] ?? 'ftp.rakuten.ne.jp'; ?>">
+			<input type="hidden" name="<?php echo $this->cls; ?>[ rakuten ][ftp_server_port]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_server_port'] ?? '16910'; ?>">
+			<input type="hidden" name="<?php echo $this->cls; ?>[ rakuten ][upload_server]" value="<?php echo get_option( $this->cls )['rakuten']['upload_server'] ?? 'upload.rakuten.ne.jp'; ?>">
+			<input type="hidden" name="<?php echo $this->cls; ?>[ rakuten ][upload_server_port]" value="<?php echo ( get_option( $this->cls )['rakuten']['upload_server_port'] ?? '21' ); ?>">
 			<p class="input-text-wrap">
 				FTPユーザー：<br>
-				<input type="text" name="<?php echo $this->cls; ?>[rakuten][ftp_user]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_user'] ?? ''; ?>">
+				<input type="text" name="<?php echo $this->cls; ?>[ rakuten ][ftp_user]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_user'] ?? ''; ?>">
 			</p>
 			<p class="input-text-wrap">
 				FTPパスワード：<br>
-				<input type="text" name="<?php echo $this->cls; ?>[rakuten][ftp_pass]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_pass'] ?? ''; ?>">
+				<input type="text" name="<?php echo $this->cls; ?>[ rakuten ][ftp_pass]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_pass'] ?? ''; ?>">
 			</p>
 			<p class="input-text-wrap">
 				画質（右に行くほど高画質）：<br>
-				<input type="range" step="1" min="1" max="100" name="<?php echo $this->cls; ?>[rakuten][quality]" value="<?php echo get_option( $this->cls )['rakuten']['quality'] ?? ''; ?>">
+				<input type="range" step="1" min="1" max="100" name="<?php echo $this->cls; ?>[ rakuten ][quality]" value="<?php echo get_option( $this->cls )['rakuten']['quality'] ?? ''; ?>">
 			</p>
 			<p class="textarea-wrap">
 				item.csvヘッダー貼付（タブ区切り）：<br>
-				<textarea name="<?php echo $this->cls; ?>[rakuten][item_csv]" rows="1" style="overflow-x: hidden;"><?php echo get_option( $this->cls )['rakuten']['item_csv'] ?? ''; ?></textarea>
+				<textarea name="<?php echo $this->cls; ?>[ rakuten ][item_csv]" rows="1" style="overflow-x: hidden;"><?php echo get_option( $this->cls )['rakuten']['item_csv'] ?? ''; ?></textarea>
 			</p>
 			<p class="textarea-wrap">
 				select.csvヘッダー貼付（タブ区切り）：<br>
-				<textarea name="<?php echo $this->cls; ?>[rakuten][select_csv]" rows="1" style="overflow-x: hidden;"><?php echo get_option( $this->cls )['rakuten']['select_csv'] ?? ''; ?></textarea>
+				<textarea name="<?php echo $this->cls; ?>[ rakuten ][select_csv]" rows="1" style="overflow-x: hidden;"><?php echo get_option( $this->cls )['rakuten']['select_csv'] ?? ''; ?></textarea>
 			</p>
 			<p class="input-text-wrap">
 				商品画像ディレクトリ：<br>
-				<input type="text" name="<?php echo $this->cls; ?>[rakuten][img_dir]" value="<?php echo get_option( $this->cls )['rakuten']['img_dir'] ?? ''; ?>">
+				<input type="text" name="<?php echo $this->cls; ?>[ rakuten ][img_dir]" value="<?php echo get_option( $this->cls )['rakuten']['img_dir'] ?? ''; ?>">
 			</p>
 			<p class="input-text-wrap">
 				タグID：<br>
-				<input type="text" name="<?php echo $this->cls; ?>[rakuten][tag_id]" value="<?php echo get_option( $this->cls )['rakuten']['tag_id'] ?? ''; ?>">
+				<input type="text" name="<?php echo $this->cls; ?>[ rakuten ][tag_id]" value="<?php echo get_option( $this->cls )['rakuten']['tag_id'] ?? ''; ?>">
 			</p>
 			<p class="textarea-wrap">
 				<label>
 					説明文追加html：<br>
-					<textarea name="<?php echo $this->cls; ?>[rakuten][html]" rows="5" style="overflow-x: hidden;"><?php echo stripslashes_deep( get_option( $this->cls )['rakuten']['html'] ?? '' ); ?></textarea>
+					<textarea name="<?php echo $this->cls; ?>[ rakuten ][html]" rows="5" style="overflow-x: hidden;"><?php echo stripslashes_deep( get_option( $this->cls )['rakuten']['html'] ?? '' ); ?></textarea>
 				</label>
 			</p>
 			<?php for ( $i = 0;$i < 6;$i++ ) : ?>
 			<p class="textarea-wrap">
 				<label>
 					項目選択肢（改行区切）※選択肢は最大16文字：<br>
-					<textarea name="<?php echo $this->cls; ?>[rakuten][select][]" rows="5" style="overflow-x: hidden;"><?php echo get_option( $this->cls )['rakuten']['select'][ $i ] ?? ''; ?></textarea>
+					<textarea name="<?php echo $this->cls; ?>[ rakuten ][select][]" rows="5" style="overflow-x: hidden;"><?php echo get_option( $this->cls )['rakuten']['select'][ $i ] ?? ''; ?></textarea>
 				</label>
 			</p>
 			<?php endfor; ?>
