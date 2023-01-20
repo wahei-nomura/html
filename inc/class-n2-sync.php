@@ -279,9 +279,10 @@ class N2_Sync {
 			);
 			$postarr['meta_input']['_neng_id'] = $v['ID']; // 同期用 裏カスタムフィールドNENGのID追加
 			$allergen = array_column( $postarr['meta_input']['アレルゲン'], 'value' );
-			// キャッチコピー１をキャッチコピーに変換
+			// キャッチコピー１と楽天カテゴリーの変換
 			$postarr['meta_input']['キャッチコピー'] = $postarr['meta_input']['キャッチコピー１'];
-			unset( $postarr['meta_input']['キャッチコピー１'] );
+			$postarr['meta_input']['楽天SPAカテゴリー'] = $postarr['meta_input']['楽天カテゴリー'];
+			unset( $postarr['meta_input']['キャッチコピー１'], $postarr['meta_input']['楽天カテゴリー'] );
 			// 食品確認
 			$postarr['meta_input']['食品確認'] = in_array( '食品ではない', $allergen, true )
 				? array()
