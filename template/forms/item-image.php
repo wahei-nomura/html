@@ -12,7 +12,7 @@ $name    = $args['name'];
 <div class="wrap">
 	<input type="hidden" name="<?php echo $name; ?>" :value="JSON.stringify(商品画像)">
 	<draggable v-model="商品画像" class="">
-		<div v-for="(attr, index) in 商品画像" class="d-inline-block position-relative details attachment">
+		<div v-for="(attr, index) in 商品画像" class="d-inline-block position-relative details attachment" style="width: auto;max-width: 25%;">
 			<!-- リンク -->
 			<a :href="attr.url" class="d-block" target="_blank">
 				<img :src="attr.sizes.thumbnail.url || attr.sizes.thumbnail" style="cursor: move;">
@@ -25,8 +25,8 @@ $name    = $args['name'];
 			<a :href="attr.url" target="_blank" download class="position-absolute bottom-0 end-0 badge rounded-pill bg-dark text-white">▼ Download</a>
 		</div>
 	</draggable>
-	<div @click="add_media" class="d-inline-block position-relative selected attachment position-relative">
-		<div style="padding-top: 100%;background: #c3c4c7;"></div>
+	<div @click="add_media" class="d-inline-block position-relative selected attachment position-relative" style="width:auto;max-width: 25%;">
+		<div style="width: 150px;maax-width: 25%;padding-top: 100%;background: #c3c4c7;"></div>
 		<div class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center">
 			<span class="dashicons dashicons-plus-alt2 text-white"></span>
 		</div>
