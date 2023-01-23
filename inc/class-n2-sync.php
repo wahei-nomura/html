@@ -281,7 +281,7 @@ class N2_Sync {
 			$postarr['meta_input']['_neng_id'] = $v['ID'];
 
 			// 「商品画像１〜８」を「商品画像」に変換
-			$images = array_filter( $postarr['meta_input'], fn( $k ) => preg_match( '/商品画像[０-９]/u', $k ), ARRAY_FILTER_USE_KEY );
+			$images                        = array_filter( $postarr['meta_input'], fn( $k ) => preg_match( '/商品画像[０-９]/u', $k ), ARRAY_FILTER_USE_KEY );
 			$postarr['meta_input']['商品画像'] = array_filter( array_values( $images ), fn( $v ) => $v );
 			foreach ( array_keys( $images ) as $k ) {
 				unset( $postarr['meta_input'][ $k ] );
