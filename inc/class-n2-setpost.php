@@ -30,7 +30,7 @@ class N2_Setpost {
 	 */
 	public function __construct() {
 		$this->cls = get_class( $this );
-		add_action( 'nocache_headers', array( $this, 'editpage_redirect' ) );
+		// add_action( 'nocache_headers', array( $this, 'editpage_redirect' ) );
 		add_action( 'admin_head-post.php', array( $this, 'show_progress' ) );
 		add_action( 'admin_head-post-new.php', array( $this, 'show_progress' ) );
 		add_action( 'init', array( $this, 'remove_editor_support' ) );
@@ -82,17 +82,9 @@ class N2_Setpost {
 			<script>
 				window.n2 = {};
 				window.n2.town = '<?php bloginfo( 'name' ); ?>';
+				window.n2.user = <?php echo wp_json_encode( wp_get_current_user() ); ?>;
 				window.n2.field_value = <?php echo wp_json_encode( (array) N2_Functions::get_all_meta( $post ) ); ?>;
 				window.n2.field_list = <?php echo wp_json_encode( (array) array_keys( N2_Functions::get_all_meta( $post ) ) ); ?>;
-				// N1の商品画像をN2互換
-				if ( ! n2.field_value.商品画像 ) {
-					n2.field_value.商品画像 = [];
-					Object.keys(n2.field_value).forEach((k) => {
-						if ( k.match(/^商品画像[０-９]/) && n2.field_value[k] ) {
-							n2.field_value.商品画像.push(n2.field_value[k]);
-						}
-					});
-				}
 				
 				// このdataをプラグイン側で上書きする
 				const data = {
@@ -100,7 +92,7 @@ class N2_Setpost {
 					出品禁止ポータル: n2.field_value.出品禁止ポータル || [],
 					食品確認: n2.field_value.食品確認 ? n2.field_value.食品確認[0] : false,// ※食品事業者はデフォルトでONにしとくのまだ
 					アレルギー有無確認: n2.field_value.アレルギー有無確認 ? n2.field_value.アレルギー有無確認[0] : false,
-					商品画像: n2.field_value.商品画像,
+					商品画像: n2.field_value.商品画像 || [],
 					全商品ディレクトリID: {
 						text: n2.field_value.全商品ディレクトリID,
 						list: [],
@@ -121,11 +113,39 @@ class N2_Setpost {
 				jQuery(function($){
 					
 					$(".edit-post-layout__metaboxes").ready(() => {
-						$('.edit-post-header-toolbar').append('<div id="n2-progress">')
+						// プログレスバー
+						$('.edit-post-header').before('<div class="progress rounded-0" style="height: 1.5em;width: 100%;"><div id="n2-progress"></div></div>');
+						const status = {
+							'auto-draft': {
+								label: '入力開始',
+								class: 'progress-bar bg-secondary col-1',
+							},
+							'draft': {
+								label: '入力中',
+								class: 'progress-bar bg-secondary col-5',
+
+							},
+							'pending': {
+								label: 'スチームシップ 確認中',
+								class: 'progress-bar bg-danger col-7',
+							},
+							'publish': {
+								label: 'ポータル登録準備中',
+								class: 'progress-bar bg-primary col-10',
+							},
+							'registered': {
+								label: 'ポータル登録済',
+								class: 'progress-bar bg-success col-12',
+							},
+						};
 						wp.data.subscribe(()=>{
-							window.n2.status = wp.data.select("core/editor").getEditedPostAttribute("status");
-							$('.edit-post-header-toolbar #n2-progress').text(window.n2.status)
-							$('.edit-post-header-toolbar #n2-progress').attr('class', window.n2.status)
+							n2.status = wp.data.select("core/editor").getEditedPostAttribute("status");
+							$('#n2-progress').text(status[n2.status].label).attr( 'class', status[n2.status].class );
+							// レビュー待ち　かつ　事業者ログイン
+							if ( n2.status == 'pending' && n2.user.roles.includes('jigyousya') ) {
+								$('input,select,textarea').attr('disabled', true).addClass('text-dark');
+								$('#item-image').addClass('pe-none');
+							}
 						});
 						n2.vue = new Vue({
 							el: '.edit-post-layout__metaboxes',

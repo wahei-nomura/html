@@ -9,7 +9,7 @@ $default = array();
 $args    = wp_parse_args( $args, $default );
 $name    = $args['name'];
 ?>
-<div class="wrap">
+<div class="wrap" id="item-image">
 	<input type="hidden" name="<?php echo $name; ?>" :value="JSON.stringify(商品画像)">
 	<draggable v-model="商品画像" class="">
 		<div v-for="(attr, index) in 商品画像" class="d-inline-block position-relative details attachment" style="width: auto;max-width: 25%;">
