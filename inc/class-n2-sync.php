@@ -151,8 +151,8 @@ class N2_Sync {
 
 		// NENGとNEONENGの差分を抽出するための準備
 		$neng_ids    = array_values( $neng_ids );
-		$neoneng_ids = get_posts( 'posts_per_page=-1&post_status=any&fields=ids' );
-		// NENGから削除されているものを削除（こうしとかないと初回登録時に片っ端から消してしまう）
+		$neoneng_ids = get_posts( 'posts_per_page=-1&post_status=any&meta_key=_neng_id&fields=ids' );
+		// NENGから削除されているものを削除（N2で追加したものに関してはスルー）
 		if ( $found_posts < count( $neoneng_ids ) ) {
 			$deleted_ids = array_diff( $neoneng_ids, $neng_ids );
 			foreach ( $deleted_ids as $del ) {
@@ -277,20 +277,37 @@ class N2_Sync {
 				'meta_input'        => $v['acf'],
 				'comment_status'    => 'open',
 			);
-			$postarr['meta_input']['_neng_id'] = $v['ID']; // 同期用 裏カスタムフィールドNENGのID追加
-			$allergen = array_column( $postarr['meta_input']['アレルゲン'], 'value' );
+			// 同期用 裏カスタムフィールドNENGのID追加
+			$postarr['meta_input']['_neng_id'] = $v['ID'];
+
+			// 「商品画像１〜８」を「商品画像」に変換
+			$images = array_filter(
+				$postarr['meta_input'],
+				fn( $v, $k ) => preg_match( '/商品画像[０-９]/u', $k ) && ! empty( $v ),
+				ARRAY_FILTER_USE_BOTH
+			);
+			$postarr['meta_input']['商品画像'] = array_values( $images );
+
+			// アレルギー関連
+			if ( is_array( $postarr['meta_input']['アレルゲン'] ) ) {
+				$allergen = array_column( $postarr['meta_input']['アレルゲン'], 'value' );
+				if ( $allergen ) {
+					// 食品確認
+					$postarr['meta_input']['食品確認'] = in_array( '食品ではない', $allergen, true )
+						? array()
+						: array( '食品である' );
+					// アレルギー有無確認
+					$postarr['meta_input']['アレルギー有無確認'] = in_array( 'アレルゲンなし食品', $allergen, true )
+						? array()
+						: array( 'アレルギー品目あり' );
+				}
+			}
+
 			// キャッチコピー１と楽天カテゴリーの変換
-			$postarr['meta_input']['キャッチコピー'] = $postarr['meta_input']['キャッチコピー１'];
+			$postarr['meta_input']['キャッチコピー']    = $postarr['meta_input']['キャッチコピー１'];
 			$postarr['meta_input']['楽天SPAカテゴリー'] = $postarr['meta_input']['楽天カテゴリー'];
 			unset( $postarr['meta_input']['キャッチコピー１'], $postarr['meta_input']['楽天カテゴリー'] );
-			// 食品確認
-			$postarr['meta_input']['食品確認'] = in_array( '食品ではない', $allergen, true )
-				? array()
-				: array( '食品である' );
-			// アレルギー有無確認
-			$postarr['meta_input']['アレルギー有無確認'] = in_array( 'アレルゲンなし食品', $allergen, true )
-				? array()
-				: array( 'アレルギー品目あり' );
+
 			// 事業者確認を強制執行
 			if ( strtotime( '-1 week' ) > strtotime( $v['post_modified'] ) ) {
 				$postarr['meta_input']['事業者確認'] = array( '確認済', '2022-10-30 00:00:00', 'ssofice' );
