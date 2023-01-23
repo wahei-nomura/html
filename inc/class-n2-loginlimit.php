@@ -94,7 +94,7 @@ class N2_Loginlimit {
 		$configs['aiowps_login_page_slug']          = 'MSN-06S';
 		// ホワイトIPリスト
 		$configs['aiowps_lockdown_enable_whitelisting']  = 1;
-		$configs['aiowps_lockdown_allowed_ip_addresses'] = implode( '\n', N2_IPS );
+		$configs['aiowps_lockdown_allowed_ip_addresses'] = implode( "\n", N2_IPS );
 		update_option( 'aio_wp_security_configs', $configs );
 	}
 }
