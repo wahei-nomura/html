@@ -29,9 +29,12 @@ $incs = array(
 	'class-n2-dashboard',
 	'class-n2-enqueuescript',
 	'class-n2-sync',
-	'class-n2-item-export',
+	'class-n2-copypost',
 	'class-n2-front',
 	'class-n2-img-download',
+	'class-n2-all-town',
+	'class-n2-item-export',
+	// 'class-n2-front-comment', // 2022-11-29 コメントアウト taiki
 );
 foreach ( $incs as $name ) {
 	require_once get_theme_file_path() . "/inc/{$name}.php";

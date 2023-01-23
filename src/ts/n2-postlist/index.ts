@@ -1,9 +1,13 @@
 import ajax from "./ajax";
 import search from "./search";
-// import ajax_dl from "./ajax-dl";
+import copyPost from "./copypost";
+import ajax_dl from "./ajax-dl";
+
 
 export default () => {
 	ajax();
 	search();
-	// ajax_dl();
+	copyPost();
+	ajax_dl();
+
 };

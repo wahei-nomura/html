@@ -9,7 +9,7 @@ export default () => {
 	================================================================== */
 	jQuery(function ($) {
 		// 計算パターンを受け取ってから処理
-		const updateItemConfirm = (postId: number, confirmFlag: boolean): void => {
+		const updateItemConfirm = (postId: number, confirmValue: string): void => {
 			$.ajax({
 				url: ajaxUrl(window),
 				type: "POST",
@@ -17,7 +17,7 @@ export default () => {
 				data: {
 					action: "N2_Front_item_confirm",
 					post_id: postId,
-					confirm_flag: confirmFlag,
+					confirm_value: confirmValue,
 				},
 			}).done((res) => {
 				console.log('更新OK')
@@ -25,10 +25,13 @@ export default () => {
 				console.log(error)
 			});
 		};
-		$('.check-toggle').on('change', e => {
-			const confirmFlag = $(e.target).prop('checked')
-			updateItemConfirm(Number($(e.target).val()), confirmFlag);
-		});
+
+		$('.n2-jigyousya-radiobox input[type="radio"]').on('change', e=>{
+			const value = $(e.target).val()
+			const postId = Number($(e.target).attr('id').match(/\d+/)[0])
+
+			updateItemConfirm(postId, String(value));
+		})
 
 		// 返礼品コード絞り込み用
 
@@ -41,10 +44,15 @@ export default () => {
 					author_id: authorId,
 				},
 			}).done((res) => {
-				for(let key in res){
-					if(res[key] !== ''){
-						$('.search-code-list').append($(`<option value="${key}">${res[key]}</option>`))
-					}
+				if(Object.keys(res).length){
+					$('#search-code-list').removeClass('d-none');
+					Object.keys(res).forEach(key=>{
+						if(res[key] !== ''){
+							$('.search-code-list').append($(`<option value="${res[key]}">${key}</option>`))
+						}
+					})
+				} else {
+					$('.jigyousa-search-wrap').append($('<p class="jigyousya-search-alert text-danger">この事業者の返礼品はありません</p>'))
 				}
 			}).fail(error => {
 				console.log(error)
@@ -52,53 +60,26 @@ export default () => {
 		}
 
 		if($('#jigyousya-value').val() !== ''){
-			searchItemCode(Number($('#jigyousya-value').val()))
+			searchItemCode(+$('#jigyousya-value').val())
 		}
 
 		$('#jigyousya-list-tag').on('change', e => {
+			$('.jigyousya-search-alert').remove()
 			setTimeout(()=>{
 				if($('#jigyousya-value').val() !== ''){	
 					$('.search-code-list option').remove()
-					searchItemCode(Number($('#jigyousya-value').val()))
+					searchItemCode(+$('#jigyousya-value').val())
 				}
 			},300)
 		})
 	})
 };
 
-export const getPortalScraping = (productID:string, town:string) => {
+export const portalScrapingAjax = ( method:string, data:object) => {
     return $.ajax({
-        url: ajaxUrl(window),
-        type: "GET",
+        url: ajaxUrl(window) + "?action=N2_Portal_Scraper",
+        type: method == "GET" ? "GET" : "POST",
         dataType: "json",
-        data: {
-            action: "N2_Portal_Scraper",
-            id: productID,
-            town: town,
-        },
+        data: { ...data},
     })
 };
-export const saveScraping = ( postID:number, key:string, scraping:object ) => {
-	return $.ajax({
-        url: ajaxUrl(window) + '?action=N2_Portal_Scraper_save',
-        type: "POST",
-        dataType: "json",
-        data: {
-            postID: postID,
-			key: key,
-            value: scraping,
-        },
-    })
-}
-export const getImgsScraping = ( productID:string, town:string ) => {
-	return $.ajax({
-        url: ajaxUrl(window),
-        type: "GET",
-        dataType: "json",
-        data: {
-			action: 'N2_Portal_Scraper_imgs',
-            id: productID,
-			town: town,
-        },
-    })
-}

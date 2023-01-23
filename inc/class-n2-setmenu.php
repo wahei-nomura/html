@@ -34,9 +34,9 @@ class N2_Setmenu {
 	public function change_menulabel() {
 		global $menu;
 		global $submenu;
-		$name                       = '返礼品';
-		$menu[5][0]                 = $name;
-		$submenu['edit.php'][5][0]  = $name . '一覧';
+		$name                      = '返礼品';
+		$menu[5][0]                = $name;
+		$submenu['edit.php'][5][0] = $name . '一覧';
 	}
 
 	/**

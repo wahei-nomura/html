@@ -1,6 +1,6 @@
-const path = require("path");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
+const path                 = require( "path" );
+const MiniCssExtractPlugin = require( "mini-css-extract-plugin" );
+const CssMinimizerPlugin   = require( "css-minimizer-webpack-plugin" );
 
 const admin = {
 	mode: "development",
@@ -36,9 +36,11 @@ const admin = {
 		extensions: [".ts", ".js"],
 	},
 	plugins: [
-		new MiniCssExtractPlugin({
+		new MiniCssExtractPlugin(
+			{
 			filename: "admin.css",
-		}),
+			}
+		),
 		new CssMinimizerPlugin(),
 	],
 };
@@ -77,9 +79,11 @@ const front = {
 		extensions: [".ts", ".js"],
 	},
 	plugins: [
-		new MiniCssExtractPlugin({
+		new MiniCssExtractPlugin(
+			{
 			filename: "front.css",
-		}),
+			}
+		),
 		new CssMinimizerPlugin(),
 	],
 };
