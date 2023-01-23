@@ -103,7 +103,7 @@ class N2_Rakuten_Transfer {
 					}
 					ftp_close( $conn_id );
 				} else {
-					echo 'パスワードが違います';
+					echo 'ユーザー名またはパスワードが違います';
 					}
 				exec( "rm -Rf {$tmp}" );
 			} else {
