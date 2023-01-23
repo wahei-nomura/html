@@ -119,10 +119,14 @@ class N2_Setpost {
 					draggable: vuedraggable,
 				}
 				jQuery(function($){
-					wp.data.subscribe(()=>{
-						window.n2.status = wp.data.select("core/editor").getEditedPostAttribute("status");
-					});
+					
 					$(".edit-post-layout__metaboxes").ready(() => {
+						$('.edit-post-header-toolbar').append('<div id="n2-progress">')
+						wp.data.subscribe(()=>{
+							window.n2.status = wp.data.select("core/editor").getEditedPostAttribute("status");
+							$('.edit-post-header-toolbar #n2-progress').text(window.n2.status)
+							$('.edit-post-header-toolbar #n2-progress').attr('class', window.n2.status)
+						});
 						n2.vue = new Vue({
 							el: '.edit-post-layout__metaboxes',
 							data,
