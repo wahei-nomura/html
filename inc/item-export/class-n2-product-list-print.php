@@ -139,7 +139,6 @@ class N2_Product_List_Print {
 										$th_attr = isset( $val['attr'] )
 											? $this->attr_array2str( $val['attr']['th'] )
 											: '';
-											// var_dump( $th_attr );
 										$td_attr = isset( $val['attr']['td'] )
 											? $this->attr_array2str( $val['attr']['td'] )
 											: '';

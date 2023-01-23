@@ -475,7 +475,6 @@ class N2_Rakuten_CSV {
 			'加工地',
 		);
 		$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
-		var_dump( get_post_meta($post_id,'',false) );
 		// アレルギー表示
 		$allergy_display_str = $this->allergy_display( $post_id );
 
