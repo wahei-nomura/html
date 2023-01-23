@@ -91,7 +91,9 @@ class N2_Product_List_Print {
 								</tr>
 								<?php foreach ( $product_table_tr_list as $th => $val ) : ?>
 									<?php
-										$td = get_post_meta( $p->ID, $val['meta_key'], true );
+										$td = isset( $val['meta_key'] )
+											? get_post_meta( $p->ID, $val['meta_key'], true )
+											: get_post_meta( $p->ID, $th, true );
 										// thで分岐
 										switch ( $th ) {
 											case '事業者名':
@@ -125,7 +127,7 @@ class N2_Product_List_Print {
 												$td = N2_Rakuten_CSV::allergy_display( $p->ID );
 												if( ! $td ) {
 													$td = 'アレルギー表示しない';
-												} elseif( 'アレルギー品目なし' === $td ) {
+												} elseif ( 'アレルギー品目なし' === $td ) {
 													$td = 'アレルギー品目なし食品';
 												}
 												break;
