@@ -68,6 +68,12 @@ rakuten :
         - 項目選択肢
         - 項目選択肢選択必須"
     img_dir: https://image.rakuten.co.jp/n2-towncode/cabinet/item
+    upload_server:
+        domain: upload.rakuten.ne.jp
+        port: 21
+    ftp_server:
+        domain: ftp.rakuten.ne.jp
+        port: 16910
 choice :
     tsv_header :
         title : チョイス
@@ -92,9 +98,4 @@ choice :
         user : guest
         pass : guest
         url : https://www.furusato-cms.jp/files/sample_stg_product_details.tsv
-    upload_server:
-        domain: upload.rakuten.ne.jp
-        port: 21
-    ftp_server:
-        domain: ftp.rakuten.ne.jp
-        port: 16910
+
