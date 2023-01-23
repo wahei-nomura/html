@@ -121,7 +121,10 @@ class N2_Product_List_Print {
 												$td .= '&nbsp';
 												break;
 											case '地場産品類型':
-												$td .= '<br>類型該当理由：' . get_post_meta( $p->ID, '類型該当理由', true );
+												if ( $td ) {
+													$td .= '<br>';
+												}
+												$td .= '類型該当理由：' . get_post_meta( $p->ID, '類型該当理由', true );
 												break;
 											case 'アレルギー':
 												$td = N2_Rakuten_CSV::allergy_display( $p->ID );
