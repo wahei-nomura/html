@@ -139,7 +139,7 @@ class N2_Product_List_Print {
 													? ( ( mb_substr( $td, -1 ) * 20 ) + 40 ) . 'サイズ'
 													: $td;
 										}
-										$th_attr = isset( $val['attr'] )
+										$th_attr = isset( $val['attr']['th'] )
 											? $this->attr_array2str( $val['attr']['th'] )
 											: '';
 										$td_attr = isset( $val['attr']['td'] )
@@ -166,5 +166,6 @@ class N2_Product_List_Print {
 			</body>
 		</html>
 	<?php
+	die();
 	}
 }
