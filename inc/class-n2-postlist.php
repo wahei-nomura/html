@@ -340,6 +340,11 @@ class N2_Postlist {
 	 */
 	public function posts_request( $query ) {
 
+		// 事業者管理画面
+		if ( is_admin() && 'jigyousya' === wp_get_current_user()->roles[0] ) {
+			return $query;
+		}
+
 		if ( N2_Functions::admin_param_judge( $this->page ) ) {
 
 			/**
