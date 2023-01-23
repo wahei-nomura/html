@@ -7,7 +7,7 @@ export default () => {
 	jQuery(function ($) {
 		$(".sisbtn").on("click", (e) => {
 			const btnName = $(e.target).attr("id");
-			openByPost(ajaxUrl(window), btnName, getIds());
+			openByPostAnotherPage(ajaxUrl(window), btnName, getIds());
 
 			console.log(getIds());
 		});	
@@ -26,7 +26,7 @@ export default () => {
 			return checked.length ? checked.join() : "";
 		};
 
-		// POST送信してURLを開く
+		// POST送信してURLを別タブで開く
 		const openByPostAnotherPage = (
 			url: string,
 			btnName: string,
@@ -49,6 +49,7 @@ export default () => {
 			body.removeChild(form);
 			return win;
 		};
+		// POST送信してURLを開く
 		const openByPost = (
 			url: string,
 			btnName: string,

@@ -417,6 +417,37 @@ class N2_Rakuten_CSV {
 		// html出力
 		$pc_description_html();
 	}
+	/**
+	 * アレルギ表示
+	 *
+	 * @param string $post_id
+	 * @return void
+	 */
+	public static function allergy_display( $post_id ) {
+		$post_meta_list = get_post_meta( $post_id, '', true );
+		$post_meta_list["アレルゲン"] = unserialize( $post_meta_list["アレルゲン"][0] );
+		$post_meta_list["アレルゲン注釈"] = $post_meta_list["アレルゲン注釈"][0];
+		$allergens      = array();
+		$has_allergy    = 1;
+		foreach ( $post_meta_list["アレルゲン"] as $v ) {
+			if ( is_numeric( $v['value'] ) ) {
+				$allergens = array( ...$allergens, $v['label'] );
+			} elseif ( 'アレルゲンなし食品' === $v['value'] ) {
+				$has_allergy = 0;
+			}
+		}
+		$allergens                 = implode( '・', $allergens );
+		$post_meta_list['アレルゲン注釈'] = $post_meta_list['アレルゲン注釈'] ? '<br>※' . $post_meta_list['アレルゲン注釈'] : '';
+		if ( '' !== $allergens || '' !== $post_meta_list['アレルゲン注釈'] ) {
+			$allergens = $allergens ?: 'なし';
+			$result    = "含んでいる品目：{$allergens}{$post_meta_list['アレルゲン注釈']}";
+		} elseif ( $has_allergy === 0 ) {
+			$result = 'アレルギー品目なし';
+		} else {
+			$result = '';
+		}
+		return $result;
+	}
 
 	/**
 	 * 商品説明テーブル
@@ -444,27 +475,8 @@ class N2_Rakuten_CSV {
 			'加工地',
 		);
 		$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
-
 		// アレルギー表示
-		$allergy_display     = function() use ( $post_meta_list, $yml_arr ) {
-			$result      = '';
-			$has_allergy = $post_meta_list['アレルギー品目あり'] ?: count( (array) $post_meta_list['アレルゲン'] );
-			if ( $post_meta_list['アレルゲン'] || $post_meta_list['アレルゲン注釈'] ) {
-				$result    = '含んでいる品目：';
-				$allergens = array();
-				foreach ( $post_meta_list['アレルゲン']  as $v ) {
-					$allergens = array( ...$allergens, $v['label'] );
-				}
-				$result .= implode( '・', $allergens ) ?: 'なし';
-				if ( $post_meta_list['アレルゲン注釈'] ) {
-					$result .= '<br>※' . $post_meta_list['アレルゲン注釈'];
-				}
-			} elseif ( $has_allergy ) {
-				$result = 'アレルギー品目なし';
-			}
-			return $result;
-		};
-		$allergy_display_str = $allergy_display();
+		$allergy_display_str = $this->allergy_display( $post_id );
 
 		$formatter       = fn( $post_key ) => str_replace( '＜br /＞', '<br />', N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
 		$formatter_nl2br = fn( $post_key ) => nl2br( $formatter( $post_key ) );
