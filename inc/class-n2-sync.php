@@ -39,6 +39,7 @@ class N2_Sync {
 		add_action( 'wp_ajax_nopriv_n2_sync_posts', array( $this, 'sync_posts' ) );
 		add_action( 'wp_ajax_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
 		add_action( 'wp_ajax_nopriv_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
+		add_action( 'wp_ajax_n2_test', array( $this, 'test' ) );
 
 		// cron登録処理
 		add_filter( 'cron_schedules', array( $this, 'intervals' ) );
@@ -48,6 +49,13 @@ class N2_Sync {
 		if ( ! wp_next_scheduled( 'wp_ajax_n2_multi_sync_posts' ) ) {
 			wp_schedule_event( time() + 100, '30min', 'wp_ajax_n2_multi_sync_posts' );
 		}
+	}
+
+	/**
+	 * テスト
+	 */
+	public function test() {
+		exit;
 	}
 
 	/**
@@ -276,6 +284,13 @@ class N2_Sync {
 				'post_author'       => $this->get_userid_by_last_name( $v['post_author_last_name'] ),
 				'meta_input'        => $v['acf'],
 				'comment_status'    => 'open',
+			);
+			// brを除去
+			array_walk_recursive(
+				$postarr['meta_input'],
+				function ( &$val, $key ) {
+					$val = preg_replace( '/<br[ \/]*>/', '', $val );
+				}
 			);
 			// 同期用 裏カスタムフィールドNENGのID追加
 			$postarr['meta_input']['_neng_id'] = $v['ID'];
