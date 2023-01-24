@@ -35,13 +35,12 @@ class N2_Ledghome {
 		$items_arr   = array();
 		$header_data = yaml_parse_file( get_theme_file_path( '/config/n2-file-header.yml' ) );
 		$error_items = '';
-		$opt = get_option( 'N2_Setupmenu' );
-		$opt = apply_filters( 'N2_Setup', $opt ); // 変更頻度が低い自治体毎の設定はプラグインで設定
 
 		// あとでヘッダの上の連結するのに必要
 		$csv_title = $header_data['ledghome']['csv_header']['title'];
-
 		$header = $header_data['ledghome']['csv_header']['values'];
+
+		$setting = $header_data['ledghome']['setting'];
 
 		// プラグイン側でヘッダーを編集
 		$header = apply_filters( 'n2_item_export_ledghome_header', $header );
@@ -64,7 +63,7 @@ class N2_Ledghome {
 					$items_arr[ $key_id ][ $head ] = ! empty( get_post_meta( $id, $head, true ) ) ? get_post_meta( $id, $head, true ) : '';
 				}
 				$item_num = trim( strtoupper( get_post_meta( $id, '返礼品コード', true ) ) ) . $teikinum;
-				$deliva_cost = get_post_meta( $id, '送料', true );
+				$deliva_price = get_post_meta( $id, '送料', true );
 
 				$error_items .= get_post_meta( $id, "寄附金額", true ) == 0 || get_post_meta( $id, "寄附金額", true ) == '' ? "【{$item_code}】" . '<br>' : '';
 
@@ -85,8 +84,8 @@ class N2_Ledghome {
 					'ステータス'      => '受付中',
 					'状態'        => '表示',
 					'寄附設定金額'    => $i < 2 ? get_post_meta( $id, '寄附金額', true ) : 0,
-					'価格（税込み）'     => ($opt['ledghome']['teikiprice'] == true) ? (($i < 2) ? $price * $teiki : 0) : $price, 
-					'送料'        => apply_filters( 'deliva_cost', $deliva_cost ),
+					'価格（税込み）'     => ($setting['teiki_price'] == true) ? (($i < 2) ? $price * $teiki : 0) : $price, 
+					'送料'        => apply_filters( 'deliva_price', $deliva_price ),
 					// フックは特定自治体の判別
 					'送料反映'     => ( ( ( ( apply_filters( 'deliva_price_reflect', '' ) 
 											? "反映しない"
@@ -94,7 +93,7 @@ class N2_Ledghome {
 												? "反映する"
 												: ( get_post_meta( $id, "web出荷・レターパック利用", true ) == "利用しない" ) )
 													? "反映する"
-													: ( empty( $opt['ledghome']['souryouhanei'] ) ) ) )
+													: ( empty( $setting['deliva_price_reflect'] ) ) ) )
 														? "反映しない" 
 														: "反映する",
 
@@ -107,7 +106,7 @@ class N2_Ledghome {
 					'地場産品類型'     => get_post_meta( $id, "地場産品類型", true),
 					'類型該当理由'     => get_post_meta( $id, "類型該当理由", true ),
 					// NENGだとその他経費がCSV上無いが、処理はされているのでコメントアウトで様子見（必要かわからない）
-					// 'その他経費'     => apply_filters( 'other_expence', $deliva_cost ),
+					// 'その他経費'     => apply_filters( 'other_expence', $deliva_price ),
 				);
 
 				// 内容を追加、または上書きするためのフック

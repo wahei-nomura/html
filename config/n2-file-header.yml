@@ -39,6 +39,10 @@ ledghome:
         - 類型該当理由
         # - その他経費 # NENGだと処理場存在するがCSVに出現しないのでコメントアウトで様子見
     normal : false
+    setting :
+      deliva_price_reflect : false
+      teiki_price : true
+
 rakuten :
     item_csv :
         values:
