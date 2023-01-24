@@ -15,7 +15,7 @@ if ( class_exists( 'N2_Ledghome' ) ) {
 }
 
 /**
- * Legehome
+ * クラウド版Legehome
  */
 class N2_Ledghome {
 	/**
@@ -36,6 +36,7 @@ class N2_Ledghome {
 		$header_data = yaml_parse_file( get_theme_file_path( '/config/n2-file-header.yml' ) );
 		$error_items = '';
 		$opt = get_option( 'N2_Setupmenu' );
+		$opt = apply_filters( 'N2_Setup', $opt ); // 変更頻度が低い自治体毎の設定はプラグインで設定
 
 		// あとでヘッダの上の連結するのに必要
 		$csv_title = $header_data['ledghome']['csv_header']['title'];
@@ -84,7 +85,6 @@ class N2_Ledghome {
 					'ステータス'      => '受付中',
 					'状態'        => '表示',
 					'寄附設定金額'    => $i < 2 ? get_post_meta( $id, '寄附金額', true ) : 0,
-					//各種セットアップを参照している。現在保留中
 					'価格（税込み）'     => ($opt['ledghome']['teikiprice'] == true) ? (($i < 2) ? $price * $teiki : 0) : $price, 
 					'送料'        => apply_filters( 'deliva_cost', $deliva_cost ),
 					// フックは特定自治体の判別
@@ -106,7 +106,7 @@ class N2_Ledghome {
 					'配送サイズコード'  => ( is_numeric( get_post_meta( $id, '発送サイズ', true ) ) ) ? get_post_meta( $id, '発送サイズ', true ) : '',
 					'地場産品類型'     => get_post_meta( $id, "地場産品類型", true),
 					'類型該当理由'     => get_post_meta( $id, "類型該当理由", true ),
-					// NENGだとその他経費がCSV上無いが処理はされているのでコメントアウトで様子見
+					// NENGだとその他経費がCSV上無いが、処理はされているのでコメントアウトで様子見（必要かわからない）
 					// 'その他経費'     => apply_filters( 'other_expence', $deliva_cost ),
 				);
 
