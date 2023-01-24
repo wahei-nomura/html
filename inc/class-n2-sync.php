@@ -295,6 +295,13 @@ class N2_Sync {
 			// 同期用 裏カスタムフィールドNENGのID追加
 			$postarr['meta_input']['_neng_id'] = $v['ID'];
 
+			// 「取り扱い方法1〜2」を「取り扱い方法」に変換
+			$handling                        = array_filter( $postarr['meta_input'], fn( $k ) => preg_match( '/取り扱い方法[0-9]/u', $k ), ARRAY_FILTER_USE_KEY );
+			$postarr['meta_input']['取り扱い方法'] = array_filter( array_values( $handling ), fn( $v ) => $v );
+			foreach ( array_keys( $handling ) as $k ) {
+				unset( $postarr['meta_input'][ $k ] );
+			}
+
 			// 「商品画像１〜８」を「商品画像」に変換
 			$images                        = array_filter( $postarr['meta_input'], fn( $k ) => preg_match( '/商品画像[０-９]/u', $k ), ARRAY_FILTER_USE_KEY );
 			$postarr['meta_input']['商品画像'] = array_filter( array_values( $images ), fn( $v ) => $v );
