@@ -310,14 +310,20 @@ class N2_Sync {
 			}
 			unset( $postarr['meta_input']['商品画像をzipファイルでまとめて送る'] );
 
+			// 商品タイプ
+			$postarr['meta_input']['商品タイプ'] = array();
+			if ( 'やきもの' === $postarr['meta_input']['やきもの'] ?? '' ) {
+				$postarr['meta_input']['商品タイプ'][] = 'やきもの';
+			}
+
 			// アレルギー関連
 			if ( is_array( $postarr['meta_input']['アレルゲン'] ) ) {
 				$allergen = array_column( $postarr['meta_input']['アレルゲン'], 'value' );
 				if ( $allergen ) {
-					// 食品確認
-					$postarr['meta_input']['食品確認'] = in_array( '食品ではない', $allergen, true )
-						? array()
-						: array( '食品である' );
+					// 商品タイプ
+					if ( in_array( '食品ではない', $allergen, true ) ) {
+						$postarr['meta_input']['商品タイプ'][] = '食品';
+					}
 					// アレルギー有無確認
 					$postarr['meta_input']['アレルギー有無確認'] = in_array( 'アレルゲンなし食品', $allergen, true )
 						? array()
