@@ -37,7 +37,9 @@ class N2_Img_Download {
 		add_filter( 'https_ssl_verify', '__return_false' );
 		// シングルダウンロード
 		if ( ! is_array( $url ) ) {
-			$name    = ! preg_match( '/^-/', $_GET['name'] ) ? mb_strtolower( $_GET['name'] ) : basename( $url );
+			$pathinfo = pathinfo( $url );
+			$name    = ! preg_match( '/^-/', $_GET['name'] ) ? mb_strtolower( $_GET['name'] ) : $pathinfo['filename'];
+			$name   .= ".{$pathinfo['extension']}";
 			$content = wp_remote_get( $url );
 			$headers = $content['headers']->getAll();
 			header( "Content-Type: {$headers['content-type']}" );
