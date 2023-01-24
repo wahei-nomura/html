@@ -90,7 +90,7 @@ class N2_Setpost {
 				const data = {
 					返礼品コード: n2.field_value.返礼品コード,
 					出品禁止ポータル: n2.field_value.出品禁止ポータル || [],
-					食品確認: n2.field_value.食品確認 ? n2.field_value.食品確認[0] : false,// ※食品事業者はデフォルトでONにしとくのまだ
+					商品タイプ: n2.field_value.商品タイプ ? n2.field_value.商品タイプ : [],// ※食品事業者はデフォルトで食品にしとくのまだ
 					アレルギー有無確認: n2.field_value.アレルギー有無確認 ? n2.field_value.アレルギー有無確認[0] : false,
 					商品画像: n2.field_value.商品画像 || [],
 					全商品ディレクトリID: {
@@ -349,7 +349,7 @@ class N2_Setpost {
 					$settings = $detail;
 					unset( $settings['description'], $settings['label'], $settings['validation'], $settings['class'], $settings['v-if'] );
 					$settings['name']  = sprintf( 'n2field[%s]', $settings['name'] ?? $field );
-					$settings['value'] = $post_meta[ $field ];
+					$settings['value'] = $post_meta[ $field ] ?? $settings['value'];
 					get_template_part( "template/forms/{$detail['type']}", null, $settings );
 					?>
 				</td>
