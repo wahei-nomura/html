@@ -321,7 +321,7 @@ class N2_Sync {
 				$allergen = array_column( $postarr['meta_input']['アレルゲン'], 'value' );
 				if ( $allergen ) {
 					// 商品タイプ
-					if ( in_array( '食品ではない', $allergen, true ) ) {
+					if ( ! in_array( '食品ではない', $allergen, true ) ) {
 						$postarr['meta_input']['商品タイプ'][] = '食品';
 					}
 					// アレルギー有無確認
