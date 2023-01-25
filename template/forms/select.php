@@ -17,7 +17,31 @@ foreach ( $args as $k => $v ) {
 }
 ?>
 <select <?php echo $attr; ?>>
-	<?php foreach ( $option as $k => $v ) : ?>
-	<option value="<?php echo $option_equal ? $v : $k; ?>"<?php selected( $value, $option_equal ? $v : $k ); ?>><?php echo $v; ?></option>
+	<?php
+	foreach ( $option as $val => $data ) :
+		// 属性の追加
+		$text = $data;
+		$attr = '';
+		if ( is_array( $data ) ) {
+			foreach ( $data as $k => $v ) {
+				switch ( $k ) {
+					case 'label':
+						$text = $v;
+						break;
+					default:
+						$attr .= " {$k}=\"{$v}\"";
+				}
+			}
+		}
+		// 値とラベルが同一の場合
+		$val = $option_equal ? $text : $val;
+	?>
+	<option
+		<?php echo $attr; ?>
+		value="<?php echo $val; ?>"
+		<?php selected( $value, $val ); ?>
+	>
+		<?php echo $text; ?>
+	</option>
 	<?php endforeach; ?>
 </select>

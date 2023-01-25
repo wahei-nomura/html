@@ -92,6 +92,8 @@ class N2_Setpost {
 					出品禁止ポータル: n2.field_value.出品禁止ポータル || [],
 					商品タイプ: n2.field_value.商品タイプ ? n2.field_value.商品タイプ : [],// ※食品事業者はデフォルトで食品にしとくのまだ
 					アレルギー有無確認: n2.field_value.アレルギー有無確認 ? n2.field_value.アレルギー有無確認[0] : false,
+					発送方法: '常温',
+					発送サイズ: n2.field_value.発送サイズ,
 					商品画像: n2.field_value.商品画像 || [],
 					全商品ディレクトリID: {
 						text: n2.field_value.全商品ディレクトリID,
@@ -364,6 +366,7 @@ class N2_Setpost {
 					unset( $settings['description'], $settings['label'], $settings['validation'], $settings['class'], $settings['v-if'] );
 					$settings['name']  = sprintf( 'n2field[%s]', $settings['name'] ?? $field );
 					$settings['value'] = $post_meta[ $field ] ?? $settings['value'];
+					// プラグインでテンプレートを追加したい場合は、get_template_part_{$slug}フックでいける
 					get_template_part( "template/forms/{$detail['type']}", null, $settings );
 					?>
 				</td>
