@@ -33,13 +33,18 @@
 
 価格:
     type : number
+    min: 0
+    # step: 300
     label : 価格（税込）
     validation : 必須
     required: required
     placeholder: 例）1000
     description: 上代を税込でご記載ください。定期便の場合、1回分の価格をご記載ください。
     style: 'width: 10em'
+    v-model: 価格
     "@focus": set_info($event.target)
+    '@input': calc_donation($event.target)
+
 
 キャッチコピー:
     type : text
@@ -192,19 +197,6 @@
         - 無し
         - 有り
 
-取り扱い方法:
-    type : checkbox
-    description : 配送時の取り扱い方法で該当するものを選択してください（1つ目）。
-    option-equal: true
-    option :
-        - ビン・ワレモノ
-        - 天地無用
-        - 下積み禁止
-        - なまもの
-        - 精密機器
-        - 水濡厳禁
-    "@mouseover": set_info($event.target)
-
 発送方法:
     type : radio
     value: 常温
@@ -242,12 +234,32 @@
     required: required
     "@mouseover": set_info($event.target)
     v-model: 発送サイズ
+    '@change': calc_donation($event.target)
 
 送料:
     type : number
     value : 0
     style: 'width: 6em'
     v-if: 発送サイズ==='その他'
+    v-model: 送料
+    '@focus': calc_donation($event.target)
+    '@input': calc_donation($event.target)
+
+取り扱い方法:
+    type : checkbox
+    description : 配送時の取り扱い方法で該当するものを選択してください（２つまで）。
+    option-equal: true
+    option :
+        - ビン・ワレモノ
+        - 天地無用
+        - 下積み禁止
+        - なまもの
+        - 精密機器
+        - 水濡厳禁
+    v-if: "!['その他', 'レターパックプラス', ''].includes(発送サイズ)"
+    v-model: 取り扱い方法
+    '@click': 'if (取り扱い方法.length == 2 ) $event.target.checked = false'
+    '@mouseover': set_info($event.target)
 
 配送伝票表示名:
     type : text

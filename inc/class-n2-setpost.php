@@ -85,15 +85,20 @@ class N2_Setpost {
 				window.n2.user = <?php echo wp_json_encode( wp_get_current_user() ); ?>;
 				window.n2.field_value = <?php echo wp_json_encode( (array) N2_Functions::get_all_meta( $post ) ); ?>;
 				window.n2.field_list = <?php echo wp_json_encode( (array) array_keys( N2_Functions::get_all_meta( $post ) ) ); ?>;
+				window.n2.delivery_pattern = <?php echo wp_json_encode( (array) $this->delivery_pattern() ); ?>;
 				
 				// このdataをプラグイン側で上書きする
 				const data = {
+					寄附金額: n2.field_value.寄附金額,
 					返礼品コード: n2.field_value.返礼品コード,
+					価格: n2.field_value.価格,
 					出品禁止ポータル: n2.field_value.出品禁止ポータル || [],
 					商品タイプ: n2.field_value.商品タイプ ? n2.field_value.商品タイプ : [],// ※食品事業者はデフォルトで食品にしとくのまだ
 					アレルギー有無確認: n2.field_value.アレルギー有無確認 ? n2.field_value.アレルギー有無確認[0] : false,
 					発送方法: '常温',
 					発送サイズ: n2.field_value.発送サイズ,
+					送料: n2.field_value.送料,
+					取り扱い方法: n2.field_value.取り扱い方法,
 					商品画像: n2.field_value.商品画像 || [],
 					全商品ディレクトリID: {
 						text: n2.field_value.全商品ディレクトリID,
@@ -153,21 +158,21 @@ class N2_Setpost {
 							data,
 							methods: {
 								// テキストカウンター
-								set_info(e) {
+								set_info(target) {
 									const info = [
-										$(e).parents('.n2-fields-value').data('description')
-											? `<div class="alert alert-primary mb-2">${$(e).parents('.n2-fields-value').data('description')}</div>`
+										$(target).parents('.n2-fields-value').data('description')
+											? `<div class="alert alert-primary mb-2">${$(target).parents('.n2-fields-value').data('description')}</div>`
 											: '',
-										$(e).attr('maxlength')
-											? `文字数：${$(e).val().length} / ${$(e).attr('maxlength')}`
+										$(target).attr('maxlength')
+											? `文字数：${$(target).val().length} / ${$(target).attr('maxlength')}`
 											: '',
 									].filter( v => v );
 									if ( ! info.length ) return
-									if ( ! $(e).parents('.n2-fields-value').find('.n2-field-description').length ) {
-										$(e).parents('.n2-fields-value').prepend(`<div class="n2-field-description small lh-base">${info.join('')}</div>`);
+									if ( ! $(target).parents('.n2-fields-value').find('.n2-field-description').length ) {
+										$(target).parents('.n2-fields-value').prepend(`<div class="n2-field-description small lh-base">${info.join('')}</div>`);
 									}
-									if ( $(e).attr('maxlength') ) {
-										$(e).parents('.n2-fields-value').find('.n2-field-description').html(info.join(''));
+									if ( $(target).attr('maxlength') ) {
+										$(target).parents('.n2-fields-value').find('.n2-field-description').html(info.join(''));
 									}
 								},
 								// メディアアップローダー関連
@@ -249,6 +254,16 @@ class N2_Setpost {
 										if ( target == 'タグID' && arr.length >= $('[type="rakuten-tagid"]').attr('maxlength')/8 ) return;
 										this[target].text = [...arr, id].filter( v => v ).join( delimiter );
 									}
+								},
+								// 寄附金額計算
+								calc_donation(target) {
+									// 寄附金額が確定している場合はロック
+									// if ( n2.field_value.寄附金額 ) return;
+									const 送料 = this.発送サイズ == 'その他'
+										? this.送料
+										: n2.delivery_pattern.normal[$(target).find(':selected').text().trim()];
+									this.寄附金額 = Math.ceil( (Number(送料) + Number(this.価格))/350 )*1000;
+									console.log( this.発送方法, this.価格, this.発送サイズ, this.送料, this.寄附金額 );
 								}
 							},
 							components,

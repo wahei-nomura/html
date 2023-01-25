@@ -28,6 +28,7 @@ LH表示名:
     step: 1000
     validation: 0以外
     placeholder: 例）10000
+    v-model: 寄附金額
 
 # 固定のため変更不可
 全商品ディレクトリID:
