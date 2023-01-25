@@ -37,9 +37,9 @@ class N2_Rakuten_Transfer {
 		}
 		$common_yaml = get_theme_file_path( '/config/n2-rakuten-common.yml' );
 		extract( $_POST );
-		extract( $common_yaml_array );
 		if( yaml_parse_file( $common_yaml ) ){
 			$common_yaml_array = yaml_parse_file( $common_yaml );
+			extract( $common_yaml_array );
 			if ( 'ftp_img' === $judge ) {
 				setlocale( LC_ALL, 'ja_JP.UTF-8' );
 				extract( $_FILES[ $judge ] ); // $name $type $tmp_name
