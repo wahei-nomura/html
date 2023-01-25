@@ -100,7 +100,9 @@ class N2_Jigyousyaparam {
 	 * クルー用セットアップ管理ページを追加
 	 */
 	public function add_setup_menu() {
-		add_menu_page( '返礼品の設定', '返礼品の設定', 'jigyousya', 'n2_jigyousya_menu', array( $this, 'add_jigyousya_setup_menu_page' ), 'dashicons-list-view' );
+		if ( ! current_user_can('administrator') ) {
+			add_menu_page( '返礼品の設定', '返礼品の設定', 'jigyousya', 'n2_jigyousya_menu', array( $this, 'add_jigyousya_setup_menu_page' ), 'dashicons-list-view' );
+		}
 	}
 
 	/**
