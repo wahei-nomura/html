@@ -55,6 +55,7 @@ class N2_Setmenu {
 		if ( 'ss-crew' === wp_get_current_user()->roles[0] ) {
 			$menus[] = 'themes.php';
 			$menus[] = 'upload.php';
+			$menus[] = 'edit-comments.php';
 			$menus[] = 'aiowpsec'; // All In One WP Security
 		}
 
