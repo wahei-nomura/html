@@ -13,7 +13,7 @@ foreach ( $args as $k => $v ) {
 	$attr .= " {$k}=\"{$v}\"";
 }
 ?>
-<textarea <?php echo $attr; ?> @click="get_spa_category"></textarea>
+<textarea <?php echo $attr; ?> @focus="get_spa_category"></textarea>
 <div v-if="楽天SPAカテゴリー.list.length">
 	<span
 		role="button"

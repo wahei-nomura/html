@@ -105,13 +105,12 @@ class N2_Setpost {
 					楽天SPAカテゴリー: {
 						text: n2.field_value.楽天SPAカテゴリー ? n2.field_value.楽天SPAカテゴリー.replace(/\r/g, ''): '',
 						list: [],
-					}
+					},
 				};
 				const components = {
 					draggable: vuedraggable,
 				}
 				jQuery(function($){
-					
 					$(".edit-post-layout__metaboxes").ready(() => {
 						// プログレスバー
 						$('.edit-post-header').before('<div class="progress rounded-0" style="height: 1.5em;width: 100%;"><div id="n2-progress"></div></div>');
@@ -151,6 +150,24 @@ class N2_Setpost {
 							el: '.edit-post-layout__metaboxes',
 							data,
 							methods: {
+								// テキストカウンター
+								set_info(e) {
+									const info = [
+										$(e).parents('.n2-fields-value').data('description')
+											? `<div class="alert alert-primary mb-2">${$(e).parents('.n2-fields-value').data('description')}</div>`
+											: '',
+										$(e).attr('maxlength')
+											? `文字数：${$(e).val().length} / ${$(e).attr('maxlength')}`
+											: '',
+									].filter( v => v );
+									if ( ! info.length ) return
+									if ( ! $(e).parents('.n2-fields-value').find('.n2-field-description').length ) {
+										$(e).parents('.n2-fields-value').prepend(`<div class="n2-field-description small lh-base">${info.join('')}</div>`);
+									}
+									if ( $(e).attr('maxlength') ) {
+										$(e).parents('.n2-fields-value').find('.n2-field-description').html(info.join(''));
+									}
+								},
 								// メディアアップローダー関連
 								add_media(){
 									// N1の画像データにはnoncesが無い
@@ -334,16 +351,13 @@ class N2_Setpost {
 		?>
 		<!-- n2field保存の為のnonce -->
 		<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
-		<table class="widefat fixed" style="border:none;">
+		<table class="n2-fields widefat fixed" style="border:none;">
 			<?php foreach ( $args['args'] as $field => $detail ) : ?>
-			<tr title="<?php echo $detail['description']; ?>" id="<?php echo $field; ?>" class="<?php echo $detail['class'] ?? ''; ?>" v-if="<?php echo $detail['v-if'] ?? ''; ?>">
-				<th>
+			<tr id="<?php echo $field; ?>" class="<?php echo $detail['class'] ?? ''; ?>" v-if="<?php echo $detail['v-if'] ?? ''; ?>">
+				<th class="n2-fields-title" >
 					<?php echo ! empty( $detail['label'] ) ? $detail['label'] : $field; ?>
-					<?php if ( ! empty( $detail['description'] ) ) : ?>
-					<span class="dashicons dashicons-info" style="color: #aaa;"></span>
-					<?php endif; ?>
 				</th>
-				<td>
+				<td class="n2-fields-value" data-description="<?php echo $detail['description']; ?>">
 				<?php
 					// templateに渡すために不純物を除去
 					$settings = $detail;

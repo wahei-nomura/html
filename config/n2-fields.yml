@@ -29,6 +29,7 @@
     option:
         - ふるさとチョイス
         - 楽天ふるさと納税
+    "@mouseover": set_info($event.target)
 
 価格:
     type : number
@@ -38,6 +39,7 @@
     placeholder: 例）1000
     description: 上代を税込でご記載ください。定期便の場合、1回分の価格をご記載ください。
     style: 'width: 10em'
+    "@focus": set_info($event.target)
 
 キャッチコピー:
     type : text
@@ -45,6 +47,8 @@
     maxlength : 30
     placeholder: 例）「バナナマンのせっかくグルメ！！」「王様のブランチ」で紹介！
     style: 'width: 100%'
+    "@focus": set_info($event.target)
+    "@input": set_info($event.target)
 
 説明文:
     type : textarea
@@ -58,11 +62,15 @@
 【口コミ】お客様から寄せられる声をわかる範囲で具体的（性別、年代、家族構成、購入理由、感想など）に書いてください。
 
 【その他】上記以外で伝えたいことがあれば教えてください。'
+    "@focus": set_info($event.target)
+    "@input": set_info($event.target)
 
 内容量・規格等:
     type : textarea
     maxlength : 1000
     description : 内容量、数量、サイズ、重さなど詳しくお書きください。※器の容量は「満量時」でご記入ください！　満量時ではない場合は「8分目」など必ずどの分量かがわかるようにお願いいたします。※色・柄・セットいの商品を登録する場合は、必ず別の商品として登録していただくようお願いいたします（注文時に色などを選択していただくような形式には対応しておりません）。
+    "@focus": set_info($event.target)
+    "@input": set_info($event.target)
 
 原料原産地:
     type : text
@@ -70,6 +78,8 @@
     description : 主要となる原料の主要原産地を記載ください。※例：「○○市産」「○○県産」「国産」など※加工品であれば、その加工品の主要原材料（一番多く使われている原料）が「○○市産」「○○県産」「国産」など
     placeholder: 例）〇〇県産
     style: 'width: 100%'
+    "@focus": set_info($event.target)
+    "@input": set_info($event.target)
 
 加工地:
     type : text
@@ -77,6 +87,8 @@
     description : 加工食品の加工地（製造地）を記載ください。※例：「○○市」など
     placeholder: 例）〇〇県〇〇市
     style: 'width: 100%'
+    "@focus": set_info($event.target)
+    "@input": set_info($event.target)
 
 商品タイプ:
     type : checkbox
@@ -131,26 +143,31 @@
     placeholder: 例）同じ工場で〇〇を含む製品を製造しております。
     style: 'width: 100%'
     v-if: 商品タイプ.includes('食品')
+    "@focus": set_info($event.target)
 
 賞味期限:
     type : textarea
-    description : 配送から５日間冷凍庫９０日間など
+    placeholder : 例）配送から５日間
     maxlength : 200
-    style: 'width: 100%;height: 4em;'
+    style: 'width: 100%;height: 5em;'
     v-if: 商品タイプ.includes('食品')
+    "@focus": set_info($event.target)
+    "@input": set_info($event.target)
 
 消費期限:
     type : textarea
-    description : 配送から５日間冷凍庫９０日間など
-    style: 'width: 100%;height: 4em;'
+    placeholder : 例）冷凍庫９０日間
+    style: 'width: 100%;height: 5em;'
+    maxlength : 200
     v-if: 商品タイプ.includes('食品')
+    "@focus": set_info($event.target)
+    "@input": set_info($event.target)
 
 申込期間:
     type : text
     placeholder : 例）通年4月〜6月など
     default : 通年
     style: 'width: 100%'
-
 
 配送期間:
     type : textarea
@@ -159,7 +176,9 @@
     validation : 必須
     required: required
     placeholder: 例）入金確認後1ヶ月以内にお届けいたします。
-    style: 'width: 100%;height: 4em;'
+    style: 'width: 100%;height: 5em;'
+    "@focus": set_info($event.target)
+    "@input": set_info($event.target)
 
 限定数量:
     type : text
@@ -184,6 +203,7 @@
         - なまもの
         - 精密機器
         - 水濡厳禁
+    "@mouseover": set_info($event.target)
 
 発送方法:
     type : radio
@@ -211,6 +231,7 @@
         その他: その他
     validation : 必須
     required: required
+    "@mouseover": set_info($event.target)
 
 送料:
     type : number
@@ -223,6 +244,8 @@
     maxlength : 20
     placeholder : 20文字以内
     style: 'width: 20em;'
+    "@focus": set_info($event.target)
+    "@input": set_info($event.target)
 
 定期便:
     type : select

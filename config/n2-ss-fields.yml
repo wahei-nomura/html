@@ -87,3 +87,4 @@ LH表示名:
     type: textarea
     description: この商品に関して社内共有すべきことがあればここに記入。
     placeholder: 例）よくある社内共有事項の例文
+    "@focus": set_info($event.target)

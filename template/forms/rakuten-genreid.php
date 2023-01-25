@@ -15,7 +15,7 @@ foreach ( $args as $k => $v ) {
 	$attr .= " {$k}=\"{$v}\"";
 }
 ?>
-<input type="number"<?php echo $attr; ?> @click="get_genreid(true)">
+<input type="number"<?php echo $attr; ?> @focus="get_genreid(true)">
 <ol class="breadcrumb m-0 mt-1">
 	<li v-if="全商品ディレクトリID.list.current" class="breadcrumb-item">
 		<span 

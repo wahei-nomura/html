@@ -13,8 +13,8 @@ foreach ( $args as $k => $v ) {
 	$attr .= " {$k}=\"{$v}\"";
 }
 ?>
-<small>{{タグID.text ? タグID.text.length: 0}} / 256 Byte</samll>
-<textarea <?php echo $attr; ?> @click="get_genreid();"></textarea>
+<small>{{タグID.text ? タグID.text.length: 0}} / 256 Byte</small>
+<textarea <?php echo $attr; ?> @focus="get_genreid();"></textarea>
 <div class="d-flex" v-if="全商品ディレクトリID.list.length != 0">
 	<div class="col-5 gap-1 p-1 me-2" style="max-height: 200px; overflow-y: scroll;">
 		<p
