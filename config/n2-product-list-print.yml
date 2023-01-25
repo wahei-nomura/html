@@ -1,0 +1,53 @@
+確認用テーブル:
+  th:
+    登　録:
+    確　認:
+    コード:
+返礼品テーブル:
+  tr:
+    事業者名:
+      meta_key: first_name
+    価格:
+    送料:
+    定期便回数:
+      meta_key: 定期便
+    キャッチコピー:
+      meta_key: キャッチコピー１
+      attr:
+        th:
+          style: "border-top-width: 3px;border-left-width: 3px;"
+        td:
+          style: "border-top-width: 3px;border-right-width: 3px;text-align: left;"
+    説明文:
+      attr:
+        th: 
+          style: "border-bottom-width: 3px;border-left-width: 3px;"
+        td:
+          style: "border-bottom-width: 3px;border-right-width: 3px;text-align: left;"
+    内容量:
+      meta_key: 内容量・規格等
+      attr:
+        td:
+          style: "text-align: left;"
+    原料原産地:
+      attr:
+        td:
+          style: "text-align: left;"
+    加工地:
+      attr:
+        td:
+          style: "text-align: left;"
+    地場産品類型:
+      attr:
+        td:
+          style: "text-align: left;"
+    アレルギー:
+    申込期間:
+    配送期間:
+    賞味期限:
+    消費期限:
+    限定数量:
+    発送方法:
+    発送サイズ:
+    包装対応:
+    のし対応:

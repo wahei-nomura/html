@@ -92,6 +92,9 @@ class N2_Loginlimit {
 		// ログインページ変更設定
 		$configs['aiowps_enable_rename_login_page'] = 1;
 		$configs['aiowps_login_page_slug']          = 'MSN-06S';
+		// ホワイトIPリスト
+		$configs['aiowps_lockdown_enable_whitelisting']  = 1;
+		$configs['aiowps_lockdown_allowed_ip_addresses'] = implode( "\n", N2_IPS );
 		update_option( 'aio_wp_security_configs', $configs );
 	}
 }

@@ -39,6 +39,7 @@ class N2_Sync {
 		add_action( 'wp_ajax_nopriv_n2_sync_posts', array( $this, 'sync_posts' ) );
 		add_action( 'wp_ajax_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
 		add_action( 'wp_ajax_nopriv_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
+		add_action( 'wp_ajax_n2_test', array( $this, 'test' ) );
 
 		// cron登録処理
 		add_filter( 'cron_schedules', array( $this, 'intervals' ) );
@@ -48,6 +49,13 @@ class N2_Sync {
 		if ( ! wp_next_scheduled( 'wp_ajax_n2_multi_sync_posts' ) ) {
 			wp_schedule_event( time() + 100, '30min', 'wp_ajax_n2_multi_sync_posts' );
 		}
+	}
+
+	/**
+	 * テスト
+	 */
+	public function test() {
+		exit;
 	}
 
 	/**
@@ -151,8 +159,8 @@ class N2_Sync {
 
 		// NENGとNEONENGの差分を抽出するための準備
 		$neng_ids    = array_values( $neng_ids );
-		$neoneng_ids = get_posts( 'posts_per_page=-1&post_status=any&fields=ids' );
-		// NENGから削除されているものを削除（こうしとかないと初回登録時に片っ端から消してしまう）
+		$neoneng_ids = get_posts( 'posts_per_page=-1&post_status=any&meta_key=_neng_id&fields=ids' );
+		// NENGから削除されているものを削除（N2で追加したものに関してはスルー）
 		if ( $found_posts < count( $neoneng_ids ) ) {
 			$deleted_ids = array_diff( $neoneng_ids, $neng_ids );
 			foreach ( $deleted_ids as $del ) {
@@ -277,7 +285,56 @@ class N2_Sync {
 				'meta_input'        => $v['acf'],
 				'comment_status'    => 'open',
 			);
-			$postarr['meta_input']['_neng_id'] = $v['ID']; // 同期用 裏カスタムフィールドNENGのID追加
+			// brを除去
+			array_walk_recursive(
+				$postarr['meta_input'],
+				function ( &$val, $key ) {
+					$val = preg_replace( '/<br[ \/]*>/', '', $val );
+				}
+			);
+			// 同期用 裏カスタムフィールドNENGのID追加
+			$postarr['meta_input']['_neng_id'] = $v['ID'];
+
+			// 「取り扱い方法1〜2」を「取り扱い方法」に変換
+			$handling                        = array_filter( $postarr['meta_input'], fn( $k ) => preg_match( '/取り扱い方法[0-9]/u', $k ), ARRAY_FILTER_USE_KEY );
+			$postarr['meta_input']['取り扱い方法'] = array_filter( array_values( $handling ), fn( $v ) => $v );
+			foreach ( array_keys( $handling ) as $k ) {
+				unset( $postarr['meta_input'][ $k ] );
+			}
+
+			// 「商品画像１〜８」を「商品画像」に変換
+			$images                        = array_filter( $postarr['meta_input'], fn( $k ) => preg_match( '/商品画像[０-９]/u', $k ), ARRAY_FILTER_USE_KEY );
+			$postarr['meta_input']['商品画像'] = array_filter( array_values( $images ), fn( $v ) => $v );
+			foreach ( array_keys( $images ) as $k ) {
+				unset( $postarr['meta_input'][ $k ] );
+			}
+			unset( $postarr['meta_input']['商品画像をzipファイルでまとめて送る'] );
+
+			// 商品タイプ
+			$postarr['meta_input']['商品タイプ'] = array();
+			if ( 'やきもの' === $postarr['meta_input']['やきもの'] ?? '' ) {
+				$postarr['meta_input']['商品タイプ'][] = 'やきもの';
+			}
+
+			// アレルギー関連
+			if ( is_array( $postarr['meta_input']['アレルゲン'] ) ) {
+				$allergen = array_column( $postarr['meta_input']['アレルゲン'], 'value' );
+				if ( $allergen ) {
+					// 商品タイプ
+					if ( ! in_array( '食品ではない', $allergen, true ) ) {
+						$postarr['meta_input']['商品タイプ'][] = '食品';
+					}
+					// アレルギー有無確認
+					$postarr['meta_input']['アレルギー有無確認'] = in_array( 'アレルゲンなし食品', $allergen, true )
+						? array()
+						: array( 'アレルギー品目あり' );
+				}
+			}
+
+			// キャッチコピー１と楽天カテゴリーの変換
+			$postarr['meta_input']['キャッチコピー']    = $postarr['meta_input']['キャッチコピー１'];
+			$postarr['meta_input']['楽天SPAカテゴリー'] = $postarr['meta_input']['楽天カテゴリー'];
+			unset( $postarr['meta_input']['キャッチコピー１'], $postarr['meta_input']['楽天カテゴリー'] );
 
 			// 事業者確認を強制執行
 			if ( strtotime( '-1 week' ) > strtotime( $v['post_modified'] ) ) {
