@@ -46,8 +46,8 @@ class N2_Setupmenu {
 	public function update_setupmenu() {
 		extract( $_POST );
 		$write_common_yaml = get_theme_file_path( '/config/n2-rakuten-common.yml' );
-		$N2_Setupmenu_Common = array_slice( ${$this->cls}[rakuten], 0, 4, true );
-		$N2_Setupmenu_Personal = array_slice( ${$this->cls}[rakuten], 4, count( ${$this->cls}[rakuten] ), true );
+		$N2_Setupmenu_Common = array_slice( ${$this->cls}['rakuten'], 0, 4, true );
+		$N2_Setupmenu_Personal = array_slice( ${$this->cls}['rakuten'], 4, count( ${$this->cls}['rakuten'] ), true );
 		$opt_slice['rakuten'] = $N2_Setupmenu_Personal; // optのデータから共通情報を抜き出したもの
 		if( yaml_emit_file( $write_common_yaml, $N2_Setupmenu_Common ) ){
 			echo 'common_yml登録成功';
