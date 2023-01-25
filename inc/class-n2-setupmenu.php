@@ -134,49 +134,56 @@ class N2_Setupmenu {
 		<form>
 			<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
 			<input type="hidden" name="judge" value="option">
+<<<<<<< HEAD
 			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][ftp_server]" value="<?php echo $common_yaml_array['ftp_server'] ?? 'ftp.rakuten.ne.jp'; ?>">
 			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][ftp_server_port]" value="<?php echo $common_yaml_array['ftp_server_port'] ?? '16910'; ?>">
 			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][upload_server]" value="<?php echo $common_yaml_array['upload_server'] ?? 'upload.rakuten.ne.jp'; ?>">
 			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][upload_server_port]" value="<?php echo $common_yaml_array['upload_server'] ?? '21'; ?>">
+=======
+			<input type="hidden" name="<?php echo $this->cls; ?>[ rakuten ][ftp_server]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_server'] ?? 'ftp.rakuten.ne.jp'; ?>">
+			<input type="hidden" name="<?php echo $this->cls; ?>[ rakuten ][ftp_server_port]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_server_port'] ?? '16910'; ?>">
+			<input type="hidden" name="<?php echo $this->cls; ?>[ rakuten ][upload_server]" value="<?php echo get_option( $this->cls )['rakuten']['upload_server'] ?? 'upload.rakuten.ne.jp'; ?>">
+			<input type="hidden" name="<?php echo $this->cls; ?>[ rakuten ][upload_server_port]" value="<?php echo ( get_option( $this->cls )['rakuten']['upload_server_port'] ?? '21' ); ?>">
+>>>>>>> 20821b6e8434713b7ca8d2118f50e2b638376ac6
 			<p class="input-text-wrap">
 				FTPユーザー：<br>
-				<input type="text" name="<?php echo $this->cls; ?>[rakuten][ftp_user]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_user'] ?? ''; ?>">
+				<input type="text" name="<?php echo $this->cls; ?>[ rakuten ][ftp_user]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_user'] ?? ''; ?>">
 			</p>
 			<p class="input-text-wrap">
 				FTPパスワード：<br>
-				<input type="text" name="<?php echo $this->cls; ?>[rakuten][ftp_pass]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_pass'] ?? ''; ?>">
+				<input type="text" name="<?php echo $this->cls; ?>[ rakuten ][ftp_pass]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_pass'] ?? ''; ?>">
 			</p>
 			<p class="input-text-wrap">
 				画質（右に行くほど高画質）：<br>
-				<input type="range" step="1" min="1" max="100" name="<?php echo $this->cls; ?>[rakuten][quality]" value="<?php echo get_option( $this->cls )['rakuten']['quality'] ?? ''; ?>">
+				<input type="range" step="1" min="1" max="100" name="<?php echo $this->cls; ?>[ rakuten ][quality]" value="<?php echo get_option( $this->cls )['rakuten']['quality'] ?? ''; ?>">
 			</p>
 			<p class="textarea-wrap">
 				item.csvヘッダー貼付（タブ区切り）：<br>
-				<textarea name="<?php echo $this->cls; ?>[rakuten][item_csv]" rows="1" style="overflow-x: hidden;"><?php echo get_option( $this->cls )['rakuten']['item_csv'] ?? ''; ?></textarea>
+				<textarea name="<?php echo $this->cls; ?>[ rakuten ][item_csv]" rows="1" style="overflow-x: hidden;"><?php echo get_option( $this->cls )['rakuten']['item_csv'] ?? ''; ?></textarea>
 			</p>
 			<p class="textarea-wrap">
 				select.csvヘッダー貼付（タブ区切り）：<br>
-				<textarea name="<?php echo $this->cls; ?>[rakuten][select_csv]" rows="1" style="overflow-x: hidden;"><?php echo get_option( $this->cls )['rakuten']['select_csv'] ?? ''; ?></textarea>
+				<textarea name="<?php echo $this->cls; ?>[ rakuten ][select_csv]" rows="1" style="overflow-x: hidden;"><?php echo get_option( $this->cls )['rakuten']['select_csv'] ?? ''; ?></textarea>
 			</p>
 			<p class="input-text-wrap">
 				商品画像ディレクトリ：<br>
-				<input type="text" name="<?php echo $this->cls; ?>[rakuten][img_dir]" value="<?php echo get_option( $this->cls )['rakuten']['img_dir'] ?? ''; ?>">
+				<input type="text" name="<?php echo $this->cls; ?>[ rakuten ][img_dir]" value="<?php echo get_option( $this->cls )['rakuten']['img_dir'] ?? ''; ?>">
 			</p>
 			<p class="input-text-wrap">
 				タグID：<br>
-				<input type="text" name="<?php echo $this->cls; ?>[rakuten][tag_id]" value="<?php echo get_option( $this->cls )['rakuten']['tag_id'] ?? ''; ?>">
+				<input type="text" name="<?php echo $this->cls; ?>[ rakuten ][tag_id]" value="<?php echo get_option( $this->cls )['rakuten']['tag_id'] ?? ''; ?>">
 			</p>
 			<p class="textarea-wrap">
 				<label>
 					説明文追加html：<br>
-					<textarea name="<?php echo $this->cls; ?>[rakuten][html]" rows="5" style="overflow-x: hidden;"><?php echo stripslashes_deep( get_option( $this->cls )['rakuten']['html'] ?? '' ); ?></textarea>
+					<textarea name="<?php echo $this->cls; ?>[ rakuten ][html]" rows="5" style="overflow-x: hidden;"><?php echo stripslashes_deep( get_option( $this->cls )['rakuten']['html'] ?? '' ); ?></textarea>
 				</label>
 			</p>
 			<?php for ( $i = 0;$i < 6;$i++ ) : ?>
 			<p class="textarea-wrap">
 				<label>
 					項目選択肢（改行区切）※選択肢は最大16文字：<br>
-					<textarea name="<?php echo $this->cls; ?>[rakuten][select][]" rows="5" style="overflow-x: hidden;"><?php echo get_option( $this->cls )['rakuten']['select'][ $i ] ?? ''; ?></textarea>
+					<textarea name="<?php echo $this->cls; ?>[ rakuten ][select][]" rows="5" style="overflow-x: hidden;"><?php echo get_option( $this->cls )['rakuten']['select'][ $i ] ?? ''; ?></textarea>
 				</label>
 			</p>
 			<?php endfor; ?>
