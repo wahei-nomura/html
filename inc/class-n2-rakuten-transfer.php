@@ -30,7 +30,11 @@ class N2_Rakuten_Transfer {
 	 * @return void
 	 */
 	public function transfer_rakuten() {
-		$opt = get_option( 'N2_Setupmenu' );
+		if(get_option( 'N2_Setupmenu' )){
+			$opt = get_option( 'N2_Setupmenu' );
+		} else {
+			echo '楽天セットアップが完了していません。';
+		}
 		$common_yaml = get_theme_file_path( '/config/n2-rakuten-common.yml' );
 		extract( $_POST );
 		extract( $common_yaml_array );
