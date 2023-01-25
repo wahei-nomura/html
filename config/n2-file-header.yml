@@ -41,7 +41,7 @@ ledghome:
     normal : false
     setting :
       deliva_price_reflect : false
-      teiki_price : true
+      teiki_price : false
 
 rakuten :
     item_csv :

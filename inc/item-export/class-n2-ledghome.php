@@ -93,9 +93,9 @@ class N2_Ledghome {
 												? "反映する"
 												: ( get_post_meta( $id, "web出荷・レターパック利用", true ) == "利用しない" ) )
 													? "反映する"
-													: ( empty( $setting['deliva_price_reflect'] ) ) ) )
-														? "反映しない" 
-														: "反映する",
+													: ( $setting['deliva_price_reflect'] ) ) )
+														? "反映する"
+														: "反映しない" ,
 
 					'発送方法'      => get_post_meta( $id, '発送方法', true ),
 					'取り扱い方法' => rtrim(implode(",", array_unique($handling_method)), ","),
