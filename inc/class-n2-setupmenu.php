@@ -44,47 +44,19 @@ class N2_Setupmenu {
 	 * @return void
 	 */
 	public function update_setupmenu() {
-		$url_parse      = explode( '/', get_option( 'home' ) );
-		$town_name      = end( $url_parse ); // urlから自治体を取得
 		$opt = get_option( $this->cls );
 		extract( $_POST );
-		$write_common_yaml = get_theme_file_path( '/config/n2-towninfo.yml' );
-		$write_plugins_yaml_url = WP_PLUGIN_DIR . '/n2-' . $town_name . '/config/n2-setup-menu.yml';
-		$N2_Setupmenu_Common = array_slice($N2_Setupmenu[rakuten], 0, 4, true);
-		$N2_Setupmenu_Personal_Original = array_slice($N2_Setupmenu[rakuten], 4, count($N2_Setupmenu[rakuten]), true);
-		$array_item_csv = explode("	",$N2_Setupmenu_Personal_Original['item_csv']);
-		$array_select_csv = explode("	",$N2_Setupmenu_Personal_Original['select_csv']);
-		$N2_Setupmenu_Personal['rakuten']['ftp']['user'] = $N2_Setupmenu_Personal_Original['ftp_user'];
-		$N2_Setupmenu_Personal['rakuten']['ftp']['pass'] = $N2_Setupmenu_Personal_Original['ftp_pass'];
-		$N2_Setupmenu_Personal['rakuten']['item_csv_header'] = $array_item_csv;
-		$N2_Setupmenu_Personal['rakuten']['select_csv_header'] = $array_select_csv;
-		$N2_Setupmenu_Personal['rakuten']['img_dir'] = $N2_Setupmenu_Personal_Original['img_dir'];
-		$N2_Setupmenu_Personal['rakuten']['tag_id'] = $N2_Setupmenu_Personal_Original['tag_id'];
-		$N2_Setupmenu_Personal['rakuten']['html'] = $N2_Setupmenu_Personal_Original['html'];
-		for($i = 0; $i < 5; $i++){
-			$array_select_original = str_replace(array("\r\n", "\r", "\n"), "\n", $N2_Setupmenu_Personal_Original['select'][$i]);
-			$array_select = explode("\n",$array_select_original);
-			$array_select_title = array_slice($array_select, 0, 1, true);
-			$array_select_title_nono = str_replace($i+1 . '.', "", $array_select_title[0]);
-			$array_select_selector = array_slice($array_select, 1, count($array_select), false);
-			$N2_Setupmenu_Personal['rakuten']['項目選択肢（改行区切）'][$i+1]['内容'] = $array_select_title_nono;
-			if(count($array_select) <= 1){
-				$array_select_selector = "";
-			}
-			$N2_Setupmenu_Personal['rakuten']['項目選択肢（改行区切）'][$i+1]['選択肢'] = $array_select_selector;
-		}
-		if(yaml_emit_file($write_common_yaml, $N2_Setupmenu_Common)){
-			echo 'cyml成功';
+		$write_common_yaml = get_theme_file_path( '/config/n2-rakuten-common.yml' );
+		$N2_Setupmenu_Common = array_slice( $N2_Setupmenu[rakuten], 0, 4, true );
+		$N2_Setupmenu_Personal = array_slice( $N2_Setupmenu[rakuten], 4, count( $N2_Setupmenu[rakuten] ), true );
+		$opt_slice['rakuten'] = $N2_Setupmenu_Personal; // optのデータから共通情報を抜き出したもの
+		if( yaml_emit_file( $write_common_yaml, $N2_Setupmenu_Common ) ){
+			echo 'common_yml登録成功';
 		}else{
-			echo 'cyml失敗';
-		}
-		if(yaml_emit_file($write_plugins_yaml_url, $N2_Setupmenu_Personal, $encoding = YAML_UTF8_ENCODING)){
-			echo 'pyml成功';
-		}else{
-			echo 'pyml失敗';
+			echo 'common_yml登録失敗';
 		}
 		$opt = array_merge( (array) $opt, ${$this->cls} );
-		echo update_option( $this->cls, $opt ) ? '登録完了' : '登録失敗';
+		echo update_option( $this->cls, $opt_slice ) ? '登録完了' : '登録失敗';
 		die();
 	}
 	/**
@@ -162,10 +134,10 @@ class N2_Setupmenu {
 		<form>
 			<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
 			<input type="hidden" name="judge" value="option">
-			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][ftp_server]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_server'] ?? 'ftp.rakuten.ne.jp'; ?>">
-			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][ftp_server_port]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_server_port'] ?? '16910'; ?>">
-			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][upload_server]" value="<?php echo get_option( $this->cls )['rakuten']['upload_server'] ?? 'upload.rakuten.ne.jp'; ?>">
-			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][upload_server_port]" value="<?php echo ( get_option( $this->cls )['rakuten']['upload_server_port'] ?? '21' ); ?>">
+			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][ftp_server]" value="<?php echo $common_yaml_array['ftp_server'] ?? 'ftp.rakuten.ne.jp'; ?>">
+			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][ftp_server_port]" value="<?php echo $common_yaml_array['ftp_server_port'] ?? '16910'; ?>">
+			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][upload_server]" value="<?php echo $common_yaml_array['upload_server'] ?? 'upload.rakuten.ne.jp'; ?>">
+			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][upload_server_port]" value="<?php echo $common_yaml_array['upload_server'] ?? '21'; ?>">
 			<p class="input-text-wrap">
 				FTPユーザー：<br>
 				<input type="text" name="<?php echo $this->cls; ?>[rakuten][ftp_user]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_user'] ?? ''; ?>">
