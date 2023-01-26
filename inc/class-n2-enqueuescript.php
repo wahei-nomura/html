@@ -33,8 +33,8 @@ class N2_Enqueuescript {
 	 */
 	public function enqueue_setpost_script( $hook_suffix ) {
 		wp_enqueue_media();
-		// wp_enqueue_script( 'n2-script', get_theme_file_uri( 'dist/admin.js' ), array( 'jquery' ), N2_CASH_BUSTER, true );
-		// wp_enqueue_script( 'jquery-touch-punch', false, array( 'jquery' ), N2_CASH_BUSTER, true );
+		wp_enqueue_script( 'n2-script', get_theme_file_uri( 'dist/admin.js' ), array( 'jquery' ), N2_CASH_BUSTER, true );
+		wp_enqueue_script( 'jquery-touch-punch', false, array( 'jquery' ), N2_CASH_BUSTER, true );
 		wp_enqueue_style( 'n2-style', get_theme_file_uri( 'dist/admin.css' ), array(), N2_CASH_BUSTER );
 
 		wp_localize_script( 'n2-script', 'tmp_path', $this->get_tmp_path() );

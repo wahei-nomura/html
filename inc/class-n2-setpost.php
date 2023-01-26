@@ -30,9 +30,9 @@ class N2_Setpost {
 	 */
 	public function __construct() {
 		$this->cls = get_class( $this );
-		// add_action( 'nocache_headers', array( $this, 'editpage_redirect' ) );
-		add_action( 'admin_head-post.php', array( $this, 'show_progress' ) );
-		add_action( 'admin_head-post-new.php', array( $this, 'show_progress' ) );
+		global $hook_suffix;
+		add_action( 'admin_head-post.php', array( $this, 'n2_field_custom' ) );
+		add_action( 'admin_head-post-new.php', array( $this, 'n2_field_custom' ) );
 		add_action( 'init', array( $this, 'remove_editor_support' ) );
 		add_action( 'admin_menu', array( $this, 'add_customfields' ) );
 		add_action( 'save_post', array( $this, 'save_customfields' ) );
@@ -47,32 +47,11 @@ class N2_Setpost {
 	}
 
 	/**
-	 * editpage_redirect
-	 * 事業者のSS確認待ちをリダイレクト
-	 *
-	 * @param Object $headers headers
-	 * @return Object $headers headers
-	 */
-	public function editpage_redirect( $headers ) {
-		// post.phpのaction=editページ
-		if ( preg_match( '/post\.php/', $_SERVER['REQUEST_URI'] ) && ! empty( $_GET['action'] ) && 'edit' === $_GET['action'] ) {
-			$post_id = ! empty( $_GET['post'] ) && '' !== $_GET['post'] ? $_GET['post'] : false;
-
-			// $post_idが存在、かつ他記事編集権限がない、かつ事業者下書きじゃない
-			if ( $post_id && ! current_user_can( 'ss_crew' ) && 'draft' !== get_post_status( $post_id ) ) {
-				$headers['Location'] = home_url( "/?p={$post_id}" );
-				return $headers;
-			}
-		}
-	}
-
-	/**
-	 * show_progress
-	 * 編集画面にてプログレストラッカー表示
+	 * カスタムフィールドの調整（仮）
 	 *
 	 * @return void
 	 */
-	public function show_progress() {
+	public function n2_field_custom() {
 		global $post;
 		?>
 			<link href="//cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
@@ -95,7 +74,7 @@ class N2_Setpost {
 					出品禁止ポータル: n2.field_value.出品禁止ポータル || [],
 					商品タイプ: n2.field_value.商品タイプ ? n2.field_value.商品タイプ : [],// ※食品事業者はデフォルトで食品にしとくのまだ
 					アレルギー有無確認: n2.field_value.アレルギー有無確認 ? n2.field_value.アレルギー有無確認[0] : false,
-					発送方法: '常温',
+					発送方法: n2.field_value.発送方法,
 					発送サイズ: n2.field_value.発送サイズ,
 					送料: n2.field_value.送料,
 					取り扱い方法: n2.field_value.取り扱い方法,
@@ -283,7 +262,6 @@ class N2_Setpost {
 				})
 			</script>
 		<?php
-		// get_template_part( 'template/progress' );
 	}
 
 	/**
