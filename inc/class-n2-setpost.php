@@ -352,7 +352,7 @@ class N2_Setpost {
 				<th class="n2-fields-title" >
 					<?php echo ! empty( $detail['label'] ) ? $detail['label'] : $field; ?>
 				</th>
-				<td class="n2-fields-value" data-description="<?php echo $detail['description']; ?>">
+				<td class="n2-fields-value" data-description="<?php echo $detail['description'] ?? ''; ?>">
 				<?php
 					// templateに渡すために不純物を除去
 					$settings = $detail;
