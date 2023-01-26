@@ -9,6 +9,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+require_once get_theme_file_path( 'inc/class-n2.php' );
+$GLOBALS['n2'] = new N2();
+
 /**
  * Require config.php
  */

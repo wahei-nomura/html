@@ -55,6 +55,8 @@ class N2_Sync {
 	 * テスト
 	 */
 	public function test() {
+		global $n2;
+		echo '<pre>';print_r($n2);echo '</pre>';
 		exit;
 	}
 
