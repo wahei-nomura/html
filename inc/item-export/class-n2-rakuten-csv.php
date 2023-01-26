@@ -574,9 +574,14 @@ class N2_Rakuten_CSV {
 				$select[ $select_header ] = $arr;
 			}
 		}
-		// 初期化
-		$i = 0;
+		if ( ! $select ) {
+			$home = get_option( 'home' );
+			die("<a href=\"{$home}/wp-admin/admin.php?page=n2_setup_menu\" target=\"_blank\">項目選択肢</a>が設定されていません！" );
+		}
 		foreach ( $yml_arr['ids'] as $post_id ) {
+			// 初期化
+			$i = 0;
+			$item_arr = array();
 			// get_post_metaのkey一覧
 			$post_keys = array(
 				'返礼品コード',
@@ -589,8 +594,8 @@ class N2_Rakuten_CSV {
 			foreach ( $select as $key => $value ) {
 				foreach ( $value as $v ) {
 					// headerの項目を取得
-					$items_arr[ $i ] = N2_Functions::get_post_meta_multiple( $post_id, $yml_arr['header'] );
-					$item_arr        = array(
+					$item_arr[ $i ] = N2_Functions::get_post_meta_multiple( $post_id, $yml_arr['header'] );
+					$option        = array(
 						'項目選択肢用コントロールカラム' => 'n',
 						'商品管理番号（商品URL）'   => $item_num,
 						'選択肢タイプ'          => 's',
@@ -598,17 +603,22 @@ class N2_Rakuten_CSV {
 						'項目選択肢'           => trim( $v ),
 						'項目選択肢選択必須'       => '1',
 					);
-					$items_arr[ $i ] = array( ...$items_arr[ $i ], ...$item_arr );
+					$item_arr[ $i ] = array( ...$item_arr[ $i ], ...$option );
 					++$i;
 				}
 			}
-			// 内容を追加、または上書きするためのフック
-			$items_arr[ $post_id ] = array(
-				...$items_arr[ $post_id ],
+			// 返礼品ごとに内容を追加、または上書きするためのフック
+			$items_arr = array(
+				...$items_arr,
 				...apply_filters( 'n2_item_export_select_csv_items', $item_arr, $post_id ),
 			);
 		}
-		N2_Functions::download_csv( 'select', $yml_arr['header'], $items_arr );
+		if( $items_arr ) {
+			N2_Functions::download_csv( 'select', $yml_arr['header'], $items_arr );
+		} else {
+			echo 'エラーが発生しましたlol';
+		}
+		die();
 	}
 
 	/**
