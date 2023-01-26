@@ -9,8 +9,8 @@ export default () => {
 			e.preventDefault();
 			var
 			$this = $(this),
-			fd = new FormData($this[0]),
-			txt = $this.find('[type="submit"]').val();
+			fd = new FormData($this[0] as HTMLFormElement),
+			txt = $this.find('[type="submit"]').val() as string;
 			$this.find('[type="submit"]').val(txt.replace("転送","転送中..."));
 			fd.append('action', "transfer_rakuten");
 			fd.append('judge', $this.find('[type="file"]').attr('name').replace("[]",""));
