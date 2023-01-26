@@ -62,7 +62,7 @@ class N2_Postlist {
 	 * @return string iconタグ
 	 */
 	private function judging_icons_order( $param_name ) {
-		if ( $param_name !== $_GET['orderby'] || empty( $_GET['order'] ) ) {
+		if ( (isset($_GET['orderby']) && $param_name !== $_GET['orderby'] )|| empty( $_GET['order'] ) ) {
 			return;
 		}
 
@@ -147,7 +147,7 @@ class N2_Postlist {
 			}
 		}
 
-		$image           = ! empty( $post_data['商品画像'] ) ? "<img class='n2-postlist-imgicon' src='{$post_data['商品画像'][0]}'>" : 'なし';
+		$image           = 'なし';
 		$goods_price     = ! empty( $post_data['価格'] ) && 0 !== $post_data['価格'] ? number_format( $post_data['価格'] ) : '-';
 		$donation_amount = ! empty( $post_data['寄附金額'] ) && 0 !== $post_data['寄附金額'] ? number_format( $post_data['寄附金額'] ) : '-';
 		$teiki           = ! empty( $post_data['定期便'] ) && 1 !== (int) $post_data['定期便'] ? $post_data['定期便'] : '-';

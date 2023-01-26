@@ -87,10 +87,10 @@ if ( have_posts() ) :
 		<?php // N2_Functions::get_template_part_with_args( 'template/product-page/product-info', '', $post_data ); ?>
 		<?php // var_dump( $post_data[ $scraping_meta_key ]['params'][0]['params'] ); ?>
 		<!-- ポータル比較 -->
-		<?php N2_Functions::get_template_part_with_args( 'template/product-page/product-comparison', '', $post_data[ $scraping_meta_key ]['params'] ); ?>
+		<?php N2_Functions::get_template_part_with_args( 'template/product-page/product-comparison', '', $post_data[ $scraping_meta_key ]['params'] ?? '' ); ?>
 
 		<!-- ポータルサイト一覧 -->
-		<?php N2_Functions::get_template_part_with_args( 'template/product-page/portal-links', '', $post_data[ $scraping_meta_key ]['params'] ); ?>
+		<?php N2_Functions::get_template_part_with_args( 'template/product-page/portal-links', '', $post_data[ $scraping_meta_key ]['params'] ?? '' ); ?>
 		<!-- 関連リンク -->
 		<!-- 未実装 -->
 		<?php $related_links = array(); ?>
