@@ -40,39 +40,20 @@ class N2_Rakuten_CSV {
 		// 初期化
 		$arr = array();
 		// ========ini一覧========
-		$n2_fields      = yaml_parse_file( get_theme_file_path( 'config/n2-fields.yml' ) );
-		$n2_towncodes   = yaml_parse_file( get_theme_file_path( 'config/n2-towncode.yml' ) );
-		$n2_file_header = yaml_parse_file( get_theme_file_path( 'config/n2-file-header.yml' ) );
+		$n2_fields = yaml_parse_file( get_theme_file_path( 'config/n2-fields.yml' ) );
+		// ========option=========
+		$municipal_option = get_option( 'N2_setupmenu' );
 
-		// ========自治体コード=========
-		$option_home = explode( '/', get_option( 'home' ) );
-		$townname    = end( $option_home );
-		$n2_towncode = $n2_towncodes[ $townname ];
-		// ========楽天商品画像のパス=======
-		$rakuten_img_dir = $n2_towncode['楽天']
-		? str_replace( 'n2-towncode', $n2_towncode['楽天'], $n2_file_header['rakuten']['img_dir'] )
-		: $n2_file_header['rakuten']['img_dir'];
-		// ========header========
-		if ( 'item_csv' === $ajax_str || 'select_csv' === $ajax_str ) {// 楽天の場合
-			$header_str = $n2_file_header['rakuten'][ $ajax_str ];
-		} else {
-			$header_str = $n2_file_header[ $ajax_str ]['csv_header'];
-		}
 		// ========アレルゲン========
 		$allergens_list = $n2_fields['アレルゲン']['option'];
 		// ========クルーセットアップでの設定項目========
-		$rakuten_select_option = get_option( 'N2_setupmenu' )['rakuten']['select'] ?? '';
+		$rakuten_setup = $municipal_option['rakuten'] ?? '';
 
 		$arr = array(
-			// あとでヘッダの上の連結するのに必要
-			'csv_title'             => $header_str['title'],
-			// プラグイン側でヘッダーを編集
-			'header'                => apply_filters( 'n2_item_export_' . $ajax_str . '_header', $header_str['values'] ),
 			// ajaxで渡ってきたpostidの配列
-			'ids'                   => explode( '%2C', filter_input( INPUT_POST, $ajax_str, FILTER_SANITIZE_ENCODED ) ),
-			'rakuten_img_dir'       => $rakuten_img_dir,
-			'アレルゲン'                 => $allergens_list,
-			'rakuten_select_option' => $rakuten_select_option,
+			'ids'      => explode( '%2C', filter_input( INPUT_POST, $ajax_str, FILTER_SANITIZE_ENCODED ) ),
+			'アレルゲン'    => $allergens_list,
+			'各種セットアップ' => $rakuten_setup,
 		);
 		// 内容を追加、または上書きするためのフック
 		return apply_filters( 'n2_item_export_get_yml', $arr );
@@ -126,7 +107,7 @@ class N2_Rakuten_CSV {
 			$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
 			$item_num       = trim( strtoupper( $post_meta_list['返礼品コード'] ) );
 			$item_num_low   = trim( mb_strtolower( $post_meta_list['返礼品コード'] ) );
-			$img_dir        = $yml_arr['rakuten_img_dir'];
+			$img_dir        = $yml_arr['各種セットアップ']['img_dir'] ?? '';
 
 			// GOLD（ne.jp）とキャビネット（co.jp）を判定してキャビネットは事業者コードディレクトリを追加
 			preg_match( '/^[a-z]{2,3}/', $item_num_low, $m );// 事業者コード
@@ -350,7 +331,7 @@ class N2_Rakuten_CSV {
 			<?php
 		} else {
 			// csv出力
-			N2_Functions::download_csv( 'item', $yml_arr['header'], $items_arr );
+			N2_Functions::download_csv( 'item', $yml_arr['各種セットアップ']['item_csv'], $items_arr );
 		}
 		die();
 	}
@@ -458,7 +439,7 @@ class N2_Rakuten_CSV {
 	 * @return string 商品説明テーブル
 	 */
 	public function make_itemtable( $post_id, $return_string = true ) {
-		$yml_arr        = $this->get_yml( 'item_csv' );
+		// $yml_arr        = $this->get_yml( 'item_csv' );
 		$post_keys      = array(
 			'表示名称',
 			'略称',
@@ -560,14 +541,25 @@ class N2_Rakuten_CSV {
 	 * @return void
 	 */
 	public function select_csv() {
+		echo '<pre>';
+		var_dump( get_option('N2_setupmenu') );
+		echo '</pre><br>';
+
+		$option_error = function() {
+			$home = get_option( 'home' );
+			return "<a href=\"{$home}/wp-admin/admin.php?page=n2_setup_menu\" target=\"_blank\">項目選択肢</a>が設定されていません！";
+		};
 		// itemの情報を配列化
 		$items_arr = array();
 		$yml_arr   = $this->get_yml( __FUNCTION__ );
+		if ( ! isset( $yml_arr['各種セットアップ']['select'] ) ) {
+			die( $option_error() );
+		}
 
 		// select項目名 => array(選択肢)の形式に変換
 		$select = array();
 
-		foreach ( $yml_arr['rakuten_select_option'] as $v ) {
+		foreach ( $yml_arr['各種セットアップ']['select'] as $v ) {
 			if ( $v ) {
 				$arr                      = explode( "\n", $v );
 				$select_header            = trim( array_shift( $arr ) );
@@ -575,8 +567,7 @@ class N2_Rakuten_CSV {
 			}
 		}
 		if ( ! $select ) {
-			$home = get_option( 'home' );
-			die("<a href=\"{$home}/wp-admin/admin.php?page=n2_setup_menu\" target=\"_blank\">項目選択肢</a>が設定されていません！" );
+			die( $option_error() );
 		}
 		foreach ( $yml_arr['ids'] as $post_id ) {
 			// 初期化
@@ -613,8 +604,8 @@ class N2_Rakuten_CSV {
 				...apply_filters( 'n2_item_export_select_csv_items', $item_arr, $post_id ),
 			);
 		}
-		if( $items_arr ) {
-			N2_Functions::download_csv( 'select', $yml_arr['header'], $items_arr );
+		if ( $items_arr && is_array( $yml_arr['各種セットアップ']['select_csv'] ) ) {
+			N2_Functions::download_csv( 'select', $yml_arr['各種セットアップ']['select_csv'], $items_arr );
 		} else {
 			echo 'エラーが発生しましたlol';
 		}
