@@ -103,7 +103,7 @@ class N2_Rakuten_CSV {
 			'賞味期限',
 			'消費期限',
 			'検索キーワード',
-			'楽天カテゴリー',
+			'楽天SPAカテゴリー',
 		);
 
 		foreach ( $yml_arr['ids'] as $post_id ) {
@@ -200,8 +200,8 @@ class N2_Rakuten_CSV {
 				<?php if ( $post_meta_list['検索キーワード'] ) : ?>
 					<br><br><?php echo $formatter_nl2br( '検索キーワード' ); ?>
 				<?php endif; ?>
-				<?php if ( $post_meta_list['楽天カテゴリー'] ) : ?>
-					<br><br><?php echo $formatter_nl2br( '楽天カテゴリー' ); ?>
+				<?php if ( $post_meta_list['楽天SPAカテゴリー'] ) : ?>
+					<br><br><?php echo $formatter_nl2br( '楽天SPAカテゴリー' ); ?>
 				<?php endif ?>
 				<?php
 				echo $add_text_name
@@ -301,7 +301,7 @@ class N2_Rakuten_CSV {
 				<?php foreach ( $check_arr as $error_item => $errors ) : ?>
 					<?php foreach ( $errors as $index => $error_message ) : ?>
 					<tr>
-					<?php if ( 0 === $index ) : ?>
+						<?php if ( 0 === $index ) : ?>
 						<th rowspan="<?php echo count( $errors ); ?>"><?php echo $error_item; ?></th>
 					<?php endif; ?>
 						<td>
@@ -371,7 +371,7 @@ class N2_Rakuten_CSV {
 			'賞味期限',
 			'消費期限',
 			'検索キーワード',
-			'楽天カテゴリー',
+			'楽天SPAカテゴリー',
 			'原料原産地',
 			'加工地',
 		);
@@ -394,7 +394,7 @@ class N2_Rakuten_CSV {
 			<?php echo apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $post_id, '対応機器' ); ?>
 			<?php if ( $post_meta_list['原料原産地'] ) : ?>
 				<br><br>【原料原産地】<br>
-				<?php echo $formatter( '原料原産地' ); ?><br>
+				<?php echo $formatter( '原料原産地' ); ?>
 			<?php endif; ?>
 			<?php if ( $post_meta_list['加工地'] ) : ?>
 				<br><br>【加工地】<br>
@@ -403,8 +403,8 @@ class N2_Rakuten_CSV {
 			<?php if ( $post_meta_list['検索キーワード'] ) : ?>
 				<br><br><?php echo $formatter_nl2br( '検索キーワード' ); ?>
 			<?php endif; ?>
-			<?php if ( $post_meta_list['楽天カテゴリー'] ) : ?>
-				<br><br><?php echo $formatter_nl2br( '楽天カテゴリー' ); ?>
+			<?php if ( $post_meta_list['楽天SPAカテゴリー'] ) : ?>
+				<br><br><?php echo $formatter_nl2br( '楽天SPAカテゴリー' ); ?>
 			<?php endif; ?>
 			<?php
 		};
@@ -424,12 +424,12 @@ class N2_Rakuten_CSV {
 	 * @return void
 	 */
 	public static function allergy_display( $post_id ) {
-		$post_meta_list = get_post_meta( $post_id, '', true );
-		$post_meta_list["アレルゲン"] = unserialize( $post_meta_list["アレルゲン"][0] );
-		$post_meta_list["アレルゲン注釈"] = $post_meta_list["アレルゲン注釈"][0];
-		$allergens      = array();
-		$has_allergy    = 1;
-		foreach ( $post_meta_list["アレルゲン"] as $v ) {
+		$post_meta_list            = get_post_meta( $post_id, '', true );
+		$post_meta_list['アレルゲン']   = unserialize( $post_meta_list['アレルゲン'][0] );
+		$post_meta_list['アレルゲン注釈'] = $post_meta_list['アレルゲン注釈'][0];
+		$allergens                 = array();
+		$has_allergy               = 1;
+		foreach ( $post_meta_list['アレルゲン'] as $v ) {
 			if ( is_numeric( $v['value'] ) ) {
 				$allergens = array( ...$allergens, $v['label'] );
 			} elseif ( 'アレルゲンなし食品' === $v['value'] ) {
@@ -487,6 +487,14 @@ class N2_Rakuten_CSV {
 			'内容量'     => array(
 				'td' => $formatter( '内容量・規格等' ),
 			),
+			'原料原産地'   => array(
+				'td'        => $formatter( '原料原産地' ),
+				'condition' => $post_meta_list['原料原産地'],
+			),
+			'加工地'     => array(
+				'td'        => $formatter_nl2br( '加工地' ),
+				'condition' => $post_meta_list['加工地'],
+			),
 			'賞味期限'    => array(
 				'td'        => $formatter_nl2br( '賞味期限' ),
 				'condition' => $post_meta_list['賞味期限'],
@@ -494,14 +502,6 @@ class N2_Rakuten_CSV {
 			'消費期限'    => array(
 				'td'        => $formatter_nl2br( '消費期限' ),
 				'condition' => $post_meta_list['消費期限'],
-			),
-			'原料原産地' => array(
-				'td'        => $formatter( '原料原産地' ),
-				'condition' => $post_meta_list['原料原産地'],
-			),
-			'加工地' => array(
-				'td'        => $formatter_nl2br( '加工地' ),
-				'condition' => $post_meta_list['加工地'],
 			),
 			'アレルギー表示' => array(
 				'td'        => $allergy_display_str,
