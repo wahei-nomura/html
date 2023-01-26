@@ -86,7 +86,8 @@ class N2_Ledghome {
 					'状態'        => '表示',
 					'寄附設定金額'    => $i < 2 ? get_post_meta( $id, '寄附金額', true ) : 0,
 					'価格（税込み）'     => ($setting['teiki_price'] == true) ? (($i < 2) ? $price * $teiki : 0) : $price,
-					'その他経費'     => !is_numeric( $deliva_size ) ? '' : apply_filters( 'other_expence', $deliva_price ),
+					//請求に関わる部分。ヤマトは請求無しだが、レターパックなどは送料を請求するような場合がある
+					'その他経費'     => is_numeric( $deliva_size ) ? '' : apply_filters( 'other_expence', $deliva_price ),
 					'送料'        => apply_filters( 'deliva_price', $deliva_price ),
 					// フックは特定自治体の判別
 					'送料反映'     => ( ( ( ( apply_filters( 'deliva_price_reflect', '' ) 
