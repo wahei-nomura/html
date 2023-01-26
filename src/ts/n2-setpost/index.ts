@@ -6,7 +6,7 @@ import syncStatus from "./sync-status";
 import food from "./food";
 
 export default () => {
-	// main();
+	main();
 	price();
 	// rakutenTag();
 	mediaUp();
