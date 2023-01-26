@@ -30,7 +30,6 @@ class N2_Choice {
         $opt = get_option( 'N2_Setupmenu' );
 
         // あとでヘッダの上の連結するのに必要
-		$tsv_title = $header_data[ 'choice' ][ 'tsv_header' ][ 'title' ];
 		$header0 = $header_data[ 'choice' ][ 'tsv_header' ][ 'value0' ]; 
         $header1 = $header_data[ 'choice' ][ 'tsv_header' ][ 'value1' ];
         $auth = $header_data[ 'choice' ][ 'auth' ]; //ヘッダーサンプル取得の為のユーザー・パス
@@ -155,7 +154,7 @@ class N2_Choice {
 		}
 
         // tsv出力
-        N2_Functions::download_csv( 'choice', array_keys( $sumple_header ), $items_arr, $tsv_title ,'tsv' );
+        N2_Functions::download_csv( 'choice', array_keys( $sumple_header ), $items_arr, '','tsv' );
     }
 }
 
