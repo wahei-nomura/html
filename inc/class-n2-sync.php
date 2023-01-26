@@ -336,6 +336,11 @@ class N2_Sync {
 			$postarr['meta_input']['楽天SPAカテゴリー'] = $postarr['meta_input']['楽天カテゴリー'];
 			unset( $postarr['meta_input']['キャッチコピー１'], $postarr['meta_input']['楽天カテゴリー'] );
 
+			// 発送サイズのレターパック互換
+			if ( 'レターパック' === $postarr['meta_input']['発送サイズ'] ) {
+				$postarr['meta_input']['発送サイズ'] = 'レターパックプラス';
+			}
+
 			// 事業者確認を強制執行
 			if ( strtotime( '-1 week' ) > strtotime( $v['post_modified'] ) ) {
 				$postarr['meta_input']['事業者確認'] = array( '確認済', '2022-10-30 00:00:00', 'ssofice' );
