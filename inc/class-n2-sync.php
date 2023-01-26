@@ -336,9 +336,13 @@ class N2_Sync {
 			$postarr['meta_input']['楽天SPAカテゴリー'] = $postarr['meta_input']['楽天カテゴリー'];
 			unset( $postarr['meta_input']['キャッチコピー１'], $postarr['meta_input']['楽天カテゴリー'] );
 
-			// 発送サイズのレターパック互換
+			// 発送サイズの「レターパック」互換
 			if ( 'レターパック' === $postarr['meta_input']['発送サイズ'] ) {
 				$postarr['meta_input']['発送サイズ'] = 'レターパックプラス';
+			}
+			// 発送サイズの「その他」の統一
+			if ( 'その他（ヤマト以外）' === $postarr['meta_input']['発送サイズ'] ) {
+				$postarr['meta_input']['発送サイズ'] = 'その他';
 			}
 
 			// 事業者確認を強制執行
