@@ -45,18 +45,22 @@ class N2_Setupmenu {
 	 */
 	public function update_setupmenu() {
 		extract( $_POST );
-		$write_common_yaml = get_theme_file_path( '/config/n2-rakuten-common.yml' );
-		$N2_Setupmenu_Common = array_slice( ${$this->cls}['rakuten'], 0, 4, true );
-		$N2_Setupmenu_Personal = array_slice( ${$this->cls}['rakuten'], 4, count( ${$this->cls}['rakuten'] ), true );
-		$opt_slice['rakuten'] = $N2_Setupmenu_Personal; // optのデータから共通情報を抜き出したもの
-		if( yaml_emit_file( $write_common_yaml, $N2_Setupmenu_Common ) ){
-			echo 'common_yml登録成功';
-		}else{
-			echo 'common_yml登録失敗';
+		if( isset( ${$this->cls}['rakuten'] ) ){
+			$write_common_yaml = get_theme_file_path( '/config/n2-rakuten-common.yml' );
+			$N2_Setupmenu_Common = array_slice( ${$this->cls}['rakuten'], 0, 4, true );
+			$N2_Setupmenu_Personal = array_slice( ${$this->cls}['rakuten'], 4, count( ${$this->cls}['rakuten'] ), true );
+			$opt_slice['rakuten'] = $N2_Setupmenu_Personal; // optのデータから共通情報を抜き出したもの
+			if( yaml_emit_file( $write_common_yaml, $N2_Setupmenu_Common ) ){
+				echo 'common_yml登録成功';
+			}else{
+				echo 'common_yml登録失敗';
+			}	
+		} else {
+			$opt_slice = ${$this->cls};
 		}
 		if(get_option( $this->cls )){
 			$opt = get_option( $this->cls );
-			$opt = array_merge( (array) $opt_slice, ${$this->cls} );
+			$opt = array_merge( (array) $opt, $opt_slice );
 		}else{
 			$opt = $opt_slice;
 		}

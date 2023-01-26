@@ -1,2 +1,6 @@
---- ~
+---
+ftp_server: ftp.rakuten.ne.jp
+ftp_server_port: "16910"
+upload_server: upload.rakuten.ne.jp
+upload_server_port: "21"
 ...
