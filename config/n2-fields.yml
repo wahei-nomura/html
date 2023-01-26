@@ -36,7 +36,6 @@
     min: 0
     # step: 300
     label : 価格（税込）
-    validation : 必須
     required: required
     placeholder: 例）1000
     description: 上代を税込でご記載ください。定期便の場合、1回分の価格をご記載ください。
@@ -182,7 +181,6 @@
     type : textarea
     description : 発送までにかかる最大納期を入力ください。「即納」表記は避けていただき、最短でも2週間以内で入力をお願いいたします。
     maxlength : 200
-    validation : 必須
     required: required
     placeholder: 例）入金確認後1ヶ月以内にお届けいたします。
     style: 'width: 100%;height: 5em;'
@@ -213,28 +211,27 @@
 
 発送サイズ:
     type : select
-    description : ヤマト運輸の発送サイズ
     option :
         '': 未選択
-        '0101': 60サイズ
-        '0102': 80サイズ
-        '0103': 100サイズ
-        '0104': 120サイズ
+        '0101': ヤマト 60サイズ
+        '0102': ヤマト 80サイズ
+        '0103': ヤマト 100サイズ
+        '0104': ヤマト 120サイズ
         '0105': 
-            label: 140サイズ
+            label: ヤマト 140サイズ
             v-if: 発送方法=='常温'
         '0106': 
-            label: 160サイズ
+            label: ヤマト 160サイズ
             v-if: 発送方法=='常温'
         '0107': 
-            label: 180サイズ
+            label: ヤマト 180サイズ
             v-if: 発送方法=='常温'
         '0108': 
-            label: 200サイズ
+            label: ヤマト 200サイズ
             v-if: 発送方法=='常温'
         レターパックプラス: レターパックプラス
+        レターパックライト: レターパックライト
         その他: その他
-    validation : 必須
     required: required
     "@mouseover": set_info($event.target)
     v-model: 発送サイズ
@@ -260,7 +257,7 @@
         - なまもの
         - 精密機器
         - 水濡厳禁
-    v-if: "!['その他', 'レターパックプラス', ''].includes(発送サイズ)"
+    v-if: "!['その他', 'レターパックプラス', 'レターパックライト'].includes(発送サイズ)"
     v-model: 取り扱い方法
     '@click': 'if (取り扱い方法.length == 2 ) { $event.target.checked = false; set_info($event.target) }'
 
@@ -288,7 +285,6 @@
         10: １０回定期便
         11: １１回定期便
         12: １２回定期便
-    validation : 必須
     required: required
 
 LHカテゴリー:
