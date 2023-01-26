@@ -175,11 +175,11 @@ class N2_Setupmenu {
 			<p class="input-header">レターパック(使用するものをチェックしてください)</p>
 			<p class="input-text-wrap">
 				レターパックライト：
-				<input type="checkbox" name="<?php echo $this->cls; ?>[postage][use_letterpack][]" value="light" <?php echo in_array( 'light',  get_option( $this->cls )['postage']['use_letterpack'] ) ? 'checked' : ''; ?>>
+				<input type="checkbox" name="<?php echo $this->cls; ?>[postage][use_letterpack][]" value="light" <?php echo isset( get_option( $this->cls )['postage']['use_letterpack'] ) && in_array( 'light',  get_option( $this->cls )['postage']['use_letterpack'] ) ? 'checked' : ''; ?>>
 		</p>
 		<p class="input-text-wrap">
 				レターパックプラス：
-				<input type="checkbox" name="<?php echo $this->cls; ?>[postage][use_letterpack][]" value="plus" <?php echo in_array( 'plus',  get_option( $this->cls )['postage']['use_letterpack'] ) ? 'checked' : ''; ?>>
+				<input type="checkbox" name="<?php echo $this->cls; ?>[postage][use_letterpack][]" value="plus" <?php echo isset( get_option( $this->cls )['postage']['use_letterpack'] ) && in_array( 'plus',  get_option( $this->cls )['postage']['use_letterpack'] ) ? 'checked' : ''; ?>>
 		</p>
 
 			<p class="input-header" style="font-weight:bold">クール加算</p>
