@@ -145,36 +145,36 @@ class N2_Setupmenu {
 			<input type="hidden" name="judge" value="option">
 			<p class="input-header" style="font-weight:bold">送料</p>
 			<p class="input-text-wrap">
-				60サイズ：
-				<input type="text" name="<?php echo $this->cls; ?>[postage][size_60]" value="<?php echo get_option( $this->cls )['postage']['size_60'] ?? ''; ?>">
+				60サイズ【必須】：
+				<input type="number" name="<?php echo $this->cls; ?>[postage][size_60]" value="<?php echo get_option( $this->cls )['postage']['size_60'] ?? ''; ?>" required>
 			</p>
 			<p class="input-text-wrap">
-				80サイズ：
-				<input type="text" name="<?php echo $this->cls; ?>[postage][size_80]" value="<?php echo get_option( $this->cls )['postage']['size_80'] ?? ''; ?>">
+				80サイズ【必須】：
+				<input type="number" name="<?php echo $this->cls; ?>[postage][size_80]" value="<?php echo get_option( $this->cls )['postage']['size_80'] ?? ''; ?>" required>
 			</p>
 			<p class="input-text-wrap">
-				100サイズ：
-				<input type="text" name="<?php echo $this->cls; ?>[postage][size_100]" value="<?php echo get_option( $this->cls )['postage']['size_100'] ?? ''; ?>">
+				100サイズ【必須】：
+				<input type="number" name="<?php echo $this->cls; ?>[postage][size_100]" value="<?php echo get_option( $this->cls )['postage']['size_100'] ?? ''; ?>" required>
 			</p>
 			<p class="input-text-wrap">
-				120サイズ：
-				<input type="text" name="<?php echo $this->cls; ?>[postage][size_120]" value="<?php echo get_option( $this->cls )['postage']['size_120'] ?? ''; ?>">
+				120サイズ【必須】：
+				<input type="number" name="<?php echo $this->cls; ?>[postage][size_120]" value="<?php echo get_option( $this->cls )['postage']['size_120'] ?? ''; ?>" required>
 			</p>
 			<p class="input-text-wrap">
-				140サイズ：
-				<input type="text" name="<?php echo $this->cls; ?>[postage][size_140]" value="<?php echo get_option( $this->cls )['postage']['size_140'] ?? ''; ?>">
+				140サイズ【必須】：
+				<input type="number" name="<?php echo $this->cls; ?>[postage][size_140]" value="<?php echo get_option( $this->cls )['postage']['size_140'] ?? ''; ?>" required>
 			</p>
 			<p class="input-text-wrap">
-				160サイズ：
-				<input type="text" name="<?php echo $this->cls; ?>[postage][size_160]" value="<?php echo get_option( $this->cls )['postage']['size_160'] ?? ''; ?>">
+				160サイズ【必須】：
+				<input type="number" name="<?php echo $this->cls; ?>[postage][size_160]" value="<?php echo get_option( $this->cls )['postage']['size_160'] ?? ''; ?>" required>
 			</p>
 			<p class="input-text-wrap">
-				180サイズ：
-				<input type="text" name="<?php echo $this->cls; ?>[postage][size_180]" value="<?php echo get_option( $this->cls )['postage']['size_180'] ?? ''; ?>">
+				180サイズ【必須】：
+				<input type="number" name="<?php echo $this->cls; ?>[postage][size_180]" value="<?php echo get_option( $this->cls )['postage']['size_180'] ?? ''; ?>" required>
 			</p>
 			<p class="input-text-wrap">
-				200サイズ：
-				<input type="text" name="<?php echo $this->cls; ?>[postage][size_200]" value="<?php echo get_option( $this->cls )['postage']['size_200'] ?? ''; ?>">
+				200サイズ【必須】：
+				<input type="number" name="<?php echo $this->cls; ?>[postage][size_200]" value="<?php echo get_option( $this->cls )['postage']['size_200'] ?? ''; ?>" required>
 			</p>
 			<p class="input-header">レターパック(使用するものをチェックしてください)</p>
 			<p class="input-text-wrap">
@@ -188,20 +188,20 @@ class N2_Setupmenu {
 
 			<p class="input-header" style="font-weight:bold">クール加算</p>
 			<p class="input-text-wrap">
-				60サイズ：
-				<input type="text" name="<?php echo $this->cls; ?>[postage][cool_60]" value="<?php echo get_option( $this->cls )['postage']['cool_60'] ?? ''; ?>">
+				60サイズ【必須】：
+				<input type="number" name="<?php echo $this->cls; ?>[postage][cool_60]" value="<?php echo get_option( $this->cls )['postage']['cool_60'] ?? ''; ?>" required>
 			</p>
 			<p class="input-text-wrap">
-				80サイズ：
-				<input type="text" name="<?php echo $this->cls; ?>[postage][cool_80]" value="<?php echo get_option( $this->cls )['postage']['cool_80'] ?? ''; ?>">
+				80サイズ【必須】：
+				<input type="number" name="<?php echo $this->cls; ?>[postage][cool_80]" value="<?php echo get_option( $this->cls )['postage']['cool_80'] ?? ''; ?>" required>
 			</p>
 			<p class="input-text-wrap">
-				100サイズ：
-				<input type="text" name="<?php echo $this->cls; ?>[postage][cool_100]" value="<?php echo get_option( $this->cls )['postage']['cool_100'] ?? ''; ?>">
+				100サイズ【必須】：
+				<input type="number" name="<?php echo $this->cls; ?>[postage][cool_100]" value="<?php echo get_option( $this->cls )['postage']['cool_100'] ?? ''; ?>" required>
 			</p>
 			<p class="input-text-wrap">
-				120サイズ：
-				<input type="text" name="<?php echo $this->cls; ?>[postage][cool_120]" value="<?php echo get_option( $this->cls )['postage']['cool_120'] ?? ''; ?>">
+				120サイズ【必須】：
+				<input type="number" name="<?php echo $this->cls; ?>[postage][cool_120]" value="<?php echo get_option( $this->cls )['postage']['cool_120'] ?? ''; ?>" required>
 			</p>
 			<input type="submit" class="button button-primary sissubmit" value="　更新する　">
 		</form>
