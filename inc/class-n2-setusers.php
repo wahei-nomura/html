@@ -76,5 +76,17 @@ class N2_Setusers {
 		$wp_roles->add_cap( 'ss-crew', 'upload_files' );
 		$wp_roles->add_cap( 'ss-crew', 'ss_crew' ); // role判定用に追加
 
+		$user_caps = array(
+			'list_users',
+			'create_users',
+			'delete_users',
+			'edit_users',
+			'remove_users',
+			'promote_users',
+		);
+		foreach ( $user_caps as $cap ) {
+			$wp_roles->add_cap( 'ss-crew', $cap );
+		}
+
 	}
 }

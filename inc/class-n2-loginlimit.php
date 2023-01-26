@@ -24,6 +24,7 @@ class N2_Loginlimit {
 	public function __construct() {
 		add_action( 'wp_login', array( $this, 'judge_administrator_ip' ), 10, 2 );
 		add_action( 'wp_login', array( $this, 'judge_sscrew_ip' ), 10, 2 );
+		add_action( 'after_switch_theme', array( $this, 'set_aio_wp_security_configs' ) );
 	}
 
 	/**
@@ -38,18 +39,8 @@ class N2_Loginlimit {
 			return;
 		}
 
-		$ips = array(
-			'219.111.49.195', // 波佐見
-			'121.2.77.80', // 吉野ヶ里
-			'202.241.189.211', // 糸島
-			'219.111.24.202', // 有田
-			'122.103.81.78', // 出島
-			'183.177.128.173', // 土岐
-			'217.178.116.13', // 大村
-			'175.41.201.54', // SSVPN
-		);
-
-		if ( 'wp-multi.ss.localhost' !== get_network()->domain && ! in_array( $_SERVER['REMOTE_ADDR'], $ips ) ) {
+		// N2_IPSはconfig/config.phpで定義
+		if ( 'wp-multi.ss.localhost' !== get_network()->domain && ! in_array( $_SERVER['REMOTE_ADDR'], N2_IPS ) ) {
 			wp_logout();
 			echo $_SERVER['REMOTE_ADDR'];
 			exit;
@@ -88,5 +79,22 @@ class N2_Loginlimit {
 			exit;
 		}
 
+	}
+
+	/**
+	 * All In One WP Securityの初期設定
+	 */
+	public function set_aio_wp_security_configs() {
+		$configs = get_option( 'aio_wp_security_configs' );
+		if ( empty( $configs ) ) {
+			return;
+		}
+		// ログインページ変更設定
+		$configs['aiowps_enable_rename_login_page'] = 1;
+		$configs['aiowps_login_page_slug']          = 'MSN-06S';
+		// ホワイトIPリスト
+		$configs['aiowps_lockdown_enable_whitelisting']  = 1;
+		$configs['aiowps_lockdown_allowed_ip_addresses'] = implode( "\n", N2_IPS );
+		update_option( 'aio_wp_security_configs', $configs );
 	}
 }

@@ -1,0 +1,12 @@
+$breakpoint: (
+	pc: "screen and (min-width: 576px)",
+	sp: "screen and (max-width: 575.98px)",
+);
+@mixin mq($bp) {
+	@media #{map-get($breakpoint, $bp)} {
+		@content;
+	}
+}
+#adminmenumain, #wpcontent, #wpfooter {
+    display: none;
+}

@@ -23,7 +23,7 @@ class N2_Setmenu {
 	 */
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'change_menulabel' ) );
-		add_action( 'admin_menu', array( $this, 'remove_menulabel' ) );
+		add_action( 'admin_menu', array( $this, 'remove_menulabel' ), 999 );
 		add_action( 'admin_init', array( $this, 'not_edit_user' ) );
 
 	}
@@ -34,9 +34,9 @@ class N2_Setmenu {
 	public function change_menulabel() {
 		global $menu;
 		global $submenu;
-		$name                       = '返礼品';
-		$menu[5][0]                 = $name;
-		$submenu['edit.php'][5][0]  = $name . '一覧';
+		$name                      = '返礼品';
+		$menu[5][0]                = $name;
+		$submenu['edit.php'][5][0] = $name . '一覧';
 	}
 
 	/**
@@ -46,7 +46,6 @@ class N2_Setmenu {
 		// クルー事業者共通で削除
 		$menus = array(
 			'edit.php?post_type=page', // 固定ページ
-			'edit-comments.php', // コメント
 			'tools.php',
 			'upload.php',
 			'profile.php',
@@ -56,11 +55,15 @@ class N2_Setmenu {
 		if ( 'ss-crew' === wp_get_current_user()->roles[0] ) {
 			$menus[] = 'themes.php';
 			$menus[] = 'upload.php';
+			$menus[] = 'edit-comments.php';
+			$menus[] = 'aiowpsec'; // All In One WP Security
 		}
 
 		// 事業者のメニュー削除
 		if ( 'jigyousya' === wp_get_current_user()->roles[0] ) {
 			$menus[] = 'index.php';
+			$menus[] = 'edit-comments.php';
+			$menus[] = 'aiowpsec'; // All In One WP Security
 		}
 
 		foreach ( $menus as $menu ) {

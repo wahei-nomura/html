@@ -168,6 +168,10 @@
     "@focus": set_info($event.target)
     "@input": set_info($event.target)
 
+アレルゲン注釈:
+    type: text
+    description: アレルゲンに関連する注釈があれば入力してください。（例）同じ工場で〇〇を含む製品を製造しております。
+
 申込期間:
     type : text
     placeholder : 例）通年4月〜6月など
