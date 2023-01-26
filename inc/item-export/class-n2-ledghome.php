@@ -64,6 +64,7 @@ class N2_Ledghome {
 				}
 				$item_num = trim( strtoupper( get_post_meta( $id, '返礼品コード', true ) ) ) . $teikinum;
 				$deliva_price = get_post_meta( $id, '送料', true );
+				$deliva_size = get_post_meta($id, "発送サイズ", true );
 
 				$error_items .= get_post_meta( $id, "寄附金額", true ) == 0 || get_post_meta( $id, "寄附金額", true ) == '' ? "【{$item_code}】" . '<br>' : '';
 
@@ -84,7 +85,8 @@ class N2_Ledghome {
 					'ステータス'      => '受付中',
 					'状態'        => '表示',
 					'寄附設定金額'    => $i < 2 ? get_post_meta( $id, '寄附金額', true ) : 0,
-					'価格（税込み）'     => ($setting['teiki_price'] == true) ? (($i < 2) ? $price * $teiki : 0) : $price, 
+					'価格（税込み）'     => ($setting['teiki_price'] == true) ? (($i < 2) ? $price * $teiki : 0) : $price,
+					'その他経費'     => !is_numeric( $deliva_size ) ? '' : apply_filters( 'other_expence', $deliva_price ),
 					'送料'        => apply_filters( 'deliva_price', $deliva_price ),
 					// フックは特定自治体の判別
 					'送料反映'     => ( ( ( ( apply_filters( 'deliva_price_reflect', '' ) 
@@ -105,8 +107,7 @@ class N2_Ledghome {
 					'配送サイズコード'  => ( is_numeric( get_post_meta( $id, '発送サイズ', true ) ) ) ? get_post_meta( $id, '発送サイズ', true ) : '',
 					'地場産品類型'     => get_post_meta( $id, "地場産品類型", true),
 					'類型該当理由'     => get_post_meta( $id, "類型該当理由", true ),
-					// NENGだとその他経費がCSV上無いが、処理はされているのでコメントアウトで様子見（必要かわからない）
-					// 'その他経費'     => apply_filters( 'other_expence', $deliva_price ),
+					
 				);
 
 				// 内容を追加、または上書きするためのフック
@@ -122,6 +123,6 @@ class N2_Ledghome {
 			exit( $kifukin_alert_str . $kifukin_check_str );
 		}
 
-		N2_Functions::download_csv( 'ledghome', $header, $items_arr, $csv_title );
+		N2_Functions::download_csv( 'ledghome', $header, $items_arr, $csv_title, "csv" );
 	}
 }
