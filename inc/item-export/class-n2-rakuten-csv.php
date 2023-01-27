@@ -103,7 +103,7 @@ class N2_Rakuten_CSV {
 			'賞味期限',
 			'消費期限',
 			'検索キーワード',
-			'楽天カテゴリー',
+			'楽天SPAカテゴリー',
 		);
 
 		foreach ( $yml_arr['ids'] as $post_id ) {
@@ -200,8 +200,8 @@ class N2_Rakuten_CSV {
 				<?php if ( $post_meta_list['検索キーワード'] ) : ?>
 					<br><br><?php echo $formatter_nl2br( '検索キーワード' ); ?>
 				<?php endif; ?>
-				<?php if ( $post_meta_list['楽天カテゴリー'] ) : ?>
-					<br><br><?php echo $formatter_nl2br( '楽天カテゴリー' ); ?>
+				<?php if ( $post_meta_list['楽天SPAカテゴリー'] ) : ?>
+					<br><br><?php echo $formatter_nl2br( '楽天SPAカテゴリー' ); ?>
 				<?php endif ?>
 				<?php
 				echo $add_text_name
@@ -371,7 +371,7 @@ class N2_Rakuten_CSV {
 			'賞味期限',
 			'消費期限',
 			'検索キーワード',
-			'楽天カテゴリー',
+			'楽天SPAカテゴリー',
 			'原料原産地',
 			'加工地',
 		);
@@ -403,8 +403,8 @@ class N2_Rakuten_CSV {
 			<?php if ( $post_meta_list['検索キーワード'] ) : ?>
 				<br><br><?php echo $formatter_nl2br( '検索キーワード' ); ?>
 			<?php endif; ?>
-			<?php if ( $post_meta_list['楽天カテゴリー'] ) : ?>
-				<br><br><?php echo $formatter_nl2br( '楽天カテゴリー' ); ?>
+			<?php if ( $post_meta_list['楽天SPAカテゴリー'] ) : ?>
+				<br><br><?php echo $formatter_nl2br( '楽天SPAカテゴリー' ); ?>
 			<?php endif; ?>
 			<?php
 		};
