@@ -192,6 +192,10 @@ class N2_Functions {
 
 		// CSV文字列生成
 		foreach ( $items_arr as $item ) {
+			$item = array(
+				...array_map( fn() => '', array_flip( $header ) ),
+				...$item,
+			);
 			// ダブルクォートで囲んでおく
 			$item = array_map( fn( $val ) => "\"{$val}\"", $item );
 			foreach ( $header as $head ) {

@@ -94,6 +94,9 @@ class N2_Product_List_Print {
 										$td = isset( $val['meta_key'] )
 											? get_post_meta( $p->ID, $val['meta_key'], true )
 											: get_post_meta( $p->ID, $th, true );
+										$td = nl2br( $td );
+										$td = preg_replace( '@\t|\r|\n|@', '', $td );
+										$td = preg_replace( '@(<br />)+@', '<br />', $td );
 										// thで分岐
 										switch ( $th ) {
 											case '事業者名':

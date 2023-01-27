@@ -83,6 +83,7 @@ class N2_Setusers {
 			'edit_users',
 			'remove_users',
 			'promote_users',
+			'manage_network_users',
 		);
 		foreach ( $user_caps as $cap ) {
 			$wp_roles->add_cap( 'ss-crew', $cap );
