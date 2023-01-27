@@ -213,35 +213,10 @@ class N2_Setupmenu {
 	 * @return void
 	 */
 	public function rakuten_setup_widget() {
-
-		$url_parse      = explode( '/', get_option( 'home' ) );
-		$town_name      = end( $url_parse ); // urlから自治体を取得
-		$common_yaml = get_theme_file_path( '/config/n2-towninfo.yml' );
-		$plugins_yaml = WP_PLUGIN_DIR . '/n2-' . $town_name . '/config/n2-setup-menu.yml';
-		$common_yaml_array = yaml_parse_file($common_yaml);
-		$plugins_yaml_array = yaml_parse_file($plugins_yaml);
-		$item_csv = implode('	', $plugins_yaml_array['rakuten']['item_csv_header']);
-		$select_csv = implode('	', $plugins_yaml_array['rakuten']['select_csv_header']);
-		$rakuten_select_array = $plugins_yaml_array['rakuten']['項目選択肢（改行区切）'];
-		print_r($rakuten_select_array);
-
-	?>
+		?>
 		<form>
 			<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
 			<input type="hidden" name="judge" value="option">
-<<<<<<< HEAD
-			<input type="hidden" name="<?php echo $this->cls; ?>[ rakuten ][ftp_server]" value="<?php echo $common_yaml_array['ftp_server'] ?? 'ftp.rakuten.ne.jp'; ?>" disabled="disabled">
-			<input type="hidden" name="<?php echo $this->cls; ?>[ rakuten ][ftp_server_port]" value="<?php echo $common_yaml_array['ftp_server_port'] ?? '16910'; ?>" disabled="disabled">
-			<input type="hidden" name="<?php echo $this->cls; ?>[ rakuten ][upload_server]" value="<?php echo $common_yaml_array['upload_server'] ?? 'upload.rakuten.ne.jp'; ?>" disabled="disabled">
-			<input type="hidden" name="<?php echo $this->cls; ?>[ rakuten ][upload_server_port]" value="<?php echo $common_yaml_array['upload_server'] ?? '21'; ?>" disabled="disabled">
-			<p class="input-text-wrap">
-				FTPユーザー：<br>
-				<input type="text" name="<?php echo $this->cls; ?>[ rakuten ][ftp_user]" value="<?php echo $plugins_yaml_array['rakuten']['ftp']['user'] ?? ''; ?>" disabled="disabled">
-			</p>
-			<p class="input-text-wrap">
-				FTPパスワード：<br>
-				<input type="text" name="<?php echo $this->cls; ?>[ rakuten ][ftp_pass]" value="<?php echo $plugins_yaml_array['rakuten']['ftp']['pass'] ?? ''; ?>">
-=======
 			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][ftp_server]" value="<?php echo $common_yaml_array['ftp_server'] ?? 'ftp.rakuten.ne.jp'; ?>">
 			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][ftp_server_port]" value="<?php echo $common_yaml_array['ftp_server_port'] ?? '16910'; ?>">
 			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][upload_server]" value="<?php echo $common_yaml_array['upload_server'] ?? 'upload.rakuten.ne.jp'; ?>">
@@ -253,7 +228,6 @@ class N2_Setupmenu {
 			<p class="input-text-wrap">
 				FTPパスワード：<br>
 				<input type="text" name="<?php echo $this->cls; ?>[rakuten][ftp_pass]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_pass'] ?? ''; ?>">
->>>>>>> b19bd1978cca9d7688ad7ca0f83e41bb106921fd
 			</p>
 			<p class="input-text-wrap">
 				画質（右に行くほど高画質）：<br>
@@ -261,21 +235,6 @@ class N2_Setupmenu {
 			</p>
 			<p class="textarea-wrap">
 				item.csvヘッダー貼付（タブ区切り）：<br>
-<<<<<<< HEAD
-				<textarea name="<?php echo $this->cls; ?>[ rakuten ][item_csv]" rows="1" style="overflow-x: hidden;" disabled="disabled"><?php echo $item_csv ?? ''; ?></textarea>
-			</p>
-			<p class="textarea-wrap">
-				select.csvヘッダー貼付（タブ区切り）：<br>
-				<textarea name="<?php echo $this->cls; ?>[ rakuten ][select_csv]" rows="1" style="overflow-x: hidden;" disabled="disabled"><?php echo $select_csv ?? ''; ?></textarea>
-			</p>
-			<p class="input-text-wrap">
-				商品画像ディレクトリ：<br>
-				<input type="text" name="<?php echo $this->cls; ?>[ rakuten ][img_dir]" value="<?php echo $plugins_yaml_array['rakuten']['img_dir'] ?? ''; ?>" disabled="disabled">
-			</p>
-			<p class="input-text-wrap">
-				タグID：<br>
-				<input type="text" name="<?php echo $this->cls; ?>[ rakuten ][tag_id]" value="<?php echo $plugins_yaml_array['rakuten']['tag_id'] ?? ''; ?>" disabled="disabled">
-=======
 				<textarea name="<?php echo $this->cls; ?>[rakuten][item_csv]" rows="1" style="overflow-x: hidden;"><?php echo get_option( $this->cls )['rakuten']['item_csv'] ?? ''; ?></textarea>
 			</p>
 			<p class="textarea-wrap">
@@ -289,33 +248,21 @@ class N2_Setupmenu {
 			<p class="input-text-wrap">
 				タグID：<br>
 				<input type="text" name="<?php echo $this->cls; ?>[rakuten][tag_id]" value="<?php echo get_option( $this->cls )['rakuten']['tag_id'] ?? ''; ?>">
->>>>>>> b19bd1978cca9d7688ad7ca0f83e41bb106921fd
 			</p>
 			<p class="textarea-wrap">
 				<label>
 					説明文追加html：<br>
-<<<<<<< HEAD
-					<textarea name="<?php echo $this->cls; ?>[ rakuten ][html]" rows="5" style="overflow-x: hidden;" disabled="disabled"><?php echo $plugins_yaml_array['rakuten']['html'] ?? '' ; ?></textarea>
-=======
 					<textarea name="<?php echo $this->cls; ?>[rakuten][html]" rows="5" style="overflow-x: hidden;"><?php echo stripslashes_deep( get_option( $this->cls )['rakuten']['html'] ?? '' ); ?></textarea>
->>>>>>> b19bd1978cca9d7688ad7ca0f83e41bb106921fd
 				</label>
 			</p>
-			<?php foreach ( $rakuten_select_array as $key => $rakuten_select ) : ?>
+			<?php for ( $i = 0;$i < 6;$i++ ) : ?>
 			<p class="textarea-wrap">
 				<label>
 					項目選択肢（改行区切）※選択肢は最大16文字：<br>
-<<<<<<< HEAD
-					<textarea name="<?php echo $this->cls; ?>[ rakuten ][select][]" rows="5" style="overflow-x: hidden;" disabled="disabled"><?php 
-					echo $rakuten_select_array[$key]['内容'] ? $key . '.' . $rakuten_select_array[$key]['内容'] . "\n" : "\n";
-					echo $rakuten_select_array[$key]['選択肢'] ? implode("\n", $rakuten_select_array[$key]['選択肢']) : '';
-					?></textarea>
-=======
 					<textarea name="<?php echo $this->cls; ?>[rakuten][select][]" rows="5" style="overflow-x: hidden;"><?php echo get_option( $this->cls )['rakuten']['select'][ $i ] ?? ''; ?></textarea>
->>>>>>> b19bd1978cca9d7688ad7ca0f83e41bb106921fd
 				</label>
 			</p>
-			<?php endforeach; ?>
+			<?php endfor; ?>
 			<input type="submit" class="button button-primary sissubmit" value="　更新する　">
 		</form>
 		<?php
