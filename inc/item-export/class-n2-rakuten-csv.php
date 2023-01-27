@@ -69,7 +69,6 @@ class N2_Rakuten_CSV {
 	 * @return void
 	 */
 	public function item_csv() {
-		// iniから情報を取得
 		$config = $this->get_config( __FUNCTION__ );
 		$option = $config['各種セットアップ'];
 		if ( ! isset( $option['rakuten'][ __FUNCTION__ ] ) ) {
@@ -545,14 +544,41 @@ class N2_Rakuten_CSV {
 	 * @return void
 	 */
 	public function select_csv() {
+		$config = $this->get_config( __FUNCTION__ );
+		$option = $config['各種セットアップ'];
+
+		if ( ! isset( $option['rakuten'][ __FUNCTION__ ] ) ) {
+			$this->rakuetn_csv_error_log( __FUNCTION__ . 'のheader' );
+		}
+		if ( ! isset( $option['rakuten']['select'] ) ) {
+			$this->rakuetn_csv_error_log( '項目選択肢' );
+		}
+		if ( ! isset( $option['rakuten']['tag_id'] ) ) {
+			$this->rakuetn_csv_error_log( '楽天タグID' );
+		}
+		if ( ! isset( $option['rakuten']['html'] ) ) {
+			$this->rakuetn_csv_error_log( '説明文追加html' );
+		}
+		if ( ! isset( $option['add_text'][ get_bloginfo( 'name' ) ] ) ) {
+			$this->rakuetn_csv_error_log( '各ポータル共通説明文' );
+		}
+		if ( ! isset(
+			$option['rakuten'][ __FUNCTION__ ],
+			$option['rakuten']['select'],
+			$option['rakuten']['tag_id'],
+			$option['rakuten']['html'],
+			$option['add_text'][ get_bloginfo( 'name' ) ],
+		) ) {
+			wp_die( '各種セットアップの項目が未設定です' );
+		}
+
 		// itemの情報を配列化
 		$items_arr = array();
-		$config   = $this->get_config( __FUNCTION__ );
-
 		// select項目名 => array(選択肢)の形式に変換
 		$select = array();
+		$header = explode( '	', $option['rakuten'][ __FUNCTION__ ] );
 
-		foreach ( $config['rakuten_select_option'] as $v ) {
+		foreach ( $option['rakuten']['select'] as $v ) {
 			if ( $v ) {
 				$arr                      = explode( "\n", $v );
 				$select_header            = trim( array_shift( $arr ) );
@@ -574,7 +600,7 @@ class N2_Rakuten_CSV {
 			foreach ( $select as $key => $value ) {
 				foreach ( $value as $v ) {
 					// headerの項目を取得
-					$items_arr[ $i ] = N2_Functions::get_post_meta_multiple( $post_id, $config['header'] );
+					$items_arr[ $i ] = N2_Functions::get_post_meta_multiple( $post_id, $header );
 					$item_arr        = array(
 						'項目選択肢用コントロールカラム' => 'n',
 						'商品管理番号（商品URL）'   => $item_num,
@@ -593,7 +619,7 @@ class N2_Rakuten_CSV {
 				...apply_filters( 'n2_item_export_select_csv_items', $item_arr, $post_id ),
 			);
 		}
-		N2_Functions::download_csv( 'select', $config['header'], $items_arr );
+		N2_Functions::download_csv( 'select', $header, $items_arr );
 	}
 
 	/**
