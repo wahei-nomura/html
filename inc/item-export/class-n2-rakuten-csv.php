@@ -79,20 +79,20 @@ class N2_Rakuten_CSV {
 		$config        = $this->get_config( __FUNCTION__ );
 		$option        = $config['各種セットアップ'];
 		$error_options = array();
-		if ( ! isset( $option['rakuten'][ __FUNCTION__ ] ) || $option['rakuten'][ __FUNCTION__ ] ) {
+		if ( ! isset( $option['rakuten'][ __FUNCTION__ ] ) || ! $option['rakuten'][ __FUNCTION__ ] ) {
 			$error_options = array( ...$error_options, 'item.csvのheader' );
 		}
 		if ( ! isset( $option['rakuten']['img_dir'] ) || ! $option['rakuten']['img_dir'] ) {
 			$error_options = array( ...$error_options, '商品画像ディレクトリ' );
 		}
-		if ( ! isset( $option['rakuten']['tag_id'] ) || $option['rakuten']['tag_id'] ) {
+		if ( ! isset( $option['rakuten']['tag_id'] ) || ! $option['rakuten']['tag_id'] ) {
 			$error_options = array( ...$error_options, '楽天タグID' );
 		}
 		if ( ! isset( $option['rakuten']['html'] ) ) {
 			$error_options = array( ...$error_options, '説明文追加html' );
 		}
 		if ( ! isset( $option['add_text'][ get_bloginfo( 'name' ) ] ) ) {
-			$error_options = array( ...$error_options, '各ポータル共通説明文' );
+			$option['add_text'][ get_bloginfo( 'name' ) ] = '';
 		}
 		if ( $error_options ) {
 			// エラー出力して終了
@@ -551,7 +551,7 @@ class N2_Rakuten_CSV {
 		$config        = $this->get_config( __FUNCTION__ );
 		$option        = $config['各種セットアップ'];
 		$error_options = array();
-		if ( ! isset( $option['rakuten'][ __FUNCTION__ ] ) ) {
+		if ( ! isset( $option['rakuten'][ __FUNCTION__ ] ) || ! $option['rakuten'][ __FUNCTION__ ] ) {
 			$error_options = array( ...$error_options, 'select.csvのheader' );
 		}
 		if ( ! isset( $option['rakuten']['select'] ) ) {
