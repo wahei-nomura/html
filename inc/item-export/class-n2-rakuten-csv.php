@@ -41,19 +41,17 @@ class N2_Rakuten_CSV {
 		$arr = array();
 		// ========ini一覧========
 		$n2_fields = yaml_parse_file( get_theme_file_path( 'config/n2-fields.yml' ) );
-		// ========option=========
-		$municipal_option = get_option( 'N2_setupmenu' );
 
 		// ========アレルゲン========
 		$allergens_list = $n2_fields['アレルゲン']['option'];
 		// ========クルーセットアップでの設定項目========
-		$rakuten_setup = $municipal_option['rakuten'] ?? '';
+		$n2_setupmenu = get_option( 'N2_setupmenu' ) ?? '';
 
 		$arr = array(
 			// ajaxで渡ってきたpostidの配列
 			'ids'      => explode( '%2C', filter_input( INPUT_POST, $ajax_str, FILTER_SANITIZE_ENCODED ) ),
 			'アレルゲン'    => $allergens_list,
-			'各種セットアップ' => $rakuten_setup,
+			'各種セットアップ' => $n2_setupmenu,
 		);
 		// 内容を追加、または上書きするためのフック
 		return apply_filters( 'n2_item_export_get_yml', $arr );
@@ -81,13 +79,13 @@ class N2_Rakuten_CSV {
 		$config        = $this->get_config( __FUNCTION__ );
 		$option        = $config['各種セットアップ'];
 		$error_options = array();
-		if ( ! isset( $option['rakuten'][ __FUNCTION__ ] ) ) {
+		if ( ! isset( $option['rakuten'][ __FUNCTION__ ] ) || $option['rakuten'][ __FUNCTION__ ] ) {
 			$error_options = array( ...$error_options, 'item.csvのheader' );
 		}
-		if ( ! isset( $option['rakuten']['img_dir'] ) ) {
+		if ( ! isset( $option['rakuten']['img_dir'] ) || ! $option['rakuten']['img_dir'] ) {
 			$error_options = array( ...$error_options, '商品画像ディレクトリ' );
 		}
-		if ( ! isset( $option['rakuten']['tag_id'] ) ) {
+		if ( ! isset( $option['rakuten']['tag_id'] ) || $option['rakuten']['tag_id'] ) {
 			$error_options = array( ...$error_options, '楽天タグID' );
 		}
 		if ( ! isset( $option['rakuten']['html'] ) ) {
@@ -481,7 +479,7 @@ class N2_Rakuten_CSV {
 				'condition' => $post_meta_list['原料原産地'],
 			),
 			'加工地'     => array(
-				'td'        => $formatter_nl2br( '加工地' ),
+				'td'        => $formatter( '加工地' ),
 				'condition' => $post_meta_list['加工地'],
 			),
 			'賞味期限'    => array(
@@ -577,9 +575,10 @@ class N2_Rakuten_CSV {
 				$select[ $select_header ] = $arr;
 			}
 		}
-		// 初期化
-		$i = 0;
 		foreach ( $config['ids'] as $post_id ) {
+			// 初期化
+			$i        = 0;
+			$item_arr = array();
 			// get_post_metaのkey一覧
 			$post_keys = array(
 				'返礼品コード',
@@ -587,13 +586,12 @@ class N2_Rakuten_CSV {
 			// get_post_meta格納用
 			$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
 			$item_num       = trim( mb_strtolower( $post_meta_list['返礼品コード'] ) );
-
 			// 連想配列作成
 			foreach ( $select as $key => $value ) {
 				foreach ( $value as $v ) {
 					// headerの項目を取得
-					$items_arr[ $i ] = N2_Functions::get_post_meta_multiple( $post_id, $header );
-					$item_arr        = array(
+					$item_arr[ $i ] = N2_Functions::get_post_meta_multiple( $post_id, $header );
+					$item_select         = array(
 						'項目選択肢用コントロールカラム' => 'n',
 						'商品管理番号（商品URL）'   => $item_num,
 						'選択肢タイプ'          => 's',
@@ -601,7 +599,7 @@ class N2_Rakuten_CSV {
 						'項目選択肢'           => trim( $v ),
 						'項目選択肢選択必須'       => '1',
 					);
-					$item_arr[ $i ] = array( ...$item_arr[ $i ], ...$option );
+					$item_arr[ $i ] = array( ...$item_arr[ $i ], ...$item_select );
 					++$i;
 				}
 			}
@@ -620,14 +618,27 @@ class N2_Rakuten_CSV {
 	 * @return void
 	 */
 	public function output_error_log() {
+		// 各種設定読み込み
 		// setlocale(LC_ALL, 'ja_JP.UTF-8');
 		$n2_file_header = yaml_parse_file( get_theme_file_path( 'config/n2-file-header.yml' ) );
 		$upload_server  = $n2_file_header['rakuten']['upload_server'];
-		$conn_id        = ftp_connect( $upload_server['domain'], $upload_server['port'] );
 		$option         = get_option( 'N2_Setupmenu' );
-		$ftp_user       = $option['rakuten']['ftp_user'];
-		$ftp_pass       = $option['rakuten']['ftp_pass'];
-		$login          = ftp_login( $conn_id, $ftp_user, $ftp_pass );
+		$error_options  = array();
+
+		if ( ! isset( $option['rakuten']['ftp_user'] ) || ! $option['rakuten']['ftp_user'] ) {
+			$error_options = array( ...$error_options, 'FTPユーザー' );
+		}
+		if ( ! isset( $option['rakuten']['ftp_pass'] ) || ! $option['rakuten']['ftp_pass'] ) {
+			$error_options = array( ...$error_options, 'FTPパスワード' );
+		}
+		if ( $error_options ) {
+			// エラー出力して終了
+			$this->rakuetn_setup_error_output( $error_options );
+		}
+		$conn_id  = ftp_connect( $upload_server['domain'], $upload_server['port'] );
+		$ftp_user = $option['rakuten']['ftp_user'];
+		$ftp_pass = $option['rakuten']['ftp_pass'];
+		$login    = ftp_login( $conn_id, $ftp_user, $ftp_pass );
 		if ( ! $login ) {
 			$login = ftp_login( $conn_id, $ftp_user, substr( $ftp_pass, 0, 7 ) . '2' ); // ログインできない場合は末尾を２に変更
 		}
