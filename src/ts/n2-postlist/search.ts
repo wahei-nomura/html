@@ -42,13 +42,14 @@ export default () => {
 		// ページ表示時と事業者選択変更時に返礼品コードを監視、変更
 		changeItemcode();
 
+		// n2-class-postlist.phpのpost_requestのSQLがぐちゃぐちゃなのでいったんor検索コメントアウト　taiki
 		// キーワード検索にOR用チェックボックス
-		const checked: string = params.get("or") === "1" ? "checked" : "";
-		$("#post-search-input").before(
-			$(
-				`<label style="float:left"><input name="or" value="1" type="checkbox" ${checked}>OR検索</label>`
-			)
-		);
+		// const checked: string = params.get("or") === "1" ? "checked" : "";
+		// $("#post-search-input").before(
+		// 	$(
+		// 		`<label style="float:left"><input name="or" value="1" type="checkbox" ${checked}>OR検索</label>`
+		// 	)
+		// );
 
 		// 事業者絞り込みコンボボックス
 		$('#jigyousya-list-tag').on('change', e => {
@@ -63,6 +64,10 @@ export default () => {
 			$('#posts-filter .actions select[name="ステータス"] option:selected').prop('selected', false)
 			$('#posts-filter .actions select[name="定期便"] option:selected').prop('selected',false)
 			$('#posts-filter .actions input[name="事業者"], #jigyousya-list-tag').val('')
+			$('select[name="返礼品コード[]"]>*').remove();
+			$('select[name="返礼品コード[]"]').append(
+				'<option value="">返礼品コード</option>'
+			);
 		})
 
 	});

@@ -10,6 +10,10 @@ export default () => {
 			const 
 			$this :any = $(this),
 			data :string = $this.parents('form').serialize();
+			if(!$this.parents('form')[0].reportValidity()){
+				alert("入力されていない項目があります");
+				return false;
+			}
 			if(ajaxUrl(window)){
 				$this.val("　更新中...　");
 				$.ajax({

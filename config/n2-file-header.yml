@@ -19,7 +19,6 @@ ledghome:
         - 状態
         - 寄附設定金額
         - 価格（税込み）
-        - その他経費
         - 送料
         - 送料反映
         - 発送方法
@@ -35,12 +34,19 @@ ledghome:
         - その他名称3
         - 出荷依頼操作期間（開始日）
         - 出荷依頼操作期間（終了日）
-        - 配送サイズコード"
+        - 配送サイズコード
+        - 地場産品類型
+        - 類型該当理由
+        # - その他経費 # NENGだと処理場存在するがCSVに出現しないのでコメントアウトで様子見
     normal : false
+    setting :
+      deliva_price_reflect : false
+      teiki_price : false
+
 rakuten :
     item_csv :
-        title: コントロールカラム
         values:
+        - コントロールカラム
         - 商品管理番号（商品URL）
         - 商品番号
         - 全商品ディレクトリID
@@ -60,11 +66,42 @@ rakuten :
         - カタログID
         - カタログIDなしの理由
     select_csv :
-        title: 項目選択肢用コントロールカラム
         values:
+        - 項目選択肢用コントロールカラム
         - 商品管理番号（商品URL）
         - 選択肢タイプ
         - 項目選択肢項目名
         - 項目選択肢
         - 項目選択肢選択必須"
     img_dir: https://image.rakuten.co.jp/n2-towncode/cabinet/item
+    upload_server:
+        domain: upload.rakuten.ne.jp
+        port: 21
+    ftp_server:
+        domain: ftp.rakuten.ne.jp
+        port: 16910
+choice :
+    tsv_header :
+        title : チョイス
+        value0 :
+        - （必須）容量単位
+        - （必須）発送期日種別
+        - （必須）会員限定
+        - （必須）チョイス限定
+        - （必須）クレジット決済限定
+        - （必須）配送業者
+        - （必須）配達日種別
+        - （必須）配達日種別必須フラグ
+        - （必須）配達時間指定
+        - （必須）配達時間指定必須フラグ
+        value1 :
+        - （必須）別送対応
+        - （必須）ポイント情報表示有無
+        - （必須）即時交換可否
+        - （必須）表示有無
+        - （必須）還元率入力有無
+    auth :
+        user : guest
+        pass : guest
+        url : https://www.furusato-cms.jp/files/sample_stg_product_details.tsv
+
