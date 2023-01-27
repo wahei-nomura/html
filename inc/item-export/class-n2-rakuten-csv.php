@@ -198,19 +198,18 @@ class N2_Rakuten_CSV {
 
 			// [html]スマートフォン用商品説明文
 			$sp_item_description_html = function () use ( $itemtable_html, $post_meta_list, $img_urls_html, $option ) {
-				$formatter       = fn( $post_key ) => str_replace( '＜br /＞', '<br />', N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
-				$formatter_nl2br = fn( $post_key ) => nl2br( $formatter( $post_key ) );
-				$add_text_name   = $option['add_text'][ get_bloginfo( 'name' ) ];
-				$add_html        = $option['rakuten']['html'];
+				$formatter     = fn( $post_key ) => nl2br( N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
+				$add_text_name = $option['add_text'][ get_bloginfo( 'name' ) ];
+				$add_html      = $option['rakuten']['html'];
 				?>
 				<?php $img_urls_html(); ?>
 				<?php echo $formatter( '説明文' ); ?><br><br>
 				<?php $itemtable_html(); ?>
 				<?php if ( $post_meta_list['検索キーワード'] ) : ?>
-					<br><br><?php echo $formatter_nl2br( '検索キーワード' ); ?>
+					<br><br><?php echo $formatter( '検索キーワード' ); ?>
 				<?php endif; ?>
 				<?php if ( $post_meta_list['楽天SPAカテゴリー'] ) : ?>
-					<br><br><?php echo $formatter_nl2br( '楽天SPAカテゴリー' ); ?>
+					<br><br><?php echo $formatter( '楽天SPAカテゴリー' ); ?>
 				<?php endif ?>
 				<?php
 				echo $add_text_name
@@ -368,16 +367,15 @@ class N2_Rakuten_CSV {
 
 		// ========[html]PC用商品説明文========
 		$pc_description_html = function() use ( $post_meta_list, $post_id ) {
-			$formatter       = fn( $post_key ) => str_replace( '＜br /＞', '<br />', N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
-			$formatter_nl2br = fn( $post_key ) => nl2br( $formatter( $post_key ) );
+			$formatter = fn( $post_key ) => nl2br( N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
 			?>
 			<?php echo $formatter( '説明文' ); ?><br><br>
 			<?php echo $formatter( '内容量・規格等' ); ?><br>
 			<?php if ( $post_meta_list['賞味期限'] ) : ?>
-				<br>【賞味期限】<br><?php echo $formatter_nl2br( '賞味期限' ); ?><br>
+				<br>【賞味期限】<br><?php echo $formatter( '賞味期限' ); ?><br>
 			<?php endif; ?>
 			<?php if ( $post_meta_list['消費期限'] ) : ?>
-				<br>【消費期限】<br><?php echo $formatter_nl2br( '消費期限' ); ?><br>
+				<br>【消費期限】<br><?php echo $formatter( '消費期限' ); ?><br>
 			<?php endif; ?>
 			<?php echo apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $post_id, '対応機器' ); ?>
 			<?php if ( $post_meta_list['原料原産地'] ) : ?>
@@ -386,13 +384,13 @@ class N2_Rakuten_CSV {
 			<?php endif; ?>
 			<?php if ( $post_meta_list['加工地'] ) : ?>
 				<br><br>【加工地】<br>
-				<?php echo $formatter_nl2br( '加工地' ); ?><br>
+				<?php echo $formatter( '加工地' ); ?><br>
 			<?php endif; ?>
 			<?php if ( $post_meta_list['検索キーワード'] ) : ?>
-				<br><br><?php echo $formatter_nl2br( '検索キーワード' ); ?>
+				<br><br><?php echo $formatter( '検索キーワード' ); ?>
 			<?php endif; ?>
 			<?php if ( $post_meta_list['楽天SPAカテゴリー'] ) : ?>
-				<br><br><?php echo $formatter_nl2br( '楽天SPAカテゴリー' ); ?>
+				<br><br><?php echo $formatter( '楽天SPAカテゴリー' ); ?>
 			<?php endif; ?>
 			<?php
 		};
@@ -466,8 +464,7 @@ class N2_Rakuten_CSV {
 		// アレルギー表示
 		$allergy_display_str = $this->allergy_display( $post_id );
 
-		$formatter       = fn( $post_key ) => str_replace( '＜br /＞', '<br />', N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
-		$formatter_nl2br = fn( $post_key ) => nl2br( $formatter( $post_key ) );
+		$formatter = fn( $post_key ) => nl2br( N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
 		$trs             = array(
 			'名称'      => array(
 				'td' => ( $formatter( '表示名称' ) ?: $formatter( '略称' ) ?: N2_Functions::special_str_convert( get_the_title( $post_id ) ) ),
@@ -476,11 +473,11 @@ class N2_Rakuten_CSV {
 				'td' => $formatter( '内容量・規格等' ),
 			),
 			'賞味期限'    => array(
-				'td'        => $formatter_nl2br( '賞味期限' ),
+				'td'        => $formatter( '賞味期限' ),
 				'condition' => $post_meta_list['賞味期限'],
 			),
 			'消費期限'    => array(
-				'td'        => $formatter_nl2br( '消費期限' ),
+				'td'        => $formatter( '消費期限' ),
 				'condition' => $post_meta_list['消費期限'],
 			),
 			'原料原産地' => array(
@@ -488,7 +485,7 @@ class N2_Rakuten_CSV {
 				'condition' => $post_meta_list['原料原産地'],
 			),
 			'加工地' => array(
-				'td'        => $formatter_nl2br( '加工地' ),
+				'td'        => $formatter( '加工地' ),
 				'condition' => $post_meta_list['加工地'],
 			),
 			'アレルギー表示' => array(
@@ -496,10 +493,10 @@ class N2_Rakuten_CSV {
 				'condition' => $allergy_display_str,
 			),
 			'配送方法'    => array(
-				'td' => $formatter_nl2br( '発送方法' ),
+				'td' => $formatter( '発送方法' ),
 			),
 			'配送期日'    => array(
-				'td' => $formatter_nl2br( '配送期間' ),
+				'td' => $formatter( '配送期間' ),
 			),
 			'提供事業者'   => array(
 				'td'        => $post_meta_list['提供事業者名']
