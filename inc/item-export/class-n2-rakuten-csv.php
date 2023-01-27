@@ -80,16 +80,16 @@ class N2_Rakuten_CSV {
 		$option        = $config['各種セットアップ'];
 		$error_options = array();
 		if ( ! isset( $option['rakuten'][ __FUNCTION__ ] ) || ! $option['rakuten'][ __FUNCTION__ ] ) {
-			$error_options = array( ...$error_options, 'item.csvのheader' );
+			$error_options = array( ...$error_options, '楽天セットアップ > item.csvのheader' );
 		}
 		if ( ! isset( $option['rakuten']['img_dir'] ) || ! $option['rakuten']['img_dir'] ) {
-			$error_options = array( ...$error_options, '商品画像ディレクトリ' );
+			$error_options = array( ...$error_options, '楽天セットアップ > 商品画像ディレクトリ' );
 		}
 		if ( ! isset( $option['rakuten']['tag_id'] ) || ! $option['rakuten']['tag_id'] ) {
-			$error_options = array( ...$error_options, '楽天タグID' );
+			$error_options = array( ...$error_options, '楽天セットアップ > 楽天タグID' );
 		}
 		if ( ! isset( $option['rakuten']['html'] ) ) {
-			$error_options = array( ...$error_options, '説明文追加html' );
+			$error_options = array( ...$error_options, '楽天セットアップ > 説明文追加html' );
 		}
 		if ( ! isset( $option['add_text'][ get_bloginfo( 'name' ) ] ) ) {
 			$option['add_text'][ get_bloginfo( 'name' ) ] = '';
@@ -547,15 +547,15 @@ class N2_Rakuten_CSV {
 	 * @return void
 	 */
 	public function select_csv() {
-		
+
 		$config        = $this->get_config( __FUNCTION__ );
 		$option        = $config['各種セットアップ'];
 		$error_options = array();
 		if ( ! isset( $option['rakuten'][ __FUNCTION__ ] ) || ! $option['rakuten'][ __FUNCTION__ ] ) {
-			$error_options = array( ...$error_options, 'select.csvのheader' );
+			$error_options = array( ...$error_options, '楽天セットアップ > select.csvのheader' );
 		}
 		if ( ! isset( $option['rakuten']['select'] ) ) {
-			$error_options = array( ...$error_options, '項目選択肢' );
+			$error_options = array( ...$error_options, '楽天セットアップ > 項目選択肢' );
 		}
 		if ( $error_options ) {
 			// エラー出力して終了
@@ -626,10 +626,10 @@ class N2_Rakuten_CSV {
 		$error_options  = array();
 
 		if ( ! isset( $option['rakuten']['ftp_user'] ) || ! $option['rakuten']['ftp_user'] ) {
-			$error_options = array( ...$error_options, 'FTPユーザー' );
+			$error_options = array( ...$error_options, '楽天セットアップ > FTPユーザー' );
 		}
 		if ( ! isset( $option['rakuten']['ftp_pass'] ) || ! $option['rakuten']['ftp_pass'] ) {
-			$error_options = array( ...$error_options, 'FTPパスワード' );
+			$error_options = array( ...$error_options, '楽天セットアップ > FTPパスワード' );
 		}
 		if ( $error_options ) {
 			// エラー出力して終了
