@@ -155,9 +155,6 @@ class N2_Product_List_Print {
 									<td colspan="2"<?php echo $td_attr; ?>><?php echo $td ?></td>
 								</tr>
 								<?php endforeach; ?>
-								<tr>
-									<th class="none" colspan="3">&nbsp;</th>
-								</tr>
 								<tr style="border: 3px solid #000;">
 									<th class="bg">寄附金額</th>
 									<td colspan="2" style="font-size: 18px;font-weight: bold;"><?php echo number_format(get_post_meta($p->ID, "寄附金額", true)); ?></td>
