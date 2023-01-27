@@ -58,9 +58,16 @@ class N2_Rakuten_CSV {
 		return apply_filters( 'n2_item_export_get_yml', $arr );
 	}
 	
-	private function rakuetn_csv_error_log( $message ) {
-		$path = '/var/www/html/wp-content/themes/neo-neng/inc/item-export/class-n2-rakuten-csv.php';
-		error_log( "{$path} : {$message}が未設定" );
+	private function rakuetn_setup_error_output( $errors ) {
+		?>
+		<h2>各種セットアップの下記項目が未設定です<h2>
+			<ul>
+			<?php foreach ( $errors as $error ) : ?>
+				<li><?php echo $error; ?></li>
+			<?php endforeach; ?>
+			</ul>
+		<?php
+		wp_die();
 	}
 
 	/**
@@ -69,31 +76,27 @@ class N2_Rakuten_CSV {
 	 * @return void
 	 */
 	public function item_csv() {
-		$config = $this->get_config( __FUNCTION__ );
-		$option = $config['各種セットアップ'];
+		$config        = $this->get_config( __FUNCTION__ );
+		$option        = $config['各種セットアップ'];
+		$error_options = array();
 		if ( ! isset( $option['rakuten'][ __FUNCTION__ ] ) ) {
-			$this->rakuetn_csv_error_log( __FUNCTION__ . 'のheader' );
+			$error_options = array( ...$error_options, 'item.csvのheader' );
 		}
 		if ( ! isset( $option['rakuten']['img_dir'] ) ) {
-			$this->rakuetn_csv_error_log( '商品画像ディレクトリ' );
+			$error_options = array( ...$error_options, '商品画像ディレクトリ' );
 		}
 		if ( ! isset( $option['rakuten']['tag_id'] ) ) {
-			$this->rakuetn_csv_error_log( '楽天タグID' );
+			$error_options = array( ...$error_options, '楽天タグID' );
 		}
 		if ( ! isset( $option['rakuten']['html'] ) ) {
-			$this->rakuetn_csv_error_log( '説明文追加html' );
+			$error_options = array( ...$error_options, '説明文追加html' );
 		}
 		if ( ! isset( $option['add_text'][ get_bloginfo( 'name' ) ] ) ) {
-			$this->rakuetn_csv_error_log( '各ポータル共通説明文' );
+			$error_options = array( ...$error_options, '各ポータル共通説明文' );
 		}
-		if ( ! isset(
-			$option['rakuten'][ __FUNCTION__ ],
-			$option['rakuten']['img_dir'],
-			$option['rakuten']['tag_id'],
-			$option['rakuten']['html'],
-			$option['add_text'][ get_bloginfo( 'name' ) ],
-		) ) {
-			wp_die( '各種セットアップの項目が未設定です' );
+		if ( $error_options ) {
+			// エラー出力して終了
+			$this->rakuetn_setup_error_output( $error_options );
 		}
 
 		// 初期化
@@ -544,32 +547,19 @@ class N2_Rakuten_CSV {
 	 * @return void
 	 */
 	public function select_csv() {
-		$config = $this->get_config( __FUNCTION__ );
-		$option = $config['各種セットアップ'];
-
+		
+		$config        = $this->get_config( __FUNCTION__ );
+		$option        = $config['各種セットアップ'];
+		$error_options = array();
 		if ( ! isset( $option['rakuten'][ __FUNCTION__ ] ) ) {
-			$this->rakuetn_csv_error_log( __FUNCTION__ . 'のheader' );
+			$error_options = array( ...$error_options, 'select.csvのheader' );
 		}
 		if ( ! isset( $option['rakuten']['select'] ) ) {
-			$this->rakuetn_csv_error_log( '項目選択肢' );
+			$error_options = array( ...$error_options, '項目選択肢' );
 		}
-		if ( ! isset( $option['rakuten']['tag_id'] ) ) {
-			$this->rakuetn_csv_error_log( '楽天タグID' );
-		}
-		if ( ! isset( $option['rakuten']['html'] ) ) {
-			$this->rakuetn_csv_error_log( '説明文追加html' );
-		}
-		if ( ! isset( $option['add_text'][ get_bloginfo( 'name' ) ] ) ) {
-			$this->rakuetn_csv_error_log( '各ポータル共通説明文' );
-		}
-		if ( ! isset(
-			$option['rakuten'][ __FUNCTION__ ],
-			$option['rakuten']['select'],
-			$option['rakuten']['tag_id'],
-			$option['rakuten']['html'],
-			$option['add_text'][ get_bloginfo( 'name' ) ],
-		) ) {
-			wp_die( '各種セットアップの項目が未設定です' );
+		if ( $error_options ) {
+			// エラー出力して終了
+			$this->rakuetn_setup_error_output( $error_options );
 		}
 
 		// itemの情報を配列化
