@@ -143,6 +143,14 @@ class N2_Setupmenu {
 		<form>
 			<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
 			<input type="hidden" name="judge" value="option">
+			<p class="input-header" style="font-weight:bold">計算式タイプ</p>
+			<select name="<?php echo $this->cls; ?>[formula_type]">
+				<option value="0" <?php echo !empty( get_option( $this->cls )['formula_type'] ) && get_option( $this->cls )['formula_type'] === "0" ? 'selected' : ''; ?>>タイプ⓪ (商品価格+送料)/0.3</option>
+				<option value="1" <?php echo !empty( get_option( $this->cls )['formula_type'] ) && get_option( $this->cls )['formula_type'] === "1" ? 'selected' : ''; ?>>タイプ① 商品価格/0.3</option>
+				<option value="2" <?php echo !empty( get_option( $this->cls )['formula_type'] ) && get_option( $this->cls )['formula_type'] === "2" ? 'selected' : ''; ?>>タイプ② (商品価格+送料)/0.35</option>
+				<option value="3" <?php echo !empty( get_option( $this->cls )['formula_type'] ) && get_option( $this->cls )['formula_type'] === "3" ? 'selected' : ''; ?>>タイプ③ ①と②を比べて金額が大きい方を選択</option>
+				<option value="4" <?php echo !empty( get_option( $this->cls )['formula_type'] ) && get_option( $this->cls )['formula_type'] === "4" ? 'selected' : ''; ?>>その他</option>
+			</select>
 			<p class="input-header" style="font-weight:bold">送料</p>
 			<p class="input-text-wrap">
 				60サイズ【必須】：
