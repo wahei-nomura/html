@@ -59,45 +59,42 @@ class N2_Setpost {
 			<script src="//cdn.jsdelivr.net/npm/sortablejs@1.8.4/Sortable.min.js"></script>
 			<script src="//cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.20.0/vuedraggable.umd.min.js"></script>
 			<script>
-				window.n2 = {};
-				window.n2.town = '<?php bloginfo( 'name' ); ?>';
-				window.n2.user = <?php echo wp_json_encode( wp_get_current_user() ); ?>;
-				window.n2.field_value = <?php echo wp_json_encode( (array) N2_Functions::get_all_meta( $post ) ); ?>;
-				window.n2.field_list = <?php echo wp_json_encode( (array) array_keys( N2_Functions::get_all_meta( $post ) ) ); ?>;
-				window.n2.delivery_pattern = <?php echo wp_json_encode( (array) $this->delivery_pattern() ); ?>;
 				
-				// このdataをプラグイン側で上書きする
-				const data = {
-					寄附金額: n2.field_value.寄附金額,
-					返礼品コード: n2.field_value.返礼品コード,
-					価格: n2.field_value.価格,
-					出品禁止ポータル: n2.field_value.出品禁止ポータル || [],
-					商品タイプ: n2.field_value.商品タイプ ? n2.field_value.商品タイプ : [],// ※食品事業者はデフォルトで食品にしとくのまだ
-					アレルギー有無確認: n2.field_value.アレルギー有無確認 ? n2.field_value.アレルギー有無確認[0] : false,
-					発送方法: n2.field_value.発送方法,
-					発送サイズ: n2.field_value.発送サイズ,
-					送料: n2.field_value.送料,
-					取り扱い方法: n2.field_value.取り扱い方法,
-					商品画像: n2.field_value.商品画像 || [],
-					全商品ディレクトリID: {
-						text: n2.field_value.全商品ディレクトリID,
-						list: [],
-					},
-					タグID: {
-						text: n2.field_value.タグID,
-						group: '',
-						list: [],
-					},
-					楽天SPAカテゴリー: {
-						text: n2.field_value.楽天SPAカテゴリー ? n2.field_value.楽天SPAカテゴリー.replace(/\r/g, ''): '',
-						list: [],
-					},
-				};
-				const components = {
-					draggable: vuedraggable,
-				}
 				jQuery(function($){
 					$(".edit-post-layout__metaboxes").ready(() => {
+						window.n2.field_value = <?php echo wp_json_encode( (array) N2_Functions::get_all_meta( $post ) ); ?>;
+						window.n2.field_list = <?php echo wp_json_encode( (array) array_keys( N2_Functions::get_all_meta( $post ) ) ); ?>;
+						
+						// このdataをプラグイン側で上書きする
+						const data = {
+							寄附金額: n2.field_value.寄附金額,
+							返礼品コード: n2.field_value.返礼品コード,
+							価格: n2.field_value.価格,
+							出品禁止ポータル: n2.field_value.出品禁止ポータル || [],
+							商品タイプ: n2.field_value.商品タイプ ? n2.field_value.商品タイプ : [],// ※食品事業者はデフォルトで食品にしとくのまだ
+							アレルギー有無確認: n2.field_value.アレルギー有無確認 ? n2.field_value.アレルギー有無確認[0] : false,
+							発送方法: n2.field_value.発送方法,
+							発送サイズ: n2.field_value.発送サイズ,
+							送料: n2.field_value.送料,
+							取り扱い方法: n2.field_value.取り扱い方法,
+							商品画像: n2.field_value.商品画像 || [],
+							全商品ディレクトリID: {
+								text: n2.field_value.全商品ディレクトリID,
+								list: [],
+							},
+							タグID: {
+								text: n2.field_value.タグID,
+								group: '',
+								list: [],
+							},
+							楽天SPAカテゴリー: {
+								text: n2.field_value.楽天SPAカテゴリー ? n2.field_value.楽天SPAカテゴリー.replace(/\r/g, ''): '',
+								list: [],
+							},
+						};
+						const components = {
+							draggable: vuedraggable,
+						}
 						// プログレスバー
 						$('.edit-post-header').before('<div class="progress rounded-0" style="height: 1.5em;width: 100%;"><div id="n2-progress"></div></div>');
 						const status = {
@@ -127,7 +124,7 @@ class N2_Setpost {
 							n2.status = wp.data.select("core/editor").getEditedPostAttribute("status");
 							$('#n2-progress').text(status[n2.status].label).attr( 'class', status[n2.status].class );
 							// レビュー待ち　かつ　事業者ログイン
-							if ( n2.status == 'pending' && n2.user.roles.includes('jigyousya') ) {
+							if ( n2.status == 'pending' && n2.current_user.roles.includes('jigyousya') ) {
 								$('input,select,textarea').attr('disabled', true).addClass('text-dark');
 								$('#item-image').addClass('pe-none');
 							}
