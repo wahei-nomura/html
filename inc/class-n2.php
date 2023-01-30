@@ -109,7 +109,6 @@ class N2 {
 	public function __construct() {
 		$this->set_vars();
 		$this->set_filters();
-		add_action( 'wp_ajax_n2_calculate_donation_amount', array( $this, 'calculate_donation_amount' ) );
 	}
 
 	/**
@@ -162,29 +161,6 @@ class N2 {
 		foreach ( get_object_vars( $this ) as $key => $value ) {
 			$this->$key = apply_filters( "n2_vars_{$key}", $value );
 		}
-	}
-
-	/**
-	 * 寄附金額の計算
-	 */
-	public function calculate_donation_amount() {
-		global $n2;
-		// タイプ・価格・送料
-		$type    = $n2['formula_type'];
-		$price   = $_GET['price'] ?? 0;
-		$postage = $_GET['postage'] ?? 0;
-
-		// エヴァの出撃準備
-		$eva = array(
-			'零号機'  => ceil( ( $price + $postage ) / 300 ) * 1000,
-			'初号機'  => ceil( $price / 300 ) * 1000,
-			'弐号機'  => ceil( ( $price + $postage ) / 350 ) * 1000,
-			'十三号機' => 9999999,
-		);
-		// 使徒襲来！　初号機と弐号機の強いほうが出撃だ！
-		$eva['使徒'] = $eva['初号機'] > $eva['弐号機'] ? $eva['初号機'] : $eva['弐号機'];
-		echo apply_filters( 'n2_calculate_donation_amount', $eva[ $type ], compact( 'price', 'postage', 'eva' ) );
-		exit;
 	}
 
 	/**
