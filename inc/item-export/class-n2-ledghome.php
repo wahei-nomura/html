@@ -103,12 +103,11 @@ class N2_Ledghome {
 					'自由入力欄1'    => date( 'Y/m/d' ) . '：' . wp_get_current_user()->display_name,
 					'自由入力欄2'    => get_post_meta( $id, '送料', true ),
 					'配送サイズコード'  => ( is_numeric( get_post_meta( $id, '発送サイズ', true ) ) ) ? get_post_meta( $id, '発送サイズ', true ) : '',
-					'地場産品類型'     => get_post_meta( $id, "地場産品類型", true),
-					'類型該当理由'     => get_post_meta( $id, "類型該当理由", true ),
+					'地場産品類型'    => implode( 'ー', mb_str_split( mb_convert_kana( get_post_meta( $id, '地場産品類型', true ), 'KA' ), 1 ) ),
+					'類型該当理由'    => get_post_meta( $id, "類型該当理由", true ),
 					// NENGだとその他経費がCSV上無いが、処理はされているのでコメントアウトで様子見（必要かわからない）
 					// 'その他経費'     => apply_filters( 'other_expence', $deliva_price ),
 				);
-
 				// 内容を追加、または上書きするためのフック
 				$items_arr[ $key_id ] = apply_filters( 'n2_item_export_ledghome_items', $arr, $id );
 			}
