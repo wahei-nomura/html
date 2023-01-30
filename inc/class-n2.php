@@ -15,12 +15,12 @@ class N2 {
 	/**
 	 * 現在のモード
 	 *
-	 * @var string
+	 * @var string develop or production.
 	 */
 	public $mode;
 
 	/**
-	 * キャッシュバスター
+	 * キャッシュバスター（本番ではテーマバージョン）
 	 *
 	 * @var string
 	 */
@@ -53,6 +53,20 @@ class N2 {
 	 * @var array
 	 */
 	public $postage;
+
+	/**
+	 * 寄附金額計算式
+	 *
+	 * @var array
+	 */
+	public $formula;
+
+	/**
+	 * 寄附金額計算式タイプ
+	 *
+	 * @var string
+	 */
+	public $formula_type;
 
 	/**
 	 * 機種依存文字変換
@@ -101,6 +115,7 @@ class N2 {
 	 */
 	public function __construct() {
 		$this->set();
+		$this->set_filters();
 	}
 
 	/**
@@ -119,7 +134,7 @@ class N2 {
 
 		// サイト基本情報
 		$this->site_id = get_current_blog_id();
-		$this->town    = apply_filters( 'n2_vars_town', get_bloginfo( 'name' ) );
+		$this->town    = get_bloginfo( 'name' );
 
 		// ログインユーザーデータ
 		$this->current_user = wp_get_current_user();
@@ -136,11 +151,20 @@ class N2 {
 		// 文字列変換
 		$this->special_str_convert = yaml_parse_file( get_theme_file_path( 'config/n2-special-str-comvert.yml' ) );
 
-		// 配送情報
+		// 送料設定
 		$this->postage = $n2_option['postage'];
 
 		// 楽天
 		$this->rakuten = $n2_option['rakuten'];
+	}
+
+	/**
+	 * フィルターフック
+	 */
+	public function set_filters() {
+		foreach ( get_object_vars( $this ) as $key => $value ) {
+			$this->$key = apply_filters( "n2_vars_{$key}", $value );
+		}
 	}
 
 	/**
