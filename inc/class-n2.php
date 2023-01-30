@@ -55,11 +55,11 @@ class N2 {
 	public $postage;
 
 	/**
-	 * 寄附金額計算式
+	 * 寄附金額計算式タイプ
 	 *
 	 * @var array
 	 */
-	public $formula;
+	public $formula_type;
 
 	/**
 	 * 機種依存文字変換
@@ -149,13 +149,7 @@ class N2 {
 		$this->postage = $n2_option['postage'];
 
 		// 寄附金額計算式タイプ
-		$formula_arr   = array(
-			'(商品価格+送料)/0.3',
-			'(商品価格)/0.3',
-			'(商品価格+送料)/0.35',
-			'1と2の大きい方',
-		);
-		$this->formula = $formula_arr[ $n2_option['formula_type'] ];
+		$this->formula_type = $n2_option['formula_type'];
 
 		// 楽天
 		$this->rakuten = $n2_option['rakuten'];
@@ -174,8 +168,9 @@ class N2 {
 	 * 寄附金額の計算
 	 */
 	public function calculate_donation_amount() {
+		global $n2;
 		// タイプ・価格・送料
-		$type    = $_GET['type'] ?? 0;
+		$type    = $n2['formula_type'];
 		$price   = $_GET['price'] ?? 0;
 		$postage = $_GET['postage'] ?? 0;
 
