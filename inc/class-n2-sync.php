@@ -55,6 +55,11 @@ class N2_Sync {
 	 * テスト
 	 */
 	public function test() {
+		global $n2;
+		echo '<pre>';print_r($n2);echo '</pre>';
+		?>
+		<script>console.log(<?php echo wp_json_encode($n2); ?>)</script>
+		<?php
 		exit;
 	}
 
@@ -330,6 +335,8 @@ class N2_Sync {
 						: array( 'アレルギー品目あり' );
 				}
 			}
+			// 地場産品類型互換
+			$postarr['meta_input']['地場産品類型'] = $postarr['meta_input']['地場産品類型']['value'] ?? '';
 
 			// キャッチコピー１と楽天カテゴリーの変換
 			$postarr['meta_input']['キャッチコピー']    = $postarr['meta_input']['キャッチコピー１'];

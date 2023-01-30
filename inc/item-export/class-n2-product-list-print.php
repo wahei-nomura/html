@@ -94,6 +94,9 @@ class N2_Product_List_Print {
 										$td = isset( $val['meta_key'] )
 											? get_post_meta( $p->ID, $val['meta_key'], true )
 											: get_post_meta( $p->ID, $th, true );
+										$td = nl2br( $td );
+										$td = preg_replace( '@\t|\r|\n|@', '', $td );
+										$td = preg_replace( '@(<br />)+@', '<br />', $td );
 										// thで分岐
 										switch ( $th ) {
 											case '事業者名':
@@ -152,9 +155,6 @@ class N2_Product_List_Print {
 									<td colspan="2"<?php echo $td_attr; ?>><?php echo $td ?></td>
 								</tr>
 								<?php endforeach; ?>
-								<tr>
-									<th class="none" colspan="3">&nbsp;</th>
-								</tr>
 								<tr style="border: 3px solid #000;">
 									<th class="bg">寄附金額</th>
 									<td colspan="2" style="font-size: 18px;font-weight: bold;"><?php echo number_format(get_post_meta($p->ID, "寄附金額", true)); ?></td>
