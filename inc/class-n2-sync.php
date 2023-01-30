@@ -55,9 +55,7 @@ class N2_Sync {
 	 * テスト
 	 */
 	public function test() {
-
 		global $n2;
-		
 		echo '<pre>';print_r($n2);echo '</pre>';
 		?>
 		<script>console.log(<?php echo wp_json_encode($n2); ?>)</script>

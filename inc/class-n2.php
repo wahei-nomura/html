@@ -114,14 +114,14 @@ class N2 {
 	 * Constructor.
 	 */
 	public function __construct() {
-		$this->set();
+		$this->set_vars();
 		$this->set_filters();
 	}
 
 	/**
-	 * SET
+	 * プロパティのセット
 	 */
-	public function set() {
+	public function set_vars() {
 
 		// wp_options保存値
 		$n2_option = get_option( 'N2_Setupmenu' );
@@ -159,7 +159,7 @@ class N2 {
 	}
 
 	/**
-	 * フィルターフック
+	 * 全プロパティへフィルターフック
 	 */
 	public function set_filters() {
 		foreach ( get_object_vars( $this ) as $key => $value ) {
