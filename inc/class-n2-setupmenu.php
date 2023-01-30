@@ -45,18 +45,22 @@ class N2_Setupmenu {
 	 */
 	public function update_setupmenu() {
 		extract( $_POST );
-		$write_common_yaml = get_theme_file_path( '/config/n2-rakuten-common.yml' );
-		$N2_Setupmenu_Common = array_slice( ${$this->cls}['rakuten'], 0, 4, true );
-		$N2_Setupmenu_Personal = array_slice( ${$this->cls}['rakuten'], 4, count( ${$this->cls}['rakuten'] ), true );
-		$opt_slice['rakuten'] = $N2_Setupmenu_Personal; // optのデータから共通情報を抜き出したもの
-		if( yaml_emit_file( $write_common_yaml, $N2_Setupmenu_Common ) ){
-			echo 'common_yml登録成功';
-		}else{
-			echo 'common_yml登録失敗';
+		if( isset( ${$this->cls}['rakuten'] ) ){
+			$write_common_yaml = get_theme_file_path( '/config/n2-rakuten-common.yml' );
+			$N2_Setupmenu_Common = array_slice( ${$this->cls}['rakuten'], 0, 4, true );
+			$N2_Setupmenu_Personal = array_slice( ${$this->cls}['rakuten'], 4, count( ${$this->cls}['rakuten'] ), true );
+			$opt_slice['rakuten'] = $N2_Setupmenu_Personal; // optのデータから共通情報を抜き出したもの
+			if( yaml_emit_file( $write_common_yaml, $N2_Setupmenu_Common ) ){
+				echo 'common_yml登録成功';
+			}else{
+				echo 'common_yml登録失敗';
+			}	
+		} else {
+			$opt_slice = ${$this->cls};
 		}
 		if(get_option( $this->cls )){
 			$opt = get_option( $this->cls );
-			$opt = array_merge( (array) $opt_slice, ${$this->cls} );
+			$opt = array_merge( (array) $opt, $opt_slice );
 		}else{
 			$opt = $opt_slice;
 		}
@@ -78,6 +82,7 @@ class N2_Setupmenu {
 	public function add_crew_setup_menu_page() {
 		$this->wrapping_contents( '事業者連絡先', 'contact_setup_menu' );
 		$this->wrapping_contents( '各ポータル共通説明文', 'add_text_widget' );
+		$this->wrapping_contents( '送料', 'add_postage_widget' );
 		$this->wrapping_contents( '楽天セットアップ', 'rakuten_setup_widget' ); // 必要？
 	}
 
@@ -123,6 +128,80 @@ class N2_Setupmenu {
 					商品説明文の文末に追加したいテキスト：
 					<textarea name="<?php echo $this->cls; ?>[add_text][<?php echo get_bloginfo( 'name' ); ?>]" rows="7" style="overflow-x: hidden;"><?php echo get_option( $this->cls )['add_text'][ get_bloginfo( 'name' ) ] ?? ''; ?></textarea>
 				</label>
+			</p>
+			<input type="submit" class="button button-primary sissubmit" value="　更新する　">
+		</form>
+		<?php
+	}
+	/**
+	 * 送料設定
+	 *
+	 * @return void
+	 */
+	public function add_postage_widget() {
+		?>
+		<form>
+			<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
+			<input type="hidden" name="judge" value="option">
+			<p class="input-header" style="font-weight:bold">送料</p>
+			<p class="input-text-wrap">
+				60サイズ【必須】：
+				<input type="number" name="<?php echo $this->cls; ?>[postage][size_60]" value="<?php echo get_option( $this->cls )['postage']['size_60'] ?? ''; ?>" required>
+			</p>
+			<p class="input-text-wrap">
+				80サイズ【必須】：
+				<input type="number" name="<?php echo $this->cls; ?>[postage][size_80]" value="<?php echo get_option( $this->cls )['postage']['size_80'] ?? ''; ?>" required>
+			</p>
+			<p class="input-text-wrap">
+				100サイズ【必須】：
+				<input type="number" name="<?php echo $this->cls; ?>[postage][size_100]" value="<?php echo get_option( $this->cls )['postage']['size_100'] ?? ''; ?>" required>
+			</p>
+			<p class="input-text-wrap">
+				120サイズ【必須】：
+				<input type="number" name="<?php echo $this->cls; ?>[postage][size_120]" value="<?php echo get_option( $this->cls )['postage']['size_120'] ?? ''; ?>" required>
+			</p>
+			<p class="input-text-wrap">
+				140サイズ【必須】：
+				<input type="number" name="<?php echo $this->cls; ?>[postage][size_140]" value="<?php echo get_option( $this->cls )['postage']['size_140'] ?? ''; ?>" required>
+			</p>
+			<p class="input-text-wrap">
+				160サイズ【必須】：
+				<input type="number" name="<?php echo $this->cls; ?>[postage][size_160]" value="<?php echo get_option( $this->cls )['postage']['size_160'] ?? ''; ?>" required>
+			</p>
+			<p class="input-text-wrap">
+				180サイズ【必須】：
+				<input type="number" name="<?php echo $this->cls; ?>[postage][size_180]" value="<?php echo get_option( $this->cls )['postage']['size_180'] ?? ''; ?>" required>
+			</p>
+			<p class="input-text-wrap">
+				200サイズ【必須】：
+				<input type="number" name="<?php echo $this->cls; ?>[postage][size_200]" value="<?php echo get_option( $this->cls )['postage']['size_200'] ?? ''; ?>" required>
+			</p>
+			<p class="input-header">レターパック(使用するものをチェックしてください)</p>
+			<p class="input-text-wrap">
+				レターパックライト：
+				<input type="checkbox" name="<?php echo $this->cls; ?>[postage][use_letterpack][]" value="light" <?php echo isset( get_option( $this->cls )['postage']['use_letterpack'] ) && in_array( 'light',  get_option( $this->cls )['postage']['use_letterpack'] ) ? 'checked' : ''; ?>>
+		</p>
+		<p class="input-text-wrap">
+				レターパックプラス：
+				<input type="checkbox" name="<?php echo $this->cls; ?>[postage][use_letterpack][]" value="plus" <?php echo isset( get_option( $this->cls )['postage']['use_letterpack'] ) && in_array( 'plus',  get_option( $this->cls )['postage']['use_letterpack'] ) ? 'checked' : ''; ?>>
+		</p>
+
+			<p class="input-header" style="font-weight:bold">クール加算</p>
+			<p class="input-text-wrap">
+				60サイズ【必須】：
+				<input type="number" name="<?php echo $this->cls; ?>[postage][cool_60]" value="<?php echo get_option( $this->cls )['postage']['cool_60'] ?? ''; ?>" required>
+			</p>
+			<p class="input-text-wrap">
+				80サイズ【必須】：
+				<input type="number" name="<?php echo $this->cls; ?>[postage][cool_80]" value="<?php echo get_option( $this->cls )['postage']['cool_80'] ?? ''; ?>" required>
+			</p>
+			<p class="input-text-wrap">
+				100サイズ【必須】：
+				<input type="number" name="<?php echo $this->cls; ?>[postage][cool_100]" value="<?php echo get_option( $this->cls )['postage']['cool_100'] ?? ''; ?>" required>
+			</p>
+			<p class="input-text-wrap">
+				120サイズ【必須】：
+				<input type="number" name="<?php echo $this->cls; ?>[postage][cool_120]" value="<?php echo get_option( $this->cls )['postage']['cool_120'] ?? ''; ?>" required>
 			</p>
 			<input type="submit" class="button button-primary sissubmit" value="　更新する　">
 		</form>
