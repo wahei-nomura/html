@@ -110,7 +110,7 @@ class N2_Product_List_Print {
 												break;
 											case '送料':
 												if ( ! $td ) {
-													return;
+													continue 2;
 												}
 												$td = number_format( $td );
 												break;
