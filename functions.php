@@ -9,8 +9,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * グローバル変数 $n2 生成
+ */
 require_once get_theme_file_path( 'inc/class-n2.php' );
-$GLOBALS['n2'] = new N2();
+add_action(
+	'after_setup_theme',
+	function () {
+		$GLOBALS['n2'] = new N2();
+	}
+);
 
 /**
  * Require config.php
