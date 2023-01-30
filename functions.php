@@ -15,7 +15,7 @@ $GLOBALS['n2'] = new N2();
 /**
  * Require config.php
  */
-require_once get_theme_file_path() . '/config/config.php';
+require_once get_theme_file_path( '/config/config.php' );
 
 /**
  * Require inc
@@ -41,5 +41,5 @@ $incs = array(
 	'class-n2-rakuten-transfer',
 );
 foreach ( $incs as $name ) {
-	require_once get_theme_file_path() . "/inc/{$name}.php";
+	require_once get_theme_file_path( "/inc/{$name}.php" );
 }
