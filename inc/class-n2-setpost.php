@@ -70,7 +70,7 @@ class N2_Setpost {
 						$("#n2-loading").remove();
 
 						// ダークモード搭載
-						$('body').append('<style>body.n2-darkmode{filter: invert(100%);}</style>');
+						$('body').append('<style>body.n2-darkmode{filter: invert(100%);}body.n2-darkmode img{filter: invert(100%);}</style>');
 						$(".edit-post-header-toolbar__left").append('<div id="n2-darkmode-toggler" class="btn btn-dark ms-2">darkmode</div>');
 						$("#n2-darkmode-toggler").on('click',()=>{ $('body').toggleClass('n2-darkmode')});
 						
