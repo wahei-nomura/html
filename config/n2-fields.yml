@@ -42,8 +42,6 @@
     style: 'width: 10em'
     v-model: 価格
     "@focus": set_info($event.target)
-    '@input': calc_donation($event.target)
-
 
 キャッチコピー:
     type : text

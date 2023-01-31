@@ -147,13 +147,28 @@ class N2_Setpost {
 							created() {
 								// 発送サイズ・発送方法をダブル監視
 								this.$watch(
-									() => [this.$data.発送サイズ, this.$data.発送方法],
-									(v) => {
+									() => {
+										return {
+											価格: this.$data.価格,
+											発送サイズ: this.$data.発送サイズ,
+											発送方法: this.$data.発送方法
+										}
+									},
+									async function(v) {
 										const size = [
-											v[0],
-											v[1] != '常温' ? 'cool' : ''
+											v.発送サイズ,
+											v.発送方法 != '常温' ? 'cool' : ''
 										].filter(v=>v);
 										this.送料 = window.n2.delivery_fee[size.join('_')];
+										const opt = {
+											url: window.ajaxurl,
+											data: {
+												action: 'n2_donation_amount_api',
+												price: v.価格,
+												delivery_fee: this.送料,
+											}
+										}
+										this.寄附金額 = await $.ajax(opt);
 									}
 								);
 							},
