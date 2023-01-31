@@ -258,7 +258,7 @@
         - なまもの
         - 精密機器
         - 水濡厳禁
-    v-if: "!['その他', 'レターパックプラス', 'レターパックライト'].includes(発送サイズ)"
+    v-if: "!['','その他', 'レターパックプラス', 'レターパックライト'].includes(発送サイズ)"
     v-model: 取り扱い方法
     '@click': 'if (取り扱い方法.length == 2 ) { $event.target.checked = false; set_info($event.target) }'
 
