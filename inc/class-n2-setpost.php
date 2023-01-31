@@ -77,8 +77,8 @@ class N2_Setpost {
 							出品禁止ポータル: n2.field_value.出品禁止ポータル || [],
 							商品タイプ: n2.field_value.商品タイプ ? n2.field_value.商品タイプ : [],// ※食品事業者はデフォルトで食品にしとくのまだ
 							アレルギー有無確認: n2.field_value.アレルギー有無確認 ? n2.field_value.アレルギー有無確認[0] : false,
-							発送方法: n2.field_value.発送方法,
-							発送サイズ: n2.field_value.発送サイズ,
+							発送方法: n2.field_value.発送方法 || '常温',
+							発送サイズ: n2.field_value.発送サイズ || '',
 							送料: n2.field_value.送料,
 							取り扱い方法: n2.field_value.取り扱い方法,
 							商品画像: n2.field_value.商品画像 || [],
@@ -136,8 +136,21 @@ class N2_Setpost {
 						n2.vue = new Vue({
 							el: '.edit-post-layout__metaboxes',
 							data,
+							created() {
+								// 発送サイズ・発送方法をダブル監視
+								this.$watch(
+									() => [this.$data.発送サイズ, this.$data.発送方法],
+									(v) => {
+										const size = [
+											v[0],
+											v[1] != '常温' ? 'cool' : ''
+										].filter(v=>v);
+										this.送料 = window.n2.delivery_fee[size.join('_')];
+									}
+								);
+							},
 							methods: {
-								// テキストカウンター
+								// 説明文・テキストカウンター
 								set_info(target) {
 									const info = [
 										$(target).parents('.n2-fields-value').data('description')
