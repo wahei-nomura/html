@@ -325,14 +325,12 @@ class N2_Sync {
 			if ( is_array( $postarr['meta_input']['アレルゲン'] ) ) {
 				$allergen = array_column( $postarr['meta_input']['アレルゲン'], 'value' );
 				if ( $allergen ) {
-					// 商品タイプ
 					if ( ! in_array( '食品ではない', $allergen, true ) ) {
 						$postarr['meta_input']['商品タイプ'][] = '食品';
+						if ( ! in_array( 'アレルゲンなし食品', $allergen, true ) ) {
+							$postarr['meta_input']['アレルギー有無確認'] = array( 'アレルギー品目あり' );
+						}
 					}
-					// アレルギー有無確認
-					$postarr['meta_input']['アレルギー有無確認'] = in_array( 'アレルゲンなし食品', $allergen, true )
-						? array()
-						: array( 'アレルギー品目あり' );
 				}
 			}
 			// 地場産品類型互換
