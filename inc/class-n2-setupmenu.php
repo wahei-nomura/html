@@ -37,6 +37,7 @@ class N2_Setupmenu {
 		add_action( 'admin_menu', array( $this, 'add_setup_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'setup_menu_style' ) );
 		add_action( "wp_ajax_{$this->cls}", array( &$this, 'update_setupmenu' ) );
+		add_action( "wp_ajax_n2_municipal_importer", array( &$this, 'output_n2_municipal_importer' ) );
 	}
 	/**
 	 * ajaxでDBに登録する
@@ -69,10 +70,12 @@ class N2_Setupmenu {
 	}
 	/**
 	 * add_setup_menu
-	 * クルー用セットアップ管理ページを追加
 	 */
 	public function add_setup_menu() {
+		// 各種セットアップ管理ページを追加
 		add_menu_page( '各種セットアップ', '各種セットアップ', 'ss_crew', 'n2_setup_menu', array( $this, 'add_crew_setup_menu_page' ), 'dashicons-list-view' );
+		//
+		add_submenu_page( 'n2_setup_menu', '自動インポーター', '自動インポーター', 'administrator', 'n2_engineer_menu', array( $this, 'add_engineer_setup_menu_page' ) );
 	}
 	/**
 	 * クルー用メニュー描画
@@ -84,6 +87,14 @@ class N2_Setupmenu {
 		$this->wrapping_contents( '各ポータル共通説明文', 'add_text_widget' );
 		$this->wrapping_contents( '送料', 'add_postage_widget' );
 		$this->wrapping_contents( '楽天セットアップ', 'rakuten_setup_widget' ); // 必要？
+	}
+	/**
+	 * エンジニア用メニュー描画
+	 *
+	 * @return void
+	 */
+	public function add_engineer_setup_menu_page() {
+		$this->wrapping_contents( '自動インポーター', 'add_importer_widget', array( 'action' => 'n2_municipal_importer' ) );
 	}
 
 	/**
@@ -276,20 +287,58 @@ class N2_Setupmenu {
 		<?php
 	}
 	/**
+	 * import
+	 *
+	 * @param string $action wp_ajax_{action}
+	 * @return void
+	 */
+	public function add_importer_widget( $args ) {
+		?>
+		<form action="./admin-ajax.php" method="post" enctype="multipart/form-data" target="_blank">
+			<input type="hidden" name="action" value="<?php echo $args['action']; ?>">
+			<p class="input-text-wrap">
+				<input type="file" name="importer">
+				<input type="submit" class="button button-primary" value="読み込む">
+			</p>
+		</form>
+		<?php
+	}
+	/**
+	 * 自治体インポーター　取り込みテスト用
+	 *
+	 * @return void
+	 */
+	public function output_n2_municipal_importer(){
+		if ( ! $_FILES['importer']['error'] ) {
+			echo '<pre>';
+			var_dump( yaml_parse_file( $_FILES['importer']['tmp_name'] ) );
+			echo '</pre><br>';
+		} else {
+			echo 'error upload !! lol';
+		}
+		die();
+	}
+
+	/**
 	 * 各種セットアップの各項目ラッピングして表示を整える
 	 *
 	 * @param string $header 見出し
 	 * @param string $function_name 関数名
+	 * @param array  $args 引数
 	 * @return void
 	 */
-	public function wrapping_contents( $header, $function_name ) {
+	public function wrapping_contents( $header, $function_name, $args = array() ) {
 		?>
 		<div>
 			<div class="postbox-header">
 				<h2><?php echo $header; ?></h2>
 			</div>
 			<div class="inside">
+			<?php if ( $args ) : ?>
+				<?php $this->{$function_name}( $args ); ?>
+			<?php else : ?>
 				<?php $this->{$function_name}(); ?>
+			<?php endif; ?>
 			</div>
 		</div>
 		<?php
@@ -302,4 +351,5 @@ class N2_Setupmenu {
 	public function setup_menu_style() {
 		wp_enqueue_style( 'n2-setupmenu', get_theme_file_uri() . '/dist/setupmenu.css', array(), wp_get_theme()->get( 'Version' ) );
 	}
+
 }
