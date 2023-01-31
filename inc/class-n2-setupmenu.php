@@ -144,12 +144,12 @@ class N2_Setupmenu {
 			<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
 			<input type="hidden" name="judge" value="option">
 			<p class="input-header" style="font-weight:bold">計算式タイプ</p>
-			<select name="<?php echo $this->cls; ?>[delivery_type]">
-				<option value="零号機" <?php echo !empty( get_option( $this->cls )['delivery_type'] ) && get_option( $this->cls )['delivery_type'] === "零号機" ? 'selected' : ''; ?>>タイプ⓪ (商品価格+送料)/0.3</option>
-				<option value="初号機" <?php echo !empty( get_option( $this->cls )['delivery_type'] ) && get_option( $this->cls )['delivery_type'] === "初号機" ? 'selected' : ''; ?>>タイプ① 商品価格/0.3</option>
-				<option value="弐号機" <?php echo !empty( get_option( $this->cls )['delivery_type'] ) && get_option( $this->cls )['delivery_type'] === "弐号機" ? 'selected' : ''; ?>>タイプ② (商品価格+送料)/0.35</option>
-				<option value="使徒" <?php echo !empty( get_option( $this->cls )['delivery_type'] ) && get_option( $this->cls )['delivery_type'] === "使徒" ? 'selected' : ''; ?>>タイプ③ ①と②を比べて金額が大きい方を選択</option>
-				<option value="十三号機" <?php echo !empty( get_option( $this->cls )['delivery_type'] ) && get_option( $this->cls )['delivery_type'] === "十三号機" ? 'selected' : ''; ?>>その他</option>
+			<select name="<?php echo $this->cls; ?>[formula_type]">
+				<option value="零号機" <?php echo !empty( get_option( $this->cls )['formula_type'] ) && get_option( $this->cls )['formula_type'] === "零号機" ? 'selected' : ''; ?>>タイプ⓪ (商品価格+送料)/0.3</option>
+				<option value="初号機" <?php echo !empty( get_option( $this->cls )['formula_type'] ) && get_option( $this->cls )['formula_type'] === "初号機" ? 'selected' : ''; ?>>タイプ① 商品価格/0.3</option>
+				<option value="弐号機" <?php echo !empty( get_option( $this->cls )['formula_type'] ) && get_option( $this->cls )['formula_type'] === "弐号機" ? 'selected' : ''; ?>>タイプ② (商品価格+送料)/0.35</option>
+				<option value="使徒" <?php echo !empty( get_option( $this->cls )['formula_type'] ) && get_option( $this->cls )['formula_type'] === "使徒" ? 'selected' : ''; ?>>タイプ③ ①と②を比べて金額が大きい方を選択</option>
+				<option value="十三号機" <?php echo !empty( get_option( $this->cls )['formula_type'] ) && get_option( $this->cls )['formula_type'] === "十三号機" ? 'selected' : ''; ?>>その他</option>
 			</select>
 			<p class="input-header" style="font-weight:bold">送料</p>
 			<p class="input-text-wrap">
@@ -187,12 +187,12 @@ class N2_Setupmenu {
 			<p class="input-header">レターパック(使用するものをチェックしてください)</p>
 			<p class="input-text-wrap">
 				レターパックライト：
-				<input type="checkbox" name="<?php echo $this->cls; ?>[delivery_fee][]" value="レターパックライト" <?php echo isset( get_option( $this->cls )['delivery_fee'] ) && in_array( 'レターパックライト',  get_option( $this->cls )['delivery_fee'] ) ? 'checked' : ''; ?>>
-		</p>
-		<p class="input-text-wrap">
+				<input type="checkbox" name="<?php echo $this->cls; ?>[delivery_fee][レターパックライト]" value="370" <?php echo isset( get_option( $this->cls )['delivery_fee']['レターパックライト'] ) && get_option( $this->cls )['delivery_fee']['レターパックライト'] ? 'checked' : ''; ?>>
+			</p>
+			<p class="input-text-wrap">
 				レターパックプラス：
-				<input type="checkbox" name="<?php echo $this->cls; ?>[delivery_fee][]" value="レターパックプラス" <?php echo isset( get_option( $this->cls )['delivery_fee'] ) && in_array( 'レターパックプラス',  get_option( $this->cls )['delivery_fee'] ) ? 'checked' : ''; ?>>
-		</p>
+				<input type="checkbox" name="<?php echo $this->cls; ?>[delivery_fee][レターパックプラス]" value="520" <?php echo isset( get_option( $this->cls )['delivery_fee']['レターパックプラス'] ) && get_option( $this->cls )['delivery_fee']['レターパックプラス'] ? 'checked' : ''; ?>>
+			</p>
 
 			<p class="input-header" style="font-weight:bold">クール加算</p>
 			<p class="input-text-wrap">
