@@ -144,72 +144,72 @@ class N2_Setupmenu {
 			<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
 			<input type="hidden" name="judge" value="option">
 			<p class="input-header" style="font-weight:bold">計算式タイプ</p>
-			<select name="<?php echo $this->cls; ?>[formula_type]">
-				<option value="零号機" <?php echo !empty( get_option( $this->cls )['formula_type'] ) && get_option( $this->cls )['formula_type'] === "零号機" ? 'selected' : ''; ?>>タイプ⓪ (商品価格+送料)/0.3</option>
-				<option value="初号機" <?php echo !empty( get_option( $this->cls )['formula_type'] ) && get_option( $this->cls )['formula_type'] === "初号機" ? 'selected' : ''; ?>>タイプ① 商品価格/0.3</option>
-				<option value="弐号機" <?php echo !empty( get_option( $this->cls )['formula_type'] ) && get_option( $this->cls )['formula_type'] === "弐号機" ? 'selected' : ''; ?>>タイプ② (商品価格+送料)/0.35</option>
-				<option value="使徒" <?php echo !empty( get_option( $this->cls )['formula_type'] ) && get_option( $this->cls )['formula_type'] === "使徒" ? 'selected' : ''; ?>>タイプ③ ①と②を比べて金額が大きい方を選択</option>
-				<option value="十三号機" <?php echo !empty( get_option( $this->cls )['formula_type'] ) && get_option( $this->cls )['formula_type'] === "十三号機" ? 'selected' : ''; ?>>その他</option>
+			<select name="<?php echo $this->cls; ?>[delivery_type]">
+				<option value="零号機" <?php echo !empty( get_option( $this->cls )['delivery_type'] ) && get_option( $this->cls )['delivery_type'] === "零号機" ? 'selected' : ''; ?>>タイプ⓪ (商品価格+送料)/0.3</option>
+				<option value="初号機" <?php echo !empty( get_option( $this->cls )['delivery_type'] ) && get_option( $this->cls )['delivery_type'] === "初号機" ? 'selected' : ''; ?>>タイプ① 商品価格/0.3</option>
+				<option value="弐号機" <?php echo !empty( get_option( $this->cls )['delivery_type'] ) && get_option( $this->cls )['delivery_type'] === "弐号機" ? 'selected' : ''; ?>>タイプ② (商品価格+送料)/0.35</option>
+				<option value="使徒" <?php echo !empty( get_option( $this->cls )['delivery_type'] ) && get_option( $this->cls )['delivery_type'] === "使徒" ? 'selected' : ''; ?>>タイプ③ ①と②を比べて金額が大きい方を選択</option>
+				<option value="十三号機" <?php echo !empty( get_option( $this->cls )['delivery_type'] ) && get_option( $this->cls )['delivery_type'] === "十三号機" ? 'selected' : ''; ?>>その他</option>
 			</select>
 			<p class="input-header" style="font-weight:bold">送料</p>
 			<p class="input-text-wrap">
 				60サイズ【必須】：
-				<input type="number" name="<?php echo $this->cls; ?>[postage][normal][0101]" value="<?php echo get_option( $this->cls )['postage']['normal']['0101'] ?? ''; ?>" required>
+				<input type="number" name="<?php echo $this->cls; ?>[delivery_fee][normal][0101]" value="<?php echo get_option( $this->cls )['delivery_fee']['normal']['0101'] ?? ''; ?>" required>
 			</p>
 			<p class="input-text-wrap">
 				80サイズ【必須】：
-				<input type="number" name="<?php echo $this->cls; ?>[postage][normal][0102]" value="<?php echo get_option( $this->cls )['postage']['normal']['0102'] ?? ''; ?>" required>
+				<input type="number" name="<?php echo $this->cls; ?>[delivery_fee][normal][0102]" value="<?php echo get_option( $this->cls )['delivery_fee']['normal']['0102'] ?? ''; ?>" required>
 			</p>
 			<p class="input-text-wrap">
 				100サイズ【必須】：
-				<input type="number" name="<?php echo $this->cls; ?>[postage][normal][0103]" value="<?php echo get_option( $this->cls )['postage']['normal']['0103'] ?? ''; ?>" required>
+				<input type="number" name="<?php echo $this->cls; ?>[delivery_fee][normal][0103]" value="<?php echo get_option( $this->cls )['delivery_fee']['normal']['0103'] ?? ''; ?>" required>
 			</p>
 			<p class="input-text-wrap">
 				120サイズ【必須】：
-				<input type="number" name="<?php echo $this->cls; ?>[postage][normal][0104]" value="<?php echo get_option( $this->cls )['postage']['normal']['0104'] ?? ''; ?>" required>
+				<input type="number" name="<?php echo $this->cls; ?>[delivery_fee][normal][0104]" value="<?php echo get_option( $this->cls )['delivery_fee']['normal']['0104'] ?? ''; ?>" required>
 			</p>
 			<p class="input-text-wrap">
 				140サイズ【必須】：
-				<input type="number" name="<?php echo $this->cls; ?>[postage][normal][0105]" value="<?php echo get_option( $this->cls )['postage']['normal']['0105'] ?? ''; ?>" required>
+				<input type="number" name="<?php echo $this->cls; ?>[delivery_fee][normal][0105]" value="<?php echo get_option( $this->cls )['delivery_fee']['normal']['0105'] ?? ''; ?>" required>
 			</p>
 			<p class="input-text-wrap">
 				160サイズ【必須】：
-				<input type="number" name="<?php echo $this->cls; ?>[postage][normal][0106]" value="<?php echo get_option( $this->cls )['postage']['normal']['0106'] ?? ''; ?>" required>
+				<input type="number" name="<?php echo $this->cls; ?>[delivery_fee][normal][0106]" value="<?php echo get_option( $this->cls )['delivery_fee']['normal']['0106'] ?? ''; ?>" required>
 			</p>
 			<p class="input-text-wrap">
 				180サイズ【必須】：
-				<input type="number" name="<?php echo $this->cls; ?>[postage][normal][0107]" value="<?php echo get_option( $this->cls )['postage']['normal']['0107'] ?? ''; ?>" required>
+				<input type="number" name="<?php echo $this->cls; ?>[delivery_fee][normal][0107]" value="<?php echo get_option( $this->cls )['delivery_fee']['normal']['0107'] ?? ''; ?>" required>
 			</p>
 			<p class="input-text-wrap">
 				200サイズ【必須】：
-				<input type="number" name="<?php echo $this->cls; ?>[postage][normal][0108]" value="<?php echo get_option( $this->cls )['postage']['normal']['0108'] ?? ''; ?>" required>
+				<input type="number" name="<?php echo $this->cls; ?>[delivery_fee][normal][0108]" value="<?php echo get_option( $this->cls )['delivery_fee']['normal']['0108'] ?? ''; ?>" required>
 			</p>
 			<p class="input-header">レターパック(使用するものをチェックしてください)</p>
 			<p class="input-text-wrap">
 				レターパックライト：
-				<input type="checkbox" name="<?php echo $this->cls; ?>[postage][use_letterpack][]" value="light" <?php echo isset( get_option( $this->cls )['postage']['use_letterpack'] ) && in_array( 'light',  get_option( $this->cls )['postage']['use_letterpack'] ) ? 'checked' : ''; ?>>
+				<input type="checkbox" name="<?php echo $this->cls; ?>[delivery_fee][use_letterpack][]" value="light" <?php echo isset( get_option( $this->cls )['delivery_fee']['use_letterpack'] ) && in_array( 'light',  get_option( $this->cls )['delivery_fee']['use_letterpack'] ) ? 'checked' : ''; ?>>
 		</p>
 		<p class="input-text-wrap">
 				レターパックプラス：
-				<input type="checkbox" name="<?php echo $this->cls; ?>[postage][use_letterpack][]" value="plus" <?php echo isset( get_option( $this->cls )['postage']['use_letterpack'] ) && in_array( 'plus',  get_option( $this->cls )['postage']['use_letterpack'] ) ? 'checked' : ''; ?>>
+				<input type="checkbox" name="<?php echo $this->cls; ?>[delivery_fee][use_letterpack][]" value="plus" <?php echo isset( get_option( $this->cls )['delivery_fee']['use_letterpack'] ) && in_array( 'plus',  get_option( $this->cls )['delivery_fee']['use_letterpack'] ) ? 'checked' : ''; ?>>
 		</p>
 
 			<p class="input-header" style="font-weight:bold">クール加算</p>
 			<p class="input-text-wrap">
 				60サイズ【必須】：
-				<input type="number" name="<?php echo $this->cls; ?>[postage][cool][0101]" value="<?php echo get_option( $this->cls )['postage']['cool']['0101'] ?? ''; ?>" required>
+				<input type="number" name="<?php echo $this->cls; ?>[delivery_fee][cool][0101]" value="<?php echo get_option( $this->cls )['delivery_fee']['cool']['0101'] ?? ''; ?>" required>
 			</p>
 			<p class="input-text-wrap">
 				80サイズ【必須】：
-				<input type="number" name="<?php echo $this->cls; ?>[postage][cool][0102]" value="<?php echo get_option( $this->cls )['postage']['cool']['0102'] ?? ''; ?>" required>
+				<input type="number" name="<?php echo $this->cls; ?>[delivery_fee][cool][0102]" value="<?php echo get_option( $this->cls )['delivery_fee']['cool']['0102'] ?? ''; ?>" required>
 			</p>
 			<p class="input-text-wrap">
 				100サイズ【必須】：
-				<input type="number" name="<?php echo $this->cls; ?>[postage][cool][0103]" value="<?php echo get_option( $this->cls )['postage']['cool']['0103'] ?? ''; ?>" required>
+				<input type="number" name="<?php echo $this->cls; ?>[delivery_fee][cool][0103]" value="<?php echo get_option( $this->cls )['delivery_fee']['cool']['0103'] ?? ''; ?>" required>
 			</p>
 			<p class="input-text-wrap">
 				120サイズ【必須】：
-				<input type="number" name="<?php echo $this->cls; ?>[postage][cool][0104]" value="<?php echo get_option( $this->cls )['postage']['cool']['0104'] ?? ''; ?>" required>
+				<input type="number" name="<?php echo $this->cls; ?>[delivery_fee][cool][0104]" value="<?php echo get_option( $this->cls )['delivery_fee']['cool']['0104'] ?? ''; ?>" required>
 			</p>
 			<input type="submit" class="button button-primary sissubmit" value="　更新する　">
 		</form>
