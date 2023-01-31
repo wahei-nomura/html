@@ -187,12 +187,12 @@ class N2_Setupmenu {
 			<p class="input-header">レターパック(使用するものをチェックしてください)</p>
 			<p class="input-text-wrap">
 				レターパックライト：
-				<input type="checkbox" name="<?php echo $this->cls; ?>[delivery_fee][]" value="レターパックライト" <?php echo isset( get_option( $this->cls )['delivery_fee'] ) && in_array( 'レターパックライト',  get_option( $this->cls )['delivery_fee'] ) ? 'checked' : ''; ?>>
-		</p>
-		<p class="input-text-wrap">
+				<input type="checkbox" name="<?php echo $this->cls; ?>[delivery_fee][レターパックライト]" value="370" <?php echo isset( get_option( $this->cls )['delivery_fee']['レターパックライト'] ) && get_option( $this->cls )['delivery_fee']['レターパックライト'] ? 'checked' : ''; ?>>
+			</p>
+			<p class="input-text-wrap">
 				レターパックプラス：
-				<input type="checkbox" name="<?php echo $this->cls; ?>[delivery_fee][]" value="レターパックプラス" <?php echo isset( get_option( $this->cls )['delivery_fee'] ) && in_array( 'レターパックプラス',  get_option( $this->cls )['delivery_fee'] ) ? 'checked' : ''; ?>>
-		</p>
+				<input type="checkbox" name="<?php echo $this->cls; ?>[delivery_fee][レターパックプラス]" value="520" <?php echo isset( get_option( $this->cls )['delivery_fee']['レターパックプラス'] ) && get_option( $this->cls )['delivery_fee']['レターパックプラス'] ? 'checked' : ''; ?>>
+			</p>
 
 			<p class="input-header" style="font-weight:bold">クール加算</p>
 			<p class="input-text-wrap">
