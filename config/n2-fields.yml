@@ -245,12 +245,12 @@
 送料:
     type : number
     value : 0
+    description: '変更できなくてええんやで。'
     style: 'width: 6em'
     v-if: 発送サイズ!=''
     v-model: 送料
     ':readonly': "発送サイズ!='その他' ? true: false"
-    '@focus': calc_donation($event.target)
-    '@input': calc_donation($event.target)
+    "@focus": if (発送サイズ!='その他') { set_info($event.target) }
 
 取り扱い方法:
     type : checkbox
