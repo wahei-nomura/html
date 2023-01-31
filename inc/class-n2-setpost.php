@@ -413,7 +413,7 @@ class N2_Setpost {
 	 * @param int $post_id first parameter
 	 */
 	public function save_customfields( $post_id ) {
-		if ( ! wp_verify_nonce( $_POST['n2nonce'], 'n2nonce' ) || ! isset( $_POST['n2field'] ) ) {
+		if ( ! wp_verify_nonce( $_POST['n2nonce'] ?? '', 'n2nonce' ) || ! isset( $_POST['n2field'] ) ) {
 			return;
 		}
 		// カスタムフィールド（n2field）の保存
