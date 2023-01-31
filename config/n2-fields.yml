@@ -241,8 +241,9 @@
     type : number
     value : 0
     style: 'width: 6em'
-    v-if: 発送サイズ==='その他'
+    v-if: 発送サイズ!=''
     v-model: 送料
+    ':disabled': "発送サイズ!='その他' ? true: false"
     '@focus': calc_donation($event.target)
     '@input': calc_donation($event.target)
 
