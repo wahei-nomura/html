@@ -515,6 +515,10 @@ class N2_Postlist {
 		global $wpdb;
 
 		// 最終的に$query内に代入するWHERE句
+		$page_number  = 300;
+		$current_pgae = get_query_var( 'paged' );  // ページ数取得
+		$current_pgae = 0 === $current_pgae ? '1' : $current_pgae;
+		$now_page     = ( $current_pgae - 1 ) * $page_number;
 		$where = "
 		AND (
 			(
@@ -606,6 +610,7 @@ class N2_Postlist {
 		WHERE 1 = 1 {$where}
 		GROUP BY {$wpdb->posts}.ID
 		ORDER BY {$wpdb->posts}.post_date DESC
+		LIMIT {$now_page}, {$page_number}
 		";
 
 		// 検索用GETパラメータがある場合のみ$queryを上書き
