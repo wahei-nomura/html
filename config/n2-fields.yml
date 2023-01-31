@@ -245,7 +245,7 @@
 送料:
     type : number
     value : 0
-    description: '変更できなくてええんやで。'
+    description: '送料はサイズ等を元に計算された金額が自動で設定されています。'
     style: 'width: 6em'
     v-if: 発送サイズ!=''
     v-model: 送料
