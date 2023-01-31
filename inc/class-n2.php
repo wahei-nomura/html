@@ -52,7 +52,7 @@ class N2 {
 	 *
 	 * @var array
 	 */
-	public $postage;
+	public $delivery_fee;
 
 	/**
 	 * 寄附金額計算式タイプ
@@ -145,7 +145,7 @@ class N2 {
 		$this->special_str_convert = yaml_parse_file( get_theme_file_path( 'config/n2-special-str-comvert.yml' ) );
 
 		// 送料設定
-		$this->postage = $n2_option['postage'] ?? array();
+		$this->delivery_fee = $n2_option['delivery_fee'] ?? yaml_parse_file( get_theme_file_path( 'config/n2-delivery-fee.yml' ) );
 
 		// 寄附金額計算式タイプ
 		$this->formula_type = $n2_option['formula_type'] ?? '';
