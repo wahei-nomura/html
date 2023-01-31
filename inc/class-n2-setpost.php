@@ -61,7 +61,11 @@ class N2_Setpost {
 			<script>
 				
 				jQuery(function($){
+					$("#wpwrap").hide();
+					$('body').append('<div id="n2-loading" class="d-flex justify-content-center align-items-center vh-100 bg-white"><div class="spinner-border text-primary"></div></div>');
 					$(".edit-post-layout__metaboxes").ready(() => {
+						$("#wpwrap").show(1000);
+						$("#n2-loading").hide(1000);
 						window.n2.field_value = <?php echo wp_json_encode( (array) N2_Functions::get_all_meta( $post ) ); ?>;
 						window.n2.field_list = <?php echo wp_json_encode( (array) array_keys( N2_Functions::get_all_meta( $post ) ) ); ?>;
 						
