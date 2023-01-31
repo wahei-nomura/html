@@ -90,6 +90,7 @@ class N2_Sync {
 		}
 		$before = microtime( true );
 
+
 		// params
 		$params = array(
 			'action'         => 'postsdata',
@@ -111,6 +112,13 @@ class N2_Sync {
 			echo $json;
 			exit;
 		}
+
+		// 強制リフレッシュ同期
+		if ( isset( $_GET['refresh'] ) ) {
+			global $wpdb;
+			$wpdb->query( "DELETE FROM {$wpdb->posts}" );
+			$wpdb->query( "DELETE FROM {$wpdb->postmeta};" );
+		}
 		// ページ数取得
 		$max_num_pages = $data['max_num_pages'];
 		$found_posts   = $data['found_posts'];
@@ -124,7 +132,7 @@ class N2_Sync {
 		while ( $max_num_pages >= $params['paged'] ) {
 
 			// ツイン起動しないためにSync中のフラグをチェックして終了
-			$sleep = 300;
+			$sleep = $_GET['sleep'] ?? 300;
 			if ( $sleep > ( strtotime( 'now' ) - get_option( "n2syncing-{$params['paged']}", strtotime( '-1 hour' ) ) ) ) {
 				$logs[] = '2重起動防止のため終了';
 				$this->log( $logs );
@@ -284,10 +292,10 @@ class N2_Sync {
 				'post_date_gmt'     => $v['post_date_gmt'],
 				'post_modified'     => $v['post_modified'],
 				'post_modified_gmt' => $v['post_modified_gmt'],
-				'type'              => $v['type'],
+				'post_type'         => $v['post_type'],
 				'post_title'        => $v['post_title'],
 				'post_author'       => $this->get_userid_by_last_name( $v['post_author_last_name'] ),
-				'meta_input'        => $v['acf'],
+				'meta_input'        => (array) $v['acf'],
 				'comment_status'    => 'open',
 			);
 			// brを除去
@@ -317,12 +325,12 @@ class N2_Sync {
 
 			// 商品タイプ
 			$postarr['meta_input']['商品タイプ'] = array();
-			if ( 'やきもの' === $postarr['meta_input']['やきもの'] ?? '' ) {
+			if ( 'やきもの' === ( $postarr['meta_input']['やきもの'] ?? '' ) ) {
 				$postarr['meta_input']['商品タイプ'][] = 'やきもの';
 			}
 
 			// アレルギー関連
-			if ( is_array( $postarr['meta_input']['アレルゲン'] ) ) {
+			if ( isset( $postarr['meta_input']['アレルゲン'] ) ) {
 				$allergen = array_column( $postarr['meta_input']['アレルゲン'], 'value' );
 				if ( $allergen ) {
 					if ( ! in_array( '食品ではない', $allergen, true ) ) {
@@ -337,10 +345,12 @@ class N2_Sync {
 			$postarr['meta_input']['地場産品類型'] = $postarr['meta_input']['地場産品類型']['value'] ?? '';
 
 			// キャッチコピー１と楽天カテゴリーの変換
-			$postarr['meta_input']['キャッチコピー']    = $postarr['meta_input']['キャッチコピー１'];
-			$postarr['meta_input']['楽天SPAカテゴリー'] = $postarr['meta_input']['楽天カテゴリー'];
+			$postarr['meta_input']['キャッチコピー']    = $postarr['meta_input']['キャッチコピー１'] ?? '';
+			$postarr['meta_input']['楽天SPAカテゴリー'] = $postarr['meta_input']['楽天カテゴリー'] ?? '';
 			unset( $postarr['meta_input']['キャッチコピー１'], $postarr['meta_input']['楽天カテゴリー'] );
 
+			// 発送サイズ関連
+			$postarr['meta_input']['発送サイズ'] = $postarr['meta_input']['発送サイズ'] ?? '';
 			// 発送サイズの「レターパック」互換
 			if ( 'レターパック' === $postarr['meta_input']['発送サイズ'] ) {
 				$postarr['meta_input']['発送サイズ'] = 'レターパックプラス';
@@ -363,9 +373,10 @@ class N2_Sync {
 				'post_status' => 'any',
 			);
 			// 裏カスタムフィールドのNENGの投稿IDで登録済み調査
-			$p = get_posts( $args )[0];
+			$p = get_posts( $args );
 			// 登録済みの場合
-			if ( $p->ID ) {
+			if ( ! empty( $p ) ) {
+				$p = $p[0];
 				// 事業者確認を強制執行
 				$confirm = get_post_meta( $p->ID, '事業者確認', true );
 				if ( empty( $confirm ) ) {
