@@ -72,14 +72,14 @@
 内容量・規格等:
     type : textarea
     maxlength : 1000
-    description : 内容量、数量、サイズ、重さなど詳しくお書きください。※器の容量は「満量時」でご記入ください！　満量時ではない場合は「8分目」など必ずどの分量かがわかるようにお願いいたします。※色・柄・セットいの商品を登録する場合は、必ず別の商品として登録していただくようお願いいたします（注文時に色などを選択していただくような形式には対応しておりません）。
+    description : 内容量、数量、サイズ、重さなど詳しくお書きください。<br>※器の容量は「満量時」でご記入ください！　満量時ではない場合は「8分目」など必ずどの分量かがわかるようにお願いいたします。<br>※色・柄・セットの商品を登録する場合は、必ず別の商品として登録していただくようお願いいたします（注文時に色などを選択していただくような形式には対応しておりません）。
     "@focus": set_info($event.target)
     "@input": set_info($event.target)
 
 原料原産地:
     type : text
     maxlength : 50
-    description : 主要となる原料の主要原産地を記載ください。※例：「○○市産」「○○県産」「国産」など※加工品であれば、その加工品の主要原材料（一番多く使われている原料）が「○○市産」「○○県産」「国産」など
+    description : 主要となる原料の主要原産地を記載ください。
     placeholder: 例）〇〇県産
     style: 'width: 100%'
     "@focus": set_info($event.target)
@@ -88,7 +88,7 @@
 加工地:
     type : text
     maxlength : 50
-    description : 加工食品の加工地（製造地）を記載ください。※例：「○○市」など
+    description : 加工食品の加工地（製造地）を記載ください。
     placeholder: 例）〇〇県〇〇市
     style: 'width: 100%'
     "@focus": set_info($event.target)
@@ -168,8 +168,11 @@
     "@input": set_info($event.target)
 
 アレルゲン注釈:
-    type: text
-    description: アレルゲンに関連する注釈があれば入力してください。（例）同じ工場で〇〇を含む製品を製造しております。
+    type: textarea
+    placeholder: 例）同じ工場で〇〇を含む製品を製造しております。
+    description: アレルゲンに関連する注釈があれば入力してください。
+    style: 'width: 100%;height: 2em;'
+    v-if: 商品タイプ.includes('食品')
 
 申込期間:
     type : text
@@ -237,9 +240,7 @@
             v-if: 発送方法=='常温'
         その他: その他
     required: required
-    "@mouseover": set_info($event.target)
     v-model: 発送サイズ
-    '@change': calc_donation($event.target)
 
 送料:
     type : number
@@ -247,7 +248,7 @@
     style: 'width: 6em'
     v-if: 発送サイズ!=''
     v-model: 送料
-    ':disabled': "発送サイズ!='その他' ? true: false"
+    ':readonly': "発送サイズ!='その他' ? true: false"
     '@focus': calc_donation($event.target)
     '@input': calc_donation($event.target)
 
@@ -268,7 +269,7 @@
 
 配送伝票表示名:
     type : text
-    description : 配送伝票に表示したい自社での品番・名称等がある場合はご記入ください。（20文字以内）
+    description : 配送伝票に表示したい自社での品番・名称等がある場合はご記入ください。
     maxlength : 20
     placeholder : 20文字以内
     style: 'width: 20em;'
