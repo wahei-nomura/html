@@ -67,7 +67,6 @@ class N2_Ledghome {
 				$deliva_size = get_post_meta($id, "発送サイズ", true );
 
 				$error_items .= get_post_meta( $id, "寄附金額", true ) == 0 || get_post_meta( $id, "寄附金額", true ) == '' ? "【{$item_code}】" . '<br>' : '';
-
 				$arr = array(
 					'謝礼品番号'     => $item_num,
 					'謝礼品名'      => $item_num . ' ' . (
@@ -86,9 +85,9 @@ class N2_Ledghome {
 					'状態'        => '表示',
 					'寄附設定金額'    => $i < 2 ? get_post_meta( $id, '寄附金額', true ) : 0,
 					'価格（税込み）'     => ($setting['teiki_price'] == true) ? (($i < 2) ? $price * $teiki : 0) : $price,
-					//請求に関わる部分。ヤマトは請求無しだが、レターパックなどは送料を請求するような場合がある
-					'その他経費'     => is_numeric( $deliva_size ) ? '' : apply_filters( 'other_expence', $deliva_price ),
-					'送料'        => apply_filters( 'deliva_price', $deliva_price ),
+					//用途は様々。デフォルト空欄
+					'その他経費'     => apply_filters('other_expence', ''),
+					'送料'        => $deliva_price,
 					// フックは特定自治体の判別
 					'送料反映'     => ( ( ( ( apply_filters( 'deliva_price_reflect', '' ) 
 											? "反映しない"
@@ -106,8 +105,8 @@ class N2_Ledghome {
 					'自由入力欄1'    => date( 'Y/m/d' ) . '：' . wp_get_current_user()->display_name,
 					'自由入力欄2'    => get_post_meta( $id, '送料', true ),
 					'配送サイズコード'  => ( is_numeric( get_post_meta( $id, '発送サイズ', true ) ) ) ? get_post_meta( $id, '発送サイズ', true ) : '',
-					'地場産品類型'     => get_post_meta( $id, "地場産品類型", true),
-					'類型該当理由'     => get_post_meta( $id, "類型該当理由", true ),
+					'地場産品類型'     => apply_filters( 'jibasanpin_type', get_post_meta( $id, "地場産品類型", true) ) ,
+					'類型該当理由'     => apply_filters( 'jibasanpin_type_reason', get_post_meta( $id, "類型該当理由", true ) ),
 					
 				);
 
