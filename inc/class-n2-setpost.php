@@ -62,10 +62,18 @@ class N2_Setpost {
 				
 				jQuery(function($){
 					$("#wpwrap").hide();
+					// ローディング追加
 					$('body').append('<div id="n2-loading" class="d-flex justify-content-center align-items-center vh-100 bg-white"><div class="spinner-border text-primary"></div></div>');
 					$(".edit-post-layout__metaboxes").ready(() => {
+						// ローディング削除
 						$("#wpwrap").show(1000);
 						$("#n2-loading").remove();
+
+						// ダークモード搭載
+						$('body').append('<style>body.n2-darkmode{filter: invert(100%);}</style>');
+						$(".edit-post-header-toolbar__left").append('<div id="n2-darkmode-toggler" class="btn btn-dark ms-2">darkmode</div>');
+						$("#n2-darkmode-toggler").on('click',()=>{ $('body').toggleClass('n2-darkmode')});
+						
 						window.n2.field_value = <?php echo wp_json_encode( (array) N2_Functions::get_all_meta( $post ) ); ?>;
 						window.n2.field_list = <?php echo wp_json_encode( (array) array_keys( N2_Functions::get_all_meta( $post ) ) ); ?>;
 						
