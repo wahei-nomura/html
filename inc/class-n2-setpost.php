@@ -96,6 +96,7 @@ class N2_Setpost {
 							発送サイズ: n2.field_value.発送サイズ || '',
 							送料: n2.field_value.送料,
 							取り扱い方法: n2.field_value.取り扱い方法,
+							定期便: n2.field_value.定期便 || 1,
 							商品画像: n2.field_value.商品画像 || [],
 							全商品ディレクトリID: {
 								text: n2.field_value.全商品ディレクトリID,
@@ -158,7 +159,8 @@ class N2_Setpost {
 										return {
 											価格: this.$data.価格,
 											発送サイズ: this.$data.発送サイズ,
-											発送方法: this.$data.発送方法
+											発送方法: this.$data.発送方法,
+											定期便: this.$data.定期便,
 										}
 									},
 									async function(v) {
@@ -173,6 +175,7 @@ class N2_Setpost {
 												action: 'n2_donation_amount_api',
 												price: v.価格,
 												delivery_fee: this.送料,
+												subscription: v.定期便,
 											}
 										}
 										this.寄附金額 = await $.ajax(opt);

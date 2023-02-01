@@ -290,6 +290,7 @@
         11: １１回定期便
         12: １２回定期便
     required: required
+    v-model: 定期便
 
 LHカテゴリー:
     label: カテゴリー
