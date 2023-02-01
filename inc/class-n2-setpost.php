@@ -405,6 +405,7 @@ class N2_Setpost {
 					$settings = $detail;
 					unset( $settings['description'], $settings['label'], $settings['validation'], $settings['class'], $settings['v-if'] );
 					$settings['name']  = sprintf( 'n2field[%s]', $settings['name'] ?? $field );
+					$settings['value'] = $settings['value'] ?? '';
 					$settings['value'] = $post_meta[ $field ] ?? $settings['value'];
 					// プラグインでテンプレートを追加したい場合は、get_template_part_{$slug}フックでいける
 					get_template_part( "template/forms/{$detail['type']}", null, $settings );
