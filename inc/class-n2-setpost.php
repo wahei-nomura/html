@@ -55,6 +55,7 @@ class N2_Setpost {
 		global $post;
 		?>
 			<link href="//cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+			<style id="n2-edit-post"></style>
 			<script src="//cdn.jsdelivr.net/npm/vue@2.x"></script>
 			<script src="//cdn.jsdelivr.net/npm/sortablejs@1.8.4/Sortable.min.js"></script>
 			<script src="//cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.20.0/vuedraggable.umd.min.js"></script>
@@ -73,6 +74,12 @@ class N2_Setpost {
 						$('body').append('<style>body.n2-darkmode{filter: invert(100%);}body.n2-darkmode img{filter: invert(100%);}</style>');
 						$(".edit-post-header-toolbar__left").append('<div id="n2-darkmode-toggler" class="btn btn-dark ms-2">darkmode</div>');
 						$("#n2-darkmode-toggler").on('click',()=>{ $('body').toggleClass('n2-darkmode')});
+
+						// タイトル文字数カウンター
+						$('.editor-post-title__input').before('<div id="n2-title-counter" class="badge bg-dark position-absolute top-100 rounded-0 rounded-bottom shadow-sm">');
+						$('.editor-post-title__input').on('DOMSubtreeModified propertychange click', function(){
+							$('#n2-title-counter').html(`${$(this).text().length}文字`);
+						})
 						
 						window.n2.field_value = <?php echo wp_json_encode( (array) N2_Functions::get_all_meta( $post ) ); ?>;
 						window.n2.field_list = <?php echo wp_json_encode( (array) array_keys( N2_Functions::get_all_meta( $post ) ) ); ?>;
