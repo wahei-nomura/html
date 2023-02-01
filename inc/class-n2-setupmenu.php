@@ -24,6 +24,11 @@ class N2_Setupmenu {
 	 * @var string
 	 */
 	private $cls;
+
+	/**
+	 * import name
+	 */
+	private $importer = 'importer';
 	/**
 	 * 自身のクラス名を格納
 	 *
@@ -75,7 +80,7 @@ class N2_Setupmenu {
 		// 各種セットアップ管理ページを追加
 		add_menu_page( '各種セットアップ', '各種セットアップ', 'ss_crew', 'n2_setup_menu', array( $this, 'add_crew_setup_menu_page' ), 'dashicons-list-view' );
 		//
-		add_submenu_page( 'n2_setup_menu', '自動インポーター', '自動インポーター', 'administrator', 'n2_engineer_menu', array( $this, 'add_engineer_setup_menu_page' ) );
+		add_submenu_page( 'n2_setup_menu', '自動インポーター', ' 自治体インポーター', 'administrator', 'n2_engineer_menu', array( $this, 'add_engineer_setup_menu_page' ) );
 	}
 	/**
 	 * クルー用メニュー描画
@@ -94,7 +99,7 @@ class N2_Setupmenu {
 	 * @return void
 	 */
 	public function add_engineer_setup_menu_page() {
-		$this->wrapping_contents( '自動インポーター', 'add_importer_widget', array( 'action' => 'n2_municipal_importer' ) );
+		$this->wrapping_contents( '自治体インポーター', 'add_importer_widget', array( 'action' => 'n2_municipal_importer' ) );
 	}
 
 	/**
@@ -287,9 +292,9 @@ class N2_Setupmenu {
 		<?php
 	}
 	/**
-	 * import
+	 * ファイル取り込み用
 	 *
-	 * @param string $action wp_ajax_{action}
+	 * @param array $args array('action' => action )
 	 * @return void
 	 */
 	public function add_importer_widget( $args ) {
@@ -297,25 +302,33 @@ class N2_Setupmenu {
 		<form action="./admin-ajax.php" method="post" enctype="multipart/form-data" target="_blank">
 			<input type="hidden" name="action" value="<?php echo $args['action']; ?>">
 			<p class="input-text-wrap">
-				<input type="file" name="importer">
+				<input type="file" name="<?php echo $this->importer; ?>">
 				<input type="submit" class="button button-primary" value="読み込む">
 			</p>
 		</form>
 		<?php
 	}
+	/
 	/**
 	 * 自治体インポーター　取り込みテスト用
 	 *
 	 * @return void
 	 */
 	public function output_n2_municipal_importer(){
-		if ( ! $_FILES['importer']['error'] ) {
-			echo '<pre>';
-			var_dump( yaml_parse_file( $_FILES['importer']['tmp_name'] ) );
-			echo '</pre><br>';
-		} else {
+		global $n2;
+		if ( $_FILES['importer']['error'] ) {
 			echo 'error upload !! lol';
+			die();
 		}
+		// とりあえずymlをN2_options
+		$manicipal_yaml = yaml_parse_file( $_FILES['importer']['tmp_name'] );
+		//
+		// 登録処理はここに書く
+		//
+		//
+		echo '<pre>';
+		var_dump( $manicipal_yaml );
+		echo '</pre><br>';
 		die();
 	}
 
