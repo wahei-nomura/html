@@ -36,6 +36,7 @@ class N2_Donation_Amount_API {
 		$type         = $n2->formula_type ?? '初号機';
 		$price        = $args['price'] ?? 0;
 		$delivery_fee = $args['delivery_fee'] ?? 0;
+		$subscription = $args['subscription'] ?? 1;
 		$action       = $args['action'] ?? false;
 
 		// エヴァの出撃準備
@@ -47,7 +48,9 @@ class N2_Donation_Amount_API {
 		);
 		// 使徒襲来！　初号機と弐号機の強いほうが出撃だ！
 		$eva['使徒'] = $eva['初号機'] > $eva['弐号機'] ? $eva['初号機'] : $eva['弐号機'];
-
+		
+		// 寄附金額算出
+		$donation_amount = $eva[ $type ] * $subscription;
 		/**
 		 * Filters the attached file based on the given ID.
 		 *
@@ -56,7 +59,7 @@ class N2_Donation_Amount_API {
 		 * @param int $eva[ $type ] 寄附金額
 		 * @param array compact( 'price', 'delivery_fee', 'eva' ) 寄附金額算出のための情報
 		*/
-		$donation_amount = apply_filters( 'n2_donation_amount_api', $eva[ $type ], compact( 'price', 'delivery_fee', 'eva' ) );
+		$donation_amount = apply_filters( 'n2_donation_amount_api', $donation_amount , compact( 'price', 'delivery_fee', 'subscription', 'eva' ) );
 
 		// admin-ajax.phpアクセス時
 		if ( $action ) {
