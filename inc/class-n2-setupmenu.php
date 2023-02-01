@@ -80,7 +80,7 @@ class N2_Setupmenu {
 		// 各種セットアップ管理ページを追加
 		add_menu_page( '各種セットアップ', '各種セットアップ', 'ss_crew', 'n2_setup_menu', array( $this, 'add_crew_setup_menu_page' ), 'dashicons-list-view' );
 		//
-		add_submenu_page( 'n2_setup_menu', '自動インポーター', ' 自治体インポーター', 'administrator', 'n2_engineer_menu', array( $this, 'add_engineer_setup_menu_page' ) );
+		add_submenu_page( 'n2_setup_menu', '自治体インポーター', '自治体インポーター', 'administrator', 'n2_engineer_menu', array( $this, 'add_engineer_setup_menu_page' ) );
 	}
 	/**
 	 * クルー用メニュー描画
