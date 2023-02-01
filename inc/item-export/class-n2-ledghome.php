@@ -66,7 +66,7 @@ class N2_Ledghome {
 				$deliva_price = get_post_meta( $id, '送料', true );
 				$deliva_size = get_post_meta($id, "発送サイズ", true );
 				$jibasanpin_type = implode( 'ー', mb_str_split( mb_convert_kana( get_post_meta( $id, '地場産品類型', true ), 'KA' ), 1 ) );
-
+				
 				$error_items .= get_post_meta( $id, "寄附金額", true ) == 0 || get_post_meta( $id, "寄附金額", true ) == '' ? "【{$item_code}】" . '<br>' : '';
 				$arr = array(
 					'謝礼品番号'     => $item_num,
@@ -77,9 +77,9 @@ class N2_Ledghome {
 														) . apply_filters( 'item_name_add', '' ),// 謝礼品名に追加するフック
 					'事業者'       => get_the_author_meta( 'display_name', get_post_field( 'post_author', $id ) ),
 					'配送名称'      => ( get_post_meta( $id, '配送伝票表示名', true ) ) ? ( $item_num . ' ' . get_post_meta( $id, '配送伝票表示名', true ) ) : $item_num,
-					'ふるさとチョイス名' => N2_Functions::special_str_convert( get_the_title( $id ) ) . " [{$item_num}]",
+					'ふるさとチョイス名称' => N2_Functions::special_str_convert( get_the_title( $id ) ) . " [{$item_num}]",
 					'楽天名称'      => '【ふるさと納税】' . N2_Functions::special_str_convert( get_the_title( $id ) ) . " [{$item_num}]",
-					'謝礼品カテゴリー'  => get_post_meta( $id, 'カテゴリー', true ),
+					'謝礼品カテゴリー'  => get_post_meta( $id, 'LHカテゴリー', true ),
 					'セット内容'     => N2_Functions::special_str_convert( get_post_meta( $id, '内容量・規格等', true ) ),
 					'謝礼品紹介文'    => N2_Functions::special_str_convert( get_post_meta( $id, '説明文', true ) ),
 					'ステータス'      => '受付中',
