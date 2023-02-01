@@ -6,17 +6,13 @@
  * @package neoneng
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
 if ( class_exists( 'N2_Donation_Amount_API' ) ) {
 	new N2_Donation_Amount_API();
 	return;
 }
 
 /**
- * Setpost
+ * 寄附金額の計算のためのAPI
  */
 class N2_Donation_Amount_API {
 
@@ -37,16 +33,16 @@ class N2_Donation_Amount_API {
 		global $n2;
 		$args = $args ? wp_parse_args( $args ) : $_GET;
 		// タイプ・価格・送料
-		$type    = $n2->formula_type ?? '初号機';
-		$price   = $args['price'] ?? 0;
-		$postage = $args['postage'] ?? 0;
-		$action  = $args['action'] ?? false;
+		$type         = $n2->formula_type ?? '初号機';
+		$price        = $args['price'] ?? 0;
+		$delivery_fee = $args['delivery_fee'] ?? 0;
+		$action       = $args['action'] ?? false;
 
 		// エヴァの出撃準備
 		$eva = array(
-			'零号機'  => ceil( ( $price + $postage ) / 300 ) * 1000,
+			'零号機'  => ceil( ( $price + $delivery_fee ) / 300 ) * 1000,
 			'初号機'  => ceil( $price / 300 ) * 1000,
-			'弐号機'  => ceil( ( $price + $postage ) / 350 ) * 1000,
+			'弐号機'  => ceil( ( $price + $delivery_fee ) / 350 ) * 1000,
 			'十三号機' => 9999999,
 		);
 		// 使徒襲来！　初号機と弐号機の強いほうが出撃だ！
@@ -58,9 +54,9 @@ class N2_Donation_Amount_API {
 		 * @since 2.1.0
 		 *
 		 * @param int $eva[ $type ] 寄附金額
-		 * @param array compact( 'price', 'postage', 'eva' ) 寄附金額算出のための情報
+		 * @param array compact( 'price', 'delivery_fee', 'eva' ) 寄附金額算出のための情報
 		*/
-		$donation_amount = apply_filters( 'n2_donation_amount_api', $eva[ $type ], compact( 'price', 'postage', 'eva' ) );
+		$donation_amount = apply_filters( 'n2_donation_amount_api', $eva[ $type ], compact( 'price', 'delivery_fee', 'eva' ) );
 
 		// admin-ajax.phpアクセス時
 		if ( $action ) {

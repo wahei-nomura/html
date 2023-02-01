@@ -175,9 +175,15 @@ class N2_Functions {
 		// 初期化
 		$csv       = '';
 		$delimiter = ',';
-		// title追加
+		// titleと空要素追加
 		if ( $csv_title ) {
-			$csv .= $csv_title . PHP_EOL;
+			$csv .= $csv_title;
+			
+			for( $cnt = 0; $cnt < count( $header ); $cnt++ ){
+				$csv .= ",";
+			}
+			
+			$csv .= PHP_EOL;
 		}
 		// 区切り文字とヘッダーを設定
 		switch ( $type ) {
