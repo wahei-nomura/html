@@ -79,8 +79,8 @@ class N2_Setupmenu {
 	public function add_setup_menu() {
 		// 各種セットアップ管理ページを追加
 		add_menu_page( '各種セットアップ', '各種セットアップ', 'ss_crew', 'n2_setup_menu', array( $this, 'add_crew_setup_menu_page' ), 'dashicons-list-view' );
-		//
-		add_submenu_page( 'n2_setup_menu', '自治体インポーター', '自治体インポーター', 'administrator', 'n2_engineer_menu', array( $this, 'add_engineer_setup_menu_page' ) );
+		// エンジニア専用サブメニュー
+		add_submenu_page( 'n2_setup_menu', '自治体インポーター', '自治体インポーター', 'administrator', 'n2_engineer_menu', array( $this, 'add_engineer_setup_submenu_page' ) );
 	}
 	/**
 	 * クルー用メニュー描画
@@ -94,11 +94,11 @@ class N2_Setupmenu {
 		$this->wrapping_contents( '楽天セットアップ', 'rakuten_setup_widget' ); // 必要？
 	}
 	/**
-	 * エンジニア用メニュー描画
+	 * エンジニア用サブメニュー描画
 	 *
 	 * @return void
 	 */
-	public function add_engineer_setup_menu_page() {
+	public function add_engineer_setup_submenu_page() {
 		$this->wrapping_contents( '自治体インポーター', 'add_importer_widget', array( 'action' => 'n2_municipal_importer' ) );
 	}
 
@@ -294,13 +294,13 @@ class N2_Setupmenu {
 	/**
 	 * ファイル取り込み用
 	 *
-	 * @param array $args array('action' => action )
+	 * @param array $args array('wp_ajax' => {wp_ajax_hook} )
 	 * @return void
 	 */
 	public function add_importer_widget( $args ) {
 		?>
 		<form action="./admin-ajax.php" method="post" enctype="multipart/form-data" target="_blank">
-			<input type="hidden" name="action" value="<?php echo $args['action']; ?>">
+			<input type="hidden" name="action" value="<?php echo $args['wp_ajax']; ?>">
 			<p class="input-text-wrap">
 				<input type="file" name="<?php echo $this->importer; ?>">
 				<input type="submit" class="button button-primary" value="読み込む">
@@ -308,7 +308,6 @@ class N2_Setupmenu {
 		</form>
 		<?php
 	}
-	/
 	/**
 	 * 自治体インポーター　取り込みテスト用
 	 *
