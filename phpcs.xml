@@ -62,6 +62,9 @@
 		<exclude name="Generic.CodeAnalysis.UnusedFunctionParameter.FoundBeforeLastUsed" />
 		<exclude name="Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed" />
 
+		<!-- エルビス演算子 -->
+		<exclude name="WordPress.PHP.DisallowShortTernary.Found" />
+
 		<!-- インデント -->
 		<exclude name="Generic.WhiteSpace.ScopeIndent" />
 	</rule>
