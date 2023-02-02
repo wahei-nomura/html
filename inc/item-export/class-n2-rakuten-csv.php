@@ -619,28 +619,25 @@ class N2_Rakuten_CSV {
 	 */
 	public function output_error_log() {
 		// 各種設定読み込み
+		global $n2;
+		$rakuten = $n2->rakuten;
 		// setlocale(LC_ALL, 'ja_JP.UTF-8');
-		$n2_file_header = yaml_parse_file( get_theme_file_path( 'config/n2-file-header.yml' ) );
-		$upload_server  = $n2_file_header['rakuten']['upload_server'];
-		$option         = get_option( 'N2_Setupmenu' );
-		$error_options  = array();
+		$error_options = array();
 
-		if ( ! isset( $option['rakuten']['ftp_user'] ) || ! $option['rakuten']['ftp_user'] ) {
+		if ( ! isset( $rakuten['ftp_user'] ) || ! $rakuten['ftp_user'] ) {
 			$error_options = array( ...$error_options, '楽天セットアップ > FTPユーザー' );
 		}
-		if ( ! isset( $option['rakuten']['ftp_pass'] ) || ! $option['rakuten']['ftp_pass'] ) {
+		if ( ! isset( $rakuten['ftp_pass'] ) || ! $rakuten['ftp_pass'] ) {
 			$error_options = array( ...$error_options, '楽天セットアップ > FTPパスワード' );
 		}
 		if ( $error_options ) {
 			// エラー出力して終了
 			$this->rakuetn_setup_error_output( $error_options );
 		}
-		$conn_id  = ftp_connect( $upload_server['domain'], $upload_server['port'] );
-		$ftp_user = $option['rakuten']['ftp_user'];
-		$ftp_pass = $option['rakuten']['ftp_pass'];
-		$login    = ftp_login( $conn_id, $ftp_user, $ftp_pass );
+		$conn_id = ftp_connect( $rakuten['upload_server'], $rakuten['upload_server_port'] );
+		$login   = ftp_login( $conn_id, $rakuten['ftp_user'], $rakuten['ftp_pass'] );
 		if ( ! $login ) {
-			$login = ftp_login( $conn_id, $ftp_user, substr( $ftp_pass, 0, 7 ) . '2' ); // ログインできない場合は末尾を２に変更
+			$login = ftp_login( $conn_id, $rakuten['ftp_user'], substr( $rakuten['ftp_pass'], 0, 7 ) . '2' ); // ログインできない場合は末尾を２に変更
 		}
 		if ( $login ) {
 			ftp_pasv( $conn_id, true );
