@@ -37,13 +37,11 @@ class N2_Rakuten_CSV {
 	 * @return Array $arr 処理に必要なiniの情報を格納した配列
 	 */
 	private function get_config( $ajax_str ) {
+		global $n2;
 		// 初期化
 		$arr = array();
-		// ========ini一覧========
-		$n2_fields = yaml_parse_file( get_theme_file_path( 'config/n2-fields.yml' ) );
-
 		// ========アレルゲン========
-		$allergens_list = $n2_fields['アレルゲン']['option'];
+		$allergens_list = $n2['custom_fields']['アレルゲン']['option'];
 		// ========クルーセットアップでの設定項目========
 		$n2_setupmenu = get_option( 'N2_setupmenu' ) ?? '';
 
