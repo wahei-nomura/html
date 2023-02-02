@@ -75,7 +75,7 @@ class N2_Ledghome {
 																? get_post_meta( $id, '略称', true ) 
 																: N2_Functions::special_str_convert( get_the_title( $id ) ) 
 														) . apply_filters( 'item_name_add', '' ),// 謝礼品名に追加するフック
-					'事業者'       => get_the_author_meta( 'display_name', get_post_field( 'post_author', $id ) ),
+					'事業者'       => get_the_author_meta( 'first_name', get_post_field( 'post_author', $id ) ),
 					'配送名称'      => ( get_post_meta( $id, '配送伝票表示名', true ) ) ? ( $item_num . ' ' . get_post_meta( $id, '配送伝票表示名', true ) ) : $item_num,
 					'ふるさとチョイス名称' => N2_Functions::special_str_convert( get_the_title( $id ) ) . " [{$item_num}]",
 					'楽天名称'      => '【ふるさと納税】' . N2_Functions::special_str_convert( get_the_title( $id ) ) . " [{$item_num}]",
