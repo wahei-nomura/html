@@ -152,6 +152,8 @@ class N2 {
 
 		// 楽天
 		$this->rakuten = $n2_option['rakuten'] ?? array();
+		// ftp_server,upload_serverを追加
+		$this->rakuten = array( ...$this->rakuten, ...yaml_parse_file( get_theme_file_path( 'config/n2-rakuten-common.yml' ) ) );
 	}
 
 	/**
