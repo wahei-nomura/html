@@ -24,6 +24,11 @@ class N2_Setupmenu {
 	 * @var string
 	 */
 	private $cls;
+
+	/**
+	 * import name
+	 */
+	private $importer = 'importer';
 	/**
 	 * 自身のクラス名を格納
 	 *
@@ -37,6 +42,7 @@ class N2_Setupmenu {
 		add_action( 'admin_menu', array( $this, 'add_setup_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'setup_menu_style' ) );
 		add_action( "wp_ajax_{$this->cls}", array( &$this, 'update_setupmenu' ) );
+		add_action( "wp_ajax_n2_municipal_importer", array( &$this, 'output_n2_municipal_importer' ) );
 	}
 	/**
 	 * ajaxでDBに登録する
@@ -69,10 +75,13 @@ class N2_Setupmenu {
 	}
 	/**
 	 * add_setup_menu
-	 * クルー用セットアップ管理ページを追加
 	 */
 	public function add_setup_menu() {
+		// 各種セットアップ管理ページを追加
 		add_menu_page( '各種セットアップ', '各種セットアップ', 'ss_crew', 'n2_setup_menu', array( $this, 'add_crew_setup_menu_page' ), 'dashicons-list-view' );
+
+		// エンジニア専用サブメニュー
+		add_submenu_page( 'n2_setup_menu', 'エンジニア専用', 'エンジニア専用', 'administrator', 'n2_engineer_submenu', array( $this, 'add_engineer_setup_submenu_page' ) );
 	}
 	/**
 	 * クルー用メニュー描画
@@ -84,6 +93,14 @@ class N2_Setupmenu {
 		$this->wrapping_contents( '各ポータル共通説明文', 'add_text_widget' );
 		$this->wrapping_contents( '送料', 'add_postage_widget' );
 		$this->wrapping_contents( '楽天セットアップ', 'rakuten_setup_widget' ); // 必要？
+	}
+	/**
+	 * エンジニア専用サブメニュー描画
+	 *
+	 * @return void
+	 */
+	public function add_engineer_setup_submenu_page() {
+		$this->wrapping_contents( '自治体インポーター', 'add_importer_widget', array( 'action' => 'n2_municipal_importer' ) );
 	}
 
 	/**
@@ -144,12 +161,12 @@ class N2_Setupmenu {
 			<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
 			<input type="hidden" name="judge" value="option">
 			<p class="input-header" style="font-weight:bold">計算式タイプ</p>
-			<select name="<?php echo $this->cls; ?>[delivery_type]">
-				<option value="零号機" <?php echo !empty( get_option( $this->cls )['delivery_type'] ) && get_option( $this->cls )['delivery_type'] === "零号機" ? 'selected' : ''; ?>>タイプ⓪ (商品価格+送料)/0.3</option>
-				<option value="初号機" <?php echo !empty( get_option( $this->cls )['delivery_type'] ) && get_option( $this->cls )['delivery_type'] === "初号機" ? 'selected' : ''; ?>>タイプ① 商品価格/0.3</option>
-				<option value="弐号機" <?php echo !empty( get_option( $this->cls )['delivery_type'] ) && get_option( $this->cls )['delivery_type'] === "弐号機" ? 'selected' : ''; ?>>タイプ② (商品価格+送料)/0.35</option>
-				<option value="使徒" <?php echo !empty( get_option( $this->cls )['delivery_type'] ) && get_option( $this->cls )['delivery_type'] === "使徒" ? 'selected' : ''; ?>>タイプ③ ①と②を比べて金額が大きい方を選択</option>
-				<option value="十三号機" <?php echo !empty( get_option( $this->cls )['delivery_type'] ) && get_option( $this->cls )['delivery_type'] === "十三号機" ? 'selected' : ''; ?>>その他</option>
+			<select name="<?php echo $this->cls; ?>[formula_type]">
+				<option value="零号機" <?php echo !empty( get_option( $this->cls )['formula_type'] ) && get_option( $this->cls )['formula_type'] === "零号機" ? 'selected' : ''; ?>>タイプ⓪ (商品価格+送料)/0.3</option>
+				<option value="初号機" <?php echo !empty( get_option( $this->cls )['formula_type'] ) && get_option( $this->cls )['formula_type'] === "初号機" ? 'selected' : ''; ?>>タイプ① 商品価格/0.3</option>
+				<option value="弐号機" <?php echo !empty( get_option( $this->cls )['formula_type'] ) && get_option( $this->cls )['formula_type'] === "弐号機" ? 'selected' : ''; ?>>タイプ② (商品価格+送料)/0.35</option>
+				<option value="使徒" <?php echo !empty( get_option( $this->cls )['formula_type'] ) && get_option( $this->cls )['formula_type'] === "使徒" ? 'selected' : ''; ?>>タイプ③ ①と②を比べて金額が大きい方を選択</option>
+				<option value="十三号機" <?php echo !empty( get_option( $this->cls )['formula_type'] ) && get_option( $this->cls )['formula_type'] === "十三号機" ? 'selected' : ''; ?>>その他</option>
 			</select>
 			<p class="input-header" style="font-weight:bold">送料</p>
 			<p class="input-text-wrap">
@@ -187,12 +204,12 @@ class N2_Setupmenu {
 			<p class="input-header">レターパック(使用するものをチェックしてください)</p>
 			<p class="input-text-wrap">
 				レターパックライト：
-				<input type="checkbox" name="<?php echo $this->cls; ?>[delivery_fee][]" value="レターパックライト" <?php echo isset( get_option( $this->cls )['delivery_fee'] ) && in_array( 'レターパックライト',  get_option( $this->cls )['delivery_fee'] ) ? 'checked' : ''; ?>>
-		</p>
-		<p class="input-text-wrap">
+				<input type="checkbox" name="<?php echo $this->cls; ?>[delivery_fee][レターパックライト]" value="370" <?php echo isset( get_option( $this->cls )['delivery_fee']['レターパックライト'] ) && get_option( $this->cls )['delivery_fee']['レターパックライト'] ? 'checked' : ''; ?>>
+			</p>
+			<p class="input-text-wrap">
 				レターパックプラス：
-				<input type="checkbox" name="<?php echo $this->cls; ?>[delivery_fee][]" value="レターパックプラス" <?php echo isset( get_option( $this->cls )['delivery_fee'] ) && in_array( 'レターパックプラス',  get_option( $this->cls )['delivery_fee'] ) ? 'checked' : ''; ?>>
-		</p>
+				<input type="checkbox" name="<?php echo $this->cls; ?>[delivery_fee][レターパックプラス]" value="520" <?php echo isset( get_option( $this->cls )['delivery_fee']['レターパックプラス'] ) && get_option( $this->cls )['delivery_fee']['レターパックプラス'] ? 'checked' : ''; ?>>
+			</p>
 
 			<p class="input-header" style="font-weight:bold">クール加算</p>
 			<p class="input-text-wrap">
@@ -276,20 +293,65 @@ class N2_Setupmenu {
 		<?php
 	}
 	/**
+	 * ファイル取り込み用
+	 *
+	 * @param array $args array('wp_ajax' => {wp_ajax_hook} )
+	 * @return void
+	 */
+	public function add_importer_widget( $args ) {
+		?>
+		<form action="./admin-ajax.php" method="post" enctype="multipart/form-data" target="_blank">
+			<input type="hidden" name="action" value="<?php echo $args['wp_ajax']; ?>">
+			<p class="input-text-wrap">
+				<input type="file" name="<?php echo $this->importer; ?>">
+				<input type="submit" class="button button-primary" value="読み込む">
+			</p>
+		</form>
+		<?php
+	}
+	/**
+	 * 自治体インポーター　取り込みテスト用
+	 *
+	 * @return void
+	 */
+	public function output_n2_municipal_importer(){
+		global $n2;
+		if ( $_FILES['importer']['error'] ) {
+			echo 'error upload !! lol';
+			die();
+		}
+		// とりあえずymlをN2_options
+		$manicipal_yaml = yaml_parse_file( $_FILES['importer']['tmp_name'] );
+		//
+		// 登録処理はここに書く
+		//
+		//
+		echo '<pre>';
+		var_dump( $manicipal_yaml );
+		echo '</pre><br>';
+		die();
+	}
+
+	/**
 	 * 各種セットアップの各項目ラッピングして表示を整える
 	 *
 	 * @param string $header 見出し
 	 * @param string $function_name 関数名
+	 * @param array  $args 引数
 	 * @return void
 	 */
-	public function wrapping_contents( $header, $function_name ) {
+	public function wrapping_contents( $header, $function_name, $args = array() ) {
 		?>
 		<div>
 			<div class="postbox-header">
 				<h2><?php echo $header; ?></h2>
 			</div>
 			<div class="inside">
+			<?php if ( $args ) : ?>
+				<?php $this->{$function_name}( $args ); ?>
+			<?php else : ?>
 				<?php $this->{$function_name}(); ?>
+			<?php endif; ?>
 			</div>
 		</div>
 		<?php
@@ -302,4 +364,5 @@ class N2_Setupmenu {
 	public function setup_menu_style() {
 		wp_enqueue_style( 'n2-setupmenu', get_theme_file_uri() . '/dist/setupmenu.css', array(), wp_get_theme()->get( 'Version' ) );
 	}
+
 }
