@@ -131,7 +131,14 @@ class N2 {
 
 		// ログインユーザーデータ
 		$this->current_user = wp_get_current_user();
-		$this->current_user->__set( 'meta', get_user_meta( $this->current_user->ID ) );
+		// ユーザーメタ全取得
+		$user_meta = get_user_meta( $this->current_user->ID );
+		// 値が無駄に配列になるのを避ける
+		foreach ( $user_meta as $key => $val ) {
+			$user_meta[ $key ] = get_user_meta( $this->current_user->ID, $key, true );
+		}
+		// ユーザーメタ追加
+		$this->current_user->__set( 'meta', $user_meta );
 
 		// カスタムフィールド
 		$this->custom_fields    = yaml_parse_file( get_theme_file_path( 'config/n2-fields.yml' ) );

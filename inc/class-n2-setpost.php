@@ -104,7 +104,9 @@ class N2_Setpost {
 							返礼品コード: n2.field_value.返礼品コード,
 							価格: n2.field_value.価格,
 							出品禁止ポータル: n2.field_value.出品禁止ポータル || [],
-							商品タイプ: n2.field_value.商品タイプ ? n2.field_value.商品タイプ : [],// ※食品事業者はデフォルトで食品にしとくのまだ
+							商品タイプ: n2.field_value.商品タイプ 
+								? n2.field_value.商品タイプ 
+								: [ n2.current_user.data.meta.食品取り扱い == '有' ? '食品': '' ],
 							アレルギー有無確認: n2.field_value.アレルギー有無確認 ? n2.field_value.アレルギー有無確認[0] : false,
 							発送方法: n2.field_value.発送方法 || '常温',
 							発送サイズ: n2.field_value.発送サイズ || '',
