@@ -10,9 +10,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * グローバル変数 $n2 生成
+ */
+require_once get_theme_file_path( 'inc/class-n2.php' );
+add_action(
+	'after_setup_theme',
+	function () {
+		$GLOBALS['n2'] = new N2();
+	}
+);
+
+/**
  * Require config.php
  */
-require_once get_theme_file_path() . '/config/config.php';
+require_once get_theme_file_path( '/config/config.php' );
 
 /**
  * Require inc
@@ -36,7 +47,8 @@ $incs = array(
 	'class-n2-item-export',
 	// 'class-n2-front-comment', // 2022-11-29 コメントアウト taiki
 	'class-n2-rakuten-transfer',
+	'api/class-n2-donation-amount-api',
 );
 foreach ( $incs as $name ) {
-	require_once get_theme_file_path() . "/inc/{$name}.php";
+	require_once get_theme_file_path( "/inc/{$name}.php" );
 }
