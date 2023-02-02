@@ -27,6 +27,13 @@ class N2 {
 	public $cash_buster;
 
 	/**
+	 * ブログプレフィックス
+	 *
+	 * @var string
+	 */
+	public $blog_prefix;
+
+	/**
 	 * サイトID
 	 *
 	 * @var int
@@ -39,6 +46,13 @@ class N2 {
 	 * @var string
 	 */
 	public $town;
+
+	/**
+	 * ajaxurl
+	 *
+	 * @var string
+	 */
+	public $ajaxurl;
 
 	/**
 	 * ユーザー情報
@@ -130,6 +144,7 @@ class N2 {
 		$this->blog_prefix = $wpdb->get_blog_prefix();
 		$this->site_id     = get_current_blog_id();
 		$this->town        = get_bloginfo( 'name' );
+		$this->ajaxurl     = admin_url( 'admin-ajax.php' );
 
 		// ログインユーザーデータ
 		$this->current_user = wp_get_current_user();
