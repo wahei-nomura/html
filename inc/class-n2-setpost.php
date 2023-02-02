@@ -34,7 +34,7 @@ class N2_Setpost {
 		add_action( 'admin_head-post.php', array( $this, 'n2_field_custom' ) );
 		add_action( 'admin_head-post-new.php', array( $this, 'n2_field_custom' ) );
 		add_action( 'init', array( $this, 'remove_editor_support' ) );
-		add_action( 'init', array( $this, 'update_user_meta' ) ); // ブロックエディタでのユーザーのデフォルトの挙動変更
+		add_action( 'init', array( $this, 'set_default_user_meta' ) ); // ブロックエディタでのユーザーのデフォルトの挙動変更
 		add_action( 'admin_menu', array( $this, 'add_customfields' ) );
 		add_action( 'save_post', array( $this, 'save_customfields' ) );
 		add_filter( 'upload_mimes', array( $this, 'add_mimes' ) );
@@ -49,7 +49,7 @@ class N2_Setpost {
 	/**
 	 * ブロックエディタでのユーザーのデフォルトの挙動変更
 	 */
-	public function update_user_meta() {
+	public function set_default_user_meta() {
 		global $n2;
 		$user_meta = get_user_meta( $n2->current_user->ID );
 		if ( empty( $user_meta[ "{$n2->blog_prefix}persisted_preferences" ] ) ) {
