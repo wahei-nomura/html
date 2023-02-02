@@ -16,18 +16,22 @@
 
 返礼品コード:
     type: text
+    description: "[事業者コード3桁アルファベット][3桁数字]で構成"
     placeholder: 例）AAA000
     v-model: 返礼品コード
+    "@focus": set_info($event.target)
+    "@input": "$event.target.value = force_half_size_text($event.target.value)"
 
 LH表示名:
     type: text
     placeholder: 例）ヒレステーキ 200g
 
 寄附金額:
-    type: number
+    type: text
     step: 1000
     placeholder: 例）10000
     v-model: 寄附金額
+    "@input": "$event.target.value = force_half_size_text($event.target.value, true)"
 
 # 固定のため変更不可
 全商品ディレクトリID:

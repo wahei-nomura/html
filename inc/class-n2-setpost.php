@@ -188,34 +188,32 @@ class N2_Setpost {
 						n2.vue = new Vue({
 							el: '.edit-post-layout__metaboxes',
 							data,
-							created() {
+							async created() {
+								this.寄附金額 = this.寄附金額 || await this.calc_donation(this.価格,this.送料,this.定期便);
+								this.show_submit();
 								// 発送サイズ・発送方法をダブル監視
 								this.$watch(
 									() => {
 										return {
 											価格: this.$data.価格,
-											発送サイズ: this.$data.発送サイズ,
 											発送方法: this.$data.発送方法,
+											発送サイズ: this.$data.発送サイズ,
+											送料: this.$data.送料,
 											定期便: this.$data.定期便,
 										}
 									},
-									async function(v) {
+									async function(newVal, oldVal) {
 										const size = [
-											v.発送サイズ,
-											v.発送方法 != '常温' ? 'cool' : ''
+											newVal.発送サイズ,
+											newVal.発送方法 != '常温' ? 'cool' : ''
 										].filter(v=>v);
-										this.送料 = window.n2.delivery_fee[size.join('_')];
-										const opt = {
-											url: window.ajaxurl,
-											data: {
-												action: 'n2_donation_amount_api',
-												price: v.価格,
-												delivery_fee: this.送料,
-												subscription: v.定期便,
-											}
-										}
-										this.寄附金額 = await $.ajax(opt);
-									}
+										
+										this.送料 = newVal.送料 != oldVal.送料
+											? newVal.送料
+											: window.n2.delivery_fee[size.join('_')];
+										this.寄附金額 = await this.calc_donation(newVal.価格,this.送料,newVal.定期便);
+										this.show_submit();
+									},
 								);
 							},
 							methods: {
@@ -236,6 +234,16 @@ class N2_Setpost {
 									if ( $(target).attr('maxlength') ) {
 										$(target).parents('.n2-fields-value').find('.n2-field-description').html(info.join(''));
 									}
+								},
+								// 強制半角数字入力
+								force_half_size_text(text, number){
+									// 全角英数を半角英数に変換
+									text = text.replace(/[Ａ-Ｚａ-ｚ０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 65248) );
+									// 半角英数以外削除
+									text = text.replace(/[^A-Za-z0-9]/g, '');
+									// 半角数字以外削除
+									text = number ? text.replace(/[^0-9]/g, ''): text;
+									return text;
 								},
 								// メディアアップローダー関連
 								add_media(){
@@ -318,14 +326,26 @@ class N2_Setpost {
 									}
 								},
 								// 寄附金額計算
-								calc_donation(target) {
-									// 寄附金額が確定している場合はロック
-									// if ( n2.field_value.寄附金額 ) return;
-									const 送料 = this.発送サイズ == 'その他'
-										? this.送料
-										: n2.delivery_pattern.normal[$(target).find(':selected').text().trim()];
-									this.寄附金額 = Math.ceil( (Number(送料) + Number(this.価格))/350 )*1000;
-									console.log( this.発送方法, this.価格, this.発送サイズ, this.送料, this.寄附金額 );
+								async calc_donation(price, delivery_fee, subscription) {
+									// 寄附金額が確定している場合はロック？
+									const opt = {
+										url: window.n2.ajaxurl,
+										data: {
+											action: 'n2_donation_amount_api',
+											price,
+											delivery_fee,
+											subscription,
+										}
+									}
+									return await $.ajax(opt);
+								},
+								// スチームシップへ送信ボタンの制御
+								show_submit() {
+									if ( this.価格 > 0 && this.送料 > 0  ) {
+										$('.editor-post-publish-button__button').attr('disabled', false).show();
+									} else {
+										$('.editor-post-publish-button__button').attr('disabled', true).hide();
+									}
 								}
 							},
 							components,
