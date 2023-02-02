@@ -131,8 +131,7 @@ class N2 {
 
 		// ログインユーザーデータ
 		$this->current_user = wp_get_current_user();
-		// jsに渡す場合にログイン情報は怖いので消しとく
-		unset( $this->current_user->data->user_login, $this->current_user->data->user_pass );
+		$this->current_user->__set( 'meta', get_user_meta( $this->current_user->ID ) );
 
 		// カスタムフィールド
 		$this->custom_fields    = yaml_parse_file( get_theme_file_path( 'config/n2-fields.yml' ) );
