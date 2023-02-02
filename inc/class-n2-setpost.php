@@ -78,7 +78,12 @@ class N2_Setpost {
 			<script>
 				
 				jQuery(function($){
-
+					// ダークモード搭載
+					$('body').append('<style>body.n2-darkmode{filter: invert(100%);}body.n2-darkmode img{filter: invert(100%);}</style>');
+					$(".edit-post-header-toolbar__left").append('<div id="n2-darkmode-toggler" class="btn btn-dark ms-2">darkmode</div>');
+					if ( localStorage.getItem('n2-dark') ) {
+						$('body').toggleClass('n2-darkmode');
+					}
 					wp.i18n.setLocaleData( {
 						"Submit for Review": ["スチームシップに送信"],
 						"Pending review": ["スチームシップ確認中"],
@@ -100,12 +105,7 @@ class N2_Setpost {
 						$("#wpwrap").show(1000);
 						$("#n2-loading").remove();
 
-						// ダークモード搭載
-						$('body').append('<style>body.n2-darkmode{filter: invert(100%);}body.n2-darkmode img{filter: invert(100%);}</style>');
-						$(".edit-post-header-toolbar__left").append('<div id="n2-darkmode-toggler" class="btn btn-dark ms-2">darkmode</div>');
-						if ( localStorage.getItem('n2-dark') ) {
-							$('body').toggleClass('n2-darkmode');
-						}
+						// ダークモードスイッチ
 						$("#n2-darkmode-toggler").on('click',()=>{
 							$('body').toggleClass('n2-darkmode');
 							if ( localStorage.getItem('n2-dark') ) {
