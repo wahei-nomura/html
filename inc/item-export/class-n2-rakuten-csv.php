@@ -41,7 +41,7 @@ class N2_Rakuten_CSV {
 		// 初期化
 		$arr = array();
 		// ========アレルゲン========
-		$allergens_list = $n2['custom_fields']['アレルゲン']['option'];
+		$allergens_list = $n2->custom_fields['アレルゲン']['option'];
 		// ========クルーセットアップでの設定項目========
 		$n2_setupmenu = get_option( 'N2_setupmenu' ) ?? '';
 
@@ -54,7 +54,7 @@ class N2_Rakuten_CSV {
 		// 内容を追加、または上書きするためのフック
 		return apply_filters( 'n2_item_export_get_yml', $arr );
 	}
-	
+
 	private function rakuetn_setup_error_output( $errors ) {
 		$home = get_option( 'home' );
 		?>
