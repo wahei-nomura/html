@@ -126,8 +126,10 @@ class N2 {
 		$this->cash_buster = 'develop' === $this->mode ? time() : wp_get_theme()->get( 'Version' );
 
 		// サイト基本情報
-		$this->site_id = get_current_blog_id();
-		$this->town    = get_bloginfo( 'name' );
+		global $wpdb;
+		$this->blog_prefix = $wpdb->get_blog_prefix();
+		$this->site_id     = get_current_blog_id();
+		$this->town        = get_bloginfo( 'name' );
 
 		// ログインユーザーデータ
 		$this->current_user = wp_get_current_user();
@@ -137,6 +139,7 @@ class N2 {
 		foreach ( $user_meta as $key => $val ) {
 			$user_meta[ $key ] = get_user_meta( $this->current_user->ID, $key, true );
 		}
+
 		// ユーザーメタ追加
 		$this->current_user->__set( 'meta', $user_meta );
 
