@@ -103,7 +103,17 @@ class N2_Setpost {
 						// ダークモード搭載
 						$('body').append('<style>body.n2-darkmode{filter: invert(100%);}body.n2-darkmode img{filter: invert(100%);}</style>');
 						$(".edit-post-header-toolbar__left").append('<div id="n2-darkmode-toggler" class="btn btn-dark ms-2">darkmode</div>');
-						$("#n2-darkmode-toggler").on('click',()=>{ $('body').toggleClass('n2-darkmode')});
+						if ( localStorage.getItem('n2-dark') ) {
+							$('body').toggleClass('n2-darkmode');
+						}
+						$("#n2-darkmode-toggler").on('click',()=>{
+							$('body').toggleClass('n2-darkmode');
+							if ( localStorage.getItem('n2-dark') ) {
+								localStorage.removeItem('n2-dark');
+							} else {
+								localStorage.setItem('n2-dark', true);
+							}
+						});
 
 						// タイトル文字数カウンター
 						$('.editor-post-title__input').before('<div id="n2-title-counter" class="badge bg-dark position-absolute top-100 rounded-0 rounded-bottom shadow-sm">');
