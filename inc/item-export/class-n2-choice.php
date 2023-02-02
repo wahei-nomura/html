@@ -148,8 +148,8 @@ class N2_Choice {
                 '（必須）常温配送'        => ( get_post_meta( $id, "発送方法", true ) == "常温" ) ? 1 : 0,
                 '（必須）冷蔵配送'        => ( get_post_meta( $id, "発送方法", true ) == "冷蔵" ) ? 1 : 0,
                 '（必須）冷凍配送'        => ( get_post_meta( $id, "発送方法", true ) == "冷凍" ) ? 1 : 0,
-                '（必須）包装対応'        => ( get_post_meta( $id, "包装対応", true ) == "冷凍" ) ? 1 : 0,
-                '（必須）のし対応'        => ( get_post_meta( $id, "のし対応", true ) == "冷凍" ) ? 1 : 0,
+                '（必須）包装対応'        => ( get_post_meta( $id, "包装対応", true ) == "有り" ) ? 1 : 0,
+                '（必須）のし対応'        => ( get_post_meta( $id, "のし対応", true ) == "有り" ) ? 1 : 0,
                 '（必須）定期配送対応'        => ( get_post_meta( $id, "定期便", true ) == 1 || get_post_meta( $id, "定期便", true ) == "" ) ? 0 : 1,
                 '（必須）クレジット決済限定'        => ( get_post_meta( $id, "クレジット決済限定", true ) == "クレジット決済限定" ) ? 1 : 0,
                 'カテゴリー'        => "",
@@ -157,6 +157,10 @@ class N2_Choice {
                 '受付開始日時'        => "2025/04/01 00:00",
                 '（条件付き必須）還元率（%）'        => 30,
             );
+			for($i = 1; $i < 9; $i++) {
+				$ii = (($i - 1) == 0) ? "" : "-" . ($i - 1);
+				$arr = $arr + array( "スライド画像{$i}" => mb_strtolower($item_code) . "{$ii}.jpg" );
+			}
 
             // 内容を追加、または上書きするためのフック
 			$items_arr[ $id ] = array( ...$items_arr[ $id ], ...apply_filters( 'n2_item_export_choice_items', $arr, $id ) );
