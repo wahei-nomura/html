@@ -149,7 +149,11 @@ class N2_Setpost {
 								label: 'ポータル登録準備中',
 								class: 'progress-bar bg-primary col-10',
 							},
-							'registered': {
+							'private': {
+								label: '非公開',
+								class: 'progress-bar bg-dark col-12',
+							},
+							'unko': {
 								label: 'ポータル登録済',
 								class: 'progress-bar bg-success col-12',
 							},
