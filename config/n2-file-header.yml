@@ -42,44 +42,6 @@ ledghome:
     setting :
       deliva_price_reflect : false
       teiki_price : false
-
-rakuten :
-    item_csv :
-        values:
-        - コントロールカラム
-        - 商品管理番号（商品URL）
-        - 商品番号
-        - 全商品ディレクトリID
-        - タグID
-        - PC用キャッチコピー
-        - モバイル用キャッチコピー
-        - 商品名
-        - 販売価格
-        - 送料
-        - のし対応
-        - PC用商品説明文
-        - スマートフォン用商品説明文
-        - PC用販売説明文
-        - 商品画像URL
-        - 在庫タイプ
-        - 在庫数
-        - カタログID
-        - カタログIDなしの理由
-    select_csv :
-        values:
-        - 項目選択肢用コントロールカラム
-        - 商品管理番号（商品URL）
-        - 選択肢タイプ
-        - 項目選択肢項目名
-        - 項目選択肢
-        - 項目選択肢選択必須"
-    img_dir: https://image.rakuten.co.jp/n2-towncode/cabinet/item
-    upload_server:
-        domain: upload.rakuten.ne.jp
-        port: 21
-    ftp_server:
-        domain: ftp.rakuten.ne.jp
-        port: 16910
 choice :
     tsv_header :
         title : チョイス
