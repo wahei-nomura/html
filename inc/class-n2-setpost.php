@@ -34,6 +34,7 @@ class N2_Setpost {
 		add_action( 'admin_head-post.php', array( $this, 'n2_field_custom' ) );
 		add_action( 'admin_head-post-new.php', array( $this, 'n2_field_custom' ) );
 		add_action( 'init', array( $this, 'remove_editor_support' ) );
+		add_action( 'init', array( $this, 'update_user_meta' ) ); // ブロックエディタでのユーザーのデフォルトの挙動変更
 		add_action( 'admin_menu', array( $this, 'add_customfields' ) );
 		add_action( 'save_post', array( $this, 'save_customfields' ) );
 		add_filter( 'upload_mimes', array( $this, 'add_mimes' ) );
@@ -44,6 +45,21 @@ class N2_Setpost {
 		add_filter( 'intermediate_image_sizes_advanced', array( $this, 'not_create_image' ) );
 		add_filter( 'wp_handle_upload', array( $this, 'image_compression' ) );
 		add_filter( 'post_link', array( $this, 'set_post_paermalink' ), 10, 3 );
+	}
+	/**
+	 * ブロックエディタでのユーザーのデフォルトの挙動変更
+	 */
+	public function update_user_meta() {
+		global $n2;
+		$user_meta = get_user_meta( $n2->current_user->ID );
+		if ( empty( $user_meta[ "{$n2->blog_prefix}persisted_preferences" ] ) ) {
+			$user_meta[ "{$n2->blog_prefix}persisted_preferences" ] = array(
+				'core/edit-post' => array(
+					'welcomeGuide' => false, // ブロックエディタへようこそ非表示
+				),
+			);
+			update_user_meta( $n2->current_user->ID, "{$n2->blog_prefix}persisted_preferences", $user_meta[ "{$n2->blog_prefix}persisted_preferences" ] );
+		}
 	}
 
 	/**
