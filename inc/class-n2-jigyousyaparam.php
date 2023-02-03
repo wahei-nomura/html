@@ -58,15 +58,9 @@ class N2_Jigyousyaparam {
 
 		$params = $this->params();
 
-		foreach ( $params as $key => $value ) {
-			if ( ! empty( get_user_meta( $user->ID, $value['meta'], true ) ) && '' !== get_user_meta( $user->ID, $value['meta'], true ) ) {
-				// すでに登録済みの項目は出さない
-				unset( $params[ $key ] );
-			}
-		}
 
 		// 食品取扱登録用モーダルテンプレートをinclude
-		if ( count( $params ) > 0 ) {
+		if ( ! empty( get_user_meta( $user->ID, '商品タイプ', true ) ) ) {
 			get_template_part(
 				'template/jigyousya-paramset',
 				null,
@@ -85,12 +79,16 @@ class N2_Jigyousyaparam {
 	 * @return void
 	 */
 	public function update_setupmenu() {
+		global $n2;
 		$params = $this->params();
+		$item_types = ! empty( $n2->current_user->data->meta['商品タイプ'] ) ? $n2->current_user->data->meta['商品タイプ'] : array();
+
 		foreach ( $params as $key => $value ) {
 			if ( ! empty( $_POST[ $key ] ) && '' !== $_POST[ $key ] ) {
-				update_user_meta( wp_get_current_user()->ID, $value['meta'], filter_input( INPUT_POST, $key ) );
+				$item_types[] = $key;
 			}
 		}
+		update_user_meta( wp_get_current_user()->ID, '商品タイプ', $item_types );
 		echo '食品取扱い有無更新完了';
 		die();
 	}

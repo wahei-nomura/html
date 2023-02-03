@@ -104,7 +104,7 @@
 
 	<?php
 		foreach ( $args['params'] as $key => $value ) :
-		$result = get_user_meta( wp_get_current_user()->ID, $value['meta'], true ) ? get_user_meta( wp_get_current_user()->ID, $value['meta'], true ) : '';
+		$result = get_user_meta( wp_get_current_user()->ID, $key, true ) ? get_user_meta( wp_get_current_user()->ID, $key, true ) : '';
 	?>
 
 		<div class="ss-check-item">
