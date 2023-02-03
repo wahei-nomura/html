@@ -71,6 +71,7 @@ class N2_Setpost {
 		global $post;
 		?>
 			<link href="//cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+			<style>body.n2-darkmode{filter: invert(100%);}body.n2-darkmode img{filter: invert(100%);}</style>
 			<style id="n2-edit-post"></style>
 			<script src="//cdn.jsdelivr.net/npm/vue@2.x"></script>
 			<script src="//cdn.jsdelivr.net/npm/sortablejs@1.8.4/Sortable.min.js"></script>
@@ -79,10 +80,7 @@ class N2_Setpost {
 				
 				jQuery(function($){
 					// ダークモード搭載
-					$('body').append('<style>body.n2-darkmode{filter: invert(100%);}body.n2-darkmode img{filter: invert(100%);}</style>');
-					if ( localStorage.getItem('n2-dark') ) {
-						$('body').toggleClass('n2-darkmode');
-					}
+					$('body').append('');
 					wp.i18n.setLocaleData( {
 						"Submit for Review": ["スチームシップに送信"],
 						"Pending review": ["スチームシップ確認中"],
@@ -108,11 +106,7 @@ class N2_Setpost {
 						$(".edit-post-header-toolbar__left").append('<div id="n2-darkmode-toggler" class="btn btn-dark ms-2">darkmode</div>');
 						$("#n2-darkmode-toggler").on('click',()=>{
 							$('body').toggleClass('n2-darkmode');
-							if ( localStorage.getItem('n2-dark') ) {
-								localStorage.removeItem('n2-dark');
-							} else {
-								localStorage.setItem('n2-dark', true);
-							}
+							document.cookie = n2.cookie['n2-darkmode'] ? 'n2-darkmode=true; max-age=0' : 'n2-darkmode=true';
 						});
 
 						// タイトル文字数カウンター

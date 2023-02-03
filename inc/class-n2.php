@@ -55,6 +55,13 @@ class N2 {
 	public $ajaxurl;
 
 	/**
+	 * Cookie
+	 *
+	 * @var array
+	 */
+	public $cookie;
+
+	/**
 	 * ユーザー情報
 	 *
 	 * @var array
@@ -145,6 +152,7 @@ class N2 {
 		$this->site_id     = get_current_blog_id();
 		$this->town        = get_bloginfo( 'name' );
 		$this->ajaxurl     = admin_url( 'admin-ajax.php' );
+		$this->cookie      = $_COOKIE;
 
 		// ログインユーザーデータ
 		$this->current_user = wp_get_current_user();
