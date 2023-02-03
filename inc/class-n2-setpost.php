@@ -79,8 +79,11 @@ class N2_Setpost {
 			<script>
 				
 				jQuery(function($){
-					// ダークモード搭載
-					$('body').append('');
+					// 計算式タイプなどの必須項目が入っていない場合アラートを出す（条件要検討）
+					if ( ! n2.formula_type ) {
+						alert( '寄附金額の自動計算に必須の設定値がありません。先程のページへ戻ります。' );
+						history.back();
+					}
 					wp.i18n.setLocaleData( {
 						"Submit for Review": ["スチームシップに送信"],
 						"Pending review": ["スチームシップ確認中"],
@@ -216,6 +219,7 @@ class N2_Setpost {
 											? newVal.送料
 											: window.n2.delivery_fee[size.join('_')];
 										this.寄附金額 = await this.calc_donation(newVal.価格,this.送料,newVal.定期便);
+										console.log(newVal.価格,this.送料,newVal.定期便)
 										this.show_submit();
 									},
 								);

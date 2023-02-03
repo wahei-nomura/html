@@ -33,10 +33,10 @@ class N2_Donation_Amount_API {
 		global $n2;
 		$args = $args ? wp_parse_args( $args ) : $_GET;
 		// タイプ・価格・送料
-		$type         = $n2->formula_type ?? '初号機';
-		$price        = $args['price'] ?: 0;
-		$delivery_fee = $args['delivery_fee'] ?: 0;
-		$subscription = $args['subscription'] ?: 1;
+		$type         = $n2->formula_type;
+		$price        = (int) $args['price'] ?: 0;
+		$delivery_fee = (int) $args['delivery_fee'] ?: 0;
+		$subscription = (int) $args['subscription'] ?: 1;
 		$action       = $args['action'] ?: false;
 
 		// エヴァの出撃準備

@@ -28,7 +28,6 @@ LH表示名:
 
 寄附金額:
     type: text
-    step: 1000
     placeholder: 例）10000
     v-model: 寄附金額
     "@input": "$event.target.value = force_half_size_text($event.target.value, true)"
