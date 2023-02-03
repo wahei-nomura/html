@@ -24,6 +24,7 @@ class N2_Enqueuescript {
 	public function __construct() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_setpost_script' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_front_script' ) );
+		add_filter( 'admin_body_class', array( $this, 'add_admin_body_class' ) );
 		add_action( 'admin_footer', array( $this, 'noscript' ) );
 		add_action( 'wp_footer', array( $this, 'noscript' ) );
 	}
@@ -33,7 +34,7 @@ class N2_Enqueuescript {
 	 *
 	 * @return void
 	 */
-	public function enqueue_setpost_script() {
+	public function enqueue_setpost_script( $hook_suffix ) {
 		wp_enqueue_media();
 
 		wp_enqueue_script( 'n2-script', get_theme_file_uri( 'dist/admin.js' ), array( 'jquery' ), N2_CASH_BUSTER, true );
@@ -54,6 +55,17 @@ class N2_Enqueuescript {
 		wp_enqueue_style( 'n2-front-style', get_theme_file_uri( 'dist/front.css' ), array(), N2_CASH_BUSTER );
 
 		wp_localize_script( 'n2-front-script', 'tmp_path', $this->get_tmp_path() );
+	}
+
+	/**
+	 * 管理画面のbodyにクラス付与
+	 *
+	 * @param string $classes bodyに追加するclass
+	 * @return $classes
+	 */
+	public function add_admin_body_class( $classes ) {
+		$classes .= $_COOKIE['n2-darkmode'] ? ' n2-darkmode' : '';
+		return $classes;
 	}
 
 	/**

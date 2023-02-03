@@ -27,6 +27,13 @@ class N2 {
 	public $cash_buster;
 
 	/**
+	 * ブログプレフィックス
+	 *
+	 * @var string
+	 */
+	public $blog_prefix;
+
+	/**
 	 * サイトID
 	 *
 	 * @var int
@@ -39,6 +46,20 @@ class N2 {
 	 * @var string
 	 */
 	public $town;
+
+	/**
+	 * ajaxurl
+	 *
+	 * @var string
+	 */
+	public $ajaxurl;
+
+	/**
+	 * Cookie
+	 *
+	 * @var array
+	 */
+	public $cookie;
 
 	/**
 	 * ユーザー情報
@@ -126,14 +147,25 @@ class N2 {
 		$this->cash_buster = 'develop' === $this->mode ? time() : wp_get_theme()->get( 'Version' );
 
 		// サイト基本情報
-		$this->site_id = get_current_blog_id();
-		$this->town    = get_bloginfo( 'name' );
+		global $wpdb;
+		$this->blog_prefix = $wpdb->get_blog_prefix();
+		$this->site_id     = get_current_blog_id();
+		$this->town        = get_bloginfo( 'name' );
+		$this->ajaxurl     = admin_url( 'admin-ajax.php' );
+		$this->cookie      = $_COOKIE;
 
 		// ログインユーザーデータ
 		$this->current_user = wp_get_current_user();
-		// jsに渡す場合にログイン情報は怖いので消しとく
-		unset( $this->current_user->data->user_login, $this->current_user->data->user_pass );
-		
+		// ユーザーメタ全取得
+		$user_meta = get_user_meta( $this->current_user->ID );
+		// 値が無駄に配列になるのを避ける
+		foreach ( $user_meta as $key => $val ) {
+			$user_meta[ $key ] = get_user_meta( $this->current_user->ID, $key, true );
+		}
+
+		// ユーザーメタ追加
+		$this->current_user->__set( 'meta', $user_meta );
+
 		// カスタムフィールド
 		$this->custom_fields    = yaml_parse_file( get_theme_file_path( 'config/n2-fields.yml' ) );
 		$this->custom_fields_ss = yaml_parse_file( get_theme_file_path( 'config/n2-ss-fields.yml' ) );
