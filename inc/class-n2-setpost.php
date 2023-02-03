@@ -124,7 +124,7 @@ class N2_Setpost {
 						// このdataをプラグイン側で上書きする
 						const data = {
 							寄附金額: n2.field_value.寄附金額,
-							寄附金額固定: n2.field_value.寄附金額固定,
+							寄附金額固定: n2.field_value.寄附金額固定 || [],
 							返礼品コード: n2.field_value.返礼品コード,
 							価格: n2.field_value.価格,
 							出品禁止ポータル: n2.field_value.出品禁止ポータル || [],
