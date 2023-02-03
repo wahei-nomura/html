@@ -135,7 +135,7 @@ class N2_Setpost {
 							発送方法: n2.field_value.発送方法 || '常温',
 							発送サイズ: n2.field_value.発送サイズ || '',
 							送料: n2.field_value.送料,
-							取り扱い方法: n2.field_value.取り扱い方法,
+							取り扱い方法: n2.field_value.取り扱い方法 || [],
 							定期便: n2.field_value.定期便 || 1,
 							商品画像: n2.field_value.商品画像 || [],
 							全商品ディレクトリID: {
