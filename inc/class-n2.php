@@ -133,7 +133,7 @@ class N2 {
 		$this->current_user = wp_get_current_user();
 		// jsに渡す場合にログイン情報は怖いので消しとく
 		unset( $this->current_user->data->user_login, $this->current_user->data->user_pass );
-
+		
 		// カスタムフィールド
 		$this->custom_fields    = yaml_parse_file( get_theme_file_path( 'config/n2-fields.yml' ) );
 		$this->custom_fields_ss = yaml_parse_file( get_theme_file_path( 'config/n2-ss-fields.yml' ) );
@@ -150,10 +150,20 @@ class N2 {
 		// 寄附金額計算式タイプ
 		$this->formula_type = $n2_option['formula_type'] ?? '';
 
+		// ポータル一覧
+		$this->portals = array(
+			'rakuten' => '楽天',
+			'furusato_choice' => 'チョイス' 
+		);
+		$this->town_code = $this->get_portal_town_code_list();
+
 		// 楽天
 		$this->rakuten = $n2_option['rakuten'] ?? array();
 		// ftp_server,upload_serverを追加
 		$this->rakuten = array( ...$this->rakuten, ...yaml_parse_file( get_theme_file_path( 'config/n2-rakuten-common.yml' ) ) );
+
+		// チョイス
+		$this->furusato_choice = $n2_option['furusato_choice'] ?? array();
 	}
 
 	/**
@@ -178,6 +188,23 @@ class N2 {
 			'183.177.128.173', // 土岐
 			'217.178.116.13', // 大村
 			'175.41.201.54', // SSVPN
+		);
+	}
+
+	/**
+	 * 自治体コードを一つの配列にまとめる
+	 *
+	 * @return array
+	 */
+	public function get_portal_town_code_list () {
+		$town_code_list = array();
+		// ポータル一覧
+		$town_code       = yaml_parse_file( get_theme_file_path( 'config/n2-towncode.yml' ) );
+		$municipal       = explode( '/', get_option( 'home' ) );
+		$town_name       = end( $municipal );
+		return array(
+			'rakuten'   => $n2_option['rakuten']['town_code'] ?? $town_code[ $town_name ]['楽天'] ?? '',
+			'furusato_choice' => $n2_option['furusato_choice']['town_code'] ?? $this->town,
 		);
 	}
 }
