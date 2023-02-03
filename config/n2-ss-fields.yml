@@ -88,6 +88,17 @@ LH表示名:
     placeholder: 例）〇〇県が認定した返礼品であるため。
     "@focus": set_info($event.target)
 
+出品禁止ポータル:
+    label: 出品禁止ポータルサイト
+    type: checkbox
+    option-equal: true
+    description: この返礼品を出品しないポータルサイトがあればチェックを入れてください。
+    v-model: 出品禁止ポータル
+    option:
+        - ふるさとチョイス
+        - 楽天ふるさと納税
+    "@mouseover": set_info($event.target)
+
 社内共有事項:
     type: textarea
     description: この商品に関して社内共有すべきことがあればここに記入。
