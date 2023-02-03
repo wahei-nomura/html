@@ -27,9 +27,11 @@ LH表示名:
     placeholder: 例）ヒレステーキ 200g
 
 寄附金額:
-    type: text
+    type: donation-amount
+    description: 寄附金額を固定したい場合はチェックしてください。
     placeholder: 例）10000
     v-model: 寄附金額
+    "@focus": set_info($event.target)
     "@input": "$event.target.value = force_half_size_text($event.target.value, true)"
 
 # 固定のため変更不可
