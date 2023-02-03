@@ -16,7 +16,7 @@
 
 返礼品コード:
     type: text
-    description: "[事業者コード3桁アルファベット][3桁数字]で構成"
+    description: "[事業者コード3桁アルファベット大文字][3桁数字]で構成"
     placeholder: 例）AAA000
     v-model: 返礼品コード
     "@focus": set_info($event.target)
@@ -47,24 +47,29 @@ LH表示名:
     type: rakuten-tagid
     description: 楽天登録に必要なタグを複数選択します。
     maxlength: 256
+    rows: auto
     v-model: タグID.text
     v-if: "!出品禁止ポータル.includes('楽天ふるさと納税')&&全商品ディレクトリID.text"
-    style: 'width: 100%;height:5em;'
-    "@focus": set_info($event.target)
+    style: 'width: 100%;'
+    "@focus": set_info($event.target);get_genreid()
+    "@input": auto_fit_tetxarea($event.target)
 
 # 固定のため変更不可
 楽天SPAカテゴリー:
     type: rakuten-spa-category
     v-model: 楽天SPAカテゴリー.text
     v-if: "!出品禁止ポータル.includes('楽天ふるさと納税')"
-    style: 'width: 100%;height:5em;'
+    style: 'width: 100%;'
+    "@focus": get_spa_category()
+    "@input": auto_fit_tetxarea($event.target)
 
 検索キーワード:
     type: textarea
     description: 商品名や説明文に入っていないキーワードをスペース区切りで書いてください。
     placeholder: 例）はちみつ 蜂蜜 お歳暮 お中元
-    style: 'width: 100%;height:5em;'
+    style: 'width: 100%;'
     "@focus": set_info($event.target)
+    "@input": auto_fit_tetxarea($event.target)
 
 地場産品類型:
     type: select
@@ -83,10 +88,11 @@ LH表示名:
 
 類型該当理由:
     type: textarea
-    style: 'width: 100%;height:5em;'
+    style: 'width: 100%;'
     description: 上記、地場産品類型に該当する理由を書いてください。
     placeholder: 例）〇〇県が認定した返礼品であるため。
     "@focus": set_info($event.target)
+    "@input": auto_fit_tetxarea($event.target)
 
 出品禁止ポータル:
     label: 出品禁止ポータルサイト
@@ -102,5 +108,7 @@ LH表示名:
 社内共有事項:
     type: textarea
     description: この商品に関して社内共有すべきことがあればここに記入。
-    style: 'width: 100%;height:5em;'
+    style: 'width: 100%;'
+    rows: auto
     "@focus": set_info($event.target)
+    "@input": auto_fit_tetxarea($event.target)

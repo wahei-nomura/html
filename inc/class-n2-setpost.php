@@ -96,11 +96,14 @@ class N2_Setpost {
 						"Always show pre-publish checks.": ["このパネルを常に表示する"],
 						"Are you sure you want to unpublish this post?": ["事業者入力可能になります。よろしいですか？"],
 					} );
-
+					wp.domReady(function (e) {
+						console.log(e)
+					})
 					$("#wpwrap").hide();
 					// ローディング追加
 					$('body').append('<div id="n2-loading" class="d-flex justify-content-center align-items-center vh-100 bg-white"><div class="spinner-border text-primary"></div></div>');
 					$(".edit-post-layout__metaboxes").ready(() => {
+						
 						// ローディング削除
 						$("#wpwrap").show(1000);
 						$("#n2-loading").remove();
@@ -111,12 +114,8 @@ class N2_Setpost {
 							$('body').toggleClass('n2-darkmode');
 							document.cookie = n2.cookie['n2-darkmode'] ? 'n2-darkmode=true; max-age=0' : 'n2-darkmode=true';
 						});
-
 						// タイトル文字数カウンター
-						$('.editor-post-title__input').before('<div id="n2-title-counter" class="badge bg-dark position-absolute top-100 rounded-0 rounded-bottom shadow-sm">');
-						$('.editor-post-title__input').on('DOMSubtreeModified propertychange click', function(){
-							$('#n2-title-counter').html(`${$(this).text().length}文字`);
-						})
+						$('.editor-post-title__input').before('<div id="n2-title-counter" class="badge bg-dark position-absolute top-100 end-0 rounded-0 shadow-sm">');
 						
 						window.n2.field_value = <?php echo wp_json_encode( (array) N2_Functions::get_all_meta( $post ) ); ?>;
 						window.n2.field_list = <?php echo wp_json_encode( (array) array_keys( N2_Functions::get_all_meta( $post ) ) ); ?>;
@@ -184,14 +183,20 @@ class N2_Setpost {
 								class: 'progress-bar bg-success col-12',
 							},
 						};
+						n2.post_status = wp.data.select("core/editor").getEditedPostAttribute("status");
+						// レビュー待ち　かつ　事業者ログイン
+						if ( n2.post_status == 'pending' && n2.current_user.roles.includes('jigyousya') ) {
+							$('#normal-sortables, .editor-post-title').addClass('pe-none');
+							wp.data.dispatch( 'core/editor' ).lockPostSaving( 'n2-pending' );
+						}
 						wp.data.subscribe(()=>{
-							n2.status = wp.data.select("core/editor").getEditedPostAttribute("status");
-							$('#n2-progress').text(status[n2.status].label).attr( 'class', status[n2.status].class );
+							$('#n2-title-counter').html(`${wp.data.select( 'core/editor' ).getEditedPostAttribute( 'title' ).length}文字`);
+							$('#n2-progress').text(status[n2.post_status].label).attr( 'class', status[n2.post_status].class );
 							// レビュー待ち　かつ　事業者ログイン
-							if ( n2.status == 'pending' && n2.current_user.roles.includes('jigyousya') ) {
-								$('input,select,textarea').attr('disabled', true).addClass('text-dark');
-								$('#item-image').addClass('pe-none');
+							if ( n2.post_status == 'pending' && n2.current_user.roles.includes('jigyousya') ) {
+								$('#normal-sortables, .editor-post-title').addClass('pe-none');
 							}
+							n2.post_status = wp.data.select("core/editor").getEditedPostAttribute("status");
 						});
 						n2.vue = new Vue({
 							el: '.edit-post-layout__metaboxes',
@@ -223,6 +228,11 @@ class N2_Setpost {
 										this.show_submit();
 									},
 								);
+								// テキストエリア調整
+								$('textarea[rows="auto"]').each((k,v)=>{
+									this.auto_fit_tetxarea(v)
+								});
+								$('textarea[rows="auto"]').on('change', )
 							},
 							methods: {
 								// 説明文・テキストカウンター
@@ -251,6 +261,7 @@ class N2_Setpost {
 									text = text.replace(/[^A-Za-z0-9]/g, '');
 									// 半角数字以外削除
 									text = number ? text.replace(/[^0-9]/g, ''): text;
+									console.log(number,text)
 									return text;
 								},
 								// メディアアップローダー関連
@@ -285,9 +296,11 @@ class N2_Setpost {
 									};
 									this.全商品ディレクトリID.list = await $.ajax(settings);
 									if ( tagid_reset && this.タグID.text ) {
-										this.タグID.list = [];
 										if ( confirm('全商品ディレクトリIDが変更されます。\nそれに伴い入力済みのタグIDをリセットしなければ楽天で地味にエラーがでます。\n\nタグIDをリセットしてよろしいでしょうか？') ) {
+											this.タグID.list = [];
 											this.タグID.text = '';
+										} else {
+											this.タグID.text = this.タグID.text;
 										}
 									}
 								},
@@ -348,6 +361,7 @@ class N2_Setpost {
 									}
 									return await $.ajax(opt);
 								},
+								// 寄附金額の更新
 								async update_donation(){
 									alert(`価格：${this.価格}\n送料：${this.送料}\n定期便回数：${this.定期便}\nを元に再計算します。`);
 									this.寄附金額 = await this.calc_donation(this.価格, this.送料, this.定期便);
@@ -355,15 +369,20 @@ class N2_Setpost {
 								// スチームシップへ送信ボタンの制御
 								show_submit() {
 									if ( this.価格 > 0 && this.送料 > 0  ) {
-										$('.editor-post-publish-button__button').attr('disabled', false).show();
+										wp.data.dispatch( 'core/editor' ).unlockPostSaving( 'n2-lock' );
 									} else {
-										$('.editor-post-publish-button__button').attr('disabled', true).hide();
+										wp.data.dispatch( 'core/editor' ).lockPostSaving( 'n2-lock' );
 									}
+								},
+								// テキストエリアの高さを自動可変式に
+								auto_fit_tetxarea(textarea){
+									$(textarea).height('auto').height($(textarea).get(0).scrollHeight);
 								}
 							},
 							components,
 						});
 					});
+					
 					// 雑な目次
 					$(".edit-post-header-toolbar__list-view-toggle").ready(() => {
 						$('.edit-post-header-toolbar__list-view-toggle').on('click', function(){
