@@ -29,7 +29,7 @@
     style: 'width: 10em'
     :value: 価格
     "@focus": set_info($event.target)
-    "@input": "$event.target.value = force_half_size_text($event.target.value, 'number')"
+    "@input": "force_half_size_text($event, 'number', '価格');"
 
 キャッチコピー:
     type : text
@@ -243,7 +243,7 @@
     :value: 送料
     ':readonly': "発送サイズ!='その他' ? true: false"
     "@focus": if (発送サイズ!='その他') { set_info($event.target) }
-    "@input": "$event.target.value = force_half_size_text($event.target.value, 'number')"
+    "@input": "force_half_size_text($event, 'number', '発送サイズ')"
 
 取り扱い方法:
     type : checkbox

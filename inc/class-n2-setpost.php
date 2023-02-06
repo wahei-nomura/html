@@ -256,9 +256,9 @@ class N2_Setpost {
 									}
 								},
 								// 強制半角数字入力
-								force_half_size_text(text, type){
+								force_half_size_text($event, type, target) {
 									// 全角英数を半角英数に変換
-									text = text.replace(/[Ａ-Ｚａ-ｚ０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 65248) );
+									text = $event.target.value.replace(/[Ａ-Ｚａ-ｚ０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 65248) );
 									// 半角英数以外削除
 									text = text.replace(/[^A-Za-z0-9]/g, '');
 									switch (type) {
@@ -273,7 +273,11 @@ class N2_Setpost {
 											text = text.toLowerCase();
 											break;
 									}
-									return text;
+									if ( target ) {
+										return text;
+									}
+									$event.target.value = text;
+									this[target] = text;
 								},
 								// メディアアップローダー関連
 								add_media(){

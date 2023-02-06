@@ -20,7 +20,7 @@
     placeholder: 例）AAA000
     :value: 返礼品コード
     "@focus": set_info($event.target)
-    "@input": "$event.target.value = force_half_size_text($event.target.value, 'uppercase')"
+    "@input": "force_half_size_text($event, 'number', '返礼品コード')"
 
 LH表示名:
     type: text
@@ -32,7 +32,7 @@ LH表示名:
     placeholder: 例）10000
     "@focus": set_info($event.target)
     :value: 寄附金額
-    "@input": "$event.target.value = force_half_size_text($event.target.value, 'number');寄附金額 = $event.target.value;"
+    "@input": "force_half_size_text($event, 'number', '寄附金額')"
 
 # 固定のため変更不可
 全商品ディレクトリID:
