@@ -28,7 +28,7 @@ export default () => {
 		);
 		$(`#${prefix}-tag`).text(String($("#タグID-text").val()));
 		$("#タグID").after(
-			$(`<p>タグID：<span id="${prefix}-tagid"></span><p>`)
+			// $(`<p>タグID：<span id="${prefix}-tagid"></span><p>`)
 		);
 		$(`#${prefix}-tagid`).text(String($("#タグID").val()));
 
