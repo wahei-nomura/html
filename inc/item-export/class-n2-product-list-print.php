@@ -26,15 +26,20 @@ class N2_Product_List_Print {
 		add_action( 'wp_ajax_print', array( $this, 'print_out' ) );
 	}
 	/**
-	 * array to string
+	 * 連想配列をhtmlのattrとして追加する
+	 *
+	 * @param array  $arr 連想配列
+	 * @param string $delimiter デリミタ
+	 *
+	 * @return string
 	 */
-	public function attr_array2str( $arr, $join_str = ' ' ) {
+	public function attr_array2str( $arr, $delimiter = ' ' ) {
 		$attr = array();
 		foreach ( $arr as $key => $val ) {
 			$attr = array( ...$attr, "{$key}=\"{$val}\"" );
 		}
 		if ( $attr ) {
-			return $join_str . implode( $join_str, $attr );
+			return $delimiter . implode( $delimiter, $attr );
 		} else {
 			return '';
 		}
@@ -45,12 +50,14 @@ class N2_Product_List_Print {
 	 * @return void
 	 */
 	public function print_out() {
-		$ids                          = $_POST['print'];
-		$print_css                    = get_theme_file_uri( 'dist/print.css' );
-		$print_yaml                   = yaml_parse_file( get_theme_file_path( 'config/n2-product-list-print.yml' ) );
-		$confirm_table_th_list        = $print_yaml['確認用テーブル']['th'];
-		$confirm_table_th_list        = apply_filters( 'n2_product_list_print_th_list', $confirm_table_th_list );
-		$product_table_tr_list        = $print_yaml['返礼品テーブル']['tr'];
+		global $n2;
+		$ids                   = filter_input( INPUT_POST, 'print' );
+		$print_css             = get_theme_file_uri( 'dist/print.css' );
+		$confirm_table_th_list = $n2->product_list_print['確認用テーブル']['th'];
+		$product_table_tr_list = $n2->product_list_print['返礼品テーブル']['tr'];
+		// プラグイン側で追加
+		$confirm_table_th_list = apply_filters( 'n2_product_list_print_add_confirm_table_th_list', $confirm_table_th_list );
+		$product_table_tr_list = apply_filters( 'n2_product_list_print_add_product_table_tr_list', $product_table_tr_list );
 		?>
 		<!DOCTYPE html>
 		<html lang="ja">
@@ -60,7 +67,7 @@ class N2_Product_List_Print {
 				<link rel="stylesheet" href="<?php echo $print_css; ?>">
 			</head>
 			<body>
-				<?php foreach (get_posts("include={$ids}&meta_key=返礼品コード&orderby=meta_value&order=ASC&post_status=any") as $p) : ?>
+				<?php foreach ( get_posts( "include={$ids}&meta_key=返礼品コード&orderby=meta_value&order=ASC&post_status=any" ) as $p ) : ?>
 					<?php $confirm_table_th_list['コード'] = get_post_meta( $p->ID, '返礼品コード', true ) . '&nbsp;'; ?>
 					<div class="page-break">
 						<table>
@@ -110,7 +117,7 @@ class N2_Product_List_Print {
 												break;
 											case '送料':
 												if ( ! $td ) {
-													return;
+													continue 2;
 												}
 												$td = number_format( $td );
 												break;
@@ -131,7 +138,7 @@ class N2_Product_List_Print {
 												break;
 											case 'アレルギー':
 												$td = N2_Rakuten_CSV::allergy_display( $p->ID );
-												if( ! $td ) {
+												if ( ! $td ) {
 													$td = 'アレルギー表示しない';
 												} elseif ( 'アレルギー品目なし' === $td ) {
 													$td = 'アレルギー品目なし食品';
@@ -151,13 +158,13 @@ class N2_Product_List_Print {
 									?>
 
 								<tr>
-									<th<?php echo $th_attr; ?>><?php echo $th ?></th>
-									<td colspan="2"<?php echo $td_attr; ?>><?php echo $td ?></td>
+									<th<?php echo $th_attr; ?>><?php echo $th; ?></th>
+									<td colspan="2"<?php echo $td_attr; ?>><?php echo $td; ?></td>
 								</tr>
 								<?php endforeach; ?>
 								<tr style="border: 3px solid #000;">
 									<th class="bg">寄附金額</th>
-									<td colspan="2" style="font-size: 18px;font-weight: bold;"><?php echo number_format(get_post_meta($p->ID, "寄附金額", true)); ?></td>
+									<td colspan="2" style="font-size: 18px;font-weight: bold;"><?php echo number_format( get_post_meta( $p->ID, '寄附金額', true ) ); ?></td>
 								</tr>
 							</tbody>
 						</table>
