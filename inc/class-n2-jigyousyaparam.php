@@ -37,12 +37,12 @@ class N2_Jigyousyaparam {
 	/**
 	 * usermetaに登録させたい項目をymlから取得
 	 *
-	 * @return Array $params
+	 * @return Array $jigyousya_meta
 	 */
-	private function params() {
-		$params = yaml_parse_file( get_theme_file_path() . '/config/n2-jigyousya-params.yml' );
+	private function jigyousya_meta() {
+		$jigyousya_meta = yaml_parse_file( get_theme_file_path() . '/config/n2-jigyousya-meta.yml' );
 
-		return apply_filters( 'n2_jigyousyaparam_params', $params );
+		return apply_filters( 'n2_jigyousyaparam_meta', $jigyousya_meta );
 	}
 
 	/**
@@ -56,17 +56,16 @@ class N2_Jigyousyaparam {
 			return;
 		}
 
-		$params = $this->params();
-
+		$jigyousya_meta = $this->jigyousya_meta();
 
 		// 食品取扱登録用モーダルテンプレートをinclude
-		if ( ! empty( get_user_meta( $user->ID, '商品タイプ', true ) ) ) {
+		if ( empty( get_user_meta( $user->ID, '商品タイプ', true ) ) ) {
 			get_template_part(
 				'template/jigyousya-paramset',
 				null,
 				$args = array(
-					'params' => $params,
-					'cls'    => $this->cls,
+					'jigyousya_meta' => $jigyousya_meta,
+					'cls'            => $this->cls,
 				)
 			);
 		}
@@ -79,15 +78,21 @@ class N2_Jigyousyaparam {
 	 * @return void
 	 */
 	public function update_setupmenu() {
+		if ( empty( $_POST ) ) {
+			echo 'パラメータが不正です';
+			exit;
+		}
+
 		global $n2;
-		$params = $this->params();
+		$jigyousya_meta = $this->jigyousya_meta();
 		$item_types = ! empty( $n2->current_user->data->meta['商品タイプ'] ) ? $n2->current_user->data->meta['商品タイプ'] : array();
 
-		foreach ( $params as $key => $value ) {
-			if ( ! empty( $_POST[ $key ] ) && '' !== $_POST[ $key ] ) {
-				$item_types[] = $key;
+		foreach ( $jigyousya_meta as $item_type => $value ) {
+			if ( ! empty( $_POST[ $item_type ] ) && '' !== $_POST[ $item_type ] ) {
+				$item_types[ $item_type ] = $_POST[ $item_type ];
 			}
 		}
+
 		update_user_meta( wp_get_current_user()->ID, '商品タイプ', $item_types );
 		echo '食品取扱い有無更新完了';
 		die();
@@ -109,14 +114,14 @@ class N2_Jigyousyaparam {
 	 * @return void
 	 */
 	public function add_jigyousya_setup_menu_page() {
-		$params = $this->params();
+		$jigyousya_meta = $this->jigyousya_meta();
 
 		get_template_part(
 			'template/jigyousya-paramset',
 			null,
 			$args = array(
-				'params' => $params,
-				'cls'    => $this->cls,
+				'jigyousya_meta' => $jigyousya_meta,
+				'cls'            => $this->cls,
 			)
 		);
 	}
