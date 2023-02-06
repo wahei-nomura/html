@@ -273,7 +273,7 @@ class N2_Setpost {
 											text = text.toLowerCase();
 											break;
 									}
-									if ( target ) {
+									if ( ! target ) {
 										return text;
 									}
 									$event.target.value = text;

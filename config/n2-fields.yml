@@ -29,7 +29,7 @@
     style: 'width: 10em'
     :value: 価格
     "@focus": set_info($event.target)
-    "@input": "force_half_size_text($event, 'number', '価格');"
+    "@input": "force_half_size_text($event, 'number', '価格')"
 
 キャッチコピー:
     type : text
