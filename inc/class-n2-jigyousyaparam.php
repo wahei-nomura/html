@@ -85,7 +85,7 @@ class N2_Jigyousyaparam {
 
 		global $n2;
 		$jigyousya_meta = $this->jigyousya_meta();
-		$item_types = ! empty( $n2->current_user->data->meta['商品タイプ'] ) ? $n2->current_user->data->meta['商品タイプ'] : array();
+		$item_types     = ! empty( $n2->current_user->data->meta['商品タイプ'] ) ? $n2->current_user->data->meta['商品タイプ'] : array();
 
 		foreach ( $jigyousya_meta as $item_type => $value ) {
 			if ( ! empty( $_POST[ $item_type ] ) && '' !== $_POST[ $item_type ] ) {
@@ -103,7 +103,7 @@ class N2_Jigyousyaparam {
 	 * クルー用セットアップ管理ページを追加
 	 */
 	public function add_setup_menu() {
-		if ( ! current_user_can('administrator') ) {
+		if ( ! current_user_can( 'administrator' ) ) {
 			add_menu_page( '返礼品の設定', '返礼品の設定', 'jigyousya', 'n2_jigyousya_menu', array( $this, 'add_jigyousya_setup_menu_page' ), 'dashicons-list-view' );
 		}
 	}
