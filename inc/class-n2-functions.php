@@ -171,19 +171,38 @@ class N2_Functions {
 	 * @param string $type デフォルト（無記入）ならcsv、"tsv"の時はtsvとして処理
 	 * @return void
 	 */
-	public static function download_csv( $name, $header, $items_arr, $csv_title = '', $type = null ) {
-		if($type === null || $type !== 'tsv'){ //デフォルトはcsv。イレギュラーも同様。チョイスはヘッダー無し
-			$type = 'csv';
-			$csv  = $csv_title . PHP_EOL;
-			$csv .= implode( ',', $header ) . PHP_EOL;
+	public static function download_csv( $file_name, $header, $items_arr, $csv_title = '', $type = 'csv' ) {
+		// 初期化
+		$csv       = '';
+		$delimiter = ',';
+		// titleと空要素追加
+		if ( $csv_title ) {
+			$csv .= $csv_title;
+			$csv .= PHP_EOL;
 		}
-		
+		// 区切り文字とヘッダーを設定
+		switch ( $type ) {
+			case 'tsv':
+				$delimiter = '	';
+				break;
+			default: // デフォルトはcsv。イレギュラーも同様。
+				$delimiter = ',';
+				$csv      .= implode( $delimiter, $header ) . PHP_EOL;
+				break;
+		}
+
 		// CSV文字列生成
 		foreach ( $items_arr as $item ) {
+			$item = array(
+				...array_map( fn() => '', array_flip( $header ) ),
+				...$item,
+			);
+			// ダブルクォートで囲んでおく
+			$item = array_map( fn( $val ) => "\"{$val}\"", $item );
 			foreach ( $header as $head ) {
-				$csv .= '"' . $item[ $head ] . ( $type == 'csv' ? '",' : '"	' );
+				$csv .= $item[ $head ] . $delimiter;
 			}
-			$csv  = $type == 'csv' ? rtrim( $csv, ',' ) : rtrim( $csv, '	' );
+			$csv  = rtrim( $csv, $delimiter );
 			$csv .= PHP_EOL;
 		}
 
@@ -191,7 +210,7 @@ class N2_Functions {
 		$csv = mb_convert_encoding( $csv, 'SJIS-win', 'utf-8' );
 
 		header( 'Content-Type: application/octet-stream' );
-		header( "Content-Disposition: attachment; filename={$name}.{$type}" );
+		header( "Content-Disposition: attachment; filename={$file_name}.{$type}" );
 		echo htmlspecialchars_decode( $csv );
 
 		die();

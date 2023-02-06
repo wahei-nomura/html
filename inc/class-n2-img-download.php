@@ -13,7 +13,7 @@ if ( class_exists( 'N2_Img_Download' ) ) {
 	new N2_Img_Download();
 	return;
 }
-require_once( ABSPATH . '/wp-admin/includes/file.php' );
+require_once ABSPATH . '/wp-admin/includes/file.php';
 /**
  * Img_Download
  */
@@ -22,7 +22,33 @@ class N2_Img_Download {
 	 * コンストラクタ
 	 */
 	public function __construct() {
+		add_action( 'wp_ajax_download_by_url', array( $this, 'download_by_url' ) );
 		add_action( 'wp_ajax_download_img', array( $this, 'download_img' ) );
+	}
+
+	/**
+	 * URLからダウンロード
+	 */
+	public function download_by_url() {
+		$url = $_GET['url'] ?: $_POST['url'];
+		if ( ! $url ) {
+			exit;
+		}
+		add_filter( 'https_ssl_verify', '__return_false' );
+		// シングルダウンロード
+		if ( ! is_array( $url ) ) {
+			$pathinfo = pathinfo( $url );
+			$name    = ! preg_match( '/^-/', $_GET['name'] ) ? mb_strtolower( $_GET['name'] ) : $pathinfo['filename'];
+			$name   .= ".{$pathinfo['extension']}";
+			$content = wp_remote_get( $url );
+			$headers = $content['headers']->getAll();
+			header( "Content-Type: {$headers['content-type']}" );
+			header( "Content-Disposition:attachment; filename = {$name}" );
+			header( "Content-Length: {$headers['content-length']}" );
+			echo $content['body'];
+			exit;
+		}
+		// まとめてZIPダウンロード
 	}
 
 	/**

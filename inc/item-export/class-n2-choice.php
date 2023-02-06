@@ -30,7 +30,6 @@ class N2_Choice {
         $opt = get_option( 'N2_Setupmenu' );
 
         // あとでヘッダの上の連結するのに必要
-		$tsv_title = $header_data[ 'choice' ][ 'tsv_header' ][ 'title' ];
 		$header0 = $header_data[ 'choice' ][ 'tsv_header' ][ 'value0' ]; 
         $header1 = $header_data[ 'choice' ][ 'tsv_header' ][ 'value1' ];
         $auth = $header_data[ 'choice' ][ 'auth' ]; //ヘッダーサンプル取得の為のユーザー・パス
@@ -61,6 +60,24 @@ class N2_Choice {
                 }
             }
 
+			//アレルゲン処理
+			$allergen = "";
+			$no_allergen = 0;
+			foreach (get_post_meta($id, "アレルゲン")[0] as $v) {
+				$v['value'] === "アレルゲンなし食品" ? $no_allergen = 1 : (is_numeric($v['value']) ? $allergen .= $v['value'] . "," : '');
+			}
+			$allergen = rtrim($allergen, ",");
+			$allergen_text = get_post_meta($id, "アレルゲン注釈", true) ?: "";
+
+			if ($allergen !== "" || $allergen_text !== "") {
+				$display_allergen = $allergen . "|" . $allergen_text;
+			} else if ($no_allergen === 1) {
+				$display_allergen = "|";
+			} else {
+				$display_allergen = "";
+			}
+
+			//金額エラー処理用
             $error_items .= get_post_meta( $id, "寄附金額", true ) == 0 || get_post_meta( $id, "寄附金額", true ) == '' ? "【{$item_code}】" . '<br>' : '';
             echo $check_arr[ $id ][ '寄附金額エラー' ];
 
@@ -116,7 +133,7 @@ class N2_Choice {
                                 ),
                 '申込期日'      => get_post_meta( $id, "申込期間", true ),
                 '発送期日'        => get_post_meta( $id, "配送期間", true ),
-                '（必須）アレルギー表示'        => '',
+                '（必須）アレルギー表示'        => $display_allergen,
                 '地場産品類型番号'        => get_post_meta( $id, "地場産品類型", true ) 
                                                 ? get_post_meta( $id, "地場産品類型", true ) . "|" . get_post_meta( $id, "類型該当理由", true ) 
                                                 : "",
@@ -131,8 +148,8 @@ class N2_Choice {
                 '（必須）常温配送'        => ( get_post_meta( $id, "発送方法", true ) == "常温" ) ? 1 : 0,
                 '（必須）冷蔵配送'        => ( get_post_meta( $id, "発送方法", true ) == "冷蔵" ) ? 1 : 0,
                 '（必須）冷凍配送'        => ( get_post_meta( $id, "発送方法", true ) == "冷凍" ) ? 1 : 0,
-                '（必須）包装対応'        => ( get_post_meta( $id, "包装対応", true ) == "冷凍" ) ? 1 : 0,
-                '（必須）のし対応'        => ( get_post_meta( $id, "のし対応", true ) == "冷凍" ) ? 1 : 0,
+                '（必須）包装対応'        => ( get_post_meta( $id, "包装対応", true ) == "有り" ) ? 1 : 0,
+                '（必須）のし対応'        => ( get_post_meta( $id, "のし対応", true ) == "有り" ) ? 1 : 0,
                 '（必須）定期配送対応'        => ( get_post_meta( $id, "定期便", true ) == 1 || get_post_meta( $id, "定期便", true ) == "" ) ? 0 : 1,
                 '（必須）クレジット決済限定'        => ( get_post_meta( $id, "クレジット決済限定", true ) == "クレジット決済限定" ) ? 1 : 0,
                 'カテゴリー'        => "",
@@ -140,6 +157,10 @@ class N2_Choice {
                 '受付開始日時'        => "2025/04/01 00:00",
                 '（条件付き必須）還元率（%）'        => 30,
             );
+			for($i = 1; $i < 9; $i++) {
+				$ii = (($i - 1) == 0) ? "" : "-" . ($i - 1);
+				$arr = $arr + array( "スライド画像{$i}" => mb_strtolower($item_code) . "{$ii}.jpg" );
+			}
 
             // 内容を追加、または上書きするためのフック
 			$items_arr[ $id ] = array( ...$items_arr[ $id ], ...apply_filters( 'n2_item_export_choice_items', $arr, $id ) );
@@ -155,7 +176,7 @@ class N2_Choice {
 		}
 
         // tsv出力
-        N2_Functions::download_csv( 'choice', array_keys( $sumple_header ), $items_arr, $tsv_title ,'tsv' );
+        N2_Functions::download_csv( 'choice', array_keys( $sumple_header ), $items_arr, '','tsv' );
     }
 }
 
