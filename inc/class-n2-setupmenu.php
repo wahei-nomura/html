@@ -26,14 +26,12 @@ class N2_Setupmenu {
 	private $cls;
 
 	/**
-	 * import name
-	 */
-	private $importer = 'importer';
-	/**
-	 * 自身のクラス名を格納
+	 * 自治体インポーター取り込み時のkey
+	 * $_FILE[$this->importer]
 	 *
 	 * @var string
 	 */
+	private $importer = 'importer';
 	/**
 	 * 　管理画面に各種セットアップメニュー追加
 	 */
@@ -302,20 +300,16 @@ class N2_Setupmenu {
 	 */
 	public function output_n2_municipal_importer(){
 		global $n2;
-		if ( $_FILES['importer']['error'] ) {
+		if ( $_FILES[ $this->importer ]['error'] ) {
 			echo 'error upload !! lol';
 			die();
 		}
 		// とりあえずymlをN2_options
-		$manicipal_yaml = yaml_parse_file( $_FILES['importer']['tmp_name'] );
+		$manicipal_yaml = yaml_parse_file( $_FILES[ $this->importer ]['tmp_name'] );
 		//
 		// 登録処理はここに書く
 		//
 		//
-		echo '<pre>';
-		var_dump( $manicipal_yaml );
-		echo '</pre><br>';
-		die();
 	}
 
 	/**
@@ -370,5 +364,4 @@ class N2_Setupmenu {
 		</form>
 		<?php
 	}
-
 }

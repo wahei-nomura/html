@@ -45,6 +45,7 @@ $incs = array(
 	'class-n2-img-download',
 	'class-n2-all-town',
 	'class-n2-item-export',
+	'class-n2-semi-auto-data-importer',
 	// 'class-n2-front-comment', // 2022-11-29 コメントアウト taiki
 	'class-n2-rakuten-transfer',
 	'api/class-n2-donation-amount-api',
