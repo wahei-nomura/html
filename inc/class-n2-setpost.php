@@ -188,7 +188,11 @@ class N2_Setpost {
 						n2.post_status = wp.data.select("core/editor").getEditedPostAttribute("status");
 						// レビュー待ち　かつ　事業者ログイン
 						if ( n2.post_status == 'pending' && n2.current_user.roles.includes('jigyousya') ) {
-							$('#normal-sortables, .editor-post-title').addClass('pe-none');
+							$('#normal-sortables, .editor-post-title').addClass('pe-none')
+								.find('input,textarea,select').addClass('border-0');
+							$('.interface-interface-skeleton__content').on('click', ()=>{
+								alert('スチームシップに送信後の編集はできません。');
+							})
 							wp.data.dispatch( 'core/editor' ).lockPostSaving( 'n2-pending' );
 						}
 						wp.data.subscribe(()=>{
@@ -196,7 +200,8 @@ class N2_Setpost {
 							$('#n2-progress').text(status[n2.post_status].label).attr( 'class', status[n2.post_status].class );
 							// レビュー待ち　かつ　事業者ログイン
 							if ( n2.post_status == 'pending' && n2.current_user.roles.includes('jigyousya') ) {
-								$('#normal-sortables, .editor-post-title').addClass('pe-none');
+								$('#normal-sortables, .editor-post-title').addClass('pe-none')
+									.find('input,textarea,select').addClass('border-0');
 							}
 							n2.post_status = wp.data.select("core/editor").getEditedPostAttribute("status");
 						});
