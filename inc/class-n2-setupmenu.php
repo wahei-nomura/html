@@ -51,24 +51,9 @@ class N2_Setupmenu {
 	 */
 	public function update_setupmenu() {
 		extract( $_POST );
-		if( isset( ${$this->cls}['rakuten'] ) ){
-			$write_common_yaml = get_theme_file_path( '/config/n2-rakuten-common.yml' );
-			$N2_Setupmenu_Common = array_slice( ${$this->cls}['rakuten'], 0, 4, true );
-			$N2_Setupmenu_Personal = array_slice( ${$this->cls}['rakuten'], 4, count( ${$this->cls}['rakuten'] ), true );
-			$opt_slice['rakuten'] = $N2_Setupmenu_Personal; // optのデータから共通情報を抜き出したもの
-			if( yaml_emit_file( $write_common_yaml, $N2_Setupmenu_Common ) ){
-				echo 'common_yml登録成功';
-			}else{
-				echo 'common_yml登録失敗';
-			}	
-		} else {
-			$opt_slice = ${$this->cls};
-		}
-		if(get_option( $this->cls )){
-			$opt = get_option( $this->cls );
-			$opt = array_merge( (array) $opt, $opt_slice );
-		}else{
-			$opt = $opt_slice;
+		$opt = ${$this->cls} ?? array();
+		if ( get_option( $this->cls ) ) {
+			$opt = array( ...get_option( $this->cls ), ...$opt );
 		}
 		echo update_option( $this->cls, $opt ) ? '登録完了' : '登録失敗';
 		die();
@@ -100,7 +85,8 @@ class N2_Setupmenu {
 	 * @return void
 	 */
 	public function add_engineer_setup_submenu_page() {
-		$this->wrapping_contents( '自治体インポーター', 'add_importer_widget', array( 'action' => 'n2_municipal_importer' ) );
+		$this->wrapping_contents( '自治体インポーター', 'add_importer_widget', array( 'wp_ajax' => 'n2_municipal_importer' ) );
+		$this->wrapping_contents( '自治体コード', 'towncode_setup_widget' );
 	}
 
 	/**
@@ -363,6 +349,26 @@ class N2_Setupmenu {
 	 */
 	public function setup_menu_style() {
 		wp_enqueue_style( 'n2-setupmenu', get_theme_file_uri() . '/dist/setupmenu.css', array(), wp_get_theme()->get( 'Version' ) );
+	}
+
+	/**
+	 *  自治体コード設定
+	 */
+	public function towncode_setup_widget() {
+		global $n2;
+		?>
+		<form>
+		<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
+		<input type="hidden" name="judge" value="option">
+		<?php foreach ( $n2->town_code as $portal => $town_code ) : ?>
+			<p class="input-text-wrap">
+				<?php echo $n2->portals[ $portal ]; ?>：<br>
+				<input type="text" name="<?php echo $this->cls; ?>[<?php echo $portal; ?>][town_code]" value="<?php echo $town_code; ?>">
+			</p>
+		<?php endforeach; ?>
+		<input type="submit" class="button button-primary sissubmit" value="　更新する　">
+		</form>
+		<?php
 	}
 
 }
