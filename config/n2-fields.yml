@@ -27,9 +27,9 @@
     placeholder: 例）1000
     description: 上代を税込でご記載ください。定期便の場合、1回分の価格をご記載ください。
     style: 'width: 10em'
-    v-model: 価格
+    :value: 価格
     "@focus": set_info($event.target)
-    "@input": "価格 = force_half_size_text($event.target.value, true)"
+    "@input": "$event.target.value = force_half_size_text($event.target.value, 'number')"
 
 キャッチコピー:
     type : text
@@ -240,10 +240,10 @@
     description: '送料はサイズ等を元に計算された金額が自動で設定されています。'
     style: 'width: 6em'
     v-if: 発送サイズ!=''
-    v-model: 送料
+    :value: 送料
     ':readonly': "発送サイズ!='その他' ? true: false"
     "@focus": if (発送サイズ!='その他') { set_info($event.target) }
-    "@input": "$event.target.value = force_half_size_text($event.target.value, true)"
+    "@input": "$event.target.value = force_half_size_text($event.target.value, 'number')"
 
 取り扱い方法:
     type : checkbox

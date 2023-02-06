@@ -18,9 +18,9 @@
     type: text
     description: "[事業者コード3桁アルファベット大文字][3桁数字]で構成"
     placeholder: 例）AAA000
-    v-model: 返礼品コード
+    :value: 返礼品コード
     "@focus": set_info($event.target)
-    "@input": "$event.target.value = force_half_size_text($event.target.value)"
+    "@input": "$event.target.value = force_half_size_text($event.target.value, 'uppercase')"
 
 LH表示名:
     type: text
@@ -30,9 +30,9 @@ LH表示名:
     type: donation-amount
     description: 寄附金額を固定したい場合はチェックしてください。
     placeholder: 例）10000
-    v-model: 寄附金額
     "@focus": set_info($event.target)
-    "@input": "$event.target.value = force_half_size_text($event.target.value, true)"
+    :value: 寄附金額
+    "@input": "$event.target.value = force_half_size_text($event.target.value, 'number');寄附金額 = $event.target.value;"
 
 # 固定のため変更不可
 全商品ディレクトリID:

@@ -83,6 +83,8 @@ class N2_Setpost {
 					if ( ! n2.formula_type ) {
 						alert( '寄附金額の自動計算に必須の設定値がありません。先程のページへ戻ります。' );
 						history.back();
+						$("#wpwrap").hide();
+						return;
 					}
 					wp.i18n.setLocaleData( {
 						"Submit for Review": ["スチームシップに送信"],
@@ -254,14 +256,23 @@ class N2_Setpost {
 									}
 								},
 								// 強制半角数字入力
-								force_half_size_text(text, number){
+								force_half_size_text(text, type){
 									// 全角英数を半角英数に変換
 									text = text.replace(/[Ａ-Ｚａ-ｚ０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 65248) );
 									// 半角英数以外削除
 									text = text.replace(/[^A-Za-z0-9]/g, '');
-									// 半角数字以外削除
-									text = number ? text.replace(/[^0-9]/g, ''): text;
-									console.log(number,text)
+									switch (type) {
+										case 'number':
+											// 半角数字以外削除
+											text = text.replace(/[^0-9]/g, '');
+											break;
+										case 'uppercase':
+											text = text.toUpperCase();
+											break;
+										case 'lowercase':
+											text = text.toLowerCase();
+											break;
+									}
 									return text;
 								},
 								// メディアアップローダー関連
@@ -365,6 +376,7 @@ class N2_Setpost {
 								async update_donation(){
 									alert(`価格：${this.価格}\n送料：${this.送料}\n定期便回数：${this.定期便}\nを元に再計算します。`);
 									this.寄附金額 = await this.calc_donation(this.価格, this.送料, this.定期便);
+									console.log(this.寄附金額)
 								},
 								// スチームシップへ送信ボタンの制御
 								show_submit() {
