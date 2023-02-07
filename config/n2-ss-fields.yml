@@ -20,7 +20,7 @@
     placeholder: 例）AAA000
     :value: 返礼品コード
     "@focus": set_info($event.target)
-    "@input": "force_half_size_text($event, 'number', '返礼品コード')"
+    "@input": "force_half_size_text($event, 'uppercase', '返礼品コード')"
 
 LH表示名:
     type: text
@@ -105,6 +105,13 @@ LH表示名:
         - 楽天ふるさと納税
     "@mouseover": set_info($event.target)
 
+#変更不可（隠しフィールド）
+事業者確認:
+    type: checkbox
+    option-equal: true
+    option:
+        - 確認済み
+
 社内共有事項:
     type: textarea
     description: この商品に関して社内共有すべきことがあればここに記入。
@@ -112,3 +119,4 @@ LH表示名:
     rows: auto
     "@focus": set_info($event.target)
     "@input": auto_fit_tetxarea($event.target)
+

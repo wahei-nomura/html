@@ -1,23 +1,13 @@
 # ===================================================
 
-# デフォルトカスタムフィールド(返礼品詳細)
-
-# ******* 記述法 ********
-# type:text,textarea,checkbox,selectのいずれかを指定
-# description:タイトル下の説明文（改行はを書く）
-# maxlength:文字数制限
-# option:selectとcheckboxの選択肢を指定
-# default:text,textareaのデフォルト値を指定
-# placeholder:text,textareaのplaceholderを指定
+# 事業者用カスタムフィールド
+#---------------------------
+# そのままフィールド名となる
+# typeでtemplate/forms/以下のphpファイル名を利用
+# nameとlabelを変えたい場合はlabelを設定
+# 属性値を自動的に追加
 
 # ===================================================
-
-#変更不可（隠しフィールド）
-事業者確認:
-    type: checkbox
-    option-equal: true
-    option:
-        - 確認済み
 
 価格:
     type : text
