@@ -159,10 +159,14 @@ class N2 {
 							$value = $value ?: '常温';
 							break;
 						case '商品タイプ':
-							$value = $value ?: array( $this->current_user->data->meta['食品取り扱い'] == '有' ? '食品' : '' );
+							if ( ! $value ) {
+								$user_meta = $this->current_user->data->meta;
+								if ( ! empty( $user_meta['商品タイプ'] ) ) {
+									$value = array_keys( array_filter( $user_meta['商品タイプ'], fn($v) => $v === 'true' ) );
+								}
+							}
 							break;
 					}
-
 					$this->custom_field[ $id ][ $name ]['value'] = $value;
 				}
 			}
