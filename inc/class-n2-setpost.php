@@ -428,9 +428,11 @@ class N2_Setpost {
 							$('.interface-interface-skeleton__content').animate({scrollTop:position}, 300);
 							$(`#${$(this).text()}`).delay(300).animate({opacity: 0}, 200).animate({opacity: 1}, 200);
 						});
-						// カスタムフィールドのDOMを監視して目次を再生成
-						const observer = new MutationObserver(n2.mokuji_generator);
-						observer.observe( document.getElementById('poststuff'), { subtree: true, childList: true } );
+						if ( ! n2.observer ) {
+							// カスタムフィールドのDOMを監視して目次を再生成
+							n2.observer = new MutationObserver(n2.mokuji_generator);
+							n2.observer.observe( document.getElementById('poststuff'), { subtree: true, childList: true } );
+						}
 					}
 					$(".edit-post-header-toolbar__list-view-toggle").ready(() => {
 						$('.edit-post-header-toolbar__list-view-toggle').on('click', () => {
