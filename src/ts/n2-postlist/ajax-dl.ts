@@ -13,7 +13,7 @@ export default () => {
 		};
 
 		// loading要素を追加
-		$('#download_img').after('<span class="loading_background"><span id="text_loading"></span><span class="progressbar"></span></span>');
+		$('#download_by_url').after('<span class="loading_background"><span id="text_loading"></span><span class="progressbar"></span></span>');
 		const text_loading = document.getElementById("text_loading");
 		$(document).on("click", '.dlbtn', (e) => {
 			$('.loading_background').addClass("active"); // クリックと同時にオーバーレイ要素(loading_background)class付けて二重クリックできないようにする
@@ -29,9 +29,11 @@ export default () => {
 
 		// downloadさせる
 		function download(url, action, id) {
+			console.log(id);
 			const data = new FormData();
 			data.append("id", id);
 			const xhr = new XMLHttpRequest();
+			// xhr.open("POST", url + "?action=" + action, true);
 			xhr.open("POST", url + "?action=" + action, true);
 			xhr.responseType = "blob";
 			xhr.onload = function (e) {
