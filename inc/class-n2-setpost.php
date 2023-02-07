@@ -97,6 +97,7 @@ class N2_Setpost {
 						"When you’re ready, submit your work for review, and an Editor will be able to approve it for you.": ["スチームシップに送信後は基本的にはデータの変更はできません。入力中のデータが正しいか確認後に送信してください。"],
 						"Always show pre-publish checks.": ["このパネルを常に表示する"],
 						"Are you sure you want to unpublish this post?": ["事業者入力可能になります。よろしいですか？"],
+						"List View": ["目次"]
 					} );
 					wp.domReady(function (e) {
 						console.log(e)
@@ -402,19 +403,45 @@ class N2_Setpost {
 							},
 							components,
 						});
-					});
-					
-					// 雑な目次
-					$(".edit-post-header-toolbar__list-view-toggle").ready(() => {
-						$('.edit-post-header-toolbar__list-view-toggle').on('click', function(){
-							$(".edit-post-editor__list-view-panel-content").ready(() => {
-								$.each(n2.field_list, (k,v) => {
-									$('.edit-post-editor__list-view-panel-content').append(`<li><a href="#${v}">${v}</a></li>`)
-								})
-							});
-						})
-					});
 
+					});
+					// 目次
+					n2.mokuji_generator = () => {
+						$('.edit-post-editor__list-view-panel-content').addClass('p-0').html('<div id="目次">');
+						let html = '';
+						// スチームシップ用 目次
+						if ( ! n2.current_user.roles.includes('jigyousya') ) {
+							for ( const label of  $('#スチームシップ用 .n2-fields-list').map((k,v)=>$(v).attr('id')) ) {
+								html += `<a href="#${label}" class="p-1 px-2 border-bottom small d-block text-decoration-none text-dark" style="background: #efefef;">${label}</a>`;
+							}
+						}
+						// 事業者用 目次
+						for ( const label of  $('#事業者用 .n2-fields-list').map((k,v)=>$(v).attr('id')) ) {
+							html += `<a href="#${label}" class="p-1 px-2 border-bottom small d-block text-decoration-none text-dark">${label}</a>`;
+						}
+						$('#目次').html(html);
+						// 目次クリックで点滅
+						$('#目次 a').on('click', function(e){
+							e.preventDefault();
+							let position = $(`#${$(this).text()}`).parents('.postbox').position().top;
+							position += $(`#${$(this).text()}`).position().top;
+							$('.interface-interface-skeleton__content').animate({scrollTop:position}, 300);
+							$(`#${$(this).text()}`).delay(300).animate({opacity: 0}, 200).animate({opacity: 1}, 200);
+						});
+						// カスタムフィールドのDOMを監視して目次を再生成
+						const observer = new MutationObserver(n2.mokuji_generator);
+						observer.observe( document.getElementById('poststuff'), { subtree: true, childList: true } );
+					}
+					$(".edit-post-header-toolbar__list-view-toggle").ready(() => {
+						$('.edit-post-header-toolbar__list-view-toggle').on('click', () => {
+							$(".edit-post-editor__list-view-panel-content").ready(n2.mokuji_generator);
+							// クッキーに状態保存
+							document.cookie = n2.cookie['n2-mokuji'] ? 'n2-mokuji=true; max-age=0' : 'n2-mokuji=true';
+						});
+						if ( n2.cookie['n2-mokuji'] ) {
+							$('.edit-post-header-toolbar__list-view-toggle').click();
+						}
+					});
 				})
 			</script>
 		<?php
@@ -460,8 +487,8 @@ class N2_Setpost {
 		// 管理者のみSS管理フィールド表示(あとで変更予定)
 		if ( current_user_can( 'ss_crew' ) ) {
 			add_meta_box(
-				'ss_setting', // id
-				'SS管理',
+				'スチームシップ用',
+				'スチームシップ用',
 				array( $this, 'show_customfields' ),
 				'post',
 				'normal',
@@ -470,8 +497,8 @@ class N2_Setpost {
 			);
 		}
 		add_meta_box(
-			'default_setting', // id
-			'返礼品詳細',
+			'事業者用',
+			'事業者用',
 			array( $this, 'show_customfields' ),
 			'post',
 			'normal',
@@ -496,13 +523,12 @@ class N2_Setpost {
 		 * @param array $args add_meta_box情報
 		*/
 		$args = apply_filters( 'n2_setpost_show_customfields', $args );
-		unset( $args['args']['事業者確認'] );
 		?>
 		<!-- n2field保存の為のnonce -->
 		<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
 		<table class="n2-fields widefat fixed" style="border:none;">
 			<?php foreach ( $args['args'] as $field => $detail ) : ?>
-			<tr id="<?php echo $field; ?>" class="<?php echo $detail['class'] ?? ''; ?>" v-if="<?php echo $detail['v-if'] ?? ''; ?>">
+			<tr id="<?php echo $field; ?>" class="n2-fields-list" v-if="<?php echo $detail['v-if'] ?? ''; ?>">
 				<th class="n2-fields-title" >
 					<?php echo ! empty( $detail['label'] ) ? $detail['label'] : $field; ?>
 				</th>
@@ -510,7 +536,7 @@ class N2_Setpost {
 				<?php
 					// templateに渡すために不純物を除去
 					$settings = $detail;
-					unset( $settings['description'], $settings['label'], $settings['validation'], $settings['class'], $settings['v-if'] );
+					unset( $settings['description'], $settings['label'], $settings['v-if'] );
 					$settings['name']  = sprintf( 'n2field[%s]', $settings['name'] ?? $field );
 					$settings['value'] = $settings['value'] ?? '';
 					$settings['value'] = $post_meta[ $field ] ?? $settings['value'];
