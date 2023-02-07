@@ -88,7 +88,7 @@
 
 アレルゲン:
     type : checkbox2
-    v-if: 商品タイプ.includes('食品')&&アレルギー有無確認
+    v-if: 商品タイプ.includes('食品')&&アレルギー有無確認.includes('アレルギー品目あり')
     option :
         0: 卵
         1: 乳
@@ -160,7 +160,6 @@
 申込期間:
     type : text
     placeholder : 例）通年4月〜6月など
-    default : 通年
     style: 'width: 100%'
 
 配送期間:

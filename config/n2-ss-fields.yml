@@ -12,8 +12,6 @@
 
 # ===================================================
 
-# 共通:
-
 返礼品コード:
     type: text
     description: "[事業者コード3桁アルファベット大文字][3桁数字]で構成"
@@ -34,7 +32,6 @@ LH表示名:
     :value: 寄附金額
     "@input": "force_half_size_text($event, 'number', '寄附金額')"
 
-# 固定のため変更不可
 全商品ディレクトリID:
     type: rakuten-genreid
     min: 0
@@ -42,7 +39,6 @@ LH表示名:
     v-if: "!出品禁止ポータル.includes('楽天ふるさと納税')"
     alert: 下のボタンが無くなるまで押していかないと楽天で地味にエラーが出ます。
 
-# 固定のため変更不可
 タグID:
     type: rakuten-tagid
     description: 楽天登録に必要なタグを複数選択します。
@@ -54,7 +50,6 @@ LH表示名:
     "@focus": set_info($event.target);get_genreid()
     "@input": auto_fit_tetxarea($event.target)
 
-# 固定のため変更不可
 楽天SPAカテゴリー:
     type: rakuten-spa-category
     v-model: 楽天SPAカテゴリー.text
@@ -105,7 +100,6 @@ LH表示名:
         - 楽天ふるさと納税
     "@mouseover": set_info($event.target)
 
-#変更不可（隠しフィールド）
 事業者確認:
     type: checkbox
     option-equal: true

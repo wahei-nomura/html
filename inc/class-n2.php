@@ -108,14 +108,7 @@ class N2 {
 	 *
 	 * @var array
 	 */
-	public $custom_fields;
-
-	/**
-	 * カスタムフィールド　Steasmhip専用
-	 *
-	 * @var array
-	 */
-	public $custom_fields_ss;
+	public $custom_field;
 
 	/**
 	 * 商品プリントアウト
@@ -125,18 +118,65 @@ class N2 {
 	public $product_list_print;
 
 	/**
+	 * query（ログイン時のみ）
+	 *
+	 * @var object
+	 */
+	public $query;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
 		$this->set_vars();
 		$this->set_filters();
+		add_action( 'pre_get_posts', array( $this, 'add_post_data' ) );
+	}
+
+	/**
+	 * 投稿データをセット
+	 *
+	 * @params object $query クエリ
+	 */
+	public function add_post_data( $query ) {
+		// クエリ生データをセット
+		if ( is_user_logged_in() ) {
+			$this->query = $query;
+		}
+		// カスタムフィールドに値をセット
+		global $post;
+		if ( isset( $post->ID ) ) {
+			foreach ( $this->custom_field as $id => $arr ) {
+				foreach ( $arr as $name => $value ) {
+					$value = get_post_meta( $post->ID, $name, true );
+					switch ( $name ) {
+						case '出品禁止ポータル':
+						case '取り扱い方法':
+						case '商品画像':
+							$value = $value ?: array();
+							break;
+						case '発送方法':
+							$value = $value ?: '常温';
+							break;
+						case '商品タイプ':
+							$value = $value ?: array( $this->current_user->data->meta['食品取り扱い'] == '有' ? '食品' : '' );
+							break;
+					}
+
+					$this->custom_field[ $id ][ $name ]['value'] = $value;
+				}
+			}
+			if ( ! isset( $this->custom_field['スチームシップ用']['寄附金額固定'] ) ) {
+				$this->custom_field['スチームシップ用']['寄附金額固定']['value'] = array();
+			}
+		}
 	}
 
 	/**
 	 * プロパティのセット
 	 */
 	public function set_vars() {
-
+		global $pagenow, $wpdb;
 		// wp_options保存値
 		$n2_option = get_option( 'N2_Setupmenu' );
 
@@ -147,7 +187,7 @@ class N2 {
 		$this->cash_buster = 'develop' === $this->mode ? time() : wp_get_theme()->get( 'Version' );
 
 		// サイト基本情報
-		global $wpdb;
+
 		$this->blog_prefix = $wpdb->get_blog_prefix();
 		$this->site_id     = get_current_blog_id();
 		$this->town        = get_bloginfo( 'name' );
@@ -167,8 +207,10 @@ class N2 {
 		$this->current_user->__set( 'meta', $user_meta );
 
 		// カスタムフィールド
-		$this->custom_fields    = yaml_parse_file( get_theme_file_path( 'config/n2-fields.yml' ) );
-		$this->custom_fields_ss = yaml_parse_file( get_theme_file_path( 'config/n2-ss-fields.yml' ) );
+		$this->custom_field = array(
+			'スチームシップ用' => yaml_parse_file( get_theme_file_path( 'config/n2-ss-fields.yml' ) ),
+			'事業者用'     => yaml_parse_file( get_theme_file_path( 'config/n2-fields.yml' ) ),
+		);
 
 		// プリントアウト
 		$this->product_list_print = yaml_parse_file( get_theme_file_path( 'config/n2-product-list-print.yml' ) );
@@ -183,9 +225,9 @@ class N2 {
 		$this->formula_type = $n2_option['formula_type'] ?? '';
 
 		// ポータル一覧
-		$this->portals = array(
-			'rakuten' => '楽天',
-			'furusato_choice' => 'チョイス' 
+		$this->portals   = array(
+			'rakuten'         => '楽天',
+			'furusato_choice' => 'チョイス',
 		);
 		$this->town_code = $this->get_portal_town_code_list();
 
@@ -228,14 +270,14 @@ class N2 {
 	 *
 	 * @return array
 	 */
-	public function get_portal_town_code_list () {
+	public function get_portal_town_code_list() {
 		$town_code_list = array();
 		// ポータル一覧
-		$town_code       = yaml_parse_file( get_theme_file_path( 'config/n2-towncode.yml' ) );
-		$municipal       = explode( '/', get_option( 'home' ) );
-		$town_name       = end( $municipal );
+		$town_code = yaml_parse_file( get_theme_file_path( 'config/n2-towncode.yml' ) );
+		$municipal = explode( '/', get_option( 'home' ) );
+		$town_name = end( $municipal );
 		return array(
-			'rakuten'   => $n2_option['rakuten']['town_code'] ?? $town_code[ $town_name ]['楽天'] ?? '',
+			'rakuten'         => $n2_option['rakuten']['town_code'] ?? $town_code[ $town_name ]['楽天'] ?? '',
 			'furusato_choice' => $n2_option['furusato_choice']['town_code'] ?? $this->town,
 		);
 	}

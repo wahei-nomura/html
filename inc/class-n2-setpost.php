@@ -34,32 +34,14 @@ class N2_Setpost {
 		add_action( 'admin_head-post.php', array( $this, 'n2_field_custom' ) );
 		add_action( 'admin_head-post-new.php', array( $this, 'n2_field_custom' ) );
 		add_action( 'init', array( $this, 'remove_editor_support' ) );
-		add_action( 'init', array( $this, 'set_default_user_meta' ) ); // ブロックエディタでのユーザーのデフォルトの挙動変更
 		add_action( 'admin_menu', array( $this, 'add_customfields' ) );
 		add_action( 'save_post', array( $this, 'save_customfields' ) );
 		add_filter( 'upload_mimes', array( $this, 'add_mimes' ) );
 		add_action( 'ajax_query_attachments_args', array( $this, 'display_only_self_uploaded_medias' ) );
 		add_filter( 'enter_title_here', array( $this, 'change_title' ) );
-		add_action( "wp_ajax_{$this->cls}", array( $this, 'ajax' ) );
-		add_action( "wp_ajax_{$this->cls}_image", array( $this, 'ajax_imagedata' ) );
 		add_filter( 'intermediate_image_sizes_advanced', array( $this, 'not_create_image' ) );
 		add_filter( 'wp_handle_upload', array( $this, 'image_compression' ) );
 		add_filter( 'post_link', array( $this, 'set_post_paermalink' ), 10, 3 );
-	}
-	/**
-	 * ブロックエディタでのユーザーのデフォルトの挙動変更
-	 */
-	public function set_default_user_meta() {
-		global $n2;
-		$user_meta = get_user_meta( $n2->current_user->ID );
-		if ( empty( $user_meta[ "{$n2->blog_prefix}persisted_preferences" ] ) ) {
-			$user_meta[ "{$n2->blog_prefix}persisted_preferences" ] = array(
-				'core/edit-post' => array(
-					'welcomeGuide' => false, // ブロックエディタへようこそ非表示
-				),
-			);
-			update_user_meta( $n2->current_user->ID, "{$n2->blog_prefix}persisted_preferences", $user_meta[ "{$n2->blog_prefix}persisted_preferences" ] );
-		}
 	}
 
 	/**
@@ -77,7 +59,6 @@ class N2_Setpost {
 			<script src="//cdn.jsdelivr.net/npm/sortablejs@1.8.4/Sortable.min.js"></script>
 			<script src="//cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.20.0/vuedraggable.umd.min.js"></script>
 			<script>
-				
 				jQuery(function($){
 					// 計算式タイプなどの必須項目が入っていない場合アラートを出す（条件要検討）
 					if ( ! n2.formula_type ) {
@@ -103,8 +84,10 @@ class N2_Setpost {
 						console.log(e)
 					})
 					$("#wpwrap").hide();
+					
 					// ローディング追加
 					$('body').append('<div id="n2-loading" class="d-flex justify-content-center align-items-center vh-100 bg-white"><div class="spinner-border text-primary"></div></div>');
+
 					$(".edit-post-layout__metaboxes").ready(() => {
 						
 						// ローディング削除
@@ -117,46 +100,236 @@ class N2_Setpost {
 							$('body').toggleClass('n2-darkmode');
 							document.cookie = n2.cookie['n2-darkmode'] ? 'n2-darkmode=true; max-age=0' : 'n2-darkmode=true';
 						});
+
 						// タイトル文字数カウンター
 						$('.editor-post-title__input').before('<div id="n2-title-counter" class="badge bg-dark position-absolute top-100 end-0 rounded-0 shadow-sm">');
 						
-						window.n2.field_value = <?php echo wp_json_encode( (array) N2_Functions::get_all_meta( $post ) ); ?>;
-						window.n2.field_list = <?php echo wp_json_encode( (array) array_keys( N2_Functions::get_all_meta( $post ) ) ); ?>;
-						
-						// このdataをプラグイン側で上書きする
-						const data = {
-							寄附金額: n2.field_value.寄附金額,
-							寄附金額固定: n2.field_value.寄附金額固定 || [],
-							返礼品コード: n2.field_value.返礼品コード,
-							価格: n2.field_value.価格,
-							出品禁止ポータル: n2.field_value.出品禁止ポータル || [],
-							商品タイプ: n2.field_value.商品タイプ 
-								? n2.field_value.商品タイプ 
-								: [ n2.current_user.data.meta.食品取り扱い == '有' ? '食品': '' ],
-							アレルギー有無確認: n2.field_value.アレルギー有無確認 ? n2.field_value.アレルギー有無確認[0] : false,
-							発送方法: n2.field_value.発送方法 || '常温',
-							発送サイズ: n2.field_value.発送サイズ || '',
-							送料: n2.field_value.送料,
-							取り扱い方法: n2.field_value.取り扱い方法 || [],
-							定期便: n2.field_value.定期便 || 1,
-							商品画像: n2.field_value.商品画像 || [],
-							全商品ディレクトリID: {
-								text: n2.field_value.全商品ディレクトリID,
+						const data = {};
+						for( const id in n2.custom_field ){
+							for( const name in n2.custom_field[id] ){
+								data[name] = n2.custom_field[id][name].value;
+							}
+						}
+						const created = async function() {
+							this.全商品ディレクトリID = {
+								text: this.全商品ディレクトリID,
 								list: [],
-							},
-							タグID: {
-								text: n2.field_value.タグID,
+							};
+							this.タグID = {
+								text: this.タグID,
 								group: '',
 								list: [],
-							},
-							楽天SPAカテゴリー: {
-								text: n2.field_value.楽天SPAカテゴリー ? n2.field_value.楽天SPAカテゴリー.replace(/\r/g, ''): '',
+							};
+							this.楽天SPAカテゴリー = {
+								text: this.楽天SPAカテゴリー.replace(/\r/g, ''),
 								list: [],
+							};
+							this.寄附金額 = this.寄附金額 || await this.calc_donation(this.価格,this.送料,this.定期便);
+							this.show_submit();
+							// 発送サイズ・発送方法をダブル監視
+							this.$watch(
+								() => {
+									return {
+										価格: this.$data.価格,
+										発送方法: this.$data.発送方法,
+										発送サイズ: this.$data.発送サイズ,
+										送料: this.$data.送料,
+										定期便: this.$data.定期便,
+									}
+								},
+								async function(newVal, oldVal) {
+									const size = [
+										newVal.発送サイズ,
+										newVal.発送方法 != '常温' ? 'cool' : ''
+									].filter(v=>v);
+									
+									this.送料 = newVal.送料 != oldVal.送料
+										? newVal.送料
+										: window.n2.delivery_fee[size.join('_')];
+									this.寄附金額 = await this.calc_donation(newVal.価格,this.送料,newVal.定期便);
+									this.show_submit();
+								},
+							);
+							// テキストエリア調整
+							$('textarea[rows="auto"]').each((k,v)=>{
+								this.auto_fit_tetxarea(v)
+							});
+							$('textarea[rows="auto"]').on('change', )
+						};
+						const methods = {
+							// 説明文・テキストカウンター
+							set_info(target) {
+								const info = [
+									$(target).parents('.n2-fields-value').data('description')
+										? `<div class="alert alert-primary mb-2">${$(target).parents('.n2-fields-value').data('description')}</div>`
+										: '',
+									$(target).attr('maxlength')
+										? `文字数：${$(target).val().length} / ${$(target).attr('maxlength')}`
+										: '',
+								].filter( v => v );
+								if ( ! info.length ) return
+								if ( ! $(target).parents('.n2-fields-value').find('.n2-field-description').length ) {
+									$(target).parents('.n2-fields-value').prepend(`<div class="n2-field-description small lh-base">${info.join('')}</div>`);
+								}
+								if ( $(target).attr('maxlength') ) {
+									$(target).parents('.n2-fields-value').find('.n2-field-description').html(info.join(''));
+								}
 							},
+							// 強制半角数字入力
+							force_half_size_text($event, type, target) {
+								// 全角英数を半角英数に変換
+								text = $event.target.value.replace(/[Ａ-Ｚａ-ｚ０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 65248) );
+								// 半角英数以外削除
+								text = text.replace(/[^A-Za-z0-9]/g, '');
+								switch (type) {
+									case 'number':
+										// 半角数字以外削除
+										text = text.replace(/[^0-9]/g, '');
+										break;
+									case 'uppercase':
+										text = text.toUpperCase();
+										break;
+									case 'lowercase':
+										text = text.toLowerCase();
+										break;
+								}
+								if ( ! target ) {
+									return text;
+								}
+								$event.target.value = text;
+								this[target] = text;
+							},
+							// メディアアップローダー関連
+							add_media(){
+								// N1の画像データにはnoncesが無い
+								const images = wp.media({
+									title: "商品画像", 
+									multiple: "add",
+									library: {type: "image"}
+								});
+								images.on( 'open', () => {
+									// N2のものだけに
+									const add =  this.商品画像.filter( v => v.nonces );
+									images.state().get('selection').add( add.map( v => wp.media.attachment(v.id) ) );
+								});
+								images.on( 'select', () => {
+									this.商品画像 =  [
+											...this.商品画像.filter( v => !v.nonces ),// N1のみ展開
+											...images.state().get('selection').map( v => v.attributes )
+										];
+								});
+								images.open();
+							},
+							// 楽天の全商品ディレクトリID取得（タグIDでも利用）
+							async get_genreid( tagid_reset = false ){
+								const settings = {
+									url: '//app.rakuten.co.jp/services/api/IchibaGenre/Search/20140222',
+									data: {
+										applicationId: '1002772968546257164',
+										genreId: this.全商品ディレクトリID.text || '0',
+									},
+								};
+								this.全商品ディレクトリID.list = await $.ajax(settings);
+								if ( tagid_reset && this.タグID.text ) {
+									if ( confirm('全商品ディレクトリIDが変更されます。\nそれに伴い入力済みのタグIDをリセットしなければ楽天で地味にエラーがでます。\n\nタグIDをリセットしてよろしいでしょうか？') ) {
+										this.タグID.list = [];
+										this.タグID.text = '';
+									} else {
+										this.タグID.text = this.タグID.text;
+									}
+								}
+							},
+							// 楽天SPAカテゴリーの取得
+							async get_spa_category(){
+								const folderCode = '1p7DlbhcIEVIaH7Rw2mTmqJJKVDZCumYK';
+								const settings = {
+									url: '//www.googleapis.com/drive/v3/files/',
+									data: {
+										key: 'AIzaSyDQ1Mu41-8S5kBpZED421bCP8NPE7pneNU',
+										q: `'${folderCode}' in parents and name = '${n2.town}' and mimeType contains 'spreadsheet'`,
+									}
+								};
+								const d = await $.ajax(settings).catch(() => false);
+								if ( !d || ! d.files.length ) {
+									console.log('自治体スプレットシートが存在しません', d);
+									return;
+								}
+								settings.url = `//sheets.googleapis.com/v4/spreadsheets/${d.files[0].id}/values/カテゴリー`;
+								delete settings.data.q;
+								const cat = await $.ajax(settings).catch(() => false);
+								if ( ! cat ) {
+									console.log('カテゴリー情報の取得失敗');
+									return;
+								}
+								delete cat.values[0];
+								this.楽天SPAカテゴリー.list = cat.values.map( (v,k) => {
+									v.forEach((e,i) => {
+										v[i] = e || cat.values[k-1][i];
+										v[i] = v[i].replace('.','');
+									});
+									return `#/${v.join('/')}/`;
+								}).filter(v=>v);
+							},
+							// タグIDと楽天SPAカテゴリーで利用
+							update_textarea(id, target = 'タグID', delimiter = '/'){
+								// 重複削除
+								const arr = this[target].text ? [...new Set( this[target].text.split( delimiter ) )]: [];
+								// 削除
+								if ( arr.includes( id.toString() ) ) {
+									this[target].text = arr.filter( v => v != id ).join( delimiter )
+								}
+								// 追加
+								else {
+									// 楽天のタグIDの上限
+									if ( target == 'タグID' && arr.length >= $('[type="rakuten-tagid"]').attr('maxlength')/8 ) return;
+									this[target].text = [...arr, id].filter( v => v ).join( delimiter );
+								}
+							},
+							// 寄附金額計算
+							async calc_donation(price, delivery_fee, subscription) {
+								// 寄附金額固定の場合は計算しない
+								if ( this.寄附金額固定.includes('true') ) return this.寄附金額;
+								const opt = {
+									url: window.n2.ajaxurl,
+									data: {
+										action: 'n2_donation_amount_api',
+										price,
+										delivery_fee,
+										subscription,
+									}
+								}
+								return await $.ajax(opt);
+							},
+							// 寄附金額の更新
+							async update_donation(){
+								alert(`価格：${this.価格}\n送料：${this.送料}\n定期便回数：${this.定期便}\nを元に再計算します。`);
+								this.寄附金額 = await this.calc_donation(this.価格, this.送料, this.定期便);
+								console.log(this.寄附金額)
+							},
+							// スチームシップへ送信ボタンの制御
+							show_submit() {
+								if ( this.価格 > 0 && this.送料 > 0  ) {
+									wp.data.dispatch( 'core/editor' ).unlockPostSaving( 'n2-lock' );
+								} else {
+									wp.data.dispatch( 'core/editor' ).lockPostSaving( 'n2-lock' );
+								}
+							},
+							// テキストエリアの高さを自動可変式に
+							auto_fit_tetxarea(textarea){
+								$(textarea).height('auto').height($(textarea).get(0).scrollHeight);
+							}
 						};
 						const components = {
 							draggable: vuedraggable,
-						}
+						};
+						n2.vue = new Vue({
+							el: '.edit-post-layout__metaboxes',
+							data,
+							created,
+							methods,
+							components,
+						});
+
 						// プログレスバー
 						$('.edit-post-header').before('<div class="progress rounded-0" style="height: 1.5em;width: 100%;"><div id="n2-progress"></div></div>');
 						const status = {
@@ -167,7 +340,6 @@ class N2_Setpost {
 							'draft': {
 								label: '入力中',
 								class: 'progress-bar bg-secondary col-5',
-
 							},
 							'pending': {
 								label: 'スチームシップ 確認中',
@@ -187,6 +359,7 @@ class N2_Setpost {
 							},
 						};
 						n2.post_status = wp.data.select("core/editor").getEditedPostAttribute("status");
+
 						// レビュー待ち　かつ　事業者ログイン
 						if ( n2.post_status == 'pending' && n2.current_user.roles.includes('jigyousya') ) {
 							$('#normal-sortables, .editor-post-title').addClass('pe-none')
@@ -206,203 +379,7 @@ class N2_Setpost {
 							}
 							n2.post_status = wp.data.select("core/editor").getEditedPostAttribute("status");
 						});
-						n2.vue = new Vue({
-							el: '.edit-post-layout__metaboxes',
-							data,
-							async created() {
-								this.寄附金額 = this.寄附金額 || await this.calc_donation(this.価格,this.送料,this.定期便);
-								this.show_submit();
-								// 発送サイズ・発送方法をダブル監視
-								this.$watch(
-									() => {
-										return {
-											価格: this.$data.価格,
-											発送方法: this.$data.発送方法,
-											発送サイズ: this.$data.発送サイズ,
-											送料: this.$data.送料,
-											定期便: this.$data.定期便,
-										}
-									},
-									async function(newVal, oldVal) {
-										const size = [
-											newVal.発送サイズ,
-											newVal.発送方法 != '常温' ? 'cool' : ''
-										].filter(v=>v);
-										
-										this.送料 = newVal.送料 != oldVal.送料
-											? newVal.送料
-											: window.n2.delivery_fee[size.join('_')];
-										this.寄附金額 = await this.calc_donation(newVal.価格,this.送料,newVal.定期便);
-										this.show_submit();
-									},
-								);
-								// テキストエリア調整
-								$('textarea[rows="auto"]').each((k,v)=>{
-									this.auto_fit_tetxarea(v)
-								});
-								$('textarea[rows="auto"]').on('change', )
-							},
-							methods: {
-								// 説明文・テキストカウンター
-								set_info(target) {
-									const info = [
-										$(target).parents('.n2-fields-value').data('description')
-											? `<div class="alert alert-primary mb-2">${$(target).parents('.n2-fields-value').data('description')}</div>`
-											: '',
-										$(target).attr('maxlength')
-											? `文字数：${$(target).val().length} / ${$(target).attr('maxlength')}`
-											: '',
-									].filter( v => v );
-									if ( ! info.length ) return
-									if ( ! $(target).parents('.n2-fields-value').find('.n2-field-description').length ) {
-										$(target).parents('.n2-fields-value').prepend(`<div class="n2-field-description small lh-base">${info.join('')}</div>`);
-									}
-									if ( $(target).attr('maxlength') ) {
-										$(target).parents('.n2-fields-value').find('.n2-field-description').html(info.join(''));
-									}
-								},
-								// 強制半角数字入力
-								force_half_size_text($event, type, target) {
-									// 全角英数を半角英数に変換
-									text = $event.target.value.replace(/[Ａ-Ｚａ-ｚ０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 65248) );
-									// 半角英数以外削除
-									text = text.replace(/[^A-Za-z0-9]/g, '');
-									switch (type) {
-										case 'number':
-											// 半角数字以外削除
-											text = text.replace(/[^0-9]/g, '');
-											break;
-										case 'uppercase':
-											text = text.toUpperCase();
-											break;
-										case 'lowercase':
-											text = text.toLowerCase();
-											break;
-									}
-									if ( ! target ) {
-										return text;
-									}
-									$event.target.value = text;
-									this[target] = text;
-								},
-								// メディアアップローダー関連
-								add_media(){
-									// N1の画像データにはnoncesが無い
-									const images = wp.media({
-										title: "商品画像", 
-										multiple: "add",
-										library: {type: "image"}
-									});
-									images.on( 'open', () => {
-										// N2のものだけに
-										const add =  this.商品画像.filter( v => v.nonces );
-										images.state().get('selection').add( add.map( v => wp.media.attachment(v.id) ) );
-									});
-									images.on( 'select', () => {
-										this.商品画像 =  [
-												...this.商品画像.filter( v => !v.nonces ),// N1のみ展開
-												...images.state().get('selection').map( v => v.attributes )
-											];
-									});
-									images.open();
-								},
-								// 楽天の全商品ディレクトリID取得（タグIDでも利用）
-								async get_genreid( tagid_reset = false ){
-									const settings = {
-										url: '//app.rakuten.co.jp/services/api/IchibaGenre/Search/20140222',
-										data: {
-											applicationId: '1002772968546257164',
-											genreId: this.全商品ディレクトリID.text || '0',
-										},
-									};
-									this.全商品ディレクトリID.list = await $.ajax(settings);
-									if ( tagid_reset && this.タグID.text ) {
-										if ( confirm('全商品ディレクトリIDが変更されます。\nそれに伴い入力済みのタグIDをリセットしなければ楽天で地味にエラーがでます。\n\nタグIDをリセットしてよろしいでしょうか？') ) {
-											this.タグID.list = [];
-											this.タグID.text = '';
-										} else {
-											this.タグID.text = this.タグID.text;
-										}
-									}
-								},
-								// 楽天SPAカテゴリーの取得
-								async get_spa_category(){
-									const folderCode = '1p7DlbhcIEVIaH7Rw2mTmqJJKVDZCumYK';
-									const settings = {
-										url: '//www.googleapis.com/drive/v3/files/',
-										data: {
-											key: 'AIzaSyDQ1Mu41-8S5kBpZED421bCP8NPE7pneNU',
-											q: `'${folderCode}' in parents and name = '${n2.town}' and mimeType contains 'spreadsheet'`,
-										}
-									};
-									const d = await $.ajax(settings);
-									if ( ! d.files.length ) {
-										alert('カテゴリー情報の取得失敗');
-										return;
-									}
-									settings.url = `//sheets.googleapis.com/v4/spreadsheets/${d.files[0].id}/values/カテゴリー`;
-									delete settings.data.q;
-									const cat = await $.ajax(settings);
-									delete cat.values[0];
-									this.楽天SPAカテゴリー.list = cat.values.map( (v,k) => {
-										v.forEach((e,i) => {
-											v[i] = e || cat.values[k-1][i];
-											v[i] = v[i].replace('.','');
-										});
-										return `#/${v.join('/')}/`;
-									}).filter(v=>v);
-								},
-								// タグIDと楽天SPAカテゴリーで利用
-								update_textarea(id, target = 'タグID', delimiter = '/'){
-									// 重複削除
-									const arr = this[target].text ? [...new Set( this[target].text.split( delimiter ) )]: [];
-									// 削除
-									if ( arr.includes( id.toString() ) ) {
-										this[target].text = arr.filter( v => v != id ).join( delimiter )
-									}
-									// 追加
-									else {
-										// 楽天のタグIDの上限
-										if ( target == 'タグID' && arr.length >= $('[type="rakuten-tagid"]').attr('maxlength')/8 ) return;
-										this[target].text = [...arr, id].filter( v => v ).join( delimiter );
-									}
-								},
-								// 寄附金額計算
-								async calc_donation(price, delivery_fee, subscription) {
-									// 寄附金額固定の場合は計算しない
-									if ( this.寄附金額固定.includes('true') ) return this.寄附金額;
-									const opt = {
-										url: window.n2.ajaxurl,
-										data: {
-											action: 'n2_donation_amount_api',
-											price,
-											delivery_fee,
-											subscription,
-										}
-									}
-									return await $.ajax(opt);
-								},
-								// 寄附金額の更新
-								async update_donation(){
-									alert(`価格：${this.価格}\n送料：${this.送料}\n定期便回数：${this.定期便}\nを元に再計算します。`);
-									this.寄附金額 = await this.calc_donation(this.価格, this.送料, this.定期便);
-									console.log(this.寄附金額)
-								},
-								// スチームシップへ送信ボタンの制御
-								show_submit() {
-									if ( this.価格 > 0 && this.送料 > 0  ) {
-										wp.data.dispatch( 'core/editor' ).unlockPostSaving( 'n2-lock' );
-									} else {
-										wp.data.dispatch( 'core/editor' ).lockPostSaving( 'n2-lock' );
-									}
-								},
-								// テキストエリアの高さを自動可変式に
-								auto_fit_tetxarea(textarea){
-									$(textarea).height('auto').height($(textarea).get(0).scrollHeight);
-								}
-							},
-							components,
-						});
+						
 
 					});
 					// 目次
@@ -431,7 +408,7 @@ class N2_Setpost {
 						if ( ! n2.observer ) {
 							// カスタムフィールドのDOMを監視して目次を再生成
 							n2.observer = new MutationObserver(n2.mokuji_generator);
-							n2.observer.observe( document.getElementById('poststuff'), { subtree: true, childList: true } );
+							n2.observer.observe( $('#poststuff').get(0), { subtree: true, childList: true } );
 						}
 					}
 					$(".edit-post-header-toolbar__list-view-toggle").ready(() => {
@@ -454,6 +431,18 @@ class N2_Setpost {
 	 * 詳細ページ内で余分な項目を削除している
 	 */
 	public function remove_editor_support() {
+		global $n2;
+		// ブロックエディタへようこそを削除
+		$user_meta = get_user_meta( $n2->current_user->ID );
+		if ( empty( $user_meta[ "{$n2->blog_prefix}persisted_preferences" ] ) ) {
+			$user_meta[ "{$n2->blog_prefix}persisted_preferences" ] = array(
+				'core/edit-post' => array(
+					'welcomeGuide' => false, // ブロックエディタへようこそ非表示
+				),
+			);
+			update_user_meta( $n2->current_user->ID, "{$n2->blog_prefix}persisted_preferences", $user_meta[ "{$n2->blog_prefix}persisted_preferences" ] );
+		}
+
 		$supports = array(
 			'thumbnail',
 			'excerpt',
@@ -482,10 +471,6 @@ class N2_Setpost {
 	 */
 	public function add_customfields() {
 		global $n2;
-
-		// 既存のフィールドの位置を変更したい際にプラグイン側からフィールドを削除するためのフック
-		list($n2->custom_fields_ss,$n2->custom_fields) = apply_filters( 'n2_setpost_delete_customfields', array( $n2->custom_fields_ss, $n2->custom_fields ) );
-
 		// 管理者のみSS管理フィールド表示(あとで変更予定)
 		if ( current_user_can( 'ss_crew' ) ) {
 			add_meta_box(
@@ -495,7 +480,7 @@ class N2_Setpost {
 				'post',
 				'normal',
 				'default',
-				$n2->custom_fields_ss, // show_customfieldsメソッドに渡すパラメータ
+				$n2->custom_field['スチームシップ用'], // show_customfieldsメソッドに渡すパラメータ
 			);
 		}
 		add_meta_box(
@@ -505,7 +490,7 @@ class N2_Setpost {
 			'post',
 			'normal',
 			'default',
-			$n2->custom_fields, // show_customfieldsメソッドに渡すパラメータ
+			$n2->custom_field['事業者用'], // show_customfieldsメソッドに渡すパラメータ
 		);
 	}
 
@@ -514,22 +499,15 @@ class N2_Setpost {
 	 * iniファイル内を配列化してフィールドを作っている
 	 *
 	 * @param Object $post post
-	 * @param Array  $args args
+	 * @param Array  $metabox 全データ
 	 */
-	public function show_customfields( $post, $args ) {
-		// カスタムフィールド全取得
-		$post_meta = N2_Functions::get_all_meta( $post );
-		/**
-		 * Filters カスタムフィールドメタボックス
-		 *
-		 * @param array $args add_meta_box情報
-		*/
-		$args = apply_filters( 'n2_setpost_show_customfields', $args );
+	public function show_customfields( $post, $metabox ) {
+		global $n2;
 		?>
 		<!-- n2field保存の為のnonce -->
 		<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
 		<table class="n2-fields widefat fixed" style="border:none;">
-			<?php foreach ( $args['args'] as $field => $detail ) : ?>
+			<?php foreach ( $metabox['args'] as $field => $detail ) : ?>
 			<tr id="<?php echo $field; ?>" class="n2-fields-list" v-if="<?php echo $detail['v-if'] ?? ''; ?>">
 				<th class="n2-fields-title" >
 					<?php echo ! empty( $detail['label'] ) ? $detail['label'] : $field; ?>
@@ -541,7 +519,7 @@ class N2_Setpost {
 					unset( $settings['description'], $settings['label'], $settings['v-if'] );
 					$settings['name']  = sprintf( 'n2field[%s]', $settings['name'] ?? $field );
 					$settings['value'] = $settings['value'] ?? '';
-					$settings['value'] = $post_meta[ $field ] ?? $settings['value'];
+					$settings['value'] = get_post_meta( $post->ID, $field, true ) ?? $settings['value'];
 					// プラグインでテンプレートを追加したい場合は、get_template_part_{$slug}フックでいける
 					get_template_part( "template/forms/{$detail['type']}", null, $settings );
 					?>
@@ -577,7 +555,6 @@ class N2_Setpost {
 		}
 	}
 
-
 	/**
 	 * zip形式をuploadできるようにする
 	 *
@@ -611,78 +588,6 @@ class N2_Setpost {
 	public function change_title( $title ) {
 		$title = 'ここに返礼品の名前を入力してください';
 		return $title;
-	}
-
-	/**
-	 * JSにユーザー権限判定を渡す
-	 *
-	 * @return void
-	 */
-	public function ajax() {
-
-		$arr = array(
-			'ss_crew'           => wp_get_current_user()->allcaps['ss_crew'] ? 'true' : 'false',
-			'kifu_auto_pattern' => N2_Functions::kifu_auto_pattern( 'js' ),
-			'delivery_pattern'  => $this->delivery_pattern(),
-			'food_param'        => $this->food_param(),
-		);
-
-		echo json_encode( $arr );
-
-		die();
-	}
-
-	/**
-	 * 配送パターンを渡す
-	 *
-	 * @return Array $pattern
-	 */
-	private function delivery_pattern() {
-
-		$pattern = yaml_parse_file( get_theme_file_path() . '/config/n2-delivery.yml' );
-
-		// プラグイン側で上書き
-		$pattern = apply_filters( 'n2_setpost_change_delivary_pattern', $pattern );
-
-		return $pattern;
-	}
-
-	/**
-	 * 食品取扱の有無を返す
-	 *
-	 * @return string
-	 */
-	private function food_param() {
-		$user = wp_get_current_user();
-		if ( 'jigyousya' !== $user->roles[0] ) {
-			return '事業者ではない';
-		}
-
-		return empty( get_user_meta( $user->ID, '食品取り扱い', true ) ) ? '未設定' : get_user_meta( $user->ID, '食品取り扱い', true );
-	}
-
-	/**
-	 * 画像のURLとID変換用ajax
-	 */
-	public function ajax_imagedata() {
-
-		if ( empty( $_GET['imgurls'] ) ) {
-			echo 'noselected';
-			die();
-		}
-
-		$img_urls = $_GET['imgurls'];
-
-		echo json_encode(
-			array_map(
-				function( $img_url ) {
-					return attachment_url_to_postid( $img_url );
-				},
-				$img_urls
-			)
-		);
-
-		die();
 	}
 
 	/**
