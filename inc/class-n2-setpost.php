@@ -607,7 +607,7 @@ class N2_Setpost {
 	 * @return string
 	 */
 	public function change_title( $title ) {
-		$title = '返礼品の名前を入力';
+		$title = '返礼品の名前を入力してください';
 		return $title;
 	}
 
