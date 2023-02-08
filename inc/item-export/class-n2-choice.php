@@ -41,7 +41,6 @@ class N2_Choice {
 		$ids = explode( ',', filter_input( INPUT_POST, 'choice' ) );
 
         foreach( $ids as $id ){
-			die($grob->town);
 
             $items_arr[ $id ] = array(...$sumple_header, ...get_post_meta( $id, '', false ) );
             $item_code = strtoupper( get_post_meta( $id, "返礼品コード", true ) );
@@ -107,22 +106,6 @@ class N2_Choice {
                                     apply_filters( 'add_rakuten_category', '' )
                                     
                                 ) . "\n\n" . $add_text, //説明文の末尾に、設定されている場合はポータル共通説明文が入る。その後の記述は禁止。
-
-								$this->_s(get_post_meta($id, "説明文", true)) .
-										 (
-											get_post_meta($id, "検索キーワード", true) 
-												? "\n\n" . ($this->_s(get_post_meta($id, "検索キーワード", true))) 
-												: ""
-										) . 
-										(
-											preg_match('/hasami/', esc_url($_SERVER['REQUEST_URI'])) 
-												?   (
-													get_post_meta($id, "楽天カテゴリー", true) 
-														? "\n\n" . ($this->_s(get_post_meta($id, "楽天カテゴリー", true))) 
-														: ''
-													) 
-												: ''
-										);
 
                 '容量'    => N2_Functions::special_str_convert( get_post_meta( $id, "内容量・規格等", true ) ) . 
                                 (
