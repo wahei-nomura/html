@@ -107,6 +107,15 @@ class N2 {
 	public $choice_add_text; //説明文への追記テキスト
 
 	/**
+	 * レジホーム
+	 *
+	 * @var array
+	 */
+	public $ledghome_csv_title;
+	public $ledghome_csv_header;
+	public $ledghome_csv_setting;
+
+	/**
 	 * カスタムフィールド
 	 *
 	 * @var array
@@ -253,6 +262,12 @@ class N2 {
 		//チョイスのサンプルヘッダー取得
 		$sumple_header = trim( file_get_contents( str_replace( "//", "//{$choice_yml['auth']['user']}:{$choice_yml['auth']['pass']}@", $choice_yml['auth']['url'] ) ) );
         $this->choice_sumple_header = array_flip( explode( "\t", $sumple_header ) );
+
+		//レジホーム
+		$ledghome_yml = yaml_parse_file( get_theme_file_path( 'config/n2-ledghome-csv-header.yml' ) );
+		$this->ledghome_csv_title = $ledghome_yml['ledghome']['csv_header']['title'];
+		$this->ledghome_csv_header = $ledghome_yml['ledghome']['csv_header']['values'];
+		$this->ledghome_csv_setting = $ledghome_yml['ledghome']['setting'];
 	}
 
 	/**

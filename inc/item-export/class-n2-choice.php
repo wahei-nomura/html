@@ -27,11 +27,11 @@ class N2_Choice {
 	 */
     public function create_tsv() {
 		//グローバル変数設定
-		$grob = new N2;
-		$header0 = $grob -> choice_header_0; //ヘッダー0
-		$header1 = $grob -> choice_header_1; //ヘッダー1
-		$sumple_header = $grob -> choice_sumple_header; //出力用のサンプルヘッダー
-		$add_text = $grob -> choice_add_text; //説明文へ追加するポータル共通説明文
+		$glob = new N2;
+		$header0 = $glob -> choice_header_0; //ヘッダー0
+		$header1 = $glob -> choice_header_1; //ヘッダー1
+		$sumple_header = $glob -> choice_sumple_header; //出力用のサンプルヘッダー
+		$add_text = $glob -> choice_add_text; //説明文へ追加するポータル共通説明文
 		
         $items_arr = array();
         // $check_arr = array(); // 寄付金額が0のチェック用
