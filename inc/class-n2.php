@@ -213,7 +213,7 @@ class N2 {
 		// ログインユーザーデータ
 		$this->current_user = wp_get_current_user();
 		// ユーザーメタ全取得
-		$user_meta = get_user_meta( $this->current_user->ID );
+		$user_meta = (array) get_user_meta( $this->current_user->ID );
 		// 値が無駄に配列になるのを避ける
 		foreach ( $user_meta as $key => $val ) {
 			$user_meta[ $key ] = get_user_meta( $this->current_user->ID, $key, true );
