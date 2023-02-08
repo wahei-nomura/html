@@ -22,7 +22,7 @@ class N2_Enqueuescript {
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_setpost_script' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_front_script' ) );
 		add_filter( 'admin_body_class', array( $this, 'add_admin_body_class' ) );
 		add_action( 'admin_footer', array( $this, 'noscript' ) );
@@ -30,19 +30,29 @@ class N2_Enqueuescript {
 	}
 
 	/**
-	 * js,cssの読み込み
+	 * 管理画面
 	 *
+	 * @param string $hook_suffix ページ名
 	 * @return void
 	 */
-	public function enqueue_setpost_script( $hook_suffix ) {
-		wp_enqueue_media();
-
-		wp_enqueue_script( 'n2-script', get_theme_file_uri( 'dist/admin.js' ), array( 'jquery' ), N2_CASH_BUSTER, true );
-		wp_enqueue_script( 'jquery-touch-punch', false, array( 'jquery' ), N2_CASH_BUSTER, true );
-		wp_enqueue_style( 'n2-style', get_theme_file_uri( 'dist/admin.css' ), array(), N2_CASH_BUSTER );
+	public function admin_enqueue_scripts( $hook_suffix ) {
 		global $n2;
-		wp_localize_script( 'n2-script', 'n2', $n2 );
-		wp_localize_script( 'n2-script', 'tmp_path', $this->get_tmp_path() );
+		wp_enqueue_script( 'n2-admin', get_theme_file_uri( 'dist/js/admin.js' ), array( 'jquery', 'jquery-touch-punch' ), $n2->cash_buster, false );
+		wp_enqueue_style( 'n2-admin', get_theme_file_uri( 'dist/css/admin.css' ), array(), $n2->cash_buster );
+		$n2->hook_suffix = $hook_suffix;
+		wp_localize_script( 'n2-admin', 'n2', $n2 );
+		wp_localize_script( 'n2-admin', 'tmp_path', $this->get_tmp_path() );
+		$names = array(
+			'post.php'                    => 'admin-post-editor',
+			'post-new.php'                => 'admin-post-editor',
+			'edit.php'                    => 'admin-post-lists',
+			'toplevel_page_n2_setup_menu' => 'admin-submit',
+		);
+		if ( isset( $names[ $hook_suffix ] ) ) {
+			$name = $names[ $hook_suffix ];
+			wp_enqueue_script( $name, get_theme_file_uri( "dist/js/{$name}.js" ), array( 'jquery' ), $n2->cash_buster, false );
+			wp_enqueue_style( $name, get_theme_file_uri( "dist/css/{$name}.css" ), array(), $n2->cash_buster );
+		}
 	}
 
 	/**
@@ -50,11 +60,13 @@ class N2_Enqueuescript {
 	 *
 	 * @return void
 	 */
-	public function enqueue_front_script() {
-		wp_enqueue_script( 'n2-front-script', get_theme_file_uri( 'dist/front.js' ), array( 'jquery' ), N2_CASH_BUSTER, true );
-		wp_enqueue_style( 'n2-front-style', get_theme_file_uri( 'dist/front.css' ), array(), N2_CASH_BUSTER );
-
-		wp_localize_script( 'n2-front-script', 'tmp_path', $this->get_tmp_path() );
+	public function enqueue_front_script( $hook_suffix ) {
+		global $n2;
+		wp_enqueue_script( 'n2-front', get_theme_file_uri( 'dist/js/front.js' ), array( 'jquery' ), $n2->cash_buster, false );
+		wp_enqueue_style( 'n2-front', get_theme_file_uri( 'dist/css/front.css' ), array(), $n2->cash_buster );
+		$n2->hook_suffix = $hook_suffix;
+		wp_localize_script( 'n2-front', 'n2', $n2 );
+		wp_localize_script( 'n2-front', 'tmp_path', $this->get_tmp_path() );
 	}
 
 	/**
