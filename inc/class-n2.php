@@ -101,7 +101,10 @@ class N2 {
 	 *
 	 * @var array
 	 */
-	public $furusato_choice;
+	public $choice_header_0;
+	public $choice_header_1;
+	public $choice_sumple_header; //出力する時に使うサンプルヘッダー
+	public $choice_add_text; //説明文への追記テキスト
 
 	/**
 	 * カスタムフィールド
@@ -195,7 +198,15 @@ class N2 {
 		$this->rakuten = array( ...$this->rakuten, ...yaml_parse_file( get_theme_file_path( 'config/n2-rakuten-common.yml' ) ) );
 
 		// チョイス
-		$this->furusato_choice = $n2_option['furusato_choice'] ?? array();
+		$choice_yml = yaml_parse_file( get_theme_file_path( 'config/n2-choice-tsv-header.yml' ) )[ 'choice' ];
+		$this->choice_header_0 = $choice_yml[ 'tsv_header' ][ 'value0' ];
+		$this->choice_header_1 = $choice_yml[ 'tsv_header' ][ 'value1' ];
+		$this->choice_header = $n2_option['furusato_choice'] ?? array();
+		$this->choice_add_text = $n2_option['add_text'][get_bloginfo( 'name' )];
+
+		//チョイスのサンプルヘッダー取得
+		$sumple_header = trim( file_get_contents( str_replace( "//", "//{$choice_yml['auth']['user']}:{$choice_yml['auth']['pass']}@", $choice_yml['auth']['url'] ) ) );
+        $this->choice_sumple_header = array_flip( explode( "\t", $sumple_header ) );
 	}
 
 	/**

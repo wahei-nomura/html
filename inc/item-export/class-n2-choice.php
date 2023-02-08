@@ -1,4 +1,7 @@
 <?php
+//グローバル変数取得
+require_once(dirname(__DIR__)."/class-n2.php");
+
 /**
  * class-n2-choice.php
  *
@@ -23,29 +26,23 @@ class N2_Choice {
 	 * @return void
 	 */
     public function create_tsv() {
-        $header_data = yaml_parse_file( get_theme_file_path( '/config/n2-file-header.yml' ) );
+		//グローバル変数設定
+		$grob = new N2;
+		$header0 = $grob -> choice_header_0; //ヘッダー0
+		$header1 = $grob -> choice_header_1; //ヘッダー1
+		$sumple_header = $grob -> choice_sumple_header; //出力用のサンプルヘッダー
+		$add_text = $grob -> choice_add_text; //説明文へ追加するポータル共通説明文
+		
         $items_arr = array();
         // $check_arr = array(); // 寄付金額が0のチェック用
 		$error_items = '';
-        $opt = get_option( 'N2_Setupmenu' );
-
-        // あとでヘッダの上の連結するのに必要
-		$header0 = $header_data[ 'choice' ][ 'tsv_header' ][ 'value0' ]; 
-        $header1 = $header_data[ 'choice' ][ 'tsv_header' ][ 'value1' ];
-        $auth = $header_data[ 'choice' ][ 'auth' ]; //ヘッダーサンプル取得の為のユーザー・パス
-
-        // プラグイン側でヘッダーを編集
-		$header0 = apply_filters( 'n2_export_choice_tsv_header', $header0 );
-        $header1 = apply_filters( 'n2_export_choice_tsv_header', $header1 );
 
         // ajaxで渡ってきたpostidの配列
 		$ids = explode( ',', filter_input( INPUT_POST, 'choice' ) );
 
-        // ヘッダーサンプルの取得
-        $sumple_header = trim( file_get_contents( str_replace( "//", "//{$auth[ 'user' ]}:{$auth[ 'pass' ]}@", $auth[ 'url' ] ) ) );
-        $sumple_header = array_flip( explode( "\t", $sumple_header ) );
-
         foreach( $ids as $id ){
+			die($grob->town);
+
             $items_arr[ $id ] = array(...$sumple_header, ...get_post_meta( $id, '', false ) );
             $item_code = strtoupper( get_post_meta( $id, "返礼品コード", true ) );
 
@@ -109,7 +106,24 @@ class N2_Choice {
                                     // 楽天カテゴリーを追記するフック
                                     apply_filters( 'add_rakuten_category', '' )
                                     
-                                ) . "\n\n" . $opt[ 'add_text' ][ get_bloginfo( 'name' ) ],
+                                ) . "\n\n" . $add_text, //説明文の末尾に、設定されている場合はポータル共通説明文が入る。その後の記述は禁止。
+
+								$this->_s(get_post_meta($id, "説明文", true)) .
+										 (
+											get_post_meta($id, "検索キーワード", true) 
+												? "\n\n" . ($this->_s(get_post_meta($id, "検索キーワード", true))) 
+												: ""
+										) . 
+										(
+											preg_match('/hasami/', esc_url($_SERVER['REQUEST_URI'])) 
+												?   (
+													get_post_meta($id, "楽天カテゴリー", true) 
+														? "\n\n" . ($this->_s(get_post_meta($id, "楽天カテゴリー", true))) 
+														: ''
+													) 
+												: ''
+										);
+
                 '容量'    => N2_Functions::special_str_convert( get_post_meta( $id, "内容量・規格等", true ) ) . 
                                 (
                                     (
