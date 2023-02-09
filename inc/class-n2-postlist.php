@@ -136,17 +136,7 @@ class N2_Postlist {
 
 		$title = get_the_title();
 
-		// アカウントやステータスによってリンクを変える
-		if ( current_user_can( 'ss_crew' ) ) {
-			$post_url = get_edit_post_link();
-		} else {
-			if ( 'pending' === get_post_status() || 'publish' === get_post_status() ) {
-				$post_url = home_url( '/' ) . "?p={$post->ID}";
-			} else {
-				$post_url = get_edit_post_link();
-			}
-		}
-
+		$post_edit_url   = get_edit_post_link();
 		$image           = 'なし';
 		$goods_price     = ! empty( $post_data['価格'] ) && 0 !== $post_data['価格'] ? number_format( $post_data['価格'] ) : '-';
 		$donation_amount = ! empty( $post_data['寄附金額'] ) && 0 !== $post_data['寄附金額'] ? number_format( $post_data['寄附金額'] ) : '-';
@@ -173,7 +163,7 @@ class N2_Postlist {
 
 		switch ( $column_name ) {
 			case 'item-title':
-				echo "<div><a href='{$post_url}'>{$title}</a>";
+				echo "<div><a href='{$post_edit_url}'>{$title}</a>";
 				break;
 			case 'poster':
 				echo "<div>{$poster}</div>";
