@@ -82,9 +82,8 @@ class N2_Enqueuescript {
 		wp_enqueue_script( 'n2-login', get_theme_file_uri( 'dist/js/admin-login.js' ), array( 'jquery' ), $n2->cash_buster, false );
 		wp_enqueue_style( 'n2-login', get_theme_file_uri( 'dist/css/admin-login.css' ), array(), $n2->cash_buster );
 		$n2->hook_suffix = $hook_suffix;
-		// login画面では非表示
-		// wp_localize_script( 'n2-login', 'n2', $n2 );
-		// wp_localize_script( 'n2-login', 'tmp_path', $this->get_tmp_path() );
+		// 表示用で自治体名だけ渡しておく
+		wp_localize_script( 'n2-login', 'n2_my_town', $n2->town );
 	}
 
 	/**
