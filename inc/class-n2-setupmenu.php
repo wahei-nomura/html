@@ -226,10 +226,6 @@ class N2_Setupmenu {
 		<form>
 			<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
 			<input type="hidden" name="judge" value="option">
-			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][ftp_server]" value="<?php echo $common_yaml_array['ftp_server'] ?? 'ftp.rakuten.ne.jp'; ?>">
-			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][ftp_server_port]" value="<?php echo $common_yaml_array['ftp_server_port'] ?? '16910'; ?>">
-			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][upload_server]" value="<?php echo $common_yaml_array['upload_server'] ?? 'upload.rakuten.ne.jp'; ?>">
-			<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][upload_server_port]" value="<?php echo $common_yaml_array['upload_server'] ?? '21'; ?>">
 			<p class="input-text-wrap">
 				FTPユーザー：<br>
 				<input type="text" name="<?php echo $this->cls; ?>[rakuten][ftp_user]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_user'] ?? ''; ?>">

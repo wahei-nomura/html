@@ -11,8 +11,7 @@ if ( have_posts() ) :
 	$img_dir        = str_replace( 'n2-towncode', $n2_towncode[ $town_name ]['楽天'], $n2_file_header['rakuten']['img_dir'] );
 	// DB登録用のキー
 	$scraping_meta_key = 'スクレイピング';
-	if ( ! ( isset( $post_data[ $scraping_meta_key ] ) &&
-			 isset( $post_data[ $scraping_meta_key ]['dat'] ) ) ) {
+	if ( ! isset( $post_data[ $scraping_meta_key ]['date'] )  ) {
 		$scraping_params = array(
 			'product_id'    => $post_data['返礼品コード'],
 			'town_name'     => $town_name,

@@ -1,4 +1,4 @@
-<?php if ( isset( $args ) && $args ) : ?>
+<?php if ( isset( $args ) && $args[0] ) : ?>
 <section class="product-imgs">
 	<div class="img-box">
 		<img class='main-img' src="<?php echo $args[0]; ?>" width='100%'>
