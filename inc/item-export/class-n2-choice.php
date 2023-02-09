@@ -28,23 +28,19 @@ class N2_Choice {
     public function create_tsv() {
 		//グローバル変数設定
 		$glob = new N2;
-		$header0 = $glob -> choice_header_0; //ヘッダー0
-		$header1 = $glob -> choice_header_1; //ヘッダー1
+		$header0 = $glob -> choice_header_0; //初期値として0をセットするヘッダーグループ
+		$header1 = $glob -> choice_header_1; //初期値として1をセットするヘッダーグループ
 		$sumple_header = $glob -> choice_sumple_header; //出力用のサンプルヘッダー
 		$add_text = $glob -> choice_add_text; //説明文へ追加するポータル共通説明文
 		
         $items_arr = array();
-        // $check_arr = array(); // 寄付金額が0のチェック用
 		$error_items = '';
 
         // ajaxで渡ってきたpostidの配列
 		$ids = explode( ',', filter_input( INPUT_POST, 'choice' ) );
-
         foreach( $ids as $id ){
-
             $items_arr[ $id ] = array(...$sumple_header, ...get_post_meta( $id, '', false ) );
             $item_code = strtoupper( get_post_meta( $id, "返礼品コード", true ) );
-
             // 初期化処理
             foreach ( $items_arr[ $id ] as $k => $v ) {
                 if ( in_array( $k, $header0 ) ) {
@@ -73,9 +69,8 @@ class N2_Choice {
 				$display_allergen = "";
 			}
 
-			//金額エラー処理用
+			//寄附金額チェック
             $error_items .= get_post_meta( $id, "寄附金額", true ) == 0 || get_post_meta( $id, "寄附金額", true ) == '' ? "【{$item_code}】" . '<br>' : '';
-            echo $check_arr[ $id ][ '寄附金額エラー' ];
 
             $arr = array(
                 '管理コード'      => $item_code,
@@ -154,6 +149,7 @@ class N2_Choice {
                 '受付開始日時'        => "2025/04/01 00:00",
                 '（条件付き必須）還元率（%）'        => 30,
             );
+			//「スライド画像」カラムに値を入れる処理
 			for($i = 1; $i < 9; $i++) {
 				$ii = (($i - 1) == 0) ? "" : "-" . ($i - 1);
 				$arr = $arr + array( "スライド画像{$i}" => mb_strtolower($item_code) . "{$ii}.jpg" );
@@ -164,10 +160,9 @@ class N2_Choice {
 
         }
 
-        // アラート文
-        $kifukin_alert_str = '【以下の商品コードが寄附金額が０になっていたため、ダウンロードを中止しました】' . '<br>';
+        // 寄附金額0アラート
+        $kifukin_alert_str = '【以下の返礼品が寄附金額が０になっていたため、ダウンロードを中止しました】' . '<br>';
         $kifukin_check_str = isset( $error_items ) ? $error_items : '';
-		
 		if( $kifukin_check_str ) { // 寄付金額エラーで出力中断
 			exit( $kifukin_alert_str . $kifukin_check_str );
 		}

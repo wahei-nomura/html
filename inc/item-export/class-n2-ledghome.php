@@ -40,18 +40,13 @@ class N2_Ledghome {
 		// itemの情報を配列化
 		$items_arr   = array();
 		$error_items = '';
-
 		// あとでヘッダの上の連結するのに必要
 		$csv_title = $glob -> ledghome_csv_title;
 		$header = $glob -> ledghome_csv_header;
 		$setting = $glob -> ledghome_csv_setting;
 
-		// プラグイン側でヘッダーを編集
-		$header = apply_filters( 'n2_item_export_ledghome_header', $header );
-
 		// ajaxで渡ってきたpostidの配列
 		$ids = explode( ',', filter_input( INPUT_POST, 'ledghome' ) );
-
 		foreach ( $ids as $id ) {
 			$teiki = get_post_meta( $id, '定期便', true );
 			$price = (get_post_meta($id, "定期便価格", true) && ($teiki > 1)) ? get_post_meta($id, "定期便価格", true) : get_post_meta($id, "価格", true);
@@ -118,10 +113,9 @@ class N2_Ledghome {
 			}
 		}
 
-		// アラート文
-        $kifukin_alert_str = '【以下の商品コードが寄附金額が０になっていたため、ダウンロードを中止しました】' . '<br>';
+		// 寄附金額アラート
+        $kifukin_alert_str = '【以下の返礼品が寄附金額が０になっていたため、ダウンロードを中止しました】' . '<br>';
         $kifukin_check_str = isset( $error_items ) ? $error_items : '';
-		
 		if( $kifukin_check_str ) { // 寄付金額エラーで出力中断
 			exit( $kifukin_alert_str . $kifukin_check_str );
 		}
