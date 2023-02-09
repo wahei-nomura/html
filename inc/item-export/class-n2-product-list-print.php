@@ -52,7 +52,7 @@ class N2_Product_List_Print {
 	public function print_out() {
 		global $n2;
 		$ids                   = filter_input( INPUT_POST, 'print' );
-		$print_css             = get_theme_file_uri( 'dist/print.css' );
+		$print_css             = get_theme_file_uri( 'dist/css/admin-print.css' );
 		$confirm_table_th_list = $n2->product_list_print['確認用テーブル']['th'];
 		$product_table_tr_list = $n2->product_list_print['返礼品テーブル']['tr'];
 		// プラグイン側で追加
