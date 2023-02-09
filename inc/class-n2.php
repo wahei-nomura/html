@@ -108,14 +108,7 @@ class N2 {
 	 *
 	 * @var array
 	 */
-	public $custom_fields;
-
-	/**
-	 * カスタムフィールド　Steasmhip専用
-	 *
-	 * @var array
-	 */
-	public $custom_fields_ss;
+	public $custom_field;
 
 	/**
 	 * 商品プリントアウト
@@ -125,18 +118,69 @@ class N2 {
 	public $product_list_print;
 
 	/**
+	 * query（ログイン時のみ）
+	 *
+	 * @var object
+	 */
+	public $query;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
 		$this->set_vars();
 		$this->set_filters();
+		add_action( 'pre_get_posts', array( $this, 'add_post_data' ) );
+	}
+
+	/**
+	 * 投稿データをセット
+	 *
+	 * @params object $query クエリ
+	 */
+	public function add_post_data( $query ) {
+		// クエリ生データをセット
+		if ( is_user_logged_in() ) {
+			$this->query = $query;
+		}
+		// カスタムフィールドに値をセット
+		global $post;
+		if ( isset( $post->ID ) ) {
+			foreach ( $this->custom_field as $id => $arr ) {
+				foreach ( $arr as $name => $value ) {
+					$value = get_post_meta( $post->ID, $name, true );
+					switch ( $name ) {
+						case '出品禁止ポータル':
+						case '取り扱い方法':
+						case '商品画像':
+							$value = $value ?: array();
+							break;
+						case '発送方法':
+							$value = $value ?: '常温';
+							break;
+						case '商品タイプ':
+							if ( ! $value ) {
+								$user_meta = $this->current_user->data->meta;
+								if ( ! empty( $user_meta['商品タイプ'] ) ) {
+									$value = array_keys( array_filter( $user_meta['商品タイプ'], fn($v) => $v === 'true' ) );
+								}
+							}
+							break;
+					}
+					$this->custom_field[ $id ][ $name ]['value'] = $value;
+				}
+			}
+			if ( ! isset( $this->custom_field['スチームシップ用']['寄附金額固定'] ) ) {
+				$this->custom_field['スチームシップ用']['寄附金額固定']['value'] = array();
+			}
+		}
 	}
 
 	/**
 	 * プロパティのセット
 	 */
 	public function set_vars() {
-
+		global $pagenow, $wpdb;
 		// wp_options保存値
 		$n2_option = get_option( 'N2_Setupmenu' );
 
@@ -147,7 +191,7 @@ class N2 {
 		$this->cash_buster = 'develop' === $this->mode ? time() : wp_get_theme()->get( 'Version' );
 
 		// サイト基本情報
-		global $wpdb;
+
 		$this->blog_prefix = $wpdb->get_blog_prefix();
 		$this->site_id     = get_current_blog_id();
 		$this->town        = get_bloginfo( 'name' );
@@ -157,7 +201,7 @@ class N2 {
 		// ログインユーザーデータ
 		$this->current_user = wp_get_current_user();
 		// ユーザーメタ全取得
-		$user_meta = get_user_meta( $this->current_user->ID );
+		$user_meta = (array) get_user_meta( $this->current_user->ID );
 		// 値が無駄に配列になるのを避ける
 		foreach ( $user_meta as $key => $val ) {
 			$user_meta[ $key ] = get_user_meta( $this->current_user->ID, $key, true );
@@ -167,8 +211,10 @@ class N2 {
 		$this->current_user->__set( 'meta', $user_meta );
 
 		// カスタムフィールド
-		$this->custom_fields    = yaml_parse_file( get_theme_file_path( 'config/n2-fields.yml' ) );
-		$this->custom_fields_ss = yaml_parse_file( get_theme_file_path( 'config/n2-ss-fields.yml' ) );
+		$this->custom_field = array(
+			'スチームシップ用' => yaml_parse_file( get_theme_file_path( 'config/n2-ss-fields.yml' ) ),
+			'事業者用'     => yaml_parse_file( get_theme_file_path( 'config/n2-fields.yml' ) ),
+		);
 
 		// プリントアウト
 		$this->product_list_print = yaml_parse_file( get_theme_file_path( 'config/n2-product-list-print.yml' ) );
@@ -182,10 +228,20 @@ class N2 {
 		// 寄附金額計算式タイプ
 		$this->formula_type = $n2_option['formula_type'] ?? '';
 
+		// ポータル一覧
+		$this->portals   = array(
+			'rakuten'         => '楽天',
+			'furusato_choice' => 'チョイス',
+		);
+		$this->town_code = $this->get_portal_town_code_list();
+
 		// 楽天
 		$this->rakuten = $n2_option['rakuten'] ?? array();
 		// ftp_server,upload_serverを追加
 		$this->rakuten = array( ...$this->rakuten, ...yaml_parse_file( get_theme_file_path( 'config/n2-rakuten-common.yml' ) ) );
+
+		// チョイス
+		$this->furusato_choice = $n2_option['furusato_choice'] ?? array();
 	}
 
 	/**
@@ -210,6 +266,23 @@ class N2 {
 			'183.177.128.173', // 土岐
 			'217.178.116.13', // 大村
 			'175.41.201.54', // SSVPN
+		);
+	}
+
+	/**
+	 * 自治体コードを一つの配列にまとめる
+	 *
+	 * @return array
+	 */
+	public function get_portal_town_code_list() {
+		$town_code_list = array();
+		// ポータル一覧
+		$town_code = yaml_parse_file( get_theme_file_path( 'config/n2-towncode.yml' ) );
+		$municipal = explode( '/', get_option( 'home' ) );
+		$town_name = end( $municipal );
+		return array(
+			'rakuten'         => $n2_option['rakuten']['town_code'] ?? $town_code[ $town_name ]['楽天'] ?? '',
+			'furusato_choice' => $n2_option['furusato_choice']['town_code'] ?? $this->town,
 		);
 	}
 }

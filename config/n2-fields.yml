@@ -1,23 +1,13 @@
 # ===================================================
 
-# デフォルトカスタムフィールド(返礼品詳細)
-
-# ******* 記述法 ********
-# type:text,textarea,checkbox,selectのいずれかを指定
-# description:タイトル下の説明文（改行はを書く）
-# maxlength:文字数制限
-# option:selectとcheckboxの選択肢を指定
-# default:text,textareaのデフォルト値を指定
-# placeholder:text,textareaのplaceholderを指定
+# 事業者用カスタムフィールド
+#---------------------------
+# そのままフィールド名となる
+# typeでtemplate/forms/以下のphpファイル名を利用
+# nameとlabelを変えたい場合はlabelを設定
+# 属性値を自動的に追加
 
 # ===================================================
-
-#変更不可（隠しフィールド）
-事業者確認:
-    type: checkbox
-    option-equal: true
-    option:
-        - 確認済み
 
 価格:
     type : text
@@ -27,9 +17,9 @@
     placeholder: 例）1000
     description: 上代を税込でご記載ください。定期便の場合、1回分の価格をご記載ください。
     style: 'width: 10em'
-    v-model: 価格
+    :value: 価格
     "@focus": set_info($event.target)
-    "@input": "$event.target.value = force_half_size_text($event.target.value, true)"
+    "@input": "force_half_size_text($event, 'number', '価格')"
 
 キャッチコピー:
     type : text
@@ -38,10 +28,11 @@
     placeholder: 例）「バナナマンのせっかくグルメ！！」「王様のブランチ」で紹介！
     style: 'width: 100%'
     "@focus": set_info($event.target)
-    "@input": set_info($event.target)
+    "@input": set_info($event.target);auto_fit_tetxarea($event.target)
 
 説明文:
     type : textarea
+    rows: auto
     maxlength : 900
     placeholder: '【こだわり】あなたの仕事や商品に対するこだわりや想いを書いてください。
 
@@ -52,15 +43,16 @@
 【口コミ】お客様から寄せられる声をわかる範囲で具体的（性別、年代、家族構成、購入理由、感想など）に書いてください。
 
 【その他】上記以外で伝えたいことがあれば教えてください。'
-    "@focus": set_info($event.target)
-    "@input": set_info($event.target)
+    "@focus": set_info($event.target);
+    "@input": set_info($event.target);auto_fit_tetxarea($event.target)
 
 内容量・規格等:
     type : textarea
     maxlength : 1000
+    rows: auto
     description : 内容量、数量、サイズ、重さなど詳しくお書きください。<br>※器の容量は「満量時」でご記入ください！　満量時ではない場合は「8分目」など必ずどの分量かがわかるようにお願いいたします。<br>※色・柄・セットの商品を登録する場合は、必ず別の商品として登録していただくようお願いいたします（注文時に色などを選択していただくような形式には対応しておりません）。
     "@focus": set_info($event.target)
-    "@input": set_info($event.target)
+    "@input": set_info($event.target);auto_fit_tetxarea($event.target)
 
 原料原産地:
     type : text
@@ -96,7 +88,7 @@
 
 アレルゲン:
     type : checkbox2
-    v-if: 商品タイプ.includes('食品')&&アレルギー有無確認
+    v-if: 商品タイプ.includes('食品')&&アレルギー有無確認.includes('アレルギー品目あり')
     option :
         0: 卵
         1: 乳
@@ -139,31 +131,35 @@
     type : textarea
     placeholder : 例）配送から５日間
     maxlength : 200
-    style: 'width: 100%;height: 5em;'
+    rows: auto
+    style: 'width: 100%;'
     v-if: 商品タイプ.includes('食品')
     "@focus": set_info($event.target)
-    "@input": set_info($event.target)
+    "@input": set_info($event.target);auto_fit_tetxarea($event.target)
 
 消費期限:
     type : textarea
     placeholder : 例）冷凍庫９０日間
-    style: 'width: 100%;height: 5em;'
+    style: 'width: 100%;'
     maxlength : 200
+    rows: auto
     v-if: 商品タイプ.includes('食品')
     "@focus": set_info($event.target)
-    "@input": set_info($event.target)
+    "@input": set_info($event.target);auto_fit_tetxarea($event.target)
 
 アレルゲン注釈:
     type: textarea
     placeholder: 例）同じ工場で〇〇を含む製品を製造しております。
     description: アレルゲンに関連する注釈があれば入力してください。
+    rows: auto
     style: 'width: 100%;height: 2em;'
     v-if: 商品タイプ.includes('食品')
+    "@focus": set_info($event.target)
+    "@input": set_info($event.target);auto_fit_tetxarea($event.target)
 
 申込期間:
     type : text
     placeholder : 例）通年4月〜6月など
-    default : 通年
     style: 'width: 100%'
 
 配送期間:
@@ -172,9 +168,9 @@
     maxlength : 200
     required: required
     placeholder: 例）入金確認後1ヶ月以内にお届けいたします。
-    style: 'width: 100%;height: 5em;'
+    style: 'width: 100%;'
     "@focus": set_info($event.target)
-    "@input": set_info($event.target)
+    "@input": set_info($event.target);auto_fit_tetxarea($event.target)
 
 限定数量:
     type : text
@@ -233,10 +229,10 @@
     description: '送料はサイズ等を元に計算された金額が自動で設定されています。'
     style: 'width: 6em'
     v-if: 発送サイズ!=''
-    v-model: 送料
+    :value: 送料
     ':readonly': "発送サイズ!='その他' ? true: false"
     "@focus": if (発送サイズ!='その他') { set_info($event.target) }
-    "@input": "$event.target.value = force_half_size_text($event.target.value, true)"
+    "@input": "force_half_size_text($event, 'number', '発送サイズ')"
 
 取り扱い方法:
     type : checkbox

@@ -103,17 +103,17 @@
 	<input type="hidden" name="action" value="<?php echo $args['cls']; ?>">
 
 	<?php
-		foreach ( $args['params'] as $key => $value ) :
-		$result = get_user_meta( wp_get_current_user()->ID, $value['meta'], true ) ? get_user_meta( wp_get_current_user()->ID, $value['meta'], true ) : '';
-	?>
+	foreach ( $args['jigyousya_meta'] as $item_type => $param ) :
+		$user_meta_result = get_user_meta( wp_get_current_user()->ID, '商品タイプ', true ) ? get_user_meta( wp_get_current_user()->ID, '商品タイプ', true ) : array( $item_type => false );
+		?>
 
 		<div class="ss-check-item">
 			<div class="flex-item1">
-				<h3><?php echo $value['title']; ?></h3>
-				<p><?php echo $value['description']; ?></p>
+				<h3><?php echo $param['title']; ?></h3>
+				<p><?php echo $param['description']; ?></p>
 			</div>
-			<div class="flex-item2"><input type="radio" name="<?php echo $key; ?>" id="<?php echo $key; ?>yes" value="有"<?php checked( $result, '有' ); ?>><label for="<?php echo $key; ?>yes" class="radioyes">はい</label></div>
-			<div class="flex-item3"><input type="radio" name="<?php echo $key; ?>" id="<?php echo $key; ?>no" value="無"<?php checked( $result, '無' ); ?>><label for="<?php echo $key; ?>no" class="radiono">いいえ</label></div>
+			<div class="flex-item2"><input type="radio" name="<?php echo $item_type; ?>" id="<?php echo $item_type; ?>yes" value="true"<?php checked( $user_meta_result[ $item_type ], 'true' ); ?>><label for="<?php echo $item_type; ?>yes" class="radioyes">はい</label></div>
+			<div class="flex-item3"><input type="radio" name="<?php echo $item_type; ?>" id="<?php echo $item_type; ?>no" value="false"<?php checked( $user_meta_result[ $item_type ], 'false' ); ?>><label for="<?php echo $item_type; ?>no" class="radiono">いいえ</label></div>
 		</div>
 	<?php endforeach; ?>
 

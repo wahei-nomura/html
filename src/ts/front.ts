@@ -1,4 +1,6 @@
-import "../scss/front.scss";
-import n2_front from './n2-front';
-
-n2_front();
+import "../scss/front";
+import "./_noscript";
+import "./_front-ajax";
+import "./_front-search";
+import "./_product";
+import "./_list";
