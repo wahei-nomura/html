@@ -34,7 +34,7 @@ $incs = array(
 	'class-n2-jigyousyaparam',
 	'class-n2-setupmenu',
 	'class-n2-setmenu',
-	'class-n2-setpost',
+	'class-n2-admin-post-editor',
 	'class-n2-postlist',
 	'class-n2-setusers',
 	'class-n2-dashboard',

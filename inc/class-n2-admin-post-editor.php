@@ -1,6 +1,6 @@
 <?php
 /**
- * class-n2-setpost.php
+ * class-n2-admin-post-editor.php
  *
  * @package neoneng
  */
@@ -9,15 +9,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( class_exists( 'N2_Setpost' ) ) {
-	new N2_Setpost();
+if ( class_exists( 'N2_Admin_Post_Editor' ) ) {
+	new N2_Admin_Post_Editor();
 	return;
 }
 
 /**
- * Setpost
+ * N2_Admin_Post_Editor
  */
-class N2_Setpost {
+class N2_Admin_Post_Editor {
 	/**
 	 * クラス名
 	 *
@@ -53,8 +53,6 @@ class N2_Setpost {
 		global $post;
 		?>
 			<link href="//cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-			<style>body.n2-darkmode{filter: invert(100%);}body.n2-darkmode img{filter: invert(100%);}</style>
-			<style id="n2-edit-post"></style>
 			<script src="//cdn.jsdelivr.net/npm/vue@2.x"></script>
 			<script src="//cdn.jsdelivr.net/npm/sortablejs@1.8.4/Sortable.min.js"></script>
 			<script src="//cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.20.0/vuedraggable.umd.min.js"></script>
