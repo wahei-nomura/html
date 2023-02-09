@@ -15,7 +15,7 @@
   \*************************/
 /***/ (() => {
 
-eval("alert('hoge')\n\n//# sourceURL=webpack://neo-neng/./src/ts/admin.js?");
+eval("\n\n//# sourceURL=webpack://neo-neng/./src/ts/admin.js?");
 
 /***/ })
 
