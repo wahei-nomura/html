@@ -8,86 +8,89 @@ declare global {
 		imgResize(): void;
 	}
 }
-console.log('here');
 
-console.log(window['tmp_path']['ajax_url']);
-const element:HTMLInputElement = <HTMLInputElement>document.getElementById('product_id');
-const productID:string = element.value;
-const townName = homeUrl(window).split('/').slice(-1)[0];
 
-const urlSearchParams = new URLSearchParams(window.location.search);
-const getParams = Object.fromEntries(urlSearchParams.entries());
-const postID = Number(getParams.p);
-
-// ---------ポータル田代のインターバル関連---------
-const scrapingTimestamp = $("#scraping_timestamp").attr('value') ?? '';
-const scrapingInterval  = Number($("#scraping_interval").attr('value') ?? '0');
-const now = new Date();
-const pre = scrapingTimestamp ? new Date(scrapingTimestamp) : now;
-const minute_ago = Math.floor((now.getTime() -pre.getTime()) / (1000 *60) );
-// ----------------------------------------------
-const skElement:HTMLInputElement = <HTMLInputElement>document.getElementById('scraping_key');
-const postMetaKey = skElement.value
-const ajaxData = {
-	product_id:productID,
-	town_name: townName,
-	post_id: postID,
-	post_meta_key: postMetaKey,
-};
-portalScrapingAjax('POST', ajaxData ).done(res =>{
-	// スクレイピングしてなければ何もしない
-	if( res['status'] == 'NG' ) return;
-	// 寄付金額の表示を楽天に変えておく
-	const donationAmount = res['params']['楽天']['寄付額'] ?? $('.donation-amount .price').text();
-	$('.donation-amount .price').text(donationAmount);
-
-	// 商品画像のリンク修正
-	const imgUrl:Array<string> = res['params']['楽天']['imgs'] ?? ['params']['チョイス']['imgs'];
-	const imgUrlLen = imgUrl.length
-	if( imgUrlLen !== 0 ) {
-		const $subImgs = $('.sub-imgs');
-		const $subImg = $('.sub-img').eq(0);
-		const $subImgLen = $('.sub-img').length;
-
-		imgUrl.forEach( url =>{
-			console.log(url);
-			
-		} )
-	}
-
-	
-	// 各ポータルサイトのリンク修正
-	$('.link-btn a').each((index,elem)=>{
-		const portalName = $(elem).text();
-		$(elem).attr('href',res['params'][portalName]['url']);
-	});
-	let successPortal = Object.keys(res).filter((x)=>res[x].status === 'OK')
-	// ポータル比較th
-	$('.portal-scraper thead th').each((index,elem)=>{
-		const portal = $(elem).text();
-		if( index === 0 ){
-			return;
-		} else if ( successPortal.indexOf( portal ) !== -1 ){
-			successPortal = successPortal.filter( x => x !== portal);
-			return;
-		}
-		$(elem).parent().append(`<th>${portal}</th>`);
-	})
-	// ポータル比較td
-	$('.portal-scraper tbody tr').each((index,elem)=>{
-		const th = $(elem).find('th').text();
-		successPortal.forEach(portal=>{
-			const td = successPortal[portal]?.params?.[th].trim();
-			$(elem).append(`<td>${td}</td>`);
-		})
-	});
-
-}).catch(err=>{
-	console.log(err.responseText);
-})
 
 
 $(function ($) {
+
+	console.log('here');
+
+	const element:HTMLInputElement = <HTMLInputElement>document.getElementById('product_id');
+
+	const productID:string = element.value;
+	const townName = homeUrl(window).split('/').slice(-1)[0];
+
+	const urlSearchParams = new URLSearchParams(window.location.search);
+	const getParams = Object.fromEntries(urlSearchParams.entries());
+	const postID = Number(getParams.p);
+
+	// ---------ポータル田代のインターバル関連---------
+	const scrapingTimestamp = $("#scraping_timestamp").attr('value') ?? '';
+	const scrapingInterval  = Number($("#scraping_interval").attr('value') ?? '0');
+	const now = new Date();
+	const pre = scrapingTimestamp ? new Date(scrapingTimestamp) : now;
+	const minute_ago = Math.floor((now.getTime() -pre.getTime()) / (1000 *60) );
+	// ----------------------------------------------
+	const skElement:HTMLInputElement = <HTMLInputElement>document.getElementById('scraping_key');
+	const postMetaKey = skElement.value
+	const ajaxData = {
+		product_id:productID,
+		town_name: townName,
+		post_id: postID,
+		post_meta_key: postMetaKey,
+	};
+	portalScrapingAjax('POST', ajaxData ).done(res =>{
+		// スクレイピングしてなければ何もしない
+		if( res['status'] == 'NG' ) return;
+		// 寄付金額の表示を楽天に変えておく
+		const donationAmount = res['params']['楽天']['寄付額'] ?? $('.donation-amount .price').text();
+		$('.donation-amount .price').text(donationAmount);
+
+		// 商品画像のリンク修正
+		const imgUrl:Array<string> = res['params']['楽天']['imgs'] ?? ['params']['チョイス']['imgs'];
+		const imgUrlLen = imgUrl.length
+		if( imgUrlLen !== 0 ) {
+			const $subImgs = $('.sub-imgs');
+			const $subImg = $('.sub-img').eq(0);
+			const $subImgLen = $('.sub-img').length;
+
+			imgUrl.forEach( url =>{
+				console.log(url);
+				
+			} )
+		}
+
+		
+		// 各ポータルサイトのリンク修正
+		$('.link-btn a').each((index,elem)=>{
+			const portalName = $(elem).text();
+			$(elem).attr('href',res['params'][portalName]['url']);
+		});
+		let successPortal = Object.keys(res).filter((x)=>res[x].status === 'OK')
+		// ポータル比較th
+		$('.portal-scraper thead th').each((index,elem)=>{
+			const portal = $(elem).text();
+			if( index === 0 ){
+				return;
+			} else if ( successPortal.indexOf( portal ) !== -1 ){
+				successPortal = successPortal.filter( x => x !== portal);
+				return;
+			}
+			$(elem).parent().append(`<th>${portal}</th>`);
+		})
+		// ポータル比較td
+		$('.portal-scraper tbody tr').each((index,elem)=>{
+			const th = $(elem).find('th').text();
+			successPortal.forEach(portal=>{
+				const td = successPortal[portal]?.params?.[th].trim();
+				$(elem).append(`<td>${td}</td>`);
+			})
+		});
+
+	}).catch(err=>{
+		console.log(err.responseText);
+	})
 	// transformの各パラメータ
 	// transform用のアニメーション
 	$.fn.animate2 = function (
