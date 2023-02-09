@@ -1,4 +1,7 @@
 <?php
+//グローバル変数取得
+require_once(dirname(__DIR__)."/class-n2.php");
+
 /**
  * class-n2-ledghome.php
  *
@@ -31,23 +34,19 @@ class N2_Ledghome {
 	 * @return void
 	 */
 	public function create_csv() {
+		//グローバル変数設定
+		$glob = new N2;
+
 		// itemの情報を配列化
 		$items_arr   = array();
-		$header_data = yaml_parse_file( get_theme_file_path( '/config/n2-file-header.yml' ) );
 		$error_items = '';
-
 		// あとでヘッダの上の連結するのに必要
-		$csv_title = $header_data['ledghome']['csv_header']['title'];
-		$header = $header_data['ledghome']['csv_header']['values'];
-
-		$setting = $header_data['ledghome']['setting'];
-
-		// プラグイン側でヘッダーを編集
-		$header = apply_filters( 'n2_item_export_ledghome_header', $header );
+		$csv_title = $glob -> ledghome_csv_title;
+		$header = $glob -> ledghome_csv_header;
+		$setting = $glob -> ledghome_csv_setting;
 
 		// ajaxで渡ってきたpostidの配列
 		$ids = explode( ',', filter_input( INPUT_POST, 'ledghome' ) );
-
 		foreach ( $ids as $id ) {
 			$teiki = get_post_meta( $id, '定期便', true );
 			$price = (get_post_meta($id, "定期便価格", true) && ($teiki > 1)) ? get_post_meta($id, "定期便価格", true) : get_post_meta($id, "価格", true);
@@ -114,10 +113,9 @@ class N2_Ledghome {
 			}
 		}
 
-		// アラート文
-        $kifukin_alert_str = '【以下の商品コードが寄附金額が０になっていたため、ダウンロードを中止しました】' . '<br>';
+		// 寄附金額アラート
+        $kifukin_alert_str = '【以下の返礼品が寄附金額が０になっていたため、ダウンロードを中止しました】' . '<br>';
         $kifukin_check_str = isset( $error_items ) ? $error_items : '';
-		
 		if( $kifukin_check_str ) { // 寄付金額エラーで出力中断
 			exit( $kifukin_alert_str . $kifukin_check_str );
 		}
