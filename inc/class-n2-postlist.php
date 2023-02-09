@@ -91,14 +91,14 @@ class N2_Postlist {
 			'teiki'           => '定期便',
 			'thumbnail'       => '画像',
 			'modified-last'   => "<a href='{$sort_base_url}edit.php?orderby=date&order={$asc_or_desc}'>最終更新日{$this->judging_icons_order('date')}</a>",
+			'copy-post'       => '複製',
 		);
 
 		if ( 'jigyousya' !== wp_get_current_user()->roles[0] ) {
 			$columns = array_merge(
 				$columns,
 				array(
-					'ssmemo'    => 'SSメモ',
-					'copy-post' => '複製',
+					'ssmemo' => 'SSメモ',
 				)
 			);
 		}
