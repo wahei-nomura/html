@@ -137,7 +137,7 @@ class N2_Postlist {
 		$title = get_the_title();
 
 		$post_edit_url   = get_edit_post_link();
-		$image           = 'なし';
+		$image           = isset( $post_data['商品画像'][0] ) ? "<img width='70' src='{$post_data['商品画像'][0]['url']}' />" : '-';
 		$goods_price     = ! empty( $post_data['価格'] ) && 0 !== $post_data['価格'] ? number_format( $post_data['価格'] ) : '-';
 		$donation_amount = ! empty( $post_data['寄附金額'] ) && 0 !== $post_data['寄附金額'] ? number_format( $post_data['寄附金額'] ) : '-';
 		$teiki           = ! empty( $post_data['定期便'] ) && 1 !== (int) $post_data['定期便'] ? $post_data['定期便'] : '-';
