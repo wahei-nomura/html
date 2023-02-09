@@ -12,6 +12,7 @@ import editor_vue from "./_admin-post-editor-vue";
 import status_control from "./_admin-post-editor-status-control";
 
 jQuery( $ => {
+	const n2 = window['n2'];
 	loading_view($, '#wpwrap');// ローディング
 	alert_and_return_page(!n2.formula_type, '寄附金額の自動計算に必須の設定値がありません。先程のページへ戻ります。');// 自動計算不可のためページに入れない
 	i18n();// 翻訳
