@@ -23,6 +23,7 @@ class N2_Enqueuescript {
 	 */
 	public function __construct() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
+		add_action( 'login_enqueue_scripts', array( $this, 'login_enqueue_script' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_front_script' ) );
 		add_filter( 'admin_body_class', array( $this, 'add_admin_body_class' ) );
 		add_action( 'admin_footer', array( $this, 'noscript' ) );
@@ -67,6 +68,23 @@ class N2_Enqueuescript {
 		$n2->hook_suffix = $hook_suffix;
 		wp_localize_script( 'n2-front', 'n2', $n2 );
 		wp_localize_script( 'n2-front', 'tmp_path', $this->get_tmp_path() );
+	}
+
+	/**
+	 *
+	 * ログイン画面
+	 *
+	 * @param string $hook_suffix suffix
+	 * @return void
+	 */
+	public function login_enqueue_script( $hook_suffix ) {
+		global $n2;
+		wp_enqueue_script( 'n2-login', get_theme_file_uri( 'dist/js/admin-login.js' ), array( 'jquery' ), $n2->cash_buster, false );
+		wp_enqueue_style( 'n2-login', get_theme_file_uri( 'dist/css/admin-login.css' ), array(), $n2->cash_buster );
+		$n2->hook_suffix = $hook_suffix;
+		// login画面では非表示
+		// wp_localize_script( 'n2-login', 'n2', $n2 );
+		// wp_localize_script( 'n2-login', 'tmp_path', $this->get_tmp_path() );
 	}
 
 	/**
