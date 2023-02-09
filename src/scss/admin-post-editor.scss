@@ -1,3 +1,13 @@
+/* Bootstrap
+	変数をいじりたい場合はこんな感じ
+	=====
+	$primary: #ccc;
+	@use "bootstrap/scss/bootstrap.scss";
+	=====
+	cssで@useした方がコンパイルが爆速
+*/
+@use "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
+
 body.n2-darkmode{
 	filter: invert(100%);
 	img{
