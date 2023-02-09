@@ -1,6 +1,6 @@
 import $ from "jquery";
-import { prefix, neoNengPath, ajaxUrl, homeUrl } from "./_functions";
-import {portalScrapingAjax} from "./_front-ajax";
+import { prefix, neoNengPath, ajaxUrl, homeUrl } from "./functions";
+import {portalScrapingAjax} from "./front-ajax";
 // jQuery拡張用に型定義
 declare global {
 	interface JQuery {

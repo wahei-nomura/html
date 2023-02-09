@@ -1,4 +1,4 @@
-import { ajaxUrl } from './_functions'
+import { ajaxUrl } from './modules/functions'
 
 jQuery(function($) {
 	

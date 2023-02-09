@@ -1,4 +1,4 @@
-import { prefix, neoNengPath, ajaxUrl, homeUrl } from "./_functions";
+import { prefix, neoNengPath, ajaxUrl, homeUrl } from "./functions";
 import $ from 'jquery';
 
 /** ===============================================================

@@ -1,1 +1,1 @@
-import "../scss/admin";
+alert('hoge')

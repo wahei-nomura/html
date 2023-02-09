@@ -1,15 +1,12 @@
-// 専用CSS生成
-import "../scss/admin-post-editor";
-
 // 必要なモジュールの読み込み
-import loading_view from "./_loading-view";
-import alert_and_return_page from "./_alert-and-return-page";
-import i18n from "./_admin-post-editor-i18n";
-import title_counter from "./_admin-post-editor-title-counter";
-import darkmode_toggler from "./_darkmode-toggler";
-import mokuji_generator from "./_admin-post-editor-mokuji-generator";
-import editor_vue from "./_admin-post-editor-vue";
-import status_control from "./_admin-post-editor-status-control";
+import loading_view from "./modules/loading-view";
+import alert_and_return_page from "./modules/alert-and-return-page";
+import i18n from "./modules/admin-post-editor-i18n";
+import title_counter from "./modules/admin-post-editor-title-counter";
+import darkmode_toggler from "./modules/darkmode-toggler";
+import mokuji_generator from "./modules/admin-post-editor-mokuji-generator";
+import editor_vue from "./modules/admin-post-editor-vue";
+import status_control from "./modules/admin-post-editor-status-control";
 
 jQuery( $ => {
 	const n2 = window['n2'];

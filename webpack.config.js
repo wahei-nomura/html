@@ -1,16 +1,11 @@
 const fs                   = require( "node:fs" );
 const path                 = require( "path" );
 const glob                 = require( 'glob' );
+const RemoveEmptyScriptsPlugin = require( "webpack-remove-empty-scripts" );// scssのコンパイルのみの際のゴミjs削除
 const MiniCssExtractPlugin = require( "mini-css-extract-plugin" );
 const CssMinimizerPlugin   = require( "css-minimizer-webpack-plugin" );
-const base_path    = path.resolve(__dirname, 'src/ts');
-const entry        = {};
-glob.sync(`${base_path}/**/*.+(ts|js)`).forEach(value => {
-	if ( ! value.split("/").pop().match(/^_/) ) {
-		entry[ path.basename( value, path.extname(value) ) ] = value;
-	}
-});
-// ディレクトリごと初期化
+
+// dist ディレクトリごと初期化
 const rmDir = (dirPath) => {
 	if ( !fs.existsSync(dirPath) ) { return }
 	const items = fs.readdirSync(dirPath);
@@ -24,11 +19,28 @@ const rmDir = (dirPath) => {
 	}
 	fs.rmdirSync( dirPath );
 }
-rmDir( path.resolve(__dirname, 'dist/js') );
+rmDir( path.resolve(__dirname, 'dist') );
 console.log('distを削除');
-module.exports = {
+// entry作成
+const base_path    = path.join(__dirname, 'src');
+/**
+ * 
+ * @param {string} src 対象ディレクトリ
+ * @param {string} reg 拡張子正規表現
+ * @returns 
+ */
+const entry_arr = (src, reg) => {
+	const entry = {};
+	glob.sync(`${path.join(__dirname, src)}/*.+(${reg})`).forEach(value => {
+		entry[ path.basename( value, path.extname(value) ) ] = value;
+	});
+	return entry;
+};
+
+// jsのコンパイル
+const js = {
 	mode: "development",
-	entry,
+	entry: entry_arr('src/ts', 'ts|js'),
 	output: {
 		path: path.resolve(__dirname, 'dist/js'),
 		filename: '[name].js',
@@ -39,6 +51,23 @@ module.exports = {
 				test: /\.ts$/,
 				use: "ts-loader",
 			},
+		],
+	},
+	resolve: {
+		extensions: [".ts", ".js"],
+	},
+	// devtool: 'source-map',
+};
+
+// css
+const css = {
+	mode: "development",
+	entry: entry_arr('src/scss', 'scss|sass|css'),
+	output: {
+		path: path.resolve(__dirname, 'dist/css'),
+	},
+	module: {
+		rules: [
 			{
 				test: /\.(sa|sc|c)ss$/,
 				use: [
@@ -57,14 +86,18 @@ module.exports = {
 		],
 	},
 	resolve: {
-		extensions: [".ts", ".js", ".scss", ".sass", "css"],
+		extensions: [".scss", ".sass", ".css"],
 	},
 	plugins: [
 		new MiniCssExtractPlugin(
 			{
-				filename: '../css/[name].css',
+				filename: '[name].css',
 			}
 		),
 		new CssMinimizerPlugin(),
+		new RemoveEmptyScriptsPlugin(),
 	],
+	// devtool: 'source-map',
 };
+
+module.exports = [js, css]
