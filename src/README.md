@@ -4,7 +4,7 @@ neo-nengディレクトリ内で（package.jsonがあるとこ）下記のコマ
 npm run webpack
 ```
 ## コンパイル先
-- src/js/ファイル名　→　dist/js/ファイル名
+- src/ts/ファイル名　→　dist/js/ファイル名
 - src/css/ファイル名　→　dist/css/ファイル名
 
 ## ts・scssファイルの命名規則
