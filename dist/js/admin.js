@@ -10,23 +10,23 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./src/scss/admin-post-editor.scss":
-/*!*****************************************!*\
-  !*** ./src/scss/admin-post-editor.scss ***!
-  \*****************************************/
+/***/ "./src/scss/admin.scss":
+/*!*****************************!*\
+  !*** ./src/scss/admin.scss ***!
+  \*****************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-eval("__webpack_require__.r(__webpack_exports__);\n// extracted by mini-css-extract-plugin\n\n\n//# sourceURL=webpack://neo-neng/./src/scss/admin-post-editor.scss?");
+eval("__webpack_require__.r(__webpack_exports__);\n// extracted by mini-css-extract-plugin\n\n\n//# sourceURL=webpack://neo-neng/./src/scss/admin.scss?");
 
 /***/ }),
 
-/***/ "./src/ts/admin-post-editor.js":
-/*!*************************************!*\
-  !*** ./src/ts/admin-post-editor.js ***!
-  \*************************************/
+/***/ "./src/ts/admin.js":
+/*!*************************!*\
+  !*** ./src/ts/admin.js ***!
+  \*************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _scss_admin_post_editor__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../scss/admin-post-editor */ \"./src/scss/admin-post-editor.scss\");\n// 専用CSS生成\n\n\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/admin-post-editor.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _scss_admin__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../scss/admin */ \"./src/scss/admin.scss\");\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/admin.js?");
 
 /***/ })
 
@@ -73,7 +73,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _scs
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module can't be inlined because the eval devtool is used.
-/******/ 	var __webpack_exports__ = __webpack_require__("./src/ts/admin-post-editor.js");
+/******/ 	var __webpack_exports__ = __webpack_require__("./src/ts/admin.js");
 /******/ 	
 /******/ })()
 ;

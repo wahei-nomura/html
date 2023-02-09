@@ -33,8 +33,8 @@ class N2_Img_Download {
 		$ids = explode( ',', $_POST['id'] );
 		$url = $_GET['url'] ?: $_POST['url'];
 		add_filter( 'https_ssl_verify', '__return_false' );
-		// シングルダウンロード(zipとの判断基準は$urlを持ってるかどうか)
-		if ( $url && ! is_array( $url ) ) {
+		// シングルダウンロード(zipとの判断基準は$_POST['id']を持ってるかどうか)
+		if ( ! $_POST['id'] ) {
 			$pathinfo = pathinfo( $url );
 			$name    = ! preg_match( '/^-/', $_GET['name'] ) ? mb_strtolower( $_GET['name'] ) : $pathinfo['filename'];
 			$name   .= ".{$pathinfo['extension']}";

@@ -1,4 +1,9 @@
-$prefix: "n2-setpost";
+body.n2-darkmode{
+	filter: invert(100%);
+	img{
+		filter: invert(100%);
+	}
+}
 .post-type-post{
 	#editor {
 		.edit-post{
