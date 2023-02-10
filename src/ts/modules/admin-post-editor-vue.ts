@@ -24,10 +24,7 @@ export default $ => {
 			group: '',
 			list: [],
 		};
-		this.楽天SPAカテゴリー = {
-			text: this.楽天SPAカテゴリー.replace(/\r/g, ''),
-			list: [],
-		};
+
 		this.寄附金額 = this.寄附金額 || await this.calc_donation(this.価格,this.送料,this.定期便);
 		this.show_submit();
 		// 発送サイズ・発送方法をダブル監視
@@ -142,41 +139,10 @@ export default $ => {
 				}
 			}
 		},
-		// 楽天SPAカテゴリーの取得
-		async get_spa_category(){
-			const folderCode = '1p7DlbhcIEVIaH7Rw2mTmqJJKVDZCumYK';
-			const settings = {
-				url: '//www.googleapis.com/drive/v3/files/',
-				data: {
-					key: 'AIzaSyDQ1Mu41-8S5kBpZED421bCP8NPE7pneNU',
-					q: `'${folderCode}' in parents and name = '${n2.town}' and mimeType contains 'spreadsheet'`,
-				}
-			};
-			const d:any = await $.ajax(settings).catch(() => false);
-			if ( !d || ! d.files.length ) {
-				console.log('自治体スプレットシートが存在しません', d);
-				return;
-			}
-			settings.url = `//sheets.googleapis.com/v4/spreadsheets/${d.files[0].id}/values/カテゴリー`;
-			delete settings.data.q;
-			const cat:any = await $.ajax(settings).catch(() => false);
-			if ( ! cat ) {
-				console.log('カテゴリー情報の取得失敗');
-				return;
-			}
-			delete cat.values[0];
-			this.楽天SPAカテゴリー.list = cat.values.map( (v,k) => {
-				v.forEach((e,i) => {
-					v[i] = e || cat.values[k-1][i];
-					v[i] = v[i].replace('.','');
-				});
-				return `#/${v.join('/')}/`;
-			}).filter(v=>v);
-		},
 		// タグIDと楽天SPAカテゴリーで利用
 		update_textarea(id, target = 'タグID', delimiter = '/'){
 			// 重複削除
-			const arr = this[target].text ? [...(new Set( this[target].text.split( delimiter ) ) as any) ]: [];
+			const arr = this[target].text ? Array.from( new Set( this[target].text.split( delimiter ) ) ): [];
 			// 削除
 			if ( arr.includes( id.toString() ) ) {
 				this[target].text = arr.filter( v => v != id ).join( delimiter )
