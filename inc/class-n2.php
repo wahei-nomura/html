@@ -177,13 +177,21 @@ class N2 {
 				foreach ( $arr as $name => $value ) {
 					$value = get_post_meta( $post->ID, $name, true );
 					switch ( $name ) {
+						case '寄附金額固定':
 						case '出品禁止ポータル':
 						case '取り扱い方法':
 						case '商品画像':
+						case 'アレルギー有無確認':
 							$value = $value ?: array();
 							break;
 						case '発送方法':
 							$value = $value ?: '常温';
+							break;
+						case '発送サイズ':
+							$value = $value ?: '';
+							break;
+						case '定期便':
+							$value = $value ?: 1;
 							break;
 						case '商品タイプ':
 							if ( ! $value ) {
