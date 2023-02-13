@@ -91,7 +91,7 @@ class N2_Postlist {
 			'teiki'           => '定期便',
 			'thumbnail'       => '画像',
 			'modified-last'   => "<a href='{$sort_base_url}edit.php?orderby=date&order={$asc_or_desc}'>最終更新日{$this->judging_icons_order('date')}</a>",
-			'copy-post'       => '複製',
+			'tools'           => 'ツール',
 		);
 
 		if ( 'jigyousya' !== wp_get_current_user()->roles[0] ) {
@@ -192,8 +192,18 @@ class N2_Postlist {
 			case 'ssmemo':
 				echo "<div class='{$ssmemo_isset}'><p>{$ssmemo}</p></div>";
 				break;
-			case 'copy-post':
-				echo "<button type='button' class='neo-neng-copypost-btn'>複製</button></div>";
+			case 'tools':
+				echo '
+					<div class="dropdown">
+						<span class="dashicons dashicons-admin-tools dropdown-toggle" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false"></span>
+						<ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+							<li><button type="button" class="neo-neng-copypost-btn btn btn-secondary">複製</button></li>
+							<li><a class="dropdown-item" href="#">Another action</a></li>
+							<li><a class="dropdown-item" href="#">Something else here</a></li>
+						</ul>
+						
+					</div>
+					';
 				break;
 		}
 	}
