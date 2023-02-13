@@ -185,9 +185,7 @@ export default $ => {
 		},
 		// テキストエリアの高さを自動可変式に
 		auto_fit_tetxarea(textarea){
-			$(textarea).on('load', ()=>{
-				$(textarea).height('auto').height($(textarea).get(0).scrollHeight);
-			});
+			$(textarea).height('auto').height($(textarea).get(0).scrollHeight);
 		}
 	};
 	const components = {
