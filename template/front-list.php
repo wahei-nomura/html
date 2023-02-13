@@ -9,40 +9,45 @@
 <section class="product-list-wrap">
 
 <?php
-			$user_lists = get_users( 'role=jigyousya' );
-			// var_dump($user_lists);
-			$search_params = $_GET;
-			$search_result = '';
-foreach ( $search_params as $key => $sch_prm ) {
-	if ( '' !== $sch_prm && 'paged' !== $key ) {
-		if ( '' !== $search_result ) {
-			$search_result .= ', ';
-		}
-		if ( 'jigyousya' === $key ) {
-			$key_no          = array_search( $sch_prm, array_column( $user_lists, 'ID' ) );
-			$search_result .= $user_lists[ $key_no ]->display_name;
-		} elseif ( '返礼品コード' === $key ) {
-			foreach ( $sch_prm as $code_key => $code_prm ) {
-				$code_meta_data = get_post_meta( $code_prm );
-				$search_result .= get_post_meta( $code_prm, '返礼品コード', true );
-				if ( array_key_last( $sch_prm ) !== $code_key ) {
-					$search_result .= '/';
+	global $n2;
+	$rakuten = $n2->rakuten;
+	if( ! isset( $rakuten['img_dir'] ) ){
+		echo '<p style="color:#f00">※セットアップが完了していないため画像が表示されません。</p>';
+	}
+	$user_lists = get_users( 'role=jigyousya' );
+	// var_dump($user_lists);
+	$search_params = $_GET;
+	$search_result = '';
+	foreach ( $search_params as $key => $sch_prm ) {
+		if ( '' !== $sch_prm && 'paged' !== $key ) {
+			if ( '' !== $search_result ) {
+				$search_result .= ', ';
+			}
+			if ( 'jigyousya' === $key ) {
+				$key_no          = array_search( $sch_prm, array_column( $user_lists, 'ID' ) );
+				$search_result .= $user_lists[ $key_no ]->display_name;
+			} elseif ( '返礼品コード' === $key ) {
+				foreach ( $sch_prm as $code_key => $code_prm ) {
+					$code_meta_data = get_post_meta( $code_prm );
+					$search_result .= get_post_meta( $code_prm, '返礼品コード', true );
+					if ( array_key_last( $sch_prm ) !== $code_key ) {
+						$search_result .= '/';
+					}
 				}
+			} elseif ( 'sortcode' === $key ) {
+				if ( 'sortbycode' === $sch_prm ) {
+					$search_result .= 'コード順に表示';
+				} else {
+					$search_result .= '登録順に表示';
+				}
+			} elseif ( 's' === $key ) {
+				$search_result .= $sch_prm;
 			}
-		} elseif ( 'sortcode' === $key ) {
-			if ( 'sortbycode' === $sch_prm ) {
-				$search_result .= 'コード順に表示';
-			} else {
-				$search_result .= '登録順に表示';
-			}
-		} elseif ( 's' === $key ) {
-			$search_result .= $sch_prm;
 		}
 	}
-}
-if ( '' !== $search_result ) {
-	echo '<h2 class="search-result-header text-primary">絞り込み：' . $search_result . '</h2>';
-}
+	if ( '' !== $search_result ) {
+		echo '<h2 class="search-result-header text-primary">絞り込み：' . $search_result . '</h2>';
+	}
 ?>
 
 	<?php
@@ -50,7 +55,7 @@ if ( '' !== $search_result ) {
 	?>
 
 	<?php get_template_part( 'template/pagination' ); ?>
-	<ul class="product-list">
+	<ul class="product-list <?php echo $rakuten['ftp_user']; ?>">
 		<?php
 		if ( have_posts() ) {
 			$url_parse      = explode( '/', get_option( 'home' ) ); // items_detailsより拝借(rakutenに画像がある場合はそちらを使用)
@@ -58,7 +63,7 @@ if ( '' !== $search_result ) {
 			$n2_fields      = yaml_parse_file( get_theme_file_path() . '/config/n2-fields.yml' );
 			$n2_file_header = yaml_parse_file( get_theme_file_path() . '/config/n2-file-header.yml' );
 			$n2_towncode    = yaml_parse_file( get_theme_file_path() . '/config/n2-towncode.yml' );
-			$img_dir        = str_replace( 'n2-towncode', $n2_towncode[ $town_code ]['楽天'], $n2_file_header['rakuten']['img_dir'] );
+			$img_dir        = $rakuten['img_dir'];
 			$img_dir_ex     = str_replace( 'n2-towncode', $n2_towncode[ $town_code ]['楽天'], 'https://www.rakuten.ne.jp/gold/n2-towncode/img/item' );
 			$portals        = array( '楽天', 'チョイス' );
 			while ( have_posts() ) {
@@ -70,7 +75,7 @@ if ( '' !== $search_result ) {
 				$item_num_low = mb_strtolower( get_post_meta( get_the_ID(), '返礼品コード', true ) );
 				preg_match( '/[a-z]+/', $item_num_low, $item_code );
 				if ( '' !== $item_num_low && ! empty( $item_code ) !== $item_num_low ) {
-					$new_rakuten_pic    = $img_dir . '/' . $item_code[0] . '/' . $item_num_low . '.jpg';
+					$new_rakuten_pic    = $img_dir . $item_code[0] . '/' . $item_num_low . '.jpg';
 					$new_rakuten_pic_ex = $img_dir_ex . '/' . $item_num_low . '.jpg';
 				}
 				if ( ! empty( $meta_pic_arr ) ) {
@@ -102,7 +107,7 @@ if ( '' !== $search_result ) {
 		<li class="<?php echo $post_status; ?>">
 		<a href="<?php echo $item_link; ?>">
 			<div class="product-img-wrap">
-				<div class="product-img-box" style="background-image:url( <?php echo $new_rakuten_pic_ex; ?>  ),url( <?php echo $new_rakuten_pic; ?>  ), url(<?php echo $new_meta_pic; ?>), url(<?php echo $get_meta_rakuten_pic; ?>); background-size:cover;"></div>
+				<div class="product-img-box" style="background-image:url( <?php echo $new_rakuten_pic; ?> )<?php echo null === $new_rakuten_pic_ex ? ",url(" . $new_rakuten_pic_ex . ")" : ""; ?><?php echo null === $new_meta_pic ? ", url(" . $new_meta_pic . ")" : ""; ?><?php echo null === $get_meta_rakuten_pic ?  ", url(" . $get_meta_rakuten_pic . ")" : ""; ?>; background-size:cover;"></div>
 				<span class="product-img-section">No Image</span>
 			</div>
 			<span class="product-list-item">

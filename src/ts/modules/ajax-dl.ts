@@ -1,4 +1,4 @@
-import { prefix, neoNengPath, ajaxUrl } from "./_functions";/**
+import { prefix, neoNengPath, ajaxUrl } from "./functions";/**
  * 返礼品一覧ページの画像ダウンロードで使用するAjax用のファイル
  */
 jQuery(function ($) {
@@ -10,9 +10,8 @@ jQuery(function ($) {
 		);
 		return checked.length ? checked.join() : "";
 	};
-
 	// loading要素を追加
-	$('#download_img').after('<span class="loading_background"><span id="text_loading"></span><span class="progressbar"></span></span>');
+	$('#download_by_url').after('<span class="loading_background"><span id="text_loading"></span><span class="progressbar"></span></span>');
 	const text_loading = document.getElementById("text_loading");
 	$(document).on("click", '.dlbtn', (e) => {
 		$('.loading_background').addClass("active"); // クリックと同時にオーバーレイ要素(loading_background)class付けて二重クリックできないようにする
@@ -31,6 +30,7 @@ jQuery(function ($) {
 		const data = new FormData();
 		data.append("id", id);
 		const xhr = new XMLHttpRequest();
+		// xhr.open("POST", url + "?action=" + action, true);
 		xhr.open("POST", url + "?action=" + action, true);
 		xhr.responseType = "blob";
 		xhr.onload = function (e) {

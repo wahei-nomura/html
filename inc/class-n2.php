@@ -101,10 +101,11 @@ class N2 {
 	 *
 	 * @var array
 	 */
+	public $choice;
 	public $choice_header_0;
 	public $choice_header_1;
-	public $choice_sumple_header; //出力する時に使うサンプルヘッダー
-	public $choice_add_text; //説明文への追記テキスト
+	public $choice_sumple_header; // 出力する時に使うサンプルヘッダー
+	public $choice_add_text; // 説明文への追記テキスト
 
 	/**
 	 * レジホーム
@@ -137,6 +138,20 @@ class N2 {
 	public $query;
 
 	/**
+	 * ポータル一覧
+	 *
+	 * @var object
+	 */
+	public $portals;
+
+	/**
+	 * ポータル毎の自治体コード
+	 *
+	 * @var object
+	 */
+	public $town_code;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -162,19 +177,27 @@ class N2 {
 				foreach ( $arr as $name => $value ) {
 					$value = get_post_meta( $post->ID, $name, true );
 					switch ( $name ) {
+						case '寄附金額固定':
 						case '出品禁止ポータル':
 						case '取り扱い方法':
 						case '商品画像':
+						case 'アレルギー有無確認':
 							$value = $value ?: array();
 							break;
 						case '発送方法':
 							$value = $value ?: '常温';
 							break;
+						case '発送サイズ':
+							$value = $value ?: '';
+							break;
+						case '定期便':
+							$value = $value ?: 1;
+							break;
 						case '商品タイプ':
 							if ( ! $value ) {
 								$user_meta = $this->current_user->data->meta;
 								if ( ! empty( $user_meta['商品タイプ'] ) ) {
-									$value = array_keys( array_filter( $user_meta['商品タイプ'], fn($v) => $v === 'true' ) );
+									$value = array_keys( array_filter( $user_meta['商品タイプ'], fn( $v ) => 'true' === $v ) );
 								}
 							}
 							break;
@@ -185,6 +208,10 @@ class N2 {
 			if ( ! isset( $this->custom_field['スチームシップ用']['寄附金額固定'] ) ) {
 				$this->custom_field['スチームシップ用']['寄附金額固定']['value'] = array();
 			}
+			/**
+			 * カスタムフィールドの値の変更
+			 */
+			$this->custom_field = apply_filters( 'n2_after_update_custom_field_value', $this->custom_field );
 		}
 	}
 
@@ -242,31 +269,31 @@ class N2 {
 
 		// ポータル一覧
 		$this->portals   = array(
-			'rakuten'         => '楽天',
-			'furusato_choice' => 'チョイス',
+			'rakuten' => '楽天',
+			'choice'  => 'チョイス',
 		);
 		$this->town_code = $this->get_portal_town_code_list();
 
 		// 楽天
-		$this->rakuten = $n2_option['rakuten'] ?? array();
-		// ftp_server,upload_serverを追加
-		$this->rakuten = array( ...$this->rakuten, ...yaml_parse_file( get_theme_file_path( 'config/n2-rakuten-common.yml' ) ) );
+		$rakuten_common_yml = yaml_parse_file( get_theme_file_path( 'config/n2-rakuten-common.yml' ) );
+		$this->rakuten      = $n2_option['rakuten'] ?? array();
+		$this->rakuten      = array( ...$rakuten_common_yml, ...$this->rakuten );
 
 		// チョイス
-		$choice_yml = yaml_parse_file( get_theme_file_path( 'config/n2-choice-tsv-header.yml' ) )[ 'choice' ];
-		$this->choice_header_0 = $choice_yml[ 'tsv_header' ][ 'value0' ];
-		$this->choice_header_1 = $choice_yml[ 'tsv_header' ][ 'value1' ];
-		$this->choice_header = $n2_option['furusato_choice'] ?? array();
-		$this->choice_add_text = $n2_option['add_text'][get_bloginfo( 'name' )];
+		$choice_yml            = yaml_parse_file( get_theme_file_path( 'config/n2-choice-tsv-header.yml' ) )['choice'];
+		$this->choice          = $n2_option['choice'] ?? array();
+		$this->choice_header_0 = $choice_yml['tsv_header']['value0'];
+		$this->choice_header_1 = $choice_yml['tsv_header']['value1'];
+		$this->choice_add_text = $n2_option['add_text'][ get_bloginfo( 'name' ) ];
 
-		//チョイスのサンプルヘッダー取得
-		$sumple_header = trim( file_get_contents( str_replace( "//", "//{$choice_yml['auth']['user']}:{$choice_yml['auth']['pass']}@", $choice_yml['auth']['url'] ) ) );
-        $this->choice_sumple_header = array_flip( explode( "\t", $sumple_header ) );
+		// チョイスのサンプルヘッダー取得
+		$sumple_header              = trim( file_get_contents( str_replace( '//', "//{$choice_yml['auth']['user']}:{$choice_yml['auth']['pass']}@", $choice_yml['auth']['url'] ) ) );
+		$this->choice_sumple_header = array_flip( explode( "\t", $sumple_header ) );
 
-		//レジホーム
-		$ledghome_yml = yaml_parse_file( get_theme_file_path( 'config/n2-ledghome-csv-header.yml' ) );
-		$this->ledghome_csv_title = $ledghome_yml['ledghome']['csv_header']['title'];
-		$this->ledghome_csv_header = $ledghome_yml['ledghome']['csv_header']['values'];
+		// レジホーム
+		$ledghome_yml               = yaml_parse_file( get_theme_file_path( 'config/n2-ledghome-csv-header.yml' ) );
+		$this->ledghome_csv_title   = $ledghome_yml['ledghome']['csv_header']['title'];
+		$this->ledghome_csv_header  = $ledghome_yml['ledghome']['csv_header']['values'];
 		$this->ledghome_csv_setting = $ledghome_yml['ledghome']['setting'];
 	}
 
@@ -307,8 +334,8 @@ class N2 {
 		$municipal = explode( '/', get_option( 'home' ) );
 		$town_name = end( $municipal );
 		return array(
-			'rakuten'         => $n2_option['rakuten']['town_code'] ?? $town_code[ $town_name ]['楽天'] ?? '',
-			'furusato_choice' => $n2_option['furusato_choice']['town_code'] ?? $this->town,
+			'rakuten' => $this->rakuten['town_code'] ?? $town_code[ $town_name ]['楽天'] ?? '',
+			'choice'  => $this->choice['town_code'] ?? $this->town,
 		);
 	}
 }

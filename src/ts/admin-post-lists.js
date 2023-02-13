@@ -1,6 +1,5 @@
-import "../scss/admin-post-lists";
-import "./_ajax";
-import "./_search";
-import "./_copypost";
-import "./_ajax-dl";
-import "./_ajax-rakuten-transfer";
+import "./modules/ajax";
+import "./modules/search";
+import "./modules/copypost";
+import "./modules/ajax-dl";
+import "./modules/ajax-rakuten-transfer";

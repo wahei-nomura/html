@@ -50,14 +50,6 @@ LH表示名:
     "@focus": set_info($event.target);get_genreid()
     "@input": auto_fit_tetxarea($event.target)
 
-楽天SPAカテゴリー:
-    type: rakuten-spa-category
-    v-model: 楽天SPAカテゴリー.text
-    v-if: "!出品禁止ポータル.includes('楽天ふるさと納税')"
-    style: 'width: 100%;'
-    "@focus": get_spa_category()
-    "@input": auto_fit_tetxarea($event.target)
-
 検索キーワード:
     type: textarea
     description: 商品名や説明文に入っていないキーワードをスペース区切りで書いてください。
@@ -100,11 +92,11 @@ LH表示名:
         - 楽天ふるさと納税
     "@mouseover": set_info($event.target)
 
-事業者確認:
-    type: checkbox
-    option-equal: true
-    option:
-        - 確認済み
+# 事業者確認:
+#     type: checkbox
+#     option-equal: true
+#     option:
+#         - 確認済み
 
 社内共有事項:
     type: textarea

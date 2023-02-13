@@ -1,4 +1,4 @@
-import { prefix, neoNengPath, ajaxUrl } from "./_functions";
+import { prefix, neoNengPath, ajaxUrl } from "./functions";
 
 /**
  * 返礼品一覧ページで使用するAjax用のファイル
