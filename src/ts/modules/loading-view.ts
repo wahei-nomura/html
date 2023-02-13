@@ -13,8 +13,10 @@ export default ($:any, target: string) => {
 	$('body').append('<div id="n2-loading" class="d-flex justify-content-center align-items-center vh-100 bg-white"><div class="spinner-border text-primary"></div></div>');
 	// ターゲットが生成されてから
 	$(target).ready(() => {
-		// ローディング削除
-		$(target).show(1000);
-		$("#n2-loading").remove();
+		setTimeout(()=>{
+			$(target).show(1000);
+			// ローディング削除
+			$("#n2-loading").remove();
+		}, 500);
 	})
 };

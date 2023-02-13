@@ -6,7 +6,8 @@
 	=====
 	cssで@useした方がコンパイルが爆速
 */
-@use "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
+// @use "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
+@import "bootstrap/scss/bootstrap.scss";
 
 body.n2-darkmode{
 	filter: invert(100%);
@@ -15,13 +16,32 @@ body.n2-darkmode{
 	}
 }
 .post-type-post{
+	#wpadminbar{
+		display: none;
+	}
+	#wpbody{
+		padding: 0;
+	}
 	#editor {
 		.edit-post{
 			&-header{
+				// 不要な要素削除
 				.edit-post-header-toolbar__inserter-toggle,
 				.editor-history__redo,
 				.editor-history__undo,
 				.components-dropdown{
+					display: none;
+				}
+				.components-button.edit-post-fullscreen-mode-close{
+					display: block;
+					height: 100%;
+					background: none;
+					color: black;
+					&::before{
+						box-shadow: none;
+					}
+				}
+				.editor-post-preview{
 					display: none;
 				}
 			}
@@ -30,6 +50,9 @@ body.n2-darkmode{
 				top: 0;
 				z-index: 9999;
 				box-shadow: 0 1px 10px #ccc;
+				.block-editor-block-contextual-toolbar{
+					display: none;
+				}
 				&__post-title-wrapper{
 					margin: 0;
 					padding: 0.2em;
@@ -37,6 +60,9 @@ body.n2-darkmode{
 						font-size: 1.2rem;
 						margin: 0;
 						max-width: 100%;
+						@include media-breakpoint-down(sm) {
+							font-size: 1rem;
+						}
 						@keyframes bikabika {
 							0% {
 								opacity: 0;
@@ -63,7 +89,7 @@ body.n2-darkmode{
 		}
 		.postbox{
 			&#スチームシップ用{
-				table{
+				.n2-fields{
 					background-color: #efefef;
 				}
 			}
@@ -76,24 +102,15 @@ body.n2-darkmode{
 				::placeholder{
 					color: #ccc;
 				}
-				table{
-					th,td{
-						color: #333;
-						font-size: 1rem;
-						padding: 1em;
-						border-top: 1px solid #ccc;
-					}
-					th{
-						width: 17em;
-					}
-				}
 			}
 		}
 		.interface-interface-skeleton{
+			top: 0;
 			&__body{
 				padding: 0;
 			}
 			&__sidebar{
+
 				.edit-post-sidebar__panel-tabs,
 				.components-panel__body-title{
 					display: none;

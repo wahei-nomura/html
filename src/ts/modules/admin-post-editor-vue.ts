@@ -69,7 +69,7 @@ export default $ => {
 			].filter( v => v );
 			if ( ! info.length ) return
 			if ( ! $(target).parents('.n2-fields-value').find('.n2-field-description').length ) {
-				$(target).parents('.n2-fields-value').prepend(`<div class="n2-field-description small lh-base">${info.join('')}</div>`);
+				$(target).parents('.n2-fields-value').prepend(`<div class="n2-field-description small lh-base col-12">${info.join('')}</div>`);
 			}
 			if ( $(target).attr('maxlength') ) {
 				$(target).parents('.n2-fields-value').find('.n2-field-description').html(info.join(''));
@@ -185,7 +185,9 @@ export default $ => {
 		},
 		// テキストエリアの高さを自動可変式に
 		auto_fit_tetxarea(textarea){
-			$(textarea).height('auto').height($(textarea).get(0).scrollHeight);
+			$(textarea).on('load', ()=>{
+				$(textarea).height('auto').height($(textarea).get(0).scrollHeight);
+			});
 		}
 	};
 	const components = {

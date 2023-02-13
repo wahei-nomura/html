@@ -14,7 +14,7 @@ foreach ( $args as $k => $v ) {
 }
 ?>
 <textarea <?php echo $attr; ?>></textarea>
-<div class="d-flex" v-if="全商品ディレクトリID.list.length != 0">
+<div class="d-flex" style="width: 100%;" v-if="全商品ディレクトリID.list.length != 0">
 	<div class="col-5 gap-1 p-1 me-2" style="max-height: 200px; overflow-y: scroll;">
 		<p
 			role="button"

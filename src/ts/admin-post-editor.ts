@@ -14,7 +14,7 @@ jQuery( $ => {
 	alert_and_return_page(!n2.formula_type, '寄附金額の自動計算に必須の設定値がありません。先程のページへ戻ります。');// 自動計算不可のためページに入れない
 	i18n();// 翻訳
 	title_counter($);// タイトルカウンター
-	darkmode_toggler($, ".edit-post-header-toolbar__left");// ダークモード
+	darkmode_toggler($, ".edit-post-header__settings");// ダークモード
 	mokuji_generator($);// 目次生成
 	editor_vue($);// カスタムフィールドをVueで制御
 	status_control($);// ステータスコントロール
