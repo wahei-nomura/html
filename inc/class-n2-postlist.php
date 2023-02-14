@@ -41,6 +41,7 @@ class N2_Postlist {
 		add_action( 'restrict_manage_posts', array( $this, 'add_search_filter' ) );
 		add_action( 'posts_request', array( $this, 'posts_request' ) );
 		add_action( "wp_ajax_{$this->cls}", array( $this, 'ajax' ) );
+		add_action( "wp_ajax_{$this->cls}_deletepost", array( $this, 'delete_post' ) );
 	}
 
 	/**
@@ -196,10 +197,9 @@ class N2_Postlist {
 				echo '
 					<div class="dropdown">
 						<span class="dashicons dashicons-admin-tools dropdown-toggle" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false"></span>
-						<ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-							<li><button type="button" class="neo-neng-copypost-btn btn btn-secondary">複製</button></li>
-							<li><a class="dropdown-item" href="#">Another action</a></li>
-							<li><a class="dropdown-item" href="#">Something else here</a></li>
+						<ul class="dropdown-menu border" aria-labelledby="dropdownMenuLink">
+							<li><button type="button" class="dropdown-item neo-neng-copypost-btn">複製</button></li>
+							<li><button type="button" class="dropdown-item neo-neng-deletepost-btn">ゴミ箱へ移動</button></li>
 						</ul>
 						
 					</div>
@@ -641,6 +641,24 @@ class N2_Postlist {
 		}
 
 		echo wp_json_encode( $arr );
+
+		die();
+	}
+
+	/**
+	 * 返礼品を削除
+	 *
+	 * @return void
+	 */
+	public function delete_post() {
+		$post_id      = filter_input( INPUT_GET, 'id', FILTER_VALIDATE_INT );
+		$trash_result = wp_trash_post( $post_id );
+
+		if ( $trash_result ) {
+			echo 'ゴミ箱へ移動しました';
+		} else {
+			echo 'ゴミ箱への移動に失敗しました';
+		}
 
 		die();
 	}

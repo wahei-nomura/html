@@ -1,9 +1,11 @@
 // $primary: #ccc;
-// @import "bootstrap/scss/bootstrap";
-// @import "bootstrap/scss/functions";
-// @import "bootstrap/scss/variables";
-// @import "bootstrap/scss/mixins";
-// @import "bootstrap/scss/buttons";
+@import "bootstrap/scss/functions"; // Required
+@import "bootstrap/scss/variables"; // Required
+@import "bootstrap/scss/mixins"; // Required
+
+@import "bootstrap/scss/bootstrap-utilities";
+@import "bootstrap/scss/buttons";
+@import "bootstrap/scss/dropdown";
 
 $prefix: "n2-postlist";
 
