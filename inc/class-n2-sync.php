@@ -15,7 +15,11 @@ if ( class_exists( 'N2_Sync' ) ) {
 }
 
 /**
- * Setusers
+ * N2のいろいろ同期
+ *
+ * N1とユーザー同期
+ * N1と返礼品同期
+ * スプレットシートとの同期
  */
 class N2_Sync {
 
@@ -33,18 +37,17 @@ class N2_Sync {
 		global $current_blog;
 		$this->neng_ajax_url = "https://steamship.co.jp{$current_blog->path}wp-admin/admin-ajax.php";
 
-		add_action( 'wp_ajax_n2_sync_users', array( $this, 'sync_users' ) );
-		add_action( 'wp_ajax_nopriv_n2_sync_users', array( $this, 'sync_users' ) );
+		add_action( 'wp_ajax_n2_sync_users_from_n1', array( $this, 'sync_users' ) );
+		add_action( 'wp_ajax_n2_sync_users_from_spreadsheet', array( $this, 'sync_users' ) );
 		add_action( 'wp_ajax_n2_sync_posts', array( $this, 'sync_posts' ) );
 		add_action( 'wp_ajax_nopriv_n2_sync_posts', array( $this, 'sync_posts' ) );
 		add_action( 'wp_ajax_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
-		add_action( 'wp_ajax_nopriv_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
 		add_action( 'wp_ajax_n2_test', array( $this, 'test' ) );
 
 		// cron登録処理
 		add_filter( 'cron_schedules', array( $this, 'intervals' ) );
-		if ( ! wp_next_scheduled( 'wp_ajax_n2_sync_users' ) ) {
-			wp_schedule_event( time(), 'daily', 'wp_ajax_n2_sync_users' );
+		if ( ! wp_next_scheduled( 'wp_ajax_n2_sync_users_from_n1' ) ) {
+			wp_schedule_event( time(), 'daily', 'wp_ajax_n2_sync_users_from_n1' );
 		}
 		if ( ! wp_next_scheduled( 'wp_ajax_n2_multi_sync_posts' ) ) {
 			wp_schedule_event( time() + 100, '30min', 'wp_ajax_n2_multi_sync_posts' );
@@ -55,11 +58,25 @@ class N2_Sync {
 	 * テスト
 	 */
 	public function test() {
-		global $n2;
-		echo '<pre>';print_r($n2);echo '</pre>';
-		?>
-		<script>console.log(<?php echo wp_json_encode($n2); ?>)</script>
-		<?php
+		global $wp_filesystem;
+		WP_Filesystem();
+		// GCPからダウンロードした認証情報
+		$auth    = $wp_filesystem->get_contents( '/var/www/keys/steamship-gcp.json' );
+		$sheetid = '1lIYQRNRLdZytrE3n9ANIjfXZWjD37uGdWXMvjfaINDs';
+		$range   = 'user!A:Z';
+		$url     = 'https://app.steamship.co.jp/ss-tool/php/get-spreadsheet.php';
+		$args    = array(
+			'method'      => 'POST',
+			'timeout'     => 45,
+			'redirection' => 5,
+			'httpversion' => '1.0',
+			'blocking'    => true,
+			'body'        => compact( 'auth', 'sheetid', 'range' ),
+		);
+		// データ取得
+		$data = wp_remote_post( $url, $args );
+		$data = json_decode( $data['body'], true );
+		echo '<pre>';print_r($data);echo '</pre>';
 		exit;
 	}
 
@@ -89,7 +106,6 @@ class N2_Sync {
 			exit;
 		}
 		$before = microtime( true );
-
 
 		// params
 		$params = array(
@@ -125,6 +141,7 @@ class N2_Sync {
 
 		// $params変更
 		$params['action'] = 'n2_sync_posts';
+		$params['nonce']  = wp_create_nonce( 'sync_posts' );
 
 		// n2_sync_posts に Multi cURL
 		$mh       = curl_multi_init();
@@ -189,35 +206,114 @@ class N2_Sync {
 
 	/**
 	 * N2ユーザーデータ吸い上げ
+	 * - 既存ユーザーは更新
+	 * - N1にいなくなったら削除
+	 * - N1ダイレクト時は強制生パスワード
 	 */
 	public function sync_users() {
+
 		if ( is_main_site() ) {
 			exit;
 		}
+
+		require_once ABSPATH . 'wp-admin/includes/user.php';
 		$before = microtime( true );
-		$json   = wp_remote_get( "{$this->neng_ajax_url}?action=userdata" )['body'];
-		$data   = json_decode( $json, true );
 
 		// ログテキスト
 		$logs   = array();
 		$logs[] = __METHOD__;
 
-		// IP制限等で終了のケース
+		global $n2;
+
+		// 同期元
+		$from = isset( $_GET['action'] )
+			? str_replace( 'n2_sync_users_', '', $_GET['action'] )
+			: 'from_n1';
+
+		switch ( $from ) {
+			case 'from_n1':
+				$json = wp_remote_get( "{$this->neng_ajax_url}?action=userdata" )['body'];
+				break;
+			case 'from_spreadsheet':
+				global $wp_filesystem;
+				WP_Filesystem();
+				// この辺の設定を管理画面上でやるUIをつくる
+				// GCPからダウンロードした認証情報
+				$auth    = $wp_filesystem->get_contents( '/var/www/keys/steamship-gcp.json' );
+				$sheetid = '1lIYQRNRLdZytrE3n9ANIjfXZWjD37uGdWXMvjfaINDs';
+				$range   = 'user!A:Z';
+				$url     = 'https://app.steamship.co.jp/ss-tool/php/get-spreadsheet.php';
+				$args    = array(
+					'method'      => 'POST',
+					'timeout'     => 45,
+					'redirection' => 5,
+					'httpversion' => '1.0',
+					'blocking'    => true,
+					'body'        => compact( 'auth', 'sheetid', 'range' ),
+				);
+				// データ取得
+				$data = wp_remote_post( $url, $args );
+				$json = $data['body'];
+				break;
+		}
+
+		$data = json_decode( $json, true );
+
+		// IP制限 or データが無い
 		if ( ! $data ) {
-			$logs[] = $json;
+			$text   = $json ?: 'データがありません。';
+			$logs[] = $text;
 			$this->log( $logs );
-			echo $json;
+			echo $text;
 			exit;
 		}
 
+		// データの整形（N1・スプレットシートを共通にする）
+		$data = array_map(
+			function( $v ) use ( $from ) {
+				if ( $v['data'] ) {
+					unset( $v['data']['ID'] );
+					// 権限変換用配列
+					$role = array(
+						'administrator' => 'ss-crew',
+						'contributor'   => 'jigyousya',
+					);
+					// dataの変換・追加
+					$v['data']['role']                     = $role[ $v['roles'][0] ];
+					$v['data']['portal_site_display_name'] = $v['data']['portal'] ?: '';
+					$v['data'][ $from ]                    = 1;
+					return $v['data'];
+				}
+				$v[ $from ] = 1;
+				return $v;
+			},
+			$data
+		);
+
+		// echo "<pre>";print_r($data);exit;
+
+		// N1との差分削除用配列
+		$from_ids = array();
+
 		// ユーザー登録
-		foreach ( $data as $k => $v ) {
-			$userdata = $v['data'];
+		foreach ( $data as $k => $userdata ) {
 			// フルフロンタルは除外
 			if ( 'fullfrontal' === $userdata['user_login'] ) {
 				continue;
 			}
-			unset( $userdata['ID'] );
+
+			// ユーザーメタ追加（主にスプレットシート）
+			$meta_array = array(
+				$from,
+				'portal_site_display_name',
+				// ここに追加したいメタフィールド名
+			);
+			foreach ( $meta_array as $meta_name ) {
+				if ( isset( $userdata[ $meta_name ] ) ) {
+					$userdata['meta_input'][ $meta_name ] = $userdata[ $meta_name ];
+					unset( $userdata[ $meta_name ] );
+				}
+			}
 
 			// 既存ユーザーは更新するのでIDを突っ込む
 			$user = get_user_by( 'login', $userdata['user_login'] );
@@ -225,26 +321,23 @@ class N2_Sync {
 				$userdata['ID'] = $user->ID;
 			}
 
-			// 権限変換（NENG → NEONENG）
-			switch ( $v['roles'][0] ) {
-				case 'administrator':
-					$userdata['role'] = 'ss-crew';
-					break;
-				case 'contributor':
-					$userdata['role'] = 'jigyousya';
-					break;
-			}
-
-			add_filter( 'wp_pre_insert_user_data', array( $this, 'insert_raw_user_pass' ), 10, 4 );
-			$user_id = wp_insert_user( $userdata );
-			remove_filter( 'wp_pre_insert_user_data', array( $this, 'insert_raw_user_pass' ) );
-
-			// // 特定のユーザーを特権管理者に昇格（不要？）
-			// if ( 'ss-crew' === $userdata['role'] ) {
-			// grant_super_admin( $user_id );
-			// }
+			// パスワードの適切な加工
+			add_filter( 'wp_pre_insert_user_data', array( $this, 'insert_user_pass' ), 10, 4 );
+			$from_ids[] = wp_insert_user( $userdata );
+			remove_filter( 'wp_pre_insert_user_data', array( $this, 'insert_user_pass' ) );
 		}
-		echo 'N2-User-Sync「' . get_bloginfo( 'name' ) . '」ユーザーデータ旧NENGとシンクロ完了！';
+
+		// NENGから削除されているものを削除（refreshパラメータで完全同期 or $from以外で追加したものに関してはスルー）
+		if ( 'from_n1' === $from ) {
+			$n2ids = get_users( isset( $_GET['refresh'] ) ? 'fields=ids' : "meta_key={$from}&meta_value=1&fields=ids" );
+			if ( count( $from_ids ) < count( $n2ids ) ) {
+				$deleted_ids = array_diff( $n2ids, $from_ids );
+				foreach ( $deleted_ids as $del ) {
+					wp_delete_user( $del );
+				}
+			}
+		}
+		echo "N2-User-Sync「{$n2->town}」ユーザーデータを同期しました。";
 		$logs[] = 'ユーザーシンクロ完了 ' . number_format( microtime( true ) - $before, 2 ) . ' sec';
 		$this->log( $logs );
 		exit;
@@ -255,6 +348,19 @@ class N2_Sync {
 	 * posts_per_page
 	 */
 	public function sync_posts() {
+
+		// ログテキスト
+		$logs   = array();
+		$logs[] = __METHOD__;
+
+		// ここでnonceを検証し、直アクセスを禁ずる
+		if ( ! wp_verify_nonce( $_GET['nonce'], 'sync_posts' ) ) {
+			$text   = 'nonceが正しくありません。';
+			$logs[] = $text;
+			$this->log( $logs );
+			echo $text;
+			exit;
+		}
 
 		// params
 		$params            = $_GET;
@@ -268,9 +374,7 @@ class N2_Sync {
 		$json = wp_remote_get( "{$this->neng_ajax_url}?" . http_build_query( $params ) )['body'];
 		$data = json_decode( $json, true );
 
-		// ログテキスト
-		$logs   = array();
-		$logs[] = __METHOD__;
+
 
 		// IP制限等で終了のケース
 		if ( ! $data ) {
@@ -425,7 +529,7 @@ class N2_Sync {
 	}
 
 	/**
-	 * 強制生パスワード注入
+	 * N1からの場合は強制生パスワード注入
 	 * https://github.com/WordPress/wordpress-develop/blob/6.0.2/src/wp-includes/user.php#L2328
 	 *
 	 * @param array    $data {
@@ -444,8 +548,10 @@ class N2_Sync {
 	 * @param int|null $user_id  ID of the user to be updated, or NULL if the user is being created.
 	 * @param array    $userdata The raw array of data passed to wp_insert_user().
 	 */
-	public function insert_raw_user_pass( $data, $update, $user_id, $userdata ) {
-		$data['user_pass'] = wp_unslash( $userdata['user_pass'] );
+	public function insert_user_pass( $data, $update, $user_id, $userdata ) {
+		$data['user_pass'] = isset( $userdata['meta_input']['from_n1'] )
+			? wp_unslash( $userdata['user_pass'] )
+			: wp_hash_password( $userdata['user_pass'] );
 		return $data;
 	}
 
