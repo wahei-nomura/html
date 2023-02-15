@@ -8,6 +8,8 @@ import { prefix, neoNengPath, ajaxUrl } from "./functions";
 ================================================================== */
 jQuery(function($) {
 
+	const n2 = window['n2'];
+
 	/**
 	 * フォーム内の表示やinput内容切り替え
 	 * @param teikiNum 定期回数
@@ -46,12 +48,37 @@ jQuery(function($) {
 
 	// モーダル展開クリックイベント
 	$(`.${prefix}-copypost-btn`).on("click", (e) => {
-		const itemTr = $(e.target).parent().parent();
+		const itemTr = $(e.target).parents('tr');
 		const originalId: number = Number(
 			itemTr.find("th.check-column input").val()
 		);
 		const itemTitle=itemTr.find(".item-title a").text();
 		setModal(originalId, itemTitle);
+	});
+
+	// ゴミ箱へ移動イベント
+	$(`.${prefix}-deletepost-btn`).on("click", (e) => {
+		if(!confirm('この返礼品をゴミ箱へ移してもいいですか？')){
+			return
+		}
+		const itemTr = $(e.target).parents('tr');
+		const originalId: number = Number(
+			itemTr.find("th.check-column input").val()
+		);
+
+		$.ajax({
+			url: n2.ajaxurl,
+			data:{
+				action: 'N2_Postlist_deletepost',
+				id: originalId
+			}
+		}).done(res=>{
+			console.log(res)
+		}).fail(error => {
+			console.log(error)
+		});
+		
+		itemTr.remove()
 	});
 
 	// 定期便、単品切り替え
