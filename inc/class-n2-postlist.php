@@ -91,8 +91,17 @@ class N2_Postlist {
 			'teiki'           => '定期便',
 			'thumbnail'       => '画像',
 			'modified-last'   => "<a href='{$sort_base_url}edit.php?orderby=date&order={$asc_or_desc}'>最終更新日{$this->judging_icons_order('date')}</a>",
-			'tools'           => 'ツール',
 		);
+
+		// ゴミ箱以外でツール非表示
+		if ( 'trash' !== $_GET['post_status'] ) {
+			$columns = array_merge(
+				$columns,
+				array(
+					'tools' => 'ツール',
+				)
+			);
+		}
 
 		if ( 'jigyousya' !== wp_get_current_user()->roles[0] ) {
 			$columns = array_merge(
