@@ -84,7 +84,6 @@ class N2_Postlist {
 		$columns = array(
 			'cb'              => '<input type="checkbox" />',
 			'item-title'      => "<a href='{$sort_base_url}edit.php?orderby=返礼品名&order={$asc_or_desc}'>返礼品名{$this->judging_icons_order('返礼品名')}</a>",
-			'progress-bar'    => '進捗',
 			'poster'          => "<a href='{$sort_base_url}edit.php?orderby=事業者&order={$asc_or_desc}'>事業者名{$this->judging_icons_order('事業者')}</a>",
 			'code'            => "<a href='{$sort_base_url}edit.php?orderby=返礼品コード&order={$asc_or_desc}'>返礼品コード{$this->judging_icons_order('返礼品コード')}</a>",
 			'goods_price'     => "<a href='{$sort_base_url}edit.php?orderby=価格&order={$asc_or_desc}'>価格{$this->judging_icons_order('価格')}</a>",
@@ -138,7 +137,7 @@ class N2_Postlist {
 		$title = get_the_title();
 
 		$post_edit_url   = get_edit_post_link();
-		$image           = isset( $post_data['商品画像'][0] ) ? "<img width='70' src='{$post_data['商品画像'][0]['url']}' />" : '-';
+		$image           = isset( $post_data['商品画像'][0] ) ? "<img class='n2-postlist-imgicon' src='{$post_data['商品画像'][0]['url']}' />" : '-';
 		$goods_price     = ! empty( $post_data['価格'] ) && 0 !== $post_data['価格'] ? number_format( $post_data['価格'] ) : '-';
 		$donation_amount = ! empty( $post_data['寄附金額'] ) && 0 !== $post_data['寄附金額'] ? number_format( $post_data['寄附金額'] ) : '-';
 		$teiki           = ! empty( $post_data['定期便'] ) && 1 !== (int) $post_data['定期便'] ? $post_data['定期便'] : '-';
@@ -147,24 +146,36 @@ class N2_Postlist {
 		$ssmemo          = ! empty( $post_data['社内共有事項'] ) ? nl2br( $post_data['社内共有事項'] ) : '';
 		$ssmemo_isset    = $ssmemo ? 'n2-postlist-ssmemo' : '';
 
-		$status     = '';
-		$status_bar = 0;
+		$status       = '';
+		$status_bar   = 0;
+		$status_color = '';
 
 		if ( 'draft' === get_post_status() || 'inherit' === get_post_status() ) {
-			$status = '事業者下書き';
+			$status     = '入力中';
+			$status_bar = 30;
+			$status_color = 'secondary';
+
 		}
 		if ( 'pending' === get_post_status() ) {
-			$status     = 'スチームシップ確認待ち';
-			$status_bar = 30;
+			$status       = 'スチームシップ確認中';
+			$status_bar   = 60;
+			$status_color = 'danger';
 		}
 		if ( 'publish' === get_post_status() ) {
-			$status     = 'スチームシップ確認済み';
-			$status_bar = 60;
+			$status       = 'ポータル登録準備中';
+			$status_bar   = 80;
+			$status_color = 'primary';
+
 		}
 
 		switch ( $column_name ) {
 			case 'item-title':
-				echo "<div><a href='{$post_edit_url}'>{$title}</a>";
+				echo "
+						<div class='text-truncate' data-bs-toggle='tooltip' data-bs-placement='bottom' title='{$title}'><a href='{$post_edit_url}'>{$title}</a></div>
+						<div class='progress mt-1' style='height: 10px; font-size:10px'>
+							<div class='progress-bar bg-{$status_color}' role='progressbar' style='width: {$status_bar}%;' aria-valuenow='{$status_bar}' aria-valuemin='0' aria-valuemax='100'>{$status}</div>
+			  			</div>
+					";
 				break;
 			case 'poster':
 				echo "<div>{$poster}</div>";
@@ -187,9 +198,6 @@ class N2_Postlist {
 			case 'modified-last':
 				the_modified_date( 'Y年Md日' );
 				break;
-			case 'progress-bar':
-				echo "<div class='n2-postlist-status'><progress max='100' value='{$status_bar}'></progress><span>{$status}</span></div>";
-				break;
 			case 'ssmemo':
 				echo "<div class='{$ssmemo_isset}'><p>{$ssmemo}</p></div>";
 				break;
@@ -201,7 +209,6 @@ class N2_Postlist {
 							<li><button type="button" class="dropdown-item neo-neng-copypost-btn">複製</button></li>
 							<li><button type="button" class="dropdown-item neo-neng-deletepost-btn">ゴミ箱へ移動</button></li>
 						</ul>
-						
 					</div>
 					';
 				break;
