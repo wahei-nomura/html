@@ -28,6 +28,7 @@ LH表示名:
     type: donation-amount
     description: 寄附金額を固定したい場合はチェックしてください。
     placeholder: 例）10000
+    style: "width: 12em;"
     "@focus": set_info($event.target)
     :value: 寄附金額
     "@input": "force_half_size_text($event, 'number', '寄附金額')"

@@ -60,7 +60,7 @@ export default $ => {
 		// 説明文・テキストカウンター
 		set_info(target) {
 			const info = [
-				$(target).parents('.n2-fields-value').data('description')
+				$(target).parents('.n2-fields-value').data('description') && ! document.cookie.match(/n2-zenmode/) 
 					? `<div class="alert alert-primary mb-2">${$(target).parents('.n2-fields-value').data('description')}</div>`
 					: '',
 				$(target).attr('maxlength')
@@ -69,8 +69,9 @@ export default $ => {
 			].filter( v => v );
 			if ( ! info.length ) return
 			if ( ! $(target).parents('.n2-fields-value').find('.n2-field-description').length ) {
-				$(target).parents('.n2-fields-value').prepend(`<div class="n2-field-description small lh-base">${info.join('')}</div>`);
+				$(target).parents('.n2-fields-value').prepend(`<div class="n2-field-description small lh-base col-12">${info.join('')}</div>`);
 			}
+			
 			if ( $(target).attr('maxlength') ) {
 				$(target).parents('.n2-fields-value').find('.n2-field-description').html(info.join(''));
 			}

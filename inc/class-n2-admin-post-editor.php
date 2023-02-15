@@ -121,13 +121,13 @@ class N2_Admin_Post_Editor {
 		?>
 		<!-- n2field保存の為のnonce -->
 		<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
-		<table class="n2-fields widefat fixed" style="border:none;">
+		<div class="n2-fields fs-6">
 			<?php foreach ( $metabox['args'] as $field => $detail ) : ?>
-			<tr id="<?php echo $field; ?>" class="n2-fields-list" v-if="<?php echo $detail['v-if'] ?? ''; ?>">
-				<th class="n2-fields-title" >
+			<div id="<?php echo $field; ?>" class="n2-fields-list row border-bottom p-3" v-if="<?php echo $detail['v-if'] ?? ''; ?>">
+				<div class="n2-fields-title col-12 mb-1 col-sm-3 mb-sm-0 d-flex align-items-center">
 					<?php echo ! empty( $detail['label'] ) ? $detail['label'] : $field; ?>
-				</th>
-				<td class="n2-fields-value" data-description="<?php echo $detail['description'] ?? ''; ?>">
+				</div>
+				<div class="n2-fields-value col-12 col-sm-9 gap-2 d-flex flex-wrap" data-description="<?php echo $detail['description'] ?? ''; ?>">
 				<?php
 					// templateに渡すために不純物を除去
 					$settings = $detail;
@@ -138,10 +138,10 @@ class N2_Admin_Post_Editor {
 					// プラグインでテンプレートを追加したい場合は、get_template_part_{$slug}フックでいける
 					get_template_part( "template/forms/{$detail['type']}", null, $settings );
 					?>
-				</td>
-			</tr>
+				</div>
+			</div>
 			<?php endforeach; ?>
-		</table>
+		</div>
 		<?php
 	}
 

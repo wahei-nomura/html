@@ -9,7 +9,7 @@ $default = array();
 $args    = wp_parse_args( $args, $default );
 $name    = $args['name'];
 ?>
-<div class="wrap" id="item-image">
+<div class="wrap col-12" id="item-image">
 	<input type="hidden" name="<?php echo $name; ?>" :value="JSON.stringify(商品画像)">
 	<draggable v-model="商品画像" class="">
 		<div v-for="(attr, index) in 商品画像" class="d-inline-block position-relative details attachment" style="width: auto;max-width: 25%;">
@@ -22,7 +22,7 @@ $name    = $args['name'];
 				<span class="dashicons dashicons-no-alt text-white"></span>
 			</div>
 			<!-- Download -->
-			<a :href="`${ajaxurl}?action=download_by_url&url=${attr.url}&name=${返礼品コード}-${index}`" class="position-absolute bottom-0 end-0 badge rounded-pill bg-dark text-white">▼ Download</a>
+			<a :href="`${ajaxurl}?action=download_by_url&url=${attr.url}&name=${返礼品コード}-${index}`" class="position-absolute bottom-0 end-0 badge rounded-pill bg-dark text-white text-decoration-none">▼ Download</a>
 		</div>
 	</draggable>
 	<div @click="add_media" class="d-inline-block position-relative selected attachment position-relative" style="width:auto;max-width: 25%;">
