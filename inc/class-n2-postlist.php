@@ -85,12 +85,12 @@ class N2_Postlist {
 			'cb'              => '<input type="checkbox" />',
 			'item-title'      => "<a href='{$sort_base_url}edit.php?orderby=返礼品名&order={$asc_or_desc}'>返礼品名{$this->judging_icons_order('返礼品名')}</a>",
 			'poster'          => "<a href='{$sort_base_url}edit.php?orderby=事業者&order={$asc_or_desc}'>事業者名{$this->judging_icons_order('事業者')}</a>",
-			'code'            => "<a href='{$sort_base_url}edit.php?orderby=返礼品コード&order={$asc_or_desc}'>返礼品コード{$this->judging_icons_order('返礼品コード')}</a>",
-			'goods_price'     => "<a href='{$sort_base_url}edit.php?orderby=価格&order={$asc_or_desc}'>価格{$this->judging_icons_order('価格')}</a>",
+			'code'            => "<div class='text-center'><a href='{$sort_base_url}edit.php?orderby=返礼品コード&order={$asc_or_desc}'>返礼品<br>コード{$this->judging_icons_order('返礼品コード')}</a></div>",
+			'goods_price'     => "<div class='text-center'><a href='{$sort_base_url}edit.php?orderby=価格&order={$asc_or_desc}'>価格{$this->judging_icons_order('価格')}</a></div>",
 			'donation_amount' => "<a href='{$sort_base_url}edit.php?orderby=寄附金額&order={$asc_or_desc}'>寄附金額{$this->judging_icons_order('寄附金額')}</a>",
-			'teiki'           => '定期便',
-			'thumbnail'       => '画像',
-			'modified-last'   => "<a href='{$sort_base_url}edit.php?orderby=date&order={$asc_or_desc}'>最終更新日{$this->judging_icons_order('date')}</a>",
+			'teiki'           => '<div class="text-center">定期便</div>',
+			'thumbnail'       => '<div class="text-center">画像</div>',
+			'modified-last'   => "<div class='text-center'><a href='{$sort_base_url}edit.php?orderby=date&order={$asc_or_desc}'>最終<br>更新日{$this->judging_icons_order('date')}</a></div>",
 		);
 
 		// ゴミ箱以外でツール非表示
@@ -98,7 +98,7 @@ class N2_Postlist {
 			$columns = array_merge(
 				$columns,
 				array(
-					'tools' => 'ツール',
+					'tools' => '<div class="text-center">ツール</div>',
 				)
 			);
 		}
@@ -154,6 +154,7 @@ class N2_Postlist {
 		$code            = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '';
 		$ssmemo          = ! empty( $post_data['社内共有事項'] ) ? nl2br( $post_data['社内共有事項'] ) : '';
 		$ssmemo_isset    = $ssmemo ? 'n2-postlist-ssmemo' : '';
+		$modified_last   = get_the_modified_date( 'Y/m/d' );
 
 		$status       = '';
 		$status_bar   = 0;
@@ -190,29 +191,29 @@ class N2_Postlist {
 				echo "<div>{$poster}</div>";
 				break;
 			case 'goods_price':
-				echo "<div>{$goods_price}</div>";
+				echo "<div class='text-center'>{$goods_price}</div>";
 				break;
 			case 'donation_amount':
-				echo "<div>{$donation_amount}</div>";
+				echo "<div class='text-center'>{$donation_amount}</div>";
 				break;
 			case 'teiki':
-				echo "<div>{$teiki}</div>";
+				echo "<div class='text-center'>{$teiki}</div>";
 				break;
 			case 'code':
-				echo "<div>{$code}</div>";
+				echo "<div class='text-center'>{$code}</div>";
 				break;
 			case 'thumbnail':
-				echo $image;
+				echo "<div class='text-center'>{$image}</div>";
 				break;
 			case 'modified-last':
-				the_modified_date( 'Y年Md日' );
+				echo "<div style='width: 10%; min-width:100px;'>{$modified_last}</div>";
 				break;
 			case 'ssmemo':
 				echo "<div class='{$ssmemo_isset}'><p>{$ssmemo}</p></div>";
 				break;
 			case 'tools':
 				echo '
-					<div class="dropdown">
+					<div class="dropdown text-center">
 						<span class="dashicons dashicons-admin-tools dropdown-toggle" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false"></span>
 						<ul class="dropdown-menu border" aria-labelledby="dropdownMenuLink">
 							<li><button type="button" class="dropdown-item neo-neng-copypost-btn">複製</button></li>
