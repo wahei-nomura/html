@@ -93,7 +93,7 @@ class N2_Enqueuescript {
 	 * @return $classes
 	 */
 	public function add_admin_body_class( $classes ) {
-		$classes .= $_COOKIE['n2-darkmode'] ? ' n2-darkmode' : '';
+		$classes .= isset( $_COOKIE['n2-darkmode'] ) ? ' n2-darkmode' : '';
 		return $classes;
 	}
 
