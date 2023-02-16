@@ -28,11 +28,15 @@ return apply_filters('クラス名_メソッド名', $変数);
 デフォルトではない特殊なhookを定義する場合はこのルールは適応外
   
 ### フロントエンド（JS,CSS）まわりについて
-`/src/ts/`以下に管理画面を`admin.ts`、表画面を`front.ts`として用意している。
-これらのファイル内で別ディレクトリのｔｓファイルやｓｃｓｓファイルをimportすることで`/dist/`に`admin.js`、`admin.css`、`front.js`、`front.css`としてコンパイルされる。
-それぞれ`/inc/class-n2-enqueuescript.php`内のhookにて読み込み制御している。
-#### コマンド
-tsもscssもこのコマンドだけでコンパイルできる
-```
-npm run webpack
-```
+src/README.mdを参照
+
+### pullrequestのチェックポイント
+#### Must
+- 動作確認
+- logにErrorやWarningがないこと
+- 可読性アップの提案
+- メンテナンスしやすさの提案
+
+#### Want
+- 別のアプローチがあれば提案
+- 高速化の提案
