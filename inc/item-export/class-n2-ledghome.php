@@ -1,7 +1,4 @@
 <?php
-//グローバル変数取得
-require_once(dirname(__DIR__)."/class-n2.php");
-
 /**
  * class-n2-ledghome.php
  *
@@ -34,16 +31,15 @@ class N2_Ledghome {
 	 * @return void
 	 */
 	public function create_csv() {
-		//グローバル変数設定
-		$glob = new N2;
+		global $n2;
 
 		// itemの情報を配列化
 		$items_arr   = array();
 		$error_items = '';
 		// あとでヘッダの上の連結するのに必要
-		$csv_title = $glob -> ledghome_csv_title;
-		$header = $glob -> ledghome_csv_header;
-		$setting = $glob -> ledghome_csv_setting;
+		$csv_title = $n2 -> ledghome_csv_title;
+		$header = $n2 -> ledghome_csv_header;
+		$setting = $n2 -> ledghome_csv_setting;
 
 		// ajaxで渡ってきたpostidの配列
 		$ids = explode( ',', filter_input( INPUT_POST, 'ledghome' ) );

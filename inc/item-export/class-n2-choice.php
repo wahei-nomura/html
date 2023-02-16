@@ -1,7 +1,4 @@
 <?php
-//グローバル変数取得
-require_once(dirname(__DIR__)."/class-n2.php");
-
 /**
  * class-n2-choice.php
  *
@@ -16,7 +13,7 @@ require_once(dirname(__DIR__)."/class-n2.php");
 class N2_Choice {
 
     //コンストラクト
-    public function __construct() {
+    public function __construct() {	
         add_action( 'wp_ajax_choice', array( $this, 'create_tsv' ) );
     }
 
@@ -26,12 +23,18 @@ class N2_Choice {
 	 * @return void
 	 */
     public function create_tsv() {
-		//グローバル変数設定
-		$glob = new N2;
-		$header0 = $glob -> choice_header_0; //初期値として0をセットするヘッダーグループ
-		$header1 = $glob -> choice_header_1; //初期値として1をセットするヘッダーグループ
-		$sumple_header = $glob -> choice_sumple_header; //出力用のサンプルヘッダー
-		$portal_common_discription = $glob -> portal_common_discription; //説明文へ追加するポータル共通説明文
+		global $n2;
+
+		// チョイスのサンプルヘッダー取得
+		$choice_user = $n2->choice['auth']['user'];
+		$choice_pass = $n2->choice['auth']['pass'];
+		$choice_url = $n2->choice['auth']['url'];
+		$sumple_header = trim( file_get_contents( str_replace( '//', "//{$choice_user}:{$choice_pass}@", $choice_url ) ) );
+
+		$header0 = $n2 -> choice_header_0; //初期値として0をセットするヘッダーグループ
+		$header1 = $n2 -> choice_header_1; //初期値として1をセットするヘッダーグループ
+		$sumple_header = array_flip( explode( "\t", $sumple_header ) ); //出力用のサンプルヘッダー
+		$portal_common_discription = $n2 -> portal_common_discription; //説明文へ追加するポータル共通説明文
 		
         $items_arr = array();
 		$error_items = '';

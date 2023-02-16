@@ -104,7 +104,6 @@ class N2 {
 	public $choice;
 	public $choice_header_0;
 	public $choice_header_1;
-	public $choice_sumple_header; // 出力する時に使うサンプルヘッダー
 	public $portal_common_discription; // 説明文への追記テキスト
 
 	/**
@@ -282,13 +281,10 @@ class N2 {
 		// チョイス
 		$choice_yml            = yaml_parse_file( get_theme_file_path( 'config/n2-choice-tsv-header.yml' ) )['choice'];
 		$this->choice          = $n2_option['choice'] ?? array();
+		$this->choice          = array(...$choice_yml, ...$this->choice);
 		$this->choice_header_0 = $choice_yml['tsv_header']['value0'];
 		$this->choice_header_1 = $choice_yml['tsv_header']['value1'];
 		$this->portal_common_discription = $n2_option['add_text'][ get_bloginfo( 'name' ) ] ?? "";
-
-		// チョイスのサンプルヘッダー取得
-		$sumple_header              = trim( file_get_contents( str_replace( '//', "//{$choice_yml['auth']['user']}:{$choice_yml['auth']['pass']}@", $choice_yml['auth']['url'] ) ) );
-		$this->choice_sumple_header = array_flip( explode( "\t", $sumple_header ) );
 
 		// レジホーム
 		$ledghome_yml               = yaml_parse_file( get_theme_file_path( 'config/n2-ledghome-csv-header.yml' ) );
