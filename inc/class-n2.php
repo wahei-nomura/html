@@ -105,7 +105,7 @@ class N2 {
 	public $choice_header_0;
 	public $choice_header_1;
 	public $choice_sumple_header; // 出力する時に使うサンプルヘッダー
-	public $choice_add_text; // 説明文への追記テキスト
+	public $portal_common_discription; // 説明文への追記テキスト
 
 	/**
 	 * レジホーム
@@ -284,7 +284,7 @@ class N2 {
 		$this->choice          = $n2_option['choice'] ?? array();
 		$this->choice_header_0 = $choice_yml['tsv_header']['value0'];
 		$this->choice_header_1 = $choice_yml['tsv_header']['value1'];
-		$this->choice_add_text = $n2_option['add_text'][ get_bloginfo( 'name' ) ];
+		$this->portal_common_discription = $n2_option['add_text'][ get_bloginfo( 'name' ) ] ?? "";
 
 		// チョイスのサンプルヘッダー取得
 		$sumple_header              = trim( file_get_contents( str_replace( '//', "//{$choice_yml['auth']['user']}:{$choice_yml['auth']['pass']}@", $choice_yml['auth']['url'] ) ) );

@@ -31,7 +31,7 @@ class N2_Choice {
 		$header0 = $glob -> choice_header_0; //初期値として0をセットするヘッダーグループ
 		$header1 = $glob -> choice_header_1; //初期値として1をセットするヘッダーグループ
 		$sumple_header = $glob -> choice_sumple_header; //出力用のサンプルヘッダー
-		$add_text = $glob -> choice_add_text; //説明文へ追加するポータル共通説明文
+		$portal_common_discription = $glob -> portal_common_discription; //説明文へ追加するポータル共通説明文
 		
         $items_arr = array();
 		$error_items = '';
@@ -100,7 +100,7 @@ class N2_Choice {
                                     // 楽天カテゴリーを追記するフック
                                     apply_filters( 'add_rakuten_category', '' )
                                     
-                                ) . "\n\n" . $add_text, //説明文の末尾に、設定されている場合はポータル共通説明文が入る。その後の記述は禁止。
+                                ) . "\n\n" . $portal_common_discription, //説明文の末尾に、設定されている場合はポータル共通説明文が入る。その後の記述は禁止。
 
                 '容量'    => N2_Functions::special_str_convert( get_post_meta( $id, "内容量・規格等", true ) ) . 
                                 (
