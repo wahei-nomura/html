@@ -39,6 +39,14 @@ class N2_Setmenu {
 		$name                      = '返礼品';
 		$menu[5][0]                = $name;
 		$submenu['edit.php'][5][0] = $name . '一覧';
+
+		// 各種セットアップ用
+		$menu[90][0] = '各種セットアップ';
+		foreach ( $submenu['n2_crew_setup_menu'] as $index => $sub ) {
+			if ( 'n2_setup_menus' === $sub[0] ) {
+				$submenu['n2_crew_setup_menu'][ $index ][0] = 'クルー専用';
+			}
+		}
 	}
 
 	/**
