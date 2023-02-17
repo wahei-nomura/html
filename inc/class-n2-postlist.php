@@ -41,6 +41,7 @@ class N2_Postlist {
 		add_action( 'restrict_manage_posts', array( $this, 'add_search_filter' ) );
 		add_action( 'posts_request', array( $this, 'posts_request' ) );
 		add_action( "wp_ajax_{$this->cls}", array( $this, 'ajax' ) );
+		add_action( "wp_ajax_{$this->cls}_deletepost", array( $this, 'delete_post' ) );
 	}
 
 	/**
@@ -83,22 +84,30 @@ class N2_Postlist {
 		$columns = array(
 			'cb'              => '<input type="checkbox" />',
 			'item-title'      => "<a href='{$sort_base_url}edit.php?orderby=返礼品名&order={$asc_or_desc}'>返礼品名{$this->judging_icons_order('返礼品名')}</a>",
-			'progress-bar'    => '進捗',
 			'poster'          => "<a href='{$sort_base_url}edit.php?orderby=事業者&order={$asc_or_desc}'>事業者名{$this->judging_icons_order('事業者')}</a>",
-			'code'            => "<a href='{$sort_base_url}edit.php?orderby=返礼品コード&order={$asc_or_desc}'>返礼品コード{$this->judging_icons_order('返礼品コード')}</a>",
-			'goods_price'     => "<a href='{$sort_base_url}edit.php?orderby=価格&order={$asc_or_desc}'>価格{$this->judging_icons_order('価格')}</a>",
+			'code'            => "<div class='text-center'><a href='{$sort_base_url}edit.php?orderby=返礼品コード&order={$asc_or_desc}'>返礼品<br>コード{$this->judging_icons_order('返礼品コード')}</a></div>",
+			'goods_price'     => "<div class='text-center'><a href='{$sort_base_url}edit.php?orderby=価格&order={$asc_or_desc}'>価格{$this->judging_icons_order('価格')}</a></div>",
 			'donation_amount' => "<a href='{$sort_base_url}edit.php?orderby=寄附金額&order={$asc_or_desc}'>寄附金額{$this->judging_icons_order('寄附金額')}</a>",
-			'teiki'           => '定期便',
-			'thumbnail'       => '画像',
-			'modified-last'   => "<a href='{$sort_base_url}edit.php?orderby=date&order={$asc_or_desc}'>最終更新日{$this->judging_icons_order('date')}</a>",
+			'teiki'           => '<div class="text-center">定期便</div>',
+			'thumbnail'       => '<div class="text-center">画像</div>',
+			'modified-last'   => "<div class='text-center'><a href='{$sort_base_url}edit.php?orderby=date&order={$asc_or_desc}'>最終<br>更新日{$this->judging_icons_order('date')}</a></div>",
 		);
+
+		// ゴミ箱以外でツール非表示
+		if ( isset( $_GET['post_status'] ) && 'trash' !== $_GET['post_status'] ) {
+			$columns = array_merge(
+				$columns,
+				array(
+					'tools' => '<div class="text-center">ツール</div>',
+				)
+			);
+		}
 
 		if ( 'jigyousya' !== wp_get_current_user()->roles[0] ) {
 			$columns = array_merge(
 				$columns,
 				array(
-					'ssmemo'    => 'SSメモ',
-					'copy-post' => '複製',
+					'ssmemo' => 'SSメモ',
 				)
 			);
 		}
@@ -136,18 +145,8 @@ class N2_Postlist {
 
 		$title = get_the_title();
 
-		// アカウントやステータスによってリンクを変える
-		if ( current_user_can( 'ss_crew' ) ) {
-			$post_url = get_edit_post_link();
-		} else {
-			if ( 'pending' === get_post_status() || 'publish' === get_post_status() ) {
-				$post_url = home_url( '/' ) . "?p={$post->ID}";
-			} else {
-				$post_url = get_edit_post_link();
-			}
-		}
-
-		$image           = 'なし';
+		$post_edit_url   = get_edit_post_link();
+		$image           = isset( $post_data['商品画像'][0] ) ? "<img class='n2-postlist-imgicon' src='{$post_data['商品画像'][0]['url']}' />" : '-';
 		$goods_price     = ! empty( $post_data['価格'] ) && 0 !== $post_data['価格'] ? number_format( $post_data['価格'] ) : '-';
 		$donation_amount = ! empty( $post_data['寄附金額'] ) && 0 !== $post_data['寄附金額'] ? number_format( $post_data['寄附金額'] ) : '-';
 		$teiki           = ! empty( $post_data['定期便'] ) && 1 !== (int) $post_data['定期便'] ? $post_data['定期便'] : '-';
@@ -155,55 +154,73 @@ class N2_Postlist {
 		$code            = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '';
 		$ssmemo          = ! empty( $post_data['社内共有事項'] ) ? nl2br( $post_data['社内共有事項'] ) : '';
 		$ssmemo_isset    = $ssmemo ? 'n2-postlist-ssmemo' : '';
+		$modified_last   = get_the_modified_date( 'Y/m/d' );
 
-		$status     = '';
-		$status_bar = 0;
+		$status       = '';
+		$status_bar   = 0;
+		$status_color = '';
 
 		if ( 'draft' === get_post_status() || 'inherit' === get_post_status() ) {
-			$status = '事業者下書き';
+			$status     = '入力中';
+			$status_bar = 30;
+			$status_color = 'secondary';
+
 		}
 		if ( 'pending' === get_post_status() ) {
-			$status     = 'スチームシップ確認待ち';
-			$status_bar = 30;
+			$status       = 'スチームシップ確認中';
+			$status_bar   = 60;
+			$status_color = 'danger';
 		}
 		if ( 'publish' === get_post_status() ) {
-			$status     = 'スチームシップ確認済み';
-			$status_bar = 60;
+			$status       = 'ポータル登録準備中';
+			$status_bar   = 80;
+			$status_color = 'primary';
+
 		}
 
 		switch ( $column_name ) {
 			case 'item-title':
-				echo "<div><a href='{$post_url}'>{$title}</a>";
+				echo "
+						<div class='text-truncate' data-bs-toggle='tooltip' data-bs-placement='bottom' title='{$title}'><a href='{$post_edit_url}'>{$title}</a></div>
+						<div class='progress mt-1' style='height: 10px; font-size:10px'>
+							<div class='progress-bar bg-{$status_color}' role='progressbar' style='width: {$status_bar}%;' aria-valuenow='{$status_bar}' aria-valuemin='0' aria-valuemax='100'>{$status}</div>
+			  			</div>
+					";
 				break;
 			case 'poster':
 				echo "<div>{$poster}</div>";
 				break;
 			case 'goods_price':
-				echo "<div>{$goods_price}</div>";
+				echo "<div class='text-center'>{$goods_price}</div>";
 				break;
 			case 'donation_amount':
-				echo "<div>{$donation_amount}</div>";
+				echo "<div class='text-center'>{$donation_amount}</div>";
 				break;
 			case 'teiki':
-				echo "<div>{$teiki}</div>";
+				echo "<div class='text-center'>{$teiki}</div>";
 				break;
 			case 'code':
-				echo "<div>{$code}</div>";
+				echo "<div class='text-center'>{$code}</div>";
 				break;
 			case 'thumbnail':
-				echo $image;
+				echo "<div class='text-center'>{$image}</div>";
 				break;
 			case 'modified-last':
-				the_modified_date( 'Y年Md日' );
-				break;
-			case 'progress-bar':
-				echo "<div class='n2-postlist-status'><progress max='100' value='{$status_bar}'></progress><span>{$status}</span></div>";
+				echo "<div style='width: 10%; min-width:100px;'>{$modified_last}</div>";
 				break;
 			case 'ssmemo':
 				echo "<div class='{$ssmemo_isset}'><p>{$ssmemo}</p></div>";
 				break;
-			case 'copy-post':
-				echo "<button type='button' class='neo-neng-copypost-btn'>複製</button></div>";
+			case 'tools':
+				echo '
+					<div class="dropdown text-center">
+						<span class="dashicons dashicons-admin-tools dropdown-toggle" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false"></span>
+						<ul class="dropdown-menu border" aria-labelledby="dropdownMenuLink">
+							<li><button type="button" class="dropdown-item neo-neng-copypost-btn">複製</button></li>
+							<li><button type="button" class="dropdown-item neo-neng-deletepost-btn">ゴミ箱へ移動</button></li>
+						</ul>
+					</div>
+					';
 				break;
 		}
 	}
@@ -641,6 +658,24 @@ class N2_Postlist {
 		}
 
 		echo wp_json_encode( $arr );
+
+		die();
+	}
+
+	/**
+	 * 返礼品を削除
+	 *
+	 * @return void
+	 */
+	public function delete_post() {
+		$post_id      = filter_input( INPUT_GET, 'id', FILTER_VALIDATE_INT );
+		$trash_result = wp_trash_post( $post_id );
+
+		if ( $trash_result ) {
+			echo 'ゴミ箱へ移動しました';
+		} else {
+			echo 'ゴミ箱への移動に失敗しました';
+		}
 
 		die();
 	}
