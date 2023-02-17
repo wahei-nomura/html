@@ -1,4 +1,5 @@
 import { ajaxUrl } from './modules/functions'
+import '../../node_modules/bootstrap/dist/js/bootstrap';
 
 jQuery(function($) {
 	
