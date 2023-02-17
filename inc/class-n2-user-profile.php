@@ -12,17 +12,12 @@ function user_profile_hide_style() {
 	#your-profile .user-rich-editing-wrap, /* ビジュアルエディター */
 	#your-profile .user-syntax-highlighting-wrap, /* シンタックスハイライト */
 	#your-profile .user-admin-color-wrap, /* 管理画面の配色 */
-	#your-profile .user-comment-shortcuts-wrap, /* キーボードショートカット */
-	#your-profile .show-admin-bar, /* ツールバー */
-	#your-profile .user-language-wrap, /* 言語 */
-	#your-profile .user-description-wrap, /* プロフィール情報 */
-	#your-profile .user-profile-picture, /* プロフィール写真 */
-	#your-profile .user-sessions-wrap /* セッション */ {
+	#your-profile .user-comment-shortcuts-wrap /* キーボードショートカット */ {
 	  display: none;
 	}
 	</style>'.PHP_EOL;
 }
 
 add_action('user_contactmethods', 'add_user_custom_meta'); //ユーザー項目の追加
-//add_action('admin_print_styles', 'user_profile_hide_style'); //ユーザー項目の削除。決定するまで一旦保留
+add_action('admin_print_styles', 'user_profile_hide_style'); //ユーザー項目の削除。決定するまで一旦保留
 ?>
