@@ -94,7 +94,7 @@ class N2_Jigyousyaparam {
 		}
 
 		update_user_meta( wp_get_current_user()->ID, '商品タイプ', $item_types );
-		echo '食品取扱い有無更新完了';
+		echo '商品タイプ更新完了';
 		die();
 	}
 

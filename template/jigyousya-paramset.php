@@ -121,11 +121,13 @@
 	※またこの設定は画面左側のメニュー<b>「返礼品設定」</b>よりいつでも変更ができます。
 	</p>
 	<div class="ss-jigyousya-button">
-		<button type="button" class="button button-primary sissubmit" disabled>登録する</button>
+		<button type="button" class="button button-primary submit" disabled>登録する</button>
 	</div>
 </form>
 <script>
 	jQuery(function($){
+
+		const n2 = window['n2']
 
 		$('#ss-jigyousya-modal .ss-check-item input[type="radio"]').on('change',()=>{
 			// 全てのチェックしているか判定
@@ -134,11 +136,23 @@
 			}
 		})
 
-		$('#ss-jigyousya-modal.login .sissubmit').on('click',()=>{
-			setTimeout(()=>{
+		$('#ss-jigyousya-modal.login .submit').on('click',(e) => {
+			e.preventDefault();
+			const $this = $(e.target)
+			const submitData = $this.parents('form').serialize()
+			$.ajax({
+				type: "POST",
+				url : n2.ajaxurl,
+				data: submitData,
+			})
+			.done((res) =>{
+				console.log(res)
 				$('.ss-jigyousya-modal-wrapper').remove()
 				$('#ss-jigyousya-modal').remove()
-			},1000)
-		})
+			}).fail(()=>{
+				alert('更新に失敗しました')
+			});
+			return false;
+		});
 	})
 </script>
