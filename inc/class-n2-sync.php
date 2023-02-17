@@ -63,22 +63,164 @@ class N2_Sync {
 		if ( WP_Filesystem() ) {
 			$this->spreadsheet_auth = $wp_filesystem->get_contents( $this->spreadsheet_auth_path );
 		}
-
 		add_action( 'wp_ajax_n2_sync_users_from_n1', array( $this, 'sync_users' ) );
 		add_action( 'wp_ajax_n2_sync_users_from_spreadsheet', array( $this, 'sync_users' ) );
 		add_action( 'wp_ajax_n2_sync_posts', array( $this, 'sync_posts' ) );
-		add_action( 'wp_ajax_nopriv_n2_sync_posts', array( $this, 'sync_posts' ) );
 		add_action( 'wp_ajax_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
-		add_action( 'wp_ajax_n2_insert_post_from_spreadsheet', array( $this, 'insert_post_from_spreadsheet' ) );
+		add_action( 'wp_ajax_n2_sync_posts_from_spreadsheet', array( $this, 'sync_posts_from_spreadsheet' ) );
+		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 
 		// cron登録処理
+		$default  = array(
+			'auto_sync_users' => 1,
+			'auto_sync_posts' => 1,
+		);
+		$settings = get_option( 'n2_sync_settings_n1', $default );
 		add_filter( 'cron_schedules', array( $this, 'intervals' ) );
-		if ( ! wp_next_scheduled( 'wp_ajax_n2_sync_users_from_n1' ) ) {
+		if ( ! wp_next_scheduled( 'wp_ajax_n2_sync_users_from_n1' ) && $settings['auto_sync_users'] ) {
 			wp_schedule_event( time(), 'daily', 'wp_ajax_n2_sync_users_from_n1' );
 		}
-		if ( ! wp_next_scheduled( 'wp_ajax_n2_multi_sync_posts' ) ) {
+		if ( ! $settings['auto_sync_users'] ) {
+			wp_clear_scheduled_hook( 'wp_ajax_n2_sync_users_from_n1' );
+		}
+		if ( ! wp_next_scheduled( 'wp_ajax_n2_multi_sync_posts' ) && $settings['auto_sync_posts'] ) {
 			wp_schedule_event( time() + 100, '30min', 'wp_ajax_n2_multi_sync_posts' );
 		}
+		if ( ! $settings['auto_sync_posts'] ) {
+			wp_clear_scheduled_hook( 'wp_ajax_n2_multi_sync_posts' );
+		}
+
+		// UI作成
+	}
+
+	/**
+	 * N2 SYNC　メニューの追加
+	 */
+	public function add_menu() {
+		add_menu_page( 'N2 SYNC', 'N2 SYNC', 'ss_crew', 'n2_sync', array( $this, 'sync_ui' ), 'dashicons-update' );
+		register_setting( 'n2_sync_settings_n1', 'n2_sync_settings_n1' );
+		register_setting( 'n2_sync_settings_spreadsheet', 'n2_sync_settings_spreadsheet' );
+	}
+
+	/**
+	 * 同期の為のUI
+	 */
+	public function sync_ui() {
+		$template = isset( $_GET['tab'] ) ? "sync_ui_{$_GET['tab']}" : 'sync_ui_n1';
+		?>
+		<div class="wrap">
+			<h1>N2 SYNC</h1>
+			<?php echo $this->$template(); ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * N1 同期の為のUI
+	 */
+	public function sync_ui_n1() {
+		global $n2;
+		$default  = array(
+			'auto_sync_users' => 1,
+			'auto_sync_posts' => 1,
+		);
+		$label    = array(
+			'auto_sync_users' => 'ユーザー',
+			'auto_sync_posts' => '返礼品',
+		);
+		$settings = get_option( 'n2_sync_settings_n1', $default );
+		?>
+		<div id="crontrol-header">
+			<nav class="nav-tab-wrapper">
+				<a href="admin.php?page=n2_sync" class="nav-tab nav-tab-active">N1（旧NENG）</a>
+				<a href="admin.php?page=n2_sync&tab=spreadsheet" class="nav-tab">Googleスプレットシート</a>
+			</nav>
+		</div>
+		<h2>N1（旧NENG）との同期</h2>
+		<ul style="padding: 1em; background: white; margin: 2em 0; border: 1px solid;">
+			<li>※ N1（旧NENG）と同期した情報（返礼品・ユーザー）が、N1から無くなるとN2からも削除されます。</li>
+			<li>※ N2で追加された情報（返礼品・ユーザー）は、同期しても保持されます。</li>
+		</ul>
+		<div style="padding: 1em 0;">
+			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_users_from_n1"; ?>" class="button button" target="_blank" style="margin-right: 1em;">
+				今すぐユーザーを同期
+			</a>
+			<a href="<?php echo "{$n2->ajaxurl}?action=n2_multi_sync_posts"; ?>" class="button button-primary" target="_blank">
+				今すぐ返礼品を同期
+			</a>
+		</div>
+		<form method="post" action="options.php">
+			<?php settings_fields( 'n2_sync_settings_n1' ); ?>
+			<table class="widefat striped" style="margin-bottom: 2em;">
+				<?php foreach ( $settings as $name => $value ) : ?>
+				<tr>
+					<th><?php echo $label[ $name ]; ?>の自動同期</th>
+					<td>
+						<label style="margin-right: 2em;">
+							<input type="radio" name="n2_sync_settings_n1[<?php echo $name; ?>]" value="1" <?php checked( $value, 1 ); ?>> ON
+						</label>
+						<label>
+							<input type="radio" name="n2_sync_settings_n1[<?php echo $name; ?>]" value="0" <?php checked( $value, 0 ); ?>> OFF
+						</label>
+					</td>
+				</tr>
+				<?php endforeach; ?>
+			</table>
+			<button class="button button-primary">設定を保存</button>
+		</form>
+		<?php
+	}
+
+	/**
+	 * Googleスプレットシート同期の為のUI
+	 */
+	public function sync_ui_spreadsheet() {
+		global $n2;
+		$default  = array(
+			'id'         => '',
+			'user_range' => '',
+			'item_range' => '',
+		);
+		$settings = get_option( 'n2_sync_settings_spreadsheet', $default );
+		?>
+		<div id="crontrol-header">
+			<nav class="nav-tab-wrapper">
+				<a href="admin.php?page=n2_sync" class="nav-tab">N1（旧NENG）</a>
+				<a href="admin.php?page=n2_sync&tab=spreadsheet" class="nav-tab nav-tab-active">Googleスプレットシート</a>
+			</nav>
+		</div>
+		<h2>Googleスプレットシートからの追加</h2>
+		<ul style="padding: 1em; background: white; margin: 2em 0; border: 1px solid;">
+			<li>※ スプレットシートにある情報を単純に追加します。</li>
+			<li>※ 既に登録のある情報でも追加されるので2重登録に注意してください。</li>
+		</ul>
+		<div style="padding: 1em 0;">
+			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_users_from_spreadsheet"; ?>" class="button button" target="_blank" style="margin-right: 1em;">
+				今すぐユーザーを追加
+			</a>
+			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_posts_from_spreadsheet"; ?>" class="button button-primary" target="_blank">
+				今すぐ返礼品を追加
+			</a>
+		</div>
+		<form method="post" action="options.php">
+			<?php settings_fields( 'n2_sync_settings_spreadsheet' ); ?>
+			<table class="widefat striped" style="margin-bottom: 2em;">
+				<tr>
+					<th>スプレットシートのID</th>
+					<td><input type="text" class="large-text" name="n2_sync_settings_spreadsheet[id]" value="<?php echo $settings['id']; ?>" placeholder="1lIYQRNRLdZytrE3n9ANIjfXZWjD37uGdWXMvjfaINDs"></td>
+				</tr>
+				<tr>
+					<th>ユーザーシートの範囲</th>
+					<td><input type="text" class="regular-text" name="n2_sync_settings_spreadsheet[user_range]" value="<?php echo $settings['user_range']; ?>" placeholder="user!A:ZZ"></td>
+				</tr>
+				<tr>
+					<th>返礼品シートの範囲</th>
+					<td><input type="text" class="regular-text" name="n2_sync_settings_spreadsheet[item_range]" value="<?php echo $settings['item_range']; ?>" placeholder="item!A:ZZ"></td>
+				</tr>
+			</table>
+			<button class="button button-primary">設定を保存</button>
+		</form>
+		<?php
 	}
 
 	/**
@@ -106,6 +248,7 @@ class N2_Sync {
 		if ( is_main_site() ) {
 			exit;
 		}
+
 		$before = microtime( true );
 
 		// params
@@ -142,7 +285,6 @@ class N2_Sync {
 
 		// $params変更
 		$params['action'] = 'n2_sync_posts';
-		$params['nonce']  = wp_create_nonce( 'sync_posts' );
 
 		// n2_sync_posts に Multi cURL
 		$mh       = curl_multi_init();
@@ -167,6 +309,10 @@ class N2_Sync {
 				CURLOPT_SSL_VERIFYPEER => false,
 				CURLOPT_TIMEOUT        => 30,
 				CURLOPT_USERPWD        => 'ss:ss',
+				// ログインセッションを渡してajax
+				CURLOPT_HTTPHEADER     => array(
+					'Cookie: ' . urldecode( http_build_query( $_COOKIE, '', '; ' ) ),
+				),
 			);
 			curl_setopt_array( $ch, $options );
 			curl_multi_add_handle( $mh, $ch );
@@ -214,15 +360,6 @@ class N2_Sync {
 		// ログテキスト
 		$logs   = array();
 		$logs[] = __METHOD__;
-
-		// ここでnonceを検証し、直アクセスを禁ずる
-		if ( ! wp_verify_nonce( $_GET['nonce'], 'sync_posts' ) ) {
-			$text   = 'nonceが正しくありません。';
-			$logs[] = $text;
-			$this->log( $logs );
-			echo $text;
-			exit;
-		}
 
 		// params
 		$params            = $_GET;
@@ -403,11 +540,22 @@ class N2_Sync {
 				$json = wp_remote_get( "{$this->n1_ajax_url}?action=userdata" )['body'];
 				break;
 			case 'from_spreadsheet':
+<<<<<<< HEAD
+				$default  = array(
+					'spreadsheet' => array(
+						'id'         => '',
+						'user_range' => '',
+						'item_range' => '',
+					),
+				);
+				$settings = get_option( 'n2_sync_settings_spreadsheet', $default );
+=======
+>>>>>>> f7fa1cffffcbea6f7a65bbdadf168d48f0dcfce2
 				$args = array(
 					'body' => array(
 						'auth'    => $this->spreadsheet_auth,
-						'sheetid' => '1lIYQRNRLdZytrE3n9ANIjfXZWjD37uGdWXMvjfaINDs',
-						'range'   => 'user!A:Z',
+						'sheetid' => $settings['id'],
+						'range'   => $settings['user_range'],
 					),
 				);
 				// データ取得
@@ -448,8 +596,6 @@ class N2_Sync {
 			},
 			$data
 		);
-
-		// echo "<pre>";print_r($data);exit;
 
 		// N1との差分削除用配列
 		$from_ids = array();
@@ -505,7 +651,11 @@ class N2_Sync {
 	/**
 	 * スプレットシートから返礼品のインポート
 	 */
+<<<<<<< HEAD
+	public function sync_posts_from_spreadsheet() {
+=======
 	public function insert_post_from_spreadsheet() {
+>>>>>>> f7fa1cffffcbea6f7a65bbdadf168d48f0dcfce2
 		global $n2;
 		$before = microtime( true );
 
@@ -513,11 +663,27 @@ class N2_Sync {
 		$logs   = array();
 		$logs[] = __METHOD__;
 
+<<<<<<< HEAD
+		$default  = array(
+			'spreadsheet' => array(
+				'id'         => '',
+				'item_range' => '',
+			),
+		);
+		$settings = get_option( 'n2_sync_settings_spreadsheet', $default );
+
+		$args = array(
+			'body' => array(
+				'auth'    => $this->spreadsheet_auth,
+				'sheetid' => $settings['id'],
+				'range'   => $settings['item_range'],
+=======
 		$args = array(
 			'body' => array(
 				'auth'    => $this->spreadsheet_auth,
 				'sheetid' => '1lIYQRNRLdZytrE3n9ANIjfXZWjD37uGdWXMvjfaINDs',
 				'range'   => 'item!A:ZZ',
+>>>>>>> f7fa1cffffcbea6f7a65bbdadf168d48f0dcfce2
 			),
 		);
 		// データ取得
