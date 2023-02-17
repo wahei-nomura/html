@@ -540,7 +540,6 @@ class N2_Sync {
 				$json = wp_remote_get( "{$this->n1_ajax_url}?action=userdata" )['body'];
 				break;
 			case 'from_spreadsheet':
-<<<<<<< HEAD
 				$default  = array(
 					'spreadsheet' => array(
 						'id'         => '',
@@ -549,8 +548,6 @@ class N2_Sync {
 					),
 				);
 				$settings = get_option( 'n2_sync_settings_spreadsheet', $default );
-=======
->>>>>>> f7fa1cffffcbea6f7a65bbdadf168d48f0dcfce2
 				$args = array(
 					'body' => array(
 						'auth'    => $this->spreadsheet_auth,
@@ -651,11 +648,7 @@ class N2_Sync {
 	/**
 	 * スプレットシートから返礼品のインポート
 	 */
-<<<<<<< HEAD
 	public function sync_posts_from_spreadsheet() {
-=======
-	public function insert_post_from_spreadsheet() {
->>>>>>> f7fa1cffffcbea6f7a65bbdadf168d48f0dcfce2
 		global $n2;
 		$before = microtime( true );
 
@@ -663,7 +656,6 @@ class N2_Sync {
 		$logs   = array();
 		$logs[] = __METHOD__;
 
-<<<<<<< HEAD
 		$default  = array(
 			'spreadsheet' => array(
 				'id'         => '',
@@ -677,13 +669,6 @@ class N2_Sync {
 				'auth'    => $this->spreadsheet_auth,
 				'sheetid' => $settings['id'],
 				'range'   => $settings['item_range'],
-=======
-		$args = array(
-			'body' => array(
-				'auth'    => $this->spreadsheet_auth,
-				'sheetid' => '1lIYQRNRLdZytrE3n9ANIjfXZWjD37uGdWXMvjfaINDs',
-				'range'   => 'item!A:ZZ',
->>>>>>> f7fa1cffffcbea6f7a65bbdadf168d48f0dcfce2
 			),
 		);
 		// データ取得
