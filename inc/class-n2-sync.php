@@ -516,6 +516,7 @@ class N2_Sync {
 	 * - 既存ユーザーは更新
 	 * - N1にいなくなったら削除
 	 * - N1ダイレクト時は強制生パスワード
+	 * - スプレットシートからも追加
 	 */
 	public function sync_users() {
 
@@ -548,7 +549,7 @@ class N2_Sync {
 					),
 				);
 				$settings = get_option( 'n2_sync_settings_spreadsheet', $default );
-				$args = array(
+				$args     = array(
 					'body' => array(
 						'auth'    => $this->spreadsheet_auth,
 						'sheetid' => $settings['id'],
@@ -575,6 +576,7 @@ class N2_Sync {
 		// データの整形（N1・スプレットシートを共通にする）
 		$data = array_map(
 			function( $v ) use ( $from ) {
+				// N1の場合
 				if ( isset( $v['data'] ) ) {
 					unset( $v['data']['ID'] );
 					// 権限変換用配列
@@ -587,9 +589,30 @@ class N2_Sync {
 					$v['data']['portal_site_display_name'] = $v['data']['portal'] ?: '';
 					$v['data'][ $from ]                    = 1;
 					return $v['data'];
+				} else {
+					// スプレットシートのラベル名をいい感じに存在するmeta_nameに変更
+					$label2name = array(
+						'/.*(アカウント|ログイン|ユーザー|id).*/ui' => 'user_login',
+						'/.*(メール|mail).*/ui'           => 'user_email',
+						'/.*(パスワード|pass).*/ui'         => 'user_pass',
+						'/.*事業者.*名.*/ui'               => 'first_name',
+						'/.*事業者.*コード.*/ui'             => 'last_name',
+						'/.*ポータル.*表示名.*/ui'            => 'portal_site_display_name',
+						'/.*(権限|ロール).*/ui'             => 'role',
+					);
+					// キーの変換の準備
+					$keys   = array_keys( $v );
+					$values = array_values( $v );
+					// キーの変換
+					$keys = preg_replace( array_keys( $label2name ), array_values( $label2name ), $keys );
+					// $vの再生成
+					$v = array_combine( $keys, $values );
+					// 表示名自動生成
+					$v['display_name'] = "{$v['last_name']} {$v['first_name']}";
+					// from 付与
+					$v[ $from ] = 1;
+					return $v;
 				}
-				$v[ $from ] = 1;
-				return $v;
 			},
 			$data
 		);
@@ -677,7 +700,7 @@ class N2_Sync {
 
 		// IP制限等で終了のケース
 		if ( ! $data ) {
-			$text = '認証情報が間違っている、またはデータが存在しないので終了します。';
+			$text   = '認証情報が間違っている、またはデータが存在しないので終了します。';
 			$logs[] = $text;
 			$this->log( $logs );
 			echo $text;
