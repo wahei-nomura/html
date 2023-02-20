@@ -240,7 +240,7 @@ class N2_Setupmenu {
 				<label for="input-ftp_pass" class="form-label">FTPパスワード</label>
 				<input type="text" class="form-control" id="input-ftp_pass" name="<?php echo $this->cls; ?>[rakuten][ftp_pass]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_pass'] ?? ''; ?>">
 			</div>
-			<div class="mb-3">
+			<div class="mb-3 col-md-4">
 				<label for="input-quality" class="form-label">画質（右に行くほど高画質）</label>
 				<input type="range" class="form-range" id="input-quality" name="<?php echo $this->cls; ?>[rakuten][quality]" value="<?php echo get_option( $this->cls )['rakuten']['quality'] ?? ''; ?>">
 			</div>
@@ -252,7 +252,7 @@ class N2_Setupmenu {
 				<label for="input-select_csv" class="form-label">select.csvヘッダー貼付（タブ区切り）</label>
 				<textarea class="form-control" id="input-select_csv" name="<?php echo $this->cls; ?>[rakuten][select_csv]" rows="2" style="overflow-x: hidden;"><?php echo get_option( $this->cls )['rakuten']['select_csv'] ?? ''; ?></textarea>
 			</div>
-			<div class="mb-3">
+			<div class="mb-3 col-md-4">
 				<label for="input-img_dir" class="form-label">商品画像ディレクトリ</label>
 				<input type="text" class="form-control" id="input-img_dir" name="<?php echo $this->cls; ?>[rakuten][img_dir]" value="<?php echo get_option( $this->cls )['rakuten']['img_dir'] ?? ''; ?>">
 			</div>
@@ -261,9 +261,10 @@ class N2_Setupmenu {
 				<input type="text" class="form-control" id="input-tag_id" name="<?php echo $this->cls; ?>[rakuten][tag_id]" value="<?php echo get_option( $this->cls )['rakuten']['tag_id'] ?? ''; ?>">
 			</div>
 			<div class="mb-3">
-				<label for="input-html" class="form-label">説明文追加html</label>
+				<label for="input-html" class="form-label">説明文追加html ※商品説明文の最後に共通で追加される文言を設定できます(タグ使用可能)</label>
 				<textarea class="form-control" id="input-html" name="<?php echo $this->cls; ?>[rakuten][html]" rows="5" style="overflow-x: hidden;"><?php echo get_option( $this->cls )['rakuten']['html'] ?? ''; ?></textarea>
 			</div>
+			<p class="input-header" style="font-weight:bold">項目選択肢※寄附申込み前に表示する選択肢を最大6パターン作成できます。1行目：説明　2行目以降：選択肢</p>
 			<?php for ( $i = 0;$i < 6;$i++ ) : ?>
 				<div class="mb-3">
 					<label for="input-select-<?php echo $i; ?>" class="form-label">項目選択肢（改行区切）※選択肢は最大16文字</label>
