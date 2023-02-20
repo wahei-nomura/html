@@ -42,9 +42,11 @@ class N2_Setmenu {
 
 		// 各種セットアップ用
 		$menu[90][0] = '各種セットアップ';
-		foreach ( $submenu['n2_crew_setup_menu'] as $index => $sub ) {
-			if ( 'n2_setup_menus' === $sub[0] ) {
-				$submenu['n2_crew_setup_menu'][ $index ][0] = 'クルー専用';
+		if ( isset( $submenu['n2_crew_setup_menu'] ) ) {
+			foreach ( $submenu['n2_crew_setup_menu'] as $index => $sub ) {
+				if ( 'n2_setup_menus' === $sub[0] ) {
+					$submenu['n2_crew_setup_menu'][ $index ][0] = 'クルー専用';
+				}
 			}
 		}
 	}
