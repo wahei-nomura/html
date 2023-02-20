@@ -11,6 +11,18 @@
 <script src="https://cdn.jsdelivr.net/gh/steamships/in-browser-sass/dist/in-browser-sass.bundle.min.js"></script>
 
 <style type="text/scss">
+
+	.ss-jigyousya-modal-wrapper {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		min-height: 360px;
+		background: #000;
+		opacity: .7;
+		z-index: 159900;
+	}
 	#ss-jigyousya-modal {
 		padding: 60px;
 		h2 {
@@ -136,7 +148,7 @@
 			}
 		})
 
-		$('#ss-jigyousya-modal.login .submit').on('click',(e) => {
+		$('#ss-jigyousya-modal .submit').on('click',(e) => {
 			e.preventDefault();
 			const $this = $(e.target)
 			const submitData = $this.parents('form').serialize()
@@ -148,7 +160,8 @@
 			.done((res) =>{
 				console.log(res)
 				$('.ss-jigyousya-modal-wrapper').remove()
-				$('#ss-jigyousya-modal').remove()
+				$('#ss-jigyousya-modal.login').remove()
+				alert('更新しました')
 			}).fail(()=>{
 				alert('更新に失敗しました')
 			});
