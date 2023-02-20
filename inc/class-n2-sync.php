@@ -189,14 +189,14 @@ class N2_Sync {
 				<a href="admin.php?page=n2_sync&tab=spreadsheet" class="nav-tab nav-tab-active">Googleスプレットシート</a>
 			</nav>
 		</div>
-		<h2>Googleスプレットシートからの追加</h2>
+		<h2>Googleスプレットシートからの追加・上書き</h2>
 		<ul style="padding: 1em; background: white; margin: 2em 0; border: 1px solid;">
-			<li>※ スプレットシートにある情報を単純に追加します。</li>
-			<li>※ 既に登録のある情報でも追加されるので2重登録に注意してください。</li>
+			<li>※ ユーザーはスプレットシートにある情報を追加、既に存在する場合は上書きします。</li>
+			<li>※ 返礼品はスプレットシートにある情報を単純に追加します。既に登録のある情報でも追加されるので2重登録に注意してください。</li>
 		</ul>
 		<div style="padding: 1em 0;">
 			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_users_from_spreadsheet"; ?>" class="button button" target="_blank" style="margin-right: 1em;">
-				今すぐユーザーを追加
+				今すぐユーザーを同期
 			</a>
 			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_posts_from_spreadsheet"; ?>" class="button button-primary" target="_blank">
 				今すぐ返礼品を追加
