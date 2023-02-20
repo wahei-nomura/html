@@ -61,10 +61,9 @@ class N2_Setupmenu {
 	 */
 	public function add_setup_menu() {
 		// 各種セットアップ管理ページを追加
-		add_menu_page( '各種セットアップ', '各種セットアップ', 'ss_crew', 'n2_setup_menu', array( $this, 'add_crew_setup_menu_page' ), 'dashicons-list-view' );
-
+		add_menu_page( '各種セットアップ', 'n2_setup_menus', 'ss_crew', 'n2_crew_setup_menu', array( $this, 'add_crew_setup_menu_page' ), 'dashicons-list-view', 90 );
 		// エンジニア専用サブメニュー
-		add_submenu_page( 'n2_setup_menu', 'エンジニア専用', 'エンジニア専用', 'administrator', 'n2_engineer_submenu', array( $this, 'add_engineer_setup_submenu_page' ) );
+		add_submenu_page( 'n2_crew_setup_menu', 'エンジニア専用', 'エンジニア専用', 'administrator', 'n2_engineer_setup_menu', array( $this, 'add_engineer_setup_submenu_page' ) );
 	}
 	/**
 	 * クルー用メニュー描画

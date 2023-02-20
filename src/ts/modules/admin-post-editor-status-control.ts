@@ -31,6 +31,10 @@ export default $ => {
 			label: 'ポータル登録済',
 			class: 'progress-bar bg-success col-12',
 		},
+		'trash': {
+			label: 'ゴミ箱',
+			class: 'progress-bar bg-secondary col-0',
+		},
 	};
 	$(".edit-post-layout__metaboxes").ready(() => {
 
