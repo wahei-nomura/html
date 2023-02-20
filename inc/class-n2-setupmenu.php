@@ -73,9 +73,6 @@ class N2_Setupmenu {
 	 */
 	public function add_crew_setup_menu_page() {
 		$this->wrapping_contents( 'クルー専用セットアップ', 'contact_setup_menu' );
-		// $this->wrapping_contents( '各ポータル共通説明文', 'add_text_widget' );
-		// $this->wrapping_contents( '送料', 'add_postage_widget' );
-		// $this->wrapping_contents( '楽天セットアップ', 'rakuten_setup_widget' ); // 必要？
 	}
 	/**
 	 * エンジニア専用サブメニュー描画
@@ -277,36 +274,6 @@ class N2_Setupmenu {
 	  </div>
 	</main>
 
-		
-		<?php
-	}
-	/**
-	 * 各ポータル共通説明文
-	 *
-	 * @return void
-	 */
-	public function add_text_widget() {
-		?>
-		
-		<?php
-	}
-	/**
-	 * 送料設定
-	 *
-	 * @return void
-	 */
-	public function add_postage_widget() {
-		?>
-		
-		<?php
-	}
-	/**
-	 * 説明文追加html等
-	 *
-	 * @return void
-	 */
-	public function rakuten_setup_widget() {
-		?>
 		
 		<?php
 	}
