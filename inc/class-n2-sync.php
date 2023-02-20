@@ -15,52 +15,212 @@ if ( class_exists( 'N2_Sync' ) ) {
 }
 
 /**
- * Setusers
+ * N2のいろいろ同期
+ *
+ * N1とユーザー同期
+ * N1と返礼品同期
+ * スプレットシートとの同期
  */
 class N2_Sync {
 
 	/**
 	 * NENG AJAX URL
+	 * N1のデータ取得用URL
 	 *
 	 * @var string
 	 */
-	private $neng_ajax_url;
+	private $n1_ajax_url;
+
+	/**
+	 * スプレットシート取得用APIのURL
+	 * SSツールのものを一旦利用
+	 *
+	 * @var string
+	 */
+	private $spreadsheet_api_url = 'https://app.steamship.co.jp/ss-tool/php/get-spreadsheet.php';
+
+	/**
+	 * スプレットシートAPIの認証用jsonのpath（非公開領域に置く）
+	 *
+	 * @var string
+	 */
+	private $spreadsheet_auth_path = '/var/www/keys/steamship-gcp.json';
+
+	/**
+	 * スプレットシートAPIの認証用jsonの中身
+	 *
+	 * @var string
+	 */
+	private $spreadsheet_auth;
 
 	/**
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		global $current_blog;
-		$this->neng_ajax_url = "https://steamship.co.jp{$current_blog->path}wp-admin/admin-ajax.php";
-
-		add_action( 'wp_ajax_n2_sync_users', array( $this, 'sync_users' ) );
-		add_action( 'wp_ajax_nopriv_n2_sync_users', array( $this, 'sync_users' ) );
+		global $current_blog, $wp_filesystem;
+		$this->n1_ajax_url = "https://steamship.co.jp{$current_blog->path}wp-admin/admin-ajax.php";
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		if ( WP_Filesystem() ) {
+			$this->spreadsheet_auth = $wp_filesystem->get_contents( $this->spreadsheet_auth_path );
+		}
+		add_action( 'wp_ajax_n2_sync_users_from_n1', array( $this, 'sync_users' ) );
+		add_action( 'wp_ajax_n2_sync_users_from_spreadsheet', array( $this, 'sync_users' ) );
 		add_action( 'wp_ajax_n2_sync_posts', array( $this, 'sync_posts' ) );
-		add_action( 'wp_ajax_nopriv_n2_sync_posts', array( $this, 'sync_posts' ) );
 		add_action( 'wp_ajax_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
-		add_action( 'wp_ajax_nopriv_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
-		add_action( 'wp_ajax_n2_test', array( $this, 'test' ) );
+		add_action( 'wp_ajax_n2_sync_posts_from_spreadsheet', array( $this, 'sync_posts_from_spreadsheet' ) );
+		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 
 		// cron登録処理
+		$default  = array(
+			'auto_sync_users' => 1,
+			'auto_sync_posts' => 1,
+		);
+		$settings = get_option( 'n2_sync_settings_n1', $default );
 		add_filter( 'cron_schedules', array( $this, 'intervals' ) );
-		if ( ! wp_next_scheduled( 'wp_ajax_n2_sync_users' ) ) {
-			wp_schedule_event( time(), 'daily', 'wp_ajax_n2_sync_users' );
+		if ( ! wp_next_scheduled( 'wp_ajax_n2_sync_users_from_n1' ) && $settings['auto_sync_users'] ) {
+			wp_schedule_event( time(), 'daily', 'wp_ajax_n2_sync_users_from_n1' );
 		}
-		if ( ! wp_next_scheduled( 'wp_ajax_n2_multi_sync_posts' ) ) {
+		if ( ! $settings['auto_sync_users'] ) {
+			wp_clear_scheduled_hook( 'wp_ajax_n2_sync_users_from_n1' );
+		}
+		if ( ! wp_next_scheduled( 'wp_ajax_n2_multi_sync_posts' ) && $settings['auto_sync_posts'] ) {
 			wp_schedule_event( time() + 100, '30min', 'wp_ajax_n2_multi_sync_posts' );
 		}
+		if ( ! $settings['auto_sync_posts'] ) {
+			wp_clear_scheduled_hook( 'wp_ajax_n2_multi_sync_posts' );
+		}
+
+		// UI作成
 	}
 
 	/**
-	 * テスト
+	 * N2 SYNC　メニューの追加
 	 */
-	public function test() {
-		global $n2;
-		echo '<pre>';print_r($n2);echo '</pre>';
+	public function add_menu() {
+		add_menu_page( 'N2 SYNC', 'N2 SYNC', 'ss_crew', 'n2_sync', array( $this, 'sync_ui' ), 'dashicons-update' );
+		register_setting( 'n2_sync_settings_n1', 'n2_sync_settings_n1' );
+		register_setting( 'n2_sync_settings_spreadsheet', 'n2_sync_settings_spreadsheet' );
+	}
+
+	/**
+	 * 同期の為のUI
+	 */
+	public function sync_ui() {
+		$template = isset( $_GET['tab'] ) ? "sync_ui_{$_GET['tab']}" : 'sync_ui_n1';
 		?>
-		<script>console.log(<?php echo wp_json_encode($n2); ?>)</script>
+		<div class="wrap">
+			<h1>N2 SYNC</h1>
+			<?php echo $this->$template(); ?>
+		</div>
 		<?php
-		exit;
+	}
+
+	/**
+	 * N1 同期の為のUI
+	 */
+	public function sync_ui_n1() {
+		global $n2;
+		$default  = array(
+			'auto_sync_users' => 1,
+			'auto_sync_posts' => 1,
+		);
+		$label    = array(
+			'auto_sync_users' => 'ユーザー',
+			'auto_sync_posts' => '返礼品',
+		);
+		$settings = get_option( 'n2_sync_settings_n1', $default );
+		?>
+		<div id="crontrol-header">
+			<nav class="nav-tab-wrapper">
+				<a href="admin.php?page=n2_sync" class="nav-tab nav-tab-active">N1（旧NENG）</a>
+				<a href="admin.php?page=n2_sync&tab=spreadsheet" class="nav-tab">Googleスプレットシート</a>
+			</nav>
+		</div>
+		<h2>N1（旧NENG）との同期</h2>
+		<ul style="padding: 1em; background: white; margin: 2em 0; border: 1px solid;">
+			<li>※ N1（旧NENG）と同期した情報（返礼品・ユーザー）が、N1から無くなるとN2からも削除されます。</li>
+			<li>※ N2で追加された情報（返礼品・ユーザー）は、同期しても保持されます。</li>
+		</ul>
+		<div style="padding: 1em 0;">
+			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_users_from_n1"; ?>" class="button button" target="_blank" style="margin-right: 1em;">
+				今すぐユーザーを同期
+			</a>
+			<a href="<?php echo "{$n2->ajaxurl}?action=n2_multi_sync_posts"; ?>" class="button button-primary" target="_blank">
+				今すぐ返礼品を同期
+			</a>
+		</div>
+		<form method="post" action="options.php">
+			<?php settings_fields( 'n2_sync_settings_n1' ); ?>
+			<table class="widefat striped" style="margin-bottom: 2em;">
+				<?php foreach ( $settings as $name => $value ) : ?>
+				<tr>
+					<th><?php echo $label[ $name ]; ?>の自動同期</th>
+					<td>
+						<label style="margin-right: 2em;">
+							<input type="radio" name="n2_sync_settings_n1[<?php echo $name; ?>]" value="1" <?php checked( $value, 1 ); ?>> ON
+						</label>
+						<label>
+							<input type="radio" name="n2_sync_settings_n1[<?php echo $name; ?>]" value="0" <?php checked( $value, 0 ); ?>> OFF
+						</label>
+					</td>
+				</tr>
+				<?php endforeach; ?>
+			</table>
+			<button class="button button-primary">設定を保存</button>
+		</form>
+		<?php
+	}
+
+	/**
+	 * Googleスプレットシート同期の為のUI
+	 */
+	public function sync_ui_spreadsheet() {
+		global $n2;
+		$default  = array(
+			'id'         => '',
+			'user_range' => '',
+			'item_range' => '',
+		);
+		$settings = get_option( 'n2_sync_settings_spreadsheet', $default );
+		?>
+		<div id="crontrol-header">
+			<nav class="nav-tab-wrapper">
+				<a href="admin.php?page=n2_sync" class="nav-tab">N1（旧NENG）</a>
+				<a href="admin.php?page=n2_sync&tab=spreadsheet" class="nav-tab nav-tab-active">Googleスプレットシート</a>
+			</nav>
+		</div>
+		<h2>Googleスプレットシートからの追加</h2>
+		<ul style="padding: 1em; background: white; margin: 2em 0; border: 1px solid;">
+			<li>※ スプレットシートにある情報を単純に追加します。</li>
+			<li>※ 既に登録のある情報でも追加されるので2重登録に注意してください。</li>
+		</ul>
+		<div style="padding: 1em 0;">
+			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_users_from_spreadsheet"; ?>" class="button button" target="_blank" style="margin-right: 1em;">
+				今すぐユーザーを追加
+			</a>
+			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_posts_from_spreadsheet"; ?>" class="button button-primary" target="_blank">
+				今すぐ返礼品を追加
+			</a>
+		</div>
+		<form method="post" action="options.php">
+			<?php settings_fields( 'n2_sync_settings_spreadsheet' ); ?>
+			<table class="widefat striped" style="margin-bottom: 2em;">
+				<tr>
+					<th>スプレットシートのID</th>
+					<td><input type="text" class="large-text" name="n2_sync_settings_spreadsheet[id]" value="<?php echo $settings['id']; ?>" placeholder="1lIYQRNRLdZytrE3n9ANIjfXZWjD37uGdWXMvjfaINDs"></td>
+				</tr>
+				<tr>
+					<th>ユーザーシートの範囲</th>
+					<td><input type="text" class="regular-text" name="n2_sync_settings_spreadsheet[user_range]" value="<?php echo $settings['user_range']; ?>" placeholder="user!A:ZZ"></td>
+				</tr>
+				<tr>
+					<th>返礼品シートの範囲</th>
+					<td><input type="text" class="regular-text" name="n2_sync_settings_spreadsheet[item_range]" value="<?php echo $settings['item_range']; ?>" placeholder="item!A:ZZ"></td>
+				</tr>
+			</table>
+			<button class="button button-primary">設定を保存</button>
+		</form>
+		<?php
 	}
 
 	/**
@@ -88,8 +248,8 @@ class N2_Sync {
 		if ( is_main_site() ) {
 			exit;
 		}
-		$before = microtime( true );
 
+		$before = microtime( true );
 
 		// params
 		$params = array(
@@ -98,7 +258,7 @@ class N2_Sync {
 			'posts_per_page' => $_GET['posts_per_page'] ?? 100,
 			'paged'          => 1,
 		);
-		$json   = wp_remote_get( "{$this->neng_ajax_url}?" . http_build_query( $params ) )['body'];
+		$json   = wp_remote_get( "{$this->n1_ajax_url}?" . http_build_query( $params ) )['body'];
 		$data   = json_decode( $json, true );
 
 		// ログテキスト
@@ -149,6 +309,10 @@ class N2_Sync {
 				CURLOPT_SSL_VERIFYPEER => false,
 				CURLOPT_TIMEOUT        => 30,
 				CURLOPT_USERPWD        => 'ss:ss',
+				// ログインセッションを渡してajax
+				CURLOPT_HTTPHEADER     => array(
+					'Cookie: ' . urldecode( http_build_query( $_COOKIE, '', '; ' ) ),
+				),
 			);
 			curl_setopt_array( $ch, $options );
 			curl_multi_add_handle( $mh, $ch );
@@ -188,73 +352,14 @@ class N2_Sync {
 	}
 
 	/**
-	 * N2ユーザーデータ吸い上げ
-	 */
-	public function sync_users() {
-		if ( is_main_site() ) {
-			exit;
-		}
-		$before = microtime( true );
-		$json   = wp_remote_get( "{$this->neng_ajax_url}?action=userdata" )['body'];
-		$data   = json_decode( $json, true );
-
-		// ログテキスト
-		$logs   = array();
-		$logs[] = __METHOD__;
-
-		// IP制限等で終了のケース
-		if ( ! $data ) {
-			$logs[] = $json;
-			$this->log( $logs );
-			echo $json;
-			exit;
-		}
-
-		// ユーザー登録
-		foreach ( $data as $k => $v ) {
-			$userdata = $v['data'];
-			// フルフロンタルは除外
-			if ( 'fullfrontal' === $userdata['user_login'] ) {
-				continue;
-			}
-			unset( $userdata['ID'] );
-
-			// 既存ユーザーは更新するのでIDを突っ込む
-			$user = get_user_by( 'login', $userdata['user_login'] );
-			if ( $user ) {
-				$userdata['ID'] = $user->ID;
-			}
-
-			// 権限変換（NENG → NEONENG）
-			switch ( $v['roles'][0] ) {
-				case 'administrator':
-					$userdata['role'] = 'ss-crew';
-					break;
-				case 'contributor':
-					$userdata['role'] = 'jigyousya';
-					break;
-			}
-
-			add_filter( 'wp_pre_insert_user_data', array( $this, 'insert_raw_user_pass' ), 10, 4 );
-			$user_id = wp_insert_user( $userdata );
-			remove_filter( 'wp_pre_insert_user_data', array( $this, 'insert_raw_user_pass' ) );
-
-			// // 特定のユーザーを特権管理者に昇格（不要？）
-			// if ( 'ss-crew' === $userdata['role'] ) {
-			// grant_super_admin( $user_id );
-			// }
-		}
-		echo 'N2-User-Sync「' . get_bloginfo( 'name' ) . '」ユーザーデータ旧NENGとシンクロ完了！';
-		$logs[] = 'ユーザーシンクロ完了 ' . number_format( microtime( true ) - $before, 2 ) . ' sec';
-		$this->log( $logs );
-		exit;
-	}
-
-	/**
 	 * N2返礼品吸い上げ
 	 * posts_per_page
 	 */
 	public function sync_posts() {
+
+		// ログテキスト
+		$logs   = array();
+		$logs[] = __METHOD__;
 
 		// params
 		$params            = $_GET;
@@ -265,12 +370,8 @@ class N2_Sync {
 		update_option( "n2syncing-{$params['paged']}", strtotime( 'now' ) );
 
 		// 投稿を部分同期
-		$json = wp_remote_get( "{$this->neng_ajax_url}?" . http_build_query( $params ) )['body'];
+		$json = wp_remote_get( "{$this->n1_ajax_url}?" . http_build_query( $params ) )['body'];
 		$data = json_decode( $json, true );
-
-		// ログテキスト
-		$logs   = array();
-		$logs[] = __METHOD__;
 
 		// IP制限等で終了のケース
 		if ( ! $data ) {
@@ -411,6 +512,214 @@ class N2_Sync {
 	}
 
 	/**
+	 * N2ユーザーデータ吸い上げ
+	 * - 既存ユーザーは更新
+	 * - N1にいなくなったら削除
+	 * - N1ダイレクト時は強制生パスワード
+	 */
+	public function sync_users() {
+
+		if ( is_main_site() ) {
+			exit;
+		}
+		$before = microtime( true );
+
+		// ログテキスト
+		$logs   = array();
+		$logs[] = __METHOD__;
+
+		global $n2;
+
+		// 同期元
+		$from = isset( $_GET['action'] )
+			? str_replace( 'n2_sync_users_', '', $_GET['action'] )
+			: 'from_n1';
+
+		switch ( $from ) {
+			case 'from_n1':
+				$json = wp_remote_get( "{$this->n1_ajax_url}?action=userdata" )['body'];
+				break;
+			case 'from_spreadsheet':
+				$default  = array(
+					'spreadsheet' => array(
+						'id'         => '',
+						'user_range' => '',
+						'item_range' => '',
+					),
+				);
+				$settings = get_option( 'n2_sync_settings_spreadsheet', $default );
+				$args = array(
+					'body' => array(
+						'auth'    => $this->spreadsheet_auth,
+						'sheetid' => $settings['id'],
+						'range'   => $settings['user_range'],
+					),
+				);
+				// データ取得
+				$data = wp_remote_post( $this->spreadsheet_api_url, $args );
+				$json = $data['body'];
+				break;
+		}
+
+		$data = json_decode( $json, true );
+
+		// IP制限 or データが無い
+		if ( ! $data ) {
+			$text   = $json ?: 'データがありません。';
+			$logs[] = $text;
+			$this->log( $logs );
+			echo $text;
+			exit;
+		}
+
+		// データの整形（N1・スプレットシートを共通にする）
+		$data = array_map(
+			function( $v ) use ( $from ) {
+				if ( isset( $v['data'] ) ) {
+					unset( $v['data']['ID'] );
+					// 権限変換用配列
+					$role = array(
+						'administrator' => 'ss-crew',
+						'contributor'   => 'jigyousya',
+					);
+					// dataの変換・追加
+					$v['data']['role']                     = $role[ $v['roles'][0] ];
+					$v['data']['portal_site_display_name'] = $v['data']['portal'] ?: '';
+					$v['data'][ $from ]                    = 1;
+					return $v['data'];
+				}
+				$v[ $from ] = 1;
+				return $v;
+			},
+			$data
+		);
+
+		// N1との差分削除用配列
+		$from_ids = array();
+
+		// ユーザー登録
+		foreach ( $data as $k => $userdata ) {
+			// フルフロンタルは除外
+			if ( 'fullfrontal' === $userdata['user_login'] ) {
+				continue;
+			}
+
+			// ユーザーメタ追加（主にスプレットシート）
+			$meta_array = array(
+				$from,
+				'portal_site_display_name',
+				// ここに追加したいメタフィールド名
+			);
+			foreach ( $meta_array as $meta_name ) {
+				if ( isset( $userdata[ $meta_name ] ) ) {
+					$userdata['meta_input'][ $meta_name ] = $userdata[ $meta_name ];
+					unset( $userdata[ $meta_name ] );
+				}
+			}
+
+			// 既存ユーザーは更新するのでIDを突っ込む
+			$user = get_user_by( 'login', $userdata['user_login'] );
+			if ( $user ) {
+				$userdata['ID'] = $user->ID;
+			}
+
+			// パスワードの適切な加工
+			add_filter( 'wp_pre_insert_user_data', array( $this, 'insert_user_pass' ), 10, 4 );
+			$from_ids[] = wp_insert_user( $userdata );
+			remove_filter( 'wp_pre_insert_user_data', array( $this, 'insert_user_pass' ) );
+		}
+
+		// NENGから削除されているものを削除（refreshパラメータで完全同期 or $from以外で追加したものに関してはスルー）
+		if ( 'from_n1' === $from ) {
+			$n2ids = get_users( isset( $_GET['refresh'] ) ? 'fields=ids' : "meta_key={$from}&meta_value=1&fields=ids" );
+			if ( count( $from_ids ) < count( $n2ids ) ) {
+				$deleted_ids = array_diff( $n2ids, $from_ids );
+				foreach ( $deleted_ids as $del ) {
+					wp_delete_user( $del );
+				}
+			}
+		}
+		echo "N2-User-Sync「{$n2->town}」ユーザーデータを同期しました。";
+		$logs[] = 'ユーザーシンクロ完了 ' . number_format( microtime( true ) - $before, 2 ) . ' sec';
+		$this->log( $logs );
+		exit;
+	}
+
+	/**
+	 * スプレットシートから返礼品のインポート
+	 */
+	public function sync_posts_from_spreadsheet() {
+		global $n2;
+		$before = microtime( true );
+
+		// ログテキスト
+		$logs   = array();
+		$logs[] = __METHOD__;
+
+		$default  = array(
+			'spreadsheet' => array(
+				'id'         => '',
+				'item_range' => '',
+			),
+		);
+		$settings = get_option( 'n2_sync_settings_spreadsheet', $default );
+
+		$args = array(
+			'body' => array(
+				'auth'    => $this->spreadsheet_auth,
+				'sheetid' => $settings['id'],
+				'range'   => $settings['item_range'],
+			),
+		);
+		// データ取得
+		$data = wp_remote_post( $this->spreadsheet_api_url, $args );
+		$data = json_decode( $data['body'], true );
+
+		// IP制限等で終了のケース
+		if ( ! $data ) {
+			$text = '認証情報が間違っている、またはデータが存在しないので終了します。';
+			$logs[] = $text;
+			$this->log( $logs );
+			echo $text;
+			exit;
+		}
+		// 区切り文字
+		$sep = '/[,|、|\s|\/|\||｜|／]/u';
+		foreach ( $data as $d ) {
+			$postarr                = array();
+			$postarr['post_title']  = $d['タイトル'];
+			$postarr['post_author'] = $this->get_userid_by_last_name( $d['事業者コード'] );
+			unset( $d['タイトル'], $d['事業者コード'], $d['事業者名'] );
+			// 寄附金額固定（入力あれば固定）
+			$d['寄附金額固定'] = array( $d['寄附金額固定'] ? '固定する' : '' );
+			// 商品タイプ（入力値をそのまま出力）
+			$d['商品タイプ'] = array( $d['商品タイプ'] );
+			// アレルギーの有無確認（入力あればアレルギー品目あり）
+			$d['アレルギー有無確認'] = array( $d['アレルギー有無確認'] ? 'アレルギー品目あり' : '' );
+			// アレルゲン（label,value必要）
+			$d['アレルゲン'] = array_map(
+				function( $v ) use ( $n2 ) {
+					return array(
+						'label' => $v,
+						'value' => (string) array_search( $v, $n2->custom_field['事業者用']['アレルゲン']['option'], true ),
+					);
+				},
+				// 区切り文字列でいい感じに配列化
+				array_values( array_filter( preg_split( $sep, $d['アレルゲン'] ) ) )
+			);
+			// 取り扱い方法（区切り文字列でいい感じに配列化）
+			$d['取り扱い方法'] = array_values( array_filter( preg_split( $sep, $d['取り扱い方法'] ) ) );
+			// $postarrにセット
+			$postarr['meta_input'] = $d;
+			wp_insert_post( $postarr );
+		}
+		echo "N2-Insert-Posts-From-Spreadsheet「{$n2->town}の返礼品」スプレットシートからの追加完了！" . number_format( microtime( true ) - $before, 2 ) . ' sec';
+		$logs[] = '返礼品の追加完了 ' . number_format( microtime( true ) - $before, 2 ) . ' sec';
+		$this->log( $logs );
+		exit;
+	}
+
+	/**
 	 * ログファイル生成
 	 *
 	 * @param array $arr ログ用の追加配列
@@ -425,7 +734,7 @@ class N2_Sync {
 	}
 
 	/**
-	 * 強制生パスワード注入
+	 * N1からの場合は強制生パスワード注入
 	 * https://github.com/WordPress/wordpress-develop/blob/6.0.2/src/wp-includes/user.php#L2328
 	 *
 	 * @param array    $data {
@@ -444,8 +753,10 @@ class N2_Sync {
 	 * @param int|null $user_id  ID of the user to be updated, or NULL if the user is being created.
 	 * @param array    $userdata The raw array of data passed to wp_insert_user().
 	 */
-	public function insert_raw_user_pass( $data, $update, $user_id, $userdata ) {
-		$data['user_pass'] = wp_unslash( $userdata['user_pass'] );
+	public function insert_user_pass( $data, $update, $user_id, $userdata ) {
+		$data['user_pass'] = isset( $userdata['meta_input']['from_n1'] )
+			? wp_unslash( $userdata['user_pass'] )
+			: wp_hash_password( $userdata['user_pass'] );
 		return $data;
 	}
 

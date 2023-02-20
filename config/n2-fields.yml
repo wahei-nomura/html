@@ -232,7 +232,7 @@
     :value: 送料
     ':readonly': "発送サイズ!='その他' ? true: false"
     "@focus": if (発送サイズ!='その他') { set_info($event.target) }
-    "@input": "force_half_size_text($event, 'number', '発送サイズ')"
+    "@input": "force_half_size_text($event, 'number', '送料')"
 
 取り扱い方法:
     type : checkbox

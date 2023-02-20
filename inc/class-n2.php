@@ -194,6 +194,7 @@ class N2 {
 							break;
 						case '商品タイプ':
 							if ( ! $value ) {
+								$value     = array();
 								$user_meta = $this->current_user->data->meta;
 								if ( ! empty( $user_meta['商品タイプ'] ) ) {
 									$value = array_keys( array_filter( $user_meta['商品タイプ'], fn( $v ) => 'true' === $v ) );
