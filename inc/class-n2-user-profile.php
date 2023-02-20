@@ -13,8 +13,9 @@ function user_profile_hide_style() {
 		#your-profile .user-rich-editing-wrap, /* ビジュアルエディター */
 		#your-profile .user-syntax-highlighting-wrap, /* シンタックスハイライト */
 		#your-profile .user-admin-color-wrap, /* 管理画面の配色 */
-		#your-profile .user-comment-shortcuts-wrap /* キーボードショートカット */ {
-		display: none;
+		#your-profile .user-comment-shortcuts-wrap, /* キーボードショートカット */
+		#your-profile .user-language-wrap /* 言語 */ {
+			display: none;
 		}
 	</style>'.PHP_EOL;
 }
@@ -24,13 +25,13 @@ function meta_name_rename( $translation, $text, $domain ) {
 	global $pagenow;
 	if ( 'profile.php' === $pagenow || 'user-edit.php' === $pagenow ) {
 		if ( 'default' === $domain ) {
-			$texts = array (
+			$rename_columns = array (
 				'Nickname' => '管理画面表示名',
-				'First Name' => '事業者コード(英大字)',
+				'First Name' => '事業者コード',
 				'Last Name' => '事業者名',
 			);
-			if ( isset( $texts[$text] ) ) {
-				$translation = $texts[$text];
+			if ( isset( $rename_columns[$text] ) ) {
+				$translation = $rename_columns[$text];
 			}
 		}
 	}
