@@ -508,6 +508,7 @@ class N2_Sync {
 	 * - スプレットシートからも追加
 	 */
 	public function sync_users() {
+
 		if ( is_main_site() ) {
 			exit;
 		}
@@ -539,7 +540,6 @@ class N2_Sync {
 				$data = $this->get_spreadsheet_data( $settings['id'], $settings['user_range'] );
 				break;
 		}
-
 		// IP制限 or データが無い
 		if ( ! $data ) {
 			$text   = $json ?: 'データがありません。';
@@ -715,52 +715,46 @@ class N2_Sync {
 	 * @param string $sheetid スプレットシートのID
 	 * @param string $range スプレットシートの範囲
 	 */
-	private function get_spreadsheet_data( $sheetid, $range ) {
+	public function get_spreadsheet_data( $sheetid, $range ) {
 		$secret = wp_json_file_decode( $this->spreadsheet_auth_path );
-		$url    = "https://sheets.googleapis.com/v4/spreadsheets/{$sheetid}/values/{$range}";
-		$args   = array(
-			'headers' => array(
-				'Authorization' => "Bearer {$secret->access_token}",
+		// token取得
+		$url  = 'https://www.googleapis.com/oauth2/v4/token';
+		$args = array(
+			'body' => array(
+				'refresh_token' => $secret->refresh_token,
+				'client_id'     => $secret->client_id,
+				'client_secret' => $secret->client_secret,
+				'grant_type'    => 'refresh_token',
 			),
 		);
-		$data   = wp_remote_get( $url, $args );
-		switch ( $data['response']['code'] ) {
-			case 200:
-				$data   = json_decode( $data['body'], true )['values'];
-				$header = array_shift( $data );
-				return array_map(
-					function( $v ) use ( $header ) {
-						$v = array_slice( $v, 0, count( $header ) );
-						return array_combine( $header, $v );
-					},
-					$data
-				);
-				break;
-			case 404:
-				return false;
-			case 401:
-				// tokenの更新
-				$url  = 'https://www.googleapis.com/oauth2/v4/token';
-				$args = array(
-					'body' => array(
-						'refresh_token' => $secret->refresh_token,
-						'client_id'     => $secret->client_id,
-						'client_secret' => $secret->client_secret,
-						'grant_type'    => 'refresh_token',
-					),
-				);
-				$data = wp_remote_post( $url, $args );
-				// $secretを更新
-				$secret->access_token = json_decode( $data['body'] )->access_token;
-				// json化
-				$json = wp_json_encode( $secret );
-				if ( $json ) {
-					global $wp_filesystem;
-					WP_Filesystem();
-					$wp_filesystem->put_contents( $this->spreadsheet_auth_path, wp_json_encode( $secret ) );
-				}
-				$this->get_spreadsheet_data( $sheetid, $range );
+		$data = wp_remote_post( $url, $args );
+		if ( 200 !== $data['response']['code'] ) {
+			return false;
 		}
+		$body = json_decode( $data['body'] );
+		if ( ! $body->access_token ) {
+			return false;
+		}
+		$url  = "https://sheets.googleapis.com/v4/spreadsheets/{$sheetid}/values/{$range}";
+		$args = array(
+			'headers' => array(
+				'Authorization' => "Bearer {$body->access_token}",
+			),
+		);
+		// データ取得を試みる
+		$data = wp_remote_get( $url, $args );
+		if ( 200 !== $data['response']['code'] ) {
+			return false;
+		}
+		$data   = json_decode( $data['body'], true )['values'];
+		$header = array_shift( $data );
+		return array_map(
+			function( $v ) use ( $header ) {
+				$v = array_slice( $v, 0, count( $header ) );
+				return array_combine( $header, $v );
+			},
+			$data
+		);
 	}
 
 	/**
