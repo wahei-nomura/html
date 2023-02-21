@@ -519,7 +519,6 @@ class N2_Sync {
 	 * - スプレットシートからも追加
 	 */
 	public function sync_users() {
-
 		if ( is_main_site() ) {
 			exit;
 		}
@@ -539,30 +538,20 @@ class N2_Sync {
 		switch ( $from ) {
 			case 'from_n1':
 				$json = wp_remote_get( "{$this->n1_ajax_url}?action=userdata" )['body'];
+				$data = json_decode( $json, true );
 				break;
 			case 'from_spreadsheet':
 				$default  = array(
 					'spreadsheet' => array(
 						'id'         => '',
 						'user_range' => '',
-						'item_range' => '',
 					),
 				);
 				$settings = get_option( 'n2_sync_settings_spreadsheet', $default );
-				$args     = array(
-					'body' => array(
-						'auth'    => $this->spreadsheet_auth,
-						'sheetid' => $settings['id'],
-						'range'   => $settings['user_range'],
-					),
-				);
 				// データ取得
-				$data = wp_remote_post( $this->spreadsheet_api_url, $args );
-				$json = $data['body'];
+				$data = $this->get_spreadsheet_data( $settings['id'], $settings['user_range'] );
 				break;
 		}
-
-		$data = json_decode( $json, true );
 
 		// IP制限 or データが無い
 		if ( ! $data ) {
@@ -740,6 +729,60 @@ class N2_Sync {
 		$logs[] = '返礼品の追加完了 ' . number_format( microtime( true ) - $before, 2 ) . ' sec';
 		$this->log( $logs );
 		exit;
+	}
+
+	/**
+	 * OAuth2.0でスプレットシートデータを取得
+	 *
+	 * @param string $sheetid スプレットシートのID
+	 * @param string $range スプレットシートの範囲
+	 */
+	private function get_spreadsheet_data( $sheetid, $range ) {
+		$secret = wp_json_file_decode( $this->spreadsheet_auth_path );
+		$url    = "https://sheets.googleapis.com/v4/spreadsheets/{$sheetid}/values/{$range}";
+		$args   = array(
+			'headers' => array(
+				'Authorization' => "Bearer {$secret->access_token}",
+			),
+		);
+		$data   = wp_remote_get( $url, $args );
+		switch ( $data['response']['code'] ) {
+			case 200:
+				$data   = json_decode( $data['body'], true )['values'];
+				$header = array_shift( $data );
+				return array_map(
+					function( $v ) use ( $header ) {
+						$v = array_slice( $v, 0, count( $header ) );
+						return array_combine( $header, $v );
+					},
+					$data
+				);
+				break;
+			case 404:
+				return false;
+			case 401:
+				// tokenの更新
+				$url  = 'https://www.googleapis.com/oauth2/v4/token';
+				$args = array(
+					'body' => array(
+						'refresh_token' => $secret->refresh_token,
+						'client_id'     => $secret->client_id,
+						'client_secret' => $secret->client_secret,
+						'grant_type'    => 'refresh_token',
+					),
+				);
+				$data = wp_remote_post( $url, $args );
+				// $secretを更新
+				$secret->access_token = json_decode( $data['body'] )->access_token;
+				// json化
+				$json = wp_json_encode( $secret );
+				if ( $json ) {
+					global $wp_filesystem;
+					WP_Filesystem();
+					$wp_filesystem->put_contents( $this->spreadsheet_auth_path, wp_json_encode( $secret ) );
+				}
+				$this->get_spreadsheet_data( $sheetid, $range );
+		}
 	}
 
 	/**
