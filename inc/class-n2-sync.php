@@ -711,6 +711,13 @@ class N2_Sync {
 
 	/**
 	 * OAuth2.0でスプレットシートデータを取得
+	 * client_id,client_secret,refresh_tokenの3つの情報が入っているjsonを用意し、$this->spreadsheet_auth_pathに配置する
+	 * refresh_token以外は https://console.cloud.google.com/apis/credentials?project=steamship-gcp で取得
+	 *
+	 * === refresh_tokenの取得方法 ===
+	 * ① ここにアクセスしてoauthで認証 https://accounts.google.com/o/oauth2/v2/auth?scope=https://www.googleapis.com/auth/spreadsheets&response_type=code&access_type=offline&redirect_uri=http://localhost&client_id=クライアントID
+	 * ② リダイレクトされたパラメータcodeを使って下記curlでリフレッシュトークン取得
+	 * curl -X POST -d 'code=ここにcode&client_id=クライアントID&client_secret=クライアントシークレット&redirect_uri=http://localhost&grant_type=authorization_code' https://accounts.google.com/o/oauth2/token
 	 *
 	 * @param string $sheetid スプレットシートのID
 	 * @param string $range スプレットシートの範囲
