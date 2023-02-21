@@ -101,7 +101,8 @@ class N2_Choice {
                                 ) . 
                                 (
                                     // 楽天カテゴリーを追記するフック
-                                    apply_filters( 'add_rakuten_category', '' )
+									// 説明文を追記するフック
+                                    apply_filters( 'add_discription_text', '' )
                                     
                                 ) . "\n\n" . $portal_common_discription, //説明文の末尾に、設定されている場合はポータル共通説明文が入る。その後の記述は禁止。
 
@@ -109,11 +110,11 @@ class N2_Choice {
                                 (
                                     (
                                         // 電子レンジ等の対応機器表示フック
-                                        apply_filters( 'enabled_devices', '' )
+                                        apply_filters( 'append_enabled_devices_text', '' )
                                     ) . 
                                     (
                                         // 個体差がある旨等の注意表示フック
-                                        apply_filters( 'attention_message', '' )
+                                        apply_filters( 'append_quality_inconsistent_message', '' )
                                     )
                                 ) . 
                                 (

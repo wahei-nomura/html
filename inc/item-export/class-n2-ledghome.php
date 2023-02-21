@@ -70,7 +70,7 @@ class N2_Ledghome {
 															get_post_meta( $id, '略称', true ) 
 																? get_post_meta( $id, '略称', true ) 
 																: N2_Functions::special_str_convert( get_the_title( $id ) ) 
-														) . apply_filters( 'item_name_add', '' ),// 謝礼品名に追加するフック
+														) . apply_filters( 'append_text_item_name', '' ),// 謝礼品名に追加するフック
 					'事業者'       => get_the_author_meta( 'first_name', get_post_field( 'post_author', $id ) ),
 					'配送名称'      => ( get_post_meta( $id, '配送伝票表示名', true ) ) ? ( $item_num . ' ' . get_post_meta( $id, '配送伝票表示名', true ) ) : $item_num,
 					'ふるさとチョイス名称' => N2_Functions::special_str_convert( get_the_title( $id ) ) . " [{$item_num}]",
@@ -83,10 +83,10 @@ class N2_Ledghome {
 					'寄附設定金額'    => $i < 2 ? get_post_meta( $id, '寄附金額', true ) : 0,
 					'価格（税込み）'     => ($setting['teiki_price'] == true) ? (($i < 2) ? $price * $teiki : 0) : $price,
 					//用途は様々。デフォルト空欄
-					'その他経費'     => apply_filters('other_expence', ''),
+					'その他経費'     => apply_filters('ledghome_other_expence', ''),
 					'送料'        => $deliva_price,
-					// フックは特定自治体の判別
-					'送料反映'     => ( ( ( ( apply_filters( 'deliva_price_reflect', '' ) 
+					// 特定自治体の処理をフックで行う。
+					'送料反映'     => ( ( ( ( apply_filters( 'deliva_price_no_reflect', '' ) 
 											? "反映しない"
 											: ( !is_numeric( get_post_meta($id, "発送サイズ", true ) ) ) )
 												? "反映する"
@@ -102,8 +102,8 @@ class N2_Ledghome {
 					'自由入力欄1'    => date( 'Y/m/d' ) . '：' . wp_get_current_user()->display_name,
 					'自由入力欄2'    => get_post_meta( $id, '送料', true ),
 					'配送サイズコード'  => ( is_numeric( get_post_meta( $id, '発送サイズ', true ) ) ) ? get_post_meta( $id, '発送サイズ', true ) : '',
-					'地場産品類型'     => apply_filters( 'jibasanpin_type', $jibasanpin_type ) ,
-					'類型該当理由'     => apply_filters( 'jibasanpin_type_reason', get_post_meta( $id, "類型該当理由", true ) ),
+					'地場産品類型'     => apply_filters( 'ledghome_jibasanpin_type', $jibasanpin_type ) ,
+					'類型該当理由'     => apply_filters( 'ledghome_jibasanpin_type_reason', get_post_meta( $id, "類型該当理由", true ) ),
 				);
 				// 内容を追加、または上書きするためのフック
 				$items_arr[ $key_id ] = apply_filters( 'n2_item_export_ledghome_items', $arr, $id );
