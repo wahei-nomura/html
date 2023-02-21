@@ -715,7 +715,7 @@ class N2_Sync {
 	 * @param string $sheetid スプレットシートのID
 	 * @param string $range スプレットシートの範囲
 	 */
-	public function get_spreadsheet_data( $sheetid, $range ) {
+	private function get_spreadsheet_data( $sheetid, $range ) {
 		$secret = wp_json_file_decode( $this->spreadsheet_auth_path );
 		// token取得
 		$url  = 'https://www.googleapis.com/oauth2/v4/token';
