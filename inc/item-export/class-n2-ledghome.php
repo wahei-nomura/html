@@ -37,9 +37,10 @@ class N2_Ledghome {
 		$items_arr   = array();
 		$error_items = '';
 		// あとでヘッダの上の連結するのに必要
-		$csv_title = $n2 -> ledghome_csv_title;
-		$header = $n2 -> ledghome_csv_header;
-		$setting = $n2 -> ledghome_csv_setting;
+		$ledghome_csv_contents = $n2 -> ledghome_csv_contents;
+		$csv_title = $ledghome_csv_contents['ledghome']['csv_header']['title'];
+		$header = $ledghome_csv_contents['ledghome']['csv_header']['values'];
+		$setting = $ledghome_csv_contents['ledghome']['setting'];
 
 		// ajaxで渡ってきたpostidの配列
 		$ids = explode( ',', filter_input( INPUT_POST, 'ledghome' ) );

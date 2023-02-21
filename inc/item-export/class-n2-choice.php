@@ -5,7 +5,7 @@
  * @package neoneng
  */
 
- if ( class_exists( 'N2_Choice' ) ) {
+if ( class_exists( 'N2_Choice' ) ) {
 	new N2_Choice();
 	return;
 }
@@ -31,8 +31,8 @@ class N2_Choice {
 		$choice_url = $n2->choice['auth']['url'];
 		$sumple_header = trim( file_get_contents( str_replace( '//', "//{$choice_user}:{$choice_pass}@", $choice_url ) ) );
 
-		$header0 = $n2 -> choice_header_0; //初期値として0をセットするヘッダーグループ
-		$header1 = $n2 -> choice_header_1; //初期値として1をセットするヘッダーグループ
+		$header0 = $n2->choice['tsv_header']['value0']; //初期値として0をセットするヘッダーグループ
+		$header1 = $n2->choice['tsv_header']['value1']; //初期値として1をセットするヘッダーグループ
 		$sumple_header = array_flip( explode( "\t", $sumple_header ) ); //出力用のサンプルヘッダー
 		$portal_common_discription = $n2 -> portal_common_discription; //説明文へ追加するポータル共通説明文
 		
