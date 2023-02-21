@@ -47,22 +47,11 @@ class N2_Sync {
 	private $spreadsheet_auth_path = '/var/www/keys/steamship-gcp.json';
 
 	/**
-	 * スプレットシートAPIの認証用jsonの中身
-	 *
-	 * @var string
-	 */
-	private $spreadsheet_auth;
-
-	/**
 	 * コンストラクタ
 	 */
 	public function __construct() {
 		global $current_blog, $wp_filesystem;
 		$this->n1_ajax_url = "https://steamship.co.jp{$current_blog->path}wp-admin/admin-ajax.php";
-		require_once ABSPATH . 'wp-admin/includes/file.php';
-		if ( WP_Filesystem() ) {
-			$this->spreadsheet_auth = $wp_filesystem->get_contents( $this->spreadsheet_auth_path );
-		}
 		add_action( 'wp_ajax_n2_sync_users_from_n1', array( $this, 'sync_users' ) );
 		add_action( 'wp_ajax_n2_sync_users_from_spreadsheet', array( $this, 'sync_users' ) );
 		add_action( 'wp_ajax_n2_sync_posts', array( $this, 'sync_posts' ) );
@@ -542,10 +531,8 @@ class N2_Sync {
 				break;
 			case 'from_spreadsheet':
 				$default  = array(
-					'spreadsheet' => array(
-						'id'         => '',
-						'user_range' => '',
-					),
+					'id'         => '',
+					'user_range' => '',
 				);
 				$settings = get_option( 'n2_sync_settings_spreadsheet', $default );
 				// データ取得
@@ -675,17 +662,8 @@ class N2_Sync {
 			),
 		);
 		$settings = get_option( 'n2_sync_settings_spreadsheet', $default );
-
-		$args = array(
-			'body' => array(
-				'auth'    => $this->spreadsheet_auth,
-				'sheetid' => $settings['id'],
-				'range'   => $settings['item_range'],
-			),
-		);
 		// データ取得
-		$data = wp_remote_post( $this->spreadsheet_api_url, $args );
-		$data = json_decode( $data['body'], true );
+		$data = $this->get_spreadsheet_data( $settings['id'], $settings['item_range'] );
 
 		// IP制限等で終了のケース
 		if ( ! $data ) {
