@@ -47,7 +47,7 @@ class N2_Enqueuescript {
 			'post.php'                    => 'admin-post-editor',
 			'post-new.php'                => 'admin-post-editor',
 			'edit.php'                    => 'admin-post-lists',
-			'toplevel_page_n2_setup_menu' => 'admin-submit',
+			'toplevel_page_n2_crew_setup_menu' => 'admin-setup',
 		);
 		if ( isset( $names[ $hook_suffix ] ) ) {
 			$name = $names[ $hook_suffix ];
