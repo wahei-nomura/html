@@ -362,6 +362,17 @@ class N2_Postlist {
 			return $query;
 		}
 
+		// 完全削除時
+		if ( isset( $_GET['delete_all'] ) && 'ゴミ箱を空にする' === $_GET['delete_all'] ) {
+			return $query;
+		}
+		if ( isset( $_GET['action'] ) && 'delete' === $_GET['action'] ) {
+			return $query;
+		}
+		if ( isset( $_GET['action2'] ) && 'delete' === $_GET['action2'] ) {
+			return $query;
+		}
+
 		if ( N2_Functions::admin_param_judge( $this->page ) ) {
 
 			/**
