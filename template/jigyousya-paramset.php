@@ -109,8 +109,12 @@
 	}
 </style>
 
-<div class="<?php echo 'n2_jigyousya_menu' !== $_GET['page'] ? 'ss-jigyousya-modal-wrapper media-modal-backdrop' : ''; ?>"></div>
-<form id="ss-jigyousya-modal" class="<?php echo 'n2_jigyousya_menu' !== $_GET['page'] ? 'login' : ''; ?>">
+<?php
+	$current_page = isset( $_GET['page'] ) ? $_GET['page'] : '';
+?>
+
+<div class="<?php echo 'n2_jigyousya_menu' !== $current_page ? 'ss-jigyousya-modal-wrapper media-modal-backdrop' : ''; ?>"></div>
+<form id="ss-jigyousya-modal" class="<?php echo 'n2_jigyousya_menu' !== $current_page ? 'login' : ''; ?>">
 	<h2>はい　か　いいえ　を選んでください</h2>
 	<input type="hidden" name="action" value="<?php echo $args['cls']; ?>">
 
