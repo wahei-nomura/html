@@ -3,7 +3,7 @@ import '../../node_modules/bootstrap/dist/js/bootstrap';
 
 jQuery(function($) {
 	
-	console.log('submit.ts読み込み中')
+	console.log('admin-setup.ts読み込み中')
 	// 各種セットアップの更新
 	$('.sissubmit').on('click',function(e){
 		e.preventDefault();

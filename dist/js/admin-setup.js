@@ -679,14 +679,14 @@ eval("/*!\n  * Bootstrap v5.2.3 (https://getbootstrap.com/)\n  * Copyright 2011-
 
 /***/ }),
 
-/***/ "./src/ts/admin-submit.ts":
-/*!********************************!*\
-  !*** ./src/ts/admin-submit.ts ***!
-  \********************************/
+/***/ "./src/ts/admin-setup.ts":
+/*!*******************************!*\
+  !*** ./src/ts/admin-setup.ts ***!
+  \*******************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nvar functions_1 = __webpack_require__(/*! ./modules/functions */ \"./src/ts/modules/functions.ts\");\n__webpack_require__(/*! ../../node_modules/bootstrap/dist/js/bootstrap */ \"./node_modules/bootstrap/dist/js/bootstrap.js\");\njQuery(function ($) {\n    console.log('submit.ts読み込み中');\n    // 各種セットアップの更新\n    $('.sissubmit').on('click', function (e) {\n        e.preventDefault();\n        var $this = $(this), data = $this.parents('form').serialize();\n        if (!$this.parents('form')[0].reportValidity()) {\n            alert(\"入力されていない項目があります\");\n            return false;\n        }\n        if ((0, functions_1.ajaxUrl)(window)) {\n            $this.val(\"　更新中...　\");\n            $.ajax({\n                type: \"POST\",\n                url: (0, functions_1.ajaxUrl)(window),\n                data: data,\n            })\n                .done(function (data) {\n                console.log(data);\n                alert(\"更新完了！\");\n                $this.val(\"　更新する　\");\n            });\n        }\n        else {\n            alert('更新に失敗しました');\n        }\n        return false;\n    });\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/admin-submit.ts?");
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nvar functions_1 = __webpack_require__(/*! ./modules/functions */ \"./src/ts/modules/functions.ts\");\n__webpack_require__(/*! ../../node_modules/bootstrap/dist/js/bootstrap */ \"./node_modules/bootstrap/dist/js/bootstrap.js\");\njQuery(function ($) {\n    console.log('admin-setup.ts読み込み中');\n    // 各種セットアップの更新\n    $('.sissubmit').on('click', function (e) {\n        e.preventDefault();\n        var $this = $(this), data = $this.parents('form').serialize();\n        if (!$this.parents('form')[0].reportValidity()) {\n            alert(\"入力されていない項目があります\");\n            return false;\n        }\n        if ((0, functions_1.ajaxUrl)(window)) {\n            $this.val(\"　更新中...　\");\n            $.ajax({\n                type: \"POST\",\n                url: (0, functions_1.ajaxUrl)(window),\n                data: data,\n            })\n                .done(function (data) {\n                console.log(data);\n                alert(\"更新完了！\");\n                $this.val(\"　更新する　\");\n            });\n        }\n        else {\n            alert('更新に失敗しました');\n        }\n        return false;\n    });\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/admin-setup.ts?");
 
 /***/ }),
 
@@ -761,7 +761,7 @@ eval("\n/**\n * 複数ファイルで使いまわしたい変数や関数があ�
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module can't be inlined because the eval devtool is used.
-/******/ 	var __webpack_exports__ = __webpack_require__("./src/ts/admin-submit.ts");
+/******/ 	var __webpack_exports__ = __webpack_require__("./src/ts/admin-setup.ts");
 /******/ 	
 /******/ })()
 ;
