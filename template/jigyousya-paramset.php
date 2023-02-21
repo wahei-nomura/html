@@ -11,6 +11,18 @@
 <script src="https://cdn.jsdelivr.net/gh/steamships/in-browser-sass/dist/in-browser-sass.bundle.min.js"></script>
 
 <style type="text/scss">
+
+	.ss-jigyousya-modal-wrapper {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		min-height: 360px;
+		background: #000;
+		opacity: .7;
+		z-index: 159900;
+	}
 	#ss-jigyousya-modal {
 		padding: 60px;
 		h2 {
@@ -97,8 +109,12 @@
 	}
 </style>
 
-<div class="<?php echo 'n2_jigyousya_menu' !== $_GET['page'] ? 'ss-jigyousya-modal-wrapper media-modal-backdrop' : ''; ?>"></div>
-<form id="ss-jigyousya-modal" class="<?php echo 'n2_jigyousya_menu' !== $_GET['page'] ? 'login' : ''; ?>">
+<?php
+	$current_page = isset( $_GET['page'] ) ? $_GET['page'] : '';
+?>
+
+<div class="<?php echo 'n2_jigyousya_menu' !== $current_page ? 'ss-jigyousya-modal-wrapper media-modal-backdrop' : ''; ?>"></div>
+<form id="ss-jigyousya-modal" class="<?php echo 'n2_jigyousya_menu' !== $current_page ? 'login' : ''; ?>">
 	<h2>はい　か　いいえ　を選んでください</h2>
 	<input type="hidden" name="action" value="<?php echo $args['cls']; ?>">
 
@@ -121,11 +137,13 @@
 	※またこの設定は画面左側のメニュー<b>「返礼品設定」</b>よりいつでも変更ができます。
 	</p>
 	<div class="ss-jigyousya-button">
-		<button type="button" class="button button-primary sissubmit" disabled>登録する</button>
+		<button type="button" class="button button-primary submit" disabled>登録する</button>
 	</div>
 </form>
 <script>
 	jQuery(function($){
+
+		const n2 = window['n2']
 
 		$('#ss-jigyousya-modal .ss-check-item input[type="radio"]').on('change',()=>{
 			// 全てのチェックしているか判定
@@ -134,11 +152,24 @@
 			}
 		})
 
-		$('#ss-jigyousya-modal.login .sissubmit').on('click',()=>{
-			setTimeout(()=>{
+		$('#ss-jigyousya-modal .submit').on('click',(e) => {
+			e.preventDefault();
+			const $this = $(e.target)
+			const submitData = $this.parents('form').serialize()
+			$.ajax({
+				type: "POST",
+				url : n2.ajaxurl,
+				data: submitData,
+			})
+			.done((res) =>{
+				console.log(res)
 				$('.ss-jigyousya-modal-wrapper').remove()
-				$('#ss-jigyousya-modal').remove()
-			},1000)
-		})
+				$('#ss-jigyousya-modal.login').remove()
+				alert('更新しました')
+			}).fail(()=>{
+				alert('更新に失敗しました')
+			});
+			return false;
+		});
 	})
 </script>
