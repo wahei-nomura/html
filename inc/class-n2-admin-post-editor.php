@@ -46,16 +46,16 @@ class N2_Admin_Post_Editor {
 	 */
 	public function remove_editor_support() {
 		global $n2;
-		// ブロックエディタへようこそを削除
-		$user_meta = get_user_meta( $n2->current_user->ID );
-		if ( empty( $user_meta[ "{$n2->blog_prefix}persisted_preferences" ] ) ) {
-			$user_meta[ "{$n2->blog_prefix}persisted_preferences" ] = array(
-				'core/edit-post' => array(
-					'welcomeGuide' => false, // ブロックエディタへようこそ非表示
-				),
-			);
-			update_user_meta( $n2->current_user->ID, "{$n2->blog_prefix}persisted_preferences", $user_meta[ "{$n2->blog_prefix}persisted_preferences" ] );
+		$persisted_preferences = get_user_meta( $n2->current_user->ID, "{$n2->blog_prefix}persisted_preferences", true ) ?: array();
+
+		// 設定の強制
+		$persisted_preferences['core/edit-post']['welcomeGuide']               = false;
+		$persisted_preferences['core/edit-post']['showBlockBreadcrumbs']       = false;
+		$persisted_preferences['core/edit-post']['isPublishSidebarEnabled']    = false;
+		if ( current_user_can( 'jigyousya' ) ) {
+			$persisted_preferences['core/edit-post']['isComplementaryAreaVisible'] = false;
 		}
+		update_user_meta( $n2->current_user->ID, "{$n2->blog_prefix}persisted_preferences", $persisted_preferences );
 
 		$supports = array(
 			'thumbnail',

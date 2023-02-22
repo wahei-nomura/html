@@ -44,6 +44,11 @@ body.n2-darkmode{
 				.editor-post-preview{
 					display: none;
 				}
+				.editor-post-publish-button{
+					&[aria-disabled="true"]{
+						background-color: $secondary;
+					}
+				}
 			}
 			&-visual-editor{
 				position: sticky;
@@ -110,14 +115,10 @@ body.n2-darkmode{
 				padding: 0;
 			}
 			&__sidebar{
-
 				.edit-post-sidebar__panel-tabs,
 				.components-panel__body-title{
 					display: none;
 				}
-			}
-			&__footer{
-				display: none;
 			}
 		}
 	}

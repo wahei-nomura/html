@@ -37,20 +37,37 @@ export default $ => {
 		},
 	};
 	$(".edit-post-layout__metaboxes").ready(() => {
-
+		$('.components-button[aria-label="下書き保存"]').on('mouseenter click', e => {
+			if ( JSON.parse( $(e.target).attr('aria-disabled') ) ) {
+				if ( document.cookie.match(/n2-zenmode/) ) return;
+				alert('返礼品の名前を入力しなければ保存できません');
+			}
+		});
 		// プログレスバー
 		$('.edit-post-header').before('<div class="progress rounded-0" style="height: 1.5em;width: 100%;"><div id="n2-progress"></div></div>');
 		n2.post_status = wp.data.select("core/editor").getEditedPostAttribute("status");
 
-		// レビュー待ち　かつ　事業者ログイン
-		if ( n2.post_status == 'pending' && n2.current_user.roles.includes('jigyousya') ) {
-			$('#normal-sortables, .editor-post-title').addClass('pe-none')
-				.find('input,textarea,select').addClass('border-0');
-			$('.interface-interface-skeleton__content').on('click', ()=>{
-				alert('スチームシップに送信後の編集はできません。');
-			})
-			wp.data.dispatch( 'core/editor' ).lockPostSaving( 'n2-pending' );
+		// 事業者ログイン
+		if ( n2.current_user.roles.includes('jigyousya') ) {
+			$('.editor-post-switch-to-draft, .interface-pinned-items').hide();
+			if ( n2.post_status.match(/draft/) ) {
+				$('.editor-post-publish-button').on('mouseenter click', e =>{
+					if ( document.cookie.match(/n2-zenmode/) ) return;
+					if ( JSON.parse( $(e.target).attr('aria-disabled') ) ) {
+						alert('全項目を埋めてから送信してください');
+					}
+				});
+			} else {
+				$('.editor-post-publish-button').hide();
+				$('#normal-sortables, .editor-post-title').addClass('pe-none')
+					.find('input,textarea,select').addClass('border-0');
+				$('.interface-interface-skeleton__content').on('click', ()=>{
+					alert('スチームシップに送信後の編集はできません。');
+				});
+				wp.data.dispatch( 'core/editor' ).lockPostSaving( 'n2-lock' );
+			}
 		}
+
 		wp.data.subscribe(()=>{
 			
 			$('#n2-progress').text(status[n2.post_status].label).attr( 'class', status[n2.post_status].class );
@@ -58,6 +75,7 @@ export default $ => {
 			if ( n2.post_status == 'pending' && n2.current_user.roles.includes('jigyousya') ) {
 				$('#normal-sortables, .editor-post-title').addClass('pe-none')
 					.find('input,textarea,select').addClass('border-0');
+				$('.editor-post-publish-button').hide();
 			}
 			n2.post_status = wp.data.select("core/editor").getEditedPostAttribute("status");
 		});

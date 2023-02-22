@@ -44,6 +44,10 @@ export default $ => {
 					newVal.発送方法 != '常温' ? 'cool' : ''
 				].filter(v=>v);
 				this.送料 = n2.delivery_fee[size.join('_')] || newVal.送料;
+				// 発送サイズ未選択で送料リセット
+				if ( ! newVal.発送サイズ ) {
+					this.送料 = '';
+				}
 				this.寄附金額 = await this.calc_donation(newVal.価格,this.送料,newVal.定期便);
 				this.show_submit();
 			},
