@@ -185,6 +185,7 @@ class N2_Postlist {
 						<div class='progress mt-1' style='height: 10px; font-size:10px'>
 							<div class='progress-bar bg-{$status_color}' role='progressbar' style='width: {$status_bar}%;' aria-valuenow='{$status_bar}' aria-valuemin='0' aria-valuemax='100'>{$status}</div>
 			  			</div>
+						<button type='button' class='toggle-row'></button>
 					";
 				break;
 			case 'poster':
@@ -206,14 +207,14 @@ class N2_Postlist {
 				echo "<div class='text-center'>{$image}</div>";
 				break;
 			case 'modified-last':
-				echo "<div style='width: 10%; min-width:100px;'>{$modified_last}</div>";
+				echo "<div class='text-center'>{$modified_last}</div>";
 				break;
 			case 'ssmemo':
 				echo "<div class='{$ssmemo_isset}'><p>{$ssmemo}</p></div>";
 				break;
 			case 'tools':
 				echo '
-					<div class="dropdown text-center">
+					<div class="dropdown text-center n2-list-tooles">
 						<span class="dashicons dashicons-admin-tools dropdown-toggle" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false"></span>
 						<ul class="dropdown-menu border" aria-labelledby="dropdownMenuLink">
 							<li><button type="button" class="dropdown-item neo-neng-copypost-btn">複製</button></li>

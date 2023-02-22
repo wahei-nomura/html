@@ -60,11 +60,6 @@ $prefix: "n2-postlist";
 	}
 }
 
-// 返礼品一覧のカラムがギュッとならないように最低幅を保持
-div#wpbody-content {
-	min-width: 1200px;
-}
-
 tbody#the-list>tr>td {
 	padding-top: 0;
 	padding-bottom: 0;
@@ -193,5 +188,17 @@ tbody#the-list>tr>td {
 		background-size: 70px 70px;
 		text-align: center;
 		animation: bg 1s linear infinite;
+	}
+}
+
+@media screen and (max-width: 768px) {
+	// tableのレスポンシブ対応
+	tbody#the-list>tr.is-expanded>td:not(.hidden) {
+		border-bottom: solid 1px lightgray;
+
+		.n2-list-tooles ul {
+			display: block;
+			position: relative;
+		}
 	}
 }
