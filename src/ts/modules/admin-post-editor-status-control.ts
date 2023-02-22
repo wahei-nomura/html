@@ -43,7 +43,7 @@ export default $ => {
 		n2.post_status = wp.data.select("core/editor").getEditedPostAttribute("status");
 
 		// レビュー待ち　かつ　事業者ログイン
-		if ( n2.post_status == 'pending' && n2.current_user.roles.includes('jigyousya') ) {
+		if ( ( n2.post_status === 'pending' || n2.post_status === 'publish' ) && n2.current_user.roles.includes('jigyousya') ) {
 			$('#normal-sortables, .editor-post-title').addClass('pe-none')
 				.find('input,textarea,select').addClass('border-0');
 			$('.interface-interface-skeleton__content').on('click', ()=>{
