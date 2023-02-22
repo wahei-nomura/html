@@ -43,10 +43,7 @@ export default $ => {
 					newVal.発送サイズ,
 					newVal.発送方法 != '常温' ? 'cool' : ''
 				].filter(v=>v);
-				
-				this.送料 = newVal.送料 != oldVal.送料
-					? newVal.送料
-					: n2.delivery_fee[size.join('_')];
+				this.送料 = n2.delivery_fee[size.join('_')] || newVal.送料;
 				this.寄附金額 = await this.calc_donation(newVal.価格,this.送料,newVal.定期便);
 				this.show_submit();
 			},
@@ -157,8 +154,9 @@ export default $ => {
 		},
 		// 寄附金額計算
 		async calc_donation(price, delivery_fee, subscription) {
+
 			// 寄附金額固定の場合は計算しない
-			if ( this.寄附金額固定.includes('true') ) return this.寄附金額;
+			if ( this.寄附金額固定.filter(v=>v).length ) return this.寄附金額;
 			const opt = {
 				url: n2.ajaxurl,
 				data: {

@@ -21,5 +21,5 @@ foreach ( $args as $k => $v ) {
 		<input type="hidden" name="n2field[寄附金額固定][]">
 	</label>
 	<input type="text"<?php echo $attr; ?>>
-	<div class="btn btn-dark" style="white-space: nowrap;" @click="update_donation()" v-if="!寄附金額固定.includes('固定する')">再計算</div>
+	<div class="btn btn-dark" style="white-space: nowrap;" @click="update_donation()" v-if="!寄附金額固定.filter(v=>v).length">再計算</div>
 </div>
