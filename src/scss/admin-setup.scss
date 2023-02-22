@@ -1,0 +1,37 @@
+/* Bootstrap
+	変数をいじりたい場合はこんな感じ
+	=====
+	$primary: #ccc;
+	@use "bootstrap/scss/bootstrap.scss";
+	=====
+	cssで@useした方がコンパイルが爆速
+*/
+// @use "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
+@import "bootstrap/scss/bootstrap.scss";
+.postbox-wrap{
+	padding-top: 1rem;
+}
+.nav-pills {
+	.nav-link{
+		border-radius: .375rem .375rem 0 0;
+		color: $secondary;
+		&.active{
+			background: $secondary;
+		}
+		&:focus{
+			box-shadow: 0 0 0 1px $secondary, 0 0 2px 1px rgba(230,230,230,.8);
+		}
+	}
+}
+.nav-item{
+	margin: 0;
+}
+.tab-pane{
+	width: 100%;
+	border: 1px solid #ccc;
+	background: #efefef;
+	padding: 1rem;
+}
+.input-left{
+	margin-right: 1rem;
+}

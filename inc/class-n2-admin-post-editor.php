@@ -33,7 +33,6 @@ class N2_Admin_Post_Editor {
 		add_action( 'init', array( $this, 'remove_editor_support' ) );
 		add_action( 'admin_menu', array( $this, 'add_customfields' ) );
 		add_action( 'save_post', array( $this, 'save_customfields' ) );
-		add_filter( 'upload_mimes', array( $this, 'add_mimes' ) );
 		add_action( 'ajax_query_attachments_args', array( $this, 'display_only_self_uploaded_medias' ) );
 		add_filter( 'enter_title_here', array( $this, 'change_title' ) );
 		add_filter( 'intermediate_image_sizes_advanced', array( $this, 'not_create_image' ) );
@@ -85,8 +84,6 @@ class N2_Admin_Post_Editor {
 	 * SS管理と返礼品詳細を追加
 	 */
 	public function add_customfields() {
-		global $n2;
-		// 管理者のみSS管理フィールド表示(あとで変更予定)
 		if ( current_user_can( 'ss_crew' ) ) {
 			add_meta_box(
 				'スチームシップ用',
@@ -95,7 +92,6 @@ class N2_Admin_Post_Editor {
 				'post',
 				'normal',
 				'default',
-				$n2->custom_field['スチームシップ用'], // show_customfieldsメソッドに渡すパラメータ
 			);
 		}
 		add_meta_box(
@@ -105,7 +101,6 @@ class N2_Admin_Post_Editor {
 			'post',
 			'normal',
 			'default',
-			$n2->custom_field['事業者用'], // show_customfieldsメソッドに渡すパラメータ
 		);
 	}
 
@@ -122,7 +117,7 @@ class N2_Admin_Post_Editor {
 		<!-- n2field保存の為のnonce -->
 		<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
 		<div class="n2-fields fs-6">
-			<?php foreach ( $metabox['args'] as $field => $detail ) : ?>
+			<?php foreach ( $n2->custom_field[ $metabox['id'] ] as $field => $detail ) : ?>
 			<div id="<?php echo $field; ?>" class="n2-fields-list row border-bottom p-3" v-if="<?php echo $detail['v-if'] ?? ''; ?>">
 				<div class="n2-fields-title col-12 mb-1 col-sm-3 mb-sm-0 d-flex align-items-center">
 					<?php echo ! empty( $detail['label'] ) ? $detail['label'] : $field; ?>
@@ -130,13 +125,16 @@ class N2_Admin_Post_Editor {
 				<div class="n2-fields-value col-12 col-sm-9 gap-2 d-flex flex-wrap" data-description="<?php echo $detail['description'] ?? ''; ?>">
 				<?php
 					// templateに渡すために不純物を除去
-					$settings = $detail;
-					unset( $settings['description'], $settings['label'], $settings['v-if'] );
-					$settings['name']  = sprintf( 'n2field[%s]', $settings['name'] ?? $field );
-					$settings['value'] = $settings['value'] ?? '';
-					$settings['value'] = get_post_meta( $post->ID, $field, true ) ?? $settings['value'];
-					// プラグインでテンプレートを追加したい場合は、get_template_part_{$slug}フックでいける
-					get_template_part( "template/forms/{$detail['type']}", null, $settings );
+					unset( $detail['description'], $detail['label'], $detail['v-if'] );
+					$detail['name'] = sprintf( 'n2field[%s]', $detail['name'] ?? $field );
+					/**
+					 * プラグインでテンプレートを追加したい場合は、get_template_part_{$slug}フック
+					 * フック参考：https://github.com/WordPress/wordpress-develop/blob/6.1/src/wp-includes/general-template.php#L167-L207
+					 * 書き方参考：https://github.com/steamships/n2-plugins/blob/n2-rakuten-spa/index.php
+					 */
+					if ( isset( $detail['type'] ) ) {
+						get_template_part( "template/forms/{$detail['type']}", null, $detail );
+					}
 					?>
 				</div>
 			</div>
@@ -168,17 +166,6 @@ class N2_Admin_Post_Editor {
 			}
 			update_post_meta( $post_id, $key, $value );
 		}
-	}
-
-	/**
-	 * zip形式をuploadできるようにする
-	 *
-	 * @param array $mimes upload形式
-	 * @return array
-	 */
-	public function add_mimes( $mimes ) {
-		$mimes['zip'] = 'application/zip';
-		return $mimes;
 	}
 
 	/**

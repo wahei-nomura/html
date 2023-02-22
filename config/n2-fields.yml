@@ -74,6 +74,7 @@
 
 商品タイプ:
     type : checkbox
+    value: []
     option-equal: true
     v-model: 商品タイプ
     option : 
@@ -81,6 +82,7 @@
 
 アレルギー有無確認:
     type : checkbox
+    value: []
     v-model: アレルギー有無確認
     v-if: 商品タイプ.includes('食品')
     option :
@@ -88,7 +90,7 @@
 
 アレルゲン:
     type : checkbox2
-    v-if: 商品タイプ.includes('食品')&&アレルギー有無確認.includes('アレルギー品目あり')
+    v-if: 商品タイプ.includes('食品')&&アレルギー有無確認.filter(v=>v).length
     option :
         0: 卵
         1: 乳
@@ -232,10 +234,11 @@
     :value: 送料
     ':readonly': "発送サイズ!='その他' ? true: false"
     "@focus": if (発送サイズ!='その他') { set_info($event.target) }
-    "@input": "force_half_size_text($event, 'number', '発送サイズ')"
+    "@input": "force_half_size_text($event, 'number', '送料')"
 
 取り扱い方法:
     type : checkbox
+    value: []
     description : 配送時の取り扱い方法で該当するものを選択してください（２つまで）。
     option-equal: true
     option :
@@ -260,6 +263,7 @@
 
 定期便:
     type : select
+    value: 1
     option :
         1: 定期便では無い
         2: ２回定期便
@@ -296,5 +300,6 @@ LHカテゴリー:
 
 商品画像:
     type : item-image
+    value: []
     label : 商品画像（8枚以上推奨）
     description : 画像を複数選択、またはアップロードしてください。画像は可能であれば8枚以上を推奨いたします。

@@ -85,6 +85,7 @@ LH表示名:
 出品禁止ポータル:
     label: 出品禁止ポータルサイト
     type: checkbox
+    value: []
     option-equal: true
     description: この返礼品を出品しないポータルサイトがあればチェックを入れてください。
     v-model: 出品禁止ポータル
