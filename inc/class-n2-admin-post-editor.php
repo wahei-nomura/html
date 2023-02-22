@@ -132,7 +132,9 @@ class N2_Admin_Post_Editor {
 					 * フック参考：https://github.com/WordPress/wordpress-develop/blob/6.1/src/wp-includes/general-template.php#L167-L207
 					 * 書き方参考：https://github.com/steamships/n2-plugins/blob/n2-rakuten-spa/index.php
 					 */
-					get_template_part( "template/forms/{$detail['type']}", null, $detail );
+					if ( isset( $detail['type'] ) ) {
+						get_template_part( "template/forms/{$detail['type']}", null, $detail );
+					}
 					?>
 				</div>
 			</div>
