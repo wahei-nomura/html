@@ -16,6 +16,7 @@
 
 	#n2-copypost-modal {
 		padding: 24px;
+		overflow: scroll;
 	}
 	#n2-copypost-modal .new-title span {
 		display: inline-block;
@@ -67,9 +68,16 @@
 		<form action="admin-ajax.php?action=N2_Copypost" method="POST" id="n2-copypost-form">
 			<div class="close-btn"><span class="dashicons dashicons-no"></span></div>
 			<input type="hidden" name="id" value="">
-			<h1>さあ返礼品を複製しよう！</h1>
+			<h1>返礼品の複製</h1>
 			<div>
 				複製元：<span class="original-title"></span>
+			</div>
+			<div class="form-block">
+				<label>複製後のステータス</label>
+				<select name="status">
+					<option value="draft">事業者下書き</option>
+					<option value="pending">スチームシップ確認待ち</option>
+				</select>
 			</div>
 			<div class="form-block">
 				<label>定期便として複製しますか？</label>

@@ -94,7 +94,7 @@ class N2_Postlist {
 		);
 
 		// ゴミ箱以外でツール非表示
-		if ( isset( $_GET['post_status'] ) && 'trash' !== $_GET['post_status'] ) {
+		if ( ! isset( $_GET['post_status'] ) || 'trash' !== $_GET['post_status'] ) {
 			$columns = array_merge(
 				$columns,
 				array(
