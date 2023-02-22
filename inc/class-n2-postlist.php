@@ -94,7 +94,7 @@ class N2_Postlist {
 		);
 
 		// ゴミ箱以外でツール非表示
-		if ( isset( $_GET['post_status'] ) && 'trash' !== $_GET['post_status'] ) {
+		if ( ! isset( $_GET['post_status'] ) || 'trash' !== $_GET['post_status'] ) {
 			$columns = array_merge(
 				$columns,
 				array(
@@ -359,6 +359,17 @@ class N2_Postlist {
 
 		// 事業者管理画面
 		if ( is_admin() && 'jigyousya' === wp_get_current_user()->roles[0] ) {
+			return $query;
+		}
+
+		// 完全削除時
+		if ( isset( $_GET['delete_all'] ) && 'ゴミ箱を空にする' === $_GET['delete_all'] ) {
+			return $query;
+		}
+		if ( isset( $_GET['action'] ) && 'delete' === $_GET['action'] ) {
+			return $query;
+		}
+		if ( isset( $_GET['action2'] ) && 'delete' === $_GET['action2'] ) {
 			return $query;
 		}
 

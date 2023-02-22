@@ -102,19 +102,14 @@ class N2 {
 	 * @var array
 	 */
 	public $choice;
-	public $choice_header_0;
-	public $choice_header_1;
-	public $choice_sumple_header; // 出力する時に使うサンプルヘッダー
-	public $choice_add_text; // 説明文への追記テキスト
+	public $portal_common_discription; // 説明文への追記テキスト
 
 	/**
 	 * レジホーム
 	 *
 	 * @var array
 	 */
-	public $ledghome_csv_title;
-	public $ledghome_csv_header;
-	public $ledghome_csv_setting;
+	public $ledghome_csv_contents;
 
 	/**
 	 * カスタムフィールド
@@ -264,21 +259,13 @@ class N2 {
 		$this->rakuten      = array( ...$rakuten_common_yml, ...$this->rakuten );
 
 		// チョイス
-		$choice_yml            = yaml_parse_file( get_theme_file_path( 'config/n2-choice-tsv-header.yml' ) )['choice'];
-		$this->choice          = $n2_option['choice'] ?? array();
-		$this->choice_header_0 = $choice_yml['tsv_header']['value0'];
-		$this->choice_header_1 = $choice_yml['tsv_header']['value1'];
-		$this->choice_add_text = $n2_option['add_text'][ get_bloginfo( 'name' ) ];
-
-		// チョイスのサンプルヘッダー取得
-		$sumple_header              = trim( file_get_contents( str_replace( '//', "//{$choice_yml['auth']['user']}:{$choice_yml['auth']['pass']}@", $choice_yml['auth']['url'] ) ) );
-		$this->choice_sumple_header = array_flip( explode( "\t", $sumple_header ) );
+		$choice_yml = yaml_parse_file( get_theme_file_path( 'config/n2-choice-tsv-header.yml' ) )['choice'];
+		$this->choice = $n2_option['choice'] ?? array();
+		$this->choice = array( ...$choice_yml, ...$this->choice );
+		$this->portal_common_discription = $n2_option['add_text'][ get_bloginfo( 'name' ) ] ?? "";
 
 		// レジホーム
-		$ledghome_yml               = yaml_parse_file( get_theme_file_path( 'config/n2-ledghome-csv-header.yml' ) );
-		$this->ledghome_csv_title   = $ledghome_yml['ledghome']['csv_header']['title'];
-		$this->ledghome_csv_header  = $ledghome_yml['ledghome']['csv_header']['values'];
-		$this->ledghome_csv_setting = $ledghome_yml['ledghome']['setting'];
+		$this->ledghome_csv_contents = yaml_parse_file( get_theme_file_path( 'config/n2-ledghome-csv-header.yml' ) );
 	}
 
 	/**
