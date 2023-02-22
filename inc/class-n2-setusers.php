@@ -28,21 +28,18 @@ class N2_Setusers {
 
 	/**
 	 * remove_usertype
-	 * デフォルトのユーザ権限を削除
+	 * 一旦全ユーザ権限を削除
 	 *
 	 * @return void
 	 */
 	public function remove_usertype() {
 		global $wp_roles;
-		if ( empty( $wp_roles ) ) {
-			$wp_roles = new WP_Roles();
-		}
-
+		$wp_roles->remove_role( 'jigyousya' ); // 事業者初期化
+		$wp_roles->remove_role( 'ss-crew' ); // SSクルー初期化
 		$wp_roles->remove_role( 'editor' ); // 編集者
 		$wp_roles->remove_role( 'subscriber' ); // 購読者
 		$wp_roles->remove_role( 'contributor' ); // 寄稿者
 		$wp_roles->remove_role( 'author' ); // 投稿者
-		$wp_roles->remove_cap( 'ss-crew', 'edit_theme_options' ); // テーマ編集不可
 	}
 
 	/**
@@ -52,14 +49,12 @@ class N2_Setusers {
 	 */
 	public function add_usertype() {
 		global $wp_roles;
-		if ( empty( $wp_roles ) ) {
-			$wp_roles = new WP_Roles();
-		}
 
 		// 事業者
 		$wp_roles->add_role( 'jigyousya', '事業者', array() );
 		$wp_roles->add_cap( 'jigyousya', 'read' );
 		$wp_roles->add_cap( 'jigyousya', 'edit_posts' );
+		$wp_roles->add_cap( 'jigyousya', 'edit_published_posts' );
 		$wp_roles->add_cap( 'jigyousya', 'upload_files' );
 		$wp_roles->add_cap( 'jigyousya', 'jigyousya' );
 
