@@ -1,14 +1,11 @@
 <?php
-//グローバル変数取得
-require_once(dirname(__DIR__)."/class-n2.php");
-
 /**
  * class-n2-choice.php
  *
  * @package neoneng
  */
 
- if ( class_exists( 'N2_Choice' ) ) {
+if ( class_exists( 'N2_Choice' ) ) {
 	new N2_Choice();
 	return;
 }
@@ -16,7 +13,7 @@ require_once(dirname(__DIR__)."/class-n2.php");
 class N2_Choice {
 
     //コンストラクト
-    public function __construct() {
+    public function __construct() {	
         add_action( 'wp_ajax_choice', array( $this, 'create_tsv' ) );
     }
 
@@ -26,12 +23,18 @@ class N2_Choice {
 	 * @return void
 	 */
     public function create_tsv() {
-		//グローバル変数設定
-		$glob = new N2;
-		$header0 = $glob -> choice_header_0; //初期値として0をセットするヘッダーグループ
-		$header1 = $glob -> choice_header_1; //初期値として1をセットするヘッダーグループ
-		$sumple_header = $glob -> choice_sumple_header; //出力用のサンプルヘッダー
-		$add_text = $glob -> choice_add_text; //説明文へ追加するポータル共通説明文
+		global $n2;
+
+		// チョイスのサンプルヘッダー取得
+		$choice_user = $n2->choice['auth']['user'];
+		$choice_pass = $n2->choice['auth']['pass'];
+		$choice_url = $n2->choice['auth']['url'];
+		$sumple_header = trim( file_get_contents( str_replace( '//', "//{$choice_user}:{$choice_pass}@", $choice_url ) ) );
+
+		$header0 = $n2->choice['tsv_header']['value0']; //初期値として0をセットするヘッダーグループ
+		$header1 = $n2->choice['tsv_header']['value1']; //初期値として1をセットするヘッダーグループ
+		$sumple_header = array_flip( explode( "\t", $sumple_header ) ); //出力用のサンプルヘッダー
+		$portal_common_discription = $n2 -> portal_common_discription; //説明文へ追加するポータル共通説明文
 		
         $items_arr = array();
 		$error_items = '';
@@ -98,19 +101,20 @@ class N2_Choice {
                                 ) . 
                                 (
                                     // 楽天カテゴリーを追記するフック
-                                    apply_filters( 'add_rakuten_category', '' )
+									// 説明文を追記するフック
+                                    apply_filters( 'add_discription_text', '' )
                                     
-                                ) . "\n\n" . $add_text, //説明文の末尾に、設定されている場合はポータル共通説明文が入る。その後の記述は禁止。
+                                ) . "\n\n" . $portal_common_discription, //説明文の末尾に、設定されている場合はポータル共通説明文が入る。その後の記述は禁止。
 
                 '容量'    => N2_Functions::special_str_convert( get_post_meta( $id, "内容量・規格等", true ) ) . 
                                 (
                                     (
                                         // 電子レンジ等の対応機器表示フック
-                                        apply_filters( 'enabled_devices', '' )
+                                        apply_filters( 'append_enabled_devices_text', '' )
                                     ) . 
                                     (
                                         // 個体差がある旨等の注意表示フック
-                                        apply_filters( 'attention_message', '' )
+                                        apply_filters( 'append_quality_inconsistent_message', '' )
                                     )
                                 ) . 
                                 (
