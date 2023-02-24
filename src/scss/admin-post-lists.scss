@@ -30,6 +30,9 @@ $prefix: "n2-postlist";
 			font-family: "dashicons";
 			content: "\f473";
 			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%,0);
 			cursor: pointer;
 			color: #1a4899;
 			font-size: 24px;
@@ -67,8 +70,7 @@ $prefix: "n2-postlist";
 }
 
 tbody#the-list>tr>td {
-	padding-top: 4px;
-	padding-bottom: 4px;
+	padding: 4px;
 	border-bottom: solid 1px #0d6dfd40;
 	background-color: #fff;
 }
