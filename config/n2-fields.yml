@@ -50,7 +50,7 @@
     type : textarea
     maxlength : 1000
     rows: auto
-    description : 内容量、数量、サイズ、重さなど詳しくお書きください。<br>※器の容量は「満量時」でご記入ください！　満量時ではない場合は「8分目」など必ずどの分量かがわかるようにお願いいたします。<br>※色・柄・セットの商品を登録する場合は、必ず別の商品として登録していただくようお願いいたします（注文時に色などを選択していただくような形式には対応しておりません）。
+    description : 内容量、数量、サイズ、重さなど詳しくお書きください。
     "@focus": set_info($event.target)
     "@input": set_info($event.target);auto_fit_tetxarea($event.target)
 
