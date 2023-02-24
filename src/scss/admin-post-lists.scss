@@ -60,9 +60,17 @@ $prefix: "n2-postlist";
 	}
 }
 
+tbody#the-list>tr>td:hover {
+	background-color: rgba(0,0,0,.075);
+	font-size: 1.1rem;
+	transition: .2s;
+}
+
 tbody#the-list>tr>td {
-	padding-top: 0;
-	padding-bottom: 0;
+	padding-top: 4px;
+	padding-bottom: 4px;
+	border-bottom: solid 1px #0d6dfd40;
+	background-color: #fff;
 }
 
 #n2-copypost-modal {
