@@ -29,7 +29,8 @@ body.n2-darkmode{
 				.edit-post-header-toolbar__inserter-toggle,
 				.editor-history__redo,
 				.editor-history__undo,
-				.components-dropdown{
+				.components-dropdown,
+				.editor-post-preview{
 					display: none;
 				}
 				.components-button.edit-post-fullscreen-mode-close{
@@ -41,8 +42,8 @@ body.n2-darkmode{
 						box-shadow: none;
 					}
 				}
-				.editor-post-preview{
-					display: none;
+				.interface-pinned-items{
+					margin: 0;
 				}
 				.editor-post-publish-button{
 					&[aria-disabled="true"]{
