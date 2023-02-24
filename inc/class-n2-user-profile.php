@@ -9,15 +9,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( class_exists( 'N2_User_Profile_Custom' ) ) {
-	new N2_User_Profile_Custom();
+if ( class_exists( 'N2_User_Profile' ) ) {
+	new N2_User_Profile();
 	return;
 }
 
 /**
- * N2_User_Profile_Custom
+ * N2_User_Profile
  */
-class N2_User_Profile_Custom {
+class N2_User_Profile {
 
 	/**
 	 * コンストラクタ
@@ -30,7 +30,7 @@ class N2_User_Profile_Custom {
 	/**
 	 * 項目の追加
 	 *
-	 * @param array $add_custom_meta
+	 * @param array $add_custom_meta 追加するメタデータを格納した配列
 	 * @return array
 	 */
 	public function add_user_custom_meta( $add_custom_meta ) {
@@ -41,9 +41,9 @@ class N2_User_Profile_Custom {
 	/**
 	 * 項目名の編集
 	 *
-	 * @param array $translation
-	 * @param string $text
-	 * @param string $domain
+	 * @param array  $translation 翻訳時に表示される文言
+	 * @param string $text テキスト
+	 * @param string $domain ドメイン名。省略の為default。
 	 * @return array
 	 */
 	public function meta_name_rename( $translation, $text, $domain ) {
