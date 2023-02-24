@@ -5,6 +5,7 @@ import i18n from "./modules/admin-post-editor-i18n";
 import title_counter from "./modules/admin-post-editor-title-counter";
 import darkmode_toggler from "./modules/darkmode-toggler";
 import zenmode_toggler from "./modules/zenmode-toggler";
+import download_images from "./modules/admin-post-editor-download-images";
 import mokuji_generator from "./modules/admin-post-editor-mokuji-generator";
 import editor_vue from "./modules/admin-post-editor-vue";
 import status_control from "./modules/admin-post-editor-status-control";
@@ -16,7 +17,8 @@ jQuery( $ => {
 	i18n();// 翻訳
 	title_counter($);// タイトルカウンター
 	darkmode_toggler($, ".edit-post-header__settings");// ダークモード
-	zenmode_toggler($, ".edit-post-header__settings");// ダークモード
+	zenmode_toggler($, ".edit-post-header__settings");// ZENモード
+	download_images($, ".edit-post-header-toolbar__left");// 画像一括ダウンロード
 	mokuji_generator($);// 目次生成
 	editor_vue($);// カスタムフィールドをVueで制御
 	status_control($);// ステータスコントロール
