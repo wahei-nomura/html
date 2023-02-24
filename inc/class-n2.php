@@ -90,6 +90,13 @@ class N2 {
 	public $special_str_convert;
 
 	/**
+	 * ポータル共通説明文
+	 *
+	 * @var array
+	 */
+	public $portal_common_discription;
+
+	/**
 	 * 楽天市場
 	 *
 	 * @var array
@@ -102,7 +109,6 @@ class N2 {
 	 * @var array
 	 */
 	public $choice;
-	public $portal_common_discription; // 説明文への追記テキスト
 
 	/**
 	 * レジホーム
@@ -253,16 +259,18 @@ class N2 {
 		);
 		$this->town_code = $this->get_portal_town_code_list();
 
+		// ポータル共通説明文
+		$this->portal_common_discription = $n2_option['add_text'][ get_bloginfo( 'name' ) ] ?? '';
+
 		// 楽天
 		$rakuten_common_yml = yaml_parse_file( get_theme_file_path( 'config/n2-rakuten-common.yml' ) );
 		$this->rakuten      = $n2_option['rakuten'] ?? array();
 		$this->rakuten      = array( ...$rakuten_common_yml, ...$this->rakuten );
 
 		// チョイス
-		$choice_yml = yaml_parse_file( get_theme_file_path( 'config/n2-choice-tsv-header.yml' ) )['choice'];
+		$choice_yml   = yaml_parse_file( get_theme_file_path( 'config/n2-choice-tsv-header.yml' ) )['choice'];
 		$this->choice = $n2_option['choice'] ?? array();
 		$this->choice = array( ...$choice_yml, ...$this->choice );
-		$this->portal_common_discription = $n2_option['add_text'][ get_bloginfo( 'name' ) ] ?? "";
 
 		// レジホーム
 		$this->ledghome_csv_contents = yaml_parse_file( get_theme_file_path( 'config/n2-ledghome-csv-header.yml' ) );
