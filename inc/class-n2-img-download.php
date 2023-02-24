@@ -22,8 +22,8 @@ class N2_Img_Download {
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		add_action( 'wp_ajax_n2_download_images_by_id', array( $this, 'download_image_by_id' ) );
-		add_action( 'wp_ajax_n2_download_images_by_url', array( $this, 'download_image_by_url' ) );
+		add_action( 'wp_ajax_n2_download_images_by_id', array( $this, 'download_images_by_id' ) );
+		add_action( 'wp_ajax_n2_download_image_by_url', array( $this, 'download_image_by_url' ) );
 		add_action( 'wp_ajax_download_by_url', array( $this, 'download_by_url' ) );
 	}
 
@@ -71,10 +71,10 @@ class N2_Img_Download {
 				$fname        = mb_strtolower( $item_code );
 				$meta_pic_arr = get_post_meta( $id, '商品画像', true );
 				foreach ( $meta_pic_arr as $pickey => $meta_pic ) {
-					$fname     = mb_strtolower( $item_code );
+					$fname = mb_strtolower( $item_code );
 					// $pic_id    = attachment_url_to_postid( $meta_pic );
 					// $fpath     = get_attached_file( $pic_id, true );
-					$furl = $meta_pic['url'];
+					$furl      = $meta_pic['url'];
 					$extension = pathinfo( $furl );
 					// 画像がアップロードされている場合のみ処理
 					if ( $furl ) {
@@ -164,7 +164,7 @@ class N2_Img_Download {
 	/**
 	 * 投稿IDからダウンロード
 	 */
-	public function download_image_by_id() {
+	public function download_images_by_id() {
 		if ( ! isset( $_GET['id'] ) ) {
 			echo 'idがセットされていません';
 			exit;
