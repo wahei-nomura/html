@@ -125,5 +125,8 @@ class N2_Setmenu {
 	 */
 	public function remove_admin_bar_menus( $wp_admin_bar ) {
 		$wp_admin_bar->remove_menu( 'wp-logo' ); // WordPressロゴ.
+		if ( !current_user_can( 'administrator' ) ) {
+			$wp_admin_bar->remove_menu( 'edit-profile' ); // ユーザー / プロフィールを編集.
+		}
 	}
 }
