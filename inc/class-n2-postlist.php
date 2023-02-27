@@ -42,6 +42,7 @@ class N2_Postlist {
 		add_action( 'posts_request', array( $this, 'posts_request' ) );
 		add_action( "wp_ajax_{$this->cls}", array( $this, 'ajax' ) );
 		add_action( "wp_ajax_{$this->cls}_deletepost", array( $this, 'delete_post' ) );
+		add_action( "wp_ajax_{$this->cls}_recoverypost", array( $this, 'recovery_post' ) );
 	}
 
 	/**
@@ -703,6 +704,24 @@ class N2_Postlist {
 			echo 'ゴミ箱へ移動しました';
 		} else {
 			echo 'ゴミ箱への移動に失敗しました';
+		}
+
+		die();
+	}
+
+	/**
+	 * 返礼品を復元
+	 *
+	 * @return void
+	 */
+	public function recovery_post() {
+		$post_id      = filter_input( INPUT_GET, 'id', FILTER_VALIDATE_INT );
+		$untrash_result = wp_untrash_post( $post_id );
+
+		if ( $untrash_result ) {
+			echo '復元';
+		} else {
+			echo '復元に失敗しました';
 		}
 
 		die();

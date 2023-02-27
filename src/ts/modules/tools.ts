@@ -80,6 +80,27 @@ jQuery(function($) {
 		
 		itemTr.remove()
 	});
+	// ゴミ箱から復元イベント
+	$(`.${prefix}-recoverypost-btn`).on("click", (e) => {
+		const itemTr = $(e.target).parents('tr');
+		const originalId: number = Number(
+			itemTr.find("th.check-column input").val()
+		);
+
+		$.ajax({
+			url: n2.ajaxurl,
+			data:{
+				action: 'N2_Postlist_recoverypost',
+				id: originalId
+			}
+		}).done(res=>{
+			console.log(res)
+		}).fail(error => {
+			console.log(error)
+		});
+
+		itemTr.remove()
+	});
 
 	// 定期便、単品切り替え
 	$('body').on('change', 'select[name="定期"]', e => {
