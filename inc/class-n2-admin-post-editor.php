@@ -38,6 +38,7 @@ class N2_Admin_Post_Editor {
 		add_filter( 'intermediate_image_sizes_advanced', array( $this, 'not_create_image' ) );
 		add_filter( 'wp_handle_upload', array( $this, 'image_compression' ) );
 		add_filter( 'post_link', array( $this, 'set_post_paermalink' ), 10, 3 );
+		add_action( 'init', array( $this, 'register_post_status' ) );
 	}
 
 	/**
@@ -49,9 +50,9 @@ class N2_Admin_Post_Editor {
 		$persisted_preferences = get_user_meta( $n2->current_user->ID, "{$n2->blog_prefix}persisted_preferences", true ) ?: array();
 
 		// 設定の強制
-		$persisted_preferences['core/edit-post']['welcomeGuide']               = false;
-		$persisted_preferences['core/edit-post']['showBlockBreadcrumbs']       = false;
-		$persisted_preferences['core/edit-post']['isPublishSidebarEnabled']    = false;
+		$persisted_preferences['core/edit-post']['welcomeGuide']            = false;
+		$persisted_preferences['core/edit-post']['showBlockBreadcrumbs']    = false;
+		$persisted_preferences['core/edit-post']['isPublishSidebarEnabled'] = false;
 		if ( current_user_can( 'jigyousya' ) ) {
 			$persisted_preferences['core/edit-post']['isComplementaryAreaVisible'] = false;
 		}
@@ -77,6 +78,23 @@ class N2_Admin_Post_Editor {
 		foreach ( $taxonomys as $taxonomy ) {
 			unregister_taxonomy_for_object_type( $taxonomy, 'post' );
 		}
+	}
+
+	/**
+	 * 投稿ステータス「ポータル登録済み」を追加
+	 */
+	public function register_post_status(){
+		register_post_status(
+			'registered',
+			array(
+				'label'                     => 'ポータル登録済み',
+				'public'                    => true,
+				'exclude_from_search'       => false,
+				'show_in_admin_all_list'    => true,
+				'show_in_admin_status_list' => true,
+				'label_count'               => _n_noop( 'ポータル登録済み (%s)', 'ポータル登録済み (%s)' ),
+			) 
+		);
 	}
 
 	/**

@@ -27,7 +27,7 @@ export default $ => {
 			label: '非公開',
 			class: 'progress-bar bg-dark col-12',
 		},
-		'unko': {
+		'registered': {
 			label: 'ポータル登録済',
 			class: 'progress-bar bg-success col-12',
 		},
