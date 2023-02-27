@@ -27,7 +27,7 @@ class N2_Setmenu {
 		add_action( 'admin_init', array( $this, 'not_edit_user' ) );
 		add_filter( 'get_site_icon_url', array( $this, 'change_site_icon' ) );
 		add_action( 'admin_head', array( $this, 'my_custom_logo' ) );
-
+		add_action( 'admin_bar_menu', array( $this, 'remove_admin_bar_menus' ), 999 );
 	}
 
 	/**
@@ -119,5 +119,11 @@ class N2_Setmenu {
 	 */
 	public function my_custom_logo() {
 		echo '<style type="text/css">#wpadminbar #wp-admin-bar-wp-logo > .ab-item > .ab-icon:before { content: url(' . get_theme_file_uri( 'neo_neng_logo.svg' ) . ');}</style>';
+	}
+	/**
+	 * 管理画面のヘッダーメニューバーで不要なものを除去 @yamasaki
+	 */
+	public function remove_admin_bar_menus( $wp_admin_bar ) {
+		$wp_admin_bar->remove_menu( 'wp-logo' ); // WordPressロゴ.
 	}
 }
