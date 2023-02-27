@@ -48,9 +48,6 @@ class N2_Choice {
 		// ajaxで渡ってきたpostidの配列
 		$ids = explode( ',', filter_input( INPUT_POST, 'choice' ) );
 		foreach ( $ids as $id ) {
-			// echo "<pre>";
-			// var_dump(get_post_meta( $id, '定期便', true ));
-			// echo "</pre>";
 			$items_arr[ $id ] = array( ...$sumple_header, ...get_post_meta( $id, '', false ) );
 			$item_code        = strtoupper( get_post_meta( $id, '返礼品コード', true ) );
 			// 初期化処理
