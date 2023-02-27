@@ -209,6 +209,12 @@ tbody#the-list>tr>th {
 	tbody#the-list>tr.is-expanded>td:not(.hidden) {
 		border-bottom: solid 1px lightgray;
 		overflow: visible !important;
+		display: flex !important;
+		justify-content: end;
+
+		div {
+			width: 50%;
+		}
 
 		.n2-list-tooles ul {
 			display: block;
