@@ -19,9 +19,9 @@ jQuery( $ => {
 	alert_and_return_page(!n2.formula_type, '寄附金額の自動計算に必須の設定値がありません。先程のページへ戻ります。');// 自動計算不可のためページに入れない
 	i18n();// 翻訳
 	title_counter($);// タイトルカウンター
-	delete_post_button($, ".edit-post-header__settings");// ダークモード
-	save_post_button($, ".edit-post-header__settings");// ダークモード
-	save_as_pending($, ".edit-post-header__settings");// ダークモード
+	delete_post_button($, ".edit-post-header__settings");// 削除ボタン
+	save_post_button($, ".edit-post-header__settings");// 保存ボタン
+	save_as_pending($, ".edit-post-header__settings");// スチームシップへ送信
 	darkmode_toggler($, ".edit-post-header__settings");// ダークモード
 	zenmode_toggler($, ".edit-post-header__settings");// ZENモード
 	download_images($, ".edit-post-header-toolbar__left");// 画像一括ダウンロード

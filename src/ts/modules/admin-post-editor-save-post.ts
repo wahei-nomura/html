@@ -1,8 +1,8 @@
 /**
- * 投稿の保存
+ * 返礼品の保存
  * 
  * @param $ jQuery
- * @param string target 切り替えスイッチを追加する要素のセレクタ名
+ * @param string target 返礼品の保存を追加する要素のセレクタ名
  */
 export default ($: any, target: string) => {
 	// ターゲットDOMが生成されてから
