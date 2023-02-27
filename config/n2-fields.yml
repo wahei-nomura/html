@@ -182,7 +182,6 @@
     type : textarea
     description : 配送までにかかる最大納期を入力ください。「即納」表記は避けていただき、最短でも1週間前後で入力をお願いいたします。
     maxlength : 200
-    required: required
     placeholder: 例）入金確認後1ヶ月以内にお届けいたします。
     style: 'width: 100%;'
     "@focus": set_info($event.target)
@@ -237,7 +236,6 @@
             label: レターパックライト
             v-if: 発送方法=='常温'
         その他: その他
-    required: required
     v-model: 発送サイズ
 
 送料:
@@ -249,6 +247,7 @@
     ':readonly': "発送サイズ!='その他' ? true: false"
     "@focus": if (発送サイズ!='その他') { set_info($event.target) }
     "@input": "force_half_size_text($event, 'number', '送料')"
+    required: required
 
 取り扱い方法:
     type : checkbox
@@ -291,7 +290,6 @@
         10: １０回定期便
         11: １１回定期便
         12: １２回定期便
-    required: required
     v-model: 定期便
 
 LHカテゴリー:

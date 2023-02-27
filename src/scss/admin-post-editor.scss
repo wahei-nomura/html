@@ -48,11 +48,6 @@ body.n2-darkmode{
 				.interface-pinned-items{
 					margin: 0;
 				}
-				.editor-post-publish-button{
-					&[aria-disabled="true"]{
-						background-color: $secondary;
-					}
-				}
 				// ヘッダー右の設定ボタン郡
 				&__settings{
 					flex-wrap: nowrap;
@@ -60,6 +55,9 @@ body.n2-darkmode{
 					scrollbar-width: none;
 					&::-webkit-scrollbar{
 						display:none;
+					}
+					button{
+						display: none;
 					}
 				}
 				&-toolbar__left{
@@ -136,6 +134,9 @@ body.n2-darkmode{
 				.components-panel__body-title{
 					display: none;
 				}
+			}
+			&__notices{
+				display: none;
 			}
 		}
 	}
