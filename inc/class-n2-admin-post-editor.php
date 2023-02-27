@@ -92,8 +92,8 @@ class N2_Admin_Post_Editor {
 				'exclude_from_search'       => false,
 				'show_in_admin_all_list'    => true,
 				'show_in_admin_status_list' => true,
-				'label_count'               => _n_noop( 'ポータル登録済み (%s)', 'ポータル登録済み (%s)' ),
-			) 
+				'label_count'               => _n_noop( 'ポータル登録済み <span class="count">(%s)</span>', 'ポータル登録済み <span class="count">(%s)</span>' ),
+			)
 		);
 	}
 
@@ -136,7 +136,7 @@ class N2_Admin_Post_Editor {
 		<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
 		<div class="n2-fields fs-6">
 			<?php foreach ( $n2->custom_field[ $metabox['id'] ] as $field => $detail ) : ?>
-			<div id="<?php echo $field; ?>" class="n2-fields-list row border-bottom p-3" v-if="<?php echo $detail['v-if'] ?? ''; ?>">
+			<div id="<?php echo $field; ?>" class="n2-fields-list d-flex border-bottom p-3" v-if="<?php echo $detail['v-if'] ?? ''; ?>">
 				<div class="n2-fields-title col-12 mb-1 col-sm-3 mb-sm-0 d-flex align-items-center">
 					<?php echo ! empty( $detail['label'] ) ? $detail['label'] : $field; ?>
 				</div>
