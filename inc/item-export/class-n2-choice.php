@@ -48,6 +48,9 @@ class N2_Choice {
 		// ajaxで渡ってきたpostidの配列
 		$ids = explode( ',', filter_input( INPUT_POST, 'choice' ) );
 		foreach ( $ids as $id ) {
+			// echo "<pre>";
+			// var_dump(get_post_meta( $id, '定期便', true ));
+			// echo "</pre>";
 			$items_arr[ $id ] = array( ...$sumple_header, ...get_post_meta( $id, '', false ) );
 			$item_code        = strtoupper( get_post_meta( $id, '返礼品コード', true ) );
 			// 初期化処理
@@ -152,7 +155,7 @@ class N2_Choice {
 				'（必須）冷凍配送'       => ( get_post_meta( $id, '発送方法', true ) === '冷凍' ) ? 1 : 0,
 				'（必須）包装対応'       => ( get_post_meta( $id, '包装対応', true ) === '有り' ) ? 1 : 0,
 				'（必須）のし対応'       => ( get_post_meta( $id, 'のし対応', true ) === '有り' ) ? 1 : 0,
-				'（必須）定期配送対応'     => ( get_post_meta( $id, '定期便', true ) === 1 || get_post_meta( $id, '定期便', true ) === '' ) ? 0 : 1,
+				'（必須）定期配送対応'     => ( get_post_meta( $id, '定期便', true ) === '1' || get_post_meta( $id, '定期便', true ) === '' ) ? 0 : 1,
 				'（必須）クレジット決済限定'  => ( get_post_meta( $id, 'クレジット決済限定', true ) === 'クレジット決済限定' ) ? 1 : 0,
 				'カテゴリー'          => '',
 				'お礼の品画像'         => mb_strtolower( $item_code ) . '.jpg',
