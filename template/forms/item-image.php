@@ -22,7 +22,7 @@ $name    = $args['name'];
 				<span class="dashicons dashicons-no-alt text-white"></span>
 			</div>
 			<!-- Download -->
-			<a :href="`${ajaxurl}?action=download_by_url&url=${attr.url}&name=${返礼品コード}-${index}`" class="position-absolute bottom-0 end-0 badge rounded-pill bg-dark text-white text-decoration-none">▼ Download</a>
+			<a :href="`${ajaxurl}?action=n2_download_images_by_url&url=${attr.url}&name=${返礼品コード}${index > 0 ? '-'+index : ''}`" class="position-absolute bottom-0 end-0 badge rounded-pill bg-dark text-white text-decoration-none">▼ Download</a>
 		</div>
 	</draggable>
 	<div @click="add_media" class="d-inline-block position-relative selected attachment position-relative" style="width:auto;max-width: 25%;">

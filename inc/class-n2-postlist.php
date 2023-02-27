@@ -145,13 +145,17 @@ class N2_Postlist {
 
 		$title = get_the_title();
 
+		if ( isset( $post_data['商品画像'][0] ) ) {
+			$thumbnail_url = $post_data['商品画像'][0]['sizes']['thumbnail']['url'] ?? $post_data['商品画像'][0]['sizes']['thumbnail'];
+		}
+
 		$post_edit_url   = get_edit_post_link();
-		$image           = isset( $post_data['商品画像'][0] ) ? "<img class='n2-postlist-imgicon' src='{$post_data['商品画像'][0]['url']}' />" : '-';
+		$image           = isset( $post_data['商品画像'][0] ) ? "<img class='n2-postlist-imgicon' src='{$thumbnail_url}' />" : '-';
 		$goods_price     = ! empty( $post_data['価格'] ) && 0 !== $post_data['価格'] ? number_format( $post_data['価格'] ) : '-';
 		$donation_amount = ! empty( $post_data['寄附金額'] ) && 0 !== $post_data['寄附金額'] ? number_format( $post_data['寄附金額'] ) : '-';
 		$teiki           = ! empty( $post_data['定期便'] ) && 1 !== (int) $post_data['定期便'] ? $post_data['定期便'] : '-';
-		$poster          = ! empty( get_userdata( $post->post_author ) ) ? get_userdata( $post->post_author )->display_name : '';
-		$code            = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '';
+		$poster          = ! empty( get_userdata( $post->post_author ) ) ? get_userdata( $post->post_author )->display_name : '-';
+		$code            = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '-';
 		$ssmemo          = ! empty( $post_data['社内共有事項'] ) ? nl2br( $post_data['社内共有事項'] ) : '';
 		$ssmemo_isset    = $ssmemo ? 'n2-postlist-ssmemo' : '';
 		$modified_last   = get_the_modified_date( 'Y/m/d' );
@@ -182,9 +186,10 @@ class N2_Postlist {
 			case 'item-title':
 				echo "
 						<div class='text-truncate' data-bs-toggle='tooltip' data-bs-placement='bottom' title='{$title}'><a href='{$post_edit_url}'>{$title}</a></div>
-						<div class='progress mt-1' style='height: 10px; font-size:10px'>
+						<div class='progress mt-1' style='height: 10px; font-size:8px;'>
 							<div class='progress-bar bg-{$status_color}' role='progressbar' style='width: {$status_bar}%;' aria-valuenow='{$status_bar}' aria-valuemin='0' aria-valuemax='100'>{$status}</div>
 			  			</div>
+						<button type='button' class='toggle-row'></button>
 					";
 				break;
 			case 'poster':
@@ -206,14 +211,14 @@ class N2_Postlist {
 				echo "<div class='text-center'>{$image}</div>";
 				break;
 			case 'modified-last':
-				echo "<div style='width: 10%; min-width:100px;'>{$modified_last}</div>";
+				echo "<div class='text-center'>{$modified_last}</div>";
 				break;
 			case 'ssmemo':
 				echo "<div class='{$ssmemo_isset}'><p>{$ssmemo}</p></div>";
 				break;
 			case 'tools':
 				echo '
-					<div class="dropdown text-center">
+					<div class="dropdown text-center n2-list-tooles">
 						<span class="dashicons dashicons-admin-tools dropdown-toggle" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false"></span>
 						<ul class="dropdown-menu border" aria-labelledby="dropdownMenuLink">
 							<li><button type="button" class="dropdown-item neo-neng-copypost-btn">複製</button></li>

@@ -22,6 +22,8 @@ class N2_Img_Download {
 	 * コンストラクタ
 	 */
 	public function __construct() {
+		add_action( 'wp_ajax_n2_download_images_by_id', array( $this, 'download_image_by_id' ) );
+		add_action( 'wp_ajax_n2_download_images_by_url', array( $this, 'download_image_by_url' ) );
 		add_action( 'wp_ajax_download_by_url', array( $this, 'download_by_url' ) );
 	}
 
@@ -36,10 +38,10 @@ class N2_Img_Download {
 		// シングルダウンロード(zipとの判断基準は$_POST['id']を持ってるかどうか)
 		if ( ! $_POST['id'] ) {
 			$pathinfo = pathinfo( $url );
-			$name    = ! preg_match( '/^-/', $_GET['name'] ) ? mb_strtolower( $_GET['name'] ) : $pathinfo['filename'];
-			$name   .= ".{$pathinfo['extension']}";
-			$content = wp_remote_get( $url );
-			$headers = $content['headers']->getAll();
+			$name     = ! preg_match( '/^-/', $_GET['name'] ) ? mb_strtolower( $_GET['name'] ) : $pathinfo['filename'];
+			$name    .= ".{$pathinfo['extension']}";
+			$content  = wp_remote_get( $url );
+			$headers  = $content['headers']->getAll();
 			header( "Content-Type: {$headers['content-type']}" );
 			header( "Content-Disposition:attachment; filename = {$name}" );
 			header( "Content-Length: {$headers['content-length']}" );
@@ -139,5 +141,64 @@ class N2_Img_Download {
 			readfile( $zip_file_dir );
 			exit;
 		}
+	}
+
+	/**
+	 * URLからダウンロード
+	 */
+	public function download_image_by_url() {
+		$url = $_GET['url'];
+		add_filter( 'https_ssl_verify', '__return_false' );
+		$pathinfo = pathinfo( $url );
+		$name     = ! preg_match( '/^-/', $_GET['name'] ) ? mb_strtolower( $_GET['name'] ) : $pathinfo['filename'];
+		$name    .= ".download.{$pathinfo['extension']}";
+		$content  = wp_remote_get( $url );
+		$headers  = $content['headers']->getAll();
+		header( "Content-Type: {$headers['content-type']}" );
+		header( "Content-Disposition:attachment; filename = {$name}" );
+		header( "Content-Length: {$headers['content-length']}" );
+		echo $content['body'];
+		exit;
+	}
+
+	/**
+	 * 投稿IDからダウンロード
+	 */
+	public function download_image_by_id() {
+		if ( ! isset( $_GET['id'] ) ) {
+			echo 'idがセットされていません';
+			exit;
+		}
+		WP_Filesystem();
+		global $wp_filesystem;
+		// localhostでのwp_remote_getに必須
+		add_filter( 'https_ssl_verify', '__return_false' );
+		$ids     = explode( ',', $_GET['id'] );
+		$tmp_uri = stream_get_meta_data( tmpfile() )['uri'];
+		$zip     = new ZipArchive();
+		$zip->open( $tmp_uri, ZipArchive::CREATE );
+		foreach ( $ids as $id ) {
+			$item_code = get_post_meta( $id, '返礼品コード', true );
+			$dirname   = $item_code ?: get_the_title( $id );
+			$filename  = mb_strtolower( $item_code ) ?: get_the_title( $id );
+			foreach ( get_post_meta( $id, '商品画像', true ) as $i => $img ) {
+				$i         = $i > 0 ? "-{$i}" : '';
+				$extension = pathinfo( $img['url'] )['extension'];
+				$zip->addFromString( "{$dirname}/{$filename}{$i}.download.{$extension}", wp_remote_get( $img['url'] )['body'] );
+			}
+		}
+		// 単品か複数かで名前と構造を変更
+		$name = count( $ids ) > 1 ? 'NEONENG元画像.' . wp_date( 'Y-m-d-H-i' ) . '.zip' : "{$dirname}.zip";
+		$zip->close();
+		if ( ! file_exists( $tmp_uri ) ) {
+			exit;
+		}
+		// ダウンロード
+		header( 'Content-Type: application/zip' );
+		header( 'Content-Transfer-Encoding: Binary' );
+		header( 'Content-Length: ' . filesize( $tmp_uri ) );
+		header( "Content-Disposition:attachment; filename = {$name}" );
+		echo $wp_filesystem->get_contents( $tmp_uri );
+		exit;
 	}
 }

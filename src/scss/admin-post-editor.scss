@@ -29,8 +29,12 @@ body.n2-darkmode{
 				.edit-post-header-toolbar__inserter-toggle,
 				.editor-history__redo,
 				.editor-history__undo,
-				.components-dropdown{
+				.components-dropdown,
+				.editor-post-preview{
 					display: none;
+				}
+				.components-button{
+					box-shadow: none !important;
 				}
 				.components-button.edit-post-fullscreen-mode-close{
 					display: block;
@@ -41,13 +45,26 @@ body.n2-darkmode{
 						box-shadow: none;
 					}
 				}
-				.editor-post-preview{
-					display: none;
+				.interface-pinned-items{
+					margin: 0;
 				}
 				.editor-post-publish-button{
 					&[aria-disabled="true"]{
 						background-color: $secondary;
 					}
+				}
+				// ヘッダー右の設定ボタン郡
+				&__settings{
+					flex-wrap: nowrap;
+					overflow-x: scroll;
+					scrollbar-width: none;
+					&::-webkit-scrollbar{
+						display:none;
+					}
+				}
+				&-toolbar__left{
+					gap: .5em;
+					padding: 0;
 				}
 			}
 			&-visual-editor{
