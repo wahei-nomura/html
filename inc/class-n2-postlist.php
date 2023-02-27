@@ -91,17 +91,8 @@ class N2_Postlist {
 			'teiki'           => '<div class="text-center">定期便</div>',
 			'thumbnail'       => '<div class="text-center">画像</div>',
 			'modified-last'   => "<div class='text-center'><a href='{$sort_base_url}edit.php?orderby=date&order={$asc_or_desc}'>最終<br>更新日{$this->judging_icons_order('date')}</a></div>",
+			'tools'           => '<div class="text-center">ツール</div>',
 		);
-
-		// ゴミ箱以外でツール非表示
-		if ( ! isset( $_GET['post_status'] ) || 'trash' !== $_GET['post_status'] ) {
-			$columns = array_merge(
-				$columns,
-				array(
-					'tools' => '<div class="text-center">ツール</div>',
-				)
-			);
-		}
 
 		if ( 'jigyousya' !== wp_get_current_user()->roles[0] ) {
 			$columns = array_merge(
@@ -182,6 +173,24 @@ class N2_Postlist {
 
 		}
 
+		$tools_setting = array(
+			array(
+				'text'      => '複製',
+				'add_class' => 'neo-neng-copypost-btn',
+				'is_show'   => ! isset( $_GET['post_status'] ) || 'trash' !== $_GET['post_status'],
+			),
+			array(
+				'text'      => 'ゴミ箱へ移動',
+				'add_class' => 'neo-neng-deletepost-btn',
+				'is_show'   => ! isset( $_GET['post_status'] ) || 'trash' !== $_GET['post_status'],
+			),
+			array(
+				'text'      => '復元',
+				'add_class' => 'neo-neng-recoverypost-btn',
+				'is_show'   => isset( $_GET['post_status'] ) && 'trash' === $_GET['post_status'],
+			),
+		);
+
 		switch ( $column_name ) {
 			case 'item-title':
 				echo "
@@ -217,15 +226,18 @@ class N2_Postlist {
 				echo "<div class='{$ssmemo_isset}'><p>{$ssmemo}</p></div>";
 				break;
 			case 'tools':
-				echo '
+				?>
 					<div class="dropdown text-center n2-list-tooles">
 						<span class="dashicons dashicons-admin-tools dropdown-toggle" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false"></span>
 						<ul class="dropdown-menu border" aria-labelledby="dropdownMenuLink">
-							<li><button type="button" class="dropdown-item neo-neng-copypost-btn">複製</button></li>
-							<li><button type="button" class="dropdown-item neo-neng-deletepost-btn">ゴミ箱へ移動</button></li>
+							<?php foreach ( $tools_setting as $setting ) : ?>
+								<?php if ( $setting['is_show'] ) : ?>
+									<li><button type="button" class="dropdown-item <?php echo $setting['add_class']; ?>"><?php echo $setting['text']; ?></button></li>
+								<?php endif; ?>
+							<?php endforeach; ?>
 						</ul>
 					</div>
-					';
+				<?php
 				break;
 		}
 	}
