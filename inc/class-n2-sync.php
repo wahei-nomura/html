@@ -57,6 +57,7 @@ class N2_Sync {
 		add_action( 'wp_ajax_n2_sync_posts', array( $this, 'sync_posts' ) );
 		add_action( 'wp_ajax_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
 		add_action( 'wp_ajax_n2_sync_posts_from_spreadsheet', array( $this, 'sync_posts_from_spreadsheet' ) );
+		add_action( 'wp_ajax_n2_insert_posts', array( $this, 'insert_posts' ) );
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 
 		// cron登録処理
@@ -181,7 +182,7 @@ class N2_Sync {
 		<h2>Googleスプレットシートからの追加・上書き</h2>
 		<ul style="padding: 1em; background: white; margin: 2em 0; border: 1px solid;">
 			<li>※ ユーザーはスプレットシートにある情報を追加、既に存在する場合は上書きします。</li>
-			<li>※ 返礼品はスプレットシートにある情報を単純に追加します。既に登録のある情報でも追加されるので2重登録に注意してください。</li>
+			<li>※ シートの範囲については<a href="https://developers.google.com/sheets/api/guides/concepts?hl=ja#expandable-1" target="_blank">ココ</a>を参照。</li>
 		</ul>
 		<div style="padding: 1em 0;">
 			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_users_from_spreadsheet"; ?>" class="button button" target="_blank" style="margin-right: 1em;">
@@ -189,6 +190,9 @@ class N2_Sync {
 			</a>
 			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_posts_from_spreadsheet"; ?>" class="button button-primary" target="_blank">
 				今すぐ返礼品を追加
+			</a>
+			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_posts_from_spreadsheet&update=1"; ?>" class="button button-primary" target="_blank">
+				返礼品を更新（既存返礼品は上書き）
 			</a>
 		</div>
 		<form method="post" action="options.php">
@@ -675,10 +679,11 @@ class N2_Sync {
 		}
 		// 区切り文字
 		$sep = '/[,|、|\s|\/|\||｜|／]/u';
-		foreach ( $data as $d ) {
-			$postarr                = array();
-			$postarr['post_title']  = $d['タイトル'];
-			$postarr['post_author'] = $this->get_userid_by_last_name( $d['事業者コード'] );
+		// 投稿配列
+		$postarr = array();
+		foreach ( $data as $k => $d ) {
+			$postarr[ $k ]['post_title']  = $d['タイトル'];
+			$postarr[ $k ]['post_author'] = $this->get_userid_by_last_name( $d['事業者コード'] );
 			unset( $d['タイトル'], $d['事業者コード'], $d['事業者名'] );
 			// 寄附金額固定（入力あれば固定）
 			$d['寄附金額固定'] = array( $d['寄附金額固定'] ? '固定する' : '' );
@@ -700,9 +705,9 @@ class N2_Sync {
 			// 取り扱い方法（区切り文字列でいい感じに配列化）
 			$d['取り扱い方法'] = array_values( array_filter( preg_split( $sep, $d['取り扱い方法'] ) ) );
 			// $postarrにセット
-			$postarr['meta_input'] = $d;
-			wp_insert_post( $postarr );
+			$postarr[ $k ]['meta_input'] = $d;
 		}
+		$this->multi_insert_posts( $postarr, 100, $_GET['update'] || false );
 		echo "N2-Insert-Posts-From-Spreadsheet「{$n2->town}の返礼品」スプレットシートからの追加完了！" . number_format( microtime( true ) - $before, 2 ) . ' sec';
 		$logs[] = '返礼品の追加完了 ' . number_format( microtime( true ) - $before, 2 ) . ' sec';
 		$this->log( $logs );
@@ -742,7 +747,10 @@ class N2_Sync {
 		if ( ! $body->access_token ) {
 			return false;
 		}
-		$url  = "https://sheets.googleapis.com/v4/spreadsheets/{$sheetid}/values/{$range}";
+		// $rangeからヘッダーを分離
+		$range_header = preg_replace( '/[A-Z]*([0-9]*)\:[A-Z]*[0-9]*$/', '1:1', $range );
+		// url生成
+		$url  = "https://sheets.googleapis.com/v4/spreadsheets/{$sheetid}/values:batchGet?ranges={$range_header}&ranges={$range}";
 		$args = array(
 			'headers' => array(
 				'Authorization' => "Bearer {$body->access_token}",
@@ -753,9 +761,15 @@ class N2_Sync {
 		if ( 200 !== $data['response']['code'] ) {
 			return false;
 		}
-		$data   = json_decode( $data['body'], true )['values'];
-		$header = array_shift( $data );
-		return array_map(
+		$data   = json_decode( $data['body'], true )['valueRanges'];
+		$header = $data[0]['values'][0];
+		$data   = $data[1]['values'];
+		if ( $header === $data[0] ) {
+			unset( $data[0] );
+			$data = array_values( $data );
+		}
+		// ヘッダーを利用して連想配列化
+		$data = array_map(
 			function( $v ) use ( $header ) {
 				$v = array_slice( $v, 0, count( $header ) );
 				$v = array_pad( $v, count( $header ), '' );
@@ -763,6 +777,83 @@ class N2_Sync {
 			},
 			$data
 		);
+		return $data;
+	}
+
+	/**
+	 * マルチcURLを使ってwp_insert_postを高速化
+	 *
+	 * @param array $postarr 投稿の多次元配列
+	 * @param int   $multi_insert_num 1スレットあたりのinsert数
+	 * @param bool  $update 上書きモードかどうか
+	 */
+	public function multi_insert_posts( $postarr, $multi_insert_num = 50, $update = false ) {
+		$mh       = curl_multi_init();
+		$ch_array = array();
+		$params   = array(
+			'action'  => 'n2_insert_posts',
+			'n2nonce' => wp_create_nonce( 'n2nonce' ),
+		);
+		if ( $update ) {
+			$params['update'] = 1;
+		}
+		foreach ( array_chunk( $postarr, $multi_insert_num ) as $index => $values ) {
+			$params['posts'] = wp_json_encode( $values );
+
+			$ch         = curl_init();
+			$ch_array[] = $ch;
+			// localでSSLでうまくアクセスできないので$schema必須
+			$schema  = preg_match( '/localhost/', get_network()->domain ) ? 'http' : 'admin';
+			$options = array(
+				CURLOPT_URL            => admin_url( 'admin-ajax.php', $schema ),
+				CURLOPT_POST           => true,
+				CURLOPT_POSTFIELDS     => $params,
+				CURLOPT_HEADER         => false,
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_SSL_VERIFYPEER => false,
+				CURLOPT_TIMEOUT        => 30,
+				CURLOPT_USERPWD        => 'ss:ss',
+				// ログインセッションを渡してajax
+				CURLOPT_HTTPHEADER     => array(
+					'Cookie: ' . urldecode( http_build_query( $_COOKIE, '', '; ' ) ),
+				),
+			);
+
+			curl_setopt_array( $ch, $options );
+			curl_multi_add_handle( $mh, $ch );
+		}
+		do {
+			curl_multi_exec( $mh, $running );
+			curl_multi_select( $mh );
+		} while ( $running > 0 );
+
+		foreach ( $ch_array as $ch ) {
+			curl_multi_remove_handle( $mh, $ch );
+			curl_close( $ch );
+		}
+		curl_multi_close( $mh );
+	}
+
+	/**
+	 * multi_insert_posts用
+	 */
+	public function insert_posts() {
+		if ( ! wp_verify_nonce( $_POST['n2nonce'] ?? '', 'n2nonce' ) || ! isset( $_POST['posts'] ) ) {
+			exit;
+		}
+		$posts = json_decode( stripslashes( $_POST['posts'] ), true );
+		if ( empty( $posts ) ) {
+			exit;
+		}
+		foreach ( $posts as $post ) {
+			// 「updateモード」かつ「登録済み」
+			$p = get_posts( "meta_key=返礼品コード&meta_value={$post['meta_input']['返礼品コード']}&fields=ids&post_status=any" );
+			if ( isset( $_POST['update'] ) && ! empty( $p ) ) {
+				$post['ID'] = $p[0];
+			}
+			wp_insert_post( $post );
+		}
+		exit;
 	}
 
 	/**
