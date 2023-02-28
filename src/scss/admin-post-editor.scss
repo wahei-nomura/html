@@ -7,8 +7,8 @@
 	cssで@useした方がコンパイルが爆速
 */
 // @use "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
+$steamship: #1a4899;
 @import "bootstrap/scss/bootstrap.scss";
-
 body.n2-darkmode{
 	filter: invert(100%);
 	img{
@@ -63,6 +63,14 @@ body.n2-darkmode{
 				&-toolbar__left{
 					gap: .5em;
 					padding: 0;
+				}
+				#n2-save-as-pending{
+					background-color: $steamship;
+					border-color: $steamship;
+					transition: all .3s;
+					&:hover{
+						background-color: darken($steamship, 10%);
+					}
 				}
 			}
 			&-visual-editor{
