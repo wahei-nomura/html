@@ -28,6 +28,7 @@ class N2_Setmenu {
 		add_filter( 'get_site_icon_url', array( $this, 'change_site_icon' ) );
 		add_action( 'admin_head', array( $this, 'my_custom_logo' ) );
 		add_action( 'admin_bar_menu', array( $this, 'remove_admin_bar_menus' ), 999 );
+		add_action( 'admin_head', array( $this, 'remove_help_tabs' ) );
 	}
 
 	/**
@@ -128,5 +129,9 @@ class N2_Setmenu {
 		if ( !current_user_can( 'administrator' ) ) {
 			$wp_admin_bar->remove_menu( 'edit-profile' ); // ユーザー / プロフィールを編集.
 		}
+	}
+	public function remove_help_tabs() {
+		$screen = get_current_screen();
+		$screen -> remove_help_tabs();
 	}
 }
