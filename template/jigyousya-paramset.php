@@ -43,21 +43,11 @@
 
 	.ss-check-item {
 		margin-top: 40px;
-		display: flex;
-		justify-content: space-around;
+		display: grid;
+		grid-template-columns: 3fr 1fr 1fr;
 		padding: 8px 16px;
 		box-shadow: 0 0 5px 2px rgba(0,0,0,.2);
 		border-radius: 4px;
-
-		.flex-item1 {
-		flex-basis: 70%;
-		}
-		.flex-item2 {
-			flex-basis: 15%;
-		}
-		.flex-item3 {
-			flex-basis: 15%;
-		}
 
 		label {
 		user-select: none;
@@ -107,6 +97,38 @@
 		justify-content: space-around;
 		margin-top: 40px;
 	}
+
+	@media screen and (max-width: 768px) {
+		.auto-fold #wpcontent {
+			padding-left: 0;
+		}
+
+		#ss-jigyousya-modal {
+			padding: 8px;
+			&.login {
+				width: 90%;
+				min-width: auto;
+			}
+		}
+
+		.ss-check-item {
+			grid-template-columns: 1fr 1fr;
+			grid-template-areas:
+				"area1 area1"
+				"area2 area3";
+			grid-template-rows: 1fr 100px;
+		}
+
+		.grid-item1 {
+			grid-area: area1;
+		}
+		.grid-item2 {
+			grid-area: area2;
+		}
+		.grid-item3 {
+			grid-area: area3;
+		}
+	}
 </style>
 
 <?php
@@ -124,12 +146,16 @@
 		?>
 
 		<div class="ss-check-item">
-			<div class="flex-item1">
+			<div class="grid-item1">
 				<h3><?php echo $param['title']; ?></h3>
 				<p><?php echo $param['description']; ?></p>
 			</div>
-			<div class="flex-item2"><input type="radio" name="<?php echo $item_type; ?>" id="<?php echo $item_type; ?>yes" value="true"<?php checked( $user_meta_result[ $item_type ], 'true' ); ?>><label for="<?php echo $item_type; ?>yes" class="radioyes">はい</label></div>
-			<div class="flex-item3"><input type="radio" name="<?php echo $item_type; ?>" id="<?php echo $item_type; ?>no" value="false"<?php checked( $user_meta_result[ $item_type ], 'false' ); ?>><label for="<?php echo $item_type; ?>no" class="radiono">いいえ</label></div>
+			<div class="grid-item2">
+				<input type="radio" name="<?php echo $item_type; ?>" id="<?php echo $item_type; ?>yes" value="true"<?php checked( $user_meta_result[ $item_type ], 'true' ); ?>><label for="<?php echo $item_type; ?>yes" class="radioyes">はい</label>
+			</div>
+			<div class="grid-item3">
+				<input type="radio" name="<?php echo $item_type; ?>" id="<?php echo $item_type; ?>no" value="false"<?php checked( $user_meta_result[ $item_type ], 'false' ); ?>><label for="<?php echo $item_type; ?>no" class="radiono">いいえ</label>
+			</div>
 		</div>
 	<?php endforeach; ?>
 

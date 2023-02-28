@@ -42,6 +42,7 @@ class N2_Postlist {
 		add_action( 'posts_request', array( $this, 'posts_request' ) );
 		add_action( "wp_ajax_{$this->cls}", array( $this, 'ajax' ) );
 		add_action( "wp_ajax_{$this->cls}_deletepost", array( $this, 'delete_post' ) );
+		add_action( "wp_ajax_{$this->cls}_recoverypost", array( $this, 'recovery_post' ) );
 	}
 
 	/**
@@ -91,17 +92,8 @@ class N2_Postlist {
 			'teiki'           => '<div class="text-center">定期便</div>',
 			'thumbnail'       => '<div class="text-center">画像</div>',
 			'modified-last'   => "<div class='text-center'><a href='{$sort_base_url}edit.php?orderby=date&order={$asc_or_desc}'>最終<br>更新日{$this->judging_icons_order('date')}</a></div>",
+			'tools'           => '<div class="text-center">ツール</div>',
 		);
-
-		// ゴミ箱以外でツール非表示
-		if ( ! isset( $_GET['post_status'] ) || 'trash' !== $_GET['post_status'] ) {
-			$columns = array_merge(
-				$columns,
-				array(
-					'tools' => '<div class="text-center">ツール</div>',
-				)
-			);
-		}
 
 		if ( 'jigyousya' !== wp_get_current_user()->roles[0] ) {
 			$columns = array_merge(
@@ -145,13 +137,17 @@ class N2_Postlist {
 
 		$title = get_the_title();
 
+		if ( isset( $post_data['商品画像'][0] ) ) {
+			$thumbnail_url = $post_data['商品画像'][0]['sizes']['thumbnail']['url'] ?? $post_data['商品画像'][0]['sizes']['thumbnail'];
+		}
+
 		$post_edit_url   = get_edit_post_link();
-		$image           = isset( $post_data['商品画像'][0] ) ? "<img class='n2-postlist-imgicon' src='{$post_data['商品画像'][0]['url']}' />" : '-';
+		$image           = isset( $post_data['商品画像'][0] ) ? "<img class='n2-postlist-imgicon' src='{$thumbnail_url}' />" : '-';
 		$goods_price     = ! empty( $post_data['価格'] ) && 0 !== $post_data['価格'] ? number_format( $post_data['価格'] ) : '-';
 		$donation_amount = ! empty( $post_data['寄附金額'] ) && 0 !== $post_data['寄附金額'] ? number_format( $post_data['寄附金額'] ) : '-';
 		$teiki           = ! empty( $post_data['定期便'] ) && 1 !== (int) $post_data['定期便'] ? $post_data['定期便'] : '-';
-		$poster          = ! empty( get_userdata( $post->post_author ) ) ? get_userdata( $post->post_author )->display_name : '';
-		$code            = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '';
+		$poster          = ! empty( get_userdata( $post->post_author ) ) ? get_userdata( $post->post_author )->display_name : '-';
+		$code            = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '-';
 		$ssmemo          = ! empty( $post_data['社内共有事項'] ) ? nl2br( $post_data['社内共有事項'] ) : '';
 		$ssmemo_isset    = $ssmemo ? 'n2-postlist-ssmemo' : '';
 		$modified_last   = get_the_modified_date( 'Y/m/d' );
@@ -178,13 +174,32 @@ class N2_Postlist {
 
 		}
 
+		$tools_setting = array(
+			array(
+				'text'      => '複製',
+				'add_class' => 'neo-neng-copypost-btn',
+				'is_show'   => ! isset( $_GET['post_status'] ) || 'trash' !== $_GET['post_status'],
+			),
+			array(
+				'text'      => 'ゴミ箱へ移動',
+				'add_class' => 'neo-neng-deletepost-btn',
+				'is_show'   => ! isset( $_GET['post_status'] ) || 'trash' !== $_GET['post_status'],
+			),
+			array(
+				'text'      => '復元',
+				'add_class' => 'neo-neng-recoverypost-btn',
+				'is_show'   => isset( $_GET['post_status'] ) && 'trash' === $_GET['post_status'],
+			),
+		);
+
 		switch ( $column_name ) {
 			case 'item-title':
 				echo "
 						<div class='text-truncate' data-bs-toggle='tooltip' data-bs-placement='bottom' title='{$title}'><a href='{$post_edit_url}'>{$title}</a></div>
-						<div class='progress mt-1' style='height: 10px; font-size:10px'>
+						<div class='progress mt-1' style='height: 10px; font-size:8px;'>
 							<div class='progress-bar bg-{$status_color}' role='progressbar' style='width: {$status_bar}%;' aria-valuenow='{$status_bar}' aria-valuemin='0' aria-valuemax='100'>{$status}</div>
 			  			</div>
+						<button type='button' class='toggle-row'></button>
 					";
 				break;
 			case 'poster':
@@ -206,21 +221,24 @@ class N2_Postlist {
 				echo "<div class='text-center'>{$image}</div>";
 				break;
 			case 'modified-last':
-				echo "<div style='width: 10%; min-width:100px;'>{$modified_last}</div>";
+				echo "<div class='text-center'>{$modified_last}</div>";
 				break;
 			case 'ssmemo':
 				echo "<div class='{$ssmemo_isset}'><p>{$ssmemo}</p></div>";
 				break;
 			case 'tools':
-				echo '
-					<div class="dropdown text-center">
+				?>
+					<div class="dropdown text-center n2-list-tooles">
 						<span class="dashicons dashicons-admin-tools dropdown-toggle" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false"></span>
 						<ul class="dropdown-menu border" aria-labelledby="dropdownMenuLink">
-							<li><button type="button" class="dropdown-item neo-neng-copypost-btn">複製</button></li>
-							<li><button type="button" class="dropdown-item neo-neng-deletepost-btn">ゴミ箱へ移動</button></li>
+							<?php foreach ( $tools_setting as $setting ) : ?>
+								<?php if ( $setting['is_show'] ) : ?>
+									<li><button type="button" class="dropdown-item <?php echo $setting['add_class']; ?>"><?php echo $setting['text']; ?></button></li>
+								<?php endif; ?>
+							<?php endforeach; ?>
 						</ul>
 					</div>
-					';
+				<?php
 				break;
 		}
 	}
@@ -686,6 +704,24 @@ class N2_Postlist {
 			echo 'ゴミ箱へ移動しました';
 		} else {
 			echo 'ゴミ箱への移動に失敗しました';
+		}
+
+		die();
+	}
+
+	/**
+	 * 返礼品を復元
+	 *
+	 * @return void
+	 */
+	public function recovery_post() {
+		$post_id      = filter_input( INPUT_GET, 'id', FILTER_VALIDATE_INT );
+		$untrash_result = wp_untrash_post( $post_id );
+
+		if ( $untrash_result ) {
+			echo '復元';
+		} else {
+			echo '復元に失敗しました';
 		}
 
 		die();

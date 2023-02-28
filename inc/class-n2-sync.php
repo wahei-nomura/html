@@ -758,6 +758,7 @@ class N2_Sync {
 		return array_map(
 			function( $v ) use ( $header ) {
 				$v = array_slice( $v, 0, count( $header ) );
+				$v = array_pad( $v, count( $header ), '' );
 				return array_combine( $header, $v );
 			},
 			$data
