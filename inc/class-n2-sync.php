@@ -181,18 +181,19 @@ class N2_Sync {
 		</div>
 		<h2>Googleスプレットシートからの追加・上書き</h2>
 		<ul style="padding: 1em; background: white; margin: 2em 0; border: 1px solid;">
-			<li>※ ユーザーはスプレットシートにある情報を追加、既に存在する場合は上書きします。</li>
+			<li>※ ユーザーの更新はスプレットシートにある情報を追加、既に存在する場合は上書きします。</li>
+			<li>※ 返礼品の更新モードは、返礼品コードで照合して返礼品があれば更新、無ければ追加します。</li>
 			<li>※ シートの範囲については<a href="https://developers.google.com/sheets/api/guides/concepts?hl=ja#expandable-1" target="_blank">ココ</a>を参照。</li>
 		</ul>
 		<div style="padding: 1em 0;">
-			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_users_from_spreadsheet"; ?>" class="button button" target="_blank" style="margin-right: 1em;">
-				今すぐユーザーを同期
+			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_users_from_spreadsheet"; ?>" class="button" target="_blank" style="margin-right: 1em;">
+				今すぐユーザーを更新
+			</a>
+			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_posts_from_spreadsheet&update=1"; ?>" class="button" target="_blank" style="margin-right: 1em;">
+				今すぐ返礼品を更新
 			</a>
 			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_posts_from_spreadsheet"; ?>" class="button button-primary" target="_blank">
-				今すぐ返礼品を追加
-			</a>
-			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_posts_from_spreadsheet&update=1"; ?>" class="button button-primary" target="_blank">
-				返礼品を更新（既存返礼品は上書き）
+				＋　今すぐ返礼品を追加
 			</a>
 		</div>
 		<form method="post" action="options.php">
