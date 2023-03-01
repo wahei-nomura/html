@@ -29,6 +29,7 @@ class N2_Setmenu {
 		add_action( 'admin_head', array( $this, 'my_custom_logo' ) );
 		add_action( 'admin_bar_menu', array( $this, 'remove_admin_bar_menus' ), 999 );
 		add_action( 'admin_head', array( $this, 'remove_help_tabs' ) );
+		add_filter('admin_footer_text', array( $this, 'custom_admin_footer' ) );
 	}
 
 	/**
@@ -129,6 +130,12 @@ class N2_Setmenu {
 		$wp_admin_bar->remove_menu( 'comments' );     // コメント
 		$wp_admin_bar->remove_menu( 'new-content' );  // 新規
 		$wp_admin_bar->remove_menu( 'view-site' );    // サイト名 → サイトを表示
+		$wp_admin_bar->add_node(
+			array(
+				'id' => 'my-sites',
+				'title' => '自治体',
+			),
+		);
 		if ( ! current_user_can( 'administrator' ) ) {
 			$wp_admin_bar->remove_menu( 'edit-profile' ); // ユーザー / プロフィールを編集.
 		}
@@ -142,5 +149,10 @@ class N2_Setmenu {
 	public function remove_help_tabs() {
 		$screen = get_current_screen();
 		$screen -> remove_help_tabs();
+	}
+	/**
+	 * 「wordpressのご利用ありがとうございます。」の削除 @yamasaki
+	 */
+	public function custom_admin_footer() {
 	}
 }
