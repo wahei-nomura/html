@@ -171,7 +171,11 @@ class N2_Postlist {
 			$status       = 'ポータル登録準備中';
 			$status_bar   = 80;
 			$status_color = 'primary';
-
+		}
+		if ( 'registered' === get_post_status() ) {
+			$status       = 'ポータル登録済';
+			$status_bar   = 100;
+			$status_color = 'success';
 		}
 
 		$tools_setting = array(
