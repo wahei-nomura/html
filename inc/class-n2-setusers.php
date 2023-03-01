@@ -34,6 +34,8 @@ class N2_Setusers {
 	 */
 	public function remove_usertype() {
 		global $wp_roles;
+
+		$wp_roles->remove_role( 'municipal-office' ); // 役場初期化
 		$wp_roles->remove_role( 'jigyousya' ); // 事業者初期化
 		$wp_roles->remove_role( 'ss-crew' ); // SSクルー初期化
 		$wp_roles->remove_role( 'editor' ); // 編集者
@@ -49,6 +51,19 @@ class N2_Setusers {
 	 */
 	public function add_usertype() {
 		global $wp_roles;
+
+		// 役場
+		$wp_roles->add_role( 'municipal-office', '役場', array() );
+		$wp_roles->add_cap( 'municipal-office', 'read' );
+		$wp_roles->add_cap( 'municipal-office', 'edit_posts' );
+		$wp_roles->add_cap( 'municipal-office', 'edit_others_posts' );
+		$wp_roles->add_cap( 'municipal-office', 'edit_published_posts' );
+		// $wp_roles->add_cap( 'municipal-office', 'delete_posts' );
+		// $wp_roles->add_cap( 'municipal-office', 'delete_others_postss' );
+		// $wp_roles->add_cap( 'municipal-office', 'delete_published_posts' );
+		// $wp_roles->add_cap( 'municipal-office', 'upload_files' );
+		// $wp_roles->add_cap( 'municipal-office', 'publish_posts' );
+		$wp_roles->add_cap( 'municipal-office', 'municipal-office' );
 
 		// 事業者
 		$wp_roles->add_role( 'jigyousya', '事業者', array() );

@@ -64,7 +64,7 @@ class N2_Postlist {
 	 * @return string iconタグ
 	 */
 	private function judging_icons_order( $param_name ) {
-		if ( (isset($_GET['orderby']) && $param_name !== $_GET['orderby'] )|| empty( $_GET['order'] ) ) {
+		if ( ( isset( $_GET['orderby'] ) && $param_name !== $_GET['orderby'] ) || empty( $_GET['order'] ) ) {
 			return;
 		}
 
@@ -157,8 +157,8 @@ class N2_Postlist {
 		$status_color = '';
 
 		if ( 'draft' === get_post_status() || 'inherit' === get_post_status() ) {
-			$status     = '入力中';
-			$status_bar = 30;
+			$status       = '入力中';
+			$status_bar   = 30;
 			$status_color = 'secondary';
 
 		}
@@ -251,8 +251,13 @@ class N2_Postlist {
 	 * @return void
 	 */
 	public function pre_get_author_posts( $query ) {
+		global $n2;
+		// var_dump( $n2->current_user->roles );
 		if (
-				is_admin() && ! current_user_can( 'ss_crew' ) && $query->is_main_query() &&
+				is_admin() &&
+				in_array( 'jigyousya', $n2->current_user->roles, true ) &&
+				// ! current_user_can( 'ss_crew' ) &&
+				$query->is_main_query() &&
 				( ! isset( $_GET['author'] ) || intval( $_GET['author'] ) === get_current_user_id() )
 		) {
 			$query->set( 'author', get_current_user_id() );
@@ -565,7 +570,7 @@ class N2_Postlist {
 		$current_pgae = get_query_var( 'paged' );  // ページ数取得
 		$current_pgae = 0 === $current_pgae ? '1' : $current_pgae;
 		$now_page     = ( $current_pgae - 1 ) * $page_number;
-		$where = "
+		$where        = "
 		AND (
 			(
 				{$wpdb->posts}.post_type = 'post'
@@ -715,7 +720,7 @@ class N2_Postlist {
 	 * @return void
 	 */
 	public function recovery_post() {
-		$post_id      = filter_input( INPUT_GET, 'id', FILTER_VALIDATE_INT );
+		$post_id        = filter_input( INPUT_GET, 'id', FILTER_VALIDATE_INT );
 		$untrash_result = wp_untrash_post( $post_id );
 
 		if ( $untrash_result ) {
