@@ -87,12 +87,12 @@ class N2_Admin_Post_Editor {
 		register_post_status(
 			'registered',
 			array(
-				'label'                     => 'ポータル登録済み',
+				'label'                     => 'ポータル登録済',
 				'public'                    => true,
 				'exclude_from_search'       => false,
 				'show_in_admin_all_list'    => true,
 				'show_in_admin_status_list' => true,
-				'label_count'               => _n_noop( 'ポータル登録済み <span class="count">(%s)</span>', 'ポータル登録済み <span class="count">(%s)</span>' ),
+				'label_count'               => _n_noop( 'ポータル登録済 <span class="count">(%s)</span>', 'ポータル登録済 <span class="count">(%s)</span>' ),
 			)
 		);
 	}
