@@ -38,6 +38,7 @@ class N2_Postlist {
 		add_filter( 'gettext', array( $this, 'change_status' ) );
 		add_filter( 'ngettext', array( $this, 'change_status' ) );
 		add_filter( 'post_row_actions', array( $this, 'hide_editbtn' ) );
+		add_filter( 'bulk_actions-edit-post', array( $this, 'hide_bulk_btn' ) );
 		add_action( 'restrict_manage_posts', array( $this, 'add_search_filter' ) );
 		add_action( 'posts_request', array( $this, 'posts_request' ) );
 		add_action( "wp_ajax_{$this->cls}", array( $this, 'ajax' ) );
@@ -78,7 +79,7 @@ class N2_Postlist {
 	 * @return array $columns 一覧に追加するカラム
 	 */
 	public function add_posts_columns( $columns ) {
-
+	
 		$sort_base_url = admin_url();
 		$asc_or_desc   = empty( $_GET['order'] ) || 'desc' === $_GET['order'] ? 'asc' : 'desc';
 
@@ -92,9 +93,15 @@ class N2_Postlist {
 			'teiki'           => '<div class="text-center">定期便</div>',
 			'thumbnail'       => '<div class="text-center">画像</div>',
 			'modified-last'   => "<div class='text-center'><a href='{$sort_base_url}edit.php?orderby=date&order={$asc_or_desc}'>最終<br>更新日{$this->judging_icons_order('date')}</a></div>",
-			'tools'           => '<div class="text-center">ツール</div>',
 		);
-
+		if ( 'municipal-office' !== wp_get_current_user()->roles[0] ) {
+			$columns = array(
+				...$columns,
+				...array(
+					'tools' => '<div class="text-center">ツール</div>',
+				),
+			);
+		}
 		if ( 'jigyousya' !== wp_get_current_user()->roles[0] ) {
 			$columns = array_merge(
 				$columns,
@@ -294,6 +301,22 @@ class N2_Postlist {
 		unset( $actions['inline hide-if-no-js'] );
 		unset( $actions['view'] );
 		unset( $actions['trash'] );
+		return $actions;
+	}
+	/**
+	 * hide_editbtn
+	 * タイトル下の一括編集ボタンの中身を削除
+	 *
+	 * @param object $actions a
+	 * @return object @actions
+	 */
+	public function hide_bulk_btn( $actions ) {
+		global $n2;
+		switch ( $n2->current_user->roles[0] ) {
+			case 'municipal-office':
+				unset( $actions['edit'] );
+				break;
+		}
 		return $actions;
 	}
 
