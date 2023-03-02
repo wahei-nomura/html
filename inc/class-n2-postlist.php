@@ -171,7 +171,11 @@ class N2_Postlist {
 			$status       = 'ポータル登録準備中';
 			$status_bar   = 80;
 			$status_color = 'primary';
-
+		}
+		if ( 'registered' === get_post_status() ) {
+			$status       = 'ポータル登録済';
+			$status_bar   = 100;
+			$status_color = 'success';
 		}
 
 		$tools_setting = array(
@@ -269,10 +273,10 @@ class N2_Postlist {
 	 * @return string $status ステータス
 	 */
 	public function change_status( $status ) {
-		$status = str_ireplace( '非公開', '事業者下書き', $status );
-		$status = str_ireplace( '下書き', '事業者下書き', $status );
+		$status = str_ireplace( '非公開', '入力中', $status );
+		$status = str_ireplace( '下書き', '入力中', $status );
 		$status = str_ireplace( 'レビュー待ち', 'スチームシップ確認待ち', $status );
-		$status = str_ireplace( '公開済み', 'スチームシップ確認済み', $status );
+		$status = str_ireplace( '公開済み', 'ポータル登録準備中', $status );
 
 		return $status;
 	}
@@ -342,9 +346,10 @@ class N2_Postlist {
 
 		// ステータス検索
 		$status = array(
-			'draft'   => '事業者下書き',
-			'pending' => 'スチームシップ確認待ち',
-			'publish' => 'スチームシップ確認済み',
+			'draft'      => '入力中',
+			'pending'    => 'スチームシップ確認待ち',
+			'publish'    => 'ポータル登録準備中',
+			'registered' => 'ポータル登録済',
 		);
 		echo '<select name="ステータス">';
 		echo '<option value="">ステータス</option>';
@@ -569,13 +574,6 @@ class N2_Postlist {
 		AND (
 			(
 				{$wpdb->posts}.post_type = 'post'
-				AND (
-					{$wpdb->posts}.post_status = 'publish'
-					OR {$wpdb->posts}.post_status = 'future'
-					OR {$wpdb->posts}.post_status = 'draft'
-					OR {$wpdb->posts}.post_status = 'pending'
-					OR {$wpdb->posts}.post_status = 'private'
-					)
 		";
 
 		// $wpdbのprepareでプレイスフォルダーに代入するための配列
