@@ -326,8 +326,12 @@ class N2_Postlist {
 	 * return void
 	 */
 	public function add_search_filter() {
-
-		if ( N2_Functions::admin_param_judge( $this->page ) ) {
+		global $n2,$post_type,$pagenow;
+		if ( ! is_admin()
+			|| $this->page !== $pagenow
+			|| 'jigyousya' === $n2->current_user->roles[0]
+			|| 'post' !== $post_type
+		) {
 			return;
 		}
 
@@ -402,6 +406,7 @@ class N2_Postlist {
 	 * @return string $query sql
 	 */
 	public function posts_request( $query ) {
+		global $n2, $post_type, $pagenow;
 
 		// 事業者管理画面
 		if ( is_admin() && 'jigyousya' === wp_get_current_user()->roles[0] ) {
@@ -419,8 +424,11 @@ class N2_Postlist {
 			return $query;
 		}
 
-		if ( N2_Functions::admin_param_judge( $this->page ) ) {
-
+		if ( ! is_admin()
+			|| $this->page !== $pagenow
+			|| 'jigyousya' === $n2->current_user->roles[0]
+			|| 'post' !== $post_type
+		) {
 			/**
 			 * ここから超突貫のフロント用query
 			 * 絶対後で綺麗にしてね！
