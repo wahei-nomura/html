@@ -48,10 +48,10 @@ export default $ => {
 		$('.edit-post-header').before('<div id="n2-progress" class="progress rounded-0" style="height: 1.5em;width: 100%;"><div></div></div>');
 		n2.post_status = wp.data.select("core/editor").getEditedPostAttribute("status");
 
-		// 事業者ログイン
-		if ( n2.current_user.roles.includes('jigyousya') ) {
+		// 事業者・役場ログイン
+		if ( n2.current_user.roles.includes('jigyousya') || n2.current_user.roles.includes('municipal-office') ) {
 			$('.editor-post-switch-to-draft, .interface-pinned-items').hide();
-			if ( ! n2.post_status.match(/draft/) ) {
+			if ( ! n2.post_status.match(/draft/) || n2.current_user.roles.includes('municipal-office') ) {
 				$('#normal-sortables, .editor-post-title').addClass('pe-none')
 					.find('input,textarea,select').addClass('border-0');
 				$('.interface-interface-skeleton__content').on('click', ()=>{
@@ -59,13 +59,6 @@ export default $ => {
 				});
 				wp.data.dispatch( 'core/editor' ).lockPostSaving( 'n2-lock' );
 			}
-		}
-		// 役場ログイン
-		else if ( n2.current_user.roles.includes('municipal-office') ) {
-			$('.editor-post-switch-to-draft, .interface-pinned-items').hide();
-			$('#normal-sortables, .editor-post-title').addClass('pe-none')
-				.find('input,textarea,select').addClass('border-0');
-			wp.data.dispatch( 'core/editor' ).lockPostSaving( 'n2-lock' );
 		}
 		// 事業者・役場アカウント以外でプログレスバーでステータス変更
 		else {
