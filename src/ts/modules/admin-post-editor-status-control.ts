@@ -55,7 +55,15 @@ export default $ => {
 				$('#normal-sortables, .editor-post-title').addClass('pe-none')
 					.find('input,textarea,select').addClass('border-0');
 				$('.interface-interface-skeleton__content').on('click', ()=>{
-					alert('スチームシップに送信後の編集はできません。');
+					const alert_message = () :string =>{
+						switch (n2.current_user.roles[0]) {
+							case 'jigyousya':
+								return 'スチームシップに送信後の編集はできません。';
+							default:
+								return 'このアカウントの権限では編集はできません';
+						}
+					}
+					alert(alert_message());
 				});
 				wp.data.dispatch( 'core/editor' ).lockPostSaving( 'n2-lock' );
 			}

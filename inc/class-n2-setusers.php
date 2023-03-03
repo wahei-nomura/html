@@ -58,11 +58,6 @@ class N2_Setusers {
 		$wp_roles->add_cap( 'municipal-office', 'edit_posts' );
 		$wp_roles->add_cap( 'municipal-office', 'edit_others_posts' );
 		$wp_roles->add_cap( 'municipal-office', 'edit_published_posts' );
-		// $wp_roles->add_cap( 'municipal-office', 'delete_posts' );
-		// $wp_roles->add_cap( 'municipal-office', 'delete_others_postss' );
-		// $wp_roles->add_cap( 'municipal-office', 'delete_published_posts' );
-		// $wp_roles->add_cap( 'municipal-office', 'upload_files' );
-		// $wp_roles->add_cap( 'municipal-office', 'publish_posts' );
 		$wp_roles->add_cap( 'municipal-office', 'municipal-office' );
 
 		// 事業者
@@ -78,11 +73,11 @@ class N2_Setusers {
 		$wp_roles->add_role( 'ss-crew', 'SSクルー', array() );
 		$wp_roles->add_cap( 'ss-crew', 'read' );
 		$wp_roles->add_cap( 'ss-crew', 'edit_posts' );
-		$wp_roles->add_cap( 'ss-crew', 'delete_others_posts' );
-		$wp_roles->add_cap( 'ss-crew', 'delete_posts' );
-		$wp_roles->add_cap( 'ss-crew', 'delete_published_posts' );
 		$wp_roles->add_cap( 'ss-crew', 'edit_others_posts' );
 		$wp_roles->add_cap( 'ss-crew', 'edit_published_posts' );
+		$wp_roles->add_cap( 'ss-crew', 'delete_posts' );
+		$wp_roles->add_cap( 'ss-crew', 'delete_others_posts' );
+		$wp_roles->add_cap( 'ss-crew', 'delete_published_posts' );
 		$wp_roles->add_cap( 'ss-crew', 'publish_posts' );
 		$wp_roles->add_cap( 'ss-crew', 'upload_files' );
 		$wp_roles->add_cap( 'ss-crew', 'ss_crew' ); // role判定用に追加
