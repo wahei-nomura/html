@@ -36,6 +36,10 @@ body.n2-darkmode{
 				.components-button{
 					box-shadow: none !important;
 				}
+				.edit-post-fullscreen-mode-close_site-icon{
+					width: auto;
+					margin-right: 1em;
+				}
 				.components-button.edit-post-fullscreen-mode-close{
 					display: block;
 					height: 100%;
@@ -51,6 +55,7 @@ body.n2-darkmode{
 				// ヘッダー右の設定ボタン郡
 				&__settings{
 					flex-wrap: nowrap;
+					white-space: nowrap;
 					overflow-x: scroll;
 					scrollbar-width: none;
 					&::-webkit-scrollbar{
