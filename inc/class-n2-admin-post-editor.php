@@ -102,7 +102,11 @@ class N2_Admin_Post_Editor {
 	 * SS管理と返礼品詳細を追加
 	 */
 	public function add_customfields() {
-		if ( current_user_can( 'ss_crew' ) ) {
+		global $n2;
+		// 社内用
+		if ( in_array( 'ss_crew', $n2->current_user->roles, true ) ||
+			 in_array( 'municipal-office', $n2->current_user->roles, true )
+		) {
 			add_meta_box(
 				'スチームシップ用',
 				'スチームシップ用',
@@ -112,6 +116,7 @@ class N2_Admin_Post_Editor {
 				'default',
 			);
 		}
+		// 事業者用
 		add_meta_box(
 			'事業者用',
 			'事業者用',

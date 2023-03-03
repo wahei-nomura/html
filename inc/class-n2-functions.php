@@ -98,9 +98,9 @@ class N2_Functions {
 	 * @param string $user current_user_can
 	 * @return boolean
 	 */
-	public static function admin_param_judge( $page, $type = 'post', $user = 'ss_crew' ) {
+	public static function admin_param_judge( $page, $type = 'post', $user = 'jigyousya' ) {
 		global $pagenow, $post_type;
-		return ! is_admin() || ! current_user_can( $user ) || $page !== $pagenow || $type !== $post_type;
+		return ! is_admin() || current_user_can( $user ) || $page !== $pagenow || $type !== $post_type;
 	}
 
 

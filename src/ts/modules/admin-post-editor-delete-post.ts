@@ -8,7 +8,10 @@ export default ($: any, target: string) => {
 	// ターゲットDOMが生成されてから
 	$(target).ready(() => {
 		const status = window['wp'].data.select("core/editor").getEditedPostAttribute("status");
-		if ( window['n2'].current_user.roles.includes('jigyousya') && ! status.match(/draft/)) return
+		if ( 
+			( window['n2'].current_user.roles.includes('jigyousya') && ! status.match(/draft/) )
+			|| window['n2'].current_user.roles.includes('municipal-office')
+		) return
 		// 削除ボタン配置
 		$(target).prepend('<div id="n2-delete-post" class="btn btn-sm btn-outline-danger d-flex align-items-center" title="削除"><span></span>削除</div>');
 		$('#n2-delete-post').on('click', () => {
