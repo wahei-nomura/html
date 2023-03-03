@@ -155,6 +155,7 @@ export default $ => {
 				if ( target == 'タグID' && arr.length >= ( $('[type="rakuten-tagid"]').attr('maxlength') as any)/8 ) return;
 				this[target].text = [...arr, id].filter( v => v ).join( delimiter );
 			}
+			$(`[name="n2field[${target}]"]`).get(0).dispatchEvent( new Event('focus') );
 		},
 		// 寄附金額計算
 		async calc_donation(price, delivery_fee, subscription) {

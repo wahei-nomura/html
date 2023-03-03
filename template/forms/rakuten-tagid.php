@@ -9,11 +9,13 @@
 $defaults = array();
 $args     = wp_parse_args( $args, $defaults );
 $attr     = '';
+$value    = $args['value'] ?? '';
+unset( $args['value'] );
 foreach ( $args as $k => $v ) {
 	$attr .= " {$k}=\"{$v}\"";
 }
 ?>
-<textarea <?php echo $attr; ?>></textarea>
+<textarea <?php echo $attr; ?>><?php echo $value; ?></textarea>
 <div class="d-flex" style="width: 100%;" v-if="全商品ディレクトリID.list.length != 0">
 	<div class="col-5 gap-1 p-1 me-2" style="max-height: 200px; overflow-y: scroll;">
 		<p
