@@ -14,6 +14,7 @@ export default $ => {
 			data[name] = n2.custom_field[id][name].value;
 		}
 	}
+	data['delivery_fee'] = n2.delivery_fee;
 	const created = async function() {
 		this.全商品ディレクトリID = {
 			text: this.全商品ディレクトリID,
