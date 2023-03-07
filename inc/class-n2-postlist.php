@@ -38,6 +38,7 @@ class N2_Postlist {
 		add_filter( 'gettext', array( $this, 'change_status' ) );
 		add_filter( 'ngettext', array( $this, 'change_status' ) );
 		add_filter( 'post_row_actions', array( $this, 'hide_editbtn' ) );
+		add_filter( 'bulk_actions-edit-post', array( $this, 'hide_bulk_btn' ) );
 		add_action( 'restrict_manage_posts', array( $this, 'add_search_filter' ) );
 		add_action( 'posts_request', array( $this, 'posts_request' ) );
 		add_action( "wp_ajax_{$this->cls}", array( $this, 'ajax' ) );
@@ -64,7 +65,7 @@ class N2_Postlist {
 	 * @return string iconタグ
 	 */
 	private function judging_icons_order( $param_name ) {
-		if ( (isset($_GET['orderby']) && $param_name !== $_GET['orderby'] )|| empty( $_GET['order'] ) ) {
+		if ( ( isset( $_GET['orderby'] ) && $param_name !== $_GET['orderby'] ) || empty( $_GET['order'] ) ) {
 			return;
 		}
 
@@ -78,7 +79,7 @@ class N2_Postlist {
 	 * @return array $columns 一覧に追加するカラム
 	 */
 	public function add_posts_columns( $columns ) {
-
+	
 		$sort_base_url = admin_url();
 		$asc_or_desc   = empty( $_GET['order'] ) || 'desc' === $_GET['order'] ? 'asc' : 'desc';
 
@@ -92,9 +93,15 @@ class N2_Postlist {
 			'teiki'           => '<div class="text-center">定期便</div>',
 			'thumbnail'       => '<div class="text-center">画像</div>',
 			'modified-last'   => "<div class='text-center'><a href='{$sort_base_url}edit.php?orderby=date&order={$asc_or_desc}'>最終<br>更新日{$this->judging_icons_order('date')}</a></div>",
-			'tools'           => '<div class="text-center">ツール</div>',
 		);
-
+		if ( 'municipal-office' !== wp_get_current_user()->roles[0] ) {
+			$columns = array(
+				...$columns,
+				...array(
+					'tools' => '<div class="text-center">ツール</div>',
+				),
+			);
+		}
 		if ( 'jigyousya' !== wp_get_current_user()->roles[0] ) {
 			$columns = array_merge(
 				$columns,
@@ -157,8 +164,8 @@ class N2_Postlist {
 		$status_color = '';
 
 		if ( 'draft' === get_post_status() || 'inherit' === get_post_status() ) {
-			$status     = '入力中';
-			$status_bar = 30;
+			$status       = '入力中';
+			$status_bar   = 30;
 			$status_color = 'secondary';
 
 		}
@@ -171,7 +178,11 @@ class N2_Postlist {
 			$status       = 'ポータル登録準備中';
 			$status_bar   = 80;
 			$status_color = 'primary';
-
+		}
+		if ( 'registered' === get_post_status() ) {
+			$status       = 'ポータル登録済';
+			$status_bar   = 100;
+			$status_color = 'success';
 		}
 
 		$tools_setting = array(
@@ -251,8 +262,13 @@ class N2_Postlist {
 	 * @return void
 	 */
 	public function pre_get_author_posts( $query ) {
+		global $n2;
+		// var_dump( $n2->current_user->roles );
 		if (
-				is_admin() && ! current_user_can( 'ss_crew' ) && $query->is_main_query() &&
+				is_admin() &&
+				in_array( 'jigyousya', $n2->current_user->roles, true ) &&
+				// ! current_user_can( 'ss_crew' ) &&
+				$query->is_main_query() &&
 				( ! isset( $_GET['author'] ) || intval( $_GET['author'] ) === get_current_user_id() )
 		) {
 			$query->set( 'author', get_current_user_id() );
@@ -269,10 +285,10 @@ class N2_Postlist {
 	 * @return string $status ステータス
 	 */
 	public function change_status( $status ) {
-		$status = str_ireplace( '非公開', '事業者下書き', $status );
-		$status = str_ireplace( '下書き', '事業者下書き', $status );
+		$status = str_ireplace( '非公開', '入力中', $status );
+		$status = str_ireplace( '下書き', '入力中', $status );
 		$status = str_ireplace( 'レビュー待ち', 'スチームシップ確認待ち', $status );
-		$status = str_ireplace( '公開済み', 'スチームシップ確認済み', $status );
+		$status = str_ireplace( '公開済み', 'ポータル登録準備中', $status );
 
 		return $status;
 	}
@@ -291,6 +307,22 @@ class N2_Postlist {
 		unset( $actions['trash'] );
 		return $actions;
 	}
+	/**
+	 * hide_editbtn
+	 * タイトル下の一括編集ボタンの中身を削除
+	 *
+	 * @param object $actions a
+	 * @return object @actions
+	 */
+	public function hide_bulk_btn( $actions ) {
+		global $n2;
+		switch ( $n2->current_user->roles[0] ) {
+			case 'municipal-office':
+				unset( $actions['edit'] );
+				break;
+		}
+		return $actions;
+	}
 
 	/**
 	 * add_search_filter
@@ -298,8 +330,12 @@ class N2_Postlist {
 	 * return void
 	 */
 	public function add_search_filter() {
-
-		if ( N2_Functions::admin_param_judge( $this->page ) ) {
+		global $n2,$post_type,$pagenow;
+		if ( ! is_admin()
+			|| $this->page !== $pagenow
+			|| 'jigyousya' === $n2->current_user->roles[0]
+			|| 'post' !== $post_type
+		) {
 			return;
 		}
 
@@ -342,9 +378,10 @@ class N2_Postlist {
 
 		// ステータス検索
 		$status = array(
-			'draft'   => '事業者下書き',
-			'pending' => 'スチームシップ確認待ち',
-			'publish' => 'スチームシップ確認済み',
+			'draft'      => '入力中',
+			'pending'    => 'スチームシップ確認待ち',
+			'publish'    => 'ポータル登録準備中',
+			'registered' => 'ポータル登録済',
 		);
 		echo '<select name="ステータス">';
 		echo '<option value="">ステータス</option>';
@@ -374,6 +411,7 @@ class N2_Postlist {
 	 * @return string $query sql
 	 */
 	public function posts_request( $query ) {
+		global $n2, $post_type, $pagenow;
 
 		// 事業者管理画面
 		if ( is_admin() && 'jigyousya' === wp_get_current_user()->roles[0] ) {
@@ -391,8 +429,11 @@ class N2_Postlist {
 			return $query;
 		}
 
-		if ( N2_Functions::admin_param_judge( $this->page ) ) {
-
+		if ( ! is_admin()
+			|| $this->page !== $pagenow
+			|| 'jigyousya' === $n2->current_user->roles[0]
+			|| 'post' !== $post_type
+		) {
 			/**
 			 * ここから超突貫のフロント用query
 			 * 絶対後で綺麗にしてね！
@@ -565,17 +606,10 @@ class N2_Postlist {
 		$current_pgae = get_query_var( 'paged' );  // ページ数取得
 		$current_pgae = 0 === $current_pgae ? '1' : $current_pgae;
 		$now_page     = ( $current_pgae - 1 ) * $page_number;
-		$where = "
+		$where        = "
 		AND (
 			(
 				{$wpdb->posts}.post_type = 'post'
-				AND (
-					{$wpdb->posts}.post_status = 'publish'
-					OR {$wpdb->posts}.post_status = 'future'
-					OR {$wpdb->posts}.post_status = 'draft'
-					OR {$wpdb->posts}.post_status = 'pending'
-					OR {$wpdb->posts}.post_status = 'private'
-					)
 		";
 
 		// $wpdbのprepareでプレイスフォルダーに代入するための配列
@@ -715,7 +749,7 @@ class N2_Postlist {
 	 * @return void
 	 */
 	public function recovery_post() {
-		$post_id      = filter_input( INPUT_GET, 'id', FILTER_VALIDATE_INT );
+		$post_id        = filter_input( INPUT_GET, 'id', FILTER_VALIDATE_INT );
 		$untrash_result = wp_untrash_post( $post_id );
 
 		if ( $untrash_result ) {

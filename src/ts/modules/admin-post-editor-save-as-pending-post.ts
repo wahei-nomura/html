@@ -10,7 +10,7 @@ export default ($: any, target: string) => {
 	const wp = window['wp'];
 	$(target).ready(() => {
 		const status = wp.data.select("core/editor").getEditedPostAttribute("status");
-		if ( ! n2.current_user.roles.includes('jigyousya') || ! status.match(/draft/)) return
+		if ( ! ( n2.current_user.roles.includes('jigyousya') && status.match(/draft/) )	) return
 
 		// 保存ボタン配置
 		$(target).prepend('<div id="n2-save-as-pending" class="btn btn-sm btn-primary d-flex align-items-center" title="スチームシップへ送信"><span></span>スチームシップへ送信</div>');

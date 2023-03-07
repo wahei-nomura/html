@@ -56,33 +56,48 @@ class N2_Setmenu {
 	 */
 	public function remove_menulabel() {
 		// クルー事業者共通で削除
-		$menus = array(
+		$menus    = array(
 			'edit.php?post_type=page', // 固定ページ
 			'tools.php',
 			'upload.php',
 			'profile.php',
 		);
+		$submenus = array();
+		global $n2;
 
-		// クルーのメニュー削除
-		if ( 'ss-crew' === wp_get_current_user()->roles[0] ) {
-			$menus[] = 'themes.php';
-			$menus[] = 'upload.php';
-			$menus[] = 'edit-comments.php';
-			$menus[] = 'aiowpsec'; // All In One WP Security
-		}
-
-		// 事業者のメニュー削除
-		if ( 'jigyousya' === wp_get_current_user()->roles[0] ) {
-			$menus[] = 'index.php';
-			$menus[] = 'edit-comments.php';
-			$menus[] = 'aiowpsec'; // All In One WP Security
+		// ロール毎で削除するメニュー
+		switch ( $n2->current_user->roles[0] ) {
+			case 'ss-crew':
+				$menus[] = 'themes.php';
+				$menus[] = 'upload.php';
+				$menus[] = 'edit-comments.php';
+				$menus[] = 'aiowpsec'; // All In One WP Security
+				break;
+			case 'jigyousya':
+				$menus[] = 'index.php';
+				$menus[] = 'edit-comments.php';
+				$menus[] = 'aiowpsec'; // All In One WP Security
+				break;
+			case 'municipal-office':
+				$menus[]  = 'index.php';
+				$menus[]  = 'edit-comments.php';
+				$menus[]  = 'aiowpsec'; // All In One WP Security
+				$submenus = array(
+					...$submenus,
+					...array(
+						'edit.php' => 'post-new.php',
+					),
+				);
+				break;
 		}
 
 		foreach ( $menus as $menu ) {
 			remove_menu_page( $menu );
 		}
+		foreach ( $submenus as $menu_slug => $submenu_slug ) {
+			remove_submenu_page( $menu_slug, $submenu_slug );
+		}
 	}
-
 
 	/**
 	 * not_edhit_user

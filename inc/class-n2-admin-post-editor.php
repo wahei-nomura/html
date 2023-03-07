@@ -87,12 +87,12 @@ class N2_Admin_Post_Editor {
 		register_post_status(
 			'registered',
 			array(
-				'label'                     => 'ポータル登録済み',
+				'label'                     => 'ポータル登録済',
 				'public'                    => true,
 				'exclude_from_search'       => false,
 				'show_in_admin_all_list'    => true,
 				'show_in_admin_status_list' => true,
-				'label_count'               => _n_noop( 'ポータル登録済み <span class="count">(%s)</span>', 'ポータル登録済み <span class="count">(%s)</span>' ),
+				'label_count'               => _n_noop( 'ポータル登録済 <span class="count">(%s)</span>', 'ポータル登録済 <span class="count">(%s)</span>' ),
 			)
 		);
 	}
@@ -102,7 +102,10 @@ class N2_Admin_Post_Editor {
 	 * SS管理と返礼品詳細を追加
 	 */
 	public function add_customfields() {
-		if ( current_user_can( 'ss_crew' ) ) {
+		global $n2;
+		// 社内用
+		if ( in_array( $n2->current_user->roles[0], array('administrator','ss-crew','municipal-office', true ) )
+		) {
 			add_meta_box(
 				'スチームシップ用',
 				'スチームシップ用',
@@ -112,6 +115,7 @@ class N2_Admin_Post_Editor {
 				'default',
 			);
 		}
+		// 事業者用
 		add_meta_box(
 			'事業者用',
 			'事業者用',

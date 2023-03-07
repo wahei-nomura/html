@@ -8,7 +8,9 @@ export default ($: any, target: string) => {
 	// ターゲットDOMが生成されてから
 	$(target).ready(() => {
 		const status = window['wp'].data.select("core/editor").getEditedPostAttribute("status");
-		if ( window['n2'].current_user.roles.includes('jigyousya') && ! status.match(/draft/)) return
+		if ( ( window['n2'].current_user.roles.includes('jigyousya') && ! status.match(/draft/) )
+		|| window['n2'].current_user.roles.includes('municipal-office')
+		) return
 		// 保存ボタン配置
 		$(target).prepend('<div id="n2-save-post" class="btn btn-sm btn-outline-dark d-flex align-items-center" title="保存"><span></span>保存</div>');
 		
