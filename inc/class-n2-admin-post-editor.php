@@ -104,7 +104,12 @@ class N2_Admin_Post_Editor {
 	public function add_customfields() {
 		global $n2;
 		// 社内用
-		if ( current_user_can( 'ss_crew' ) ) {
+		$ss = array(
+			'administrator',
+			'ss-crew',
+			'municipal-office',
+		);
+		if ( in_array( $n2->current_user->roles[0], $ss, true ) ) {
 			add_meta_box(
 				'スチームシップ用',
 				'スチームシップ用',
