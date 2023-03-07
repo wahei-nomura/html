@@ -13,7 +13,7 @@ export default ($: any, target: string) => {
 		if ( ! ( n2.current_user.roles.includes('jigyousya') && status.match(/draft/) )	) return
 
 		// 保存ボタン配置
-		$(target).prepend('<div id="n2-save-as-pending" class="btn btn-sm btn-primary d-flex align-items-center" title="スチームシップへ送信"><span></span>スチームシップへ送信</div>');
+		$(target).append('<div id="n2-save-as-pending" class="btn btn-sm btn-primary d-flex align-items-center" title="スチームシップへ送信"><span></span>スチームシップへ送信</div>');
 		$('#n2-save-as-pending').on('click', () => {
 			// 必須項目が入っていない場合は送信できなくする
 			if ( $('.edit-post-layout__metaboxes [required]').serializeArray().find(v=>!v.value) ) {
