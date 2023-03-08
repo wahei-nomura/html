@@ -27,7 +27,7 @@ class N2_Setmenu {
 		add_action( 'admin_init', array( $this, 'not_edit_user' ) );
 		add_filter( 'get_site_icon_url', array( $this, 'change_site_icon' ) );
 		add_action( 'admin_head', array( $this, 'my_custom_logo' ) );
-
+		add_filter( 'bulk_actions-edit-post', array( $this, 'bulk_manipulate' ) );
 	}
 
 	/**
@@ -134,5 +134,12 @@ class N2_Setmenu {
 	 */
 	public function my_custom_logo() {
 		echo '<style type="text/css">#wpadminbar #wp-admin-bar-wp-logo > .ab-item > .ab-icon:before { content: url(' . get_theme_file_uri( 'neo_neng_logo.svg' ) . ');}</style>';
+	}
+	/**
+	 * 一括操作項目操作
+	 */
+	public function bulk_manipulate( $actions ) {
+		unset( $actions['edit'] );
+		return $actions;
 	}
 }
