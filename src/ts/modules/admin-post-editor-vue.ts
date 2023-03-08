@@ -113,11 +113,11 @@ export default $ => {
 				const add =  this.商品画像.filter( v => v.nonces );
 				images.state().get('selection').add( add.map( v => wp.media.attachment(v.id) ) );
 			});
-			images.on( 'select', () => {
+			images.on( 'select close', () => {
 				this.商品画像 =  [
-						...this.商品画像.filter( v => !v.nonces ),// N1のみ展開
-						...images.state().get('selection').map( v => v.attributes )
-					];
+					...this.商品画像.filter( v => !v.nonces ),// N1のみ展開
+					...images.state().get('selection').map( v => v.attributes )
+				];
 			});
 			images.open();
 		},
