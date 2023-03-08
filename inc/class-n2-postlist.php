@@ -44,6 +44,7 @@ class N2_Postlist {
 		add_action( "wp_ajax_{$this->cls}", array( $this, 'ajax' ) );
 		add_action( "wp_ajax_{$this->cls}_deletepost", array( $this, 'delete_post' ) );
 		add_action( "wp_ajax_{$this->cls}_recoverypost", array( $this, 'recovery_post' ) );
+		add_filter( 'bulk_actions-edit-post', array( $this, 'bulk_manipulate' ) );
 	}
 
 	/**
@@ -759,6 +760,13 @@ class N2_Postlist {
 		}
 
 		die();
+	}
+	/**
+	 * 一括操作項目操作
+	 */
+	public function bulk_manipulate( $actions ) {
+		unset( $actions['edit'] );
+		return $actions;
 	}
 
 }
