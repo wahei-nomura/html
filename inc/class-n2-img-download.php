@@ -78,7 +78,7 @@ class N2_Img_Download {
 					$extension = pathinfo( $furl );
 					// 画像がアップロードされている場合のみ処理
 					if ( $furl ) {
-						$fname .= '-' . ( $pickey + 1 ) . $extension['extension'];
+						$fname .= '-' . ( $pickey + 1 ) . '.' . $extension['extension'];
 						if ( WP_Filesystem() ) {
 							global $wp_filesystem;
 							$zip->addFromString( $item_code . '/' . $fname, $wp_filesystem->get_contents( $furl ) );
