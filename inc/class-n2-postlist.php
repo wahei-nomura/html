@@ -611,6 +611,14 @@ class N2_Postlist {
 		AND (
 			(
 				{$wpdb->posts}.post_type = 'post'
+				AND (
+					{$wpdb->posts}.post_status = 'publish'
+					OR {$wpdb->posts}.post_status = 'future'
+					OR {$wpdb->posts}.post_status = 'draft'
+					OR {$wpdb->posts}.post_status = 'pending'
+					OR {$wpdb->posts}.post_status = 'private'
+					OR {$wpdb->posts}.post_status = 'registered'
+					)
 		";
 
 		// $wpdbのprepareでプレイスフォルダーに代入するための配列
