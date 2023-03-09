@@ -137,7 +137,7 @@ class N2_Rakuten_CSV {
 			$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
 			$item_num       = trim( strtoupper( $post_meta_list['返礼品コード'] ) );
 			$item_num_low   = trim( mb_strtolower( $post_meta_list['返礼品コード'] ) );
-			$img_dir        = $option['rakuten']['img_dir'];
+			$img_dir        = rtrim( $option['rakuten']['img_dir'], '/' );
 
 			// GOLD（ne.jp）とキャビネット（co.jp）を判定してキャビネットは事業者コードディレクトリを追加
 			preg_match( '/^[a-z]{2,3}/', $item_num_low, $m );// 事業者コード
