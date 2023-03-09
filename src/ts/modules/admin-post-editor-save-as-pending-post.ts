@@ -27,6 +27,17 @@ export default ($: any, target: string) => {
 				$('#n2-save-as-pending span').attr('class', 'dashicons dashicons-saved me-2');
 				location.reload();
 			})
+			
+			// slack通知
+			const slackurl = 'https://hooks.slack.com/services/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';
+			const data = {
+				text: "【テスト】" + $('.edit-post-visual-editor__post-title-wrapper h1').text()
+			};
+			$.ajax({
+				type: 'POST',
+				url: slackurl,
+				data: `payload=${JSON.stringify(data)}`
+			});
 		});
 		wp.data.subscribe(()=>{
 			if ( $('.edit-post-layout__metaboxes [required]').serializeArray().find(v=>!v.value) ) {
