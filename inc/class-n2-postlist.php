@@ -155,7 +155,8 @@ class N2_Postlist {
 		$donation_amount = ! empty( $post_data['寄附金額'] ) && 0 !== $post_data['寄附金額'] ? number_format( $post_data['寄附金額'] ) : '-';
 		$teiki           = ! empty( $post_data['定期便'] ) && 1 !== (int) $post_data['定期便'] ? $post_data['定期便'] : '-';
 		$poster          = ! empty( get_userdata( $post->post_author ) ) ? get_userdata( $post->post_author )->display_name : '-';
-		$code            = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '-';
+		$code            = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '未設定(id:' . $post->ID . ')';
+		$code_no_class   = empty( $post_data['返礼品コード'] ) ? ' no-code' : '';
 		$ssmemo          = ! empty( $post_data['社内共有事項'] ) ? nl2br( $post_data['社内共有事項'] ) : '';
 		$ssmemo_isset    = $ssmemo ? 'n2-postlist-ssmemo' : '';
 		$modified_last   = get_the_modified_date( 'Y/m/d' );
@@ -227,7 +228,7 @@ class N2_Postlist {
 				echo "<div class='text-center'>{$teiki}</div>";
 				break;
 			case 'code':
-				echo "<div class='text-center'>{$code}</div>";
+				echo "<div class='text-center{$code_no_class}'>{$code}</div>";
 				break;
 			case 'thumbnail':
 				echo "<div class='text-center'>{$image}</div>";
