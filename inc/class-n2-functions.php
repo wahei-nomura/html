@@ -215,4 +215,32 @@ class N2_Functions {
 
 		die();
 	}
+
+	/**
+	 * send_slack_notification
+	 *
+	 * @param string $url 通知するチャンネルのurl
+	 * @param string $send_message メッセージ
+	 * @return void
+	 */
+	public static function send_slack_notification( $url = 'https://hooks.slack.com/services/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', $send_message ) {
+		$options = array(
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_HEADER         => true,
+			CURLOPT_URL            => $url,
+			CURLOPT_POST           => true,
+			CURLOPT_POSTFIELDS     => array( 'payload' => json_encode( array( 'text'=> $send_message) ) )
+		);
+		$ch = curl_init();
+		curl_setopt_array( $ch, $options );
+		$result      = curl_exec( $ch );
+		$header_size = curl_getinfo( $ch, CURLINFO_HEADER_SIZE );
+		$header      = substr( $result, 0, $header_size );
+		$result      = substr( $result, $header_size );
+		curl_close( $ch );
+		return array(
+			'Header' => $header,
+			'Result' => $result,
+		);
+	}
 }

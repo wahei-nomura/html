@@ -39,6 +39,7 @@ class N2_Admin_Post_Editor {
 		add_filter( 'wp_handle_upload', array( $this, 'image_compression' ) );
 		add_filter( 'post_link', array( $this, 'set_post_paermalink' ), 10, 3 );
 		add_action( 'init', array( $this, 'register_post_status' ) );
+		add_action( 'slack_notification', array( $this, 'transition_post_status' ) );
 	}
 
 	/**
@@ -271,5 +272,20 @@ class N2_Admin_Post_Editor {
 
 		return 'post' === $post->post_type ? home_url( '?p=' . $post->ID ) : $url;
 
+	}
+
+	/**
+	 * 事業者アカウントでスチームシップへ送信時slackへ通知
+	 *
+	 * @param string $new_status 変化後のステータス
+	 * @param array  $post メタデータ
+	 */
+	public function transition_post_status( $new_status, $post ) {
+		if ( $new_status === 'pending' && current_user_can( 'jigyousya' ) ) {
+			$town = $n2->town;
+			// $name = $n2->current_user;
+			$name = 'テスト';
+			N2_Functions::send_slack_notification( "{$town}：「{$post->post_title}」の商品情報が{$name}から送信されました(これはテストです。)" );
+		}
 	}
 }
