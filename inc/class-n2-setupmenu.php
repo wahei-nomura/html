@@ -140,6 +140,7 @@ class N2_Setupmenu {
 		</div>
 		<div id="set-menu3" class="tab-pane fade" role="tabpanel" aria-labelledby="tab3">
 		<form>
+		<p>「クール加算」は自動計算されるため設定不要です。</p>
 			<div class="d-flex">
 			<div class="input-half input-left flex-fill">
 				<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
@@ -201,23 +202,6 @@ class N2_Setupmenu {
 				<label class="form-check-label" for="flexCheckChecked">
 					レターパックプラス
 				</label>
-			</div>
-			<p class="input-header" style="font-weight:bold">クール加算</p>
-			<div class="mb-3 col-md-3">
-				<label for="input-postage-0101_cool" class="form-label">60サイズ【必須】</label>
-				<input type="number" class="form-control" id="input-postage-0101_cool" name="<?php echo $this->cls; ?>[delivery_fee][0101_cool]" value="<?php echo get_option( $this->cls )['delivery_fee']['0101_cool'] ?? ''; ?>" required>
-			</div>
-			<div class="mb-3 col-md-3">
-				<label for="input-postage-0102_cool" class="form-label">80サイズ【必須】</label>
-				<input type="number" class="form-control" id="input-postage-0102_cool" name="<?php echo $this->cls; ?>[delivery_fee][0102_cool]" value="<?php echo get_option( $this->cls )['delivery_fee']['0102_cool'] ?? ''; ?>" required>
-			</div>
-			<div class="mb-3 col-md-3">
-				<label for="input-postage-0103_cool" class="form-label">100サイズ【必須】</label>
-				<input type="number" class="form-control" id="input-postage-0103_cool" name="<?php echo $this->cls; ?>[delivery_fee][0103_cool]" value="<?php echo get_option( $this->cls )['delivery_fee']['0103_cool'] ?? ''; ?>" required>
-			</div>
-			<div class="mb-3 col-md-3">
-				<label for="input-postage-0104_cool" class="form-label">120サイズ【必須】</label>
-				<input type="number" class="form-control" id="input-postage-0104_cool" name="<?php echo $this->cls; ?>[delivery_fee][0104_cool]" value="<?php echo get_option( $this->cls )['delivery_fee']['0104_cool'] ?? ''; ?>" required>
 			</div>
 			</div>
 			</div>
