@@ -278,15 +278,17 @@ class N2_Admin_Post_Editor {
 	 * 事業者アカウントでスチームシップへ送信時slackへ通知
 	 *
 	 * @param string $new_status 変化後のステータス
+	 * @param string $old_status 変化前のステータス
 	 * @param array  $post メタデータ
 	 */
-	public function transition_status_action( $new_status , $old_status, $post ) {
+	public function transition_status_action( $new_status, $old_status, $post ) {
 		global $n2;
-		if ( $old_status === 'pending' && $new_status === 'pending' && current_user_can( 'jigyousya' ) ) {
-			$town = $n2->town;
-			$name = $n2->current_user->first_name;
+		if ( 'pending' === $old_status && 'pending' === $new_status && current_user_can( 'jigyousya' ) ) {
+			$town  = $n2->town;
+			$name  = $n2->current_user->first_name;
+			$link  = ( empty( $_SERVER['HTTPS'] ) ? 'http://' : 'https://' ) . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 			$title = get_the_title();
-			N2_Functions::send_slack_notification( "{$town}：「{$title}」の商品情報が{$name}から送信されました(これはテストです。)" );
+			N2_Functions::send_slack_notification( "{$town}：「<{$link}|{$title}>」の商品情報が{$name}から送信されました(これはテストです。)" );
 		}
 	}
 }

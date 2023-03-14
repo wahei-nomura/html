@@ -219,17 +219,22 @@ class N2_Functions {
 	/**
 	 * send_slack_notification
 	 *
-	 * @param string $channel_url 通知するチャンネルのurl
-	 * @param string $send_message メッセージ
-	 * @return void
+	 * @param  string $send_message メッセージ
+	 * @param  string $channel_url 通知するチャンネルのurl
+	 * @return array
 	 */
 	public static function send_slack_notification( $send_message, $channel_url = 'https://hooks.slack.com/services/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' ) {
+		global $n2;
+		// ローカルの場合通知処理しない
+		if ( 'develop' === $n2->mode ) {
+			return;
+		}
 		$options = array(
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_HEADER         => true,
 			CURLOPT_URL            => $channel_url,
 			CURLOPT_POST           => true,
-			CURLOPT_POSTFIELDS     => array( 'payload' => json_encode( array( 'text'=> $send_message) ) )
+			CURLOPT_POSTFIELDS     => array( 'payload' => json_encode( array( 'text' => $send_message ) ) )
 		);
 		$ch = curl_init();
 		curl_setopt_array( $ch, $options );
