@@ -53,6 +53,7 @@ jQuery(function($) {
 		$.each(integrateItems(),(_,v)=>{
 			$('.n2-selected-item-wrapper').append(
 				`<li class="list-group-item">
+					<button type="button" class="btn-close" aria-label="Close"></button>
 					${v.title}
 					<span class="badge bg-secondary">${v.author}</span>
 					<span class="badge bg-secondary ${v.code==='-' ? 'visually-hidden':''}">${v.code}</span><br>
@@ -61,6 +62,10 @@ jQuery(function($) {
 				`
 			)
 		})
+	});
+
+	$("body").on("click", ".n2-selected-item-wrapper button.btn-close", (e) => {
+		$(e.target).parent().remove()
 	});
 
 	// モーダルキャンセル
