@@ -25,73 +25,51 @@ jQuery(function($) {
 		$('#n2-update-status-modal-wrapper').css('display', 'block')
 	}
 
+	// チェックが入った返礼品のidを配列で返す
+	const integrateItems = () => {
+		const checkbox = $.makeArray($('input[name="post[]"]'));
+		const items = checkbox.flatMap((v) => {
+				if($(v).prop("checked")){
+					return {
+						id: $(v).val(),
+						title: $(v).parent().parent().find('td.item-title>div.text-truncate').text() ,
+						author: $(v).parent().parent().find('td.poster>div').text() ,
+						status: $(v).parent().parent().find('td.item-title>div.progress').prop('outerHTML'),
+						code: $(v).parent().parent().find('td.code>div').text()
+					}
+				} else {
+					return [];
+				}
+			}
+		);
+		// return checked.length ? checked.join() : "";
+		return items;
+	};
+
 	// モーダル展開クリックイベント
 	$(`#bulk_update_status`).on("click", (e) => {
 		setModal();
-	});
 
-	// ゴミ箱へ移動イベント
-	$(`.${prefix}-deletepost-btn`).on("click", (e) => {
-		if(!confirm('この返礼品をゴミ箱へ移してもいいですか？')){
-			return
-		}
-		const itemTr = $(e.target).parents('tr');
-		const originalId: number = Number(
-			itemTr.find("th.check-column input").val()
-		);
-
-		$.ajax({
-			url: n2.ajaxurl,
-			data:{
-				action: 'N2_Postlist_deletepost',
-				id: originalId
-			}
-		}).done(res=>{
-			console.log(res)
-		}).fail(error => {
-			console.log(error)
-		});
-		
-		itemTr.remove()
-	});
-	// ゴミ箱から復元イベント
-	$(`.${prefix}-recoverypost-btn`).on("click", (e) => {
-		const itemTr = $(e.target).parents('tr');
-		const originalId: number = Number(
-			itemTr.find("th.check-column input").val()
-		);
-
-		$.ajax({
-			url: n2.ajaxurl,
-			data:{
-				action: 'N2_Postlist_recoverypost',
-				id: originalId
-			}
-		}).done(res=>{
-			console.log(res)
-		}).fail(error => {
-			console.log(error)
-		});
-
-		itemTr.remove()
+		$.each(integrateItems(),(_,v)=>{
+			$('.n2-selected-item-wrapper').append(
+				`<li class="list-group-item">
+					${v.title}
+					<span class="badge bg-secondary">${v.author}</span>
+					<span class="badge bg-secondary ${v.code==='-' ? 'visually-hidden':''}">${v.code}</span><br>
+					${v.status}
+				</li>
+				`
+			)
+		})
 	});
 
 	// モーダルキャンセル
 	$("body").on("click", "#n2-update-status-modal .close-btn,#n2-update-status-modal-wrapper", (e) => {
 		if($(e.target).attr('id')==='n2-update-status-modal-wrapper' || $(e.target).hasClass('dashicons-no')) {	
 			$('#n2-update-status-modal-wrapper').css('display', 'none')
+			$('.n2-selected-item-wrapper>*').remove()
 		}
 	});
 
-	// 複製submit
-	$("body").on("submit", '#n2-update-status-form', () => {
-
-		// inputのvalueに空のものがあるか判定
-		if($('#n2-update-status-form').serializeArray().length && $('#n2-update-status-form').serializeArray().map(v => v.value).includes('')) {
-			alert('全ての項目を入力してください')
-			return false;	
-		}
-
-	});
 });
 
