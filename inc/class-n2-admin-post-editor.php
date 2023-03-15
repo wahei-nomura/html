@@ -286,7 +286,7 @@ class N2_Admin_Post_Editor {
 		if ( 'pending' === $old_status && 'pending' === $new_status && current_user_can( 'jigyousya' ) ) {
 			$town  = $n2->town;
 			$name  = $n2->current_user->first_name;
-			$link  = ( empty( $_SERVER['HTTPS'] ) ? 'http://' : 'https://' ) . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+			$link  = get_edit_post_link( $post->ID );
 			$title = get_the_title();
 			N2_Functions::send_slack_notification( "{$town}：「<{$link}|{$title}>」の商品情報が{$name}から送信されました(これはテストです。)" );
 		}
