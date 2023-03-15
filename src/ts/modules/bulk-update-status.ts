@@ -26,7 +26,7 @@ jQuery(function($) {
 		$('#n2-update-status-modal-wrapper').css('display', 'block')
 	}
 
-	// チェックが入った返礼品のidを配列で返す
+	// チェックが入った返礼品のデータをオブジェクトの配列で返す
 	const integrateItems = () => {
 		const checkbox = $.makeArray($('input[name="post[]"]'));
 		const items = checkbox.flatMap((v) => {
