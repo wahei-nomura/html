@@ -223,7 +223,7 @@ class N2_Functions {
 	 * @param  string $channel_url 通知するチャンネルのurl
 	 * @return array
 	 */
-	public static function send_slack_notification( $send_message, $channel_url = 'https://hooks.slack.com/services/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' ) {
+	public static function send_slack_notification( $send_message, $channel_url = 'https://hooks.slack.com/services/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' ) {
 		global $n2;
 		// ローカルの場合通知処理しない
 		if ( 'develop' === $n2->mode ) {
