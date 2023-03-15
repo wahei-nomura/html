@@ -1,3 +1,4 @@
+import { ajax } from "jquery";
 import { prefix, neoNengPath, ajaxUrl } from "./functions";
 
 
@@ -52,7 +53,7 @@ jQuery(function($) {
 
 		$.each(integrateItems(),(_,v)=>{
 			$('.n2-selected-item-wrapper').append(
-				`<li class="list-group-item">
+				`<li key=${v.id} class="list-group-item">
 					<button type="button" class="btn-close" aria-label="Close"></button>
 					${v.title}
 					<span class="badge bg-secondary">${v.author}</span>
@@ -66,6 +67,37 @@ jQuery(function($) {
 
 	$("body").on("click", ".n2-selected-item-wrapper button.btn-close", (e) => {
 		$(e.target).parent().remove()
+	});
+
+	$("body").on("click", "#n2-update-status-modal button.n2-submit-bth", (e) => {
+
+		if(!confirm('ステータスを一括変更します。よろしいですか？')){
+			return
+		}
+
+		const checkedItems = $.makeArray($('.n2-selected-item-wrapper>li'))
+		const checkedIds = checkedItems.flatMap(item=>$(item).attr('key'))
+		const selectedStatus = $('#n2-update-status-modal .status-select').val()
+		console.log(selectedStatus)
+
+		if(selectedStatus === '' || checkedIds.length === 0) {
+			alert('ステータスが先行されてない、または返礼品が選択されていません。')
+			return
+		}
+
+		$.ajax({
+			url: n2.ajaxurl,
+			type: 'POST',
+			data:{
+				action: 'N2_Postlist_bulk_update_status',
+				ids: checkedIds.join(),
+				status: selectedStatus,
+			}
+		}).done(res=>{
+			location.reload()
+		}).fail(error => {
+			console.log(error)
+		})
 	});
 
 	// モーダルキャンセル

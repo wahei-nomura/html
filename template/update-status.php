@@ -58,14 +58,14 @@
 		<form action="admin-ajax.php?action=N2_update-stauts" method="POST" id="n2-update-status-form">
 			<div class="close-btn"><span class="dashicons dashicons-no"></span></div>
 			<h1>ステータスの一括変更</h1>
-			<select class="form-select" aria-label="変更後のステータス">
-				<option selected>変更後のステータス</option>
+			<select class="form-select status-select" aria-label="変更後のステータス">
+				<option value="" selected>変更後のステータス</option>
 				<option value="draft">入力中</option>
 				<option value="pending">スチームシップ確認中</option>
 				<option value="publish">ポータル登録準備中</option>
 				<option value="registered">ポータル登録済</option>
 			</select>
-			<button type="button" class="btn btn-outline-primary btn-sm">一括変更</button>
+			<button type="button" class="btn btn-outline-primary btn-sm n2-submit-bth">一括変更</button>
 			<p>以下の返礼品のステータスを一括変更します</p>
 			<ul class="n2-selected-item-wrapper list-group"></ul>
 		</form>

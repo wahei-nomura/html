@@ -44,6 +44,7 @@ class N2_Postlist {
 		add_action( "wp_ajax_{$this->cls}", array( $this, 'ajax' ) );
 		add_action( "wp_ajax_{$this->cls}_deletepost", array( $this, 'delete_post' ) );
 		add_action( "wp_ajax_{$this->cls}_recoverypost", array( $this, 'recovery_post' ) );
+		add_action( "wp_ajax_{$this->cls}_bulk_update_status", array( $this, 'bulk_update_status' ) );
 		add_filter( 'bulk_actions-edit-post', array( $this, 'bulk_manipulate' ) );
 	}
 
@@ -80,7 +81,7 @@ class N2_Postlist {
 	 * @return array $columns 一覧に追加するカラム
 	 */
 	public function add_posts_columns( $columns ) {
-	
+
 		$sort_base_url = admin_url();
 		$asc_or_desc   = empty( $_GET['order'] ) || 'desc' === $_GET['order'] ? 'asc' : 'desc';
 
@@ -769,6 +770,30 @@ class N2_Postlist {
 
 		die();
 	}
+
+	/**
+	 * ステータス一括変更
+	 *
+	 * @return void
+	 */
+	public function bulk_update_status() {
+		$ids    = explode( ',', filter_input( INPUT_POST, 'ids', FILTER_SANITIZE_SPECIAL_CHARS ) );
+		$status = filter_input( INPUT_POST, 'status', FILTER_SANITIZE_SPECIAL_CHARS );
+
+		foreach ( $ids as $id ) {
+			wp_update_post(
+				array(
+					'ID'          => $id,
+					'post_status' => $status,
+				)
+			);
+		}
+
+		echo '更新完了';
+
+		die();
+	}
+
 	/**
 	 * 一括操作項目操作
 	 */
