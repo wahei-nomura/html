@@ -62,7 +62,7 @@ class N2_Img_Download {
 			exit();
 			}
 			foreach ( $ids as  $idkey => $id ) {
-				$item_code = get_post_meta( $id, '返礼品コード', true ) ? get_post_meta( $id, '返礼品コード', true ) : 'id_' . $id;
+				$item_code = get_post_meta( $id, '返礼品コード', true ) ? get_post_meta( $id, '返礼品コード', true ) : $id . '-' . get_the_author_meta( 'display_name', get_post_field( 'post_author', $id ) ) . '-' . get_the_title( $id );
 				// ファイルナンバー保持のため
 				// $fnum = 1;
 				// echo  $fnum;
