@@ -225,7 +225,7 @@ class N2_Functions {
 	 * @param  string $icon_url アイコンのURL
 	 * @return array
 	 */
-	public static function send_slack_notification( $send_message, $channel_name = '機能テスト用チャンネル', $bot_name = 'SS BOT', $icon_url = 'https://ca.slack-edge.com/T6C6YQR62-UAD93DP6F-a394aaeabd28-72' ) {
+	public static function send_slack_notification( $send_message, $channel_name = 'コーディング', $bot_name = 'SS BOT', $icon_url = 'https://ca.slack-edge.com/T6C6YQR62-UAD93DP6F-a394aaeabd28-72' ) {
 		global $n2;
 
 		$bot_url       = 'https://hooks.slack.com/services/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';

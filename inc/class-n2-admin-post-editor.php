@@ -283,12 +283,13 @@ class N2_Admin_Post_Editor {
 	 */
 	public function transition_status_action( $new_status, $old_status, $post ) {
 		global $n2;
+		
 		if ( 'pending' === $old_status && 'pending' === $new_status && current_user_can( 'jigyousya' ) ) {
 			$town  = $n2->town;
 			$name  = $n2->current_user->first_name;
 			$link  = admin_url() . "post.php?post={$post->ID}&action=edit";
 			$title = get_the_title();
-			N2_Functions::send_slack_notification( "{$town}：「<{$link}|{$title}>」の商品情報が{$name}から送信されました(これはテストです。)" );
+			N2_Functions::send_slack_notification( "{$town}：「<{$link}|{$title}>」の商品情報が{$name}から送信されました", '商品登録' );
 		}
 	}
 }
