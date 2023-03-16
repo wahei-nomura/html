@@ -44,6 +44,7 @@ class N2_Postlist {
 		add_action( "wp_ajax_{$this->cls}", array( $this, 'ajax' ) );
 		add_action( "wp_ajax_{$this->cls}_deletepost", array( $this, 'delete_post' ) );
 		add_action( "wp_ajax_{$this->cls}_recoverypost", array( $this, 'recovery_post' ) );
+		add_filter( 'bulk_actions-edit-post', array( $this, 'bulk_manipulate' ) );
 	}
 
 	/**
@@ -610,6 +611,14 @@ class N2_Postlist {
 		AND (
 			(
 				{$wpdb->posts}.post_type = 'post'
+				AND (
+					{$wpdb->posts}.post_status = 'publish'
+					OR {$wpdb->posts}.post_status = 'future'
+					OR {$wpdb->posts}.post_status = 'draft'
+					OR {$wpdb->posts}.post_status = 'pending'
+					OR {$wpdb->posts}.post_status = 'private'
+					OR {$wpdb->posts}.post_status = 'registered'
+					)
 		";
 
 		// $wpdbのprepareでプレイスフォルダーに代入するための配列
@@ -759,6 +768,13 @@ class N2_Postlist {
 		}
 
 		die();
+	}
+	/**
+	 * 一括操作項目操作
+	 */
+	public function bulk_manipulate( $actions ) {
+		unset( $actions['edit'] );
+		return $actions;
 	}
 
 }

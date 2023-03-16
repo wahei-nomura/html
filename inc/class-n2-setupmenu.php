@@ -191,13 +191,13 @@ class N2_Setupmenu {
 			<div class="input-half input-right flex-fill">
 			<p class="input-header" style="font-weight:bold">レターパック(使用するものをチェックしてください)</p>
 			<div class="form-check">
-				<input type="checkbox" value="" id="flexCheckDefault" name="<?php echo $this->cls; ?>[delivery_fee][レターパックライト]" value="370" <?php echo isset( get_option( $this->cls )['delivery_fee']['レターパックライト'] ) && get_option( $this->cls )['delivery_fee']['レターパックライト'] ? 'checked' : ''; ?>>
-				<label class="form-check-label" for="flexCheckDefault">
+				<input type="checkbox" id="flexCheckDefault" name="<?php echo $this->cls; ?>[delivery_fee][レターパックライト]" value="370" <?php echo isset( get_option( $this->cls )['delivery_fee']['レターパックライト'] ) && get_option( $this->cls )['delivery_fee']['レターパックライト'] ? 'checked' : ''; ?>>
+				<label class="form-check-label <?php print_r(get_option( $this->cls )['delivery_fee']); ?>" for="flexCheckDefault">
 					レターパックライト
 				</label>
 				</div>
 				<div class="form-check">
-				<input type="checkbox" value="" id="flexCheckChecked" name="<?php echo $this->cls; ?>[delivery_fee][レターパックプラス]" value="520" <?php echo isset( get_option( $this->cls )['delivery_fee']['レターパックプラス'] ) && get_option( $this->cls )['delivery_fee']['レターパックプラス'] ? 'checked' : ''; ?>>
+				<input type="checkbox" id="flexCheckChecked" name="<?php echo $this->cls; ?>[delivery_fee][レターパックプラス]" value="520" <?php echo isset( get_option( $this->cls )['delivery_fee']['レターパックプラス'] ) && get_option( $this->cls )['delivery_fee']['レターパックプラス'] ? 'checked' : ''; ?>>
 				<label class="form-check-label" for="flexCheckChecked">
 					レターパックプラス
 				</label>

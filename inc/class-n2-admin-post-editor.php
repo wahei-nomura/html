@@ -51,12 +51,11 @@ class N2_Admin_Post_Editor {
 		$persisted_preferences = get_user_meta( $n2->current_user->ID, "{$n2->blog_prefix}persisted_preferences", true ) ?: array();
 
 		// 設定の強制
-		$persisted_preferences['core/edit-post']['welcomeGuide']            = false;
-		$persisted_preferences['core/edit-post']['showBlockBreadcrumbs']    = false;
-		$persisted_preferences['core/edit-post']['isPublishSidebarEnabled'] = false;
-		if ( current_user_can( 'jigyousya' ) ) {
-			$persisted_preferences['core/edit-post']['isComplementaryAreaVisible'] = false;
-		}
+		$persisted_preferences['core/edit-post']['welcomeGuide']               = false;
+		$persisted_preferences['core/edit-post']['showBlockBreadcrumbs']       = false;
+		$persisted_preferences['core/edit-post']['isPublishSidebarEnabled']    = false;
+		$persisted_preferences['core/edit-post']['isComplementaryAreaVisible'] = false;
+		$persisted_preferences['_modified']                                    = gmdate( 'c' );
 		update_user_meta( $n2->current_user->ID, "{$n2->blog_prefix}persisted_preferences", $persisted_preferences );
 
 		$supports = array(
@@ -105,8 +104,12 @@ class N2_Admin_Post_Editor {
 	public function add_customfields() {
 		global $n2;
 		// 社内用
-		if ( in_array( $n2->current_user->roles[0], array('administrator','ss-crew','municipal-office', true ) )
-		) {
+		$ss = array(
+			'administrator',
+			'ss-crew',
+			'municipal-office',
+		);
+		if ( in_array( $n2->current_user->roles[0], $ss, true ) ) {
 			add_meta_box(
 				'スチームシップ用',
 				'スチームシップ用',
@@ -136,11 +139,12 @@ class N2_Admin_Post_Editor {
 	 */
 	public function show_customfields( $post, $metabox ) {
 		global $n2;
+		$custom_field = array_filter( $n2->custom_field[ $metabox['id'] ], fn( $v ) => isset( $v['type'] ) );
 		?>
 		<!-- n2field保存の為のnonce -->
 		<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
 		<div class="n2-fields fs-6">
-			<?php foreach ( $n2->custom_field[ $metabox['id'] ] as $field => $detail ) : ?>
+			<?php foreach ( $custom_field as $field => $detail ) : ?>
 			<div id="<?php echo $field; ?>" class="n2-fields-list d-flex flex-wrap border-bottom p-3" v-if="<?php echo $detail['v-if'] ?? ''; ?>">
 				<div class="n2-fields-title col-12 mb-1 col-sm-3 mb-sm-0 d-flex align-items-center">
 					<?php echo ! empty( $detail['label'] ) ? $detail['label'] : $field; ?>

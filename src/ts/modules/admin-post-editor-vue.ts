@@ -43,11 +43,10 @@ export default $ => {
 					newVal.発送サイズ,
 					newVal.発送方法 != '常温' ? 'cool' : ''
 				].filter(v=>v);
-				this.送料 = n2.delivery_fee[size.join('_')] || newVal.送料;
-				// 発送サイズ未選択で送料リセット
-				if ( ! newVal.発送サイズ ) {
-					this.送料 = '';
+				if ( this.発送サイズ !== 'その他' ) {
+					newVal.送料 = n2.delivery_fee[size.join('_')] || '';
 				}
+				this.送料 = newVal.送料;
 				this.寄附金額 = await this.calc_donation(newVal.価格,this.送料,newVal.定期便);
 				this.show_submit();
 			},
@@ -114,11 +113,11 @@ export default $ => {
 				const add =  this.商品画像.filter( v => v.nonces );
 				images.state().get('selection').add( add.map( v => wp.media.attachment(v.id) ) );
 			});
-			images.on( 'select', () => {
+			images.on( 'select close', () => {
 				this.商品画像 =  [
-						...this.商品画像.filter( v => !v.nonces ),// N1のみ展開
-						...images.state().get('selection').map( v => v.attributes )
-					];
+					...this.商品画像.filter( v => !v.nonces ),// N1のみ展開
+					...images.state().get('selection').map( v => v.attributes )
+				];
 			});
 			images.open();
 		},
@@ -155,6 +154,10 @@ export default $ => {
 				if ( target == 'タグID' && arr.length >= ( $('[type="rakuten-tagid"]').attr('maxlength') as any)/8 ) return;
 				this[target].text = [...arr, id].filter( v => v ).join( delimiter );
 			}
+			// 自動可変高　一瞬ずらさんとまだレンダリングされてない
+			setTimeout( ()=>{
+				$(`[name="n2field[${target}]"]`).get(0).dispatchEvent( new Event('focus') );
+			}, 10 )
 		},
 		// 寄附金額計算
 		async calc_donation(price, delivery_fee, subscription) {
