@@ -236,11 +236,6 @@ class N2_Functions {
 			'text'     => $send_message,
 		);
 
-		// ローカルの場合通知処理しない
-		if ( 'develop' === $n2->mode ) {
-			return;
-		}
-
 		$options = array(
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_HEADER         => true,
