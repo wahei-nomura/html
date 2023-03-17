@@ -92,6 +92,10 @@ class N2_Rakuten_Items_API {
 			// オフセット更新
 			$params['offset'] = $params['offset'] + $params['hits'];
 		}
+		$data = array(
+			'update' => date_i18n( 'Y-m-d H:i:s' ),
+			'data'   => $data,
+		);
 		update_option( $this->option_name, $data );
 		echo 'N2_Rakuten_Items_API「' . get_bloginfo( 'name' ) . 'の楽天出品中」の返礼品データを保存しました（' . number_format( microtime( true ) - $before, 2 ) . ' 秒）';
 		exit;
@@ -119,7 +123,7 @@ class N2_Rakuten_Items_API {
 	 */
 	private function array_format( $v ) {
 		return array(
-			'title'       => $v['item']['title'],
+			'goods_name'  => $v['item']['title'],
 			'goods_g_num' => $v['item']['itemNumber'],
 			'goods_price' => $v['item']['variants'][ $v['item']['manageNumber'] ]['standardPrice'],
 			'insert_date' => $v['item']['created'],
