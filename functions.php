@@ -51,6 +51,7 @@ $incs = array(
 	'class-n2-rakuten-transfer',
 	'api/class-n2-donation-amount-api',
 	'api/class-n2-rakuten-items-api',
+	'api/class-n2-furusato-choice-items-api',
 );
 foreach ( $incs as $name ) {
 	require_once get_theme_file_path( "/inc/{$name}.php" );
