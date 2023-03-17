@@ -51,8 +51,8 @@ class N2_Furusato_Choice_Items_API {
 	 */
 	public function update() {
 		$before = microtime( true );
-		global $n2;
-		$town_code = '42201';
+		// 自治体コードを自動取得
+		$town_code = $this->get_town_code();
 		$url       = "https://www.furusato-tax.jp/ajax/city/product/{$town_code}?";
 		$params    = array(
 			'page' => 1,
@@ -133,5 +133,25 @@ class N2_Furusato_Choice_Items_API {
 			);
 		}
 		return $arr;
+	}
+
+	/**
+	 * チョイスの自治体コードを自動取得
+	 */
+	public function get_town_code() {
+		global $n2;
+		$url  = 'https://www.furusato-tax.jp/search?q=';
+		$data = wp_remote_get( $url );
+		$data = $data['body'];
+
+		// DOMDocument
+		$dom_document = new DOMDocument();
+		@$dom_document->loadHTML( mb_convert_encoding( $data, 'HTML-ENTITIES', 'UTF-8' ) );
+		$xml_object = simplexml_import_dom( $dom_document );
+		// チョイスの自治体絞り込みフォームから自治体コード抽出
+		$data = $xml_object->xpath( '//div[@id="prefecture_cities_map"]//select/option' );
+		$data = array_filter( $data, fn( $v ) => $n2->town === $v->__toString() );
+		$data = array_values( $data )[0]->attributes()->value->__toString() ?? false;
+		return $data;
 	}
 }
