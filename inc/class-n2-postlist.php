@@ -80,18 +80,23 @@ class N2_Postlist {
 	 * @return array $columns 一覧に追加するカラム
 	 */
 	public function add_posts_columns( $columns ) {
-	
-		$sort_base_url = admin_url();
+
+		$get_param_array = array();
+		foreach ( $_GET as $key => $value ) {
+			$get_param_array[ $key ] = "{$key}={$value}";
+		}
+
+		$sort_base_url = admin_url() . 'edit.php?' . implode( '&', $get_param_array );
 		$asc_or_desc   = empty( $_GET['order'] ) || 'desc' === $_GET['order'] ? 'asc' : 'desc';
 
 		$columns = array(
 			'cb'              => '<input type="checkbox" />',
-			'item-title'      => "<a href='{$sort_base_url}edit.php?orderby=返礼品名&order={$asc_or_desc}'>返礼品名{$this->judging_icons_order('返礼品名')}</a>",
-			'poster'          => "<a href='{$sort_base_url}edit.php?orderby=事業者&order={$asc_or_desc}'>事業者名{$this->judging_icons_order('事業者')}</a>",
-			'code'            => "<div class='text-center'><a href='{$sort_base_url}edit.php?orderby=返礼品コード&order={$asc_or_desc}'>返礼品<br>コード{$this->judging_icons_order('返礼品コード')}</a></div>",
-			'goods_price'     => "<div class='text-center'><a href='{$sort_base_url}edit.php?orderby=価格&order={$asc_or_desc}'>価格{$this->judging_icons_order('価格')}</a></div>",
-			'donation_amount' => "<a href='{$sort_base_url}edit.php?orderby=寄附金額&order={$asc_or_desc}'>寄附金額{$this->judging_icons_order('寄附金額')}</a>",
-			'teiki'           => '<div class="text-center">定期便</div>',
+			'item-title'      => '返礼品名',
+			'poster'          => '事業者名',
+			'code'            => "<div class='text-center'><a href='{$sort_base_url}&orderby=返礼品コード&order={$asc_or_desc}'>返礼品<br>コード{$this->judging_icons_order('返礼品コード')}</a></div>",
+			'goods_price'     => "<div class='text-center'><a href='{$sort_base_url}&orderby=価格&order={$asc_or_desc}'>価格{$this->judging_icons_order('価格')}</a></div>",
+			'donation_amount' => "<a href='{$sort_base_url}&orderby=寄附金額&order={$asc_or_desc}'>寄附金額{$this->judging_icons_order('寄附金額')}</a>",
+			'teiki'           => "<a href='{$sort_base_url}&orderby=定期便&order={$asc_or_desc}'>定期便{$this->judging_icons_order('定期便')}</a>",
 			'thumbnail'       => '<div class="text-center">画像</div>',
 			'modified-last'   => "<div class='text-center'><a href='{$sort_base_url}edit.php?orderby=date&order={$asc_or_desc}'>最終<br>更新日{$this->judging_icons_order('date')}</a></div>",
 		);
@@ -627,6 +632,21 @@ class N2_Postlist {
 		// $wpdbのprepareでプレイスフォルダーに代入するための配列
 		$args = array();
 
+		// ソート
+		if ( isset( $_GET['orderby'] ) ) {
+			$order_meta_key = "AND {$wpdb->postmeta}.meta_key = '%s'";
+
+			$int_metakey_perttern = array( '価格', '寄附金額', '定期便' );
+
+			if ( in_array( $_GET['orderby'], $int_metakey_perttern ) ) {
+				$orderby = "CAST({$wpdb->postmeta}.meta_value AS UNSIGNED) DESC";
+			} else {
+				$orderby = "{$wpdb->postmeta}.meta_value DESC";
+			}
+
+			array_push( $args, filter_input( INPUT_GET, 'orderby' ) );
+		}
+
 		// キーワード検索 ----------------------------------------
 		if ( ! empty( $_GET['s'] ) ) {
 			// 全角空白は半角空白へ変換し、複数キーワードを配列に
@@ -691,14 +711,6 @@ class N2_Postlist {
 			array_push( $args, filter_input( INPUT_GET, '定期便', FILTER_VALIDATE_INT ) );
 		}
 
-		// ソート
-		if ( isset( $_GET['orderby'] ) ) {
-			$order_meta_key = "AND {$wpdb->postmeta}.meta_key = '%s'";
-			$orderby        = "CAST({$wpdb->postmeta}.meta_value AS UNSIGNED) DESC";
-
-			array_push( $args, filter_input( INPUT_GET, 'orderby' ) );
-		}
-
 		// WHER句末尾連結
 		$where .= '))';
 
@@ -715,9 +727,6 @@ class N2_Postlist {
 
 		// 検索用GETパラメータがある場合のみ$queryを上書き
 		$query = count( $args ) > 0 ? $wpdb->prepare( $sql, ...$args ) : $query;
-
-		// print_r($query);
-		// die;
 
 		return $query;
 	}
