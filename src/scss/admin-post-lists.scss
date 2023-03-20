@@ -7,6 +7,9 @@
 @import "bootstrap/scss/buttons";
 @import "bootstrap/scss/dropdown";
 @import "bootstrap/scss/progress";
+@import "bootstrap/scss/list-group";
+@import "bootstrap/scss/badge";
+@import "bootstrap/scss/close";
 
 $prefix: "n2-postlist";
 
@@ -78,7 +81,7 @@ tbody#the-list>tr>th {
 	background-color: #fff;
 }
 
-#n2-copypost-modal {
+#n2-copypost-modal,#n2-update-status-modal {
 	position: fixed;
 	top: 50%;
 	left: 50%;
