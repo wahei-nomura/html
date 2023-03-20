@@ -621,6 +621,9 @@ class N2_Postlist {
 					)
 		";
 
+		$order_meta_key = '';
+		$orderby        = "{$wpdb->posts}.post_date DESC";
+
 		// $wpdbのprepareでプレイスフォルダーに代入するための配列
 		$args = array();
 
@@ -688,6 +691,14 @@ class N2_Postlist {
 			array_push( $args, filter_input( INPUT_GET, '定期便', FILTER_VALIDATE_INT ) );
 		}
 
+		// ソート
+		if ( isset( $_GET['orderby'] ) ) {
+			$order_meta_key = "AND {$wpdb->postmeta}.meta_key = '%s'";
+			$orderby        = "CAST({$wpdb->postmeta}.meta_value AS UNSIGNED) DESC";
+
+			array_push( $args, filter_input( INPUT_GET, 'orderby' ) );
+		}
+
 		// WHER句末尾連結
 		$where .= '))';
 
@@ -695,15 +706,18 @@ class N2_Postlist {
 		$sql = "
 		SELECT SQL_CALC_FOUND_ROWS *
 		FROM {$wpdb->posts}
-		INNER JOIN {$wpdb->postmeta} ON {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id
+		INNER JOIN {$wpdb->postmeta} ON {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id {$order_meta_key}
 		WHERE 1 = 1 {$where}
 		GROUP BY {$wpdb->posts}.ID
-		ORDER BY {$wpdb->posts}.post_date DESC
+		ORDER BY {$orderby}
 		LIMIT {$now_page}, {$page_number}
 		";
 
 		// 検索用GETパラメータがある場合のみ$queryを上書き
 		$query = count( $args ) > 0 ? $wpdb->prepare( $sql, ...$args ) : $query;
+
+		// print_r($query);
+		// die;
 
 		return $query;
 	}
