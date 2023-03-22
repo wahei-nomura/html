@@ -87,7 +87,7 @@ class N2_Postlist {
 		}
 
 		$sort_base_url = admin_url() . 'edit.php?' . implode( '&', $get_param_array );
-		$asc_or_desc   = empty( $_GET['order'] ) || 'desc' === $_GET['order'] ? 'asc' : 'desc';
+		$asc_or_desc   = empty( $_GET['order'] ) || 'asc' === $_GET['order'] ? 'desc' : 'asc';
 
 		$columns = array(
 			'cb'              => '<input type="checkbox" />',
@@ -98,7 +98,7 @@ class N2_Postlist {
 			'donation_amount' => "<a href='{$sort_base_url}&orderby=寄附金額&order={$asc_or_desc}'>寄附金額{$this->judging_icons_order('寄附金額')}</a>",
 			'teiki'           => "<a href='{$sort_base_url}&orderby=定期便&order={$asc_or_desc}'>定期便{$this->judging_icons_order('定期便')}</a>",
 			'thumbnail'       => '<div class="text-center">画像</div>',
-			'modified-last'   => "<div class='text-center'><a href='{$sort_base_url}edit.php?orderby=date&order={$asc_or_desc}'>最終<br>更新日{$this->judging_icons_order('date')}</a></div>",
+			'modified-last'   => "<div class='text-center'><a href='{$sort_base_url}&orderby=date&order={$asc_or_desc}'>最終<br>更新日{$this->judging_icons_order('date')}</a></div>",
 		);
 		if ( 'municipal-office' !== wp_get_current_user()->roles[0] ) {
 			$columns = array(
@@ -638,10 +638,17 @@ class N2_Postlist {
 
 			$int_metakey_perttern = array( '価格', '寄附金額', '定期便' );
 
+			$order_pattern = ! isset( $_GET['order'] ) || 'desc' === $_GET['order'] ? 'DESC' : 'ASC';
+
 			if ( in_array( $_GET['orderby'], $int_metakey_perttern ) ) {
-				$orderby = "CAST({$wpdb->postmeta}.meta_value AS UNSIGNED) DESC";
+				$orderby = "CAST({$wpdb->postmeta}.meta_value AS UNSIGNED) {$order_pattern}";
 			} else {
-				$orderby = "{$wpdb->postmeta}.meta_value DESC";
+				$orderby = "{$wpdb->postmeta}.meta_value {$order_pattern}";
+			}
+
+			if ( 'date' === $_GET['orderby'] ) {
+				$order_meta_key = '';
+				$orderby        = "{$wpdb->posts}.post_date {$order_pattern}";
 			}
 
 			array_push( $args, filter_input( INPUT_GET, 'orderby' ) );
