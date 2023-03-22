@@ -13,6 +13,24 @@
 
 $prefix: "n2-postlist";
 
+.n2-code-selectbox {
+	float: left;
+	position: relative;
+	width: 100px;
+	height: 26px;
+	margin-right: 6px;
+
+	select[name="返礼品コード[]"] {
+		position: absolute;
+		top:0;
+		left:0;
+		z-index: 999;
+		cursor: pointer;
+		display: none;
+		width:100%;
+	}
+}
+
 .#{$prefix} {
 	&-imgicon {
 		width: 25px;
@@ -35,7 +53,7 @@ $prefix: "n2-postlist";
 			position: absolute;
 			top: 50%;
 			left: 50%;
-			transform: translate(-50%,0);
+			transform: translate(-50%, 0);
 			cursor: pointer;
 			color: #1a4899;
 			font-size: 24px;
@@ -77,11 +95,13 @@ tbody#the-list>tr>td {
 	border-bottom: solid 1px #0d6dfd40;
 	background-color: #fff;
 }
+
 tbody#the-list>tr>th {
 	background-color: #fff;
 }
 
-#n2-copypost-modal,#n2-update-status-modal {
+#n2-copypost-modal,
+#n2-update-status-modal {
 	position: fixed;
 	top: 50%;
 	left: 50%;
@@ -208,6 +228,7 @@ tbody#the-list>tr>th {
 }
 
 @media screen and (max-width: 768px) {
+
 	// tableのレスポンシブ対応
 	tbody#the-list>tr.is-expanded>td:not(.hidden) {
 		border-bottom: solid 1px lightgray;
@@ -223,13 +244,16 @@ tbody#the-list>tr>th {
 			display: block;
 			position: relative;
 		}
+
 		.n2-list-tooles .dropdown-toggle {
 			display: none;
 		}
 	}
+
 	tbody#the-list>tr.is-expanded>td.ssmemo {
 		display: none !important;
 	}
+
 	.n2-postlist {
 		&-imgicon {
 			width: 25px;
@@ -237,6 +261,7 @@ tbody#the-list>tr>th {
 			object-fit: cover;
 			cursor: pointer;
 			transition: 0.2s;
+
 			&:hover {
 				transform: none;
 			}
@@ -245,7 +270,11 @@ tbody#the-list>tr>th {
 
 	#wpbody .subsubsub {
 		text-align: left;
-		.all,.publish,.draft,.pending {
+
+		.all,
+		.publish,
+		.draft,
+		.pending {
 			display: none;
 		}
 	}
@@ -253,7 +282,7 @@ tbody#the-list>tr>th {
 
 @media screen and (min-width: 769px) {
 	tbody#the-list>tr>td:hover {
-		background-color: rgba(0,0,0,.075);
+		background-color: rgba(0, 0, 0, .075);
 		transition: .2s;
 	}
 }

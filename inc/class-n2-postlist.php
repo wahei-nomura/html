@@ -364,13 +364,13 @@ class N2_Postlist {
 		echo '</datalist>';
 
 		// 表示用と送信用にinput生成
-		echo "<input type='text' name='' id='jigyousya-list-tag' list='jigyousya-list' value='{$show_author}' placeholder='事業者入力'>";
+		echo "<input type='text' name='' id='jigyousya-list-tag' list='jigyousya-list' value='{$show_author}' placeholder='事業者入力' style='float:left'>";
 		echo "<input id='jigyousya-value' type='hidden' name='事業者' value='{$get_jigyousya_id}'>";
 		// ここまで事業者 ===========================================================
 
 		// 返礼品コード検索
-		echo '<select name="返礼品コード[]" multiple>';
-		echo '<option value="">返礼品コード</option>';
+		echo '<div class="n2-code-selectbox"><span class="badge bg-secondary">←選択後<br>返礼品コード選択</span><select name="返礼品コード[]" multiple size="1">';
+		echo '<option value="" style="padding-top: 4px;">返礼品コード</option>';
 		if ( empty( $_GET['事業者'] ) ) {
 			$get_code = filter_input( INPUT_GET, '返礼品コード', FILTER_SANITIZE_ENCODED );
 			$posts    = get_posts( 'post_status=any' );
@@ -381,7 +381,8 @@ class N2_Postlist {
 				}
 			}
 		}
-		echo '</select>';
+		echo '</select></div>';
+
 
 		// ステータス検索
 		$status = array(
@@ -400,7 +401,7 @@ class N2_Postlist {
 
 		// 定期便検索
 		echo '<select name="定期便">';
-		echo '<option value="">定期便検索</option>';
+		echo '<option value="">定期回数</option>';
 		for ( $i = 1; $i <= 12; $i++ ) {
 			$get_teiki = filter_input( INPUT_GET, '定期便', FILTER_VALIDATE_INT );
 			printf( '<option value="%s" %s>%s</option>', $i, selected( $i, $get_teiki, false ), $i > 1 ? "{$i}回定期便のみ" : '定期便以外' );
@@ -752,7 +753,7 @@ class N2_Postlist {
 			die();
 		}
 
-		$posts = get_posts( "author={$jigyousya}&post_status=any" );
+		$posts = get_posts( "author={$jigyousya}&post_status=any&posts_per_page=-1" );
 		$arr   = array();
 		foreach ( $posts as $post ) {
 			if ( ! empty( get_post_meta( $post->ID, '返礼品コード', 'true' ) ) ) {
