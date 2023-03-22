@@ -31,6 +31,7 @@
 		<a href="#" class="button button-primary siserror" id="error_log">楽天エラーログ</a>
 		<a href="#" class="button button-primary sisbtn" id="ana">ANA</a>
 		<a href="#" class="button button-primary dlbtn" id="download_by_url">画像をダウンロード</a>
+		<button type="button" class="button button-primary" id="bulk_update_status">ステータス一括変更</button>
 	</div>
 </div>
 
