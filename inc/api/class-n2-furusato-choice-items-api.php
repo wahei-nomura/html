@@ -122,14 +122,13 @@ class N2_Furusato_Choice_Items_API {
 	private function array_format( $xml_object ) {
 		$arr = array();
 		// 返礼品情報を抜く
-		$title = array_map( fn( $v ) => $v->__toString(), $xml_object->xpath( '//h3[@class="card-product__title"]' ) );
-		$code  = array_map( fn( $v ) => $v->__toString(), $xml_object->xpath( '//p[@class="card-product__code"]' ) );
-		$price = array_map( fn( $v ) => $v->__toString(), $xml_object->xpath( '//p[@class="card-product__price"]' ) );
-		foreach ( $title as $k => $v ) {
+		foreach ( $xml_object->xpath( '//div[@class="card-product"]' ) as $k => $v ) {
 			$arr[ $k ] = array(
-				'goods_name'       => trim( $v ),
-				'goods_g_num' => preg_replace( '/[^0-9A-Z]/', '', $code[ $k ] ),
-				'goods_price' => preg_replace( '/[^0-9]/', '', $price[ $k ] ),
+				'goods_name'  => $v->button['data-text']->__toString(),
+				'goods_g_num' => preg_replace( '/[^0-9A-Z]/', '', $v->xpath( '//p[@class="card-product__code"]' )[0]->__toString() ),
+				'goods_price' => preg_replace( '/[^0-9]/', '', $v->xpath( '//p[@class="card-product__price"]' )[0]->__toString() ),
+				'url'         => 'https://www.furusato-tax.jp/' . $v->xpath( '//a[@class="card-product__link"]' )[0]['href']->__toString(),
+				'image'       => $v->xpath( '//img[@class="card-product__img"]' )[0]['src']->__toString(),
 			);
 		}
 		return $arr;
