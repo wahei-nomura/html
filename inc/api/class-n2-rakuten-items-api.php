@@ -37,6 +37,13 @@ class N2_Rakuten_Items_API {
 	private $range = 'RMS_API';
 
 	/**
+	 * 楽天ショップコード
+	 *
+	 * @var string
+	 */
+	private $shop_code = '';
+
+	/**
 	 * コンストラクタ
 	 */
 	public function __construct() {
@@ -65,6 +72,10 @@ class N2_Rakuten_Items_API {
 	public function update() {
 		$before = microtime( true );
 		$header = $this->set_api_keys();
+		// 店舗URL取得
+		$data                  = wp_remote_get( 'https://api.rms.rakuten.co.jp/es/1.0/shop/shopMaster', array( 'headers' => $header ) );
+		$this->shop_code = simplexml_load_string( $data['body'] )->result->shopMaster->url->__toString();
+		// 商品検索API
 		$url    = 'https://api.rms.rakuten.co.jp/es/2.0/items/search?';
 		$params = array(
 			'isItemStockout' => 'false',
@@ -125,9 +136,13 @@ class N2_Rakuten_Items_API {
 		return array(
 			'goods_name'  => $v['item']['title'],
 			'goods_g_num' => $v['item']['itemNumber'],
-			'goods_price' => $v['item']['variants'][ $v['item']['manageNumber'] ]['standardPrice'],
+			'goods_price' => array_values( $v['item']['variants'] )[0]['standardPrice'],
 			'insert_date' => $v['item']['created'],
 			'updated'     => $v['item']['updated'],
+			'url'         => "https://item.rakuten.co.jp/{$this->shop_code}/{$v['item']['manageNumber']}",
+			'image'       => 'CABINET' === $v['item']['images'][0]['type']
+				? "https://image.rakuten.co.jp/{$this->shop_code}/cabinet{$v['item']['images'][0]['location']}"
+				: "https://www.rakuten.ne.jp/gold/{$this->shop_code}{$v['item']['images'][0]['location']}",
 		);
 	}
 }
