@@ -84,7 +84,9 @@ class N2_Postlist {
 
 		$get_param_array = array();
 		foreach ( $_GET as $key => $value ) {
-			$get_param_array[ $key ] = "{$key}={$value}";
+			if ( $value ) {
+				$get_param_array[ $key ] = "{$key}={$value}";
+			}
 		}
 
 		$sort_base_url = admin_url() . 'edit.php?' . implode( '&', $get_param_array );
@@ -636,24 +638,25 @@ class N2_Postlist {
 
 		// ソート
 		if ( isset( $_GET['orderby'] ) ) {
-			$order_meta_key = "AND {$wpdb->postmeta}.meta_key = '%s'";
-
+			// フィールドの値が数値の項目
 			$int_metakey_perttern = array( '価格', '寄附金額', '定期便' );
 
 			$order_pattern = ! isset( $_GET['order'] ) || 'desc' === $_GET['order'] ? 'DESC' : 'ASC';
 
+			// 数値なのか
 			if ( in_array( $_GET['orderby'], $int_metakey_perttern ) ) {
 				$orderby = "CAST({$wpdb->postmeta}.meta_value AS UNSIGNED) {$order_pattern}";
 			} else {
 				$orderby = "{$wpdb->postmeta}.meta_value {$order_pattern}";
 			}
 
+			// 日付なのか
 			if ( 'date' === $_GET['orderby'] ) {
-				$order_meta_key = '';
-				$orderby        = "{$wpdb->posts}.post_date {$order_pattern}";
+				$orderby = "{$wpdb->posts}.post_date {$order_pattern}";
+			} else {
+				$order_meta_key = "AND {$wpdb->postmeta}.meta_key = '%s'";
+				array_push( $args, filter_input( INPUT_GET, 'orderby' ) );
 			}
-
-			array_push( $args, filter_input( INPUT_GET, 'orderby' ) );
 		}
 
 		// キーワード検索 ----------------------------------------
