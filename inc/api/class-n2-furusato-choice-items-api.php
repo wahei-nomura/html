@@ -24,6 +24,13 @@ class N2_Furusato_Choice_Items_API {
 	private $option_name = 'n2_furusato_choice_items_api';
 
 	/**
+	 * 自治体コード
+	 *
+	 * @var string
+	 */
+	private $town_code;
+
+	/**
 	 * コンストラクタ
 	 */
 	public function __construct() {
@@ -52,8 +59,8 @@ class N2_Furusato_Choice_Items_API {
 	public function update() {
 		$before = microtime( true );
 		// 自治体コードを自動取得
-		$town_code = $this->get_town_code();
-		$url       = "https://www.furusato-tax.jp/ajax/city/product/{$town_code}?";
+		$this->set_town_code();
+		$url       = "https://www.furusato-tax.jp/ajax/city/product/{$this->town_code}?";
 		$params    = array(
 			'page' => 1,
 		);
@@ -120,16 +127,28 @@ class N2_Furusato_Choice_Items_API {
 	 * @param array $xml_object xmlオブジェクト
 	 */
 	private function array_format( $xml_object ) {
-		$arr = array();
+		$arr = $xml_object->xpath( '//div[@class="card-product"]/button | //p[@class="card-product__code"] | //p[@class="card-product__price"] | //img[@class="card-product__img"]' );
+		$arr = array_chunk( $arr, 4 );
 		// 返礼品情報を抜く
-		foreach ( $xml_object->xpath( '//div[@class="card-product"]' ) as $k => $v ) {
-			$arr[ $k ] = array(
-				'goods_name'  => $v->button['data-text']->__toString(),
-				'goods_g_num' => preg_replace( '/[^0-9A-Z]/', '', $v->xpath( '//p[@class="card-product__code"]' )[0]->__toString() ),
-				'goods_price' => preg_replace( '/[^0-9]/', '', $v->xpath( '//p[@class="card-product__price"]' )[0]->__toString() ),
-				'url'         => 'https://www.furusato-tax.jp/' . $v->xpath( '//a[@class="card-product__link"]' )[0]['href']->__toString(),
-				'image'       => $v->xpath( '//img[@class="card-product__img"]' )[0]['src']->__toString(),
-			);
+		foreach ( $arr as $k => $v ) {
+			$arr[ $k ] = array();
+			foreach ( $v as $key => $value ) {
+				switch ( $value['class']->__toString() ) {
+					case 'card-product__code':
+						$arr[ $k ]['goods_g_num'] = preg_replace( '/[^0-9A-Z]/', '', $value->__toString() );
+						break;
+					case 'card-product__heart addfavorite':
+						$arr[ $k ]['goods_name'] = $value['data-text']->__toString();
+						$arr[ $k ]['url']        = "https://www.furusato-tax.jp/product/detail/{$this->town_code}/" . $value['data-id']->__toString();
+						break;
+					case 'card-product__price':
+						$arr[ $k ]['goods_price'] = preg_replace( '/[^0-9]/', '', $value->__toString() );
+						break;
+					case 'card-product__img':
+						$arr[ $k ]['image'] = $value['src']->__toString();
+						break;
+				}
+			}
 		}
 		return $arr;
 	}
@@ -137,7 +156,7 @@ class N2_Furusato_Choice_Items_API {
 	/**
 	 * チョイスの自治体コードを自動取得
 	 */
-	public function get_town_code() {
+	public function set_town_code() {
 		global $n2;
 		$url  = 'https://www.furusato-tax.jp/search?q=';
 		$data = wp_remote_get( $url );
@@ -150,7 +169,6 @@ class N2_Furusato_Choice_Items_API {
 		// チョイスの自治体絞り込みフォームから自治体コード抽出
 		$data = $xml_object->xpath( '//div[@id="prefecture_cities_map"]//select/option' );
 		$data = array_filter( $data, fn( $v ) => $n2->town === $v->__toString() );
-		$data = array_values( $data )[0]->attributes()->value->__toString() ?? false;
-		return $data;
+		$this->town_code = array_values( $data )[0]->attributes()->value->__toString() ?? false;
 	}
 }
