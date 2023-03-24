@@ -11,7 +11,7 @@ jQuery(function ($) {
 	const params = url.searchParams;
 
 	// 返礼品コード監視変更用
-	const changeItemcode = (): void => {
+	const changeItemcode=(): void => {
 		$.ajax({
 			url: ajaxUrl(window),
 			data: {
@@ -23,7 +23,7 @@ jQuery(function ($) {
 			console.log(data);
 			$('select[name="返礼品コード[]"]>*').remove();
 			$('select[name="返礼品コード[]"]').append(
-				'<option value="">返礼品コード</option>'
+				'<option value="" style="padding-top: 4px;">返礼品コード</option >'
 			);
 
 			Object.keys(data).forEach((key) => {
@@ -35,11 +35,23 @@ jQuery(function ($) {
 					)
 				);
 			});
+
+			if(Object.keys(data).length) {
+				$('select[name="返礼品コード[]"]').css('display', 'block');
+			} else {
+				$('select[name="返礼品コード[]"]').css('display', 'none');
+			}
 		});
 	};
 
 	// ページ表示時と事業者選択変更時に返礼品コードを監視、変更
 	changeItemcode();
+
+	$('body').on('focus','select[name="返礼品コード[]"]', (e) => {
+		$(e.target).prop('size',10)
+	}).on('blur','select[name="返礼品コード[]"]', (e) => {
+		$(e.target).prop('size',1)
+	})
 
 	// n2-class-postlist.phpのpost_requestのSQLがぐちゃぐちゃなのでいったんor検索コメントアウト　taiki
 	// キーワード検索にOR用チェックボックス
@@ -67,6 +79,7 @@ jQuery(function ($) {
 		$('select[name="返礼品コード[]"]').append(
 			'<option value="">返礼品コード</option>'
 		);
+		$('select[name="返礼品コード[]"]').css('display', 'none');
 	})
 
 });

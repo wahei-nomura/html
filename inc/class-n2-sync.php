@@ -517,6 +517,7 @@ class N2_Sync {
 		if ( is_main_site() ) {
 			exit;
 		}
+		require_once ABSPATH . 'wp-admin/includes/user.php';
 		$before = microtime( true );
 
 		// ログテキスト

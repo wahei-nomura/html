@@ -15,7 +15,7 @@
     label : 価格（税込）
     required: required
     placeholder: 例）1000
-    description: 上代を税込でご記載ください。定期便の場合、1回分の価格をご記載ください。
+    description: '商品価格を税込でご記載ください。<br>※寄附金額は自動で算出しますので、入力不要です。<br>※定期便の場合、1回分の価格をご記載ください。'
     style: 'width: 10em'
     :value: 価格
     "@focus": set_info($event.target)
