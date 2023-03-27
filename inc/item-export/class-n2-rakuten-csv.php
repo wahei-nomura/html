@@ -58,7 +58,7 @@ class N2_Rakuten_CSV {
 	private function rakuetn_setup_error_output( $errors ) {
 		$home = get_option( 'home' );
 		?>
-		<h2><a href="<?php echo "{$home}/wp-admin/admin.php?page=n2_setup_menu"; ?>" target="_blank">各種セットアップ</a>の下記項目が未設定です<h2>
+		<h2><a href="<?php echo "{$home}/wp-admin/admin.php?page=n2_crew_setup_menu"; ?>" target="_blank">各種セットアップ</a>の下記項目が未設定です<h2>
 			<ul>
 			<?php foreach ( $errors as $error ) : ?>
 				<li><?php echo $error; ?></li>
