@@ -25,6 +25,7 @@ class N2_Setmenu {
 		add_action( 'admin_menu', array( $this, 'change_menulabel' ) );
 		add_action( 'admin_menu', array( $this, 'remove_menulabel' ), 999 );
 		add_action( 'admin_init', array( $this, 'not_edit_user' ) );
+		add_action( 'admin_init', array( $this, 'not_edit_settings' ) );
 		add_filter( 'get_site_icon_url', array( $this, 'change_site_icon' ) );
 		add_action( 'admin_head', array( $this, 'my_custom_logo' ) );
 	}
@@ -70,6 +71,7 @@ class N2_Setmenu {
 				$menus[] = 'themes.php';
 				$menus[] = 'upload.php';
 				$menus[] = 'edit-comments.php';
+				$menus[] = 'options-general.php';
 				$menus[] = 'aiowpsec'; // All In One WP Security
 				break;
 			case 'jigyousya':
@@ -117,6 +119,28 @@ class N2_Setmenu {
 		}
 		if ( 'profile.php' === $pagenow ) {
 			wp_die( 'ユーザープロフィールを変更したい場合は「Steamship」へお問い合わせください。<p><a class="button" href="' . admin_url( 'edit.php' ) . '">返礼品一覧へ戻る</a></p>' );
+		}
+	}
+
+	/**
+	 * no_settings
+	 */
+	public function not_edit_settings() {
+		global $pagenow;
+		if ( ! current_user_can( 'ss_crew' ) ) {
+			return;
+		}
+
+		$hide_pages = array(
+			'options-general.php',
+			'options-writing.php',
+			'options-reading.php',
+			'options-discussion.php',
+			'options-media.php',
+			'options-permalink.php',
+		);
+		if ( in_array( $pagenow, $hide_pages, true ) ) {
+			wp_redirect( admin_url( 'edit.php' ) );
 		}
 	}
 
