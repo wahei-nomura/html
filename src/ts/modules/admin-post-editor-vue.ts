@@ -14,6 +14,8 @@ export default $ => {
 			data[name] = n2.custom_field[id][name].value;
 		}
 	}
+	// current_user追加
+	data['current_user'] = n2.current_user.roles[0];
 	const created = async function() {
 		this.全商品ディレクトリID = {
 			text: this.全商品ディレクトリID,

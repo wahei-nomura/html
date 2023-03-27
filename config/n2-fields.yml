@@ -8,6 +8,10 @@
 # 属性値を自動的に追加
 
 # ===================================================
+寄附金額:
+    type: hidden
+    :value: 寄附金額
+    v-if: current_user == 'jigyousya'
 
 価格:
     type : text
