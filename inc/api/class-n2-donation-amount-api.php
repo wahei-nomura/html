@@ -20,6 +20,7 @@ class N2_Donation_Amount_API {
 	 * コンストラクタ
 	 */
 	public function __construct() {
+		add_action( 'wp_ajax_n2_update_all_donation_amount', array( $this, 'update_all_donation_amount' ) );
 		add_action( 'wp_ajax_n2_donation_amount_api', array( $this, 'calc' ) );
 		add_action( 'wp_ajax_nopriv_n2_donation_amount_api', array( $this, 'calc' ) );
 	}
@@ -34,10 +35,10 @@ class N2_Donation_Amount_API {
 		$args = $args ? wp_parse_args( $args ) : $_GET;
 		// タイプ・価格・送料
 		$type         = $n2->formula_type;
-		$price        = (int) $args['price'] ?: 0;
-		$delivery_fee = (int) $args['delivery_fee'] ?: 0;
-		$subscription = (int) $args['subscription'] ?: 1;
-		$action       = $args['action'] ?: false;
+		$price        = (int) ( $args['price'] ?? 0 );
+		$delivery_fee = (int) ( $args['delivery_fee'] ?? 0 );
+		$subscription = (int) ( $args['subscription'] ?? 1 );
+		$action       = $args['action'] ?? false;
 
 		// エヴァの出撃準備
 		$eva = array(
@@ -69,5 +70,28 @@ class N2_Donation_Amount_API {
 		}
 		// N2_Donation_Amount_API::calc()呼び出し
 		return $donation_amount;
+	}
+
+	/**
+	 * 寄附金額一括自動計算
+	 */
+	public function update_all_donation_amount() {
+		foreach ( get_posts( 'post_status=any&numberposts=-1' ) as $post ) {
+			$fixed = array_filter( get_post_meta( $post->ID, '寄附金額固定', true ) ?: array() );
+			if ( ! empty( $fixed ) ) {
+				continue;
+			}
+			$price           = get_post_meta( $post->ID, '価格', true );
+			$delivery_fee    = get_post_meta( $post->ID, '送料', true );
+			$subscription    = get_post_meta( $post->ID, '定期便', true );
+			$donation_amount = (int) get_post_meta( $post->ID, '寄附金額', true );
+			// 自動計算
+			$calc_donation_amount = (int) $this->calc( compact( 'price', 'delivery_fee', 'subscription' ) );
+			if ( $donation_amount > 0 && $donation_amount !== $calc_donation_amount ) {
+				update_post_meta( $post->ID, '寄附金額', $calc_donation_amount );
+				echo "<pre>「{$post->post_title}」の寄附金額を更新</pre>";
+			}
+		}
+		exit;
 	}
 }
