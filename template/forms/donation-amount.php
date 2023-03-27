@@ -16,7 +16,7 @@ foreach ( $args as $k => $v ) {
 <!-- 寄附金額ロック -->
 <!-- 寄附金額再計算 -->
 <div class="input-group flex-nowrap">
-	<label class="input-group-text">
+	<label class="input-group-text" title="寄附金額固定">
 		<input class="form-check-input mt-0" type="checkbox" name="n2field[寄附金額固定][]" value="固定する" v-model="寄附金額固定">
 		<input type="hidden" name="n2field[寄附金額固定][]">
 	</label>
