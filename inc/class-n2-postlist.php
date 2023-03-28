@@ -84,6 +84,10 @@ class N2_Postlist {
 
 		$get_param_array = array();
 		foreach ( $_GET as $key => $value ) {
+			if ( is_array( $value ) ) {
+				$get_param_array[ $key ] = "{$key}[]=" . implode( "&{$key}[]=", $value );
+				continue;
+			}
 			if ( $value ) {
 				$get_param_array[ $key ] = "{$key}={$value}";
 			}
@@ -350,7 +354,8 @@ class N2_Postlist {
 
 		// 事業者検索 ===============================================================
 
-		echo '<select name="事業者[]" multiple>';
+		echo '<div class="n2-jigyousya-selectbox"><select name="事業者[]" multiple size="1">';
+		echo '<option value="" style="padding-top: 4px;">事業者複数選択</option>';
 		foreach ( get_users( 'role=jigyousya' ) as $user ) {
 				$author_id   = (int) $user->ID;
 				$author_name = $user->display_name;
@@ -361,7 +366,7 @@ class N2_Postlist {
 				printf( '<option value="%s">%s</option>', $author_id, $author_name );
 			}
 
-		echo '</select>';
+		echo '</select></div>';
 		// ここまで事業者 ===========================================================
 
 		// 返礼品コード検索
@@ -751,7 +756,7 @@ class N2_Postlist {
 	 * @return void
 	 */
 	public function ajax() {
-		$jigyousya = filter_input( INPUT_GET, '事業者', FILTER_VALIDATE_INT );
+		$jigyousya = filter_input( INPUT_GET, '事業者' );
 
 		if ( empty( $jigyousya ) ) {
 			echo wp_json_encode( array() );

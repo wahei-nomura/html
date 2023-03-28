@@ -16,7 +16,7 @@ jQuery(function ($) {
 			url: ajaxUrl(window),
 			data: {
 				action: "N2_Postlist",
-				事業者: $('#jigyousya-value').val(),
+				事業者: ($('select[name="事業者[]"]').val() as string[]).join(','),
 			},
 		}).done((res) => {
 			const data = JSON.parse(res);
@@ -44,12 +44,10 @@ jQuery(function ($) {
 		});
 	};
 
-	// ページ表示時と事業者選択変更時に返礼品コードを監視、変更
-	changeItemcode();
 
-	$('body').on('focus','select[name="返礼品コード[]"]', (e) => {
+	$('body').on('focus','select[name="返礼品コード[]"],select[name="事業者[]"]', (e) => {
 		$(e.target).prop('size',10)
-	}).on('blur','select[name="返礼品コード[]"]', (e) => {
+	}).on('blur','select[name="返礼品コード[]"],select[name="事業者[]"]', (e) => {
 		$(e.target).prop('size',1)
 	})
 
@@ -63,10 +61,7 @@ jQuery(function ($) {
 	// );
 
 	// 事業者絞り込みコンボボックス
-	$('#jigyousya-list-tag').on('change', e => {
-		const id:number=$(`#jigyousya-list option[value="${$(e.target).val()}"]`).data('id')
-		$('#jigyousya-value').val(id)
-
+	$('select[name="事業者[]"]').on('change', e => {
 		changeItemcode();
 	})
 
