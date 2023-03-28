@@ -222,7 +222,7 @@ class N2_Rakuten_CSV {
 				'商品管理番号（商品URL）' => trim( mb_strtolower( $post_meta_list['返礼品コード'] ) ),
 				'商品番号'          => $item_num,
 				'全商品ディレクトリID'   => $post_meta_list['全商品ディレクトリID'],
-				'タグID'          => $option['rakuten']['tag_id'],
+				'タグID'          => rtrim( $option['rakuten']['tag_id'], '/' ) . '/' . ltrim( $post_meta_list['タグID'], '/' ),
 				'商品名'           => '【ふるさと納税】' . N2_Functions::special_str_convert( get_the_title( $post_id ) ) . " [{$item_num}]",
 				'販売価格'          => $post_meta_list['寄附金額'],
 				'のし対応'          => ( '有り' === $post_meta_list['のし対応'] ) ? 1 : '',
