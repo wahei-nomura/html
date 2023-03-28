@@ -138,11 +138,6 @@ class N2_Product_List_Print {
 												break;
 											case 'アレルギー':
 												$td = N2_Rakuten_CSV::allergy_display( $p->ID );
-												if ( ! $td ) {
-													$td = 'アレルギー表示しない';
-												} elseif ( 'アレルギー品目なし' === $td ) {
-													$td = 'アレルギー品目なし食品';
-												}
 												break;
 											case '発送サイズ':
 												$td = ( is_numeric( $td ) )
