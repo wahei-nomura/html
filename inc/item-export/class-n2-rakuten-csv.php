@@ -40,8 +40,8 @@ class N2_Rakuten_CSV {
 		global $n2;
 		// 初期化
 		$arr = array();
-		// ========アレルゲン========
-		$allergens_list = $n2->custom_fields['アレルゲン']['option'];
+		// ========アレルゲン=======
+		$allergens_list = $n2->custom_field['事業者用']['アレルゲン']['option'];
 		// ========クルーセットアップでの設定項目========
 		$n2_setupmenu = get_option( 'N2_setupmenu' ) ?? '';
 
@@ -55,6 +55,12 @@ class N2_Rakuten_CSV {
 		return apply_filters( 'n2_item_export_get_yml', $arr );
 	}
 
+	/**
+	 * 各種セットアップの未入力エラー出力
+	 *
+	 * @param array $errors csvの種類(iniファイルのセクション名)
+	 * @return void
+	 */
 	private function rakuetn_setup_error_output( $errors ) {
 		$home = get_option( 'home' );
 		?>
@@ -137,86 +143,7 @@ class N2_Rakuten_CSV {
 			$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
 			$item_num       = trim( strtoupper( $post_meta_list['返礼品コード'] ) );
 			$item_num_low   = trim( mb_strtolower( $post_meta_list['返礼品コード'] ) );
-			$img_dir        = rtrim( $option['rakuten']['img_dir'], '/' );
 
-			// GOLD（ne.jp）とキャビネット（co.jp）を判定してキャビネットは事業者コードディレクトリを追加
-			preg_match( '/^[a-z]{2,3}/', $item_num_low, $m );// 事業者コード
-			if ( ! preg_match( '/ne\.jp/', $img_dir ) && array_key_exists( 0, $m ) ) {
-				$img_dir .= "/{$m[0]}";// キャビネットの場合事業者コード追加
-			}
-
-			// 存在する画像urlだけを文字連結
-			$check_img_urls = function () use ( $item_num_low, $img_dir ) {
-				$result = array();
-				for ( $i = 0; $i < 15; ++$i ) {
-					$img_url = "{$img_dir}/{$item_num_low}";
-					if ( 0 === $i ) {
-						$img_url .= '.jpg';
-					} else {
-						$img_url .= "-{$i}.jpg";
-					}
-					$response = wp_remote_get( $img_url );
-					if ( ! is_wp_error( $response ) && 200 === $response['response']['code'] ) {
-						$result[ $i ] = $img_url;
-					}
-				}
-				return implode( ' ', $result );
-			};
-			// 画像URL一覧(文字列)
-			$img_urls_str = $check_img_urls();
-
-			// [html]画像URL一覧
-			$img_urls_html = function() use ( $img_urls_str ) {
-				$img_urls_arr = explode( ' ', $img_urls_str );
-				?>
-				<?php foreach ( $img_urls_arr as $index => $img_url ) : ?>
-					<?php if ( array_key_last( $img_urls_arr ) === $index ) : ?>
-						<img src=""<?php echo $img_url; ?>"" width=""100%""><br><br>
-					<?php else : ?>
-						<img src=""<?php echo $img_url; ?>"" width=""100%"">
-					<?php endif; ?>
-				<?php endforeach; ?>
-				<?php
-			};
-			// [html]商品説明テーブル
-			$itemtable_html = fn() => $this->make_itemtable( $post_id, false );
-
-			// [html]PC用販売説明文
-			$pc_sales_description_html = function() use ( $itemtable_html, $post_id, $img_urls_html, $option ) {
-				$add_text_name = $option['add_text'][ get_bloginfo( 'name' ) ];
-				$add_html      = $option['rakuten']['html'];
-				?>
-				<?php $img_urls_html(); ?>
-				<?php $itemtable_html(); ?><br><br>
-				<?php
-				echo $add_text_name
-					. apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $post_id, 'PC用販売説明文' )
-					. str_replace( '\"', '""', $add_html );
-				?>
-				<?php
-			};
-
-			// [html]スマートフォン用商品説明文
-			$sp_item_description_html = function () use ( $itemtable_html, $post_meta_list, $img_urls_html, $option ) {
-				$formatter     = fn( $post_key ) => nl2br( N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
-				$add_text_name = $option['add_text'][ get_bloginfo( 'name' ) ];
-				$add_html      = $option['rakuten']['html'];
-				?>
-				<?php $img_urls_html(); ?>
-				<?php echo $formatter( '説明文' ); ?><br><br>
-				<?php $itemtable_html(); ?>
-				<?php if ( $post_meta_list['検索キーワード'] ) : ?>
-					<br><br><?php echo $formatter( '検索キーワード' ); ?>
-				<?php endif; ?>
-				<?php if ( $post_meta_list['楽天SPAカテゴリー'] ) : ?>
-					<br><br><?php echo $formatter( '楽天SPAカテゴリー' ); ?>
-				<?php endif ?>
-				<?php
-				echo $add_text_name
-					. str_replace( '\"', '""', $add_html );
-				?>
-				<?php
-			};
 			$item_arr = array(
 				'コントロールカラム'     => 'n',
 				'商品管理番号（商品URL）' => trim( mb_strtolower( $post_meta_list['返礼品コード'] ) ),
@@ -228,10 +155,10 @@ class N2_Rakuten_CSV {
 				'のし対応'          => ( '有り' === $post_meta_list['のし対応'] ) ? 1 : '',
 				'PC用キャッチコピー'    => N2_Functions::special_str_convert( $post_meta_list['キャッチコピー'] ?: $post_meta_list['キャッチコピー１'] ),
 				'モバイル用キャッチコピー'  => N2_Functions::special_str_convert( $post_meta_list['キャッチコピー'] ?: $post_meta_list['キャッチコピー１'] ),
-				'商品画像URL'       => $img_urls_str,
+				'商品画像URL'       => $this->get_img_urls( $post_id ),
 				'PC用商品説明文'      => PHP_EOL . $this->pc_item_description( $post_id ),
-				'PC用販売説明文'      => PHP_EOL . N2_Functions::html2str( $pc_sales_description_html ),
-				'スマートフォン用商品説明文' => PHP_EOL . N2_Functions::html2str( $sp_item_description_html ),
+				'PC用販売説明文'      => PHP_EOL . $this->pc_sales_description( $post_id ),
+				'スマートフォン用商品説明文' => PHP_EOL . $this->sp_item_description( $post_id ),
 			);
 
 			// 内容を追加、または上書きするためのフック
@@ -343,14 +270,112 @@ class N2_Rakuten_CSV {
 	}
 
 	/**
+	 * 楽天の画像URLを取得
+	 *
+	 * @param int    $post_id id
+	 * @param string $return_type 戻り値判定用(string|html|array)
+	 * @return string|array 楽天の画像URLを(文字列|配列)で取得する
+	 */
+	public function get_img_urls( $post_id, $return_type = 'string' ) {
+		global $n2;
+		// get_post_metaのkey
+		$post_keys = array(
+			'返礼品コード',
+		);
+		// post_meta格納用
+		$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
+		$item_num_low   = trim( mb_strtolower( $post_meta_list['返礼品コード'] ) );
+		$img_dir        = rtrim( $n2->rakuten['img_dir'], '/' );
+
+		// GOLD（ne.jp）とキャビネット（co.jp）を判定してキャビネットは事業者コードディレクトリを追加
+		preg_match( '/^[a-z]{2,3}/', $item_num_low, $m );// 事業者コード
+		if ( ! preg_match( '/ne\.jp/', $img_dir ) && array_key_exists( 0, $m ) ) {
+			$img_dir .= "/{$m[0]}";// キャビネットの場合事業者コード追加
+		}
+
+		$result = array();
+		for ( $i = 0; $i < 15; ++$i ) {
+			$img_url = "{$img_dir}/{$item_num_low}";
+			if ( 0 === $i ) {
+				$img_url .= '.jpg';
+			} else {
+				$img_url .= "-{$i}.jpg";
+			}
+			$response = wp_remote_get( $img_url );
+			if ( ! is_wp_error( $response ) && 200 === $response['response']['code'] ) {
+				$result[ $i ] = $img_url;
+			}
+		}
+		// ========戻り値判定========
+		switch ( $return_type ) {
+			// 文字列を返却
+			case 'string':
+				return implode( ' ', $result );
+			case 'html':
+				$html = function() use ( $result ) {
+					?>
+					<?php foreach ( $result  as $index => $img_url ) : ?>
+						<?php if ( array_key_last( $result ) === $index ) : ?>
+							<img src=""<?php echo $img_url; ?>"" width=""100%""><br><br>
+						<?php else : ?>
+							<img src=""<?php echo $img_url; ?>"" width=""100%"">
+						<?php endif; ?>
+					<?php endforeach; ?>
+					<?php
+				};
+				$html();
+				break;
+			// 配列出力
+			default:
+				return $result;
+		}
+	}
+	/**
 	 * 楽天のPC用商品説明文
 	 *
 	 * @param int  $post_id id
 	 * @param bool $return_string 戻り値判定用(基本は文字列|HTML)
 	 * @return string|void 楽天のPC用商品説明文を(文字列|HTML出力)する
 	 */
-	public function pc_item_description( $post_id = 55, $return_string = true ) {
+	public function pc_sales_description( $post_id, $return_string = true ) {
 
+		// get_post_metaのkey
+		$post_keys = array(
+			'説明文',
+		);
+		// post_meta格納用
+		$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
+		// ========[html]PC用販売説明文========
+		$html = function() use ( $post_meta_list, $post_id ) {
+			global $n2;
+			$formatter = fn( $post_key ) => nl2br( N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
+			?>
+			<?php $this->get_img_urls( $post_id, 'html' ); ?>
+			<?php echo $formatter( '説明文' ); ?><br><br>
+			<?php $this->make_itemtable( $post_id, false ); ?><br><br>
+			<?php
+				echo $n2->portal_common_discription
+					. apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $post_id, 'PC用販売説明文' )
+					. str_replace( '\"', '""', $n2->rakuten['html'] ?? '' );
+				?>
+			<?php
+		};
+		// ========戻り値判定========
+		// 文字列を返却
+		if ( $return_string ) {
+			return N2_Functions::html2str( $html );
+		}
+		// html出力
+		$html();
+	}
+	/**
+	 * 楽天のPC用商品説明文
+	 *
+	 * @param int  $post_id id
+	 * @param bool $return_string 戻り値判定用(基本は文字列|HTML)
+	 * @return string|void 楽天のPC用商品説明文を(文字列|HTML出力)する
+	 */
+	public function pc_item_description( $post_id, $return_string = true ) {
 		// get_post_metaのkey
 		$post_keys = array(
 			'説明文',
@@ -366,7 +391,7 @@ class N2_Rakuten_CSV {
 		$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
 
 		// ========[html]PC用商品説明文========
-		$pc_description_html = function() use ( $post_meta_list, $post_id ) {
+		$html = function() use ( $post_meta_list, $post_id ) {
 			$formatter = fn( $post_key ) => nl2br( N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
 			?>
 			<?php echo $formatter( '説明文' ); ?><br><br>
@@ -398,10 +423,60 @@ class N2_Rakuten_CSV {
 		// ========戻り値判定========
 		// 文字列を返却
 		if ( $return_string ) {
-			return N2_Functions::html2str( $pc_description_html );
+			return N2_Functions::html2str( $html );
 		}
 		// html出力
-		$pc_description_html();
+		$html();
+	}
+	/**
+	 * 楽天のSP用商品説明文
+	 *
+	 * @param int  $post_id id
+	 * @param bool $return_string 戻り値判定用(基本は文字列|HTML)
+	 * @return string|void 楽天のSP用商品説明文を(文字列|HTML出力)する
+	 */
+	public function sp_item_description( $post_id, $return_string = true ) {
+		// get_post_metaのkey
+		$post_keys = array(
+			'説明文',
+			'内容量・規格等',
+			'賞味期限',
+			'消費期限',
+			'検索キーワード',
+			'楽天SPAカテゴリー',
+			'原料原産地',
+			'加工地',
+		);
+		// post_meta格納用
+		$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
+
+		// ========[html]SP用商品説明文========
+		$html = function() use ( $post_id, $post_meta_list, ) {
+			global $n2;
+			$formatter = fn( $post_key ) => nl2br( N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
+			?>
+			<?php $this->get_img_urls( $post_id, 'html' ); ?>
+			<?php echo $formatter( '説明文' ); ?><br><br>
+			<?php $this->make_itemtable( $post_id, false ); ?>
+			<?php if ( $post_meta_list['検索キーワード'] ) : ?>
+				<br><br><?php echo $formatter( '検索キーワード' ); ?>
+			<?php endif; ?>
+			<?php if ( $post_meta_list['楽天SPAカテゴリー'] ) : ?>
+				<br><br><?php echo $formatter( '楽天SPAカテゴリー' ); ?>
+			<?php endif ?>
+			<?php
+				echo $n2->portal_common_discription
+					. str_replace( '\"', '""', $n2->rakuten['html'] ?? '' );
+			?>
+			<?php
+		};
+		// ========戻り値判定========
+		// 文字列を返却
+		if ( $return_string ) {
+			return N2_Functions::html2str( $html );
+		}
+		// html出力
+		$html();
 	}
 	/**
 	 * アレルギ表示
@@ -452,7 +527,7 @@ class N2_Rakuten_CSV {
 	 * @return string 商品説明テーブル
 	 */
 	public function make_itemtable( $post_id, $return_string = true ) {
-		$config        = $this->get_config( 'item_csv' );
+		$config         = $this->get_config( 'item_csv' );
 		$post_keys      = array(
 			'表示名称',
 			'略称',
@@ -473,7 +548,7 @@ class N2_Rakuten_CSV {
 		$allergy_display_str = $this->allergy_display( $post_id );
 
 		$formatter = fn( $post_key ) => nl2br( N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
-		$trs             = array(
+		$trs       = array(
 			'名称'      => array(
 				'td' => ( $formatter( '表示名称' ) ?: $formatter( '略称' ) ?: N2_Functions::special_str_convert( get_the_title( $post_id ) ) ),
 			),
@@ -597,7 +672,7 @@ class N2_Rakuten_CSV {
 				foreach ( $value as $v ) {
 					// headerの項目を取得
 					$item_arr[ $i ] = N2_Functions::get_post_meta_multiple( $post_id, $header );
-					$item_select         = array(
+					$item_select    = array(
 						'項目選択肢用コントロールカラム' => 'n',
 						'商品管理番号（商品URL）'   => $item_num,
 						'選択肢タイプ'          => 's',
