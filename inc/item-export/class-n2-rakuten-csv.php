@@ -41,7 +41,7 @@ class N2_Rakuten_CSV {
 		// 初期化
 		$arr = array();
 		// ========アレルゲン========
-		$allergens_list = $n2->custom_fields['アレルゲン']['option'];
+		$allergens_list = $n2->custom_fields['事業者用']['アレルゲン']['option'];
 		// ========クルーセットアップでの設定項目========
 		$n2_setupmenu = get_option( 'N2_setupmenu' ) ?? '';
 
