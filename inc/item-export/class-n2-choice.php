@@ -62,18 +62,25 @@ class N2_Choice {
 			}
 
 			// アレルゲン処理
-			$allergen    = '';
-			$no_allergen = 0;
-			foreach ( get_post_meta( $id, 'アレルゲン' )[0] as $v ) {
-				$v['value'] === 'アレルゲンなし食品' ? $no_allergen = 1 : ( is_numeric( $v['value'] ) ? $allergen .= $v['value'] . ',' : '' );
-			}
-			$allergen      = rtrim( $allergen, ',' );
-			$allergen_text = get_post_meta( $id, 'アレルゲン注釈', true ) ?: '';
+			$allergen         = '';
+			$no_allergen      = 0;
+			$product_type     = get_post_meta( $id, '商品タイプ' )[0][0];
+			$display_allergen = '';
 
-			if ( $allergen !== '' || $allergen_text !== '' ) {
-				$display_allergen = $allergen . '|' . $allergen_text;
-			} elseif ( $no_allergen === 1 ) {
-				$display_allergen = '|';
+			if ( '食品' === $product_type ) {
+
+				foreach ( get_post_meta( $id, 'アレルゲン' )[0] as $v ) {
+					is_numeric( $v['value'] ) ? $allergen .= $v['value'] . ',' : '';
+				}
+
+				$allergen      = rtrim( $allergen, ',' );
+				$allergen_text = get_post_meta( $id, 'アレルゲン注釈', true ) ?: '';
+
+				if ( '' !== $allergen || '' !== $allergen_text ) {
+					$display_allergen = $allergen . '|' . $allergen_text;
+				} else {
+					$display_allergen = '|';
+				}
 			} else {
 				$display_allergen = '';
 			}
