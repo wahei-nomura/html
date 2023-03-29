@@ -406,31 +406,36 @@ class N2_Rakuten_CSV {
 	/**
 	 * アレルギ表示
 	 *
-	 * @param string $post_id
-	 * @return void
+	 * @param string $post_id id
+	 *
+	 * @return string
 	 */
 	public static function allergy_display( $post_id ) {
 		$post_meta_list            = get_post_meta( $post_id, '', true );
 		$post_meta_list['アレルゲン']   = unserialize( $post_meta_list['アレルゲン'][0] );
 		$post_meta_list['アレルゲン注釈'] = $post_meta_list['アレルゲン注釈'][0];
 		$allergens                 = array();
-		$has_allergy               = 1;
+		$is_food                   = in_array( '食品', get_post_meta( $post_id, '商品タイプ', true ), true );
+		$has_allergy               = in_array( 'アレルギー品目あり', get_post_meta( $post_id, 'アレルギー有無確認', true ), true );
 		foreach ( $post_meta_list['アレルゲン'] as $v ) {
 			if ( is_numeric( $v['value'] ) ) {
 				$allergens = array( ...$allergens, $v['label'] );
-			} elseif ( 'アレルゲンなし食品' === $v['value'] ) {
-				$has_allergy = 0;
 			}
 		}
 		$allergens                 = implode( '・', $allergens );
 		$post_meta_list['アレルゲン注釈'] = $post_meta_list['アレルゲン注釈'] ? '<br>※' . $post_meta_list['アレルゲン注釈'] : '';
-		if ( '' !== $allergens || '' !== $post_meta_list['アレルゲン注釈'] ) {
-			$allergens = $allergens ?: 'なし';
-			$result    = "含んでいる品目：{$allergens}{$post_meta_list['アレルゲン注釈']}";
-		} elseif ( $has_allergy === 0 ) {
-			$result = 'アレルギー品目なし';
-		} else {
-			$result = '';
+		$result                    = '';
+		switch ( true ) {
+			case ! $is_food:
+				$result = 'アレルギー表示しない';
+				break;
+			case ! $has_allergy:
+				$result = 'アレルギーなし食品';
+				break;
+			case '' !== $allergens || '' !== $post_meta_list['アレルゲン注釈']:
+				$allergens = $allergens ?: 'なし';
+				$result    = "含んでいる品目：{$allergens}{$post_meta_list['アレルゲン注釈']}";
+				break;
 		}
 		return $result;
 	}
