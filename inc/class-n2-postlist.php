@@ -359,12 +359,12 @@ class N2_Postlist {
 		foreach ( get_users( 'role=jigyousya' ) as $user ) {
 				$author_id   = (int) $user->ID;
 				$author_name = $user->display_name;
-				if ( $author_id === $get_jigyousya_id ) {
-					$show_author = $author_name;
-				}
+			if ( $author_id === $get_jigyousya_id ) {
+				$show_author = $author_name;
+			}
 
 				printf( '<option value="%s">%s</option>', $author_id, $author_name );
-			}
+		}
 
 		echo '</select></div>';
 		// ここまで事業者 ===========================================================
@@ -383,7 +383,6 @@ class N2_Postlist {
 			}
 		}
 		echo '</select></div>';
-
 
 		// ステータス検索
 		$status = array(
@@ -767,9 +766,28 @@ class N2_Postlist {
 		$arr   = array();
 		foreach ( $posts as $post ) {
 			if ( ! empty( get_post_meta( $post->ID, '返礼品コード', 'true' ) ) ) {
-				$arr[ $post->ID ] = get_post_meta( $post->ID, '返礼品コード', 'true' );
+
+				array_push(
+					$arr,
+					array(
+						'id'   => $post->ID,
+						'code' => get_post_meta(
+							$post->ID,
+							'返礼品コード',
+							'true'
+						),
+					),
+				);
+
 			}
 		}
+
+		usort(
+			$arr,
+			function( $a, $b ) {
+				return strcmp( $a['code'], $b['code'] );
+			}
+		);
 
 		echo wp_json_encode( $arr );
 

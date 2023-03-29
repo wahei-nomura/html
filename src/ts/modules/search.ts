@@ -26,12 +26,10 @@ jQuery(function ($) {
 				'<option value="" style="padding-top: 4px;">返礼品コード</option >'
 			);
 
-			Object.keys(data).forEach((key) => {
-				const selected =
-					params.get("返礼品コード") === key ? "selected" : "";
+			data.forEach((item) => {
 				$('select[name="返礼品コード[]"]').append(
 					$(
-						`<option value="${key}" ${selected}>${data[key]}</option>`
+						`<option value="${item.id}">${item.code}</option>`
 					)
 				);
 			});
