@@ -55,6 +55,12 @@ class N2_Rakuten_CSV {
 		return apply_filters( 'n2_item_export_get_yml', $arr );
 	}
 
+	/**
+	 * 各種セットアップの未入力エラー出力
+	 *
+	 * @param array $errors csvの種類(iniファイルのセクション名)
+	 * @return void
+	 */
 	private function rakuetn_setup_error_output( $errors ) {
 		$home = get_option( 'home' );
 		?>
@@ -137,7 +143,7 @@ class N2_Rakuten_CSV {
 			$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
 			$item_num       = trim( strtoupper( $post_meta_list['返礼品コード'] ) );
 			$item_num_low   = trim( mb_strtolower( $post_meta_list['返礼品コード'] ) );
-			
+
 			$item_arr = array(
 				'コントロールカラム'     => 'n',
 				'商品管理番号（商品URL）' => trim( mb_strtolower( $post_meta_list['返礼品コード'] ) ),
@@ -149,7 +155,7 @@ class N2_Rakuten_CSV {
 				'のし対応'          => ( '有り' === $post_meta_list['のし対応'] ) ? 1 : '',
 				'PC用キャッチコピー'    => N2_Functions::special_str_convert( $post_meta_list['キャッチコピー'] ?: $post_meta_list['キャッチコピー１'] ),
 				'モバイル用キャッチコピー'  => N2_Functions::special_str_convert( $post_meta_list['キャッチコピー'] ?: $post_meta_list['キャッチコピー１'] ),
-				'商品画像URL'       => $this->get_img_urls($post_id),
+				'商品画像URL'       => $this->get_img_urls( $post_id ),
 				'PC用商品説明文'      => PHP_EOL . $this->pc_item_description( $post_id ),
 				'PC用販売説明文'      => PHP_EOL . $this->pc_sales_description( $post_id ),
 				'スマートフォン用商品説明文' => PHP_EOL . $this->sp_item_description( $post_id ),
@@ -266,8 +272,8 @@ class N2_Rakuten_CSV {
 	/**
 	 * 楽天の画像URLを取得
 	 *
-	 * @param int  $post_id id
-	 * @param bool $return_string 戻り値判定用(基本は文字列|配列)
+	 * @param int    $post_id id
+	 * @param string $return_type 戻り値判定用(string|html|array)
 	 * @return string|array 楽天の画像URLを(文字列|配列)で取得する
 	 */
 	public function get_img_urls( $post_id, $return_type = 'string' ) {
@@ -280,7 +286,7 @@ class N2_Rakuten_CSV {
 		$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
 		$item_num_low   = trim( mb_strtolower( $post_meta_list['返礼品コード'] ) );
 		$img_dir        = rtrim( $n2->rakuten['img_dir'], '/' );
-	
+
 		// GOLD（ne.jp）とキャビネット（co.jp）を判定してキャビネットは事業者コードディレクトリを追加
 		preg_match( '/^[a-z]{2,3}/', $item_num_low, $m );// 事業者コード
 		if ( ! preg_match( '/ne\.jp/', $img_dir ) && array_key_exists( 0, $m ) ) {
@@ -447,7 +453,7 @@ class N2_Rakuten_CSV {
 		// ========[html]SP用商品説明文========
 		$html = function() use ( $post_id, $post_meta_list, ) {
 			global $n2;
-			$formatter     = fn( $post_key ) => nl2br( N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
+			$formatter = fn( $post_key ) => nl2br( N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
 			?>
 			<?php $this->get_img_urls( $post_id, 'html' ); ?>
 			<?php echo $formatter( '説明文' ); ?><br><br>
@@ -521,7 +527,7 @@ class N2_Rakuten_CSV {
 	 * @return string 商品説明テーブル
 	 */
 	public function make_itemtable( $post_id, $return_string = true ) {
-		$config        = $this->get_config( 'item_csv' );
+		$config         = $this->get_config( 'item_csv' );
 		$post_keys      = array(
 			'表示名称',
 			'略称',
@@ -542,7 +548,7 @@ class N2_Rakuten_CSV {
 		$allergy_display_str = $this->allergy_display( $post_id );
 
 		$formatter = fn( $post_key ) => nl2br( N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
-		$trs             = array(
+		$trs       = array(
 			'名称'      => array(
 				'td' => ( $formatter( '表示名称' ) ?: $formatter( '略称' ) ?: N2_Functions::special_str_convert( get_the_title( $post_id ) ) ),
 			),
@@ -666,7 +672,7 @@ class N2_Rakuten_CSV {
 				foreach ( $value as $v ) {
 					// headerの項目を取得
 					$item_arr[ $i ] = N2_Functions::get_post_meta_multiple( $post_id, $header );
-					$item_select         = array(
+					$item_select    = array(
 						'項目選択肢用コントロールカラム' => 'n',
 						'商品管理番号（商品URL）'   => $item_num,
 						'選択肢タイプ'          => 's',
