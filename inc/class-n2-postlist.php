@@ -359,9 +359,6 @@ class N2_Postlist {
 		foreach ( get_users( 'role=jigyousya' ) as $user ) {
 				$author_id   = (int) $user->ID;
 				$author_name = $user->display_name;
-			if ( $author_id === $get_jigyousya_id ) {
-				$show_author = $author_name;
-			}
 
 				printf( '<option value="%s">%s</option>', $author_id, $author_name );
 		}
