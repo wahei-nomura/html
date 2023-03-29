@@ -407,10 +407,11 @@ class N2_Rakuten_CSV {
 	 * アレルギ表示
 	 *
 	 * @param string $post_id id
+	 * @param string $type type
 	 *
 	 * @return string
 	 */
-	public static function allergy_display( $post_id ) {
+	public static function allergy_display( $post_id, $type = '' ) {
 		$post_meta_list            = get_post_meta( $post_id, '', true );
 		$post_meta_list['アレルゲン']   = unserialize( $post_meta_list['アレルゲン'][0] );
 		$post_meta_list['アレルゲン注釈'] = $post_meta_list['アレルゲン注釈'][0];
@@ -426,8 +427,10 @@ class N2_Rakuten_CSV {
 		$post_meta_list['アレルゲン注釈'] = $post_meta_list['アレルゲン注釈'] ? '<br>※' . $post_meta_list['アレルゲン注釈'] : '';
 		$result                    = '';
 		switch ( true ) {
-			case ! $is_food:
+			case ! $is_food && 'print' === $type:
 				$result = 'アレルギー表示しない';
+				break;
+			case ! $is_food:
 				break;
 			case ! $has_allergy:
 				$result = 'アレルギーなし食品';
