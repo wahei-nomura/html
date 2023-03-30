@@ -130,6 +130,13 @@ class N2_Setmenu {
 		$wp_admin_bar->remove_menu( 'comments' );     // コメント
 		$wp_admin_bar->remove_menu( 'new-content' );  // 新規
 		$wp_admin_bar->remove_menu( 'view-site' );    // サイト名 → サイトを表示
+		$dashboard_url = home_url( '/' ) . 'wp-admin';
+		$wp_admin_bar->add_node(
+			array(
+				'id' => 'site-name',
+				'href' => $dashboard_url,
+			),
+		);
 		$wp_admin_bar->add_node(
 			array(
 				'id' => 'my-sites',
