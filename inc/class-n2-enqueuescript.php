@@ -50,6 +50,8 @@ class N2_Enqueuescript {
 			'toplevel_page_n2_crew_setup_menu' => 'admin-setup',
 			'profile.php'                 => 'admin-user-profile',
 			'user-edit.php'               => 'admin-user-profile',
+			'user-new.php'                => 'admin-user-new',
+			'users.php'                   => 'admin-users',
 		);
 		if ( isset( $names[ $hook_suffix ] ) ) {
 			$name = $names[ $hook_suffix ];
