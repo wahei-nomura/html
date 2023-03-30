@@ -67,6 +67,8 @@ export default $ => {
 		$('textarea[rows="auto"]').each((k,v)=>{
 			this.auto_fit_tetxarea(v)
 		});
+		// 投稿のメタ情報を全保存
+		n2.saved_post = JSON.stringify($('form').serializeArray());
 	};
 	const methods = {
 		// 説明文・テキストカウンター
