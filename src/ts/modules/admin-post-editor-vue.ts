@@ -38,6 +38,7 @@ export default $ => {
 					発送方法: this.$data.発送方法,
 					発送サイズ: this.$data.発送サイズ,
 					送料: this.$data.送料,
+					その他送料: this.$data.その他送料,
 					定期便: this.$data.定期便,
 				}
 			},
@@ -54,10 +55,9 @@ export default $ => {
 					newVal.発送サイズ,
 					newVal.発送方法 != '常温' ? 'cool' : ''
 				].filter(v=>v);
-				if ( this.発送サイズ !== 'その他' ) {
-					newVal.送料 = n2.delivery_fee[size.join('_')] || '';
-				}
-				this.送料 = newVal.送料;
+				this.送料 = 'その他' == this.発送サイズ
+					? newVal.その他送料
+					: n2.delivery_fee[size.join('_')] || '';
 				this.寄附金額 = await this.calc_donation(newVal.価格,this.送料,newVal.定期便);
 				// 保存ボタン
 				this.show_submit();
