@@ -26,30 +26,40 @@ export default $ => {
 			group: '',
 			list: [],
 		};
-
+		
 		this.寄附金額 = await this.calc_donation(this.価格,this.送料,this.定期便);
 		this.show_submit();
 		// 発送サイズ・発送方法をダブル監視
 		this.$watch(
 			() => {
 				return {
+					全商品ディレクトリID: this.$data.全商品ディレクトリID.text,
 					価格: this.$data.価格,
 					発送方法: this.$data.発送方法,
 					発送サイズ: this.$data.発送サイズ,
 					送料: this.$data.送料,
+					その他送料: this.$data.その他送料,
 					定期便: this.$data.定期便,
 				}
 			},
 			async function(newVal, oldVal) {
+				// タグIDのリセット
+				if ( newVal.全商品ディレクトリID != oldVal.全商品ディレクトリID && this.タグID.text.length ) {
+					if ( confirm('全商品ディレクトリIDが変更されます。\nそれに伴い入力済みのタグIDをリセットしなければ楽天で地味にエラーがでます。\n\nタグIDをリセットしてよろしいでしょうか？') ) {
+						this.タグID.list = [];
+						this.タグID.text = '';
+					}
+				}
+				// 寄附金額の算出
 				const size = [
 					newVal.発送サイズ,
 					newVal.発送方法 != '常温' ? 'cool' : ''
 				].filter(v=>v);
-				if ( this.発送サイズ !== 'その他' ) {
-					newVal.送料 = n2.delivery_fee[size.join('_')] || '';
-				}
-				this.送料 = newVal.送料;
+				this.送料 = 'その他' == this.発送サイズ
+					? newVal.その他送料
+					: n2.delivery_fee[size.join('_')] || '';
 				this.寄附金額 = await this.calc_donation(newVal.価格,this.送料,newVal.定期便);
+				// 保存ボタン
 				this.show_submit();
 			},
 		);
@@ -57,6 +67,8 @@ export default $ => {
 		$('textarea[rows="auto"]').each((k,v)=>{
 			this.auto_fit_tetxarea(v)
 		});
+		// 投稿のメタ情報を全保存
+		n2.saved_post = JSON.stringify($('form').serializeArray());
 	};
 	const methods = {
 		// 説明文・テキストカウンター
@@ -112,19 +124,20 @@ export default $ => {
 			});
 			images.on( 'open', () => {
 				// N2のものだけに
-				const add =  this.商品画像.filter( v => v.nonces );
+				const add =  n2.vue.商品画像.filter( v => v.nonces );
 				images.state().get('selection').add( add.map( v => wp.media.attachment(v.id) ) );
 			});
 			images.on( 'select close', () => {
-				this.商品画像 =  [
-					...this.商品画像.filter( v => !v.nonces ),// N1のみ展開
-					...images.state().get('selection').map( v => v.attributes )
-				];
+				images.state().get('selection').forEach( img => {
+					if ( ! n2.vue.商品画像.find( v => v.id == img.attributes.id ) ) {
+						n2.vue.商品画像.push( img.attributes );
+					}
+				})
 			});
 			images.open();
 		},
 		// 楽天の全商品ディレクトリID取得（タグIDでも利用）
-		async get_genreid( tagid_reset = false ){
+		async get_genreid(){
 			const settings = {
 				url: '//app.rakuten.co.jp/services/api/IchibaGenre/Search/20140222',
 				data: {
@@ -133,14 +146,6 @@ export default $ => {
 				},
 			};
 			this.全商品ディレクトリID.list = await $.ajax(settings);
-			if ( tagid_reset && this.タグID.text ) {
-				if ( confirm('全商品ディレクトリIDが変更されます。\nそれに伴い入力済みのタグIDをリセットしなければ楽天で地味にエラーがでます。\n\nタグIDをリセットしてよろしいでしょうか？') ) {
-					this.タグID.list = [];
-					this.タグID.text = '';
-				} else {
-					this.タグID.text = this.タグID.text;
-				}
-			}
 		},
 		// タグIDと楽天SPAカテゴリーで利用
 		update_textarea(id, target = 'タグID', delimiter = '/'){

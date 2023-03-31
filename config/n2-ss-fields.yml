@@ -18,7 +18,7 @@
     placeholder: 例）AAA000
     :value: 返礼品コード
     "@focus": set_info($event.target)
-    "@input": "force_half_size_text($event, 'uppercase', '返礼品コード')"
+    "@change": "force_half_size_text($event, 'uppercase', '返礼品コード')"
 
 LH表示名:
     type: text
@@ -31,14 +31,14 @@ LH表示名:
     style: "width: 12em;"
     "@focus": set_info($event.target)
     :value: 寄附金額
-    "@input": "force_half_size_text($event, 'number', '寄附金額')"
+    "@change": "force_half_size_text($event, 'number', '寄附金額')"
 
 全商品ディレクトリID:
     type: rakuten-genreid
     min: 0
     v-model: 全商品ディレクトリID.text
     v-if: "!出品禁止ポータル.includes('楽天ふるさと納税')"
-    alert: 下のボタンが無くなるまで押していかないと楽天で地味にエラーが出ます。
+    description: 下のボタンが無くなるまで押していかないと楽天で地味にエラーが出ます。
 
 タグID:
     type: rakuten-tagid
