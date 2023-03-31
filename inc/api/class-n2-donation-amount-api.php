@@ -42,16 +42,16 @@ class N2_Donation_Amount_API {
 
 		// エヴァの出撃準備
 		$eva = array(
-			'零号機'  => ceil( ( $price + $delivery_fee ) / 300 ) * 1000,
-			'初号機'  => ceil( $price / 300 ) * 1000,
-			'弐号機'  => ceil( ( $price + $delivery_fee ) / 350 ) * 1000,
+			'零号機'  => ceil( ( $price + $delivery_fee ) * $subscription / 300 ) * 1000,
+			'初号機'  => ceil( $price * $subscription / 300 ) * 1000,
+			'弐号機'  => ceil( ( $price + $delivery_fee ) * $subscription / 350 ) * 1000,
 			'十三号機' => 9999999,
 		);
 		// 使徒襲来！　初号機と弐号機の強いほうが出撃だ！
 		$eva['使徒'] = $eva['初号機'] > $eva['弐号機'] ? $eva['初号機'] : $eva['弐号機'];
 
 		// 寄附金額算出
-		$donation_amount = $eva[ $type ] * $subscription;
+		$donation_amount = $eva[ $type ];
 		/**
 		 * Filters the attached file based on the given ID.
 		 *
