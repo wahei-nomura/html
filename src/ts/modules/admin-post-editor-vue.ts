@@ -124,14 +124,15 @@ export default $ => {
 			});
 			images.on( 'open', () => {
 				// N2のものだけに
-				const add =  this.商品画像.filter( v => v.nonces );
+				const add =  n2.vue.商品画像.filter( v => v.nonces );
 				images.state().get('selection').add( add.map( v => wp.media.attachment(v.id) ) );
 			});
 			images.on( 'select close', () => {
-				this.商品画像 =  [
-					...this.商品画像.filter( v => !v.nonces ),// N1のみ展開
-					...images.state().get('selection').map( v => v.attributes )
-				];
+				images.state().get('selection').forEach( img => {
+					if ( ! n2.vue.商品画像.find( v => v.id == img.attributes.id ) ) {
+						n2.vue.商品画像.push( img.attributes );
+					}
+				})
 			});
 			images.open();
 		},
