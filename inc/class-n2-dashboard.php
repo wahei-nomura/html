@@ -45,6 +45,7 @@ class N2_Dashboard {
 
 		// プラグインで追加された項目
 		remove_meta_box( 'wp_mail_smtp_reports_widget_lite', 'dashboard', 'normal' ); // WP Mail SMTP
+		remove_menu_page( 'wp-mail-smtp' );
 
 		remove_action( 'welcome_panel', 'wp_welcome_panel' );
 	}
