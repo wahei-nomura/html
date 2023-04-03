@@ -42,7 +42,9 @@ class N2_Dashboard {
 		unset( $wp_meta_boxes['dashboard']['side']['core']['dashboard_quick_press'] ); // クイック投稿
 		unset( $wp_meta_boxes['dashboard']['side']['core']['dashboard_recent_drafts'] ); // 最近の下書き
 		unset( $wp_meta_boxes['dashboard']['side']['core']['dashboard_primary'] ); // WordPressブログ
-		unset( $wp_meta_boxes['dashboard']['side']['core']['dashboard_secondary'] ); // WordPressフォーラム
+
+		// プラグインで追加された項目
+		remove_meta_box( 'wp_mail_smtp_reports_widget_lite', 'dashboard', 'normal' ); // WP Mail SMTP
 
 		remove_action( 'welcome_panel', 'wp_welcome_panel' );
 	}
