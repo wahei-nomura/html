@@ -70,6 +70,7 @@ class N2_Setmenu {
 				$menus[] = 'themes.php';
 				$menus[] = 'upload.php';
 				$menus[] = 'edit-comments.php';
+				$menus[] = 'options-general.php';
 				$menus[] = 'aiowpsec'; // All In One WP Security
 				break;
 			case 'jigyousya':

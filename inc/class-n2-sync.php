@@ -403,6 +403,9 @@ class N2_Sync {
 			// 同期用 裏カスタムフィールドNENGのID追加
 			$postarr['meta_input']['_neng_id'] = $v['ID'];
 
+			// 寄附金額をロックする
+			$postarr['meta_input']['寄附金額固定'] = array( '固定する' );
+
 			// 「取り扱い方法1〜2」を「取り扱い方法」に変換
 			$handling                        = array_filter( $postarr['meta_input'], fn( $k ) => preg_match( '/取り扱い方法[0-9]/u', $k ), ARRAY_FILTER_USE_KEY );
 			$postarr['meta_input']['取り扱い方法'] = array_filter( array_values( $handling ), fn( $v ) => $v );
@@ -484,7 +487,7 @@ class N2_Sync {
 				}
 				$neng_ids[] = $p->ID;
 				// 更新されてない場合はスキップ
-				if ( $p->post_modified === $postarr['post_modified'] ) {
+				if ( $p->post_modified >= $postarr['post_modified'] ) {
 					continue;
 				}
 				$postarr['ID'] = $p->ID;
