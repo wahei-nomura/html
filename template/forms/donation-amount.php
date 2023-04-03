@@ -28,3 +28,4 @@ foreach ( $args as $k => $v ) {
 	</template>
 	<div class="btn btn-dark" style="white-space: nowrap;" @click="update_donation()" v-if="!寄附金額固定.filter(v=>v).length">再計算</div>
 </div>
+<p v-html="`価格：${価格}　送料：${Number(送料).toLocaleString()}　定期便回数： ${定期便}`" class="n2-field-addition d-none"></p>

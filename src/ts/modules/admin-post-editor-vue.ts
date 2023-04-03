@@ -85,7 +85,7 @@ export default $ => {
 			if ( ! $(target).parents('.n2-fields-value').find('.n2-field-description').length ) {
 				$(target).parents('.n2-fields-value').prepend(`<div class="n2-field-description small lh-base col-12">${info.join('')}</div>`);
 			}
-			
+			$(target).parents('.n2-fields-value').find('.n2-field-addition.d-none').removeClass('d-none');
 			if ( $(target).attr('maxlength') ) {
 				$(target).parents('.n2-fields-value').find('.n2-field-description').html(info.join(''));
 			}
@@ -184,7 +184,7 @@ export default $ => {
 		},
 		// 寄附金額の更新
 		async update_donation(){
-			alert(`価格：${this.価格}\n送料：${this.送料}\n定期便回数：${this.定期便}\nを元に再計算します。`);
+			alert(`価格：${Number(this.価格).toLocaleString()}\n送料：${Number(this.送料).toLocaleString()}\n定期便回数：${this.定期便}\nを元に再計算します。`);
 			this.寄附金額 = await this.calc_donation(this.価格, this.送料, this.定期便);
 			console.log(this.寄附金額)
 		},
