@@ -157,7 +157,7 @@ class N2_Rakuten_CSV {
 				'モバイル用キャッチコピー'  => N2_Functions::special_str_convert( $post_meta_list['キャッチコピー'] ?: $post_meta_list['キャッチコピー１'] ),
 				'商品画像URL'       => $this->get_img_urls( $post_id ),
 				'PC用商品説明文'      => PHP_EOL . $this->pc_item_description( $post_id ),
-				'PC用販売説明文'      => PHP_EOL . $this->pc_sales_description( $post_id ),
+				'PC用販売説明文'      => $this->pc_sales_description( $post_id ),
 				'スマートフォン用商品説明文' => PHP_EOL . $this->sp_item_description( $post_id ),
 			);
 
