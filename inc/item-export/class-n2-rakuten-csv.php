@@ -492,7 +492,7 @@ class N2_Rakuten_CSV {
 		$post_meta_list['アレルゲン注釈'] = $post_meta_list['アレルゲン注釈'][0];
 		$allergens                 = array();
 		$is_food                   = in_array( '食品', get_post_meta( $post_id, '商品タイプ', true ), true );
-		$has_allergy               = in_array( 'アレルギー品目あり', get_post_meta( $post_id, 'アレルギー有無確認', true ), true );
+		$has_allergy               = get_post_meta( $post_id, 'アレルギー有無確認', true ) && in_array( 'アレルギー品目あり', get_post_meta( $post_id, 'アレルギー有無確認', true ), true );
 		foreach ( $post_meta_list['アレルゲン'] as $v ) {
 			if ( is_numeric( $v['value'] ) ) {
 				$allergens = array( ...$allergens, $v['label'] );
