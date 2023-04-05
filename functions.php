@@ -50,6 +50,7 @@ $incs = array(
 	// 'class-n2-front-comment', // 2022-11-29 コメントアウト taiki
 	'class-n2-rakuten-transfer',
 	'api/class-n2-donation-amount-api',
+	'api/class-n2-post-history-api',
 );
 foreach ( $incs as $name ) {
 	require_once get_theme_file_path( "/inc/{$name}.php" );
