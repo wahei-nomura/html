@@ -1,7 +1,6 @@
 <?php
 /**
- * ふるさとチョイス商品API
- * https://www.furusato-tax.jp/ajax/city/product/42201?page=3
+ * N2返礼品出力API
  *
  * @package neoneng
  */
