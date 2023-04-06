@@ -166,7 +166,6 @@ class N2_Rakuten_CSV {
 				...$items_arr[ $post_id ],
 				...apply_filters( 'n2_item_export_item_csv_items', $item_arr, $post_id ),
 			);
-
 			// ================ エラー関連　================
 
 			// エラー時は$check_arrに詰め込む
@@ -263,6 +262,13 @@ class N2_Rakuten_CSV {
 			</style>
 			<?php
 		} else {
+			// 商品番号（返礼品コード）で昇順ソート
+			uasort(
+				$items_arr,
+				function ( $a, $b ) {
+					return strnatcmp( $a['商品番号'], $b['商品番号'] );
+				}
+			);
 			// csv出力
 			N2_Functions::download_csv( 'item', $header, $items_arr );
 		}
@@ -690,6 +696,13 @@ class N2_Rakuten_CSV {
 				...apply_filters( 'n2_item_export_select_csv_items', $item_arr, $post_id ),
 			);
 		}
+		// 商品番号（返礼品コード）で昇順ソート
+		uasort(
+			$items_arr,
+			function ( $a, $b ) {
+				return strnatcmp( $a['商品管理番号（商品URL）'], $b['商品管理番号（商品URL）'] );
+			}
+		);
 		N2_Functions::download_csv( 'select', $header, $items_arr );
 	}
 
