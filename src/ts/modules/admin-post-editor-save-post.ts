@@ -49,6 +49,7 @@ export default ($: any, target: string) => {
 			}
 			$('#n2-save-post span').attr('class', 'spinner-border spinner-border-sm me-2');
 			wp.data.dispatch('core/editor').savePost().then(()=>{
+				$(window).off('beforeunload');
 				$('#n2-save-post').attr('class', btn_class.saved).find('span').attr('class', 'dashicons dashicons-saved me-2');
 				// 現状のカスタム投稿データを保持
 				n2.saved_post = JSON.stringify($('form').serializeArray());
