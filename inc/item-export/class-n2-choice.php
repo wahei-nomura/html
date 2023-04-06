@@ -177,6 +177,14 @@ class N2_Choice {
 
 		}
 
+		// 管理コード（返礼品コード）で昇順ソート
+		uasort(
+			$items_arr,
+			function ( $a, $b ) {
+				return strnatcmp( $a['管理コード'], $b['管理コード'] );
+			}
+		);
+
 		// 寄附金額0アラート
 		$kifukin_alert_str = '【以下の返礼品が寄附金額が０になっていたため、ダウンロードを中止しました】<br>';
 		$kifukin_check_str = isset( $error_items ) ? $error_items : '';
