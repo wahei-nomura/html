@@ -53,7 +53,7 @@ export default ($: any, target: string) => {
 				$('#n2-save-post').attr('class', btn_class.saved).find('span').attr('class', 'dashicons dashicons-saved me-2');
 				// 現状のカスタム投稿データを保持
 				n2.saved_post = JSON.stringify($('form').serializeArray());
-			})
+			}).catch( error => alert('保存失敗' + error ) );
 		});
 	})
 }
