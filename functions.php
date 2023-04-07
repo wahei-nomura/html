@@ -29,6 +29,7 @@ require_once get_theme_file_path( '/config/config.php' );
  * Require inc
  */
 $incs = array(
+	'class-n2-auto-redirect',
 	'class-n2-loginlimit',
 	'class-n2-functions',
 	'class-n2-jigyousyaparam',
