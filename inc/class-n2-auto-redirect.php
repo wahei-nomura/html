@@ -35,7 +35,7 @@ class N2_Auto_Redirect {
 			return;
 		}
 		preg_match( '/^\/(.*?)\//', $_SERVER['REQUEST_URI'], $search );
-		$replace  = array_filter( array_column( get_sites(), 'path' ), fn( $v ) => false !== strpos( $v, $search[1] ) );
+		$replace = array_filter( array_column( get_sites(), 'path' ), fn( $v ) => false !== strpos( $v, $search[1] ) );
 		if ( empty( $replace ) ) {
 			return;
 		}
