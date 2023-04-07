@@ -176,10 +176,10 @@ class N2_Rakuten_CSV {
 					// 	'condition' => ! $item_arr['商品画像URL'],
 					// 	'message'   => '商品画像を先にアップロードしてください！',
 					// ),
-					array(
-						'condition' => ! $post_meta_list['寄附金額'],
-						'message'   => '寄附金額を設定してください！',
-					),
+					// array(
+					// 	'condition' => ! $post_meta_list['寄附金額'],
+					// 	'message'   => '寄附金額を設定してください！',
+					// ),
 
 				);
 				// ========エラー項目追加用hook========
