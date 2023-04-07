@@ -30,9 +30,8 @@ class N2_Auto_Redirect {
 	 * オートリダイレクト
 	 */
 	public function redirect() {
-
-		// 正規URLパターンの場合はスルー
-		if ( ! is_admin() || preg_match( '/^\/f[0-9]{6}-[a-z].*?\/|^\/wp-admin\/|^\/MSN-06S\/|^\/wp-login\.php/', $_SERVER['REQUEST_URI'] ) ) {
+		// 正規URLじゃないログイン画面以外はスルーする
+		if ( ! preg_match( '/^\/[a-z]*?\/\?*MSN-06S/', $_SERVER['REQUEST_URI'] ) ) {
 			return;
 		}
 		preg_match( '/^\/(.*?)\//', $_SERVER['REQUEST_URI'], $search );
@@ -46,7 +45,6 @@ class N2_Auto_Redirect {
 		}
 		$replace  = wp_unslash( array_values( $replace )[0] );
 		$redirect = preg_replace( '/^\/(.*?)\//', $replace, $_SERVER['REQUEST_URI'] );
-		// echo $redirect;
 		wp_safe_redirect( $redirect );
 		exit;
 	}
