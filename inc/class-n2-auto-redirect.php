@@ -31,7 +31,7 @@ class N2_Auto_Redirect {
 	 */
 	public function redirect() {
 		// 正規URLじゃないログイン画面以外はスルーする
-		if ( ! preg_match( '/^\/[a-z]*?\/\?*MSN-06S/', $_SERVER['REQUEST_URI'] ) ) {
+		if ( ! preg_match( '/^\/[a-z]*?\/\?*MSN-06S|^\/[a-z]*?\/wp-admin/', $_SERVER['REQUEST_URI'] ) ) {
 			return;
 		}
 		preg_match( '/^\/(.*?)\//', $_SERVER['REQUEST_URI'], $search );
