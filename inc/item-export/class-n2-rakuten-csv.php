@@ -172,14 +172,14 @@ class N2_Rakuten_CSV {
 			$check_error = function( $item_num, &$check_arr ) use ( $item_arr, $post_meta_list ) {
 				// エラー項目
 				$error_list = array(
-					// array(
-					// 	'condition' => ! $item_arr['商品画像URL'],
-					// 	'message'   => '商品画像を先にアップロードしてください！',
-					// ),
-					// array(
-					// 	'condition' => ! $post_meta_list['寄附金額'],
-					// 	'message'   => '寄附金額を設定してください！',
-					// ),
+					array(
+						'condition' => ! $item_arr['商品画像URL'],
+						'message'   => '商品画像を先にアップロードしてください！',
+					),
+					array(
+						'condition' => ! $post_meta_list['寄附金額'],
+						'message'   => '寄附金額を設定してください！',
+					),
 
 				);
 				// ========エラー項目追加用hook========
