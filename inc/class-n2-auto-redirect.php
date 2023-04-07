@@ -30,17 +30,23 @@ class N2_Auto_Redirect {
 	 * オートリダイレクト
 	 */
 	public function redirect() {
+
 		// 正規URLパターンの場合はスルー
-		if ( preg_match( '/^\/f[0-9]{6}-[a-z].*?\//', $_SERVER['REQUEST_URI'] ) ) {
+		if ( ! is_admin() || preg_match( '/^\/f[0-9]{6}-[a-z].*?\/|^\/wp-admin\/|^\/MSN-06S\/|^\/wp-login\.php/', $_SERVER['REQUEST_URI'] ) ) {
 			return;
 		}
 		preg_match( '/^\/(.*?)\//', $_SERVER['REQUEST_URI'], $search );
-		$replace = array_filter( array_column( get_sites(), 'path' ), fn( $v ) => false !== strpos( $v, $search[1] ) );
+		$replace = array_filter(
+			array_column( get_sites(), 'path' ),
+			fn( $v ) => false !== strpos( $v, $search[1] ) && preg_match( '/^\/f[0-9]{6}-[a-z].*?\//', $v )
+		);
+		// マルチサイトに近しいものがない場合はスルー
 		if ( empty( $replace ) ) {
 			return;
 		}
 		$replace  = wp_unslash( array_values( $replace )[0] );
 		$redirect = preg_replace( '/^\/(.*?)\//', $replace, $_SERVER['REQUEST_URI'] );
+		// echo $redirect;
 		wp_safe_redirect( $redirect );
 		exit;
 	}
