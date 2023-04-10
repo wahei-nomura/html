@@ -56,9 +56,6 @@ export default ($: any, target: string) => {
 					n2.saved_post = JSON.stringify($('form').serializeArray());
 				},
 				reason => {
-					if ( confirm( '何らかの理由で保存に失敗しました。\nもう一度保存を試みますか？' ) ) {
-						$('#n2-save-post').click();
-					}
 					console.log( '保存失敗', reason );
 					/**
 					 * ローカルストレージにエラーログを１件だけ保存
@@ -70,6 +67,9 @@ export default ($: any, target: string) => {
 						log: reason
 					};
 					localStorage.n2log = JSON.stringify( n2log );
+					if ( confirm( '何らかの理由で保存に失敗しました。\nもう一度保存を試みますか？' ) ) {
+						$('#n2-save-post').click();
+					}
 				}
 			);
 		});
