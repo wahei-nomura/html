@@ -218,7 +218,7 @@ class N2_Rakuten_CSV {
 						<th rowspan="<?php echo count( $errors ); ?>"><?php echo $error_item; ?></th>
 					<?php endif; ?>
 						<td>
-							<label><input type="checkbox"><?php echo $error_message; ?></label>			
+							<?php echo $error_message; ?>
 						</td>
 					</tr>
 					<?php endforeach; ?>
