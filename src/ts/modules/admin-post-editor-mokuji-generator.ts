@@ -33,14 +33,15 @@ export default $ => {
 			window['n2'].observer.observe( $('#poststuff').get(0), { subtree: true, childList: true } );
 		}
 	}
-	$(".edit-post-header-toolbar__list-view-toggle").ready(() => {
-		$('.edit-post-header-toolbar__list-view-toggle').on('click', () => {
+	const mokuji_toggler = '.edit-post-header-toolbar__list-view-toggle,.edit-post-header-toolbar__document-overview-toggle'
+	$(mokuji_toggler).ready(() => {
+		$(mokuji_toggler).on('click', () => {
 			$(".edit-post-editor__list-view-panel-content").ready(mokuji_generator);
 			// クッキーに状態保存
 			document.cookie = window['n2'].cookie['n2-mokuji'] ? 'n2-mokuji=true; max-age=0' : 'n2-mokuji=true';
 		});
 		if ( window['n2'].cookie['n2-mokuji'] ) {
-			$('.edit-post-header-toolbar__list-view-toggle').click();
+			$(mokuji_toggler).click();
 		}
 	});
 };

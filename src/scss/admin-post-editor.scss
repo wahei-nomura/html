@@ -142,7 +142,7 @@ body.n2-darkmode{
 			&__body{
 				padding: 0;
 			}
-			&__sidebar{
+			&__sidebar,&__secondary-sidebar{
 				.edit-post-sidebar__panel-tabs,
 				.components-panel__body-title{
 					display: none;
