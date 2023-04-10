@@ -15,7 +15,7 @@
   \*************************/
 /***/ (() => {
 
-eval("\n\n//# sourceURL=webpack://neo-neng/./src/ts/admin.js?");
+eval("jQuery(function ($) {\n\t$(\"#wp-admin-bar-my-sites\").off(\"mouseenter mouseleave\");\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/admin.js?");
 
 /***/ })
 
