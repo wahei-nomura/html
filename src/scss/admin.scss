@@ -1,7 +1,7 @@
 #wp-admin-bar-my-sites {
 	.ab-sub-wrapper {
-		height: 500px;
-		overflow-y: auto;
+		max-height: 80vh;
+		overflow-y: scroll;
 		overflow-x: hidden;
 
 		.wp-admin-bar-arrow {
