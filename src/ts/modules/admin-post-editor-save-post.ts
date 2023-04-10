@@ -48,12 +48,20 @@ export default ($: any, target: string) => {
 				return;
 			}
 			$('#n2-save-post span').attr('class', 'spinner-border spinner-border-sm me-2');
-			wp.data.dispatch('core/editor').savePost().then(()=>{
-				$(window).off('beforeunload');
-				$('#n2-save-post').attr('class', btn_class.saved).find('span').attr('class', 'dashicons dashicons-saved me-2');
-				// 現状のカスタム投稿データを保持
-				n2.saved_post = JSON.stringify($('form').serializeArray());
-			}).catch( error => alert('保存失敗' + error ) );
+			wp.data.dispatch('core/editor').savePost().then(
+				() => {
+					$(window).off('beforeunload');
+					$('#n2-save-post').attr('class', btn_class.saved).find('span').attr('class', 'dashicons dashicons-saved me-2');
+					// 現状のカスタム投稿データを保持
+					n2.saved_post = JSON.stringify($('form').serializeArray());
+				},
+				reason => {
+					console.log( '保存失敗', reason )
+					if ( confirm( '何らかの理由で保存に失敗しました。\nもう一度保存を試みますか？' ) ) {
+						$('#n2-save-post').click();
+					}
+				}
+			);
 		});
 	})
 }
