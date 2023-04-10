@@ -11,19 +11,16 @@ if (class_exists('N2_Output_Gift_API')) {
 	return;
 }
 
-class N2_Output_Gift_API
-{
+class N2_Output_Gift_API {
 
-	public function __construct()
-	{
+	public function __construct() {
 		add_action('wp_ajax_n2_output_gift_api', array($this, 'get'));
 	}
 
 	/**
 	 * 外部用API
 	 */
-	public function get()
-	{
+	public function get() {
 		global $wpdb;
 
 		// URLの末尾からcodeを取得、サニタイズ
