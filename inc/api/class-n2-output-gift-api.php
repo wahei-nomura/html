@@ -11,12 +11,12 @@ if ( class_exists( 'N2_Output_Gift_API' ) ) {
 }
 
 /**
- * {説明を書く}
+ * API出力に関する処理をまとめたクラス
  */
 class N2_Output_Gift_API {
 
 	/**
-	 * {説明を書く}
+	 * コンストラクタ
 	 */
 	public function __construct() {
 		add_action( 'wp_ajax_n2_output_gift_api', array( $this, 'get' ) );
