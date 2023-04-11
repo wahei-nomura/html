@@ -1,20 +1,25 @@
 <?php
-
 /**
  * N2返礼品出力API
  *
  * @package neoneng
  */
 
-if (class_exists('N2_Output_Gift_API')) {
+if ( class_exists( 'N2_Output_Gift_API' ) ) {
 	new N2_Output_Gift_API();
 	return;
 }
 
+/**
+ * {説明を書く}
+ */
 class N2_Output_Gift_API {
 
+	/**
+	 * {説明を書く}
+	 */
 	public function __construct() {
-		add_action('wp_ajax_n2_output_gift_api', array($this, 'get'));
+		add_action( 'wp_ajax_n2_output_gift_api', array( $this, 'get' ) );
 	}
 
 	/**
@@ -24,11 +29,11 @@ class N2_Output_Gift_API {
 		global $wpdb;
 
 		// URLの末尾からcodeを取得、サニタイズ
-		$code = isset($_GET['code']) ? sanitize_text_field($_GET['code']) : '';
+		$code = isset( $_GET['code'] ) ? sanitize_text_field( $_GET['code'] ) : '';
 
 		// 自治体コードを取得
 		global $n2;
-		$id = ($n2->site_id);
+		$id = ( $n2->site_id );
 
 		// wp_postsテーブルから情報を取得するSQLクエリを準備
 		$query = <<<SELECT_SQL
@@ -77,14 +82,14 @@ class N2_Output_Gift_API {
 		SELECT_SQL;
 
 		// サニタイズした返礼品コードをクエリの「%s」の部分に入れてクエリを完成させる
-		$query = $wpdb->prepare($query, $code);
+		$query = $wpdb->prepare( $query, $code );
 
 		// SQLクエリを実行し、結果を連想配列で取得
-		$results = $wpdb->get_results($query, ARRAY_A);
+		$results = $wpdb->get_results( $query, ARRAY_A );
 
 		// 結果をJSON形式に変換して出力
-		header('Content-Type: application/json');
-		echo json_encode($results);
+		header( 'Content-Type: application/json' );
+		echo wp_json_encode( $results );
 		exit;
 	}
 }
