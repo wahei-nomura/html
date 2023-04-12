@@ -211,7 +211,7 @@ class N2_Postlist {
 			),
 			array(
 				'text'      => '事業者変更',
-				'add_class' => '',
+				'add_class' => 'neo-neng-change-author-btn',
 				'is_show'   => ! isset( $_GET['post_status'] ) || 'trash' !== $_GET['post_status'],
 			),
 			array(
