@@ -21,6 +21,7 @@ class N2_Users_API {
 	 */
 	public function __construct() {
 		add_action( 'wp_ajax_n2_users_api', array( $this, 'get' ) );
+		add_action( 'wp_ajax_n2_post_author_update', array( $this, 'post_author_update' ) );
 	}
 
 	/**
@@ -49,6 +50,29 @@ class N2_Users_API {
 		);
 
 		echo wp_json_encode( $users );
+		exit;
+	}
+
+	/**
+	 * 返礼品の作成者を変更する
+	 */
+	public function post_author_update () {
+		$post_id   = isset( $_POST['post_id'] ) ? filter_input( INPUT_POST, 'post_id', FILTER_VALIDATE_INT ) : false;
+		$author_id = isset( $_POST['author_id'] ) ? filter_input( INPUT_POST, 'author_id', FILTER_VALIDATE_INT ) : false;
+
+		if ( ! $post_id || ! $author_id ) {
+			echo 'post_idまたはauthor_idがありません';
+			exit;
+		}
+
+		$post = array(
+			'ID'          => $post_id,
+			'post_author' => $author_id,
+		);
+
+		wp_update_post( $post );
+
+		echo wp_json_encode( array('message' => 'success') );
 		exit;
 	}
 }
