@@ -210,6 +210,11 @@ class N2_Postlist {
 				'is_show'   => ! isset( $_GET['post_status'] ) || 'trash' !== $_GET['post_status'],
 			),
 			array(
+				'text'      => '事業者変更',
+				'add_class' => 'neo-neng-change-author-btn',
+				'is_show'   => ! isset( $_GET['post_status'] ) || 'trash' !== $_GET['post_status'],
+			),
+			array(
 				'text'      => '復元',
 				'add_class' => 'neo-neng-recoverypost-btn',
 				'is_show'   => isset( $_GET['post_status'] ) && 'trash' === $_GET['post_status'],
