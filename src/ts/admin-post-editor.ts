@@ -19,7 +19,7 @@ jQuery( $ => {
 	loading_view($, '#wpwrap');// ローディング
 	alert_and_return_page(!n2.formula_type, '寄附金額の自動計算に必須の設定値がありません。先程のページへ戻ります。');// 自動計算不可のためページに入れない
 	i18n();// 翻訳
-	$(window).on('load', function(){
+	setTimeout(()=>{
 		title_counter($);// タイトルカウンター
 		view_history_button($, ".edit-post-header__settings");// 履歴ボタン
 		delete_post_button($, ".edit-post-header__settings");// 削除ボタン
@@ -32,5 +32,6 @@ jQuery( $ => {
 		editor_vue($);// カスタムフィールドをVueで制御
 		status_control($);// ステータスコントロール
 		shortcut_control($);// ショートカットコントロール
-	});
+
+	}, 1);
 });
