@@ -34,7 +34,7 @@ class N2_Output_Gift_API {
 
 		// 自治体コードを取得
 		global $n2;
-		$id = ( $n2->site_id );
+		$site_id = $n2->site_id;
 
 		// wp_postsテーブルから情報を取得するSQLクエリを準備
 		$query = <<<SELECT_SQL
@@ -54,7 +54,7 @@ class N2_Output_Gift_API {
 			b.のし対応,
 			b.配送期間
 		FROM
-			wp_{$id}_posts as a
+			wp_{$site_id}_posts as a
 		INNER JOIN (
 			SELECT 
 				post_id,
@@ -73,7 +73,7 @@ class N2_Output_Gift_API {
 				max(CASE WHEN meta_key = 'のし対応' THEN meta_value END) AS のし対応,
 				max(CASE WHEN meta_key = '配送期間' THEN meta_value END) AS 配送期間
 			FROM
-				wp_{$id}_postmeta
+				wp_{$site_id}_postmeta
 			GROUP BY
 				post_id ) as b
 		ON
