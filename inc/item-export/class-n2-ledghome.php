@@ -126,6 +126,13 @@ class N2_Ledghome {
 			exit( $kifukin_alert_str . $kifukin_check_str );
 		}
 
-		N2_Functions::download_csv( 'ledghome', $header, $items_arr, $csv_title, 'csv' );
+		N2_Functions::download_csv(
+			array(
+				'file_name' => 'ledghome',
+				'header'    => $header,
+				'items_arr' => $items_arr,
+				'csv_title' => $csv_title,
+			)
+		);
 	}
 }
