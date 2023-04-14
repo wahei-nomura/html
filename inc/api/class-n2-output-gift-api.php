@@ -29,8 +29,13 @@ class N2_Output_Gift_API {
 	public function get_by_priv_user() {
 		global $wpdb;
 
-		// URLの末尾からcodeを取得、サニタイズ
+		// URLの末尾からskuを取得、サニタイズ
 		$sku = isset( $_GET['sku'] ) ? sanitize_text_field( $_GET['sku'] ) : '';
+
+		// skuが空の場合、処理を終了する
+		if ( '' === $sku ) :
+			exit;
+		endif;
 
 		// 自治体コードを取得
 		global $n2;
