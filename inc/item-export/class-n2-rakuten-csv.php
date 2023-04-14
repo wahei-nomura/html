@@ -270,7 +270,13 @@ class N2_Rakuten_CSV {
 				}
 			);
 			// csv出力
-			N2_Functions::download_csv( 'item', $header, $items_arr );
+			N2_Functions::download_csv(
+				array(
+					'file_name' => 'item',
+					'header'    => $header,
+					'items_arr' => $items_arr,
+				)
+			);
 		}
 		die();
 	}
@@ -703,7 +709,14 @@ class N2_Rakuten_CSV {
 				return strnatcmp( $a['商品管理番号（商品URL）'], $b['商品管理番号（商品URL）'] );
 			}
 		);
-		N2_Functions::download_csv( 'select', $header, $items_arr );
+
+		N2_Functions::download_csv(
+			array(
+				'file_name' => 'select',
+				'header'    => $header,
+				'items_arr' => $items_arr,
+			)
+		);
 	}
 
 	/**
