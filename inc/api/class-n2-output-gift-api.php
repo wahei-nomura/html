@@ -41,7 +41,7 @@ class N2_Output_Gift_API {
 		global $n2;
 		$site_id = $n2->site_id;
 
-		// wp_postsテーブルから情報を取得するSQLクエリを準備
+		// テーブルから情報を取得するSQLクエリを準備
 		$query = <<<SELECT_SQL
 		SELECT
 			a.post_title as title,
