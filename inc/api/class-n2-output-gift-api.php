@@ -44,22 +44,23 @@ class N2_Output_Gift_API {
 		// テーブルから情報を取得するSQLクエリを準備
 		$query = <<<SELECT_SQL
 		SELECT
-			a.post_title as title,
-			b.寄附金額,
-			b.消費期限,
-			b.賞味期限,
-			b.説明文,
-			b.電子レンジ対応,
-			b.オーブン対応,
-			b.食洗機対応,
-			b.内容量・規格等,
-			b.発送方法,
-			b.定期便,
-			b.包装対応,
-			b.のし対応,
-			b.配送期間
+			posts.post_title as title,
+			postmeta.寄附金額,
+			postmeta.返礼品コード,
+			postmeta.消費期限,
+			postmeta.賞味期限,
+			postmeta.説明文,
+			postmeta.電子レンジ対応,
+			postmeta.オーブン対応,
+			postmeta.食洗機対応,
+			postmeta.内容量・規格等,
+			postmeta.発送方法,
+			postmeta.定期便,
+			postmeta.包装対応,
+			postmeta.のし対応,
+			postmeta.配送期間
 		FROM
-			wp_{$site_id}_posts as a
+			wp_{$site_id}_posts as posts
 		INNER JOIN (
 			SELECT 
 				post_id,
@@ -80,11 +81,11 @@ class N2_Output_Gift_API {
 			FROM
 				wp_{$site_id}_postmeta
 			GROUP BY
-				post_id ) as b
+				post_id ) as postmeta
 		ON
-			b.post_id = a.id
+			postmeta.post_id = posts.id
 		WHERE
-		    b.返礼品コード = %s;
+		    postmeta.返礼品コード = %s;
 		SELECT_SQL;
 
 		// サニタイズした返礼品コードをクエリの「%s」の部分に入れてクエリを完成させる
