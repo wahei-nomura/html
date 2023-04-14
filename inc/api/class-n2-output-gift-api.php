@@ -19,13 +19,14 @@ class N2_Output_Gift_API {
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		add_action( 'wp_ajax_n2_output_gift_api', array( $this, 'get' ) );
+		add_action( 'wp_ajax_n2_priv_output_gift_api', array( $this, 'get_by_priv_user' ) );
+		add_action( 'wp_ajax_n2_nopriv_output_gift_api', array( $this, 'get_by_nopriv_user' ) );
 	}
 
 	/**
 	 * 外部用API
 	 */
-	public function get() {
+	public function get_by_priv_user() {
 		global $wpdb;
 
 		// URLの末尾からcodeを取得、サニタイズ
@@ -91,5 +92,11 @@ class N2_Output_Gift_API {
 		header( 'Content-Type: application/json' );
 		echo wp_json_encode( $results );
 		exit;
+	}
+	/**
+	 * 外部用API
+	 */
+	public function get_by_nopriv_user() {
+		echo 'これはno_priv用のやつ';
 	}
 }
