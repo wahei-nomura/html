@@ -30,7 +30,7 @@ class N2_Output_Gift_API {
 		global $wpdb;
 
 		// URLの末尾からcodeを取得、サニタイズ
-		$code = isset( $_GET['code'] ) ? sanitize_text_field( $_GET['code'] ) : '';
+		$sku = isset( $_GET['sku'] ) ? sanitize_text_field( $_GET['sku'] ) : '';
 
 		// 自治体コードを取得
 		global $n2;
@@ -83,7 +83,7 @@ class N2_Output_Gift_API {
 		SELECT_SQL;
 
 		// サニタイズした返礼品コードをクエリの「%s」の部分に入れてクエリを完成させる
-		$query = $wpdb->prepare( $query, $code );
+		$query = $wpdb->prepare( $query, $sku );
 
 		// SQLクエリを実行し、結果を連想配列で取得
 		$results = $wpdb->get_results( $query, ARRAY_A );
