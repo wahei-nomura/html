@@ -164,14 +164,36 @@ class N2_Functions {
 	/**
 	 * download_csv
 	 *
-	 * @param string $name データ名
-	 * @param Array  $header header
-	 * @param Array  $items_arr 商品情報配列
-	 * @param string $csv_title あれば連結する
-	 * @param string $type デフォルト（無記入）ならcsv、"tsv"の時はtsvとして処理
+	 * @param array $args デフォルト地を宇賀脇する配列
 	 * @return void
 	 */
-	public static function download_csv( $file_name, $header, $items_arr, $csv_title = '', $type = 'csv' ) {
+	public static function download_csv( $args ) {
+
+		$defaults = array(
+			'file_name'      => 'exported_item',
+			'header'         => array(),
+			'items_arr'      => array(),
+			'csv_title'      => '',
+			'type'           => 'csv',
+			'character_code' => 'sjis',
+		);
+
+		// デフォルト値を引数で上書き
+		$parsed_args = wp_parse_args( $args, $defaults );
+
+		$file_name      = $parsed_args['file_name'];
+		$header         = $parsed_args['header'];
+		$items_arr      = $parsed_args['items_arr'];
+		$csv_title      = $parsed_args['csv_title'];
+		$type           = $parsed_args['type'];
+		$character_code = $parsed_args['character_code'];
+
+		// headerとitem_arrは必須
+		if ( 0 === count( $header ) || 0 === count( $items_arr ) ) {
+			echo 'Error function download_csv';
+			exit;
+		}
+
 		// 初期化
 		$csv       = '';
 		$delimiter = ',';
@@ -206,8 +228,10 @@ class N2_Functions {
 			$csv .= PHP_EOL;
 		}
 
-		// sjisに変換
-		$csv = mb_convert_encoding( $csv, 'SJIS-win', 'utf-8' );
+		if ( 'sjis' === $character_code ) {
+			// sjisに変換
+			$csv = mb_convert_encoding( $csv, 'SJIS-win', 'utf-8' );
+		}
 
 		header( 'Content-Type: application/octet-stream' );
 		header( "Content-Disposition: attachment; filename={$file_name}.{$type}" );
@@ -219,8 +243,8 @@ class N2_Functions {
 	/**
 	 * send_slack_notification
 	 *
-	 * @param  string $send_message メッセージ
-	 * @param  string $channel_name 通知するチャンネル名
+	 * @param  character $send_message メッセージ
+	 * @param  character $channel_name 通知するチャンネル名
 	 * @param  string $bot_name botの名前
 	 * @param  string $icon_url アイコンのURL
 	 * @return array
