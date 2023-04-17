@@ -70,14 +70,14 @@ class N2_Output_Gift_API {
 		// SQLクエリを実行し、結果を連想配列で取得
 		$results = $wpdb->get_results( $query, ARRAY_A );
 
-		$gift = [];
+		$gift = array();
 		foreach ( $results as $result ) {
 			$title      = $result['title'];
 			$meta_key   = $result['meta_key'];
 			$meta_value = $result['meta_value'];
 
 			if ( ! isset( $gift[ $title ] ) ) {
-				$gift[ $title ] = [ 'title' => $title ];
+				$gift[ $title ] = array( 'title' => $title );
 			}
 			$gift[ $title ][ $meta_key ] = $meta_value;
 		}
@@ -153,14 +153,14 @@ class N2_Output_Gift_API {
 		// SQLクエリを実行し、結果を連想配列で取得
 		$results = $wpdb->get_results( $query, ARRAY_A );
 
-		$gift = [];
+		$gift = array();
 		foreach ( $results as $result ) {
 			$title      = $result['title'];
 			$meta_key   = $result['meta_key'];
 			$meta_value = $result['meta_value'];
 
 			if ( ! isset( $gift[ $title ] ) ) {
-				$gift[ $title ] = [ 'title' => $title ];
+				$gift[ $title ] = array( 'title' => $title );
 			}
 			$gift[ $title ][ $meta_key ] = $meta_value;
 		}
