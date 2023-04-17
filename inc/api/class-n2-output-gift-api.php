@@ -24,7 +24,7 @@ class N2_Output_Gift_API {
 	}
 
 	/**
-	 * 外部用API
+	 * プライベートユーザー用API
 	 */
 	public function get_by_priv_user() {
 		global $wpdb;
@@ -70,6 +70,7 @@ class N2_Output_Gift_API {
 		// SQLクエリを実行し、結果を連想配列で取得
 		$results = $wpdb->get_results( $query, ARRAY_A );
 
+		// 空の配列を作って取得したデータを整える
 		$gift = array();
 		foreach ( $results as $result ) {
 			$title      = $result['title'];
@@ -82,6 +83,7 @@ class N2_Output_Gift_API {
 			$gift[ $title ][ $meta_key ] = $meta_value;
 		}
 
+		// 最終的な出力
 		$output = array_values( $gift );
 
 		// 結果をJSON形式に変換して出力
@@ -90,7 +92,7 @@ class N2_Output_Gift_API {
 		exit;
 	}
 	/**
-	 * 外部用API
+	 * 非プライベートユーザー用API
 	 */
 	public function get_by_nopriv_user() {
 		global $wpdb;
@@ -153,6 +155,7 @@ class N2_Output_Gift_API {
 		// SQLクエリを実行し、結果を連想配列で取得
 		$results = $wpdb->get_results( $query, ARRAY_A );
 
+		// 空の配列を作って取得したデータを整える
 		$gift = array();
 		foreach ( $results as $result ) {
 			$title      = $result['title'];
@@ -165,6 +168,7 @@ class N2_Output_Gift_API {
 			$gift[ $title ][ $meta_key ] = $meta_value;
 		}
 
+		// 最終的な出力
 		$output = array_values( $gift );
 
 		// 結果をJSON形式に変換して出力
