@@ -8,6 +8,10 @@
 # 属性値を自動的に追加
 
 # ===================================================
+寄附金額:
+    type: hidden
+    :value: 寄附金額
+    v-if: current_user == 'jigyousya'
 
 価格:
     type : text
@@ -19,7 +23,7 @@
     style: 'width: 10em'
     :value: 価格
     "@focus": set_info($event.target)
-    "@input": "force_half_size_text($event, 'number', '価格')"
+    "@change": "force_half_size_text($event, 'number', '価格')"
 
 キャッチコピー:
     type : text
@@ -239,15 +243,18 @@
     v-model: 発送サイズ
 
 送料:
-    type : text
-    description: '送料はサイズ等を元に計算された金額が自動で設定されています。'
-    style: 'width: 6em'
-    # v-if: 発送サイズ!=''
+    type: hidden
     :value: 送料
-    ':readonly': "発送サイズ!='その他' ? true: false"
-    "@focus": if (発送サイズ!='その他') { set_info($event.target) }
-    "@input": "force_half_size_text($event, 'number', '送料')"
     required: required
+
+その他送料:
+    type : text
+    label: 送料
+    description: 発送サイズ「その他」を選択の場合は必須項目です
+    style: 'width: 6em'
+    v-if: 発送サイズ=='その他'
+    :value: その他送料
+    "@change": "force_half_size_text($event, 'number', 'その他送料')"
 
 取り扱い方法:
     type : checkbox

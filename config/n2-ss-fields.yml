@@ -18,7 +18,7 @@
     placeholder: 例）AAA000
     :value: 返礼品コード
     "@focus": set_info($event.target)
-    "@input": "force_half_size_text($event, 'uppercase', '返礼品コード')"
+    "@change": "force_half_size_text($event, 'uppercase', '返礼品コード')"
 
 LH表示名:
     type: text
@@ -26,24 +26,24 @@ LH表示名:
 
 寄附金額:
     type: donation-amount
-    description: 寄附金額を固定したい場合はチェックしてください。
+    description: 寄附金額を手動入力したい場合はチェックボックスにチェックを入れてください。<br>チェックが入っていない場合は寄附金額は自動計算されます。
     placeholder: 例）10000
     style: "width: 12em;"
     "@focus": set_info($event.target)
     :value: 寄附金額
-    "@input": "force_half_size_text($event, 'number', '寄附金額')"
+    "@change": "force_half_size_text($event, 'number', '寄附金額')"
 
 全商品ディレクトリID:
     type: rakuten-genreid
     min: 0
     v-model: 全商品ディレクトリID.text
     v-if: "!出品禁止ポータル.includes('楽天ふるさと納税')"
-    alert: 下のボタンが無くなるまで押していかないと楽天で地味にエラーが出ます。
+    description: 下のボタンが無くなるまで押していかないと楽天で地味にエラーが出ます。
 
 タグID:
     type: rakuten-tagid
     description: 楽天登録に必要なタグを複数選択します。
-    maxlength: 256
+    maxlength: 161
     rows: auto
     v-model: タグID.text
     v-if: "!出品禁止ポータル.includes('楽天ふるさと納税')&&全商品ディレクトリID.text"

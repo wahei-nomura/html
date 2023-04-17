@@ -62,18 +62,25 @@ class N2_Choice {
 			}
 
 			// アレルゲン処理
-			$allergen    = '';
-			$no_allergen = 0;
-			foreach ( get_post_meta( $id, 'アレルゲン' )[0] as $v ) {
-				$v['value'] === 'アレルゲンなし食品' ? $no_allergen = 1 : ( is_numeric( $v['value'] ) ? $allergen .= $v['value'] . ',' : '' );
-			}
-			$allergen      = rtrim( $allergen, ',' );
-			$allergen_text = get_post_meta( $id, 'アレルゲン注釈', true ) ?: '';
+			$allergen         = '';
+			$no_allergen      = 0;
+			$product_type     = get_post_meta( $id, '商品タイプ' )[0][0];
+			$display_allergen = '';
 
-			if ( $allergen !== '' || $allergen_text !== '' ) {
-				$display_allergen = $allergen . '|' . $allergen_text;
-			} elseif ( $no_allergen === 1 ) {
-				$display_allergen = '|';
+			if ( '食品' === $product_type ) {
+
+				foreach ( get_post_meta( $id, 'アレルゲン' )[0] as $v ) {
+					is_numeric( $v['value'] ) ? $allergen .= $v['value'] . ',' : '';
+				}
+
+				$allergen      = rtrim( $allergen, ',' );
+				$allergen_text = get_post_meta( $id, 'アレルゲン注釈', true ) ?: '';
+
+				if ( '' !== $allergen || '' !== $allergen_text ) {
+					$display_allergen = $allergen . '|' . $allergen_text;
+				} else {
+					$display_allergen = '|';
+				}
 			} else {
 				$display_allergen = '';
 			}
@@ -153,7 +160,7 @@ class N2_Choice {
 				'（必須）包装対応'       => ( get_post_meta( $id, '包装対応', true ) === '有り' ) ? 1 : 0,
 				'（必須）のし対応'       => ( get_post_meta( $id, 'のし対応', true ) === '有り' ) ? 1 : 0,
 				'（必須）定期配送対応'     => ( get_post_meta( $id, '定期便', true ) === '1' || get_post_meta( $id, '定期便', true ) === '' ) ? 0 : 1,
-				'（必須）クレジット決済限定'  => ( get_post_meta( $id, 'クレジット決済限定', true ) === 'クレジット決済限定' ) ? 1 : 0,
+				'（必須）オンライン決済限定'  => ( get_post_meta( $id, 'オンライン決済限定', true ) === 'オンライン決済限定' ) ? 1 : 0,
 				'カテゴリー'          => '',
 				'お礼の品画像'         => mb_strtolower( $item_code ) . '.jpg',
 				'受付開始日時'         => '2025/04/01 00:00',
@@ -170,6 +177,14 @@ class N2_Choice {
 
 		}
 
+		// 管理コード（返礼品コード）で昇順ソート
+		uasort(
+			$items_arr,
+			function ( $a, $b ) {
+				return strnatcmp( $a['管理コード'], $b['管理コード'] );
+			}
+		);
+
 		// 寄附金額0アラート
 		$kifukin_alert_str = '【以下の返礼品が寄附金額が０になっていたため、ダウンロードを中止しました】<br>';
 		$kifukin_check_str = isset( $error_items ) ? $error_items : '';
@@ -178,7 +193,16 @@ class N2_Choice {
 		}
 
 		// tsv出力
-		N2_Functions::download_csv( 'choice', array_keys( $sumple_header ), $items_arr, '', 'tsv' );
+		N2_Functions::download_csv(
+			array(
+				'file_name'      => 'choice',
+				'header'         => array_keys( $sumple_header ),
+				'items_arr'      => $items_arr,
+				'type'           => 'tsv',
+				'character_code' => 'utf-8',
+			)
+		);
+
 	}
 }
 

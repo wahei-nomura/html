@@ -29,6 +29,7 @@ require_once get_theme_file_path( '/config/config.php' );
  * Require inc
  */
 $incs = array(
+	'class-n2-auto-redirect',
 	'class-n2-loginlimit',
 	'class-n2-functions',
 	'class-n2-jigyousyaparam',
@@ -53,6 +54,8 @@ $incs = array(
 	'api/class-n2-rakuten-items-api',
 	'api/class-n2-furusato-choice-items-api',
 	'class-n2-chonbo',
+	'api/class-n2-post-history-api',
+	'api/class-n2-users-api',
 );
 foreach ( $incs as $name ) {
 	require_once get_theme_file_path( "/inc/{$name}.php" );

@@ -164,14 +164,36 @@ class N2_Functions {
 	/**
 	 * download_csv
 	 *
-	 * @param string $name データ名
-	 * @param Array  $header header
-	 * @param Array  $items_arr 商品情報配列
-	 * @param string $csv_title あれば連結する
-	 * @param string $type デフォルト（無記入）ならcsv、"tsv"の時はtsvとして処理
+	 * @param array $args デフォルト地を宇賀脇する配列
 	 * @return void
 	 */
-	public static function download_csv( $file_name, $header, $items_arr, $csv_title = '', $type = 'csv' ) {
+	public static function download_csv( $args ) {
+
+		$defaults = array(
+			'file_name'      => 'exported_item',
+			'header'         => array(),
+			'items_arr'      => array(),
+			'csv_title'      => '',
+			'type'           => 'csv',
+			'character_code' => 'sjis',
+		);
+
+		// デフォルト値を引数で上書き
+		$parsed_args = wp_parse_args( $args, $defaults );
+
+		$file_name      = $parsed_args['file_name'];
+		$header         = $parsed_args['header'];
+		$items_arr      = $parsed_args['items_arr'];
+		$csv_title      = $parsed_args['csv_title'];
+		$type           = $parsed_args['type'];
+		$character_code = $parsed_args['character_code'];
+
+		// headerとitem_arrは必須
+		if ( 0 === count( $header ) || 0 === count( $items_arr ) ) {
+			echo 'Error function download_csv';
+			exit;
+		}
+
 		// 初期化
 		$csv       = '';
 		$delimiter = ',';
@@ -206,13 +228,55 @@ class N2_Functions {
 			$csv .= PHP_EOL;
 		}
 
-		// sjisに変換
-		$csv = mb_convert_encoding( $csv, 'SJIS-win', 'utf-8' );
+		if ( 'sjis' === $character_code ) {
+			// sjisに変換
+			$csv = mb_convert_encoding( $csv, 'SJIS-win', 'utf-8' );
+		}
 
 		header( 'Content-Type: application/octet-stream' );
 		header( "Content-Disposition: attachment; filename={$file_name}.{$type}" );
 		echo htmlspecialchars_decode( $csv );
 
 		die();
+	}
+
+	/**
+	 * send_slack_notification
+	 *
+	 * @param  character $send_message メッセージ
+	 * @param  character $channel_name 通知するチャンネル名
+	 * @param  string $bot_name botの名前
+	 * @param  string $icon_url アイコンのURL
+	 * @return array
+	 */
+	public static function send_slack_notification( $send_message, $channel_name = 'コーディング', $bot_name = 'SS BOT', $icon_url = 'https://ca.slack-edge.com/T6C6YQR62-UAD93DP6F-a394aaeabd28-72' ) {
+		global $n2;
+
+		$bot_url       = 'https://hooks.slack.com/services/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';
+		$payload_items = array(
+			'channel'  => $channel_name,
+			'username' => $bot_name,
+			'icon_url' => $icon_url,
+			'text'     => $send_message,
+		);
+
+		$options = array(
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_HEADER         => true,
+			CURLOPT_URL            => $bot_url,
+			CURLOPT_POST           => true,
+			CURLOPT_POSTFIELDS     => array( 'payload' => json_encode( $payload_items ) ),
+		);
+		$ch = curl_init();
+		curl_setopt_array( $ch, $options );
+		$result      = curl_exec( $ch );
+		$header_size = curl_getinfo( $ch, CURLINFO_HEADER_SIZE );
+		$header      = substr( $result, 0, $header_size );
+		$result      = substr( $result, $header_size );
+		curl_close( $ch );
+		return array(
+			'Header' => $header,
+			'Result' => $result,
+		);
 	}
 }

@@ -44,6 +44,7 @@ class N2_Postlist {
 		add_action( "wp_ajax_{$this->cls}", array( $this, 'ajax' ) );
 		add_action( "wp_ajax_{$this->cls}_deletepost", array( $this, 'delete_post' ) );
 		add_action( "wp_ajax_{$this->cls}_recoverypost", array( $this, 'recovery_post' ) );
+		add_action( "wp_ajax_{$this->cls}_bulk_update_status", array( $this, 'bulk_update_status' ) );
 		add_filter( 'bulk_actions-edit-post', array( $this, 'bulk_manipulate' ) );
 	}
 
@@ -80,20 +81,31 @@ class N2_Postlist {
 	 * @return array $columns 一覧に追加するカラム
 	 */
 	public function add_posts_columns( $columns ) {
-	
-		$sort_base_url = admin_url();
-		$asc_or_desc   = empty( $_GET['order'] ) || 'desc' === $_GET['order'] ? 'asc' : 'desc';
+
+		$get_param_array = array();
+		foreach ( $_GET as $key => $value ) {
+			if ( is_array( $value ) ) {
+				$get_param_array[ $key ] = "{$key}[]=" . implode( "&{$key}[]=", $value );
+				continue;
+			}
+			if ( $value ) {
+				$get_param_array[ $key ] = "{$key}={$value}";
+			}
+		}
+
+		$sort_base_url = admin_url() . 'edit.php?' . implode( '&', $get_param_array );
+		$asc_or_desc   = empty( $_GET['order'] ) || 'asc' === $_GET['order'] ? 'desc' : 'asc';
 
 		$columns = array(
 			'cb'              => '<input type="checkbox" />',
-			'item-title'      => "<a href='{$sort_base_url}edit.php?orderby=返礼品名&order={$asc_or_desc}'>返礼品名{$this->judging_icons_order('返礼品名')}</a>",
-			'poster'          => "<a href='{$sort_base_url}edit.php?orderby=事業者&order={$asc_or_desc}'>事業者名{$this->judging_icons_order('事業者')}</a>",
-			'code'            => "<div class='text-center'><a href='{$sort_base_url}edit.php?orderby=返礼品コード&order={$asc_or_desc}'>返礼品<br>コード{$this->judging_icons_order('返礼品コード')}</a></div>",
-			'goods_price'     => "<div class='text-center'><a href='{$sort_base_url}edit.php?orderby=価格&order={$asc_or_desc}'>価格{$this->judging_icons_order('価格')}</a></div>",
-			'donation_amount' => "<a href='{$sort_base_url}edit.php?orderby=寄附金額&order={$asc_or_desc}'>寄附金額{$this->judging_icons_order('寄附金額')}</a>",
-			'teiki'           => '<div class="text-center">定期便</div>',
+			'item-title'      => '返礼品名',
+			'poster'          => '事業者名',
+			'code'            => "<div class='text-center'><a href='{$sort_base_url}&orderby=返礼品コード&order={$asc_or_desc}'>返礼品<br>コード{$this->judging_icons_order('返礼品コード')}</a></div>",
+			'goods_price'     => "<div class='text-center'><a href='{$sort_base_url}&orderby=価格&order={$asc_or_desc}'>価格{$this->judging_icons_order('価格')}</a></div>",
+			'donation_amount' => "<a href='{$sort_base_url}&orderby=寄附金額&order={$asc_or_desc}'>寄附金額{$this->judging_icons_order('寄附金額')}</a>",
+			'teiki'           => "<a href='{$sort_base_url}&orderby=定期便&order={$asc_or_desc}'>定期便{$this->judging_icons_order('定期便')}</a>",
 			'thumbnail'       => '<div class="text-center">画像</div>',
-			'modified-last'   => "<div class='text-center'><a href='{$sort_base_url}edit.php?orderby=date&order={$asc_or_desc}'>最終<br>更新日{$this->judging_icons_order('date')}</a></div>",
+			'modified-last'   => "<div class='text-center'><a href='{$sort_base_url}&orderby=date&order={$asc_or_desc}'>最終<br>更新日{$this->judging_icons_order('date')}</a></div>",
 		);
 		if ( 'municipal-office' !== wp_get_current_user()->roles[0] ) {
 			$columns = array(
@@ -195,6 +207,11 @@ class N2_Postlist {
 			array(
 				'text'      => 'ゴミ箱へ移動',
 				'add_class' => 'neo-neng-deletepost-btn',
+				'is_show'   => ! isset( $_GET['post_status'] ) || 'trash' !== $_GET['post_status'],
+			),
+			array(
+				'text'      => '事業者変更',
+				'add_class' => 'neo-neng-change-author-btn',
 				'is_show'   => ! isset( $_GET['post_status'] ) || 'trash' !== $_GET['post_status'],
 			),
 			array(
@@ -341,30 +358,22 @@ class N2_Postlist {
 		}
 
 		// 事業者検索 ===============================================================
-		$show_author      = '';
-		$get_jigyousya_id = filter_input( INPUT_GET, '事業者', FILTER_VALIDATE_INT );
 
-		// datalist生成
-		echo '<datalist id="jigyousya-list">';
+		echo '<div class="n2-jigyousya-selectbox"><select name="事業者[]" multiple size="1">';
+		echo '<option value="" style="padding-top: 4px;">事業者複数選択</option>';
 		foreach ( get_users( 'role=jigyousya' ) as $user ) {
-			$author_id   = (int) $user->ID;
-			$author_name = $user->display_name;
-			if ( $author_id === $get_jigyousya_id ) {
-				$show_author = $author_name;
-			}
+				$author_id   = (int) $user->ID;
+				$author_name = $user->display_name;
 
-			printf( '<option value="%s" data-id="%s">', $author_name, $author_id );
+				printf( '<option value="%s">%s</option>', $author_id, $author_name );
 		}
-		echo '</datalist>';
 
-		// 表示用と送信用にinput生成
-		echo "<input type='text' name='' id='jigyousya-list-tag' list='jigyousya-list' value='{$show_author}' placeholder='事業者入力'>";
-		echo "<input id='jigyousya-value' type='hidden' name='事業者' value='{$get_jigyousya_id}'>";
+		echo '</select></div>';
 		// ここまで事業者 ===========================================================
 
 		// 返礼品コード検索
-		echo '<select name="返礼品コード[]" multiple>';
-		echo '<option value="">返礼品コード</option>';
+		echo '<div class="n2-code-selectbox"><span class="badge bg-secondary">←選択後<br>返礼品コード選択</span><select name="返礼品コード[]" multiple size="1">';
+		echo '<option value="" style="padding-top: 4px;">返礼品コード</option>';
 		if ( empty( $_GET['事業者'] ) ) {
 			$get_code = filter_input( INPUT_GET, '返礼品コード', FILTER_SANITIZE_ENCODED );
 			$posts    = get_posts( 'post_status=any' );
@@ -375,7 +384,7 @@ class N2_Postlist {
 				}
 			}
 		}
-		echo '</select>';
+		echo '</select></div>';
 
 		// ステータス検索
 		$status = array(
@@ -394,7 +403,7 @@ class N2_Postlist {
 
 		// 定期便検索
 		echo '<select name="定期便">';
-		echo '<option value="">定期便検索</option>';
+		echo '<option value="">定期回数</option>';
 		for ( $i = 1; $i <= 12; $i++ ) {
 			$get_teiki = filter_input( INPUT_GET, '定期便', FILTER_VALIDATE_INT );
 			printf( '<option value="%s" %s>%s</option>', $i, selected( $i, $get_teiki, false ), $i > 1 ? "{$i}回定期便のみ" : '定期便以外' );
@@ -621,8 +630,34 @@ class N2_Postlist {
 					)
 		";
 
+		$order_meta_key = '';
+		$orderby        = "{$wpdb->posts}.post_date DESC";
+
 		// $wpdbのprepareでプレイスフォルダーに代入するための配列
 		$args = array();
+
+		// ソート
+		if ( isset( $_GET['orderby'] ) ) {
+			// フィールドの値が数値の項目
+			$int_metakey_perttern = array( '価格', '寄附金額', '定期便' );
+
+			$order_pattern = ! isset( $_GET['order'] ) || 'desc' === $_GET['order'] ? 'DESC' : 'ASC';
+
+			// 数値なのか
+			if ( in_array( $_GET['orderby'], $int_metakey_perttern ) ) {
+				$orderby = "CAST({$wpdb->postmeta}.meta_value AS UNSIGNED) {$order_pattern}";
+			} else {
+				$orderby = "{$wpdb->postmeta}.meta_value {$order_pattern}";
+			}
+
+			// 日付なのか
+			if ( 'date' === $_GET['orderby'] ) {
+				$orderby = "{$wpdb->posts}.post_date {$order_pattern}";
+			} else {
+				$order_meta_key = "AND {$wpdb->postmeta}.meta_key = '%s'";
+				array_push( $args, filter_input( INPUT_GET, 'orderby' ) );
+			}
+		}
 
 		// キーワード検索 ----------------------------------------
 		if ( ! empty( $_GET['s'] ) ) {
@@ -655,8 +690,16 @@ class N2_Postlist {
 
 		// 事業者絞り込み ----------------------------------------
 		if ( ! empty( $_GET['事業者'] ) ) {
-			$where .= "AND {$wpdb->posts}.post_author = '%s'";
-			array_push( $args, filter_input( INPUT_GET, '事業者', FILTER_VALIDATE_INT ) );
+			$jigyousya_arr = $_GET['事業者'];
+			$where        .= 'AND (';
+			foreach ( $jigyousya_arr as $key => $author_id ) {
+				if ( 0 !== $key ) {
+					$where .= ' OR '; // 複数事業者をOR検索(前後の空白必須)
+				}
+				$where .= "{$wpdb->posts}.post_author = '%s'";
+				array_push( $args, $author_id );
+			}
+			$where .= ')';
 		}
 
 		// 返礼品コード絞り込み------------------------------------
@@ -695,10 +738,10 @@ class N2_Postlist {
 		$sql = "
 		SELECT SQL_CALC_FOUND_ROWS *
 		FROM {$wpdb->posts}
-		INNER JOIN {$wpdb->postmeta} ON {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id
+		INNER JOIN {$wpdb->postmeta} ON {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id {$order_meta_key}
 		WHERE 1 = 1 {$where}
 		GROUP BY {$wpdb->posts}.ID
-		ORDER BY {$wpdb->posts}.post_date DESC
+		ORDER BY {$orderby}
 		LIMIT {$now_page}, {$page_number}
 		";
 
@@ -714,20 +757,39 @@ class N2_Postlist {
 	 * @return void
 	 */
 	public function ajax() {
-		$jigyousya = filter_input( INPUT_GET, '事業者', FILTER_VALIDATE_INT );
+		$jigyousya = filter_input( INPUT_GET, '事業者' );
 
 		if ( empty( $jigyousya ) ) {
 			echo wp_json_encode( array() );
 			die();
 		}
 
-		$posts = get_posts( "author={$jigyousya}&post_status=any" );
+		$posts = get_posts( "author={$jigyousya}&post_status=any&posts_per_page=-1" );
 		$arr   = array();
 		foreach ( $posts as $post ) {
 			if ( ! empty( get_post_meta( $post->ID, '返礼品コード', 'true' ) ) ) {
-				$arr[ $post->ID ] = get_post_meta( $post->ID, '返礼品コード', 'true' );
+
+				array_push(
+					$arr,
+					array(
+						'id'   => $post->ID,
+						'code' => get_post_meta(
+							$post->ID,
+							'返礼品コード',
+							'true'
+						),
+					),
+				);
+
 			}
 		}
+
+		usort(
+			$arr,
+			function( $a, $b ) {
+				return strcmp( $a['code'], $b['code'] );
+			}
+		);
 
 		echo wp_json_encode( $arr );
 
@@ -769,6 +831,30 @@ class N2_Postlist {
 
 		die();
 	}
+
+	/**
+	 * ステータス一括変更
+	 *
+	 * @return void
+	 */
+	public function bulk_update_status() {
+		$ids    = explode( ',', filter_input( INPUT_POST, 'ids', FILTER_SANITIZE_SPECIAL_CHARS ) );
+		$status = filter_input( INPUT_POST, 'status', FILTER_SANITIZE_SPECIAL_CHARS );
+
+		foreach ( $ids as $id ) {
+			wp_update_post(
+				array(
+					'ID'          => $id,
+					'post_status' => $status,
+				)
+			);
+		}
+
+		echo '更新完了';
+
+		die();
+	}
+
 	/**
 	 * 一括操作項目操作
 	 */

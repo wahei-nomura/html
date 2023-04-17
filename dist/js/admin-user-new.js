@@ -9,13 +9,13 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./src/ts/admin.js":
-/*!*************************!*\
-  !*** ./src/ts/admin.js ***!
-  \*************************/
+/***/ "./src/ts/admin-user-new.ts":
+/*!**********************************!*\
+  !*** ./src/ts/admin-user-new.ts ***!
+  \**********************************/
 /***/ (() => {
 
-eval("jQuery(function ($) {\n\t$(\"#wp-admin-bar-my-sites\").off(\"mouseenter mouseleave\");\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/admin.js?");
+eval("jQuery(function ($) {\n    // 管理者以外のユーザーは管理者を追加できない\n    if (!window['n2'].current_user.roles.includes('administrator')) {\n        $(\"option[value='administrator'\").remove(); // 管理者\n    }\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/admin-user-new.ts?");
 
 /***/ })
 
@@ -26,7 +26,7 @@ eval("jQuery(function ($) {\n\t$(\"#wp-admin-bar-my-sites\").off(\"mouseenter mo
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module can't be inlined because the eval devtool is used.
 /******/ 	var __webpack_exports__ = {};
-/******/ 	__webpack_modules__["./src/ts/admin.js"]();
+/******/ 	__webpack_modules__["./src/ts/admin-user-new.ts"]();
 /******/ 	
 /******/ })()
 ;
