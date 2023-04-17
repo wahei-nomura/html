@@ -82,11 +82,11 @@ class N2_Output_Gift_API {
 			$gift[ $title ][ $meta_key ] = $meta_value;
 		}
 
-		$results = array_values( $gift );
+		$output = array_values( $gift );
 
 		// 結果をJSON形式に変換して出力
 		header( 'Content-Type: application/json' );
-		echo wp_json_encode( $results );
+		echo wp_json_encode( $output );
 		exit;
 	}
 	/**
@@ -165,11 +165,11 @@ class N2_Output_Gift_API {
 			$gift[ $title ][ $meta_key ] = $meta_value;
 		}
 
-		$results = array_values( $gift );
+		$output = array_values( $gift );
 
 		// 結果をJSON形式に変換して出力
 		header( 'Content-Type: application/json' );
-		echo wp_json_encode( $results );
+		echo wp_json_encode( $output );
 		exit;
 	}
 }
