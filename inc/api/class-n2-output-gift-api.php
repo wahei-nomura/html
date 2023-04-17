@@ -19,7 +19,7 @@ class N2_Output_Gift_API {
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		add_action( 'wp_ajax_n2_priv_output_gift_api', array( $this, 'get_by_priv_user' ) );
+		add_action( 'wp_ajax_n2_output_gift_api', array( $this, 'get_by_priv_user' ) );
 		add_action( 'wp_ajax_n2_nopriv_output_gift_api', array( $this, 'get_by_nopriv_user' ) );
 	}
 
