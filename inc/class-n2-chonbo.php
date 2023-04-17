@@ -71,15 +71,38 @@ class N2_Chonbo {
 		$chonbo = array();
 		foreach ( $arr as $key => $value ) {
 			if ( 1 < count( array_unique( array_values( $value ) ) ) ) {
-				$chonbo[] = $value;
+				$chonbo[ $key ] = $value;
 			}
 		}
 		if ( ! empty( $chonbo ) ) {
 			$chonbo_db = get_option( 'n2_price_chonbo', array() );
 			// 日時をキーにする
 			$chonbo_db[ wp_date( 'Y-m-d H:i:s' ) ] = $chonbo;
-			update_option( 'n2_price_chonbo', $chonbo_db );
+			// update_option( 'n2_price_chonbo', $chonbo_db );
 		}
-		echo '<pre>';print_r(get_option( 'n2_price_chonbo' ));echo '</pre>';
+		$price_chonbo = get_option( 'n2_price_chonbo' );
+		?>
+		<h2>最新のチョンボ</h2>
+		<table class="widefat striped fixed">
+			<thead>
+				<tr>
+					<th>返礼品コード</th>
+					<?php foreach ( end( end( $price_chonbo ) ) as $name => $price ) : ?>
+					<th><?php echo $name; ?></th>
+					<?php endforeach; ?>
+				</tr>
+			</thead>
+			<tbody>
+				<?php foreach ( end( $price_chonbo ) as $code => $prices ) : ?>
+				<tr>
+					<td><?php echo $code; ?></td>
+					<?php foreach ( $prices as $price ) : ?>
+					<td><?php echo $price; ?></td>
+					<?php endforeach; ?>
+				</tr>
+				<?php endforeach; ?>
+			</tbody>
+		</table>
+		<?php
 	}
 }
