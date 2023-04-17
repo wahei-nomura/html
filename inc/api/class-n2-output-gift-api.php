@@ -72,8 +72,8 @@ class N2_Output_Gift_API {
 
 		$gift = [];
 		foreach ( $results as $result ) {
-			$title = $result['title'];
-			$meta_key = $result['meta_key'];
+			$title      = $result['title'];
+			$meta_key   = $result['meta_key'];
 			$meta_value = $result['meta_value'];
 
 			if ( ! isset( $gift[ $title ] ) ) {
@@ -155,8 +155,8 @@ class N2_Output_Gift_API {
 
 		$gift = [];
 		foreach ( $results as $result ) {
-			$title = $result['title'];
-			$meta_key = $result['meta_key'];
+			$title      = $result['title'];
+			$meta_key   = $result['meta_key'];
 			$meta_value = $result['meta_value'];
 
 			if ( ! isset( $gift[ $title ] ) ) {
