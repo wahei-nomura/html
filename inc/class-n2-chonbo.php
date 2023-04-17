@@ -23,7 +23,7 @@ class N2_Chonbo {
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		add_action( 'admin_menu', array( $this, 'add_menu' ) );
+		// add_action( 'admin_menu', array( $this, 'add_menu' ) );
 	}
 
 	/**
