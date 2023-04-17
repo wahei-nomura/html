@@ -40,6 +40,7 @@ class N2_Admin_Post_Editor {
 		add_filter( 'post_link', array( $this, 'set_post_paermalink' ), 10, 3 );
 		add_action( 'init', array( $this, 'register_post_status' ) );
 		add_action( 'transition_post_status', array( $this, 'transition_status_action' ), 10, 3 );
+		// add_filter( 'wp_check_post_lock_window', '__return_zero' );
 	}
 
 	/**

@@ -48,11 +48,30 @@ export default ($: any, target: string) => {
 				return;
 			}
 			$('#n2-save-post span').attr('class', 'spinner-border spinner-border-sm me-2');
-			wp.data.dispatch('core/editor').savePost().then(()=>{
-				$('#n2-save-post').attr('class', btn_class.saved).find('span').attr('class', 'dashicons dashicons-saved me-2');
-				// 現状のカスタム投稿データを保持
-				n2.saved_post = JSON.stringify($('form').serializeArray());
-			})
+			wp.data.dispatch('core/editor').savePost().then(
+				() => {
+					$(window).off('beforeunload');
+					$('#n2-save-post').attr('class', btn_class.saved).find('span').attr('class', 'dashicons dashicons-saved me-2');
+					// 現状のカスタム投稿データを保持
+					n2.saved_post = JSON.stringify($('form').serializeArray());
+				},
+				reason => {
+					console.log( '保存失敗', reason );
+					/**
+					 * ローカルストレージにエラーログを１件だけ保存
+					 * 見方：ブラウザのコンソールにJSON.parse(localStorage.n2log)
+					 */
+					const n2log = JSON.parse( localStorage.n2log || '{}' );
+					n2log.admin_post_editor_save_post_error = {
+						date: new Date().toLocaleString( 'ja-JP', { timeZone: 'Asia/Tokyo' }),
+						log: reason
+					};
+					localStorage.n2log = JSON.stringify( n2log );
+					if ( confirm( '何らかの理由で保存に失敗しました。\nもう一度保存を試みますか？' ) ) {
+						$('#n2-save-post').click();
+					}
+				}
+			);
 		});
 	})
 }

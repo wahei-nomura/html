@@ -111,6 +111,14 @@ class N2_Ledghome {
 			}
 		}
 
+		// 謝礼品番号（返礼品コード）で昇順ソート
+		uasort(
+			$items_arr,
+			function ( $a, $b ) {
+				return strnatcmp( $a['謝礼品番号'], $b['謝礼品番号'] );
+			}
+		);
+
 		// 寄附金額アラート
 		$kifukin_alert_str = '【以下の返礼品が寄附金額が０になっていたため、ダウンロードを中止しました】<br>';
 		$kifukin_check_str = isset( $error_items ) ? $error_items : '';
@@ -118,6 +126,13 @@ class N2_Ledghome {
 			exit( $kifukin_alert_str . $kifukin_check_str );
 		}
 
-		N2_Functions::download_csv( 'ledghome', $header, $items_arr, $csv_title, 'csv' );
+		N2_Functions::download_csv(
+			array(
+				'file_name' => 'ledghome',
+				'header'    => $header,
+				'items_arr' => $items_arr,
+				'csv_title' => $csv_title,
+			)
+		);
 	}
 }
