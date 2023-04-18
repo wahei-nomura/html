@@ -144,12 +144,19 @@ class N2_Rakuten_CSV {
 			$item_num       = trim( strtoupper( $post_meta_list['返礼品コード'] ) );
 			$item_num_low   = trim( mb_strtolower( $post_meta_list['返礼品コード'] ) );
 
+			// ダッシュボードと商品毎のタグIDをいい感じに結合する
+			$rakuten_tag_id = function( $rakuten_municipal_tag, $rakuten_item_tag ) {
+				$result = $rakuten_municipal_tag . '/' . $rakuten_item_tag;
+				$result = implode( '/', array_filter( explode( '/', $result ) ) );
+				return $result;
+			};
+
 			$item_arr = array(
 				'コントロールカラム'     => 'n',
 				'商品管理番号（商品URL）' => trim( mb_strtolower( $post_meta_list['返礼品コード'] ) ),
 				'商品番号'          => $item_num,
 				'全商品ディレクトリID'   => $post_meta_list['全商品ディレクトリID'],
-				'タグID'          => rtrim( $option['rakuten']['tag_id'], '/' ) . '/' . ltrim( $post_meta_list['タグID'], '/' ),
+				'タグID'          => $rakuten_tag_id( $option['rakuten']['tag_id'], $post_meta_list['タグID'] ),
 				'商品名'           => '【ふるさと納税】' . N2_Functions::special_str_convert( get_the_title( $post_id ) ) . " [{$item_num}]",
 				'販売価格'          => $post_meta_list['寄附金額'],
 				'のし対応'          => ( '有り' === $post_meta_list['のし対応'] ) ? 1 : '',
