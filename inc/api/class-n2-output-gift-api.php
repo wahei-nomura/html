@@ -41,27 +41,12 @@ class N2_Output_Gift_API {
 		// 自治体コードを取得
 		global $n2;
 		$site_id = $n2->site_id;
-		// $test    = $n2->rakuten['ftp_server_port'];
-		// print_r( $test );
+		$flag    = $n2->operation['operation'];
 
-		// フラグを取得するSQLクエリを準備
-		$option_name = 'N2_Setupmenu';
-		$flag_query  = <<<SELECT_SQL
-		SELECT 
-			option_value 
-		FROM
-			wp_{$site_id}_options
-		WHERE 
-			option_name = %s
-		SELECT_SQL;
-
-		$flag_query  = $wpdb->prepare( $flag_query, $option_name );
-		$flag_result = $wpdb->get_var( $flag_query );
-		$flag_result = unserialize( $flag_result );
-		$flag        = $flag_result['N2']['operation'];
-
+		// N2が稼働していなかったらJSONでfalseを返す
 		if ( 'false' === $flag ) {
-			echo 'NENGに行ってね';
+			header( 'Content-Type: application/json' );
+			echo wp_json_encode( $n2->operation );
 			exit;
 		}
 
@@ -133,6 +118,14 @@ class N2_Output_Gift_API {
 		// 自治体コードを取得
 		global $n2;
 		$site_id = $n2->site_id;
+		$flag    = $n2->operation['operation'];
+
+		// N2が稼働していなかったらJSONでfalseを返す
+		if ( 'false' === $flag ) {
+			header( 'Content-Type: application/json' );
+			echo wp_json_encode( $n2->operation );
+			exit;
+		}
 
 		// テーブルから情報を取得するSQLクエリを準備
 		$gift_query = <<<SELECT_SQL

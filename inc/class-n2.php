@@ -153,6 +153,13 @@ class N2 {
 	public $town_code;
 
 	/**
+	 * N2稼働状況
+	 *
+	 * @var object
+	 */
+	public $operation;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -279,6 +286,9 @@ class N2 {
 
 		// レジホーム
 		$this->ledghome_csv_contents = yaml_parse_file( get_theme_file_path( 'config/n2-ledghome-csv-header.yml' ) );
+
+		// N2稼働状況
+		$this->operation = $n2_option['N2'] ?? '';
 	}
 
 	/**
