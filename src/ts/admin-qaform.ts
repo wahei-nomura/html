@@ -27,7 +27,7 @@ jQuery(function($){
 		'text-decoration':'none',
 	});
 
-	if(n2.current_user.roles[0] === 'jigyousya') {
+	if(n2.current_user.roles[0] !== 'administrator') {
 		$('#wpwrap').append(formLink);
 	}
 })
