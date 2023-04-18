@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( class_exists( 'N2_Sync' ) ) {
-	new N2_Sync();
+	$GLOBALS['n2_sync'] = new N2_Sync();
 	return;
 }
 
@@ -733,7 +733,7 @@ class N2_Sync {
 	 * @param string $sheetid スプレットシートのID
 	 * @param string $range スプレットシートの範囲
 	 */
-	private function get_spreadsheet_data( $sheetid, $range ) {
+	public function get_spreadsheet_data( $sheetid, $range ) {
 		$secret = wp_json_file_decode( $this->spreadsheet_auth_path );
 		// token取得
 		$url  = 'https://www.googleapis.com/oauth2/v4/token';

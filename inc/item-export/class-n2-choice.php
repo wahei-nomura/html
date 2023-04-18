@@ -193,7 +193,16 @@ class N2_Choice {
 		}
 
 		// tsv出力
-		N2_Functions::download_csv( 'choice', array_keys( $sumple_header ), $items_arr, '', 'tsv' );
+		N2_Functions::download_csv(
+			array(
+				'file_name'      => 'choice',
+				'header'         => array_keys( $sumple_header ),
+				'items_arr'      => $items_arr,
+				'type'           => 'tsv',
+				'character_code' => 'utf-8',
+			)
+		);
+
 	}
 }
 
