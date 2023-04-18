@@ -100,7 +100,7 @@
 
 アレルギー有無確認:
     type : checkbox
-    value: []
+    value: ['アレルギー品目あり']
     v-model: アレルギー有無確認
     v-if: 商品タイプ.includes('食品')
     option :
