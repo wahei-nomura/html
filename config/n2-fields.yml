@@ -103,12 +103,14 @@
     value: ['アレルギー品目あり']
     v-model: アレルギー有無確認
     v-if: 商品タイプ.includes('食品')
+    required: required
     option :
         - アレルギー品目あり
 
 アレルゲン:
     type : checkbox2
     v-if: 商品タイプ.includes('食品')&&アレルギー有無確認.filter(v=>v).length
+    required: required
     option :
         0: 卵
         1: 乳
@@ -215,6 +217,7 @@
 
 発送サイズ:
     type : select
+    required: required
     option :
         '': 未選択
         '0101': ヤマト 60サイズ
