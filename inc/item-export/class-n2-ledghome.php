@@ -37,6 +37,7 @@ class N2_Ledghome {
 		$items_arr   = array();
 		$error_items = '';
 		// あとでヘッダの上の連結するのに必要
+
 		$ledghome_csv_contents = $n2->ledghome_csv_contents;
 		$csv_title             = $ledghome_csv_contents['ledghome']['csv_header']['title'];
 		$header                = $ledghome_csv_contents['ledghome']['csv_header']['values'];
@@ -83,8 +84,6 @@ class N2_Ledghome {
 					'状態'         => '表示',
 					'寄附設定金額'     => $i < 2 ? get_post_meta( $id, '寄附金額', true ) : 0,
 					'価格（税込み）'    => ( $setting['teiki_price'] === true ) ? ( ( $i < 2 ) ? $price * $teiki : 0 ) : $price,
-					// 用途は様々。デフォルト空欄
-					'その他経費'      => apply_filters( 'ledghome_other_expence', '' ),
 					'送料'         => $deliva_price,
 					// 特定自治体の処理をフックで行う。
 					'送料反映'       => ( ( ( ( apply_filters( 'deliva_price_no_reflect', '' )
