@@ -41,9 +41,32 @@ class N2_Output_Gift_API {
 		// 自治体コードを取得
 		global $n2;
 		$site_id = $n2->site_id;
+		// $test    = $n2->rakuten['ftp_server_port'];
+		// print_r( $test );
 
-		// テーブルから情報を取得するSQLクエリを準備
-		$query = <<<SELECT_SQL
+		// フラグを取得するSQLクエリを準備
+		$option_name = 'N2_Setupmenu';
+		$flag_query  = <<<SELECT_SQL
+		SELECT 
+			option_value 
+		FROM
+			wp_{$site_id}_options
+		WHERE 
+			option_name = %s
+		SELECT_SQL;
+
+		$flag_query  = $wpdb->prepare( $flag_query, $option_name );
+		$flag_result = $wpdb->get_var( $flag_query );
+		$flag_result = unserialize( $flag_result );
+		$flag        = $flag_result['N2']['operation'];
+
+		if ( 'false' === $flag ) {
+			echo 'NENGに行ってね';
+			exit;
+		}
+
+		// 返礼品情報を取得するSQLクエリを準備
+		$gift_query = <<<SELECT_SQL
 		SELECT
 			posts.post_title as title,
 			postmeta.meta_key,
@@ -66,10 +89,10 @@ class N2_Output_Gift_API {
 		SELECT_SQL;
 
 		// サニタイズした返礼品コードをクエリの「%s」の部分に入れてクエリを完成させる
-		$query = $wpdb->prepare( $query, $sku );
+		$gift_query = $wpdb->prepare( $gift_query, $sku );
 
 		// SQLクエリを実行し、結果を連想配列で取得
-		$results = $wpdb->get_results( $query, ARRAY_A );
+		$results = $wpdb->get_results( $gift_query, ARRAY_A );
 
 		// 空の配列を作って取得したデータを整える
 		$gift = array();
@@ -112,7 +135,7 @@ class N2_Output_Gift_API {
 		$site_id = $n2->site_id;
 
 		// テーブルから情報を取得するSQLクエリを準備
-		$query = <<<SELECT_SQL
+		$gift_query = <<<SELECT_SQL
 		SELECT
 			posts.post_title as title,
 			postmeta.meta_key,
@@ -152,10 +175,10 @@ class N2_Output_Gift_API {
 		SELECT_SQL;
 
 		// サニタイズした返礼品コードをクエリの「%s」の部分に入れてクエリを完成させる
-		$query = $wpdb->prepare( $query, $sku );
+		$gift_query = $wpdb->prepare( $gift_query, $sku );
 
 		// SQLクエリを実行し、結果を連想配列で取得
-		$results = $wpdb->get_results( $query, ARRAY_A );
+		$results = $wpdb->get_results( $gift_query, ARRAY_A );
 
 		// 空の配列を作って取得したデータを整える
 		$gift = array();

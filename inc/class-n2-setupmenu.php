@@ -263,7 +263,8 @@ class N2_Setupmenu {
 			<input type="hidden" name="judge" value="option">
 			<p>NEONENGで稼働中の場合、チェックを入れてください</p>
 			<div class="mb-3">
-				<input type="checkbox" name="operation" value="true">
+				<input type="hidden" name="<?php echo $this->cls; ?>[N2][operation]" value="false">
+				<input type="checkbox" name="<?php echo $this->cls; ?>[N2][operation]" value="true">
 				<label class="form-label">稼働中</label>
 			</div>
 			<input type="submit" class="btn btn-primary sissubmit" value="更新する">
