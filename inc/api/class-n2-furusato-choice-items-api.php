@@ -60,8 +60,8 @@ class N2_Furusato_Choice_Items_API {
 		$before = microtime( true );
 		// 自治体コードを自動取得
 		$this->set_town_code();
-		$url       = "https://www.furusato-tax.jp/ajax/city/product/{$this->town_code}?";
-		$params    = array(
+		$url    = "https://www.furusato-tax.jp/ajax/city/product/{$this->town_code}?";
+		$params = array(
 			'page' => 1,
 		);
 		// データ取得を試みる
@@ -70,6 +70,7 @@ class N2_Furusato_Choice_Items_API {
 			echo 'ふるさとチョイスの返礼品データ取得失敗';
 			exit;
 		}
+		$params['page']++;
 		$data = $data['body'];
 
 		// DOMDocument
