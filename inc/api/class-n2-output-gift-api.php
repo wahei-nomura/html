@@ -33,9 +33,10 @@ class N2_Output_Gift_API {
 		$sku = isset( $_GET['sku'] ) ? sanitize_text_field( $_GET['sku'] ) : '';
 
 		// skuが空の場合、処理を終了する
-		if ( '' === $sku ) :
+		if ( '' === $sku ) {
+			echo '返礼品が存在しません';
 			exit;
-		endif;
+		}
 
 		// 自治体コードを取得
 		global $n2;
@@ -101,9 +102,10 @@ class N2_Output_Gift_API {
 		$sku = isset( $_GET['sku'] ) ? sanitize_text_field( $_GET['sku'] ) : '';
 
 		// skuが空の場合、処理を終了する
-		if ( '' === $sku ) :
+		if ( '' === $sku ) {
+			echo '返礼品が存在しません';
 			exit;
-		endif;
+		}
 
 		// 自治体コードを取得
 		global $n2;
