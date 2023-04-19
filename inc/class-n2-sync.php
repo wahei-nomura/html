@@ -688,7 +688,7 @@ class N2_Sync {
 		// 投稿配列
 		$postarr = array();
 		foreach ( $data as $k => $d ) {
-			$postarr[ $k ]['post_title']  = $d['タイトル'];
+			$postarr[ $k ]['post_title']  = $d['タイトル'] ?? '';
 			$postarr[ $k ]['post_author'] = $this->get_userid_by_last_name( $d['事業者コード'] );
 			unset( $d['タイトル'], $d['事業者コード'], $d['事業者名'] );
 			// 寄附金額固定（入力あれば固定）
@@ -855,7 +855,8 @@ class N2_Sync {
 			// 「updateモード」かつ「登録済み」
 			$p = get_posts( "meta_key=返礼品コード&meta_value={$post['meta_input']['返礼品コード']}&fields=ids&post_status=any" );
 			if ( isset( $_POST['update'] ) && ! empty( $p ) ) {
-				$post['ID'] = $p[0];
+				$post['ID']         = $p[0];
+				$post['post_title'] = $post['post_title'] ?: get_the_title( $p[0] );
 			}
 			wp_insert_post( $post );
 		}
