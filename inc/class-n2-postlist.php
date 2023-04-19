@@ -153,6 +153,8 @@ class N2_Postlist {
 	 */
 	public function add_posts_columns_row( $column_name ) {
 		global $post;
+		global $n2;
+
 		$post_data = N2_Functions::get_all_meta( $post );
 
 		$title = get_the_title();
@@ -207,7 +209,9 @@ class N2_Postlist {
 			array(
 				'text'      => 'ゴミ箱へ移動',
 				'add_class' => 'neo-neng-deletepost-btn',
-				'is_show'   => ! isset( $_GET['post_status'] ) || 'trash' !== $_GET['post_status'],
+				'is_show'   => ( ! isset( $_GET['post_status'] ) || 'trash' !== $_GET['post_status'] ) // ゴミ箱ページじゃない
+								// かつ事業者以外または、事業者でステータスが下書き
+								&& ( 'jigyousya' !== $n2->current_user->roles[0] || ( '入力中' === $status && 'jigyousya' === $n2->current_user->roles[0] ) ),
 			),
 			array(
 				'text'      => '事業者変更',
