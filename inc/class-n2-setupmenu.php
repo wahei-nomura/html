@@ -263,8 +263,8 @@ class N2_Setupmenu {
 			<input type="hidden" name="judge" value="option">
 			<p>NEONENGで稼働中の場合、チェックを入れてください</p>
 			<div class="mb-3">
-				<input type="hidden" name="<?php echo $this->cls; ?>[N2][operation]" value="false">
-				<input type="checkbox" name="<?php echo $this->cls; ?>[N2][operation]" value="true" <?php echo isset( get_option( $this->cls )['N2']['operation'] ) && 'true' === get_option( $this->cls )['N2']['operation'] ? 'checked' : ''; ?>>
+				<input type="hidden" name="<?php echo $this->cls; ?>[N2][n2_active_flag]" value="false">
+				<input type="checkbox" name="<?php echo $this->cls; ?>[N2][n2_active_flag]" value="true" <?php echo isset( get_option( $this->cls )['N2']['n2_active_flag'] ) && 'true' === get_option( $this->cls )['N2']['n2_active_flag'] ? 'checked' : ''; ?>>
 				<label class="form-label">稼働中</label>
 			</div>
 			<input type="submit" class="btn btn-primary sissubmit" value="更新する">
