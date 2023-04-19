@@ -100,15 +100,17 @@
 
 アレルギー有無確認:
     type : checkbox
-    value: []
+    value: ['アレルギー品目あり']
     v-model: アレルギー有無確認
     v-if: 商品タイプ.includes('食品')
+    required: required
     option :
         - アレルギー品目あり
 
 アレルゲン:
     type : checkbox2
     v-if: 商品タイプ.includes('食品')&&アレルギー有無確認.filter(v=>v).length
+    required: required
     option :
         0: 卵
         1: 乳
@@ -215,6 +217,7 @@
 
 発送サイズ:
     type : select
+    required: required
     option :
         '': 未選択
         '0101': ヤマト 60サイズ
@@ -275,9 +278,9 @@
 配送伝票表示名:
     type : text
     description : 配送伝票に表示したい自社での品番・名称等がある場合はご記入ください。<br>※特に記載がない場合は、返礼品名の最初の20文字が伝票へ記載されます。
-    maxlength : 20
-    placeholder : 20文字以内
-    style: 'width: 20em;'
+    maxlength : 17
+    placeholder : 17文字以内
+    style: 'width: 17em;'
     "@focus": set_info($event.target)
     "@input": set_info($event.target)
 
