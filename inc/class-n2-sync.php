@@ -859,6 +859,7 @@ class N2_Sync {
 			$p = get_posts( "meta_key=返礼品コード&meta_value={$post['meta_input']['返礼品コード']}&post_status=any" );
 			if ( isset( $_POST['update'] ) && ! empty( $p ) ) {
 				$post['ID']          = $p[0]->ID;
+				$post['post_status'] = $post['post_status'] ?: $p[0]->post_status;
 				$post['post_title']  = $post['post_title'] ?: $p[0]->post_title;
 				$post['post_author'] = $post['post_author'] ?: $p[0]->post_author;
 			}
