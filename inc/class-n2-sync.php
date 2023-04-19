@@ -688,15 +688,17 @@ class N2_Sync {
 		// 投稿配列
 		$postarr = array();
 		foreach ( $data as $k => $d ) {
+			$author_code = $d['事業者コード'] ?? preg_replace( '/[0-9]*/', '', $d['返礼品コード'] );
+			// 投稿配列作成
 			$postarr[ $k ]['post_title']  = $d['タイトル'] ?? '';
-			$postarr[ $k ]['post_author'] = $this->get_userid_by_last_name( $d['事業者コード'] );
+			$postarr[ $k ]['post_author'] = $this->get_userid_by_last_name( $author_code );
 			unset( $d['タイトル'], $d['事業者コード'], $d['事業者名'] );
 			// 寄附金額固定（入力あれば固定）
-			$d['寄附金額固定'] = array( $d['寄附金額固定'] ? '固定する' : '' );
+			$d['寄附金額固定'] = array( ( $d['寄附金額固定'] ?? '' ) ? '固定する' : '' );
 			// 商品タイプ（入力値をそのまま出力）
-			$d['商品タイプ'] = array( $d['商品タイプ'] );
+			$d['商品タイプ'] = array( $d['商品タイプ'] ?? '' );
 			// アレルギーの有無確認（入力あればアレルギー品目あり）
-			$d['アレルギー有無確認'] = array( $d['アレルギー有無確認'] ? 'アレルギー品目あり' : '' );
+			$d['アレルギー有無確認'] = array( ( $d['アレルギー有無確認'] ?? '' ) ? 'アレルギー品目あり' : '' );
 			// アレルゲン（label,value必要）
 			$d['アレルゲン'] = array_map(
 				function( $v ) use ( $n2 ) {
@@ -706,10 +708,10 @@ class N2_Sync {
 					);
 				},
 				// 区切り文字列でいい感じに配列化
-				array_values( array_filter( preg_split( $sep, $d['アレルゲン'] ) ) )
+				array_values( array_filter( preg_split( $sep, $d['アレルゲン'] ?? '' ) ) )
 			);
 			// 取り扱い方法（区切り文字列でいい感じに配列化）
-			$d['取り扱い方法'] = array_values( array_filter( preg_split( $sep, $d['取り扱い方法'] ) ) );
+			$d['取り扱い方法'] = array_values( array_filter( preg_split( $sep, $d['取り扱い方法'] ?? '' ) ) );
 			// $postarrにセット
 			$postarr[ $k ]['meta_input'] = $d;
 		}
@@ -853,10 +855,11 @@ class N2_Sync {
 		}
 		foreach ( $posts as $post ) {
 			// 「updateモード」かつ「登録済み」
-			$p = get_posts( "meta_key=返礼品コード&meta_value={$post['meta_input']['返礼品コード']}&fields=ids&post_status=any" );
+			$p = get_posts( "meta_key=返礼品コード&meta_value={$post['meta_input']['返礼品コード']}&post_status=any" );
 			if ( isset( $_POST['update'] ) && ! empty( $p ) ) {
-				$post['ID']         = $p[0];
-				$post['post_title'] = $post['post_title'] ?: get_the_title( $p[0] );
+				$post['ID']          = $p[0]->ID;
+				$post['post_title']  = $post['post_title'] ?: $p[0]->post_title;
+				$post['post_author'] = $post['post_author'] ?: $p[0]->post_author;
 			}
 			wp_insert_post( $post );
 		}
