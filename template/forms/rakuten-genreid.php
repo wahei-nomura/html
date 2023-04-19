@@ -8,8 +8,6 @@
 
 $defaults = array();
 $args     = wp_parse_args( $args, $defaults );
-$alert    = $args['alert'];
-unset( $args['alert'] );
 $attr  = '';
 foreach ( $args as $k => $v ) {
 	$attr .= " {$k}=\"{$v}\"";
@@ -38,9 +36,6 @@ foreach ( $args as $k => $v ) {
 	</li>
 </ol>
 <div v-if="全商品ディレクトリID.list.children">
-	<small class="text-danger" v-if="全商品ディレクトリID.list.children.length">
-		<?php echo $alert; ?>
-	</small>
 	<div>
 		<span 
 			v-for="v in 全商品ディレクトリID.list.children"
