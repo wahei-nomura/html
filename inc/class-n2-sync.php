@@ -695,24 +695,34 @@ class N2_Sync {
 			$postarr[ $k ]['post_author'] = $this->get_userid_by_last_name( $author_code );
 			unset( $d['タイトル'], $d['事業者コード'], $d['事業者名'] );
 			// 寄附金額固定（入力あれば固定）
-			$d['寄附金額固定'] = array( ( $d['寄附金額固定'] ?? '' ) ? '固定する' : '' );
+			if ( isset( $d['寄附金額固定'] ) ) {
+				$d['寄附金額固定'] = array( $d['寄附金額固定'] ? '固定する' : '' );
+			}
 			// 商品タイプ（入力値をそのまま出力）
-			$d['商品タイプ'] = array( $d['商品タイプ'] ?? '' );
+			if ( isset( $d['商品タイプ'] ) ) {
+				$d['商品タイプ'] = array( $d['商品タイプ'] );
+			}
 			// アレルギーの有無確認（入力あればアレルギー品目あり）
-			$d['アレルギー有無確認'] = array( ( $d['アレルギー有無確認'] ?? '' ) ? 'アレルギー品目あり' : '' );
+			if ( isset( $d['アレルギー有無確認'] ) ) {
+				$d['アレルギー有無確認'] = array( $d['アレルギー有無確認'] ? 'アレルギー品目あり' : '' );
+			}
 			// アレルゲン（label,value必要）
-			$d['アレルゲン'] = array_map(
-				function( $v ) use ( $n2 ) {
-					return array(
-						'label' => $v,
-						'value' => (string) array_search( $v, $n2->custom_field['事業者用']['アレルゲン']['option'], true ),
-					);
-				},
-				// 区切り文字列でいい感じに配列化
-				array_values( array_filter( preg_split( $sep, $d['アレルゲン'] ?? '' ) ) )
-			);
+			if ( isset( $d['アレルゲン'] ) ) {
+				$d['アレルゲン'] = array_map(
+					function( $v ) use ( $n2 ) {
+						return array(
+							'label' => $v,
+							'value' => (string) array_search( $v, $n2->custom_field['事業者用']['アレルゲン']['option'], true ),
+						);
+					},
+					// 区切り文字列でいい感じに配列化
+					array_values( array_filter( preg_split( $sep, $d['アレルゲン'] ) ) )
+				);
+			}
 			// 取り扱い方法（区切り文字列でいい感じに配列化）
-			$d['取り扱い方法'] = array_values( array_filter( preg_split( $sep, $d['取り扱い方法'] ?? '' ) ) );
+			if ( isset( $d['取り扱い方法'] ) ) {
+				$d['取り扱い方法'] = array_values( array_filter( preg_split( $sep, $d['取り扱い方法'] ) ) );
+			}
 			// $postarrにセット
 			$postarr[ $k ]['meta_input'] = $d;
 		}
@@ -859,7 +869,7 @@ class N2_Sync {
 			$p = get_posts( "meta_key=返礼品コード&meta_value={$post['meta_input']['返礼品コード']}&post_status=any" );
 			if ( isset( $_POST['update'] ) && ! empty( $p ) ) {
 				$post['ID']          = $p[0]->ID;
-				$post['post_status'] = $post['post_status'] ?: $p[0]->post_status;
+				$post['post_status'] = $post['post_status'] ?? $p[0]->post_status;
 				$post['post_title']  = $post['post_title'] ?: $p[0]->post_title;
 				$post['post_author'] = $post['post_author'] ?: $p[0]->post_author;
 			}
