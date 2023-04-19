@@ -216,7 +216,7 @@ class N2_Postlist {
 			array(
 				'text'      => '事業者変更',
 				'add_class' => 'neo-neng-change-author-btn',
-				'is_show'   => ! isset( $_GET['post_status'] ) || 'trash' !== $_GET['post_status'],
+				'is_show'   => ( ! isset( $_GET['post_status'] ) || 'trash' !== $_GET['post_status'] ) && ( 'jigyousya' !== $n2->current_user->roles[0] ),
 			),
 			array(
 				'text'      => '復元',
