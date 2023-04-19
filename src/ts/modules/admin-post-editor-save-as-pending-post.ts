@@ -42,6 +42,7 @@ export default ($: any, target: string) => {
 			wp.data.dispatch('core/editor').editPost({ status: 'pending' });
 			wp.data.dispatch('core/editor').savePost().then(()=>{
 				$('#n2-save-as-pending span').attr('class', 'dashicons dashicons-saved me-2');
+				$(window).off('beforeunload');
 				location.reload();
 			})
 		});
