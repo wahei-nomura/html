@@ -47,6 +47,16 @@ class N2_Sync {
 	private $spreadsheet_auth_path = '/var/www/keys/steamship-gcp.json';
 
 	/**
+	 * ファイルのリダイレクト対策
+	 *
+	 * @var array
+	 */
+	private $redirect = array(
+		'from' => '#steamship.co.jp/[a-z]*/wp-content/uploads#',
+		'to'   => 'steamship.co.jp/wp-content/uploads',
+	);
+
+	/**
 	 * コンストラクタ
 	 */
 	public function __construct() {
@@ -288,7 +298,7 @@ class N2_Sync {
 		while ( $max_num_pages >= $params['paged'] ) {
 
 			// ツイン起動しないためにSync中のフラグをチェックして終了
-			$sleep = $_GET['sleep'] ?? 0;
+			$sleep = $_GET['sleep'] ?? 300;
 			if ( $sleep > ( strtotime( 'now' ) - get_option( "n2syncing-{$params['paged']}", strtotime( '-1 hour' ) ) ) ) {
 				$logs[] = '2重起動防止のため終了';
 				$this->log( $logs );
@@ -423,12 +433,16 @@ class N2_Sync {
 			$str = wp_json_encode( $postarr['meta_input']['商品画像'], JSON_UNESCAPED_SLASHES );
 			if ( $str ) {
 				// N1自治体ごとリダイレクトのため実URLに変更
-				$str = preg_replace( '#steamship.co.jp/[a-z]*/wp-content/uploads#', 'steamship.co.jp/wp-content/uploads', $str );
+				$str = preg_replace( $this->redirect['from'], $this->redirect['to'], $str );
 				// jsonを配列に戻して代入
 				$postarr['meta_input']['商品画像'] = json_decode( $str, true );
 			}
 			foreach ( array_keys( $images ) as $k ) {
 				unset( $postarr['meta_input'][ $k ] );
+			}
+			if ( $postarr['meta_input']['商品画像をzipファイルでまとめて送る'] ) {
+				$postarr['meta_input']['N1zip'] = $postarr['meta_input']['商品画像をzipファイルでまとめて送る']['url'];
+				$postarr['meta_input']['N1zip'] = preg_replace( $this->redirect['from'], $this->redirect['to'], $postarr['meta_input']['N1zip'] );
 			}
 			unset( $postarr['meta_input']['商品画像をzipファイルでまとめて送る'] );
 
