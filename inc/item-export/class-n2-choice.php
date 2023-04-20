@@ -34,6 +34,8 @@ class N2_Choice {
 		$choice_user   = $n2->choice['auth']['user'];
 		$choice_pass   = $n2->choice['auth']['pass'];
 		$choice_url    = $n2->choice['auth']['url'];
+		// カスタムフィールドのアレルゲン全選択肢
+		$all_allergen  = $n2->custom_field['事業者用']['アレルゲン']['option'];
 		$sumple_header = wp_remote_get( str_replace( '//', "//{$choice_user}:{$choice_pass}@", $choice_url ), array() )['body'];
 		$sumple_header = trim( $sumple_header );
 		$sumple_header = array_flip( explode( "\t", $sumple_header ) );
