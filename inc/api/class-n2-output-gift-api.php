@@ -40,13 +40,14 @@ class N2_Output_Gift_API {
 
 		// 自治体コードを取得
 		global $n2;
-		$site_id        = $n2->site_id;
-		$n2_active_flag = $n2->n2_active_flag['n2_active_flag'];
+		$site_id = $n2->site_id;
+		// N2稼働中か判定するフラグを取得
+		$n2_active_flag = $n2->n2_active_flag;
 
 		// N2が稼働していなかったらJSONでfalseを返す
 		if ( 'false' === $n2_active_flag ) {
 			header( 'Content-Type: application/json' );
-			echo wp_json_encode( $n2->n2_active_flag );
+			echo wp_json_encode( $n2_active_flag );
 			exit;
 		}
 
@@ -114,16 +115,16 @@ class N2_Output_Gift_API {
 			echo '返礼品が存在しません';
 			exit;
 		}
-
 		// 自治体コードを取得
 		global $n2;
-		$site_id        = $n2->site_id;
-		$n2_active_flag = $n2->n2_active_flag['n2_active_flag'];
+		$site_id = $n2->site_id;
+		// N2稼働中か判定するフラグを取得
+		$n2_active_flag = $n2->n2_active_flag;
 
 		// N2が稼働していなかったらJSONでfalseを返す
 		if ( 'false' === $n2_active_flag ) {
 			header( 'Content-Type: application/json' );
-			echo wp_json_encode( $n2->n2_active_flag );
+			echo wp_json_encode( $n2_active_flag );
 			exit;
 		}
 

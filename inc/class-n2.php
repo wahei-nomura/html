@@ -288,7 +288,7 @@ class N2 {
 		$this->ledghome_csv_contents = yaml_parse_file( get_theme_file_path( 'config/n2-ledghome-csv-header.yml' ) );
 
 		// N2稼働状況
-		$this->n2_active_flag = $n2_option['N2'] ?? '';
+		$this->n2_active_flag = $n2_option['N2'] ?? 'false';
 	}
 
 	/**
