@@ -150,10 +150,18 @@ class N2_Choice {
 			if ( '食品' === $product_type ) {
 				// デフォルトで全てのアレルギーに2をセット
 				foreach ( $all_allergen as $allergen_name ) {
+					if ( '落花生' === $allergen_name ) {
+						$arr['アレルギー：落花生（ピーナッツ）'] = 2;
+						continue;
+					}
 					$arr[ "アレルギー：{$allergen_name}" ] = 2;
 				}
 				// アレルゲンの値がある項目のindexで全アレルギー項目から名前を取得し1をセット
 				foreach ( get_post_meta( $id, 'アレルゲン' )[0] as $selected ) {
+					if ( '落花生' === $all_allergen[ $selected['value'] ] ) {
+						$arr['アレルギー：落花生（ピーナッツ）'] = 1;
+						continue;
+					}
 					$arr[ "アレルギー：{$all_allergen[ $selected['value'] ]}" ] = 1;
 				}
 			}
