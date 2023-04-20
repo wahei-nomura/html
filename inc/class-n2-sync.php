@@ -288,7 +288,7 @@ class N2_Sync {
 		while ( $max_num_pages >= $params['paged'] ) {
 
 			// ツイン起動しないためにSync中のフラグをチェックして終了
-			$sleep = $_GET['sleep'] ?? 300;
+			$sleep = $_GET['sleep'] ?? 0;
 			if ( $sleep > ( strtotime( 'now' ) - get_option( "n2syncing-{$params['paged']}", strtotime( '-1 hour' ) ) ) ) {
 				$logs[] = '2重起動防止のため終了';
 				$this->log( $logs );
@@ -416,8 +416,17 @@ class N2_Sync {
 			}
 
 			// 「商品画像１〜８」を「商品画像」に変換
-			$images                        = array_filter( $postarr['meta_input'], fn( $k ) => preg_match( '/商品画像[０-９]/u', $k ), ARRAY_FILTER_USE_KEY );
+			$images = array_filter( $postarr['meta_input'], fn( $k ) => preg_match( '/商品画像[０-９]/u', $k ), ARRAY_FILTER_USE_KEY );
+			// 値の浄化
 			$postarr['meta_input']['商品画像'] = array_filter( array_values( $images ), fn( $v ) => $v );
+			// URLの置換のためにjson化
+			$str = wp_json_encode( $postarr['meta_input']['商品画像'], JSON_UNESCAPED_SLASHES );
+			if ( $str ) {
+				// N1自治体ごとリダイレクトのため実URLに変更
+				$str = preg_replace( '#steamship.co.jp/[a-z]*/wp-content/uploads#', 'steamship.co.jp/wp-content/uploads', $str );
+				// jsonを配列に戻して代入
+				$postarr['meta_input']['商品画像'] = json_decode( $str, true );
+			}
 			foreach ( array_keys( $images ) as $k ) {
 				unset( $postarr['meta_input'][ $k ] );
 			}
