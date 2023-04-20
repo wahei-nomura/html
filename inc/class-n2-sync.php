@@ -47,6 +47,13 @@ class N2_Sync {
 	private $spreadsheet_auth_path = '/var/www/keys/steamship-gcp.json';
 
 	/**
+	 * 同期の間隔（複数起動するとへんな挙動になるため）
+	 *
+	 * @var int
+	 */
+	private $sleep = 300;
+
+	/**
 	 * ファイルのリダイレクト対策
 	 *
 	 * @var array
@@ -298,7 +305,7 @@ class N2_Sync {
 		while ( $max_num_pages >= $params['paged'] ) {
 
 			// ツイン起動しないためにSync中のフラグをチェックして終了
-			$sleep = $_GET['sleep'] ?? 300;
+			$sleep = $_GET['sleep'] ?? $this->sleep;
 			if ( $sleep > ( strtotime( 'now' ) - get_option( "n2syncing-{$params['paged']}", strtotime( '-1 hour' ) ) ) ) {
 				$logs[] = '2重起動防止のため終了';
 				$this->log( $logs );
