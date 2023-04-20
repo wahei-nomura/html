@@ -62,30 +62,8 @@ class N2_Choice {
 					$items_arr[ $id ][ $k ] = '';
 				}
 			}
-
-			// アレルゲン処理
-			$allergen         = '';
-			$no_allergen      = 0;
 			$product_type     = get_post_meta( $id, '商品タイプ' )[0][0];
-			$display_allergen = '';
 
-			if ( '食品' === $product_type ) {
-
-				foreach ( get_post_meta( $id, 'アレルゲン' )[0] as $v ) {
-					is_numeric( $v['value'] ) ? $allergen .= $v['value'] . ',' : '';
-				}
-
-				$allergen      = rtrim( $allergen, ',' );
-				$allergen_text = get_post_meta( $id, 'アレルゲン注釈', true ) ?: '';
-
-				if ( '' !== $allergen || '' !== $allergen_text ) {
-					$display_allergen = $allergen . '|' . $allergen_text;
-				} else {
-					$display_allergen = '|';
-				}
-			} else {
-				$display_allergen = '';
-			}
 
 			// 寄附金額チェック
 			$error_items .= get_post_meta( $id, '寄附金額', true ) === 0 || get_post_meta( $id, '寄附金額', true ) === '' ? "【{$item_code}】" . '<br>' : '';
@@ -144,7 +122,7 @@ class N2_Choice {
 								),
 				'申込期日'           => get_post_meta( $id, '申込期間', true ),
 				'発送期日'           => get_post_meta( $id, '配送期間', true ),
-				'（必須）アレルギー表示'    => $display_allergen,
+				'アレルギー特記事項'   => get_post_meta( $id, 'アレルゲン注釈', true ) ?: '',
 				'地場産品類型番号'       => get_post_meta( $id, '地場産品類型', true )
 												? get_post_meta( $id, '地場産品類型', true ) . '|' . get_post_meta( $id, '類型該当理由', true )
 												: '',
@@ -168,6 +146,18 @@ class N2_Choice {
 				'受付開始日時'         => '2025/04/01 00:00',
 				'（条件付き必須）還元率（%）' => 30,
 			);
+
+			if ( '食品' === $product_type ) {
+				// デフォルトで全てのアレルギーに2をセット
+				foreach ( $all_allergen as $allergen_name ) {
+					$arr[ "アレルギー：{$allergen_name}" ] = 2;
+				}
+				// アレルゲンの値がある項目のindexで全アレルギー項目から名前を取得し1をセット
+				foreach ( get_post_meta( $id, 'アレルゲン' )[0] as $selected ) {
+					$arr[ "アレルギー：{$all_allergen[ $selected['value'] ]}" ] = 1;
+				}
+			}
+
 			// 「スライド画像」カラムに値を入れる処理
 			for ( $i = 1; $i < 9; $i++ ) {
 				$ii  = ( ( $i - 1 ) === 0 ) ? '' : '-' . ( $i - 1 );
