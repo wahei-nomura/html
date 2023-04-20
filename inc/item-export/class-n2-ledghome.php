@@ -46,12 +46,8 @@ class N2_Ledghome {
 		// ajaxで渡ってきたpostidの配列
 		$ids = explode( ',', filter_input( INPUT_POST, 'ledghome' ) );
 		foreach ( $ids as $id ) {
-			$teiki           = get_post_meta( $id, '定期便', true );
-			$price           = ( get_post_meta( $id, '定期便価格', true ) && ( $teiki > 1 ) ) ? get_post_meta( $id, '定期便価格', true ) : get_post_meta( $id, '価格', true );
-			$handling_method = array();
-			for ( $i = 1; $i <= 2; $i++ ) {
-				$handling_method[] = get_post_meta( $id, '取り扱い方法' . $i, true ) ? get_post_meta( $id, '取り扱い方法' . $i, true ) : '';
-			}
+			$teiki = get_post_meta( $id, '定期便', true );
+			$price = ( get_post_meta( $id, '定期便価格', true ) && ( $teiki > 1 ) ) ? get_post_meta( $id, '定期便価格', true ) : get_post_meta( $id, '価格', true );
 
 			for ( $i = 1; $i <= $teiki; $i++ ) {
 				$key_id   = 1 < $teiki ? "{$id}_{$i}" : $id;
@@ -97,7 +93,7 @@ class N2_Ledghome {
 														: '反映しない',
 
 					'発送方法'       => get_post_meta( $id, '発送方法', true ),
-					'取り扱い方法'     => rtrim( implode( ',', array_unique( $handling_method ) ), ',' ),
+					'取り扱い方法'     => get_post_meta( $id, '取り扱い方法', true ) ? rtrim( implode( ',', get_post_meta( $id, '取り扱い方法', true ) ), ',' ) : '',
 					'申込可能期間'     => '通年',
 					'自由入力欄1'     => date( 'Y/m/d' ) . '：' . wp_get_current_user()->display_name,
 					'自由入力欄2'     => get_post_meta( $id, '送料', true ),
