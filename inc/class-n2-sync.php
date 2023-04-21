@@ -51,7 +51,7 @@ class N2_Sync {
 	 *
 	 * @var int
 	 */
-	private $sleep = 300;
+	private $sleep = 0;
 
 	/**
 	 * ファイルのリダイレクト対策
@@ -448,7 +448,7 @@ class N2_Sync {
 			foreach ( array_keys( $images ) as $k ) {
 				unset( $postarr['meta_input'][ $k ] );
 			}
-			if ( $postarr['meta_input']['商品画像をzipファイルでまとめて送る'] ) {
+			if ( isset( $postarr['meta_input']['商品画像をzipファイルでまとめて送る']['url'] ) ) {
 				$postarr['meta_input']['N1zip'] = $postarr['meta_input']['商品画像をzipファイルでまとめて送る']['url'];
 				$postarr['meta_input']['N1zip'] = preg_replace( $this->redirect['from'], $this->redirect['to'], $postarr['meta_input']['N1zip'] );
 			}
