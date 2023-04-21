@@ -51,7 +51,7 @@ class N2_Sync {
 	 *
 	 * @var int
 	 */
-	private $sleep = 0;
+	private $sleep = 300;
 
 	/**
 	 * ファイルのリダイレクト対策
