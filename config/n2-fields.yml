@@ -197,6 +197,14 @@
     type : text
     placeholder : 例）指定なし
 
+包装対応:
+    type: radio
+    value: 無し
+    option-equal: true
+    option:
+        - 無し
+        - 有り
+
 のし対応:
     type: radio
     value: 無し
