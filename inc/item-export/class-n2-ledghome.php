@@ -68,7 +68,7 @@ class N2_Ledghome {
 				$error_items .= get_post_meta( $id, '寄附金額', true ) === 0 || get_post_meta( $id, '寄附金額', true ) === '' ? "【{$item_code}】" . '<br>' : '';
 				$arr          = array(
 					'謝礼品番号'      => $item_num,
-					'謝礼品名'       => ( get_post_meta( $id, 'LH表示名', true ) ) ? ( get_post_meta( $id, 'LH表示名', true ) ) : $item_name,
+					'謝礼品名'       => ( get_post_meta( $id, 'LH表示名', true ) ) ? ( $item_num . ' ' . get_post_meta( $id, 'LH表示名', true ) ) : $item_name,
 					'事業者'        => get_the_author_meta( 'first_name', get_post_field( 'post_author', $id ) ),
 					'配送名称'       => ( get_post_meta( $id, '配送伝票表示名', true ) ) ? ( $item_num . ' ' . get_post_meta( $id, '配送伝票表示名', true ) ) : $item_name,
 					'ふるさとチョイス名称' => N2_Functions::special_str_convert( get_the_title( $id ) ) . " [{$item_num}]",

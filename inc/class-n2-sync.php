@@ -47,6 +47,23 @@ class N2_Sync {
 	private $spreadsheet_auth_path = '/var/www/keys/steamship-gcp.json';
 
 	/**
+	 * 同期の間隔（複数起動するとへんな挙動になるため）
+	 *
+	 * @var int
+	 */
+	private $sleep = 300;
+
+	/**
+	 * ファイルのリダイレクト対策
+	 *
+	 * @var array
+	 */
+	private $redirect = array(
+		'from' => '#steamship.co.jp/[a-z]*/wp-content/uploads#',
+		'to'   => 'steamship.co.jp/wp-content/uploads',
+	);
+
+	/**
 	 * コンストラクタ
 	 */
 	public function __construct() {
@@ -288,10 +305,11 @@ class N2_Sync {
 		while ( $max_num_pages >= $params['paged'] ) {
 
 			// ツイン起動しないためにSync中のフラグをチェックして終了
-			$sleep = $_GET['sleep'] ?? 300;
+			$sleep = $_GET['sleep'] ?? $this->sleep;
 			if ( $sleep > ( strtotime( 'now' ) - get_option( "n2syncing-{$params['paged']}", strtotime( '-1 hour' ) ) ) ) {
 				$logs[] = '2重起動防止のため終了';
 				$this->log( $logs );
+				echo '2重起動防止のため終了';
 				exit;
 			}
 			$ch         = curl_init();
@@ -416,10 +434,23 @@ class N2_Sync {
 			}
 
 			// 「商品画像１〜８」を「商品画像」に変換
-			$images                        = array_filter( $postarr['meta_input'], fn( $k ) => preg_match( '/商品画像[０-９]/u', $k ), ARRAY_FILTER_USE_KEY );
+			$images = array_filter( $postarr['meta_input'], fn( $k ) => preg_match( '/商品画像[０-９]/u', $k ), ARRAY_FILTER_USE_KEY );
+			// 値の浄化
 			$postarr['meta_input']['商品画像'] = array_filter( array_values( $images ), fn( $v ) => $v );
+			// URLの置換のためにjson化
+			$str = wp_json_encode( $postarr['meta_input']['商品画像'], JSON_UNESCAPED_SLASHES );
+			if ( $str ) {
+				// N1自治体ごとリダイレクトのため実URLに変更
+				$str = preg_replace( $this->redirect['from'], $this->redirect['to'], $str );
+				// jsonを配列に戻して代入
+				$postarr['meta_input']['商品画像'] = json_decode( $str, true );
+			}
 			foreach ( array_keys( $images ) as $k ) {
 				unset( $postarr['meta_input'][ $k ] );
+			}
+			if ( $postarr['meta_input']['商品画像をzipファイルでまとめて送る'] ) {
+				$postarr['meta_input']['N1zip'] = $postarr['meta_input']['商品画像をzipファイルでまとめて送る']['url'];
+				$postarr['meta_input']['N1zip'] = preg_replace( $this->redirect['from'], $this->redirect['to'], $postarr['meta_input']['N1zip'] );
 			}
 			unset( $postarr['meta_input']['商品画像をzipファイルでまとめて送る'] );
 
@@ -635,7 +666,10 @@ class N2_Sync {
 
 			// パスワードの適切な加工
 			add_filter( 'wp_pre_insert_user_data', array( $this, 'insert_user_pass' ), 10, 4 );
-			$from_ids[] = wp_insert_user( $userdata );
+			$from_id = wp_insert_user( $userdata );
+			if ( ! is_wp_error( $from_id ) ) {
+				$from_ids[] = $from_id;
+			}
 			remove_filter( 'wp_pre_insert_user_data', array( $this, 'insert_user_pass' ) );
 		}
 
@@ -725,15 +759,13 @@ class N2_Sync {
 			}
 			// 発送サイズの想定入力ミスに対応
 			if ( isset( $d['発送サイズ'] ) ) {
-				if ( preg_match( '/^10[1-8]$/', $d['発送サイズ'] ) ) {
+				if ( preg_match( '/[1１][0０][1-8１-８]/u', $d['発送サイズ'], $m ) ) {
 					// 0が抜けた発送サイズコードの場合
-					$d['発送サイズ'] = "0{$d['発送サイズ']}";
-				} elseif ( preg_match( '/^０１０[１-８]$/u', $d['発送サイズ'] ) ) {
-					// 何故か全角で入れた場合
-					$d['発送サイズ'] = mb_convert_kana( $d['発送サイズ'], 'n' );
-				} elseif ( preg_match( '/[1-9１-９]{1,2}[0０]/u', $d['発送サイズ'], $m ) ) {
+					$d['発送サイズ'] = '0' . mb_convert_kana( $m[0], 'n' );
+				} else {
+					preg_match( '/[1-9１-９]{1,2}[0０]/u', $d['発送サイズ'], $m );
 					// 発送サイズ名で入れたの場合（全角にも対応）
-					$d['発送サイズ'] = '010' . ( mb_convert_kana( $d['発送サイズ'], 'n' ) - 40 ) / 20;
+					$d['発送サイズ'] = '010' . ( mb_convert_kana( $m[0], 'n' ) - 40 ) / 20;
 				}
 			}
 			// $postarrにセット
