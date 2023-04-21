@@ -666,7 +666,10 @@ class N2_Sync {
 
 			// パスワードの適切な加工
 			add_filter( 'wp_pre_insert_user_data', array( $this, 'insert_user_pass' ), 10, 4 );
-			$from_ids[] = wp_insert_user( $userdata );
+			$from_id = wp_insert_user( $userdata );
+			if ( ! is_wp_error( $from_id ) ) {
+				$from_ids[] = $from_id;
+			}
 			remove_filter( 'wp_pre_insert_user_data', array( $this, 'insert_user_pass' ) );
 		}
 
