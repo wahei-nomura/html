@@ -350,11 +350,11 @@ class N2_Rakuten_CSV {
 		}
 	}
 	/**
-	 * 楽天のPC用商品説明文
+	 * 楽天のPC用販売説明文
 	 *
 	 * @param int  $post_id id
 	 * @param bool $return_string 戻り値判定用(基本は文字列|HTML)
-	 * @return string|void 楽天のPC用商品説明文を(文字列|HTML出力)する
+	 * @return string|void 楽天のPC用販売説明文を(文字列|HTML出力)する
 	 */
 	public function pc_sales_description( $post_id, $return_string = true ) {
 
@@ -372,11 +372,13 @@ class N2_Rakuten_CSV {
 			<?php $this->get_img_urls( $post_id, 'html' ); ?>
 			<?php echo $formatter( '説明文' ); ?><br><br>
 			<?php $this->make_itemtable( $post_id, false ); ?><br><br>
-			<?php
-				echo $n2->portal_common_discription
-					. apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $post_id, 'PC用販売説明文' )
-					. str_replace( '\"', '""', $n2->rakuten['html'] ?? '' );
-				?>
+			<?php if ( $n2->portal_common_discription ) : ?>
+				<?php echo $n2->portal_common_discription; ?><br><br>
+			<?php endif; ?>
+			<?php if ( apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $post_id, 'PC用販売説明文' ) ) : ?>
+				<?php echo apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $post_id, 'PC用販売説明文' ); ?><br><br>
+			<?php endif; ?>
+			<?php echo str_replace( '\"', '""', $n2->rakuten['html'] ); ?>
 			<?php
 		};
 		// ========戻り値判定========
@@ -483,10 +485,12 @@ class N2_Rakuten_CSV {
 			<?php if ( $post_meta_list['楽天SPAカテゴリー'] ) : ?>
 				<br><br><?php echo $formatter( '楽天SPAカテゴリー' ); ?>
 			<?php endif ?>
-			<?php
-				echo $n2->portal_common_discription
-					. str_replace( '\"', '""', $n2->rakuten['html'] ?? '' );
-			?>
+			<?php if ( $n2->portal_common_discription ) : ?>
+				<br><br><?php echo $n2->portal_common_discription; ?>
+			<?php endif; ?>
+			<?php if ( str_replace( '\"', '""', $n2->rakuten['html'] ) ) : ?>
+				<br><br><?php echo str_replace( '\"', '""', $n2->rakuten['html'] ); ?>
+			<?php endif; ?>
 			<?php
 		};
 		// ========戻り値判定========
