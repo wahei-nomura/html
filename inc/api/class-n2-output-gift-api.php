@@ -95,6 +95,9 @@ class N2_Output_Gift_API {
 		// 最終的な出力
 		$output = array_values( $gift );
 
+		// フラグを追加
+		$output = array_merge( $output, array( array( 'N2' => 'true' ) ) );
+
 		// 結果をJSON形式に変換して出力
 		header( 'Content-Type: application/json' );
 		echo wp_json_encode( $output );
@@ -188,6 +191,9 @@ class N2_Output_Gift_API {
 
 		// 最終的な出力
 		$output = array_values( $gift );
+
+		// フラグを追加
+		$output = array_merge( $output, array( array( 'N2' => 'true' ) ) );
 
 		// 結果をJSON形式に変換して出力
 		header( 'Content-Type: application/json' );
