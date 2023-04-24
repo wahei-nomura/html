@@ -187,7 +187,10 @@ class N2_Rakuten_CSV {
 						'condition' => ! $post_meta_list['寄附金額'],
 						'message'   => '寄附金額を設定してください！',
 					),
-
+					array(
+						'condition' => ! $post_meta_list['全商品ディレクトリID'],
+						'message'   => '全商品ディレクトリIDを設定してください！',
+					),
 				);
 				// ========エラー項目追加用hook========
 				$error_list = apply_filters( 'n2_item_export_item_csv_add_error_item', $error_list );
