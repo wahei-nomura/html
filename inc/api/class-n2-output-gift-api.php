@@ -28,6 +28,18 @@ class N2_Output_Gift_API {
 	 */
 	public function get_by_priv_user() {
 		global $wpdb;
+		global $n2;
+		// 自治体コードを取得
+		$site_id = $n2->site_id;
+		// N2稼働中か判定するフラグを取得
+		$n2_active_flag = $n2->n2_active_flag;
+
+		// N2が稼働していない or そもそも稼働状態が登録されていなかったらJSONでfalseを返す
+		if ( 'false' === $n2_active_flag ) {
+			header( 'Content-Type: application/json' );
+			echo '{"N2": "false"}';
+			exit;
+		}
 
 		// URLの末尾からskuを取得、サニタイズ
 		$sku = isset( $_GET['sku'] ) ? sanitize_text_field( $_GET['sku'] ) : '';
@@ -35,19 +47,6 @@ class N2_Output_Gift_API {
 		// skuが空の場合、処理を終了する
 		if ( '' === $sku ) {
 			echo '返礼品が存在しません';
-			exit;
-		}
-
-		// 自治体コードを取得
-		global $n2;
-		$site_id = $n2->site_id;
-		// N2稼働中か判定するフラグを取得
-		$n2_active_flag = $n2->n2_active_flag;
-
-		// N2が稼働していなかったらJSONでfalseを返す
-		if ( 'false' === $n2_active_flag ) {
-			header( 'Content-Type: application/json' );
-			echo wp_json_encode( $n2_active_flag );
 			exit;
 		}
 
@@ -106,6 +105,18 @@ class N2_Output_Gift_API {
 	 */
 	public function get_by_nopriv_user() {
 		global $wpdb;
+		global $n2;
+		// 自治体コードを取得
+		$site_id = $n2->site_id;
+		// N2稼働中か判定するフラグを取得
+		$n2_active_flag = $n2->n2_active_flag;
+
+		// N2が稼働していない or そもそも稼働状態が登録されていなかったらJSONでfalseを返す
+		if ( 'false' === $n2_active_flag ) {
+			header( 'Content-Type: application/json' );
+			echo '{"N2": "false"}';
+			exit;
+		}
 
 		// URLの末尾からskuを取得、サニタイズ
 		$sku = isset( $_GET['sku'] ) ? sanitize_text_field( $_GET['sku'] ) : '';
@@ -113,18 +124,6 @@ class N2_Output_Gift_API {
 		// skuが空の場合、処理を終了する
 		if ( '' === $sku ) {
 			echo '返礼品が存在しません';
-			exit;
-		}
-		// 自治体コードを取得
-		global $n2;
-		$site_id = $n2->site_id;
-		// N2稼働中か判定するフラグを取得
-		$n2_active_flag = $n2->n2_active_flag;
-
-		// N2が稼働していなかったらJSONでfalseを返す
-		if ( 'false' === $n2_active_flag ) {
-			header( 'Content-Type: application/json' );
-			echo wp_json_encode( $n2_active_flag );
 			exit;
 		}
 
