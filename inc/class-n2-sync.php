@@ -792,6 +792,13 @@ class N2_Sync {
 	 * @param string $range スプレットシートの範囲
 	 */
 	public function get_spreadsheet_data( $sheetid, $range ) {
+
+		// URLが渡ってきた場合はSheetIDを抜き出す
+		if ( false !== strpos( $sheetid, 'spreadsheet' ) ) {
+			preg_match( '/spreadsheets\/d\/(.*?)(\/|$)/', $sheetid, $m );
+			$sheetid = $m[1];
+		}
+
 		$secret = wp_json_file_decode( $this->spreadsheet_auth_path );
 		// token取得
 		$url  = 'https://www.googleapis.com/oauth2/v4/token';
