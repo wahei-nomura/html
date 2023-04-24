@@ -371,14 +371,16 @@ class N2_Rakuten_CSV {
 			?>
 			<?php $this->get_img_urls( $post_id, 'html' ); ?>
 			<?php echo $formatter( '説明文' ); ?><br><br>
-			<?php $this->make_itemtable( $post_id, false ); ?><br><br>
+			<?php $this->make_itemtable( $post_id, false ); ?>
 			<?php if ( $n2->portal_common_discription ) : ?>
-				<?php echo $n2->portal_common_discription; ?><br><br>
+				<br><br><?php echo $n2->portal_common_discription . PHP_EOL; ?>
 			<?php endif; ?>
 			<?php if ( apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $post_id, 'PC用販売説明文' ) ) : ?>
-				<?php echo apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $post_id, 'PC用販売説明文' ); ?><br><br>
+				<br><br><?php echo apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $post_id, 'PC用販売説明文' ) . PHP_EOL; ?>
 			<?php endif; ?>
-			<?php echo str_replace( '\"', '""', $n2->rakuten['html'] ); ?>
+			<?php if ( str_replace( '\"', '""', $n2->rakuten['html'] ) ) : ?>
+				<br><br><?php echo str_replace( '\"', '""', $n2->rakuten['html'] ); ?>
+			<?php endif; ?>
 			<?php
 		};
 		// ========戻り値判定========
@@ -480,13 +482,13 @@ class N2_Rakuten_CSV {
 			<?php echo $formatter( '説明文' ); ?><br><br>
 			<?php $this->make_itemtable( $post_id, false ); ?>
 			<?php if ( $post_meta_list['検索キーワード'] ) : ?>
-				<br><br><?php echo $formatter( '検索キーワード' ); ?>
+				<br><br><?php echo $formatter( '検索キーワード' ) . PHP_EOL; ?>
 			<?php endif; ?>
 			<?php if ( $post_meta_list['楽天SPAカテゴリー'] ) : ?>
-				<br><br><?php echo $formatter( '楽天SPAカテゴリー' ); ?>
-			<?php endif ?>
+				<br><br><?php echo $formatter( '楽天SPAカテゴリー' ) . PHP_EOL; ?>
+			<?php endif; ?>
 			<?php if ( $n2->portal_common_discription ) : ?>
-				<br><br><?php echo $n2->portal_common_discription; ?>
+				<br><br><?php echo $n2->portal_common_discription . PHP_EOL; ?>
 			<?php endif; ?>
 			<?php if ( str_replace( '\"', '""', $n2->rakuten['html'] ) ) : ?>
 				<br><br><?php echo str_replace( '\"', '""', $n2->rakuten['html'] ); ?>
