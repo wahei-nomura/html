@@ -35,7 +35,7 @@ class N2_Output_Gift_API {
 		$n2_active_flag = $n2->n2_active_flag;
 
 		// N2が稼働していない or そもそも稼働状態が登録されていなかったらJSONでfalseを返す
-		if ( 'false' === $n2_active_flag ) {
+		if  ( 'false' === $n2_active_flag ) {
 			header( 'Content-Type: application/json' );
 			echo '{"N2": "false"}';
 			exit;
@@ -44,9 +44,10 @@ class N2_Output_Gift_API {
 		// URLの末尾からskuを取得、サニタイズ
 		$sku = isset( $_GET['sku'] ) ? sanitize_text_field( $_GET['sku'] ) : '';
 
-		// skuが空の場合、処理を終了する
+		// N2稼働中でskuが空の場合、N2稼働中であることだけ知らせて処理を終了する
 		if ( '' === $sku ) {
-			echo '返礼品が存在しません';
+			header( 'Content-Type: application/json' );
+			echo '{"N2": "true"}';
 			exit;
 		}
 
@@ -92,15 +93,19 @@ class N2_Output_Gift_API {
 			$gift[ $title ][ $meta_key ] = $meta_value;
 		}
 
-		// 最終的な出力
-		$output = array_values( $gift );
+		// N2稼働フラグを追加する階層を作るために$giftをarrayに格納
+		$gift_array = array( $gift );
 
-		// フラグを追加
-		$output = array_merge( $output, array( array( 'N2' => 'true' ) ) );
+		// N2稼働フラグを追加
+		$result_array = array_merge( $gift_array, array( array( 'N2' => 'true' ) ) );
+		
+		// インデックス番号を取って必要なデータを取り出す & 順番を入れ替える
+		$results = $result_array[1];
+		$results['data'] = $result_array[0];
 
 		// 結果をJSON形式に変換して出力
 		header( 'Content-Type: application/json' );
-		echo wp_json_encode( $output );
+		echo wp_json_encode( $results );
 		exit;
 	}
 	/**
@@ -115,7 +120,7 @@ class N2_Output_Gift_API {
 		$n2_active_flag = $n2->n2_active_flag;
 
 		// N2が稼働していない or そもそも稼働状態が登録されていなかったらJSONでfalseを返す
-		if ( 'false' === $n2_active_flag ) {
+		if  ( 'false' === $n2_active_flag ) {
 			header( 'Content-Type: application/json' );
 			echo '{"N2": "false"}';
 			exit;
@@ -124,9 +129,10 @@ class N2_Output_Gift_API {
 		// URLの末尾からskuを取得、サニタイズ
 		$sku = isset( $_GET['sku'] ) ? sanitize_text_field( $_GET['sku'] ) : '';
 
-		// skuが空の場合、処理を終了する
+		// skuが空の場合、N2稼働中であることだけ知らせて処理を終了する
 		if ( '' === $sku ) {
-			echo '返礼品が存在しません';
+			header( 'Content-Type: application/json' );
+			echo '{"N2": "true"}';
 			exit;
 		}
 
@@ -189,15 +195,19 @@ class N2_Output_Gift_API {
 			$gift[ $title ][ $meta_key ] = $meta_value;
 		}
 
-		// 最終的な出力
-		$output = array_values( $gift );
+		// N2稼働フラグを追加する階層を作るために$giftをarrayに格納
+		$gift_array = array( $gift );
 
-		// フラグを追加
-		$output = array_merge( $output, array( array( 'N2' => 'true' ) ) );
+		// N2稼働フラグを追加
+		$result_array = array_merge( $gift_array, array( array( 'N2' => 'true' ) ) );
+		
+		// インデックス番号を取って必要なデータを取り出す & 順番を入れ替える
+		$results = $result_array[1];
+		$results['data'] = $result_array[0];
 
 		// 結果をJSON形式に変換して出力
 		header( 'Content-Type: application/json' );
-		echo wp_json_encode( $output );
+		echo wp_json_encode( $results );
 		exit;
 	}
 }
