@@ -201,11 +201,12 @@ class N2_Postlist {
 		}
 
 		$tools_setting = array(
-			array(
-				'text'      => '複製',
-				'add_class' => 'neo-neng-copypost-btn',
-				'is_show'   => ! isset( $_GET['post_status'] ) || 'trash' !== $_GET['post_status'],
-			),
+			// 2023-04-25　いったん複製非表示のためのコメントアウト taiki
+			// array(
+			// 	'text'      => '複製',
+			// 	'add_class' => 'neo-neng-copypost-btn',
+			// 	'is_show'   => ! isset( $_GET['post_status'] ) || 'trash' !== $_GET['post_status'],
+			// ),
 			array(
 				'text'      => 'ゴミ箱へ移動',
 				'add_class' => 'neo-neng-deletepost-btn',
