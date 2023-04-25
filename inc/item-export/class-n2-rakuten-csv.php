@@ -312,7 +312,7 @@ class N2_Rakuten_CSV {
 			$img_dir .= "/{$m[0]}";// キャビネットの場合事業者コード追加
 		}
 
-		$result = array();
+		$img_urls = array();
 		for ( $i = 0; $i < 15; ++$i ) {
 			$img_url = "{$img_dir}/{$item_num_low}";
 			if ( 0 === $i ) {
@@ -322,19 +322,19 @@ class N2_Rakuten_CSV {
 			}
 			$response = wp_remote_get( $img_url );
 			if ( ! is_wp_error( $response ) && 200 === $response['response']['code'] ) {
-				$result[ $i ] = $img_url;
+				$img_urls[ $i ] = $img_url;
 			}
 		}
 		// ========戻り値判定========
 		switch ( $return_type ) {
 			// 文字列を返却
 			case 'string':
-				return implode( ' ', $result );
+				return implode( ' ', $img_urls );
 			case 'html':
-				$html = function() use ( $result ) {
+				$html = function() use ( $img_urls ) {
 					?>
-					<?php foreach ( $result  as $index => $img_url ) : ?>
-						<?php if ( array_key_last( $result ) === $index ) : ?>
+					<?php foreach ( $img_urls  as $index => $img_url ) : ?>
+						<?php if ( array_key_last( $img_urls ) === $index ) : ?>
 							<img src=""<?php echo $img_url; ?>"" width=""100%""><br><br>
 						<?php else : ?>
 							<img src=""<?php echo $img_url; ?>"" width=""100%"">
@@ -344,9 +344,9 @@ class N2_Rakuten_CSV {
 				};
 				$html();
 				break;
-			// 配列出力
+			// 配列で出力
 			default:
-				return $result;
+				return $img_urls;
 		}
 	}
 	/**
