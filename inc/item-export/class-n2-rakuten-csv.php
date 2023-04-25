@@ -190,6 +190,11 @@ class N2_Rakuten_CSV {
 					'condition' => ! $post_meta_list['寄附金額'],
 					'message'   => '寄附金額を設定してください！',
 				);
+				// 全商品ディレクトリIDエラー
+				$error_list[] = array(
+					'condition' => ! $post_meta_list['全商品ディレクトリID'],
+					'message'   => '全商品ディレクトリIDを設定してください！',
+				);
 
 				// ========エラー項目追加用hook========
 				$error_list = apply_filters( 'n2_item_export_item_csv_add_error_item', $error_list );
@@ -383,7 +388,7 @@ class N2_Rakuten_CSV {
 		return $img_urls;
 	}
 	/**
-	 * 楽天のPC用商品説明文
+	 * 楽天のPC用販売説明文
 	 *
 	 * @param int   $post_id id
 	 * @param array $img_urls 商品画像URL
@@ -404,16 +409,26 @@ class N2_Rakuten_CSV {
 		// ========[html]PC用販売説明文========
 		$html = function() use ( $post_meta_list, $post_id, $img_urls ) {
 			global $n2;
+			$rakuten_html = str_replace( '\"', '""', $n2->rakuten['html'] );
+
+			// 焼きもの関連はプラグインで追加する
+			$porcelain_text = '';
+			$porcelain_text = apply_filters( 'n2_item_export_rakuten_porcelain_text', $porcelain_text, $post_id, 'PC用販売説明文' );
+
 			$formatter = fn( $post_key ) => nl2br( N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
 			?>
 			<?php $this->img_urls2html( $img_urls ); ?>
 			<?php echo $formatter( '説明文' ); ?><br><br>
-			<?php $this->make_itemtable( $post_id, false ); ?><br><br>
-			<?php
-				echo $n2->portal_common_discription
-					. apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $post_id, 'PC用販売説明文' )
-					. str_replace( '\"', '""', $n2->rakuten['html'] ?? '' );
-				?>
+			<?php $this->make_itemtable( $post_id, false ); ?>
+			<?php if ( $n2->portal_common_discription ) : ?>
+				<br><br><?php echo $n2->portal_common_discription . PHP_EOL; ?>
+			<?php endif; ?>
+			<?php if ( $porcelain_text ) : ?>
+				<br><br><?php echo $porcelain_text . PHP_EOL; ?>
+			<?php endif; ?>
+			<?php if ( $rakuten_html ) : ?>
+				<br><br><?php echo $rakuten_html . PHP_EOL; ?>
+			<?php endif; ?>
 			<?php
 		};
 		// ========戻り値判定========
@@ -516,21 +531,25 @@ class N2_Rakuten_CSV {
 		// ========[html]SP用商品説明文========
 		$html = function() use ( $post_id, $post_meta_list, $img_urls ) {
 			global $n2;
+			$rakuten_html = str_replace( '\"', '""', $n2->rakuten['html'] );
+
 			$formatter = fn( $post_key ) => nl2br( N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
 			?>
 			<?php $this->img_urls2html( $img_urls ); ?>
 			<?php echo $formatter( '説明文' ); ?><br><br>
 			<?php $this->make_itemtable( $post_id, false ); ?>
 			<?php if ( $post_meta_list['検索キーワード'] ) : ?>
-				<br><br><?php echo $formatter( '検索キーワード' ); ?>
+				<br><br><?php echo $formatter( '検索キーワード' ) . PHP_EOL; ?>
 			<?php endif; ?>
 			<?php if ( $post_meta_list['楽天SPAカテゴリー'] ) : ?>
-				<br><br><?php echo $formatter( '楽天SPAカテゴリー' ); ?>
-			<?php endif ?>
-			<?php
-				echo $n2->portal_common_discription
-					. str_replace( '\"', '""', $n2->rakuten['html'] ?? '' );
-			?>
+				<br><br><?php echo $formatter( '楽天SPAカテゴリー' ) . PHP_EOL; ?>
+			<?php endif; ?>
+			<?php if ( $n2->portal_common_discription ) : ?>
+				<br><br><?php echo $n2->portal_common_discription . PHP_EOL; ?>
+			<?php endif; ?>
+			<?php if ( $rakuten_html ) : ?>
+				<br><br><?php echo $rakuten_html . PHP_EOL; ?>
+			<?php endif; ?>
 			<?php
 		};
 		// ========戻り値判定========
