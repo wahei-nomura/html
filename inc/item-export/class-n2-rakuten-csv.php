@@ -181,16 +181,15 @@ class N2_Rakuten_CSV {
 			// エラー時は$check_arrに詰め込む
 			$check_error = function( $item_num, &$check_arr ) use ( $item_arr, $post_meta_list ) {
 				// エラー項目
-				$error_list = array(
-					array(
-						'condition' => ! $item_arr['商品画像URL'],
-						'message'   => '商品画像を先にアップロードしてください！',
-					),
-					array(
-						'condition' => ! $post_meta_list['寄附金額'],
-						'message'   => '寄附金額を設定してください！',
-					),
+				$error_list = array();
+				// 商品画像エラー
+				$error_list[] = $this->error_img_urls( $img_urls );
+				// 寄付金額エラー
+				$error_list[] = array(
+					'condition' => ! $post_meta_list['寄附金額'],
+					'message'   => '寄附金額を設定してください！',
 				);
+
 				// ========エラー項目追加用hook========
 				$error_list = apply_filters( 'n2_item_export_item_csv_add_error_item', $error_list );
 
@@ -205,7 +204,6 @@ class N2_Rakuten_CSV {
 				}
 			};
 			$check_error( $item_num, $check_arr );
-			// 商品画像が無い場合
 		}
 		// エラー項目を出力してCSVファイルを作らない
 		if ( $check_arr ) {
@@ -288,6 +286,29 @@ class N2_Rakuten_CSV {
 			);
 		}
 		die();
+	}
+
+	/**
+	 * 楽天の画像URLが正しいかチェック
+	 *
+	 * ['商品管理番号（商品URL）']}.jpg が必須
+	 * かつ
+	 * ['商品管理番号（商品URL）']}-{$i}.jpg" の$i 最大値まで連番
+	 *
+	 * @param array $img_urls 商品画像URL
+	 * @return array
+	 */
+	public function error_img_urls( $img_urls ) {
+		$error = array(
+			'condition' => ! $img_urls,
+			'message'   => '商品画像を先にアップロードしてください！',
+		);
+		// var_dump($img_urls);
+		// foreach ( $img_urls as $img ) {
+
+		// }
+		return $error;
+
 	}
 
 	/**
