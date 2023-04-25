@@ -179,11 +179,12 @@ class N2_Rakuten_CSV {
 
 			// ================ エラー関連　================
 			// エラー時は$check_arrに詰め込む
-			$check_error = function( $item_num, &$check_arr ) use ( $item_arr, $post_meta_list ) {
+			$check_error = function( $item_num, &$check_arr ) use ( $item_arr, $post_meta_list, $img_urls ) {
+				$item_num_low = trim( mb_strtolower( $post_meta_list['返礼品コード'] ) );
 				// エラー項目
 				$error_list = array();
 				// 商品画像エラー
-				$error_list[] = $this->error_img_urls( $img_urls );
+				$error_list[] = $this->error_img_urls( $img_urls, $item_num_low );
 				// 寄付金額エラー
 				$error_list[] = array(
 					'condition' => ! $post_meta_list['寄附金額'],
@@ -295,20 +296,31 @@ class N2_Rakuten_CSV {
 	 * かつ
 	 * ['商品管理番号（商品URL）']}-{$i}.jpg" の$i 最大値まで連番
 	 *
-	 * @param array $img_urls 商品画像URL
+	 * @param array  $img_urls 商品画像URL
+	 * @param string $default_file_name 画像ファイル名
 	 * @return array
 	 */
-	public function error_img_urls( $img_urls ) {
-		$error = array(
-			'condition' => ! $img_urls,
+	public function error_img_urls( $img_urls, $default_file_name ) {
+		$error     = array(
+			'condition' => false,
 			'message'   => '商品画像を先にアップロードしてください！',
 		);
-		// var_dump($img_urls);
-		// foreach ( $img_urls as $img ) {
+		$keys      = array_keys( $img_urls );
+		$max_index = end( $keys );
 
-		// }
+		for ( $index = 0; $index <= $max_index; ++$index ) {
+			if ( ! isset( $img_urls[ $index ] ) ) {
+				$error['condition'] = true;
+				switch ( $index ) {
+					case 0:
+						$error['message'] .= "<br>{$default_file_name}.jpg";
+						break;
+					default:
+						$error['message'] .= "<br>{$default_file_name}_{$index}.jpg";
+				}
+			}
+		}
 		return $error;
-
 	}
 
 	/**
@@ -390,7 +402,7 @@ class N2_Rakuten_CSV {
 		// post_meta格納用
 		$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
 		// ========[html]PC用販売説明文========
-		$html = function() use ( $post_meta_list, $post_id ) {
+		$html = function() use ( $post_meta_list, $post_id, $img_urls ) {
 			global $n2;
 			$formatter = fn( $post_key ) => nl2br( N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
 			?>
@@ -502,7 +514,7 @@ class N2_Rakuten_CSV {
 		$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
 
 		// ========[html]SP用商品説明文========
-		$html = function() use ( $post_id, $post_meta_list, ) {
+		$html = function() use ( $post_id, $post_meta_list, $img_urls ) {
 			global $n2;
 			$formatter = fn( $post_key ) => nl2br( N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
 			?>
