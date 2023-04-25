@@ -151,6 +151,9 @@ class N2_Rakuten_CSV {
 				return $result;
 			};
 
+			// 商品画像URLを取得
+			$img_urls = $this->get_img_urls( $post_id );
+
 			$item_arr = array(
 				'コントロールカラム'     => 'n',
 				'商品管理番号（商品URL）' => trim( mb_strtolower( $post_meta_list['返礼品コード'] ) ),
@@ -162,10 +165,10 @@ class N2_Rakuten_CSV {
 				'のし対応'          => ( '有り' === $post_meta_list['のし対応'] ) ? 1 : '',
 				'PC用キャッチコピー'    => N2_Functions::special_str_convert( $post_meta_list['キャッチコピー'] ?: $post_meta_list['キャッチコピー１'] ),
 				'モバイル用キャッチコピー'  => N2_Functions::special_str_convert( $post_meta_list['キャッチコピー'] ?: $post_meta_list['キャッチコピー１'] ),
-				'商品画像URL'       => $this->get_img_urls( $post_id ),
+				'商品画像URL'       => implode( ' ', $img_urls ),
 				'PC用商品説明文'      => PHP_EOL . $this->pc_item_description( $post_id ),
-				'PC用販売説明文'      => $this->pc_sales_description( $post_id ),
-				'スマートフォン用商品説明文' => PHP_EOL . $this->sp_item_description( $post_id ),
+				'PC用販売説明文'      => $this->pc_sales_description( $post_id, $img_urls ),
+				'スマートフォン用商品説明文' => PHP_EOL . $this->sp_item_description( $post_id, $img_urls ),
 			);
 
 			// 内容を追加、または上書きするためのフック
@@ -173,25 +176,26 @@ class N2_Rakuten_CSV {
 				...$items_arr[ $post_id ],
 				...apply_filters( 'n2_item_export_item_csv_items', $item_arr, $post_id ),
 			);
-			// ================ エラー関連　================
 
+			// ================ エラー関連　================
 			// エラー時は$check_arrに詰め込む
-			$check_error = function( $item_num, &$check_arr ) use ( $item_arr, $post_meta_list ) {
+			$check_error = function( $item_num, &$check_arr ) use ( $item_arr, $post_meta_list, $img_urls ) {
+				$item_num_low = trim( mb_strtolower( $post_meta_list['返礼品コード'] ) );
 				// エラー項目
-				$error_list = array(
-					array(
-						'condition' => ! $item_arr['商品画像URL'],
-						'message'   => '商品画像を先にアップロードしてください！',
-					),
-					array(
-						'condition' => ! $post_meta_list['寄附金額'],
-						'message'   => '寄附金額を設定してください！',
-					),
-					array(
-						'condition' => ! $post_meta_list['全商品ディレクトリID'],
-						'message'   => '全商品ディレクトリIDを設定してください！',
-					),
+				$error_list = array();
+				// 商品画像エラー
+				$error_list[] = $this->error_img_urls( $img_urls, $item_num_low );
+				// 寄付金額エラー
+				$error_list[] = array(
+					'condition' => ! $post_meta_list['寄附金額'],
+					'message'   => '寄附金額を設定してください！',
 				);
+				// 全商品ディレクトリIDエラー
+				$error_list[] = array(
+					'condition' => ! $post_meta_list['全商品ディレクトリID'],
+					'message'   => '全商品ディレクトリIDを設定してください！',
+				);
+
 				// ========エラー項目追加用hook========
 				$error_list = apply_filters( 'n2_item_export_item_csv_add_error_item', $error_list );
 
@@ -206,7 +210,6 @@ class N2_Rakuten_CSV {
 				}
 			};
 			$check_error( $item_num, $check_arr );
-			// 商品画像が無い場合
 		}
 		// エラー項目を出力してCSVファイルを作らない
 		if ( $check_arr ) {
@@ -292,18 +295,72 @@ class N2_Rakuten_CSV {
 	}
 
 	/**
+	 * 楽天の画像URLが正しいかチェック
+	 *
+	 * ['商品管理番号（商品URL）']}.jpg が必須
+	 * かつ
+	 * ['商品管理番号（商品URL）']}-{$i}.jpg" の$i 最大値まで連番
+	 *
+	 * @param array  $img_urls 商品画像URL
+	 * @param string $default_file_name 画像ファイル名
+	 * @return array
+	 */
+	public function error_img_urls( $img_urls, $default_file_name ) {
+		$error     = array(
+			'condition' => false,
+			'message'   => '商品画像を先にアップロードしてください！',
+		);
+		$keys      = array_keys( $img_urls );
+		$max_index = end( $keys );
+
+		for ( $index = 0; $index <= $max_index; ++$index ) {
+			if ( ! isset( $img_urls[ $index ] ) ) {
+				$error['condition'] = true;
+				switch ( $index ) {
+					case 0:
+						$error['message'] .= "<br>{$default_file_name}.jpg";
+						break;
+					default:
+						$error['message'] .= "<br>{$default_file_name}_{$index}.jpg";
+				}
+			}
+		}
+		return $error;
+	}
+
+	/**
 	 * 楽天の画像URLを取得
 	 *
-	 * @param int    $post_id id
-	 * @param string $return_type 戻り値判定用(string|html|array)
-	 * @return string|array 楽天の画像URLを(文字列|配列)で取得する
+	 * @param array $img_urls 商品画像URL
+	 * @return void
 	 */
-	public function get_img_urls( $post_id, $return_type = 'string' ) {
+	public function img_urls2html( $img_urls ) {
+		?>
+		<?php foreach ( $img_urls  as $index => $img_url ) : ?>
+			<?php if ( array_key_last( $img_urls ) === $index ) : ?>
+				<img src=""<?php echo $img_url; ?>"" width=""100%""><br><br>
+			<?php else : ?>
+				<img src=""<?php echo $img_url; ?>"" width=""100%"">
+			<?php endif; ?>
+		<?php endforeach; ?>
+		<?php
+	}
+
+	/**
+	 * 楽天の画像URLを取得
+	 *
+	 * @param int $post_id id
+	 * @return array 楽天に存在する画像URLを取得する
+	 */
+	public function get_img_urls( $post_id ) {
 		global $n2;
+		$img_urls = array();
+
 		// get_post_metaのkey
 		$post_keys = array(
 			'返礼品コード',
 		);
+
 		// post_meta格納用
 		$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
 		$item_num_low   = trim( mb_strtolower( $post_meta_list['返礼品コード'] ) );
@@ -315,7 +372,6 @@ class N2_Rakuten_CSV {
 			$img_dir .= "/{$m[0]}";// キャビネットの場合事業者コード追加
 		}
 
-		$result = array();
 		for ( $i = 0; $i < 15; ++$i ) {
 			$img_url = "{$img_dir}/{$item_num_low}";
 			if ( 0 === $i ) {
@@ -325,42 +381,25 @@ class N2_Rakuten_CSV {
 			}
 			$response = wp_remote_get( $img_url );
 			if ( ! is_wp_error( $response ) && 200 === $response['response']['code'] ) {
-				$result[ $i ] = $img_url;
+				$img_urls[ $i ] = $img_url;
 			}
 		}
-		// ========戻り値判定========
-		switch ( $return_type ) {
-			// 文字列を返却
-			case 'string':
-				return implode( ' ', $result );
-			case 'html':
-				$html = function() use ( $result ) {
-					?>
-					<?php foreach ( $result  as $index => $img_url ) : ?>
-						<?php if ( array_key_last( $result ) === $index ) : ?>
-							<img src=""<?php echo $img_url; ?>"" width=""100%""><br><br>
-						<?php else : ?>
-							<img src=""<?php echo $img_url; ?>"" width=""100%"">
-						<?php endif; ?>
-					<?php endforeach; ?>
-					<?php
-				};
-				$html();
-				break;
-			// 配列出力
-			default:
-				return $result;
-		}
+
+		return $img_urls;
 	}
 	/**
 	 * 楽天のPC用販売説明文
 	 *
-	 * @param int  $post_id id
-	 * @param bool $return_string 戻り値判定用(基本は文字列|HTML)
-	 * @return string|void 楽天のPC用販売説明文を(文字列|HTML出力)する
+	 * @param int   $post_id id
+	 * @param array $img_urls 商品画像URL
+	 * @param bool  $return_string 戻り値判定用(基本は文字列|HTML)
+	 * @return string|void 楽天のPC用商品説明文を(文字列|HTML出力)する
 	 */
-	public function pc_sales_description( $post_id, $return_string = true ) {
-
+	public function pc_sales_description( $post_id, $img_urls, $return_string = true ) {
+		// 画像URLを取得する
+		if ( $img_urls ) {
+			$img_urls = $this->get_img_urls( $post_id );
+		}
 		// get_post_metaのkey
 		$post_keys = array(
 			'説明文',
@@ -368,7 +407,7 @@ class N2_Rakuten_CSV {
 		// post_meta格納用
 		$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
 		// ========[html]PC用販売説明文========
-		$html = function() use ( $post_meta_list, $post_id ) {
+		$html = function() use ( $post_meta_list, $post_id, $img_urls ) {
 			global $n2;
 			$rakuten_html = str_replace( '\"', '""', $n2->rakuten['html'] );
 
@@ -378,7 +417,7 @@ class N2_Rakuten_CSV {
 
 			$formatter = fn( $post_key ) => nl2br( N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
 			?>
-			<?php $this->get_img_urls( $post_id, 'html' ); ?>
+			<?php $this->img_urls2html( $img_urls ); ?>
 			<?php echo $formatter( '説明文' ); ?><br><br>
 			<?php $this->make_itemtable( $post_id, false ); ?>
 			<?php if ( $n2->portal_common_discription ) : ?>
@@ -463,11 +502,18 @@ class N2_Rakuten_CSV {
 	/**
 	 * 楽天のSP用商品説明文
 	 *
-	 * @param int  $post_id id
-	 * @param bool $return_string 戻り値判定用(基本は文字列|HTML)
+	 * @param int   $post_id id
+	 * @param array $img_urls 商品画像URL
+	 * @param bool  $return_string 戻り値判定用(基本は文字列|HTML)
 	 * @return string|void 楽天のSP用商品説明文を(文字列|HTML出力)する
 	 */
-	public function sp_item_description( $post_id, $return_string = true ) {
+	public function sp_item_description( $post_id, $img_urls = array(), $return_string = true ) {
+
+		// 画像URLを取得する
+		if ( $img_urls ) {
+			$img_urls = $this->get_img_urls( $post_id );
+		}
+
 		// get_post_metaのkey
 		$post_keys = array(
 			'説明文',
@@ -483,13 +529,13 @@ class N2_Rakuten_CSV {
 		$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
 
 		// ========[html]SP用商品説明文========
-		$html = function() use ( $post_id, $post_meta_list, ) {
+		$html = function() use ( $post_id, $post_meta_list, $img_urls ) {
 			global $n2;
 			$rakuten_html = str_replace( '\"', '""', $n2->rakuten['html'] );
 
 			$formatter = fn( $post_key ) => nl2br( N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
 			?>
-			<?php $this->get_img_urls( $post_id, 'html' ); ?>
+			<?php $this->img_urls2html( $img_urls ); ?>
 			<?php echo $formatter( '説明文' ); ?><br><br>
 			<?php $this->make_itemtable( $post_id, false ); ?>
 			<?php if ( $post_meta_list['検索キーワード'] ) : ?>
