@@ -482,6 +482,8 @@ class N2_Rakuten_CSV {
 		// ========[html]SP用商品説明文========
 		$html = function() use ( $post_id, $post_meta_list, ) {
 			global $n2;
+			$rakuten_html = str_replace( '\"', '""', $n2->rakuten['html'] );
+
 			$formatter = fn( $post_key ) => nl2br( N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
 			?>
 			<?php $this->get_img_urls( $post_id, 'html' ); ?>
@@ -496,8 +498,8 @@ class N2_Rakuten_CSV {
 			<?php if ( $n2->portal_common_discription ) : ?>
 				<br><br><?php echo $n2->portal_common_discription . PHP_EOL; ?>
 			<?php endif; ?>
-			<?php if ( str_replace( '\"', '""', $n2->rakuten['html'] ) ) : ?>
-				<br><br><?php echo str_replace( '\"', '""', $n2->rakuten['html'] ); ?>
+			<?php if ( $rakuten_html ) : ?>
+				<br><br><?php echo $rakuten_html . PHP_EOL; ?>
 			<?php endif; ?>
 			<?php
 		};
