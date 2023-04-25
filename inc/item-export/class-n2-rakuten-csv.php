@@ -367,6 +367,12 @@ class N2_Rakuten_CSV {
 		// ========[html]PC用販売説明文========
 		$html = function() use ( $post_meta_list, $post_id ) {
 			global $n2;
+			$rakuten_html = str_replace( '\"', '""', $n2->rakuten['html'] );
+
+			// 焼きもの関連はプラグインで追加する
+			$porcelain_text = '';
+			$porcelain_text = apply_filters( 'n2_item_export_rakuten_porcelain_text', $porcelain_text, $post_id, 'PC用販売説明文' );
+
 			$formatter = fn( $post_key ) => nl2br( N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
 			?>
 			<?php $this->get_img_urls( $post_id, 'html' ); ?>
@@ -375,11 +381,11 @@ class N2_Rakuten_CSV {
 			<?php if ( $n2->portal_common_discription ) : ?>
 				<br><br><?php echo $n2->portal_common_discription . PHP_EOL; ?>
 			<?php endif; ?>
-			<?php if ( apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $post_id, 'PC用販売説明文' ) ) : ?>
-				<br><br><?php echo apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $post_id, 'PC用販売説明文' ) . PHP_EOL; ?>
+			<?php if ( $porcelain_text ) : ?>
+				<br><br><?php echo $porcelain_text . PHP_EOL; ?>
 			<?php endif; ?>
-			<?php if ( str_replace( '\"', '""', $n2->rakuten['html'] ) ) : ?>
-				<br><br><?php echo str_replace( '\"', '""', $n2->rakuten['html'] ); ?>
+			<?php if ( $rakuten_html ) : ?>
+				<br><br><?php echo $rakuten_html . PHP_EOL; ?>
 			<?php endif; ?>
 			<?php
 		};
