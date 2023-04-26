@@ -73,6 +73,7 @@ export default $ => {
 	const methods = {
 		// 説明文・テキストカウンター
 		set_info(target) {
+			$(target).parents('.n2-fields-value').find('.d-none').removeClass('d-none');
 			const info = [
 				$(target).parents('.n2-fields-value').data('description') && ! document.cookie.match(/n2-zenmode/) 
 					? `<div class="alert alert-primary mb-2">${$(target).parents('.n2-fields-value').data('description')}</div>`
@@ -199,6 +200,14 @@ export default $ => {
 		// テキストエリアの高さを自動可変式に
 		auto_fit_tetxarea(textarea){
 			$(textarea).height('auto').height($(textarea).get(0).scrollHeight);
+		},
+		// 説明文の例文を挿入
+		insert_example_description( target ) {
+			const textarea = $(target).parents('.n2-fields-value').find('textarea');
+			let text = textarea.val();
+			// 後にここで事業者用のテンプレートがあるか確認してゴニョゴニョする
+			text += n2.custom_field.事業者用.説明文.placeholder
+			textarea.val(text);
 		}
 	};
 	const components = {
