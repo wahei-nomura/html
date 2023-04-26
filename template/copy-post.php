@@ -94,15 +94,6 @@
 				<label>返礼品名(【全〇〇回定期便】は自動追加されます)</label>
 				<p class="new-title"><span></span><input type="text" name="複写後商品名"></p>
 			</div>
-			<div class="form-block is-teiki">
-				<label>内容量・規格(追加または置換されます)</label>
-				<div>※以下の内容を全◯◯回（月<input type="number" name="同月回数" min="1" max="12">回）お届けいたします。</div>
-			</div>
-			<div class="form-block is-teiki">
-				<label>配送期間(追加または置換されます)</label>
-				<div>※初回発送はお申込み翌月の<input type="number" name="初回発送日" min="1" max="31">日までに発送致します。なお2回目以降も毎月<input type="number"
-						name="毎月発送日" min="1" max="31">日までに発送致します。</div>
-			</div>
 			<button class="button button-primary submit" type="submit">複製する</button>
 		</form>
 	</div>

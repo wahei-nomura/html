@@ -19,10 +19,8 @@ jQuery(function($) {
 		if(teikiNum>1) {
 			$('.is-teiki').css('display', 'block')
 			$('#n2-copypost-modal .new-title span').text(`【全${teikiNum}回定期便】`);
-			$('#n2-copypost-form .is-teiki input').prop('disabled', false)
 		} else {
 			$('.is-teiki').css('display', 'none')
-			$('#n2-copypost-form .is-teiki input').prop('disabled', true)
 			$('#n2-copypost-modal .new-title span').text('');
 		}
 	}
