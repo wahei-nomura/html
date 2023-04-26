@@ -437,6 +437,11 @@ class N2_Sync {
 			$images = array_filter( $postarr['meta_input'], fn( $k ) => preg_match( '/商品画像[０-９]/u', $k ), ARRAY_FILTER_USE_KEY );
 			// 値の浄化
 			$postarr['meta_input']['商品画像'] = array_filter( array_values( $images ), fn( $v ) => $v );
+			foreach ( $postarr['meta_input']['商品画像'] as $index => $value ) {
+				if ( ! isset( $value['sizes'] ) ) {
+					$postarr['meta_input']['商品画像'][ $index ]['sizes']['thumbnail'] = preg_replace( '/\.(\w+)$/', '-$1.jpg', $value['url'] );
+				}
+			}
 			// URLの置換のためにjson化
 			$str = wp_json_encode( $postarr['meta_input']['商品画像'], JSON_UNESCAPED_SLASHES );
 			if ( $str ) {
