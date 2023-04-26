@@ -36,9 +36,9 @@ class N2_Choice {
 		$choice_url    = $n2->choice['auth']['url'];
 		// カスタムフィールドのアレルゲン全選択肢
 		$all_allergen  = $n2->custom_field['事業者用']['アレルゲン']['option'];
-		$sumple_header = wp_remote_get( str_replace( '//', "//{$choice_user}:{$choice_pass}@", $choice_url ), array() )['body'];
-		$sumple_header = trim( $sumple_header );
-		$sumple_header = array_flip( explode( "\t", $sumple_header ) );
+		$sample_header = wp_remote_get( str_replace( '//', "//{$choice_user}:{$choice_pass}@", $choice_url ), array() )['body'];
+		$sample_header = trim( $sample_header );
+		$sample_header = array_flip( explode( "\t", $sample_header ) );
 
 		$header0                   = $n2->choice['tsv_header']['value0']; // 初期値として0をセットするヘッダーグループ
 		$header1                   = $n2->choice['tsv_header']['value1']; // 初期値として1をセットするヘッダーグループ
@@ -50,7 +50,7 @@ class N2_Choice {
 		// ajaxで渡ってきたpostidの配列
 		$ids = explode( ',', filter_input( INPUT_POST, 'choice' ) );
 		foreach ( $ids as $id ) {
-			$items_arr[ $id ] = array( ...$sumple_header, ...get_post_meta( $id, '', false ) );
+			$items_arr[ $id ] = array( ...$sample_header, ...get_post_meta( $id, '', false ) );
 			$item_code        = strtoupper( get_post_meta( $id, '返礼品コード', true ) );
 			// 初期化処理
 			foreach ( $items_arr[ $id ] as $k => $v ) {
@@ -194,7 +194,7 @@ class N2_Choice {
 		N2_Functions::download_csv(
 			array(
 				'file_name'      => 'choice',
-				'header'         => array_keys( $sumple_header ),
+				'header'         => array_keys( $sample_header ),
 				'items_arr'      => $items_arr,
 				'type'           => 'tsv',
 				'character_code' => 'utf-8',
