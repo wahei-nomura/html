@@ -11,20 +11,6 @@ jQuery(function($) {
 
 	const n2 = window['n2'];
 
-	/**
-	 * フォーム内の表示やinput内容切り替え
-	 * @param teikiNum 定期回数
-	 */
-	const formControll=(teikiNum: number) => {
-		if(teikiNum>1) {
-			$('.is-teiki').css('display', 'block')
-			$('#n2-copypost-modal .new-title span').text(`【全${teikiNum}回定期便】`);
-		} else {
-			$('.is-teiki').css('display', 'none')
-			$('#n2-copypost-modal .new-title span').text('');
-		}
-	}
-
 	// 初回読み込み
 	$("#wpbody-content").append(`<div id="${prefix}-content"></div>`);
 	$(`#${prefix}-content`).load(
@@ -46,8 +32,6 @@ jQuery(function($) {
 		$("#n2-copypost-modal .original-title").text(title);
 		$('input[name="複写後商品名"]').val(title);
 		$("#n2-copypost-modal input[name='id']").val(id);
-		$("select[name='定期']>option[value='1']").prop('selected', true)
-		formControll(1)
 	}
 
 	// モーダル展開クリックイベント
@@ -162,11 +146,6 @@ jQuery(function($) {
 		itemTr.remove()
 	});
 
-	// 定期便、単品切り替え
-	$('body').on('change', 'select[name="定期"]', e => {
-		const teikiNum = +$(e.target).val();
-		formControll(teikiNum)
-	})
 
 	// モーダルキャンセル
 	$("body").on("click", "#n2-copypost-modal .close-btn,#n2-copypost-modal-wrapper", (e) => {

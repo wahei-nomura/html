@@ -48,16 +48,14 @@ class N2_Copypost {
 		// POST受信を配列か
 		$set_data = array(
 			'複写後商品名' => filter_input( INPUT_POST, '複写後商品名', FILTER_SANITIZE_FULL_SPECIAL_CHARS ),
-			'定期'     => filter_input( INPUT_POST, '定期', FILTER_VALIDATE_INT ),
 		);
 
 		// metaを上書き
-		$post_all_meta['定期便']      = $set_data['定期'];
 		$post_all_meta['寄附金額固定'] = array( '固定する' ); // 固定をデフォルトに
 
 		// 新しい返礼品情報設定
 		$new_post = array(
-			'post_title'  => $set_data['定期'] > 1 ? "【全{$set_data['定期']}回定期便】{$set_data['複写後商品名']}" : $set_data['複写後商品名'],
+			'post_title'  => $set_data['複写後商品名'],
 			'post_status' => $new_status,
 			'post_author' => $author_id,
 			'meta_input'  => $post_all_meta,

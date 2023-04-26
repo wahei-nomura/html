@@ -80,19 +80,8 @@
 				</select>
 			</div>
 			<div class="form-block">
-				<label>定期便として複製しますか？</label>
-				<select name="定期">
-				<?php
-				for ( $i = 1; $i <= 12; $i++ ) {
-					printf( '<option value="%d">%s</option>', $i, $i < 2 ? '定期便ではない' : "{$i}回定期便として複製" );
-				}
-				?>
-					
-				</select>
-			</div>
-			<div class="form-block">
-				<label>返礼品名(【全〇〇回定期便】は自動追加されます)</label>
-				<p class="new-title"><span></span><input type="text" name="複写後商品名"></p>
+				<label>複製後返礼品名</label>
+				<p class="new-title"><input type="text" name="複写後商品名"></p>
 			</div>
 			<button class="button button-primary submit" type="submit">複製する</button>
 		</form>
