@@ -219,8 +219,8 @@ class N2_Sync {
 			<?php settings_fields( 'n2_sync_settings_spreadsheet' ); ?>
 			<table class="widefat striped" style="margin-bottom: 2em;">
 				<tr>
-					<th>スプレットシートのID</th>
-					<td><input type="text" class="large-text" name="n2_sync_settings_spreadsheet[id]" value="<?php echo $settings['id']; ?>" placeholder="1lIYQRNRLdZytrE3n9ANIjfXZWjD37uGdWXMvjfaINDs"></td>
+					<th>スプレットシートのIDまたはURL</th>
+					<td><input type="text" class="large-text" name="n2_sync_settings_spreadsheet[id]" value="<?php echo $settings['id']; ?>" placeholder="スプレッドシートのIDはたまURL"><a target="_blank"></a></td>
 				</tr>
 				<tr>
 					<th>ユーザーシートの範囲</th>
