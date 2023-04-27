@@ -18,14 +18,15 @@ if ( class_exists( 'N2_Item_Export_Base' ) ) {
 class N2_Item_Export_Base {
 
 	/**
-	 * 設定
+	 * 設定（基本的に拡張で上書きする）
 	 *
 	 * @var array
 	 */
 	public $settings = array(
-		'name'      => 'n2_export_base.tsv',
-		'delimiter' => "\t",
-		'charset'   => 'utf-8',
+		'name'          => 'n2_export_base.tsv',
+		'delimiter'     => "\t",
+		'charset'       => 'utf-8',
+		'header_string' => '', // 基本は自動設定、falseでヘッダー文字列無し
 	);
 
 	/**
@@ -70,6 +71,7 @@ class N2_Item_Export_Base {
 		// 独自のデータをセット
 		$this->set_header();
 		$this->set_data();
+		$this->set_header_string();
 		$this->set_string();
 
 		$this->{$get['type']}();
@@ -146,11 +148,21 @@ class N2_Item_Export_Base {
 	}
 
 	/**
+	 * ヘッダー文字列生成
+	 */
+	protected function set_header_string() {
+		if ( false === $this->settings['header_string'] ) {
+			$this->settings['header_string'] = '';
+		} else {
+			$this->settings['header_string'] .= '"' . implode( "\"{$this->settings['delimiter']}\"", $this->data['header'] ) . '"' . PHP_EOL;
+		}
+	}
+
+	/**
 	 * 配列をCSV・TSVに変換
 	 */
 	protected function set_string() {
-		$str  = '';
-		$str .= '"' . implode( "\"{$this->settings['delimiter']}\"", $this->data['header'] ) . '"' . PHP_EOL;
+		$str = $this->settings['header_string'];
 		foreach ( $this->data['data'] as $key => $value ) {
 			$str .= '"' . implode( "\"{$this->settings['delimiter']}\"", $value ) . '"' . PHP_EOL;
 		}
@@ -172,8 +184,11 @@ class N2_Item_Export_Base {
 	 * スプレットシートに値貼り付け用
 	 */
 	protected function spreadsheet() {
-		// デリミタをタブに矯正
-		$this->settings['delimiter'] = "\t";
+		// ヘッダーを強制的に付与
+		if ( '' === $this->settings['header_string'] ) {
+			$this->set_header_string();
+		}
+		$this->settings['delimiter']     = "\t"; // デリミタをタブに変更
 		$this->set_string();
 		?>
 		<title>スプレットシートに値貼り付け</title>
