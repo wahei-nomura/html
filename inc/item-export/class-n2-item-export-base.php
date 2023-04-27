@@ -18,25 +18,28 @@ if ( class_exists( 'N2_Item_Export_Base' ) ) {
 class N2_Item_Export_Base {
 
 	/**
-	 * ファイル名
+	 * 設定
 	 *
-	 * @var string
+	 * @var array
 	 */
-	public $name = 'n2_export_base.tsv';
+	public $settings = array(
+		'name'      => 'n2_export_base.tsv',
+		'delimiter' => "\t",
+		'charset'   => 'utf-8',
+	);
 
 	/**
-	 * デリミタ
+	 * データ
 	 *
-	 * @var string
+	 * @var array
 	 */
-	public $delimiter = "\t";
-
-	/**
-	 * 文字コード
-	 *
-	 * @var string
-	 */
-	public $charset = 'utf-8';
+	public $data = array(
+		'header'  => array(),
+		'n2field' => array(),
+		'n2data'  => array(),
+		'data'    => array(),
+		'string'  => '',
+	);
 
 	/**
 	 * コンストラクタ
@@ -54,112 +57,130 @@ class N2_Item_Export_Base {
 		);
 		// デフォルト値を$_GETで上書き
 		$get = wp_parse_args( $_GET, $defaults );
-		// typeに応じたエクスポート
-		$this->{$get['type']}( $this->create() );
+
+		// n2としてのデータをセット
+		$this->set_n2field();
+		$this->set_n2data();
+
+		// 独自のデータをセット
+		$this->set_header();
+		$this->set_data();
+		$this->set_string();
+
+		$this->{$get['type']}();
+	}
+
+	/**
+	 * N2カスタムフィールド全設定項目をセット
+	 */
+	protected function set_n2field() {
+		global $n2;
+		$n2field = array(
+			...array_keys( $n2->custom_field['スチームシップ用'] ),
+			...array_keys( $n2->custom_field['事業者用'] ),
+		);
+		// 商品画像とN1zipは使いようがないので対象から外す
+		$exclusion = array(
+			'商品画像',
+			'N1zip',
+		);
+		// フィルタ
+		$n2field = array_filter( $n2field, fn( $v ) => ! in_array( $v, $exclusion, true ) );
+		// 代入
+		$this->data['n2field'] = $n2field;
+	}
+
+	/**
+	 * N2データ取得してセット
+	 */
+	protected function set_n2data() {
+		$n2data = array();
+		// $ids  = filter_input( INPUT_POST, 'ids' );
+		// $ids  = explode( ',', $ids );
+		$ids = get_posts( 'fields=ids&post_status=any&numberposts=10' );
+		foreach ( $ids as $id ) {
+			$n2data[ $id ]['タイトル'] = get_the_title( $id );
+			// n2fieldのカスタムフィールド全取得
+			foreach ( $this->data['n2field'] as $key ) {
+				$meta = get_post_meta( $id, $key, true );
+				// 値が配列の場合、空は削除
+				if ( is_array( $meta ) ) {
+					$meta = array_filter( $meta, fn( $v ) => $v );
+				}
+				$n2data[ $id ][ $key ] = $meta;
+			}
+		}
+		$this->data['n2data'] = $n2data;
 	}
 
 	/**
 	 * ヘッダーの作成
-	 *
-	 * @return array
 	 */
-	public function get_header() {
-		global $n2;
-		$header = array(
-			...array_keys( $n2->custom_field['スチームシップ用'] ),
-			...array_keys( $n2->custom_field['事業者用'] ),
-		);
-		return $header;
+	protected function set_header() {
+		$this->data['header'] = $this->data['n2field'];
 	}
 
 	/**
-	 * データの作成
+	 * 内容を配列で作成
 	 */
-	public function create() {
-		$args = array(
-			'header' => $this->get_header(),
-			'data'   => array(),
-		);
-		$ids  = get_posts( 'fields=ids&post_status=any&numberposts=10' );
-		foreach ( $ids as $id ) {
-			$args['data'][ $id ] = get_post_meta( $id );
-			foreach ( $args['data'][ $id ] as $key => $value ) {
-				if ( in_array( $key, array( '商品画像', 'N1zip' ), true ) ) {
-					unset( $args['data'][ $id ][ $key ] );
-					continue;
+	protected function set_data() {
+		$data = array();
+		foreach ( $this->data['n2data'] as $id => $values ) {
+			foreach ( $values as $name => $val ) {
+				if ( is_array( $val ) ) {
+					// 多次元になっているものはラベルだけの配列に変更
+					$values[ $name ] = array_column( $val, 'label' ) ?: $val;
+					// |で連結
+					$values[ $name ] = implode( '|', $values[ $name ] );
 				}
-				$args['data'][ $id ][ $key ] = get_post_meta( $id, $key, true );
+				$values[ $name ] = "\"{$values[ $name ]}\"";
 			}
+			$data[ $id ] = $values;
 		}
-		return $args;
+		$this->data['data'] = $data;
 	}
 
 	/**
 	 * 配列をCSV・TSVに変換
-	 *
-	 * @param array $args パラメータ
-	 * @return string csv or tsv
 	 */
-	public function array2csv( $args ) {
-		$defaults = array(
-			'header'    => array(),
-			'items'     => array(),
-			'delimitor' => $this->delimitor,
-			'charset'   => $this->charset,
-		);
-		// デフォルト値を引数で上書き
-		$args = wp_parse_args( $args, $defaults );
-		// 文字列生成
+	protected function set_string() {
 		$str = '';
-		return $str;
+		$str = '"' . implode( "\"\t\"", $this->data['header'] ) . '"';
+		foreach ( $this->data['data'] as $key => $value ) {
+			
+		}
+		$this->data['string'] = $str;
 	}
 
 	/**
 	 * ダウンロード
-	 *
-	 * @param array $args パラメータ
 	 */
-	public function download( $args ) {
-		$defaults = array(
-			'name' => $this->name,
-			'data' => '',
-		);
-		// デフォルト値を引数で上書き
-		$args = wp_parse_args( $args, $defaults );
+	protected function download() {
 		header( 'Content-Type: application/octet-stream' );
-		header( "Content-Disposition: attachment; filename={$args['name']}" );
-		echo htmlspecialchars_decode( $args['data'] );
+		header( "Content-Disposition: attachment; filename={$this->settings['name']}" );
+		echo htmlspecialchars_decode( $this->data['string'] );
 		exit;
 	}
 
 	/**
 	 * ビュー
-	 *
-	 * @param array $args パラメータ
 	 */
-	public function view( $args ) {
-		$defaults = array(
-			'data' => '',
-		);
-		// デフォルト値を引数で上書き
-		$args = wp_parse_args( $args, $defaults );
-		echo "<pre>{$args['data']}</pre>";
+	protected function view() {
+		// デリミタをタブに矯正
+		?>
+		<p>このままスプレットシートに貼付け可能</p>
+		<textarea><?php echo $this->settings['string']; ?></textarea>
+		<?php
 		exit;
 	}
 
 	/**
 	 * デバッグ
-	 *
-	 * @param array $args パラメータ
 	 */
-	public function debug( $args ) {
-		$defaults = array(
-			'data' => '',
-		);
-		// デフォルト値を引数で上書き
-		$args = wp_parse_args( $args, $defaults );
+	protected function debug() {
 		echo '<pre>';
-		print_r( $args );
+		print_r( $this->settings );
+		print_r( $this->data );
 		echo '</pre>';
 		exit;
 	}
