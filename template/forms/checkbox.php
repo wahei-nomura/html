@@ -16,6 +16,7 @@ $style   = $args['style'];
 $attr    = '';
 unset( $args['option'], $args['name'], $args['value'], $args['style'] );
 foreach ( $args as $k => $v ) {
+	$v     = esc_attr( $v );// エスケープしないとバグる
 	$attr .= " {$k}=\"{$v}\"";
 }
 foreach ( $option as $v ) :
