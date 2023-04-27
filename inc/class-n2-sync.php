@@ -578,8 +578,26 @@ class N2_Sync {
 					'user_range' => '',
 				);
 				$settings = get_option( 'n2_sync_settings_spreadsheet', $default );
+
+				// GETパラメータ優先、なければDB
+				$input_id         = filter_input( INPUT_GET, 'id', FILTER_SANITIZE_SPECIAL_CHARS );
+				$input_user_range = filter_input( INPUT_GET, 'user_range', FILTER_SANITIZE_SPECIAL_CHARS );
+
+				$sheet_id   = $input_id && '' !== $input_id ? $input_id : $settings['id'];
+				$user_range = $input_user_range && '' !== $input_user_range ? $input_user_range : $settings['user_range'];
 				// データ取得
-				$data = $this->get_spreadsheet_data( $settings['id'], $settings['user_range'] );
+				$data = $this->get_spreadsheet_data( $sheet_id, $user_range );
+
+				// GETパラメータで受け取ったidとuser_rangeも保存
+				update_option(
+					'n2_sync_settings_spreadsheet',
+					array(
+						'spreadsheet' => array(
+							'id'         => $sheet_id,
+							'user_range' => $user_range,
+						),
+					)
+				);
 				break;
 		}
 		// IP制限 or データが無い
@@ -685,6 +703,7 @@ class N2_Sync {
 		}
 		echo "N2-User-Sync「{$n2->town}」ユーザーデータを同期しました。";
 		$logs[] = 'ユーザーシンクロ完了 ' . number_format( microtime( true ) - $before, 2 ) . ' sec';
+
 		$this->log( $logs );
 		exit;
 	}
@@ -707,8 +726,16 @@ class N2_Sync {
 			),
 		);
 		$settings = get_option( 'n2_sync_settings_spreadsheet', $default );
+
+		// GETパラメータ優先、なければDB
+		$input_id         = filter_input( INPUT_GET, 'id', FILTER_SANITIZE_SPECIAL_CHARS );
+		$input_item_range = filter_input( INPUT_GET, 'item_range', FILTER_SANITIZE_SPECIAL_CHARS );
+
+		$sheet_id   = $input_id && '' !== $input_id ? $input_id : $settings['id'];
+		$item_range = $input_item_range && '' !== $input_item_range ? $input_item_range : $settings['item_range'];
+
 		// データ取得
-		$data = $this->get_spreadsheet_data( $settings['id'], $settings['item_range'] );
+		$data = $this->get_spreadsheet_data( $sheet_id, $item_range );
 
 		// IP制限等で終了のケース
 		if ( ! $data ) {
@@ -772,6 +799,22 @@ class N2_Sync {
 			$postarr[ $k ]['meta_input'] = $d;
 		}
 		$this->multi_insert_posts( $postarr, 100, $_GET['update'] || false );
+		// 成功した場合のみGETパラメータで受け取ったidとitem_rangeも保存
+		$result = update_option(
+			'n2_sync_settings_spreadsheet',
+			array(
+				'spreadsheet' => array(
+					'id'         => $sheet_id,
+					'item_range' => $item_range,
+				),
+			)
+		);
+
+		if ( ! $result ) {
+			echo '更新失敗';
+			exit;
+		}
+
 		echo "N2-Insert-Posts-From-Spreadsheet「{$n2->town}の返礼品」スプレットシートからの追加完了！" . number_format( microtime( true ) - $before, 2 ) . ' sec';
 		$logs[] = '返礼品の追加完了 ' . number_format( microtime( true ) - $before, 2 ) . ' sec';
 		$this->log( $logs );
