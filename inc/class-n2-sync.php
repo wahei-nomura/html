@@ -204,7 +204,7 @@ class N2_Sync {
 			<li>※ 特定の項目だけ更新したい場合は、<b>項目を空欄にするのではなくカラムごと消して下さい。</b>空欄にすると空で更新されます。</li>
 			<li>※ シートの範囲については<a href="https://developers.google.com/sheets/api/guides/concepts?hl=ja#expandable-1" target="_blank">ココ</a>を参照。</li>
 		</ul>
-		<div style="padding: 1em 0;">
+		<div id="n2sync-link-wrapper" style="padding: 1em 0;">
 			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_users_from_spreadsheet"; ?>" class="button" target="_blank" style="margin-right: 1em;">
 				今すぐユーザーを更新
 			</a>

@@ -24,5 +24,31 @@ jQuery(function($) {
 		const value = $(e.target).val() as string
 		const setSheetId = extractSheetId(value)
 		createSheetLink(setSheetId);
+
+		$('#n2sync-link-wrapper a').each((i,v) => {
+			const parser = new URL($(v).prop('href'));
+			parser.searchParams.set('id',value)
+			$(v).prop('href', parser);
+		})
+	})
+
+	$('input[name="n2_sync_settings_spreadsheet[user_range]"]').on('keyup',(e)=>{
+		const value = $(e.target).val() as string
+
+		$('#n2sync-link-wrapper a').each((i,v) => {
+			const parser = new URL($(v).prop('href'));
+			parser.searchParams.set('user_range',value)
+			$(v).prop('href', parser);
+		})
+	})
+
+	$('input[name="n2_sync_settings_spreadsheet[item_range]"]').on('keyup',(e)=>{
+		const value = $(e.target).val() as string
+
+		$('#n2sync-link-wrapper a').each((i,v) => {
+			const parser = new URL($(v).prop('href'));
+			parser.searchParams.set('item_range',value)
+			$(v).prop('href', parser);
+		})
 	})
 });
