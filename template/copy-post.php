@@ -72,17 +72,6 @@
 			<div>
 				複製元：<span class="original-title"></span>
 			</div>
-			<div class="form-block">
-				<label>複製後のステータス</label>
-				<select name="status">
-					<option value="draft">事業者下書き</option>
-					<option value="pending">スチームシップ確認待ち</option>
-				</select>
-			</div>
-			<div class="form-block">
-				<label>複製後返礼品名</label>
-				<p class="new-title"><input type="text" name="複写後商品名"></p>
-			</div>
 			<button class="button button-primary submit" type="submit">複製する</button>
 		</form>
 	</div>

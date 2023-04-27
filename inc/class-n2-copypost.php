@@ -40,23 +40,19 @@ class N2_Copypost {
 	 */
 	public function copy_create_post() {
 		// 複製元の返礼品情報取得
-		$post          = get_post( filter_input( INPUT_POST, 'id', FILTER_VALIDATE_INT ) );
-		$new_status    = filter_input( INPUT_POST, 'status', FILTER_SANITIZE_SPECIAL_CHARS );
+		$post_id       = filter_input( INPUT_POST, 'id', FILTER_VALIDATE_INT );
+		$post          = get_post( $post_id );
 		$post_all_meta = N2_Functions::get_all_meta( $post );
 		$author_id     = $post->post_author;
-
-		// POST受信を配列か
-		$set_data = array(
-			'複写後商品名' => filter_input( INPUT_POST, '複写後商品名', FILTER_SANITIZE_FULL_SPECIAL_CHARS ),
-		);
+		$title         = get_the_title( $post_id );
 
 		// metaを上書き
 		$post_all_meta['寄附金額固定'] = array( '固定する' ); // 固定をデフォルトに
 
 		// 新しい返礼品情報設定
 		$new_post = array(
-			'post_title'  => $set_data['複写後商品名'],
-			'post_status' => $new_status,
+			'post_title'  => $title,
+			'post_status' => 'draft',
 			'post_author' => $author_id,
 			'meta_input'  => $post_all_meta,
 		);
