@@ -12,6 +12,7 @@ $attr     = '';
 $value    = $args['value'] ?? '';
 unset( $args['value'] );
 foreach ( $args as $k => $v ) {
+	$v     = esc_attr( $v );// エスケープしないとバグる
 	$attr .= " {$k}=\"{$v}\"";
 }
 ?>
