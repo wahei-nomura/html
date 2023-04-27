@@ -17,36 +17,22 @@ if ( class_exists( 'N2_Item_Export_Furusato_Choice' ) ) {
 class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 
 	/**
-	 * ファイル名
+	 * 設定
 	 *
-	 * @var string
+	 * @var array
 	 */
-	public $name = 'n2_export_furusato_choice.tsv';
+	public $settings = array(
+		'name'      => 'n2_export_furusato_choice.tsv',
+		'delimiter' => "\t",
+		'charset'   => 'utf-8',
+	);
 
-	/**
-	 * デリミタ
-	 *
-	 * @var string
-	 */
-	public $delimiter = "\t";
 
-	/**
-	 * 文字コード
-	 *
-	 * @var string
-	 */
-	public $charset = 'utf-8';
-
-	public function create() {
-		$args = array();
-		$args['data'] = 'unko';
-		return $args;
-	}
 
 	/**
 	 * ふるさとチョイスTSVヘッダーを取得
 	 */
-	public function get_header() {
+	protected function set_header() {
 		global $n2;
 		$auth = $n2->choice['auth'];
 		$args = array(
@@ -59,6 +45,14 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 		// TSVヘッダー本体
 		$tsv_header = trim( $res['body'] );
 		// TSVヘッダー配列化
-		$tsv_header_array = explode( "\t", $tsv_header );
+		$this->data['header'] = explode( "\t", $tsv_header );
+	}
+
+	/**
+	 * 内容を配列で作成
+	 */
+	protected function set_data() {
+		$args = array();
+		$this->data['data'] = 'unko';
 	}
 }
