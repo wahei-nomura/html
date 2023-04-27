@@ -59,16 +59,35 @@ class N2_Item_Export_Base {
 	}
 
 	/**
+	 * ヘッダーの作成
+	 *
+	 * @return array
+	 */
+	public function get_header() {
+		global $n2;
+		$header = array(
+			...array_keys( $n2->custom_field['スチームシップ用'] ),
+			...array_keys( $n2->custom_field['事業者用'] ),
+		);
+		return $header;
+	}
+
+	/**
 	 * データの作成
 	 */
 	public function create() {
 		$args = array(
-			'data' => array(),
+			'header' => $this->get_header(),
+			'data'   => array(),
 		);
 		$ids  = get_posts( 'fields=ids&post_status=any&numberposts=10' );
 		foreach ( $ids as $id ) {
 			$args['data'][ $id ] = get_post_meta( $id );
 			foreach ( $args['data'][ $id ] as $key => $value ) {
+				if ( in_array( $key, array( '商品画像', 'N1zip' ), true ) ) {
+					unset( $args['data'][ $id ][ $key ] );
+					continue;
+				}
 				$args['data'][ $id ][ $key ] = get_post_meta( $id, $key, true );
 			}
 		}
