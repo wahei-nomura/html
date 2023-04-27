@@ -35,7 +35,7 @@ class N2_Output_Gift_API {
 		$n2_active_flag = $n2->n2_active_flag;
 
 		// N2が稼働していない or そもそも稼働状態が登録されていなかったらJSONでfalseを返す
-		if  ( 'false' === $n2_active_flag ) {
+		if ( 'false' === $n2_active_flag ) {
 			header( 'Content-Type: application/json' );
 			echo '{"N2": "false"}';
 			exit;
@@ -78,30 +78,91 @@ class N2_Output_Gift_API {
 		$gift_query = $wpdb->prepare( $gift_query, $sku );
 
 		// SQLクエリを実行し、結果を連想配列で取得
-		$results = $wpdb->get_results( $gift_query, ARRAY_A );
+		$data = $wpdb->get_results( $gift_query, ARRAY_A );
 
-		// 空の配列を作って取得したデータを整える
-		$gift = array();
-		foreach ( $results as $result ) {
-			$title      = $result['title'];
-			$meta_key   = $result['meta_key'];
-			$meta_value = $result['meta_value'];
-
-			if ( ! isset( $gift[ $title ] ) ) {
-				$gift[ $title ] = array( 'title' => $title );
-			}
-			$gift[ $title ][ $meta_key ] = $meta_value;
+		// 結果の連想配列からキーを取り出す
+		$existing_keys = array();
+		foreach ( $data as $datum ) {
+			$existing_keys[] = $datum['meta_key'];
 		}
 
-		// N2稼働フラグを追加する階層を作るために$giftをarrayに格納
-		$gift_array = array( $gift );
+		// 最終的に出力が期待されるキーのリストを作成
+		$expected_keys = array(
+			'送料',
+			'寄附金額',
+			'全商品ディレクトリID',
+			'地場産品類型',
+			'類型該当理由',
+			'価格',
+			'説明文',
+			'内容量・規格等',
+			'原料原産地',
+			'加工地',
+			'アレルゲン',
+			'アレルゲン注釈',
+			'申込期間',
+			'配送期間',
+			'賞味期限',
+			'消費期限',
+			'限定数量',
+			'発送方法',
+			'包装対応',
+			'のし対応',
+			'発送サイズ',
+			'定期便',
+			'LHカテゴリー',
+			'検索キーワード',
+			'略称',
+			'表示名称',
+			'返礼品コード',
+			'社内共有事項',
+			'配送伝票表示名',
+			'_neng_id',
+			'寄附金額固定',
+			'取り扱い方法',
+			'商品画像',
+			'商品タイプ',
+			'キャッチコピー',
+			'楽天SPAカテゴリー',
+			'事業者確認',
+			'電子レンジ対応',
+			'オーブン対応',
+			'食洗機対応',
+			'やきもの',
+		);
+
+		// 実際に存在するキーと出力が期待されるキーとを比較し、不足しているキーがあれば、そのキーとその値（空文字）をdataに追加
+		$missing_keys = array_diff( $expected_keys, $existing_keys );
+		foreach ( $missing_keys as $missing_key ) {
+			$data[] = array(
+				'title'      => $data[0]['title'],
+				'meta_key'   => $missing_key,
+				'meta_value' => '',
+			);
+		}
+
+		// 空の配列を作って取得したデータを整える
+		$formatted_results = array();
+		foreach ( $data as $datum ) {
+			$title      = $datum['title'];
+			$meta_key   = $datum['meta_key'];
+			$meta_value = $datum['meta_value'];
+
+			if ( ! isset( $formatted_results[ $title ] ) ) {
+				$formatted_results[ $title ] = array( 'title' => $title );
+			}
+			$formatted_results[ $title ][ $meta_key ] = $meta_value;
+		}
+
+		// N2稼働フラグを追加する階層を作るためにarrayに格納
+		$wrapped_results = array_values( $formatted_results );
 
 		// N2稼働フラグを追加
-		$result_array = array_merge( $gift_array, array( array( 'N2' => 'true' ) ) );
-		
+		$result_with_added_flags = array_merge( $wrapped_results, array( array( 'N2' => 'true' ) ) );
+
 		// インデックス番号を取って必要なデータを取り出す & 順番を入れ替える
-		$results = $result_array[1];
-		$results['data'] = $result_array[0];
+		$results         = $result_with_added_flags[1];
+		$results['data'] = $result_with_added_flags[0];
 
 		// 結果をJSON形式に変換して出力
 		header( 'Content-Type: application/json' );
@@ -120,7 +181,7 @@ class N2_Output_Gift_API {
 		$n2_active_flag = $n2->n2_active_flag;
 
 		// N2が稼働していない or そもそも稼働状態が登録されていなかったらJSONでfalseを返す
-		if  ( 'false' === $n2_active_flag ) {
+		if ( 'false' === $n2_active_flag ) {
 			header( 'Content-Type: application/json' );
 			echo '{"N2": "false"}';
 			exit;
@@ -163,7 +224,8 @@ class N2_Output_Gift_API {
 				'定期便',
 				'包装対応',
 				'のし対応',
-				'配送期間'
+				'配送期間',
+				'やきもの'
 				)
 		AND
 			posts.id in (
@@ -180,30 +242,65 @@ class N2_Output_Gift_API {
 		$gift_query = $wpdb->prepare( $gift_query, $sku );
 
 		// SQLクエリを実行し、結果を連想配列で取得
-		$results = $wpdb->get_results( $gift_query, ARRAY_A );
+		$data = $wpdb->get_results( $gift_query, ARRAY_A );
 
-		// 空の配列を作って取得したデータを整える
-		$gift = array();
-		foreach ( $results as $result ) {
-			$title      = $result['title'];
-			$meta_key   = $result['meta_key'];
-			$meta_value = $result['meta_value'];
-
-			if ( ! isset( $gift[ $title ] ) ) {
-				$gift[ $title ] = array( 'title' => $title );
-			}
-			$gift[ $title ][ $meta_key ] = $meta_value;
+		// 結果の連想配列からキーを取り出す
+		$existing_keys = array();
+		foreach ( $data as $datum ) {
+			$existing_keys[] = $datum['meta_key'];
 		}
 
-		// N2稼働フラグを追加する階層を作るために$giftをarrayに格納
-		$gift_array = array( $gift );
+		// 最終的に出力が期待されるキーのリストを作成
+		$expected_keys = array(
+			'寄附金額',
+			'返礼品コード',
+			'消費期限',
+			'賞味期限',
+			'説明文',
+			'電子レンジ対応',
+			'オーブン対応',
+			'食洗機対応',
+			'内容量・規格等',
+			'発送方法',
+			'定期便',
+			'包装対応',
+			'のし対応',
+			'配送期間',
+			'やきもの',
+		);
+
+		// 実際に存在するキーと出力が期待されるキーとを比較し、不足しているキーがあれば、そのキーとその値（空文字）をdataに追加
+		$missing_keys = array_diff( $expected_keys, $existing_keys );
+		foreach ( $missing_keys as $missing_key ) {
+			$data[] = array(
+				'title'      => $data[0]['title'],
+				'meta_key'   => $missing_key,
+				'meta_value' => '',
+			);
+		}
+
+		// 空の配列を作って取得したデータを整える
+		$formatted_results = array();
+		foreach ( $data as $datum ) {
+			$title      = $datum['title'];
+			$meta_key   = $datum['meta_key'];
+			$meta_value = $datum['meta_value'];
+
+			if ( ! isset( $formatted_results[ $title ] ) ) {
+				$formatted_results[ $title ] = array( 'title' => $title );
+			}
+			$formatted_results[ $title ][ $meta_key ] = $meta_value;
+		}
+
+		// N2稼働フラグを追加する階層を作るためにarrayに格納
+		$wrapped_results = array_values( $formatted_results );
 
 		// N2稼働フラグを追加
-		$result_array = array_merge( $gift_array, array( array( 'N2' => 'true' ) ) );
-		
+		$result_with_added_flags = array_merge( $wrapped_results, array( array( 'N2' => 'true' ) ) );
+
 		// インデックス番号を取って必要なデータを取り出す & 順番を入れ替える
-		$results = $result_array[1];
-		$results['data'] = $result_array[0];
+		$results         = $result_with_added_flags[1];
+		$results['data'] = $result_with_added_flags[0];
 
 		// 結果をJSON形式に変換して出力
 		header( 'Content-Type: application/json' );
