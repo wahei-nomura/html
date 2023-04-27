@@ -58,6 +58,11 @@ class N2_Item_Export_Base {
 		// デフォルト値を$_GETで上書き
 		$get = wp_parse_args( $_GET, $defaults );
 
+		if ( ! method_exists( 'N2_Item_Export_Base', $get['type'] ) ) {
+			echo "「{$get['type']}」メソッドは存在しません。";
+			exit;
+		}
+
 		// n2としてのデータをセット
 		$this->set_n2field();
 		$this->set_n2data();
@@ -133,7 +138,7 @@ class N2_Item_Export_Base {
 					// |で連結
 					$values[ $name ] = implode( '|', $values[ $name ] );
 				}
-				$values[ $name ] = "\"{$values[ $name ]}\"";
+				$values[ $name ] = $values[ $name ];
 			}
 			$data[ $id ] = $values;
 		}
@@ -144,10 +149,10 @@ class N2_Item_Export_Base {
 	 * 配列をCSV・TSVに変換
 	 */
 	protected function set_string() {
-		$str = '';
-		$str = '"' . implode( "\"\t\"", $this->data['header'] ) . '"';
+		$str  = '';
+		$str .= '"' . implode( "\"{$this->settings['delimiter']}\"", $this->data['header'] ) . '"' . PHP_EOL;
 		foreach ( $this->data['data'] as $key => $value ) {
-			
+			$str .= '"' . implode( "\"{$this->settings['delimiter']}\"", $value ) . '"' . PHP_EOL;
 		}
 		$this->data['string'] = $str;
 	}
@@ -156,6 +161,7 @@ class N2_Item_Export_Base {
 	 * ダウンロード
 	 */
 	protected function download() {
+		$this->data['string'] = mb_convert_encoding( $this->data['string'], $this->settings['charset'], 'utf-8' );
 		header( 'Content-Type: application/octet-stream' );
 		header( "Content-Disposition: attachment; filename={$this->settings['name']}" );
 		echo htmlspecialchars_decode( $this->data['string'] );
@@ -163,19 +169,21 @@ class N2_Item_Export_Base {
 	}
 
 	/**
-	 * ビュー
+	 * スプレットシートに値貼り付け用
 	 */
-	protected function view() {
+	protected function spreadsheet() {
 		// デリミタをタブに矯正
+		$this->settings['delimiter'] = "\t";
+		$this->set_string();
 		?>
-		<p>このままスプレットシートに貼付け可能</p>
-		<textarea><?php echo $this->settings['string']; ?></textarea>
+		<title>スプレットシートに値貼り付け</title>
+		<pre><?php echo esc_html( $this->data['string'] ); ?></pre>
 		<?php
 		exit;
 	}
 
 	/**
-	 * デバッグ
+	 * デバッグ用
 	 */
 	protected function debug() {
 		echo '<pre>';
