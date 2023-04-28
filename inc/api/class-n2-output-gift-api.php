@@ -70,7 +70,9 @@ class N2_Output_Gift_API {
 				FROM
 					wp_{$site_id}_postmeta
 				WHERE
-					meta_value = %s
+					meta_key = '返礼品コード'
+				AND
+				    meta_value = %s
 			);
 		SELECT_SQL;
 
@@ -79,6 +81,13 @@ class N2_Output_Gift_API {
 
 		// SQLクエリを実行し、結果を連想配列で取得
 		$data = $wpdb->get_results( $gift_query, ARRAY_A );
+
+		// titleがnullの場合、N2稼働状況だけ返す（skuが入力されているが無効の場合の処理）
+		if ( null === $data[0]['title'] ) {
+			header( 'Content-Type: application/json' );
+			echo '{"N2": "true"}';
+			exit;
+		}
 
 		// 結果の連想配列からキーを取り出す
 		$existing_keys = array();
@@ -234,7 +243,9 @@ class N2_Output_Gift_API {
 				FROM
 					wp_{$site_id}_postmeta
 				WHERE
-					meta_value = %s
+					meta_key = '返礼品コード'
+				AND
+				    meta_value = %s
 			);
 		SELECT_SQL;
 
@@ -243,6 +254,13 @@ class N2_Output_Gift_API {
 
 		// SQLクエリを実行し、結果を連想配列で取得
 		$data = $wpdb->get_results( $gift_query, ARRAY_A );
+
+		// titleがnullの場合、N2稼働状況だけ返す（skuが無効の場合の処理）
+		if ( null === $data[0]['title'] ) {
+			header( 'Content-Type: application/json' );
+			echo '{"N2": "true"}';
+			exit;
+		}
 
 		// 結果の連想配列からキーを取り出す
 		$existing_keys = array();
