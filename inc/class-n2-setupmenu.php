@@ -105,6 +105,9 @@ class N2_Setupmenu {
 		<li class="nav-item" role="presentation">
 		  <a href="#set-menu4" id="tab4" class="nav-link" role="tab" data-bs-toggle="tab" aria-selected="false">楽天セットアップ</a>
 		</li>
+		<li class="nav-item" role="presentation">
+		  <a href="#set-menu5" id="tab5" class="nav-link" role="tab" data-bs-toggle="tab" aria-selected="false">NEONENG稼働状況</a>
+		</li>
 	  </ul>
 
 	  <!-- 写真部分 -->
@@ -253,6 +256,19 @@ class N2_Setupmenu {
 			<?php endfor; ?>
 			<input type="submit" class="btn btn-primary sissubmit" value="更新する">
 		</form>
+		</div>
+		<div id="set-menu5" class="tab-pane fade" role="tabpanel" aria-labelledby="tab5">
+		<form action="#" method="post">
+			<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
+			<input type="hidden" name="judge" value="option">
+			<p>NEONENGで稼働中の場合、チェックを入れてください</p>
+			<div class="mb-3">
+				<input type="hidden" name="<?php echo $this->cls; ?>[N2]" value="false">
+				<input type="checkbox" name="<?php echo $this->cls; ?>[N2]" value="true" <?php echo isset( get_option( $this->cls )['N2'] ) && 'true' === get_option( $this->cls )['N2'] ? 'checked' : ''; ?>>
+				<label class="form-label">稼働中</label>
+			</div>
+			<input type="submit" class="btn btn-primary sissubmit" value="更新する">
+		<form>
 		</div>
 	  </div>
 	</main>
