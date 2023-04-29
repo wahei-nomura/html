@@ -23,7 +23,7 @@
 	<div style="clear:both;padding:10px 0;">
 		<a href="#" class="button sisbtn" id="print">印刷</a>
 		<a href="#" class="button sisbtn" id="report">月次報告書</a>
-		<a href="#" class="button sisbtn" id="export">エクスポート</a>
+		<a href="#" class="button sisbtn" id="n2_item_export_base">エクスポート</a>
 		<a href="#" class="button button-primary sisbtn" id="ledghome">Ledg HOME</a>
 		<a href="#" class="button button-primary sisbtn" id="choice">チョイス</a>
 		<a href="#" class="button button-primary sisbtn" id="item_csv">楽天item</a>
