@@ -23,10 +23,10 @@ class N2_Item_Export_Base {
 	 * @var array
 	 */
 	protected $settings = array(
-		'name'          => 'n2_export_base.csv',
+		'filename'      => 'N2データ.csv',
 		'delimiter'     => ',',
 		'charset'       => 'utf-8',
-		'header_string' => '', // 基本は自動設定、falseでヘッダー文字列無し
+		'header_string' => false, // 基本は自動設定、falseでヘッダー文字列無し
 	);
 
 	/**
@@ -68,13 +68,9 @@ class N2_Item_Export_Base {
 		$this->set_n2field();
 		$this->set_n2data();
 
-		// 独自のデータをセット
+		// 独自のデータをセット（基本的にこの２つを拡張）
 		$this->set_header();
 		$this->set_data();
-
-		// データを文字列に
-		$this->set_header_string();
-		$this->set_data_string();
 
 		$this->{$get['mode']}();
 	}
@@ -97,8 +93,10 @@ class N2_Item_Export_Base {
 		);
 		// フィルタ
 		$n2field = array_filter( $n2field, fn( $v ) => ! in_array( $v, $exclusion, true ) );
-		// 代入
-		$this->data['n2field'] = $n2field;
+		/**
+		 * [hook] n2_item_export_base_set_n2field
+		 */
+		$this->data['n2field'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_n2field', $n2field );
 	}
 
 	/**
@@ -106,9 +104,15 @@ class N2_Item_Export_Base {
 	 */
 	private function set_n2data() {
 		$n2data = array();
+		// 投稿制御
+		$args = array(
+			'post_status' => $_GET['post_status'] ?: 'any',
+			'numberposts' => $_GET['numberposts'] ?: '-1',
+			'fields'      => 'ids',
+		);
 		// POSTされた投稿ID
 		$ids = filter_input( INPUT_POST, 'ids' );
-		$ids = $ids ? explode( ',', $ids ) : get_posts( 'post_status=any&fields=ids&numberposts=-1' );
+		$ids = $ids ? explode( ',', $ids ) : get_posts( $args );
 		foreach ( $ids as $id ) {
 			$post = get_post( $id );
 			// タイトル追加
@@ -129,7 +133,10 @@ class N2_Item_Export_Base {
 				$n2data[ $id ][ $key ] = $meta;
 			}
 		}
-		$this->data['n2data'] = $n2data;
+		/**
+		 * [hook] n2_item_export_base_set_n2data
+		 */
+		$this->data['n2data'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_n2data', $n2data );
 	}
 
 	/**
@@ -143,6 +150,10 @@ class N2_Item_Export_Base {
 			'ステータス',
 			...$this->data['n2field'],
 		);
+		/**
+		 * [hook] n2_item_export_base_set_header
+		 */
+		$this->data['header'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_header', $this->data['header'] );
 	}
 
 	/**
@@ -162,7 +173,10 @@ class N2_Item_Export_Base {
 			}
 			$data[ $id ] = $values;
 		}
-		$this->data['data'] = $data;
+		/**
+		 * [hook] n2_item_export_base_set_data
+		 */
+		$this->data['data'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_data', $data );
 	}
 
 	/**
@@ -172,15 +186,19 @@ class N2_Item_Export_Base {
 		if ( false === $this->settings['header_string'] ) {
 			$this->settings['header_string'] = '';
 		} else {
+			// ダブルクオーテーションで囲む
 			$this->settings['header_string'] .= '"' . implode( "\"{$this->settings['delimiter']}\"", $this->data['header'] ) . '"' . PHP_EOL;
 		}
+		/**
+		 * [hook] n2_item_export_base_set_header_string
+		 */
+		$this->settings['header_string'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_header_string', $this->settings['header_string'] );
 	}
 
 	/**
 	 * 配列をCSV・TSVに変換
 	 */
 	private function set_data_string() {
-		$str = $this->settings['header_string'];
 		foreach ( $this->data['data'] as $key => $value ) {
 			// ダブルクオーテーションのエスケープ処理
 			$value = array_map( fn( $v ) => str_replace( '"', '""', $v ), $value );
@@ -188,7 +206,10 @@ class N2_Item_Export_Base {
 			$value = array_map( array( $this, 'special_str_convert' ), $value );
 			$str  .= '"' . implode( "\"{$this->settings['delimiter']}\"", $value ) . '"' . PHP_EOL;
 		}
-		$this->data['string'] = $str;
+		/**
+		 * [hook] n2_item_export_base_set_data_string
+		 */
+		$this->data['string'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_data_string', $str );
 	}
 
 	/**
@@ -199,7 +220,7 @@ class N2_Item_Export_Base {
 	 */
 	protected function special_str_convert( $str ) {
 		/**
-		 * hook n2_item_export_base_special_str_convert
+		 * [hook] n2_item_export_base_special_str_convert
 		 */
 		$str = apply_filters( mb_strtolower( get_class( $this ) ) . '_special_str_convert', $str );
 		return $str;
@@ -209,10 +230,23 @@ class N2_Item_Export_Base {
 	 * ダウンロード
 	 */
 	private function download() {
-		$this->data['string'] = mb_convert_encoding( $this->data['string'], $this->settings['charset'], 'utf-8' );
+		global $n2;
+		$this->set_header_string();
+		$this->set_data_string();
+		/**
+		 * [hook] n2_item_export_base_charset
+		 */
+		$charset = apply_filters( mb_strtolower( get_class( $this ) ) . '_charset', $this->settings['charset'] );
+		/**
+		 * [hook] n2_item_export_base_filename
+		 */
+		$filename = apply_filters( mb_strtolower( get_class( $this ) ) . '_filename', $n2->town . $this->settings['filename'] );
+		// 出力文字列
+		$str = $this->settings['header_string'] . $this->data['string'];
+		$str = mb_convert_encoding( $str, $charset, 'utf-8' );
 		header( 'Content-Type: application/octet-stream' );
-		header( "Content-Disposition: attachment; filename={$this->settings['name']}" );
-		echo htmlspecialchars_decode( $this->data['string'] );
+		header( "Content-Disposition: attachment; filename={$filename}" );
+		echo htmlspecialchars_decode( $str );
 		exit;
 	}
 
@@ -220,15 +254,14 @@ class N2_Item_Export_Base {
 	 * スプレットシートに値貼り付け用
 	 */
 	private function spreadsheet() {
-		// ヘッダーを強制的に付与
-		if ( '' === $this->settings['header_string'] ) {
-			$this->set_header_string();
-		}
-		$this->settings['delimiter'] = "\t"; // デリミタをタブに変更
+		$this->settings['delimiter']     = "\t";// タブを強制
+		$this->settings['header_string'] = '';// ヘッダーを強制
+		$this->set_header_string();
 		$this->set_data_string();
+		// データを文字列に
 		?>
 		<title>スプレットシートに値貼り付け</title>
-		<pre><?php echo esc_html( $this->data['string'] ); ?></pre>
+		<pre><?php echo esc_html( $this->settings['header_string'] . $this->data['string'] ); ?></pre>
 		<?php
 		exit;
 	}
@@ -237,6 +270,8 @@ class N2_Item_Export_Base {
 	 * デバッグ用
 	 */
 	private function debug() {
+		$this->set_header_string();
+		$this->set_data_string();
 		echo '<pre>';
 		print_r( $this->settings );
 		print_r( $this->data );
