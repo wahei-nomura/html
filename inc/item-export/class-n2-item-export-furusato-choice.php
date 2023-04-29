@@ -22,7 +22,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 	 * @var array
 	 */
 	public $settings = array(
-		'name'          => 'n2_export_furusato_choice.tsv',
+		'filename'      => 'n2_export_furusato_choice.tsv',
 		'delimiter'     => "\t",
 		'charset'       => 'utf-8',
 		'header_string' => false, // 基本は自動設定、falseでヘッダー文字列無し
@@ -47,6 +47,10 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 		$tsv_header = trim( $res['body'] );
 		// TSVヘッダー配列化
 		$this->data['header'] = explode( "\t", $tsv_header );
+		/**
+		 * [hook] n2_item_export_furusato_choice_set_header
+		 */
+		$this->data['header'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_header', $this->data['header'] );
 	}
 
 	/**
@@ -67,7 +71,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 		$str = str_replace( array_keys( $n2->special_str_convert ), array_values( $n2->special_str_convert ), $str );
 		$str = preg_replace( '/\"{3,}/', '""', $str );
 		/**
-		 * hook n2_item_export_furusato_choice_special_str_convert
+		 * [hook] n2_item_export_furusato_choice_special_str_convert
 		 */
 		$str = apply_filters( mb_strtolower( get_class( $this ) ) . '_special_str_convert', $str );
 		return $str;
