@@ -22,9 +22,10 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 	 * @var array
 	 */
 	public $settings = array(
-		'name'      => 'n2_export_furusato_choice.tsv',
-		'delimiter' => "\t",
-		'charset'   => 'utf-8',
+		'name'          => 'n2_export_furusato_choice.tsv',
+		'delimiter'     => "\t",
+		'charset'       => 'utf-8',
+		'header_string' => false, // 基本は自動設定、falseでヘッダー文字列無し
 	);
 
 
@@ -51,8 +52,24 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 	/**
 	 * 内容を配列で作成
 	 */
-	protected function set_data() {
-		$args = array();
-		$this->data['data'] = 'unko';
+	// protected function set_data() {
+	// 	// $this->data['data'] = 'unko';
+	// }
+
+	/**
+	 * 文字列の置換
+	 *
+	 * @param string $str 文字列
+	 * @return string $str 置換後の文字列
+	 */
+	protected function special_str_convert( $str ) {
+		global $n2;
+		$str = str_replace( array_keys( $n2->special_str_convert ), array_values( $n2->special_str_convert ), $str );
+		$str = preg_replace( '/\"{3,}/', '""', $str );
+		/**
+		 * hook n2_item_export_furusato_choice_special_str_convert
+		 */
+		$str = apply_filters( mb_strtolower( get_class( $this ) ) . '_special_str_convert', $str );
+		return $str;
 	}
 }
