@@ -2,6 +2,7 @@
 /**
  * ふるさとチョイスの商品エクスポート専用
  * class-n2-item-export-furusato-choice.php
+ * デバッグモード：admin-ajax.php?action=n2_item_export_furusato_choice&mode=debug
  *
  * @package neoneng
  */
@@ -25,7 +26,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 		'filename'      => 'n2_export_furusato_choice.tsv',
 		'delimiter'     => "\t",
 		'charset'       => 'utf-8',
-		'header_string' => false, // 基本は自動設定、falseでヘッダー文字列無し
+		'header_string' => false,
 	);
 
 
@@ -54,11 +55,24 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 	}
 
 	/**
-	 * 内容を配列で作成
+	 * データのマッピング（基本的に拡張で上書きする）
+	 *
+	 * @param string $val 項目名
+	 * @param string $index インデックス
+	 * @param string $values n2dataのループ中の値
 	 */
-	// protected function set_data() {
-	// 	// $this->data['data'] = 'unko';
-	// }
+	protected function walk_values( &$val, $index, $values ) {
+		$data = '';
+		switch ( $val ) {
+			case '（必須）お礼の品名':
+				$data = $values['タイトル'];
+				break;
+		}
+		/**
+		 * [hook] n2_item_export_base_walk_values
+		 */
+		$val = apply_filters( mb_strtolower( get_class( $this ) ) . '_walk_values', $data, $index );
+	}
 
 	/**
 	 * 文字列の置換
