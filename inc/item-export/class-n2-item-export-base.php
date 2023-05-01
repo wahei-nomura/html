@@ -143,13 +143,8 @@ class N2_Item_Export_Base {
 	 * ヘッダー配列の作成（基本的に拡張で上書きする）
 	 */
 	protected function set_header() {
-		$this->data['header'] = array(
-			'タイトル',
-			'事業者コード',
-			'事業者名',
-			'ステータス',
-			...$this->data['n2field'],
-		);
+		// n2dataをもとに配列を作成
+		$this->data['header'] = array_keys( reset( $this->data['n2data'] ) );
 		/**
 		 * [hook] n2_item_export_base_set_header
 		 */
@@ -157,26 +152,41 @@ class N2_Item_Export_Base {
 	}
 
 	/**
-	 * 内容を配列で作成（基本的に拡張で上書きする）
+	 * 内容を配列で作成
 	 */
-	protected function set_data() {
+	private function set_data() {
 		$data = array();
 		foreach ( $this->data['n2data'] as $id => $values ) {
-			foreach ( $values as $name => $val ) {
-				if ( is_array( $val ) ) {
-					// 多次元になっているものはラベルだけの配列に変更
-					$values[ $name ] = array_column( $val, 'label' ) ?: $val;
-					// |で連結
-					$values[ $name ] = implode( '|', $values[ $name ] );
-				}
-				$values[ $name ] = $values[ $name ];
-			}
-			$data[ $id ] = $values;
+			// ヘッダーをセット
+			$data[ $id ] = $this->data['header'];
+			array_walk( $data[ $id ], array( $this, 'walk_values' ), $values );
+			$data[ $id ] = array_combine( $this->data['header'], $data[ $id ] );
 		}
 		/**
 		 * [hook] n2_item_export_base_set_data
 		 */
 		$this->data['data'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_data', $data );
+	}
+
+	/**
+	 * データのマッピング（基本的に拡張で上書きする）
+	 *
+	 * @param string $val 項目名
+	 * @param string $index インデックス
+	 * @param string $values n2dataのループ中の値
+	 */
+	protected function walk_values( &$val, $index, $values ) {
+		$data = $values[ $val ] ?: '';
+		if ( is_array( $data ) ) {
+			// 多次元になっているものはラベルだけの配列に変更
+			$data = array_column( $data, 'label' ) ?: $data;
+			// |で連結
+			$data = implode( '|', $data );
+		}
+		/**
+		 * [hook] n2_item_export_base_walk_values
+		 */
+		$val = apply_filters( mb_strtolower( get_class( $this ) ) . '_walk_values', $data, $index );
 	}
 
 	/**
