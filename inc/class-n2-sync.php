@@ -576,6 +576,7 @@ class N2_Sync {
 				$default  = array(
 					'id'         => '',
 					'user_range' => '',
+					'item_range' => '',
 				);
 				$settings = get_option( 'n2_sync_settings_spreadsheet', $default );
 
@@ -592,10 +593,9 @@ class N2_Sync {
 				update_option(
 					'n2_sync_settings_spreadsheet',
 					array(
-						'spreadsheet' => array(
-							'id'         => $sheet_id,
-							'user_range' => $user_range,
-						),
+						'id'         => $sheet_id,
+						'user_range' => $user_range,
+						'item_range' => $settings['item_range'],
 					)
 				);
 				break;
@@ -722,6 +722,7 @@ class N2_Sync {
 		$default  = array(
 			'spreadsheet' => array(
 				'id'         => '',
+				'user_range' => '',
 				'item_range' => '',
 			),
 		);
@@ -803,10 +804,9 @@ class N2_Sync {
 		$result = update_option(
 			'n2_sync_settings_spreadsheet',
 			array(
-				'spreadsheet' => array(
-					'id'         => $sheet_id,
-					'item_range' => $item_range,
-				),
+				'id'         => $sheet_id,
+				'user_range' => $settings['user_range'],
+				'item_range' => $item_range,
 			)
 		);
 
