@@ -106,8 +106,8 @@ class N2_Item_Export_Base {
 		$n2data = array();
 		// 投稿制御
 		$args = array(
-			'post_status' => $_GET['post_status'] ?: 'any',
-			'numberposts' => $_GET['numberposts'] ?: '-1',
+			'post_status' => $_GET['post_status'] ?? 'any',
+			'numberposts' => $_GET['numberposts'] ?? '-1',
 			'fields'      => 'ids',
 		);
 		// POSTされた投稿ID
@@ -209,6 +209,7 @@ class N2_Item_Export_Base {
 	 * 配列をCSV・TSVに変換
 	 */
 	private function set_data_string() {
+		$str = '';
 		foreach ( $this->data['data'] as $key => $value ) {
 			// ダブルクオーテーションのエスケープ処理
 			$value = array_map( fn( $v ) => str_replace( '"', '""', $v ), $value );
