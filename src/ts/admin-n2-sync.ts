@@ -20,7 +20,7 @@ jQuery(function($) {
 
 	createSheetLink(sheetId)
 
-	sheetIdInput.on('keyup',(e)=>{
+	sheetIdInput.on('input',(e)=>{
 		const value = $(e.target).val() as string
 		const setSheetId = extractSheetId(value)
 		createSheetLink(setSheetId);
@@ -32,7 +32,7 @@ jQuery(function($) {
 		})
 	})
 
-	$('input[name="n2_sync_settings_spreadsheet[user_range]"]').on('keyup',(e)=>{
+	$('input[name="n2_sync_settings_spreadsheet[user_range]"]').on('input',(e)=>{
 		const value = $(e.target).val() as string
 
 		$('#n2sync-link-wrapper a').each((i,v) => {
@@ -42,7 +42,7 @@ jQuery(function($) {
 		})
 	})
 
-	$('input[name="n2_sync_settings_spreadsheet[item_range]"]').on('keyup',(e)=>{
+	$('input[name="n2_sync_settings_spreadsheet[item_range]"]').on('input',(e)=>{
 		const value = $(e.target).val() as string
 
 		$('#n2sync-link-wrapper a').each((i,v) => {
