@@ -57,6 +57,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 
 	/**
 	 * データのマッピング（基本的に拡張で上書きする）
+	 * ふるさとチョイスTSVの仕様：https://steamship.docbase.io/posts/2917248
 	 *
 	 * @param string $val 項目名
 	 * @param string $index インデックス
