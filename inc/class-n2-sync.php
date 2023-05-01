@@ -202,9 +202,10 @@ class N2_Sync {
 			<li>※ ユーザーの更新はスプレットシートにある情報を追加、既に存在する場合は上書きします。</li>
 			<li>※ 返礼品の更新モードは、返礼品コードで照合して返礼品があれば更新、無ければ追加します。</li>
 			<li>※ 特定の項目だけ更新したい場合は、<b>項目を空欄にするのではなくカラムごと消して下さい。</b>空欄にすると空で更新されます。</li>
+			<li>※ <b>シート雛形</b>は<a href="https://docs.google.com/spreadsheets/d/13HZn6w6S0XaXgAd_3RSkB46XUrRDkMQArVeE99pFD9Q/edit#gid=0" target="_blank">ココ</a>。複製して使用してください！</li>
 			<li>※ シートの範囲については<a href="https://developers.google.com/sheets/api/guides/concepts?hl=ja#expandable-1" target="_blank">ココ</a>を参照。</li>
 		</ul>
-		<div style="padding: 1em 0;">
+		<div id="n2sync-link-wrapper" style="padding: 1em 0;">
 			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_users_from_spreadsheet"; ?>" class="button" target="_blank" style="margin-right: 1em;">
 				今すぐユーザーを更新
 			</a>
@@ -219,8 +220,8 @@ class N2_Sync {
 			<?php settings_fields( 'n2_sync_settings_spreadsheet' ); ?>
 			<table class="widefat striped" style="margin-bottom: 2em;">
 				<tr>
-					<th>スプレットシートのID</th>
-					<td><input type="text" class="large-text" name="n2_sync_settings_spreadsheet[id]" value="<?php echo $settings['id']; ?>" placeholder="1lIYQRNRLdZytrE3n9ANIjfXZWjD37uGdWXMvjfaINDs"></td>
+					<th>スプレットシートのIDまたはURL</th>
+					<td><input type="text" class="large-text" name="n2_sync_settings_spreadsheet[id]" value="<?php echo $settings['id']; ?>" placeholder="スプレッドシートのIDはたまURL"><a target="_blank"></a></td>
 				</tr>
 				<tr>
 					<th>ユーザーシートの範囲</th>
@@ -581,10 +582,28 @@ class N2_Sync {
 				$default  = array(
 					'id'         => '',
 					'user_range' => '',
+					'item_range' => '',
 				);
 				$settings = get_option( 'n2_sync_settings_spreadsheet', $default );
+
+				// GETパラメータ優先、なければDB
+				$input_id         = filter_input( INPUT_GET, 'id', FILTER_SANITIZE_SPECIAL_CHARS );
+				$input_user_range = filter_input( INPUT_GET, 'user_range', FILTER_SANITIZE_SPECIAL_CHARS );
+
+				$sheet_id   = $input_id && '' !== $input_id ? $input_id : $settings['id'];
+				$user_range = $input_user_range && '' !== $input_user_range ? $input_user_range : $settings['user_range'];
 				// データ取得
-				$data = $this->get_spreadsheet_data( $settings['id'], $settings['user_range'] );
+				$data = $this->get_spreadsheet_data( $sheet_id, $user_range );
+
+				// GETパラメータで受け取ったidとuser_rangeも保存
+				update_option(
+					'n2_sync_settings_spreadsheet',
+					array(
+						'id'         => $sheet_id,
+						'user_range' => $user_range,
+						'item_range' => $settings['item_range'],
+					)
+				);
 				break;
 		}
 		// IP制限 or データが無い
@@ -690,6 +709,7 @@ class N2_Sync {
 		}
 		echo "N2-User-Sync「{$n2->town}」ユーザーデータを同期しました。";
 		$logs[] = 'ユーザーシンクロ完了 ' . number_format( microtime( true ) - $before, 2 ) . ' sec';
+
 		$this->log( $logs );
 		exit;
 	}
@@ -708,12 +728,21 @@ class N2_Sync {
 		$default  = array(
 			'spreadsheet' => array(
 				'id'         => '',
+				'user_range' => '',
 				'item_range' => '',
 			),
 		);
 		$settings = get_option( 'n2_sync_settings_spreadsheet', $default );
+
+		// GETパラメータ優先、なければDB
+		$input_id         = filter_input( INPUT_GET, 'id', FILTER_SANITIZE_SPECIAL_CHARS );
+		$input_item_range = filter_input( INPUT_GET, 'item_range', FILTER_SANITIZE_SPECIAL_CHARS );
+
+		$sheet_id   = $input_id && '' !== $input_id ? $input_id : $settings['id'];
+		$item_range = $input_item_range && '' !== $input_item_range ? $input_item_range : $settings['item_range'];
+
 		// データ取得
-		$data = $this->get_spreadsheet_data( $settings['id'], $settings['item_range'] );
+		$data = $this->get_spreadsheet_data( $sheet_id, $item_range );
 
 		// IP制限等で終了のケース
 		if ( ! $data ) {
@@ -779,6 +808,21 @@ class N2_Sync {
 			$postarr[ $k ]['meta_input'] = $d;
 		}
 		$this->multi_insert_posts( $postarr, 100, $_GET['update'] || false );
+		// 成功した場合のみGETパラメータで受け取ったidとitem_rangeも保存
+		$result = update_option(
+			'n2_sync_settings_spreadsheet',
+			array(
+				'id'         => $sheet_id,
+				'user_range' => $settings['user_range'],
+				'item_range' => $item_range,
+			)
+		);
+
+		if ( ! $result ) {
+			echo '更新失敗';
+			exit;
+		}
+
 		echo "N2-Insert-Posts-From-Spreadsheet「{$n2->town}の返礼品」スプレットシートからの追加完了！" . number_format( microtime( true ) - $before, 2 ) . ' sec';
 		$logs[] = '返礼品の追加完了 ' . number_format( microtime( true ) - $before, 2 ) . ' sec';
 		$this->log( $logs );
@@ -799,6 +843,13 @@ class N2_Sync {
 	 * @param string $range スプレットシートの範囲
 	 */
 	public function get_spreadsheet_data( $sheetid, $range ) {
+
+		// URLが渡ってきた場合はSheetIDを抜き出す
+		if ( false !== strpos( $sheetid, 'spreadsheet' ) ) {
+			preg_match( '/spreadsheets\/d\/(.*?)(\/|$)/', $sheetid, $m );
+			$sheetid = $m[1];
+		}
+
 		$secret = wp_json_file_decode( $this->spreadsheet_auth_path );
 		// token取得
 		$url  = 'https://www.googleapis.com/oauth2/v4/token';

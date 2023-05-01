@@ -52,6 +52,7 @@ class N2_Enqueuescript {
 			'user-edit.php'               => 'admin-user-profile',
 			'user-new.php'                => 'admin-user-new',
 			'users.php'                   => 'admin-users',
+			'toplevel_page_n2_sync'       => 'admin-n2-sync',
 		);
 		if ( isset( $names[ $hook_suffix ] ) ) {
 			$name = $names[ $hook_suffix ];
