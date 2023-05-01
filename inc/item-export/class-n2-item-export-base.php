@@ -173,10 +173,11 @@ class N2_Item_Export_Base {
 	 *
 	 * @param string $val 項目名
 	 * @param string $index インデックス
-	 * @param string $values n2dataのループ中の値
+	 * @param array  $n2values n2dataのループ中の値
 	 */
-	protected function walk_values( &$val, $index, $values ) {
-		$data = $values[ $val ] ?: '';
+	protected function walk_values( &$val, $index, $n2values ) {
+		// 最終的に入る項目の値（文字列）
+		$data = $n2values[ $val ] ?: '';
 		if ( is_array( $data ) ) {
 			// 多次元になっているものはラベルだけの配列に変更
 			$data = array_column( $data, 'label' ) ?: $data;

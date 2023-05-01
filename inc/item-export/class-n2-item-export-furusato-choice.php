@@ -57,34 +57,34 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 
 	/**
 	 * データのマッピング（基本的に拡張で上書きする）
-	 * ふるさとチョイスTSVの仕様：https://steamship.docbase.io/posts/2917248
 	 *
 	 * @param string $val 項目名
 	 * @param string $index インデックス
-	 * @param string $values n2dataのループ中の値
+	 * @param array  $n2values n2dataのループ中の値
 	 */
-	protected function walk_values( &$val, $index, $values ) {
+	protected function walk_values( &$val, $index, $n2values ) {
+		// 最終的に入る項目の値（文字列）
 		$data = '';
 		// 必須などの部分を削除
 		$val = preg_replace( '/^（.*?）/u', '', $val );
 		switch ( $val ) {
 			case 'お礼の品名':
-				$data = $values['タイトル'] ?? '';
+				$data = $n2values['タイトル'] ?? '';
 				break;
 			case 'サイト表示事業者名':
-				$data = $values['事業者名'] ?? '';
+				$data = $n2values['事業者名'] ?? '';
 				break;
 			case '必要寄付金額':
-				$data = $values['寄附金額'] ?? 99999999;
+				$data = $n2values['寄附金額'] ?? 99999999;
 				break;
 			case '管理コード':
-				$data = $values['返礼品コード'] ?? '';
+				$data = $n2values['返礼品コード'] ?? '';
 				break;
 			case 'キャッチコピー':
-				$data = $values['キャッチコピー'] ?? '';
+				$data = $n2values['キャッチコピー'] ?? '';
 				break;
 			case '説明':
-				$data = $values['説明文'] ?? '';
+				$data = $n2values['説明文'] ?? '';
 				break;
 			case '容量単位':
 			case '発送期日種別':
