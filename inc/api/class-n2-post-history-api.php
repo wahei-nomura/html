@@ -62,28 +62,30 @@ class N2_Post_History_API {
 						echo '履歴がありません';
 						exit;
 					}
-					$result = array_map(
-						function( $v ) {
-							$v['username'] = get_user_by( 'id', $v['user_id'] )->display_name;
-							unset( $v['site_id'], $v['SiteID'], $v['SiteURL'], $v['PostUrl'], $v['EditorLinkPost'], $v['MetaLink'], $v['object'], $v['created_on'], $v['alert_id'], $v['user_agent'], $v['severity'], $v['user_id'], $v['session_id'], $v['post_type'], $v['event_type'], $v['occurrence_id'], $v['post_id'], $v['client_ip'], $v['id'] );
-							return $v;
-						},
-						$result
+					$result = array_filter( $result, fn( $v ) => $v['MetaKey'] && $v['MetaValue'] );
+					$header = array(
+						'PostDate'     => '日付',
+						'MetaKey'      => '項目',
+						'MetaValue'    => '変更後',
+						'MetaValueOld' => '変更前',
+						'post_status'  => 'ステータス',
+						'user'         => 'ユーザー',
 					);
+					// echo '<pre>';print_r($result);echo '</pre>';
 					?>
 					<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-					<table class="table table-striped small">
+					<table class="table table-striped small" style="max-width: 100%;">
 						<thead>
 							<tr>
-								<?php foreach ( $result[0] as $name => $v ) : ?>
-								<th><?php echo $name; ?></th>
+								<?php foreach ( $header as $label ) : ?>
+								<th nowrap><?php echo $label; ?></th>
 								<?php endforeach; ?>
 							</tr>
 						</thead>
 						<?php foreach ( $result as $v ) : ?>
 							<tr>
-								<?php foreach ( $v as $d ) : ?>
-									<td nowrap><?php echo nl2br( $d ); ?></td>
+								<?php foreach ( $header as $name => $label ) : ?>
+									<td><?php echo nl2br( $v[ $name ] ); ?></td>
 								<?php endforeach; ?>
 							</tr>
 						<?php endforeach; ?>
@@ -111,19 +113,19 @@ class N2_Post_History_API {
 		foreach ( $data as $d ) {
 			foreach ( $d as $name => $val ) {
 				$arr[ $d['occurrence_id'] ][ $name ] = $val;
-				// メタキー：値
-				$arr[ $d['occurrence_id'] ][ $d['name'] ] = $d['value'];
 			}
+			$arr[ $d['occurrence_id'] ][ str_replace( 'New', '', $d['name'] ) ] = $d['value'];
 			$arr[ $d['occurrence_id'] ] = wp_parse_args(
 				$arr[ $d['occurrence_id'] ],
 				array(
-					'PostTitle'   => '',
-					'PostDate'    => '',
-					'MetaKey'     => '',
-					'MetaValue'   => '',
-					'post_status' => '',
-					'username'    => '',
-					'user_roles'  => '',
+					'PostDate'     => '',
+					'PostTitle'    => '',
+					'MetaKey'      => '',
+					'MetaValue'    => '',
+					'MetaValueOld' => '',
+					'post_status'  => '',
+					'user'         => get_user_by( 'id', $arr[ $d['occurrence_id'] ]['user_id'] )->display_name,
+					'user_roles'   => '',
 				)
 			);
 			unset( $arr[ $d['occurrence_id'] ]['name'], $arr[ $d['occurrence_id'] ]['value'] );
