@@ -33,40 +33,30 @@ class N2_Donation_Amount_API {
 	public static function calc( $args ) {
 		global $n2;
 		$args = $args ? wp_parse_args( $args ) : $_GET;
-		// タイプ・価格・送料
-		$type         = $n2->formula_type;
+		// 除数と送料乗数
+		$divisor             = $n2->formula['除数'];// 0.3 0.35 0.4 など
+		$delivery_multiplier = $n2->formula['送料乗数'];// 0 or 1
+		// 価格・送料
 		$price        = (int) ( $args['price'] ?? 0 );
-		$delivery_fee = (int) ( $args['delivery_fee'] ?? 0 );
+		$delivery_fee = (int) ( $args['delivery_fee'] ?? 0 ) * $delivery_multiplier;
 		$subscription = (int) ( $args['subscription'] ?? 1 );
 		$action       = $args['action'] ?? false;
 
-		/**
-		 * 基本的に3割より高くなるように設定するので「商品価格/0.3」と比較して高い方を選択をデフォルトとする
-		 *
-		 * ・送料を計算に含めるかどうか
-		 * ・係数は何か
-		 */
-		// エヴァの出撃準備
-		$eva = array(
-			'零号機'  => ceil( ( $price + $delivery_fee ) * $subscription / 300 ) * 1000,
-			'初号機'  => ceil( $price * $subscription / 300 ) * 1000,
-			'弐号機'  => ceil( ( $price + $delivery_fee ) * $subscription / 350 ) * 1000,
-			'十三号機' => 9999999,
-		);
-		// 使徒襲来！　初号機と弐号機の強いほうが出撃だ！
-		$eva['使徒'] = $eva['初号機'] > $eva['弐号機'] ? $eva['初号機'] : $eva['弐号機'];
-
-		// 寄附金額算出
-		$donation_amount = $eva[ $type ];
+		// 下限寄附額（3割ルール）
+		$min_donation_amount = ceil( $price * $subscription / 300 ) * 1000;
+		// 寄附金額
+		$donation_amount = ceil( ( $price + $delivery_fee ) * $subscription / ( $divisor * 1000 ) ) * 1000;
+		// 下限寄附額（3割ルール）より高くなるように設定するので、下限寄附額と比較して高い方を選択
+		$donation_amount = max( $min_donation_amount, $donation_amount );
 		/**
 		 * Filters the attached file based on the given ID.
 		 *
 		 * @since 2.1.0
 		 *
-		 * @param int $eva[ $type ] 寄附金額
+		 * @param int $donation_amount 寄附金額
 		 * @param array compact( 'price', 'delivery_fee', 'eva' ) 寄附金額算出のための情報
 		*/
-		$donation_amount = apply_filters( 'n2_donation_amount_api', $donation_amount, compact( 'price', 'delivery_fee', 'subscription', 'eva' ) );
+		$donation_amount = apply_filters( 'n2_donation_amount_api', $donation_amount, compact( 'price', 'delivery_fee', 'subscription' ) );
 
 		// admin-ajax.phpアクセス時
 		if ( $action ) {
@@ -100,4 +90,8 @@ class N2_Donation_Amount_API {
 		}
 		exit;
 	}
+
+	/**
+	 * 
+	 */
 }
