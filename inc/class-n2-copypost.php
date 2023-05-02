@@ -47,7 +47,7 @@ class N2_Copypost {
 		$title         = get_the_title( $post_id );
 
 		// metaを上書き
-		$post_all_meta['寄附金額固定'] = array( '固定する' ); // 固定をデフォルトに
+		$post_all_meta['寄附金額固定'] = array( '' ); // 非固定をデフォルトに
 
 		// 新しい返礼品情報設定
 		$new_post = array(
