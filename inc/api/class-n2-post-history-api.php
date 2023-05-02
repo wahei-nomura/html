@@ -65,7 +65,7 @@ class N2_Post_History_API {
 					$result = array_map(
 						function( $v ) {
 							$v['username'] = get_user_by( 'id', $v['user_id'] )->display_name;
-							unset( $v['site_id'], $v['SiteID'], $v['SiteURL'], $v['PostUrl'], $v['EditorLinkPost'], $v['MetaLink'], $v['object'], $v['created_on'], $v['alert_id'], $v['user_agent'], $v['severity'], $v['user_id'], $v['session_id'], $v['post_type'], $v['event_type'], $v['occurrence_id'], $v['post_id'], $v['client_ip'], $v['id'] );
+							unset( $v['site_id'], $v['SiteID'], $v['SiteURL'], $v['PostUrl'], $v['EditorLinkPost'], $v['MetaLink'], $v['RevisionLink'], $v['OldDate'], $v['NewDate'], $v['object'], $v['created_on'], $v['alert_id'], $v['user_agent'], $v['severity'], $v['user_id'], $v['session_id'], $v['post_type'], $v['event_type'], $v['occurrence_id'], $v['post_id'], $v['client_ip'], $v['id'] );
 							return $v;
 						},
 						$result
