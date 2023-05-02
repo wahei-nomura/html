@@ -808,8 +808,8 @@ class N2_Sync {
 			$postarr[ $k ]['meta_input'] = $d;
 		}
 		$this->multi_insert_posts( $postarr, 100, $_GET['update'] || false );
-		// 成功した場合のみGETパラメータで受け取ったidとitem_rangeも保存
-		$result = update_option(
+		// GETパラメータで受け取ったidとitem_rangeも保存
+		update_option(
 			'n2_sync_settings_spreadsheet',
 			array(
 				'id'         => $sheet_id,
@@ -817,11 +817,6 @@ class N2_Sync {
 				'item_range' => $item_range,
 			)
 		);
-
-		if ( ! $result ) {
-			echo '更新失敗';
-			exit;
-		}
 
 		echo "N2-Insert-Posts-From-Spreadsheet「{$n2->town}の返礼品」スプレットシートからの追加完了！" . number_format( microtime( true ) - $before, 2 ) . ' sec';
 		$logs[] = '返礼品の追加完了 ' . number_format( microtime( true ) - $before, 2 ) . ' sec';
