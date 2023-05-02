@@ -263,7 +263,7 @@ class N2 {
 
 		// 寄附金額計算式タイプ
 		$this->formula = wp_parse_args(
-			$n2_option['formula'],
+			$n2_option['formula'] ?? array(),
 			array(
 				'除数'   => 0.3,
 				'送料乗数' => 0,
