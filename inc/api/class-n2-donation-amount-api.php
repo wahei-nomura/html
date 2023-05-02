@@ -40,6 +40,12 @@ class N2_Donation_Amount_API {
 		$subscription = (int) ( $args['subscription'] ?? 1 );
 		$action       = $args['action'] ?? false;
 
+		/**
+		 * 基本的に3割より高くなるように設定するので「商品価格/0.3」と比較して高い方を選択をデフォルトとする
+		 *
+		 * ・送料を計算に含めるかどうか
+		 * ・係数は何か
+		 */
 		// エヴァの出撃準備
 		$eva = array(
 			'零号機'  => ceil( ( $price + $delivery_fee ) * $subscription / 300 ) * 1000,
