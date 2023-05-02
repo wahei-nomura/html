@@ -111,19 +111,22 @@ class N2_Post_History_API {
 		foreach ( $data as $d ) {
 			foreach ( $d as $name => $val ) {
 				$arr[ $d['occurrence_id'] ][ $name ] = $val;
+				// MetaValueNewはMetaValueに
+				$d['name'] = 'MetaValueNew' === $d['name'] ? 'MetaValue' : $d['name'];
 				// メタキー：値
 				$arr[ $d['occurrence_id'] ][ $d['name'] ] = $d['value'];
 			}
 			$arr[ $d['occurrence_id'] ] = wp_parse_args(
 				$arr[ $d['occurrence_id'] ],
 				array(
-					'PostTitle'   => '',
-					'PostDate'    => '',
-					'MetaKey'     => '',
-					'MetaValue'   => '',
-					'post_status' => '',
-					'username'    => '',
-					'user_roles'  => '',
+					'PostTitle'    => '',
+					'PostDate'     => '',
+					'MetaKey'      => '',
+					'MetaValue'    => '',
+					'MetaValueOld' => '',
+					'post_status'  => '',
+					'username'     => '',
+					'user_roles'   => '',
 				)
 			);
 			unset( $arr[ $d['occurrence_id'] ]['name'], $arr[ $d['occurrence_id'] ]['value'] );
