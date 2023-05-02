@@ -28,26 +28,14 @@ class N2_Post_History_API {
 	 *
 	 * @param array|string $args パラメータ
 	 */
-	public static function get( $args ) {
-		global $wpdb;
+	public function get( $args ) {
+		global $wpdb, $n2;
 		$args   = $args ? wp_parse_args( $args ) : $_GET;
 		$action = $args['action'] ?? false;
 		$type   = $args['type'] ?? 'json';
 		$order  = $args['order'] ?? 'asc';
 		$query  = <<<SELECT_SQL
-		SELECT * FROM (
-			SELECT * FROM wp_wsal_occurrences WHERE post_id = %d) as a
-			INNER JOIN (
-			SELECT * FROM (
-				SELECT occurrence_id,
-				max(CASE WHEN name = 'PostTitle' THEN value END) AS post_title,
-				max(CASE WHEN name = 'PostDate' THEN value END) AS post_date,
-				max(CASE WHEN name = 'MetaKey' THEN value END) AS meta_key,
-				max(CASE WHEN name = 'MetaValue' OR name = 'MetaValueNew' THEN value END) AS meta_value
-				FROM wp_wsal_metadata
-			GROUP BY occurrence_id) as X
-			WHERE X.meta_key IS NOT NULL AND X.meta_value IS NOT NULL
-		) as b ON b.occurrence_id = a.id;
+		SELECT * FROM wp_wsal_occurrences INNER JOIN wp_wsal_metadata ON wp_wsal_metadata.occurrence_id = wp_wsal_occurrences.id WHERE post_id = %d AND site_id = %d ORDER BY occurrence_id;
 		SELECT_SQL;
 		/**
 		 * クエリの書き換えフック
@@ -59,7 +47,8 @@ class N2_Post_History_API {
 		*/
 		$query = apply_filters( 'n2_post_history_api_sql', $query, $args );
 		// 履歴取得
-		$result = $wpdb->get_results( $wpdb->prepare( $query, $args['post_id'] ), ARRAY_A );
+		$result = $wpdb->get_results( $wpdb->prepare( $query, $args['post_id'], $n2->site_id ), ARRAY_A );
+		$result = $this->data_shaping( $result );
 		$result = 'desc' === $order ? array_reverse( $result ) : $result;
 		// admin-ajax.phpアクセス時
 		if ( $action ) {
@@ -76,7 +65,7 @@ class N2_Post_History_API {
 					$result = array_map(
 						function( $v ) {
 							$v['username'] = get_user_by( 'id', $v['user_id'] )->display_name;
-							unset( $v['site_id'], $v['object'], $v['created_on'], $v['alert_id'], $v['user_agent'], $v['severity'], $v['user_id'], $v['session_id'], $v['post_type'], $v['event_type'], $v['occurrence_id'], $v['post_id'], $v['client_ip'], $v['id'] );
+							unset( $v['site_id'], $v['SiteID'], $v['SiteURL'], $v['PostUrl'], $v['EditorLinkPost'], $v['MetaLink'], $v['object'], $v['created_on'], $v['alert_id'], $v['user_agent'], $v['severity'], $v['user_id'], $v['session_id'], $v['post_type'], $v['event_type'], $v['occurrence_id'], $v['post_id'], $v['client_ip'], $v['id'] );
 							return $v;
 						},
 						$result
@@ -109,5 +98,36 @@ class N2_Post_History_API {
 		}
 		// N2_Post_History_API::get()呼び出し
 		return $result;
+	}
+
+	/**
+	 * データの整形
+	 *
+	 * @param array $data データ
+	 * @return array
+	 */
+	protected function data_shaping( $data ) {
+		$arr = array();
+		foreach ( $data as $d ) {
+			foreach ( $d as $name => $val ) {
+				$arr[ $d['occurrence_id'] ][ $name ] = $val;
+				// メタキー：値
+				$arr[ $d['occurrence_id'] ][ $d['name'] ] = $d['value'];
+			}
+			$arr[ $d['occurrence_id'] ] = wp_parse_args(
+				$arr[ $d['occurrence_id'] ],
+				array(
+					'PostTitle'   => '',
+					'PostDate'    => '',
+					'MetaKey'     => '',
+					'MetaValue'   => '',
+					'post_status' => '',
+					'username'    => '',
+					'user_roles'  => '',
+				)
+			);
+			unset( $arr[ $d['occurrence_id'] ]['name'], $arr[ $d['occurrence_id'] ]['value'] );
+		}
+		return $arr;
 	}
 }
