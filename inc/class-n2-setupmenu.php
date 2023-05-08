@@ -89,6 +89,7 @@ class N2_Setupmenu {
 	 * @return void
 	 */
 	public function contact_setup_menu() {
+		global $n2;
 		?>
 		 <main class="p-3">
 	  <!-- 4個分のタブ -->
@@ -148,15 +149,18 @@ class N2_Setupmenu {
 			<div class="input-half input-left flex-fill">
 				<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
 				<input type="hidden" name="judge" value="option">
-				<p class="input-header" style="font-weight:bold">計算式タイプ</p>
+				<p class="input-header" style="font-weight:bold">送料を寄附金額計算に含める</p>
 				<div class="mb-3">
-				<select name="<?php echo $this->cls; ?>[formula_type]" class="form-select">
-					<option value="零号機" <?php echo ! empty( get_option( $this->cls )['formula_type'] ) && get_option( $this->cls )['formula_type'] === '零号機' ? 'selected' : ''; ?>>タイプ⓪ (商品価格+送料)/0.3</option>
-					<option value="初号機" <?php echo ! empty( get_option( $this->cls )['formula_type'] ) && get_option( $this->cls )['formula_type'] === '初号機' ? 'selected' : ''; ?>>タイプ① 商品価格/0.3</option>
-					<option value="弐号機" <?php echo ! empty( get_option( $this->cls )['formula_type'] ) && get_option( $this->cls )['formula_type'] === '弐号機' ? 'selected' : ''; ?>>タイプ② (商品価格+送料)/0.35</option>
-					<option value="使徒" <?php echo ! empty( get_option( $this->cls )['formula_type'] ) && get_option( $this->cls )['formula_type'] === '使徒' ? 'selected' : ''; ?>>タイプ③ ①と②を比べて金額が大きい方を選択</option>
-					<option value="十三号機" <?php echo ! empty( get_option( $this->cls )['formula_type'] ) && get_option( $this->cls )['formula_type'] === '十三号機' ? 'selected' : ''; ?>>その他</option>
-				</select>
+					<label class="me-3">
+						<input type="radio" name="<?php echo $this->cls; ?>[formula][送料乗数]" value="0"<?php checked( $n2->formula['送料乗数'], 0 ); ?>> 含めない
+					</label>
+					<label>
+						<input type="radio" name="<?php echo $this->cls; ?>[formula][送料乗数]" value="1"<?php checked( $n2->formula['送料乗数'], 1 ); ?>> 含める
+					</label>
+				</div>
+				<p class="input-header" style="font-weight:bold">寄附金額計算の除数</p>
+				<div class="mb-3">
+					<input type="number" step="0.01" name="<?php echo $this->cls; ?>[formula][除数]" value="<?php echo $n2->formula['除数']; ?>">
 				</div>
 				<p class="input-header" style="font-weight:bold">送料</p>
 				<div class="mb-3 col-md-3">
