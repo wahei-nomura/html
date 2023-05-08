@@ -171,6 +171,8 @@ export default $ => {
 		},
 		// 寄附金額計算
 		async calc_donation(price, delivery_fee, subscription) {
+			const check = ['text-danger', '', 'text-success'];
+			this.寄附金額チェッカー = check[ Math.sign( this.寄附金額 - this.寄附金額自動計算値 ) + 1 ];
 			const opt = {
 				url: n2.ajaxurl,
 				data: {
@@ -182,7 +184,6 @@ export default $ => {
 			}
 			this.寄附金額自動計算値 = await $.ajax(opt);
 			if ( this.寄附金額固定.filter(v=>v).length ) {
-				const check = ['text-danger', '', 'text-success'];
 				this.寄附金額チェッカー = check[ Math.sign( this.寄附金額 - this.寄附金額自動計算値 ) + 1 ];
 				return this.寄附金額;
 			}
