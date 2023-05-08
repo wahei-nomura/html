@@ -17,6 +17,7 @@ export default $ => {
 	// current_user追加
 	data['current_user'] = n2.current_user.roles[0];
 	data['寄附金額チェッカー'] = '';
+	data['寄附金額自動計算値'] = '';
 	const created = async function() {
 		this.全商品ディレクトリID = {
 			text: this.全商品ディレクトリID,
@@ -179,14 +180,14 @@ export default $ => {
 					subscription,
 				}
 			}
-			const donation_amout = await $.ajax(opt);
+			this.寄附金額自動計算値 = await $.ajax(opt);
 			if ( this.寄附金額固定.filter(v=>v).length ) {
 				const check = ['text-danger', '', 'text-success'];
-				this.寄附金額チェッカー = check[ Math.sign( this.寄附金額 - donation_amout ) + 1 ];
+				this.寄附金額チェッカー = check[ Math.sign( this.寄附金額 - this.寄附金額自動計算値 ) + 1 ];
 				return this.寄附金額;
 			}
 			this.寄附金額チェッカー = '';
-			return donation_amout;
+			return this.寄附金額自動計算値;
 		},
 		// 寄附金額の更新
 		async update_donation(){
