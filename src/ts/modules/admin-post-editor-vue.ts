@@ -172,7 +172,9 @@ export default $ => {
 		// 寄附金額計算
 		async calc_donation(price, delivery_fee, subscription) {
 			const check = ['text-danger', '', 'text-success'];
-			this.寄附金額チェッカー = check[ Math.sign( this.寄附金額 - this.寄附金額自動計算値 ) + 1 ];
+			if ( this.寄附金額自動計算値 ) {
+				this.寄附金額チェッカー = check[ Math.sign( this.寄附金額 - this.寄附金額自動計算値 ) + 1 ];
+			}
 			const opt = {
 				url: n2.ajaxurl,
 				data: {
