@@ -219,7 +219,8 @@ class N2 {
 		$this->mode = preg_match( '/localhost/', wp_parse_url( get_bloginfo( 'url' ), PHP_URL_HOST ) ) ? 'develop' : 'production';
 
 		// キャッシュバスター
-		$this->cash_buster = 'develop' === $this->mode ? time() : wp_get_theme()->get( 'Version' );
+		// $this->cash_buster = 'develop' === $this->mode ? time() : wp_get_theme()->get( 'Version' );
+		$this->cash_buster = time();
 
 		// サイト基本情報
 
