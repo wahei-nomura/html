@@ -31,7 +31,7 @@ LH表示名:
     style: "width: 12em;"
     "@focus": set_info($event.target)
     :value: 寄附金額
-    "@change": "force_half_size_text($event, 'number', '寄附金額')"
+    "@change": "force_half_size_text($event, 'number', '寄附金額');calc_donation(価格, 送料, 定期便)"
 
 全商品ディレクトリID:
     type: rakuten-genreid

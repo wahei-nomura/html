@@ -5,9 +5,10 @@
  * @package neoneng
  */
 
-$defaults = array();
+$defaults = array(
+	':class' => '寄附金額チェッカー',
+);
 $args     = wp_parse_args( $args, $defaults );
-$attr     = '';
 foreach ( $args as $k => $v ) {
 	$v     = esc_attr( $v );// エスケープしないとバグる
 	$attr .= " {$k}=\"{$v}\"";
