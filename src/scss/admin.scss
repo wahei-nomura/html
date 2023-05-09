@@ -47,14 +47,14 @@
 body {
 	&.n2-active-off {
 		&::after{
-			content: "N2未稼働中 更新作業はN1で行って下さい";
+			content: "N2未稼働 更新作業はN1で行って下さい";
 			width: 400px;
 			height: 50px;
 			font-size: 1rem;
 			color: #fff;
 			font-weight: bold;
-			background: #9d2c30;
-			position: absolute;
+			background: #8b0000;
+			position: fixed;
 			top: 20px;
 			left: 0;
 			right: 0;
@@ -64,6 +64,20 @@ body {
 			display: flex;
 			justify-content: center;
 			align-items: center;
+			animation: flash .3s linear infinite;
 		}
+	}
+}
+@keyframes flash {
+	0% {
+		background: #8b0000;
+	}
+
+	50% {
+		background: #b22222;
+	}
+
+	100% {
+		background: #8b0000;
 	}
 }
