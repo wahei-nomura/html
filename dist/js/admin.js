@@ -9,6 +9,16 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./src/ts/admin-no-n2-caution.ts":
+/*!***************************************!*\
+  !*** ./src/ts/admin-no-n2-caution.ts ***!
+  \***************************************/
+/***/ (() => {
+
+eval("jQuery(function ($) {\n    /**\n     * n2_active_flagがfalseの時に注意文を出す\n     */\n    var n2 = window['n2'];\n    var active_flag = n2.n2_active_flag;\n    var cautionBox = $('<a class=\"no_active_caution\" onclick=\"this.remove()\">N2未稼働 更新作業はN1で行って下さい</a>');\n    console.log(n2.n2_active_flag);\n    if ('false' === active_flag) {\n        $('#wpwrap').append(cautionBox);\n    }\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/admin-no-n2-caution.ts?");
+
+/***/ }),
+
 /***/ "./src/ts/admin-qaform.ts":
 /*!********************************!*\
   !*** ./src/ts/admin-qaform.ts ***!
@@ -26,7 +36,7 @@ eval("jQuery(function ($) {\n    /**\n     * 事業者アカウントログイ�
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _admin_qaform__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./admin-qaform */ \"./src/ts/admin-qaform.ts\");\n/* harmony import */ var _admin_qaform__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_admin_qaform__WEBPACK_IMPORTED_MODULE_0__);\n\n\njQuery(function ($) {\n\t$(\"#wp-admin-bar-my-sites\").off(\"mouseenter mouseleave\");\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/admin.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _admin_qaform__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./admin-qaform */ \"./src/ts/admin-qaform.ts\");\n/* harmony import */ var _admin_qaform__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_admin_qaform__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var _admin_no_n2_caution__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./admin-no-n2-caution */ \"./src/ts/admin-no-n2-caution.ts\");\n/* harmony import */ var _admin_no_n2_caution__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_admin_no_n2_caution__WEBPACK_IMPORTED_MODULE_1__);\n\n\n\njQuery(function ($) {\n\t$(\"#wp-admin-bar-my-sites\").off(\"mouseenter mouseleave\");\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/admin.js?");
 
 /***/ })
 
