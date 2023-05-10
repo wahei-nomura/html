@@ -23,6 +23,7 @@
 LH表示名:
     type: text
     placeholder: 例）ヒレステーキ 200g
+    style: 'width: 100%;'
 
 寄附金額:
     type: donation-amount
