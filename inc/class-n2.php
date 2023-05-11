@@ -246,6 +246,10 @@ class N2 {
 			'スチームシップ用' => yaml_parse_file( get_theme_file_path( 'config/n2-ss-fields.yml' ) ),
 			'事業者用'     => yaml_parse_file( get_theme_file_path( 'config/n2-fields.yml' ) ),
 		);
+		// 自治体ごとのLHカテゴリー
+		if ( ! empty( $n2_option['lh']['category'] ) ) {
+			$this->custom_field['事業者用']['LHカテゴリー']['option'] = explode( "\n", $n2_option['lh']['category'] );
+		}
 
 		// プリントアウト
 		$this->product_list_print = yaml_parse_file( get_theme_file_path( 'config/n2-product-list-print.yml' ) );
