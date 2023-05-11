@@ -98,7 +98,9 @@ class N2_Enqueuescript {
 	 * @return $classes
 	 */
 	public function add_admin_body_class( $classes ) {
+		global $n2;
 		$classes .= isset( $_COOKIE['n2-darkmode'] ) ? ' n2-darkmode' : '';
+		$classes .= 'true' === $n2->n2_active_flag ? ' n2-active-on' : ' n2-active-off';
 		return $classes;
 	}
 
