@@ -669,11 +669,11 @@ class N2_Rakuten_CSV {
 					'/\（.+?\）/',
 					'',
 					(
-					get_the_author_meta( 'portal', get_post_field( 'post_author', $post_id ) )
+					get_the_author_meta( 'portal_site_display_name', get_post_field( 'post_author', $post_id ) )
 					?: get_the_author_meta( 'first_name', get_post_field( 'post_author', $post_id ) )
 					)
 				),
-				'condition' => '記載しない' !== get_the_author_meta( 'portal', get_post_field( 'post_author', $post_id ) ),
+				'condition' => '記載しない' !== get_the_author_meta( 'portal_site_display_name', get_post_field( 'post_author', $post_id ) ),
 			),
 		);
 
