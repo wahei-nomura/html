@@ -249,7 +249,7 @@ class N2 {
 		);
 		// 自治体ごとのLHカテゴリー
 		if ( ! empty( $n2_option['lh']['category'] ) ) {
-			$this->custom_field['事業者用']['LHカテゴリー']['option'] = explode( "\n", $n2_option['lh']['category'] );
+			$this->custom_field['事業者用']['LHカテゴリー']['option'] = explode( "\n", trim( $n2_option['lh']['category'] ) );
 		}
 
 		// プリントアウト
