@@ -193,6 +193,12 @@ class N2 {
 							}
 						}
 					}
+					if ( '楽天SPAカテゴリー' === $name ) {
+						$value = array(
+							'text' => preg_replace( '/\r/', '', $value ),
+							'list' => array(),
+						);
+					}
 					$this->custom_field[ $id ][ $name ]['value'] = $value;
 				}
 			}

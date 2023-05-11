@@ -220,6 +220,38 @@ export default $ => {
 			// 後にここで事業者用のテンプレートがあるか確認してゴニョゴニョする
 			text += n2.custom_field.事業者用.説明文.placeholder
 			textarea.val(text);
+		},
+		// 楽天SPA
+		async get_spa_category() {
+			const folderCode = '1p7DlbhcIEVIaH7Rw2mTmqJJKVDZCumYK';
+			const settings = {
+				url: '//www.googleapis.com/drive/v3/files/',
+				data: {
+					key: 'AIzaSyDQ1Mu41-8S5kBpZED421bCP8NPE7pneNU',
+					q: `'${folderCode}' in parents and name = '${n2.town}' and mimeType contains 'spreadsheet'`,
+				}
+			};
+			const d = await $.ajax(settings).catch(() => false);
+			if ( !d || ! d.files.length ) {
+				console.log('自治体スプレットシートが存在しません', d);
+				return;
+			}
+			settings.url = `//sheets.googleapis.com/v4/spreadsheets/${d.files[0].id}/values/カテゴリー`;
+			delete settings.data.q;
+			const cat = await $.ajax(settings).catch(() => false);
+			if ( ! cat ) {
+				console.log('カテゴリー情報の取得失敗');
+				return;
+			}
+			delete cat.values[0];
+			n2.vue.楽天SPAカテゴリー.list = cat.values.map( (v,k) => {
+				if ( ! v.length ) return
+				v.forEach((e,i) => {
+					v[i] = e || cat.values[k-1][i];
+					v[i] = v[i].replace('.','');
+				});
+				return `#/${v.join('/')}/`;
+			}).filter(v=>v);
 		}
 	};
 	const components = {

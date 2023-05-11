@@ -51,6 +51,15 @@ LH表示名:
     style: 'width: 100%;'
     "@focus": set_info($event.target);get_genreid();auto_fit_tetxarea($event.target)
 
+楽天SPAカテゴリー:
+    type: rakuten-spa-category
+    v-model: 楽天SPAカテゴリー.text
+    v-if: "!出品禁止ポータル.includes('楽天ふるさと納税')"
+    style: 'width: 100%;'
+    rows: auto
+    "@focus": set_info($event.target);get_spa_category();auto_fit_tetxarea($event.target)
+    "@input": auto_fit_tetxarea($event.target)
+
 検索キーワード:
     type: textarea
     description: 商品名や説明文に入っていないキーワードをスペース区切りで書いてください。
