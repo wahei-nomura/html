@@ -681,16 +681,14 @@ class N2_Rakuten_CSV {
 		// ========[html]商品説明テーブル========
 		$itemtable_html = function() use ( $trs ) {
 			?>
-			<!-- 商品説明テーブル -->
-			<p><b><font size=""5"">商品説明</font></b></p><hr noshade color=""black""><br>
+			<!-- 商品説明テーブル --><p><b><font size=""5"">商品説明</font></b></p><hr noshade color=""black""><br>
 			<table border=""1"" width=""100%"" cellspacing=""0"" cellpadding=""10"" bordercolor=""black"">
 			<?php foreach ( $trs as $th => $td_params ) : ?>
 				<?php if ( ! isset( $td_params['condition'] ) || $td_params['condition'] ) : ?>
 				<tr><th><?php echo $th; ?></th><td><?php echo $td_params['td']; ?></td></tr>
 				<?php endif; ?>
 			<?php endforeach; ?>
-			</table>
-			<!-- /商品説明テーブル -->
+			</table><!-- /商品説明テーブル -->
 			<?php
 		};
 		// ========戻り値判定========
