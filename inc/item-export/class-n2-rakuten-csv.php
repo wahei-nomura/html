@@ -463,8 +463,7 @@ class N2_Rakuten_CSV {
 		$html = function() use ( $post_meta_list, $post_id ) {
 			$formatter = fn( $post_key ) => nl2br( N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
 			?>
-			<?php echo $formatter( '説明文' ); ?><br><br>
-			<?php echo $formatter( '内容量・規格等' ); ?><br>
+			<?php echo $formatter( '説明文' ); ?><br><br><?php echo $formatter( '内容量・規格等' ); ?><br>
 			<?php if ( $post_meta_list['賞味期限'] ) : ?>
 				<br>【賞味期限】<br>
 				<?php echo $formatter( '賞味期限' ); ?><br><br>
@@ -473,7 +472,7 @@ class N2_Rakuten_CSV {
 				<br>【消費期限】<br>
 				<?php echo $formatter( '消費期限' ); ?><br><br>
 			<?php endif; ?>
-			<?php echo apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $post_id, '対応機器' ); ?>
+			<?php echo apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $post_id, '対応機器' ); ?><br>
 			<?php if ( $post_meta_list['原料原産地'] ) : ?>
 				<br><br>【原料原産地】<br>
 				<?php echo $formatter( '原料原産地' ); ?><br>
