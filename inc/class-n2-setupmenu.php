@@ -231,6 +231,12 @@ class N2_Setupmenu {
 				<input type="text" class="form-control" id="input-ftp_pass" name="<?php echo $this->cls; ?>[rakuten][ftp_pass]" value="<?php echo get_option( $this->cls )['rakuten']['ftp_pass'] ?? ''; ?>">
 			</div>
 			<div class="mb-3 col-md-4">
+				<label class="form-label">
+					<input type="hidden" name="<?php echo $this->cls; ?>[rakuten][spa]">
+					<input type="checkbox" name="<?php echo $this->cls; ?>[rakuten][spa]" value="1" <?php checked( $n2->rakuten['spa'] ?? 0 ); ?>> 楽天SPA導入
+				</label>
+			</div>
+			<div class="mb-3 col-md-4">
 				<label for="input-quality" class="form-label">画質（右に行くほど高画質）</label>
 				<input type="range" class="form-range" id="input-quality" name="<?php echo $this->cls; ?>[rakuten][quality]" value="<?php echo get_option( $this->cls )['rakuten']['quality'] ?? ''; ?>">
 			</div>
