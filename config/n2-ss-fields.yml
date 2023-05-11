@@ -54,7 +54,7 @@ LH表示名:
 楽天SPAカテゴリー:
     type: rakuten-spa-category
     v-model: 楽天SPAカテゴリー.text
-    v-if: "!出品禁止ポータル.includes('楽天ふるさと納税')"
+    v-if: "!出品禁止ポータル.includes('楽天ふるさと納税') && 楽天SPA"
     style: 'width: 100%;'
     rows: auto
     "@focus": set_info($event.target);get_spa_category();auto_fit_tetxarea($event.target)
