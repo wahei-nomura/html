@@ -109,6 +109,9 @@ class N2_Setupmenu {
 		<li class="nav-item" role="presentation">
 		  <a href="#set-menu5" id="tab5" class="nav-link" role="tab" data-bs-toggle="tab" aria-selected="false">NEONENG稼働状況</a>
 		</li>
+		<li class="nav-item" role="presentation">
+		  <a href="#set-menu6" id="tab6" class="nav-link" role="tab" data-bs-toggle="tab" aria-selected="false">LHカテゴリ項目</a>
+		</li>
 	  </ul>
 
 	  <!-- 写真部分 -->
@@ -260,6 +263,19 @@ class N2_Setupmenu {
 			<?php endfor; ?>
 			<input type="submit" class="btn btn-primary sissubmit" value="更新する">
 		</form>
+		</div>
+		<div id="set-menu6" class="tab-pane fade" role="tabpanel" aria-labelledby="tab6">
+		<form>
+			<p>LHカテゴリ登録する項目を入力してください(1行：1項目)。</p>
+			<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
+			<input type="hidden" name="judge" value="option">
+			<div class="mb-3">
+				<label for="lh-category" class="form-label">LHカテゴリ項目</label>
+				<textarea class="form-control" id="lh-category" name="<?php echo $this->cls; ?>[lh][category]" rows="10" style="overflow-x: hidden;"><?php echo get_option( $this->cls )['lh']['category'] ?? ''; ?></textarea>
+			</div>
+			<input type="submit" class="btn btn-primary sissubmit" value="更新する">
+		</form>
+		
 		</div>
 		<div id="set-menu5" class="tab-pane fade" role="tabpanel" aria-labelledby="tab5">
 		<form action="#" method="post">
