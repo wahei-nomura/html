@@ -51,7 +51,7 @@ class N2_Sync {
 	 *
 	 * @var int
 	 */
-	private $sleep = 300;
+	private $sleep = 0;
 
 	/**
 	 * ファイルのリダイレクト対策
@@ -470,9 +470,14 @@ class N2_Sync {
 			if ( isset( $postarr['meta_input']['アレルゲン'] ) ) {
 				$allergen = array_column( $postarr['meta_input']['アレルゲン'], 'value' );
 				if ( $allergen ) {
-					if ( ! in_array( '食品ではない', $allergen, true ) ) {
+					if ( in_array( '食品ではない', $allergen, true ) ) {
+						unset( $postarr['meta_input']['アレルゲン'] );
+					} else {
 						$postarr['meta_input']['商品タイプ'][] = '食品';
-						if ( ! in_array( 'アレルゲンなし食品', $allergen, true ) ) {
+						if ( in_array( 'アレルゲンなし食品', $allergen, true ) ) {
+							$postarr['meta_input']['アレルギー有無確認'] = array( '' );
+							unset( $postarr['meta_input']['アレルゲン'] );
+						} else {
 							$postarr['meta_input']['アレルギー有無確認'] = array( 'アレルギー品目あり' );
 						}
 					}
@@ -480,6 +485,10 @@ class N2_Sync {
 			}
 			// 地場産品類型互換
 			$postarr['meta_input']['地場産品類型'] = $postarr['meta_input']['地場産品類型']['value'] ?? '';
+
+			// LH表示名
+			$postarr['meta_input']['LH表示名'] = $postarr['meta_input']['略称'] ?? '';
+			unset( $postarr['meta_input']['略称'] );
 
 			// キャッチコピー１と楽天カテゴリーの変換
 			$postarr['meta_input']['キャッチコピー']    = $postarr['meta_input']['キャッチコピー１'] ?? '';
