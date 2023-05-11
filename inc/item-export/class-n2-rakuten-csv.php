@@ -420,9 +420,7 @@ class N2_Rakuten_CSV {
 			<?php $this->img_urls2html( $img_urls ); ?>
 			<?php echo $formatter( '説明文' ); ?><br><br>
 			<?php $this->make_itemtable( $post_id, false ); ?>
-			<?php if ( $n2->portal_common_discription ) : ?>
-				<br><br><?php echo $n2->portal_common_discription . PHP_EOL; ?>
-			<?php endif; ?>
+			<br><br><?php echo $n2->portal_common_discription . PHP_EOL; ?>
 			<?php if ( $porcelain_text ) : ?>
 				<br><br><?php echo $porcelain_text . PHP_EOL; ?>
 			<?php endif; ?>
