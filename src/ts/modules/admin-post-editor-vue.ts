@@ -16,6 +16,8 @@ export default $ => {
 	}
 	// current_user追加
 	data['current_user'] = n2.current_user.roles[0];
+	data['寄附金額チェッカー'] = '';
+	data['寄附金額自動計算値'] = '';
 	const created = async function() {
 		this.全商品ディレクトリID = {
 			text: this.全商品ディレクトリID,
@@ -169,9 +171,7 @@ export default $ => {
 		},
 		// 寄附金額計算
 		async calc_donation(price, delivery_fee, subscription) {
-
-			// 寄附金額固定の場合は計算しない
-			if ( this.寄附金額固定.filter(v=>v).length ) return this.寄附金額;
+			this.check_donation();
 			const opt = {
 				url: n2.ajaxurl,
 				data: {
@@ -181,13 +181,25 @@ export default $ => {
 					subscription,
 				}
 			}
-			return await $.ajax(opt);
+			this.寄附金額自動計算値 = await $.ajax(opt);
+			if ( this.寄附金額固定.filter(v=>v).length ) {
+				this.check_donation();
+				return this.寄附金額;
+			}
+			this.寄附金額チェッカー = '';
+			return this.寄附金額自動計算値;
 		},
 		// 寄附金額の更新
 		async update_donation(){
 			alert(`価格：${Number(this.価格).toLocaleString()}\n送料：${Number(this.送料).toLocaleString()}\n定期便回数：${this.定期便}\nを元に再計算します。`);
 			this.寄附金額 = await this.calc_donation(this.価格, this.送料, this.定期便);
 			console.log(this.寄附金額)
+		},
+		check_donation() {
+			const check = ['text-danger', '', 'text-success'];
+			if ( this.寄附金額自動計算値 ) {
+				this.寄附金額チェッカー = check[ Math.sign( this.寄附金額 - this.寄附金額自動計算値 ) + 1 ];
+			}
 		},
 		// スチームシップへ送信ボタンの制御
 		show_submit() {

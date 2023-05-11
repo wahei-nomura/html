@@ -76,11 +76,11 @@ class N2 {
 	public $delivery_fee;
 
 	/**
-	 * 寄附金額計算式タイプ
+	 * 寄附金額計算に必要な情報
 	 *
 	 * @var array
 	 */
-	public $formula_type;
+	public $formula;
 
 	/**
 	 * 機種依存文字変換
@@ -219,7 +219,8 @@ class N2 {
 		$this->mode = preg_match( '/localhost/', wp_parse_url( get_bloginfo( 'url' ), PHP_URL_HOST ) ) ? 'develop' : 'production';
 
 		// キャッシュバスター
-		$this->cash_buster = 'develop' === $this->mode ? time() : wp_get_theme()->get( 'Version' );
+		// $this->cash_buster = 'develop' === $this->mode ? time() : wp_get_theme()->get( 'Version' );
+		$this->cash_buster = time();
 
 		// サイト基本情報
 
@@ -266,7 +267,13 @@ class N2 {
 		$this->delivery_fee['0104_cool'] = (string) ( $this->delivery_fee['0104'] + 660 );
 
 		// 寄附金額計算式タイプ
-		$this->formula_type = $n2_option['formula_type'] ?? '';
+		$this->formula = wp_parse_args(
+			$n2_option['formula'] ?? array(),
+			array(
+				'除数'   => 0.3,
+				'送料乗数' => 0,
+			)
+		);
 
 		// ポータル一覧
 		$this->portals   = array(
