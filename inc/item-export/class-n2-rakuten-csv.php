@@ -466,10 +466,12 @@ class N2_Rakuten_CSV {
 			<?php echo $formatter( '説明文' ); ?><br><br>
 			<?php echo $formatter( '内容量・規格等' ); ?><br>
 			<?php if ( $post_meta_list['賞味期限'] ) : ?>
-				<br>【賞味期限】<br><?php echo $formatter( '賞味期限' ); ?><br><br>
+				<br>【賞味期限】<br>
+				<?php echo $formatter( '賞味期限' ); ?><br><br>
 			<?php endif; ?>
 			<?php if ( $post_meta_list['消費期限'] ) : ?>
-				<br>【消費期限】<br><?php echo $formatter( '消費期限' ); ?><br><br>
+				<br>【消費期限】<br>
+				<?php echo $formatter( '消費期限' ); ?><br><br>
 			<?php endif; ?>
 			<?php echo apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $post_id, '対応機器' ); ?>
 			<?php if ( $post_meta_list['原料原産地'] ) : ?>
@@ -481,7 +483,7 @@ class N2_Rakuten_CSV {
 				<?php echo $formatter( '加工地' ); ?><br>
 			<?php endif; ?>
 			<?php if ( $post_meta_list['検索キーワード'] ) : ?>
-				<br><br><?php echo $formatter( '検索キーワード' ); ?>
+				<br><br><?php echo $formatter( '検索キーワード' ) . PHP_EOL; ?>
 			<?php endif; ?>
 			<?php if ( $post_meta_list['楽天SPAカテゴリー'] ) : ?>
 				<br><br><?php echo $formatter( '楽天SPAカテゴリー' ); ?>
