@@ -53,6 +53,11 @@ class N2_Item_Export_Base {
 	 * エクスポートページ
 	 */
 	public function export() {
+
+		// メモリUP
+		wp_raise_memory_limit();
+		add_filter( 'admin_memory_limit', fn() => '512M' );
+
 		$defaults = array(
 			'mode' => 'download',
 		);
