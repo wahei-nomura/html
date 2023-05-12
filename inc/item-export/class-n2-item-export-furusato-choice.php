@@ -64,28 +64,57 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 	 * @param array  $n2values n2dataのループ中の値
 	 */
 	protected function walk_values( &$val, $index, $n2values ) {
-		// アレルゲンをラベルだけにする
-		$n2values['アレルゲン'] = array_column( $n2values['アレルゲン'], 'label' );
-		// アレルゲンから不純物（カッコの部分）を削除
-		$n2values['アレルゲン'] = preg_replace( '/（.*?）/', '', $n2values['アレルゲン'] );
+		global $n2;
+
+		// 説明文
+		$n2values['説明文'] .= $n2->portal_common_discription ? "\n\n{$n2->portal_common_discription}" : '';
+		$n2values['説明文'] .= $n2values['検索キーワード'] ? "\n\n{$n2values['検索キーワード']}" : '';
+
+		// 内容量
+		$n2values['内容量・規格等'] = array(
+			$n2values['内容量・規格等'],
+			$n2values['原料原産地'] ? "【原料原産地】\n{$n2values['原料原産地']}" : '',
+			$n2values['加工地'] ? "【加工地】\n{$n2values['加工地']}" : '',
+		);// implode用の配列作成
+		$n2values['内容量・規格等'] = implode( "\n\n", array_filter( $n2values['内容量・規格等'] ) );// 空要素削除して連結
+
+		// アレルゲン
+		$n2values['アレルゲン'] = array_column( (array) $n2values['アレルゲン'], 'label' );// ラベルだけにする
+		$n2values['アレルゲン'] = preg_replace( '/（.*?）/', '', $n2values['アレルゲン'] );// 不純物（カッコの部分）を削除
+
+		// 賞味期限・消費期限
+		$n2values['消費期限'] = array(
+			$n2values['賞味期限'] ? "【賞味期限】\n{$n2values['賞味期限']}" : '',
+			$n2values['消費期限'],
+		);// implode用の配列作成
+		$n2values['消費期限'] = implode( "\n\n【消費期限】\n", array_filter( $n2values['消費期限'] ) );// 空要素削除して連結
+
 		// preg_matchで判定
 		$data = match ( 1 ) {
-			preg_match( '/お礼の品名/', $val ) => $n2values['タイトル'] ?? '',// 36文字以内(半角は0.5文字換算)
-			preg_match( '/サイト表示事業者名/', $val )  => $n2values['事業者名'] ?? '',// 64文字以内
-			preg_match( '/必要寄付金額/', $val )  => $n2values['寄附金額'] ?? '',// 半角数字
-			preg_match( '/管理コード/', $val )  => $n2values['返礼品コード'] ?? '',
-			preg_match( '/キャッチコピー/', $val )  => $n2values['キャッチコピー'] ?? '',// 40文字以内
-			preg_match( '/^説明$/', $val )  => $n2values['説明文'] ?? '',// 1,000文字以内
+			preg_match( '/管理コード/', $val )  => $n2values['返礼品コード'],
+			preg_match( '/お礼の品名/', $val ) => $n2values['タイトル'],// 36文字以内(半角は0.5文字換算)
+			preg_match( '/サイト表示事業者名/', $val )  => $n2values['事業者名'],// 64文字以内
+			preg_match( '/必要寄付金額/', $val )  => $n2values['寄附金額'],// 半角数字
+			preg_match( '/^説明$/', $val )  => $n2values['説明文'],// 1,000文字以内
+			preg_match( '/キャッチコピー/', $val )  => $n2values['キャッチコピー'],// 40文字以内
+			preg_match( '/^容量$/', $val )  => $n2values['内容量・規格等'],// お礼の品の容量情報を1,000文字以内で入力
+			preg_match( '/(お礼の品|スライド)画像[1]*$/', $val ) => mb_strtolower( $n2values['返礼品コード'] ) . '.jpg',// お礼の品画像のファイル名
+			preg_match( '/スライド画像([2-8]{1})$/u', $val, $m ) => mb_strtolower( $n2values['返礼品コード'] ) . '-' . ( $m[1] - 1 ) . '.jpg',// スライド画像のファイル名を指定
+			preg_match( '/^申込期日$/', $val ) => $n2values['申込期間'],// お礼の品の申込期日情報を1,000文字以内で入力
+			preg_match( '/^発送期日$/', $val ) => $n2values['配送期間'],// 発送期日種別が任意入力の場合はお礼の品の発送期日情報を1,000文字以内で入力
 			preg_match( '/アレルギー：([^（]*)/u', $val, $m ) => in_array( $m[1], $n2values['アレルゲン'], true ) ? 1 : 2,// アレルギー品目がありの場合は半角数字の1、なしの場合は半角数字の2、未確認の場合は半角数字の3
-			preg_match( '/アレルギー特記事項/', $val ) => $n2values['アレルゲン注釈'] ?? '',// アレルギーに関する注意情報を1,000文字以内で入力
+			preg_match( '/アレルギー特記事項/', $val ) => $n2values['アレルゲン注釈'],// アレルギーに関する注意情報を1,000文字以内で入力
+			preg_match( '/地場産品類型番号/', $val )  => $n2values['地場産品類型'] ? "{$n2values['地場産品類型']}|{$n2values['類型該当理由']}" : '',// 設定したい地場産品類型番号と、地場産品に該当する理由（100文字以内）を入力してください。地場産品類型番号と該当する理由のテキストを『 | 』で区切ってください。
+			preg_match( '/消費期限/', $val ) => $n2values['消費期限'],// 食品系の場合はなるべく消費期限を1,000文字以内で入力
 			preg_match( '/配送$/', $val ) => false !== strpos( $val, $n2values['発送方法'] ) ? 1 : 0,// 対応する場合は半角数字の1、対応しない場合は半角数字の0
-			preg_match( '/(包装|のし)対応$/', $val ) => false !== strpos( '有り', $n2values[ $val ] ) ? 1 : 0,// 対応する場合は半角数字の1、対応しない場合は半角数字の0
+			preg_match( '/(包装|のし)対応$/', $val, $m ) => false !== strpos( '有り', $n2values[ $m[0] ] ) ? 1 : 0,// 対応する場合は半角数字の1、対応しない場合は半角数字の0
 			preg_match( '/定期配送対応$/', $val ) => $n2values['定期便'] > 1 ? 1 : 0,// 対応する場合は半角数字の1、対応しない場合は半角数字の0
 			preg_match( '/限定$/', $val ) => 0,// 対応する場合は半角数字の1、対応しない場合は半角数字の0
 			preg_match( '/^（必須）(発送|配達|配送).*$/', $val ) => 0,// 対応する場合は半角数字の1、対応しない場合は半角数字の0
 			preg_match( '/容量単位/', $val ) => 0,// グラムは半角数字の0、キログラムは半角数字の1、ミリリットルは半角数字の2、リットルは半角数字の3
-			preg_match( '/^（必須）地域の生産者応援の品/', $val ) => 0,// 適用する場合は半角数字の1、適用しない場合は半角数字の0
+			preg_match( '/地域の生産者応援の品/', $val ) => 0,// 適用する場合は半角数字の1、適用しない場合は半角数字の0
 			preg_match( '/^（必須）.*(有無|可否)$/', $val ) => 1,// 対応する場合は半角数字の1、対応しない場合は半角数字の0
+			preg_match( '/受付開始日時/', $val ) => gmdate( 'Y/m/d', strtotime( '+1 year' ) ) . ' 00:00',// 受付開始日時を設定することが出来ます。指定した場合、この日時以降でないと申込みできない
 			preg_match( '/還元率（\%）$/', $val ) => 30,// 対応する場合は半角数字の1、対応しない場合は半角数字の0
 			preg_match( '/別送対応/', $val ) => 1,// 対応する場合は半角数字の1、対応しない場合は半角数字の0
 			default => '',
