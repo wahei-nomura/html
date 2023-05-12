@@ -119,8 +119,14 @@ class N2_Item_Export_Base {
 			$n2data[ $id ]['タイトル'] = $post->post_title;
 			// 事業者コード追加
 			$n2data[ $id ]['事業者コード'] = get_user_meta( $post->post_author, 'last_name', true );
-			// 事業者名追加
-			$n2data[ $id ]['事業者名'] = get_user_meta( $post->post_author, 'first_name', true );
+			// 提供事業者名・ポータル表示名があれば取得
+			$portal_site_display_name = get_post_meta( $id, '提供事業者名', true ) ?: get_user_meta( $post->post_author, 'portal_site_display_name', true );
+			// 事業者名
+			$n2data[ $id ]['事業者名'] = match ( $portal_site_display_name ) {
+				'記載しない' => '',
+				'' => get_user_meta( $post->post_author, 'first_name', true ),
+				default => $portal_site_display_name
+			};
 			// 投稿ステータス追加
 			$n2data[ $id ]['ステータス'] = get_post_status( $id );
 			// n2fieldのカスタムフィールド全取得
