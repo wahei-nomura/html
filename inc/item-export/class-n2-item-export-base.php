@@ -26,7 +26,7 @@ class N2_Item_Export_Base {
 		'filename'      => 'N2データ.csv',
 		'delimiter'     => ',',
 		'charset'       => 'utf-8',
-		'header_string' => false, // 基本は自動設定、falseでヘッダー文字列無し
+		'header_string' => '', // 基本は自動設定、falseでヘッダー文字列無し
 	);
 
 	/**
@@ -39,6 +39,7 @@ class N2_Item_Export_Base {
 		'n2field' => array(),
 		'n2data'  => array(),
 		'data'    => array(),
+		'error'   => array(),
 		'string'  => '',
 	);
 
@@ -168,6 +169,7 @@ class N2_Item_Export_Base {
 	private function set_data() {
 		$data = array();
 		foreach ( $this->data['n2data'] as $id => $values ) {
+			$values['id'] = $id;
 			// ヘッダーをセット
 			$data[ $id ] = $this->data['header'];
 			array_walk( $data[ $id ], array( $this, 'walk_values' ), $values );
@@ -176,7 +178,10 @@ class N2_Item_Export_Base {
 		/**
 		 * [hook] n2_item_export_base_set_data
 		 */
-		$this->data['data'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_data', $data );
+		$data = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_data', $data );
+		$data = array_diff_key( $data, $this->data['error'] );
+		// dataをセット
+		$this->data['data'] = $data;
 	}
 
 	/**
@@ -250,12 +255,29 @@ class N2_Item_Export_Base {
 	}
 
 	/**
+	 * エラー表示
+	 */
+	private function display_error() {
+		$html = '';
+		$pattern = '<tr><th><a href="%s" target="_blank">%s</a></th><td>%s</td></tr>';
+		foreach ( $this->data['error'] as $id => $errors ) {
+			$html .= wp_sprintf( $pattern, get_edit_post_link( $id ), $id, implode( '<br>', $errors ) );
+		}
+		?>
+		<table class="table table-striped">
+			<thead>
+				<tr><th>ID</th><th>エラー項目</th></tr>
+			</thead>
+			<?php echo $html; ?>
+		</table>
+		<?php
+	}
+
+	/**
 	 * ダウンロード
 	 */
 	private function download() {
 		global $n2;
-		$this->set_header_string();
-		$this->set_data_string();
 		/**
 		 * [hook] n2_item_export_base_charset
 		 */
@@ -264,12 +286,33 @@ class N2_Item_Export_Base {
 		 * [hook] n2_item_export_base_filename
 		 */
 		$filename = apply_filters( mb_strtolower( get_class( $this ) ) . '_filename', $n2->town . $this->settings['filename'] );
-		// 出力文字列
-		$str = $this->settings['header_string'] . $this->data['string'];
-		$str = mb_convert_encoding( $str, $charset, 'utf-8' );
-		header( 'Content-Type: application/octet-stream' );
-		header( "Content-Disposition: attachment; filename={$filename}" );
-		echo htmlspecialchars_decode( $str );
+
+		// POST送信されたか判定
+		$str = filter_input( INPUT_POST, 'str' );
+		if ( ! $str ) {
+			$this->set_header_string();
+			$this->set_data_string();
+			// 出力文字列
+			$str = $this->settings['header_string'] . $this->data['string'];
+			// エラー
+			$error = $this->data['error'];
+		}
+		if ( empty( $error ) ) {
+			// 文字コード変換
+			$str = mb_convert_encoding( $str, $charset, 'utf-8' );
+			header( 'Content-Type: application/octet-stream' );
+			header( "Content-Disposition: attachment; filename={$filename}" );
+			echo htmlspecialchars_decode( $str );
+			exit;
+		}
+		?>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+		<form method="post" class="p-3 m-0 sticky-top justify-content-center d-flex bg-dark">
+			<input type="hidden" name="str" value="<?php echo esc_attr( $str ); ?>">
+			<button id="download" class="btn btn-success px-5">エラーが無い返礼品のみダウンロードする</button>
+		</form>
+		<?php
+		$this->display_error();
 		exit;
 	}
 
@@ -282,9 +325,11 @@ class N2_Item_Export_Base {
 		$this->set_header_string();
 		$this->set_data_string();
 		// データを文字列に
+		$this->display_error();
 		?>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
 		<title>スプレットシートに値貼り付け</title>
-		<pre><?php echo esc_html( $this->settings['header_string'] . $this->data['string'] ); ?></pre>
+		<textarea class="form-control"style="height:100%"><?php echo esc_html( $this->settings['header_string'] . $this->data['string'] ); ?></textarea>
 		<?php
 		exit;
 	}

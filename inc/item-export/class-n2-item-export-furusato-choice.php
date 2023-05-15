@@ -117,11 +117,16 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 			preg_match( '/^（必須）別送対応$/', $val ) => 1,// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
 			default => '',
 		};
-
 		/**
-		 * [hook] n2_item_export_base_walk_values
+		 * [hook] n2_item_export_furusato_choice_walk_values
 		 */
-		$val = apply_filters( mb_strtolower( get_class( $this ) ) . '_walk_values', $data, $index );
+		$data = apply_filters( mb_strtolower( get_class( $this ) ) . '_walk_values', $data, $index );
+		if ( '' === $data ) {
+			if ( preg_match( '/（必須）|必要寄付金額/', $val ) ) {
+				$this->data['error'][ $n2values['id'] ][] = $val;
+			}
+		}
+		$val = $data;
 	}
 
 	/**
