@@ -47,6 +47,7 @@ class N2_Item_Export_Base {
 	 * コンストラクタ
 	 */
 	public function __construct() {
+		add_filter( mb_strtolower( get_class( $this ) ) . '_walk_values', array( $this, 'add_error' ), 10, 3 );
 		add_action( 'wp_ajax_' . mb_strtolower( get_class( $this ) ), array( $this, 'export' ) );
 	}
 
@@ -202,8 +203,12 @@ class N2_Item_Export_Base {
 		}
 		/**
 		 * [hook] n2_item_export_base_walk_values
+		 *
+		 * @param string $data 項目値
+		 * @param string $val 項目名
+		 * @param array  $n2values n2dataのループ中の値
 		 */
-		$val = apply_filters( mb_strtolower( get_class( $this ) ) . '_walk_values', $data, $index );
+		$val = apply_filters( mb_strtolower( get_class( $this ) ) . '_walk_values', $data, $val, $n2values );
 	}
 
 	/**
@@ -252,6 +257,23 @@ class N2_Item_Export_Base {
 		 */
 		$str = apply_filters( mb_strtolower( get_class( $this ) ) . '_special_str_convert', $str );
 		return $str;
+	}
+
+	/**
+	 * エラー追加
+	 *
+	 * @param string $data 項目値
+	 * @param string $val 項目名
+	 * @param array  $n2values n2dataのループ中の値
+	 */
+	public function add_error( $data, $val, $n2values ) {
+		// 必須漏れなどのエラー処理
+		if ( '' === $data ) {
+			if ( preg_match( '/タイトル/', $val ) ) {
+				$this->data['error'][ $n2values['id'] ][] = $val;
+			}
+		}
+		return $data;
 	}
 
 	/**
