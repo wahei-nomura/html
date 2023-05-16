@@ -337,6 +337,7 @@ class N2_Item_Export_Base {
 			echo htmlspecialchars_decode( $str );
 			exit;
 		}
+		// エラーしか無い場合
 		if ( ! $str ) {
 			echo '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">';
 			$this->display_error();
