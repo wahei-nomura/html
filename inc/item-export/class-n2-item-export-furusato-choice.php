@@ -126,18 +126,20 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 	/**
 	 * エラーチェック
 	 *
-	 * @param string $data 項目値
-	 * @param string $val 項目名
+	 * @param string $value 項目値
+	 * @param string $name 項目名
 	 * @param array  $n2values n2dataのループ中の値
+	 *
+	 * @return $value
 	 */
-	public function check_error( $data, $val, $n2values ) {
-		if ( '' !== $data ) {
-			return $data;
+	public function check_error( $value, $name, $n2values ) {
+		if ( '' !== $value ) {
+			return $value;
 		}
-		if ( preg_match( '/（必須）|必要寄付金額/', $val ) ) {
-			$this->add_error( $n2values['id'], $val );
+		if ( preg_match( '/（必須）|必要寄付金額/', $name ) ) {
+			$this->add_error( $n2values['id'], $name );
 		}
-		return $data;
+		return $value;
 	}
 
 	/**
