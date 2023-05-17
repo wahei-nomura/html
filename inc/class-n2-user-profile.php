@@ -34,7 +34,7 @@ class N2_User_Profile {
 	 * @return array
 	 */
 	public function add_user_custom_meta( $add_custom_meta ) {
-		$add_custom_meta['portal_site_display_name'] = 'ポータルサイトでの表示名';
+		$add_custom_meta['portal_site_display_name'] = 'ポータルサイトでの表示名<span class="no-display-name">※ポータルサイトに事業者名を表示したくない場合は「記載しない」と入力してください。</span>';
 		return $add_custom_meta;
 	}
 
