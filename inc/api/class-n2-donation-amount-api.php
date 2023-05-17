@@ -107,13 +107,11 @@ class N2_Donation_Amount_API {
 	 */
 	private function update_dellivery_fee( $post_id ) {
 		global $n2;
-		// 発送サイズを元に送料計算
-		$size = array(
+		// $n2->delivery_feeのキーを生成
+		$size = $this->get_dellivery_fee_from_size(
 			get_post_meta( $post_id, '発送サイズ', true ),
-			'常温' !== get_post_meta( $post_id, '発送方法', true ) ? 'cool' : '',
+			get_post_meta( $post_id, '発送方法', true )
 		);
-		$size = array_filter( $size );
-		$size = implode( '_', $size );// 0101_coolなどにする
 		// 新送料
 		$calc_delivery_fee = $n2->delivery_fee[ $size ] ?? false;
 		// 旧送料
@@ -126,5 +124,24 @@ class N2_Donation_Amount_API {
 		update_post_meta( $post_id, '送料', $calc_delivery_fee );
 		$title = get_the_title( $post_id );
 		echo "「{$title}」の送料を「{$delivery_fee} → {$calc_delivery_fee}」に更新。\n";
+	}
+
+	/**
+	 * 発送サイズキー生成
+	 *
+	 * @param string $size 発送サイズ
+	 * @param string $method 発送方法
+	 *
+	 * @return string $size 0101_coolなど
+	 */
+	public static function get_dellivery_fee_from_size( $size, $method ) {
+		// 発送サイズを元に送料計算
+		$size = array(
+			$size,
+			'常温' !== $method ? 'cool' : '',
+		);
+		$size = array_filter( $size );// 空削除
+		$size = implode( '_', $size );// 0101_coolなど
+		return $size;
 	}
 }
