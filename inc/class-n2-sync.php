@@ -814,9 +814,9 @@ class N2_Sync {
 				}
 			}
 			if ( empty( $d['送料'] ) && ! empty( $d['発送サイズ'] ) && ! empty( $d['発送方法'] ) ) {
-				$size = N2_Donation_Amount_API::get_dellivery_fee_from_size( $d['発送サイズ'], $d['発送方法'] );
+				$delivery_code = N2_Donation_Amount_API::create_delivery_code( $d['発送サイズ'], $d['発送方法'] );
 				// 送料計算
-				$d['送料'] = $n2->delivery_fee[ $size ] ?? '';
+				$d['送料'] = $n2->delivery_fee[ $delivery_code ] ?? '';
 			}
 			// $postarrにセット
 			$postarr[ $k ]['meta_input'] = $d;

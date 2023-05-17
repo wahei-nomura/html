@@ -108,12 +108,12 @@ class N2_Donation_Amount_API {
 	private function update_dellivery_fee( $post_id ) {
 		global $n2;
 		// $n2->delivery_feeのキーを生成
-		$size = $this->get_dellivery_fee_from_size(
+		$delivery_code = $this->create_delivery_code(
 			get_post_meta( $post_id, '発送サイズ', true ),
 			get_post_meta( $post_id, '発送方法', true )
 		);
 		// 新送料
-		$calc_delivery_fee = $n2->delivery_fee[ $size ] ?? false;
+		$calc_delivery_fee = $n2->delivery_fee[ $delivery_code ] ?? false;
 		// 旧送料
 		$delivery_fee = get_post_meta( $post_id, '送料', true );
 		// 新旧一致、または不明の場合は何もしない
@@ -134,14 +134,14 @@ class N2_Donation_Amount_API {
 	 *
 	 * @return string $size 0101_coolなど
 	 */
-	public static function get_dellivery_fee_from_size( $size, $method ) {
+	public static function create_delivery_code( $size, $method ) {
 		// 発送サイズを元に送料計算
-		$size = array(
+		$delivery_code = array(
 			$size,
 			'常温' !== $method ? 'cool' : '',
 		);
-		$size = array_filter( $size );// 空削除
-		$size = implode( '_', $size );// 0101_coolなど
-		return $size;
+		$delivery_code = array_filter( $delivery_code );// 空削除
+		$delivery_code = implode( '_', $delivery_code );// 0101_coolなど
+		return $delivery_code;
 	}
 }
