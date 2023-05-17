@@ -269,12 +269,14 @@ class N2 {
 		$this->special_str_convert = yaml_parse_file( get_theme_file_path( 'config/n2-special-str-comvert.yml' ) );
 
 		// 送料設定
-		$this->delivery_fee = $n2_option['delivery_fee'] ?? yaml_parse_file( get_theme_file_path( 'config/n2-delivery-fee.yml' ) );
-		// クールの自動加算
-		$this->delivery_fee['0101_cool'] = (string) ( $this->delivery_fee['0101'] + 220 );
-		$this->delivery_fee['0102_cool'] = (string) ( $this->delivery_fee['0102'] + 220 );
-		$this->delivery_fee['0103_cool'] = (string) ( $this->delivery_fee['0103'] + 330 );
-		$this->delivery_fee['0104_cool'] = (string) ( $this->delivery_fee['0104'] + 660 );
+		$this->delivery_fee = $n2_option['delivery_fee'] ?? false;
+		if ( $this->delivery_fee ) {
+			// クールの自動加算
+			$this->delivery_fee['0101_cool'] = (string) ( $this->delivery_fee['0101'] + 220 );
+			$this->delivery_fee['0102_cool'] = (string) ( $this->delivery_fee['0102'] + 220 );
+			$this->delivery_fee['0103_cool'] = (string) ( $this->delivery_fee['0103'] + 330 );
+			$this->delivery_fee['0104_cool'] = (string) ( $this->delivery_fee['0104'] + 660 );
+		}
 
 		// 寄附金額計算式タイプ
 		$this->formula = wp_parse_args(

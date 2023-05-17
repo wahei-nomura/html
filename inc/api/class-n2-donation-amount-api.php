@@ -72,26 +72,76 @@ class N2_Donation_Amount_API {
 	 * 寄附金額一括自動計算
 	 */
 	public function update_all_donation_amount() {
+		echo '<pre>';
+		ob_start();
 		foreach ( get_posts( 'post_status=any&numberposts=-1' ) as $post ) {
+			// 送料をアップデート
+			$this->update_dellivery_fee( $post->ID );
+			// 寄附金額固定の場合はここでループ抜ける
 			$fixed = array_filter( get_post_meta( $post->ID, '寄附金額固定', true ) ?: array() );
 			if ( ! empty( $fixed ) ) {
 				continue;
 			}
+			// 寄附金額計算の素材集め
 			$price           = get_post_meta( $post->ID, '価格', true );
 			$delivery_fee    = get_post_meta( $post->ID, '送料', true );
 			$subscription    = get_post_meta( $post->ID, '定期便', true );
-			$donation_amount = (int) get_post_meta( $post->ID, '寄附金額', true );
+			$donation_amount = get_post_meta( $post->ID, '寄附金額', true );
 			// 自動計算
-			$calc_donation_amount = (int) $this->calc( compact( 'price', 'delivery_fee', 'subscription' ) );
-			if ( $donation_amount > 0 && $donation_amount !== $calc_donation_amount ) {
-				update_post_meta( $post->ID, '寄附金額', $calc_donation_amount );
-				echo "<pre>「{$post->post_title}」の寄附金額を更新</pre>";
+			$calc_donation_amount = $this->calc( compact( 'price', 'delivery_fee', 'subscription' ) );
+			// 新旧一致の場合は何もしない
+			if ( (int) $donation_amount === (int) $calc_donation_amount ) {
+				continue;
 			}
+			update_post_meta( $post->ID, '寄附金額', $calc_donation_amount );
+			echo "「{$post->post_title}」の寄附金額を「{$donation_amount} → {$calc_donation_amount}」に更新。\n";
 		}
+		echo ob_get_clean() ?: '更新する項目がありませんでした。';
 		exit;
 	}
 
 	/**
-	 * 
+	 * 送料未設定の場合の送料を設定
+	 *
+	 * @param int $post_id 投稿ID
 	 */
+	private function update_dellivery_fee( $post_id ) {
+		global $n2;
+		// $n2->delivery_feeのキーを生成
+		$delivery_code = $this->create_delivery_code(
+			get_post_meta( $post_id, '発送サイズ', true ),
+			get_post_meta( $post_id, '発送方法', true )
+		);
+		// 新送料
+		$calc_delivery_fee = $n2->delivery_fee[ $delivery_code ] ?? false;
+		// 旧送料
+		$delivery_fee = get_post_meta( $post_id, '送料', true );
+		// 新旧一致、または不明の場合は何もしない
+		if ( (int) $delivery_fee === (int) $calc_delivery_fee || ! $calc_delivery_fee ) {
+			return;
+		}
+		// 送料の更新
+		update_post_meta( $post_id, '送料', $calc_delivery_fee );
+		$title = get_the_title( $post_id );
+		echo "「{$title}」の送料を「{$delivery_fee} → {$calc_delivery_fee}」に更新。\n";
+	}
+
+	/**
+	 * 発送サイズキー生成
+	 *
+	 * @param string $size 発送サイズ
+	 * @param string $method 発送方法
+	 *
+	 * @return string $size 0101_coolなど
+	 */
+	public static function create_delivery_code( $size, $method ) {
+		// 発送サイズを元に送料計算
+		$delivery_code = array(
+			$size,
+			'常温' !== $method ? 'cool' : '',
+		);
+		$delivery_code = array_filter( $delivery_code );// 空削除
+		$delivery_code = implode( '_', $delivery_code );// 0101_coolなど
+		return $delivery_code;
+	}
 }

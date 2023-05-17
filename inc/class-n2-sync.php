@@ -105,9 +105,26 @@ class N2_Sync {
 	 * N2 SYNC　メニューの追加
 	 */
 	public function add_menu() {
+		global $n2;
+		if ( ! $n2->delivery_fee ) {
+			add_menu_page( 'N2 SYNC', 'N2 SYNC', 'ss_crew', 'n2_sync', array( $this, 'error_ui' ), 'dashicons-update' );
+			return;
+		}
 		add_menu_page( 'N2 SYNC', 'N2 SYNC', 'ss_crew', 'n2_sync', array( $this, 'sync_ui' ), 'dashicons-update' );
 		register_setting( 'n2_sync_settings_n1', 'n2_sync_settings_n1' );
 		register_setting( 'n2_sync_settings_spreadsheet', 'n2_sync_settings_spreadsheet' );
+	}
+
+	/**
+	 * セットアップ不足エラーページ
+	 */
+	public function error_ui() {
+		?>
+		<div class="wrap">
+			<h1>N2 SYNC</h1>
+			<p>N2 SYNCを使うには<a href="?page=n2_crew_setup_menu">各種セットアップ</a>の送料タブの値を入力して下さい。</p>
+		</div>
+		<?php
 	}
 
 	/**
@@ -813,10 +830,15 @@ class N2_Sync {
 					}
 				}
 			}
+			if ( empty( $d['送料'] ) && ! empty( $d['発送サイズ'] ) && ! empty( $d['発送方法'] ) ) {
+				$delivery_code = N2_Donation_Amount_API::create_delivery_code( $d['発送サイズ'], $d['発送方法'] );
+				// 送料計算
+				$d['送料'] = $n2->delivery_fee[ $delivery_code ] ?? '';
+			}
 			// $postarrにセット
 			$postarr[ $k ]['meta_input'] = $d;
 		}
-		$this->multi_insert_posts( $postarr, 100, $_GET['update'] || false );
+		$this->multi_insert_posts( $postarr, 100, $_GET['update'] ?? false );
 		// GETパラメータで受け取ったidとitem_rangeも保存
 		update_option(
 			'n2_sync_settings_spreadsheet',
