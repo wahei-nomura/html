@@ -10,3 +10,14 @@
 #your-profile h2 {
 	display: none;
 }
+.user-portal_site_display_name-wrap {
+	position: relative;
+}
+.no-display-name {
+	position: absolute;
+    top: 3rem;
+    font-size: .8rem;
+    font-weight: normal;
+    color: #8b0000;
+    left: 0;
+}

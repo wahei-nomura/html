@@ -25,7 +25,6 @@ class N2_User_Profile {
 	public function __construct() {
 		add_action( 'user_contactmethods', array( $this, 'add_user_custom_meta' ) ); // 項目の追加
 		add_filter( 'gettext', array( $this, 'meta_name_rename' ), 10, 3 ); // ユーザー項目の編集
-		add_action( 'show_user_profile', array( $this, 'add_profile_caution' ) ); // ユーザープロフィール編集画面にフィールドを追加する
 	}
 
 	/**
@@ -35,7 +34,7 @@ class N2_User_Profile {
 	 * @return array
 	 */
 	public function add_user_custom_meta( $add_custom_meta ) {
-		$add_custom_meta['portal_site_display_name'] = 'ポータルサイトでの表示名';
+		$add_custom_meta['portal_site_display_name'] = 'ポータルサイトでの表示名<span class="no-display-name">※ポータルサイトに事業者名を表示したくない場合は「記載しない」と入力してください。</span>';
 		return $add_custom_meta;
 	}
 
@@ -63,11 +62,5 @@ class N2_User_Profile {
 			}
 		}
 		return $translation;
-	}
-	/**
-	 * プロフィールに任意のフィールドを追加するサンプル
-	 */
-	public function add_profile_caution() {
-		echo '<h2 style="display:block">※ポータルサイトに事業者名を表示したくない場合は「ポータルサイトでの表示名」に「記入しない」と入力してください。</h2>';
 	}
 }
