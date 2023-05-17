@@ -90,7 +90,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 		// preg_matchで判定
 		$data = match ( 1 ) {
 			preg_match( '/^管理コード$/', $val )  => $n2values['返礼品コード'],
-			preg_match( '/^（必須）お礼の品名$/', $val ) => $n2values['タイトル'],// * 36文字以内(半角は0.5文字換算)
+			preg_match( '/^（必須）お礼の品名$/', $val ) => "{$n2values['タイトル']} [{$n2values['返礼品コード']}]",// * 36文字以内(半角は0.5文字換算)
 			preg_match( '/^サイト表示事業者名$/', $val )  => $n2values['事業者名'],// 64文字以内
 			preg_match( '/必要寄付金額$/', $val )  => $n2values['寄附金額'],// * 半角数字
 			preg_match( '/^説明$/', $val )  => $n2values['説明文'],// 1,000文字以内
@@ -133,12 +133,15 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 	 * @return $value
 	 */
 	public function check_error( $value, $name, $n2values ) {
-		if ( '' !== $value ) {
-			return $value;
-		}
-		if ( preg_match( '/（必須）|必要寄付金額/', $name ) ) {
+		// 必須漏れエラー
+		if ( preg_match( '/（必須）|必要寄付金額/', $name ) && '' === $value ) {
 			$this->add_error( $n2values['id'], $name );
 		}
+		// 文字数制限エラー
+		// （必須）お礼の品名 36文字以内(半角は0.5文字換算)
+		// if (  ) {
+
+		// }
 		return $value;
 	}
 
