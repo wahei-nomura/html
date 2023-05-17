@@ -838,7 +838,7 @@ class N2_Sync {
 			// $postarrにセット
 			$postarr[ $k ]['meta_input'] = $d;
 		}
-		$this->multi_insert_posts( $postarr, 100, $_GET['update'] || false );
+		$this->multi_insert_posts( $postarr, 100, $_GET['update'] ?? false );
 		// GETパラメータで受け取ったidとitem_rangeも保存
 		update_option(
 			'n2_sync_settings_spreadsheet',
