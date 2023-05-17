@@ -86,13 +86,15 @@ class N2_Donation_Amount_API {
 			$price           = get_post_meta( $post->ID, '価格', true );
 			$delivery_fee    = get_post_meta( $post->ID, '送料', true );
 			$subscription    = get_post_meta( $post->ID, '定期便', true );
-			$donation_amount = (int) get_post_meta( $post->ID, '寄附金額', true );
+			$donation_amount = get_post_meta( $post->ID, '寄附金額', true );
 			// 自動計算
-			$calc_donation_amount = (int) $this->calc( compact( 'price', 'delivery_fee', 'subscription' ) );
-			if ( $donation_amount !== $calc_donation_amount ) {
-				update_post_meta( $post->ID, '寄附金額', $calc_donation_amount );
-				echo "「{$post->post_title}」の寄附金額を「{$donation_amount} → {$calc_donation_amount}」に更新。\n";
+			$calc_donation_amount = $this->calc( compact( 'price', 'delivery_fee', 'subscription' ) );
+			// 新旧一致の場合は何もしない
+			if ( (int) $donation_amount === (int) $calc_donation_amount ) {
+				continue;
 			}
+			update_post_meta( $post->ID, '寄附金額', $calc_donation_amount );
+			echo "「{$post->post_title}」の寄附金額を「{$donation_amount} → {$calc_donation_amount}」に更新。\n";
 		}
 		echo ob_get_clean() ?: '更新する項目がありませんでした。';
 		exit;
@@ -113,16 +115,16 @@ class N2_Donation_Amount_API {
 		$size = array_filter( $size );
 		$size = implode( '_', $size );// 0101_coolなどにする
 		// 新送料
-		$delivery_fee = (int) $n2->delivery_fee[ $size ] ?? false;
+		$calc_delivery_fee = $n2->delivery_fee[ $size ] ?? false;
 		// 旧送料
-		$old_delivery_fee = (int) get_post_meta( $post_id, '送料', true );
+		$delivery_fee = get_post_meta( $post_id, '送料', true );
 		// 新旧一致、または不明の場合は何もしない
-		if ( $old_delivery_fee === $delivery_fee || ! $delivery_fee ) {
+		if ( (int) $delivery_fee === (int) $calc_delivery_fee || ! $calc_delivery_fee ) {
 			return;
 		}
 		// 送料の更新
-		update_post_meta( $post_id, '送料', $delivery_fee );
+		update_post_meta( $post_id, '送料', $calc_delivery_fee );
 		$title = get_the_title( $post_id );
-		echo "「{$title}」の送料を「{$old_delivery_fee} → {$n2->delivery_fee[ $size ]}」に更新。\n";
+		echo "「{$title}」の送料を「{$delivery_fee} → {$calc_delivery_fee}」に更新。\n";
 	}
 }
