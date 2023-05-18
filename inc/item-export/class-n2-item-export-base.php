@@ -273,7 +273,7 @@ class N2_Item_Export_Base {
 			return $value;
 		}
 		if ( preg_match( '/タイトル/', $name ) ) {
-			$this->add_error( $n2values['id'], $name );
+			$this->add_error( $n2values['id'], "<div>「{$name}」がありません。</div>" );
 		}
 		return $value;
 	}
@@ -296,14 +296,14 @@ class N2_Item_Export_Base {
 			return;
 		}
 		$html    = '';
-		$pattern = '<tr><th><a href="%s" target="_blank">%s</a></th><td>%s</td></tr>';
+		$pattern = '<tr><th><a href="%s" target="_blank">%s</a></th><td><ul class="mb-0"><li>%s</li></ul></td></tr>';
 		foreach ( $this->data['error'] as $id => $errors ) {
-			$html .= wp_sprintf( $pattern, get_edit_post_link( $id ), $id, implode( '<br>', $errors ) );
+			$html .= wp_sprintf( $pattern, get_edit_post_link( $id ), $id, implode( '</li><li>', $errors ) );
 		}
 		?>
 		<table class="table table-striped">
 			<thead>
-				<tr><th>ID</th><th>エラー項目</th></tr>
+				<tr><th>ID</th><th>エラー内容</th></tr>
 			</thead>
 			<?php echo $html; ?>
 		</table>
