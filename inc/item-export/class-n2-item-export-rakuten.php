@@ -91,10 +91,10 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			preg_match( '/^販売価格$/', $val )  => $n2values['寄附金額'],
 			preg_match( '/^送料$/', $val )  => $n2values['送料'],
 			preg_match( '/^のし対応$/', $val )  =>  ( '有り' === $n2values['のし対応'] ) ? 1 : '',
-			// preg_match( '/^PC用商品説明文$/', $val )  => $n2values['説明文'] . '<br><br>' .  $n2values['内容量・規格等'] . '<br>' . ( ( '' !== $n2values['賞味期限'] ) ? '<br>【賞味期限】<br>' . $n2values['賞味期限'] . '<br>' : '' ) .  ( ( '' !== $n2values['消費期限'] ) ? '<br>【消費期限】<br>' . $n2values['消費期限'] . '<br>' : '' ) ,
-			// preg_match( '/^スマートフォン用商品説明文$/', $val )  => $n2values['説明文'],
-			// preg_match( '/^PC用販売説明文$/', $val )  => $this->pc_sales_description( $n2values['id'] ),
 			preg_match( '/^商品画像URL$/', $val )  => $this->get_img_urls( $n2values['id'] ),
+			preg_match( '/^PC用商品説明文$/', $val )  => $this->pc_item_description( $n2values['id'] ),
+			preg_match( '/^PC用販売説明文$/', $val )  => $this->pc_item_description( $n2values['id'] ),
+			// preg_match( '/^スマートフォン用商品説明文$/', $val )  => $this->sp_item_description( $n2values['id'] ),
 			// preg_match( '/^在庫タイプ$/', $val )  => $n2values['返礼品コード'],// 1,000文字以内
 			// preg_match( '/^在庫数$/', $val )  => $n2values['返礼品コード'],// 1,000文字以内
 			// preg_match( '/^カタログID$/', $val )  => $n2values['返礼品コード'],// 1,000文字以内
