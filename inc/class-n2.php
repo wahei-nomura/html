@@ -115,7 +115,7 @@ class N2 {
 	 *
 	 * @var array
 	 */
-	public $ledghome_csv_contents;
+	public $ledghome;
 
 	/**
 	 * カスタムフィールド
@@ -278,7 +278,7 @@ class N2 {
 		$this->choice = array( ...$choice_yml, ...$this->choice );
 
 		// レジホーム
-		$this->ledghome_csv_contents = apply_filters( 'n2_item_export_ledghome_header', yaml_parse_file( get_theme_file_path( 'config/n2-ledghome-csv-header.yml' ) ) );
+		$this->ledghome['csv_header'] = apply_filters( 'n2_item_export_ledghome_header', yaml_parse_file( get_theme_file_path( 'config/n2-ledghome-csv-header.yml' ) ) );
 	}
 
 	/**
