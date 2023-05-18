@@ -292,7 +292,10 @@ class N2_Item_Export_Base {
 	 * エラー表示
 	 */
 	private function display_error() {
-		$html = '';
+		if ( empty( $this->data['error'] ) ) {
+			return;
+		}
+		$html    = '';
 		$pattern = '<tr><th><a href="%s" target="_blank">%s</a></th><td>%s</td></tr>';
 		foreach ( $this->data['error'] as $id => $errors ) {
 			$html .= wp_sprintf( $pattern, get_edit_post_link( $id ), $id, implode( '<br>', $errors ) );
