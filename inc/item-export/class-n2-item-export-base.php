@@ -233,11 +233,18 @@ class N2_Item_Export_Base {
 	private function set_data_string() {
 		$str = '';
 		foreach ( $this->data['data'] as $key => $value ) {
-			// ダブルクオーテーションのエスケープ処理
-			$value = array_map( fn( $v ) => str_replace( '"', '""', $v ), $value );
-			// その他文字列の痴漢
-			$value = array_map( array( $this, 'special_str_convert' ), $value );
-			$str  .= '"' . implode( "\"{$this->settings['delimiter']}\"", $value ) . '"' . PHP_EOL;
+			// $valueが多次元配列の場合は行列入れ替え
+			$value = match ( count( $value, COUNT_RECURSIVE ) ) {
+				count( $value ) => array( $value ),
+				default => array_map( null, ...array_values( $value ) ),
+			};
+			foreach ( $value as $val ) {
+				// ダブルクオーテーションのエスケープ処理
+				$val = array_map( fn( $v ) => str_replace( '"', '""', $v ), $val );
+				// その他文字列の痴漢
+				$val  = array_map( array( $this, 'special_str_convert' ), $val );
+				$str .= '"' . implode( "\"{$this->settings['delimiter']}\"", $val ) . '"' . PHP_EOL;
+			}
 		}
 		/**
 		 * [hook] n2_item_export_base_set_data_string
