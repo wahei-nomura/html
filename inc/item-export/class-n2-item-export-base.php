@@ -364,7 +364,7 @@ class N2_Item_Export_Base {
 	 */
 	private function spreadsheet() {
 		$this->settings['delimiter']     = "\t";// タブを強制
-		$this->settings['header_string'] = '';// ヘッダーを強制
+		$this->settings['header_string'] = $this->settings['header_string'] ?: '';// ヘッダーを強制
 		$this->set_header_string();
 		$this->set_data_string();
 		// データを文字列に
@@ -383,6 +383,7 @@ class N2_Item_Export_Base {
 	private function debug() {
 		$this->set_header_string();
 		$this->set_data_string();
+		echo '<title>[DEV] エクスポート</title>';
 		echo '<pre>';
 		print_r( $this->settings );
 		print_r( $this->data );
