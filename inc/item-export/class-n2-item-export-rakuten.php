@@ -93,7 +93,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			preg_match( '/^のし対応$/', $val )  =>  ( '有り' === $n2values['のし対応'] ) ? 1 : '',
 			preg_match( '/^商品画像URL$/', $val )  => $this->get_img_urls( $n2values['id'] ),
 			preg_match( '/^PC用商品説明文$/', $val )  => $this->pc_item_description( $n2values['id'] ),
-			preg_match( '/^PC用販売説明文$/', $val )  => $this->pc_item_description( $n2values['id'] ),
+			preg_match( '/^PC用販売説明文$/', $val )  => $this->pc_sales_description( $n2values['id'] ),
 			// preg_match( '/^スマートフォン用商品説明文$/', $val )  => $this->sp_item_description( $n2values['id'] ),
 			// preg_match( '/^在庫タイプ$/', $val )  => $n2values['返礼品コード'],// 1,000文字以内
 			// preg_match( '/^在庫数$/', $val )  => $n2values['返礼品コード'],// 1,000文字以内
@@ -410,7 +410,6 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 * @return string 商品説明テーブル
 	 */
 	public function make_itemtable( $post_id, $return_string = true ) {
-		$config         = $this->get_config( 'item_csv' );
 		$post_keys      = array(
 			'表示名称',
 			'略称',
