@@ -73,9 +73,13 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 				'寄附設定金額' => $i > 1 ? 0 : $n2values['寄附金額'],// 定期便の場合は１回目のみ
 				'価格（税込み）' => $n2values['価格'],// 1回目に全部含めるかどうかの設定値を使う（まだ設定できるとこが無い）
 				'送料' => $n2values['送料'],
-				'送料反映' => is_numeric( $n2values['発送サイズ'] ) ? '反映しない' : '反映する',// するのかしないのかのルールがマジ意味不明
+				'送料反映' => match ( $n2values['発送サイズ'] ) {
+					'その他' => '反映する',
+					'レターパックプラス', 'レターパックライト' => $n2->ledghome['レターパック送料反映'],// option設定できるようにする
+					default => '反映しない',
+				},
 				'発送方法' => $n2values['発送方法'],
-				'取り扱い方法' => implode( ',', $n2values['取り扱い方法'] ),
+				'取り扱い方法' => implode( ',', (array) $n2values['取り扱い方法'] ),
 				'申込可能期間' => '通年',
 				'自由入力欄1' => wp_date( 'Y/m/d' ) . "：{$n2->current_user->data->display_name}",
 				'自由入力欄2' => $n2values['送料'],
