@@ -105,21 +105,16 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 	 * @return $value
 	 */
 	public function check_error( $value, $name, $n2values ) {
-		// 必須漏れエラー
-		if ( preg_match( '/（必須）|必要寄付金額/', $name ) && '' === $value ) {
-			$this->add_error( $n2values['id'], "「{$name}」がありません。" );
+		foreach ( (array) $value as $num => $val ) {
+			// 定期便の一回目以降はこれ以下の処理はしない
+			if ( $num > 1 ) {
+				continue;
+			}
+			// SS的必須漏れエラー
+			if ( preg_match( '/謝礼品番号|事業者|価格（税込み）|寄附設定金額/', $name ) && empty( $val ) ) {
+				$this->add_error( $n2values['id'], "「{$name}」がありません。" );
+			}
 		}
-		// 文字数制限エラー
-		// $len       = mb_strlen( $value );// $valueの文字数
-		// $maxlength = array(
-		// 	// 40 => '謝礼品紹介文',
-		// );
-		// foreach ( $maxlength as $max => $pattern ) {
-		// 	if ( preg_match( "/{$pattern}/", $name ) && $len > $max ) {
-		// 		$over = $len - $max;
-		// 		$this->add_error( $n2values['id'], "<div title='{$value}'>「{$name}」の文字数が{$over}文字多いです。</div>" );
-		// 	}
-		// }
 		return $value;
 	}
 	/**
