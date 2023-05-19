@@ -65,7 +65,7 @@ class N2_Item_Export_Base {
 			'numberposts' => -1,
 			'mode'        => 'download',
 			'sort'        => '返礼品コード',
-			'order'       => SORT_ASC,
+			'order'       => '',
 		);
 		// デフォルト値を$_GETで上書き
 		$_GET = wp_parse_args( $_GET, $defaults );
