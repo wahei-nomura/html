@@ -61,13 +61,17 @@ class N2_Item_Export_Base {
 		add_filter( 'admin_memory_limit', fn() => '512M' );
 
 		$defaults = array(
-			'mode' => 'download',
+			'post_status' => 'any',
+			'numberposts' => -1,
+			'mode'        => 'download',
+			'sort'        => '返礼品コード',
+			'order'       => '',
 		);
 		// デフォルト値を$_GETで上書き
-		$get = wp_parse_args( $_GET, $defaults );
+		$_GET = wp_parse_args( $_GET, $defaults );
 
-		if ( ! method_exists( 'N2_Item_Export_Base', $get['mode'] ) ) {
-			echo "「{$get['mode']}」メソッドは存在しません。";
+		if ( ! method_exists( 'N2_Item_Export_Base', $_GET['mode'] ) ) {
+			echo "「{$_GET['mode']}」メソッドは存在しません。";
 			exit;
 		}
 
@@ -79,7 +83,7 @@ class N2_Item_Export_Base {
 		$this->set_header();
 		$this->set_data();
 
-		$this->{$get['mode']}();
+		$this->{$_GET['mode']}();
 	}
 
 	/**
@@ -113,8 +117,8 @@ class N2_Item_Export_Base {
 		$n2data = array();
 		// 投稿制御
 		$args = array(
-			'post_status' => $_GET['post_status'] ?? 'any',
-			'numberposts' => $_GET['numberposts'] ?? '-1',
+			'post_status' => $_GET['post_status'],
+			'numberposts' => $_GET['numberposts'],
 			'fields'      => 'ids',
 		);
 		// POSTされた投稿ID
@@ -122,6 +126,8 @@ class N2_Item_Export_Base {
 		$ids = $ids ? explode( ',', $ids ) : get_posts( $args );
 		foreach ( $ids as $id ) {
 			$post = get_post( $id );
+			// ID追加
+			$n2data[ $id ]['id'] = $id;
 			// タイトル追加
 			$n2data[ $id ]['タイトル'] = $post->post_title;
 			// 事業者コード追加
@@ -149,7 +155,14 @@ class N2_Item_Export_Base {
 		/**
 		 * [hook] n2_item_export_base_set_n2data
 		 */
-		$this->data['n2data'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_n2data', $n2data );
+		$n2data = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_n2data', $n2data );
+		// ソート
+		array_multisort(
+			array_column( $n2data, $_GET['sort'] ),
+			'desc' === $_GET['order'] ? SORT_DESC : SORT_ASC,
+			$n2data
+		);
+		$this->data['n2data'] = $n2data;
 	}
 
 	/**
@@ -170,7 +183,6 @@ class N2_Item_Export_Base {
 	private function set_data() {
 		$data = array();
 		foreach ( $this->data['n2data'] as $id => $values ) {
-			$values['id'] = $id;
 			// ヘッダーをセット
 			$data[ $id ] = $this->data['header'];
 			array_walk( $data[ $id ], array( $this, 'walk_values' ), $values );
@@ -233,11 +245,18 @@ class N2_Item_Export_Base {
 	private function set_data_string() {
 		$str = '';
 		foreach ( $this->data['data'] as $key => $value ) {
-			// ダブルクオーテーションのエスケープ処理
-			$value = array_map( fn( $v ) => str_replace( '"', '""', $v ), $value );
-			// その他文字列の痴漢
-			$value = array_map( array( $this, 'special_str_convert' ), $value );
-			$str  .= '"' . implode( "\"{$this->settings['delimiter']}\"", $value ) . '"' . PHP_EOL;
+			// $valueが多次元配列の場合は行列入れ替え
+			$value = match ( count( $value, COUNT_RECURSIVE ) ) {
+				count( $value ) => array( $value ),
+				default => array_map( null, ...array_values( $value ) ),
+			};
+			foreach ( $value as $val ) {
+				// ダブルクオーテーションのエスケープ処理
+				$val = array_map( fn( $v ) => str_replace( '"', '""', $v ), $val );
+				// その他文字列の痴漢
+				$val  = array_map( array( $this, 'special_str_convert' ), $val );
+				$str .= '"' . implode( "\"{$this->settings['delimiter']}\"", $val ) . '"' . PHP_EOL;
+			}
 		}
 		/**
 		 * [hook] n2_item_export_base_set_data_string
@@ -364,7 +383,7 @@ class N2_Item_Export_Base {
 	 */
 	private function spreadsheet() {
 		$this->settings['delimiter']     = "\t";// タブを強制
-		$this->settings['header_string'] = '';// ヘッダーを強制
+		$this->settings['header_string'] = $this->settings['header_string'] ?: '';// ヘッダーを強制
 		$this->set_header_string();
 		$this->set_data_string();
 		// データを文字列に
@@ -383,6 +402,7 @@ class N2_Item_Export_Base {
 	private function debug() {
 		$this->set_header_string();
 		$this->set_data_string();
+		echo '<title>[DEV] エクスポート</title>';
 		echo '<pre>';
 		print_r( $this->settings );
 		print_r( $this->data );
