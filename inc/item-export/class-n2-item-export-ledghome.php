@@ -14,7 +14,7 @@ if ( class_exists( 'N2_Item_Export_Ledghome' ) ) {
 }
 
 /**
- * N2_Item_Export_Base
+ * N2_Item_Export_Ledghome
  */
 class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 
