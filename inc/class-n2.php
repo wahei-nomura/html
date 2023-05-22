@@ -125,6 +125,13 @@ class N2 {
 	public $ledghome;
 
 	/**
+	 * ポータル設定
+	 *
+	 * @var array
+	 */
+	public $portal_setting;
+
+	/**
 	 * カスタムフィールド
 	 *
 	 * @var array
@@ -331,6 +338,15 @@ class N2 {
 			apply_filters(
 				'n2_setting_ledghome',
 				yaml_parse_file( get_theme_file_path( 'config/n2-setting-ledghome.yml' ) )
+			),
+		);
+
+		// ポータル設定
+		$this->portal_setting = wp_parse_args(
+			$n2_option['portal_setting'] ?? array(),
+			apply_filters(
+				'n2_portal_setting',
+				yaml_parse_file( get_theme_file_path( 'config/n2-portal-setting.yml' ) )
 			),
 		);
 
