@@ -12,7 +12,7 @@
 		<h2><?php the_title(); ?>について要望</h2>
 
 		<?php
-			global $post;
+			global $post, $n2;
 
 			$comments = get_comments(
 				array(
@@ -46,7 +46,7 @@
 		<?php endif; ?>
 
 		<?php
-		$selected = selected( in_array( $_SERVER['REMOTE_ADDR'], N2_IPS ), true, false );
+		$selected = selected( in_array( $_SERVER['REMOTE_ADDR'], $n2->ss_ip_address ), true, false );
 		$author   = get_userdata( $post->post_author )->display_name;
 		?>
 

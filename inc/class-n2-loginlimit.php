@@ -35,12 +35,12 @@ class N2_Loginlimit {
 	 * @return void
 	 */
 	public function judge_administrator_ip( $user_login, $user ) {
+		global $n2;
 		if ( ! empty( $user->roles[0] ) && 'administrator' !== $user->roles[0] ) {
 			return;
 		}
 
-		// N2_IPSはconfig/config.phpで定義
-		if ( 'wp-multi.ss.localhost' !== get_network()->domain && ! in_array( $_SERVER['REMOTE_ADDR'], N2_IPS ) ) {
+		if ( 'wp-multi.ss.localhost' !== get_network()->domain && ! in_array( $_SERVER['REMOTE_ADDR'], $n2->ss_ip_address ) ) {
 			wp_logout();
 			echo $_SERVER['REMOTE_ADDR'];
 			exit;
@@ -85,6 +85,7 @@ class N2_Loginlimit {
 	 * All In One WP Securityの初期設定
 	 */
 	public function set_aio_wp_security_configs() {
+		global $n2;
 		$configs = get_option( 'aio_wp_security_configs' );
 		if ( empty( $configs ) ) {
 			return;
@@ -94,7 +95,7 @@ class N2_Loginlimit {
 		$configs['aiowps_login_page_slug']          = 'MSN-06S';
 		// ホワイトIPリスト
 		$configs['aiowps_lockdown_enable_whitelisting']  = 1;
-		$configs['aiowps_lockdown_allowed_ip_addresses'] = implode( "\n", N2_IPS );
+		$configs['aiowps_lockdown_allowed_ip_addresses'] = implode( "\n", $n2->ss_ip_address );
 		update_option( 'aio_wp_security_configs', $configs );
 	}
 }

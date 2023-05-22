@@ -43,10 +43,11 @@ class N2_Front {
 	 * ajaxで事業者確認パラメーターを更新
 	 */
 	public function update_item_confirm() {
+		global $n2;
 		date_default_timezone_set( 'Asia/Tokyo' );
 		$post_id       = filter_input( INPUT_POST, 'post_id', FILTER_SANITIZE_NUMBER_INT );
 		$confirm_value = filter_input( INPUT_POST, 'confirm_value' );
-		$is_ssoffice   = in_array( $_SERVER['REMOTE_ADDR'], N2_IPS ) ? 'ssofice' : 'no-ssofice';
+		$is_ssoffice   = in_array( $_SERVER['REMOTE_ADDR'], $n2->ss_ip_address ) ? 'ssofice' : 'no-ssofice';
 		update_post_meta( $post_id, '事業者確認', array( $confirm_value, date( 'Y-m-d G:i:s' ), $is_ssoffice ) );
 	}
 

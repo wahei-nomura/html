@@ -27,6 +27,13 @@ class N2 {
 	public $cash_buster;
 
 	/**
+	 * SSのIP
+	 *
+	 * @var array
+	 */
+	public $ss_ip_address;
+
+	/**
 	 * ブログプレフィックス
 	 *
 	 * @var string
@@ -221,6 +228,9 @@ class N2 {
 		// wp_options保存値
 		$n2_option = get_option( 'N2_Setupmenu' );
 
+		// SSのIP
+		$this->ss_ip_address = yaml_parse_file( get_theme_file_path( 'config/ss-ip-address.yml' ) );
+
 		// 現在のモード
 		$this->mode = preg_match( '/localhost/', wp_parse_url( get_bloginfo( 'url' ), PHP_URL_HOST ) ) ? 'develop' : 'production';
 
@@ -298,18 +308,31 @@ class N2 {
 		$this->portal_common_discription = $n2_option['add_text'][ get_bloginfo( 'name' ) ] ?? '';
 
 		// 楽天
-		$rakuten_common_yml = yaml_parse_file( get_theme_file_path( 'config/n2-rakuten-common.yml' ) );
-		$this->rakuten      = $n2_option['rakuten'] ?? array();
-		$this->rakuten      = array( ...$rakuten_common_yml, ...$this->rakuten );
+		$this->rakuten = wp_parse_args(
+			$n2_option['rakuten'] ?? array(),
+			apply_filters(
+				'n2_setting_rakuten',
+				yaml_parse_file( get_theme_file_path( 'config/n2-setting-rakuten.yml' ) )
+			)
+		);
 
 		// チョイス
-		$choice_yml   = yaml_parse_file( get_theme_file_path( 'config/n2-choice-tsv-header.yml' ) )['choice'];
-		$this->choice = $n2_option['choice'] ?? array();
-		$this->choice = array( ...$choice_yml, ...$this->choice );
+		$this->choice = wp_parse_args(
+			$n2_option['choice'] ?? array(),
+			apply_filters(
+				'n2_setting_furusato_choice',
+				yaml_parse_file( get_theme_file_path( 'config/n2-setting-furusato-choice.yml' ) )
+			),
+		);
 
 		// レジホーム
-		$this->ledghome['csv_header'] = apply_filters( 'n2_item_export_csv_header', yaml_parse_file( get_theme_file_path( 'config/n2-ledghome-csv-header.yml' ) ) );
-		$this->ledghome['レターパック送料反映'] = '反映する';// get_optionで取るべき
+		$this->ledghome = wp_parse_args(
+			$n2_option['ledghome'] ?? array(),
+			apply_filters(
+				'n2_setting_ledghome',
+				yaml_parse_file( get_theme_file_path( 'config/n2-setting-ledghome.yml' ) )
+			),
+		);
 
 		// N2稼働状況
 		$this->n2_active_flag = $n2_option['N2'] ?? 'false';
@@ -322,22 +345,6 @@ class N2 {
 		foreach ( get_object_vars( $this ) as $key => $value ) {
 			$this->$key = apply_filters( "n2_vars_{$key}", $value );
 		}
-	}
-
-	/**
-	 * IPアドレス
-	 */
-	public function get_ss_ip_address() {
-		return array(
-			'219.111.49.195', // 波佐見
-			'121.2.77.80', // 吉野ヶ里
-			'202.241.189.211', // 糸島
-			'219.111.24.202', // 有田
-			'122.103.81.78', // 出島
-			'183.177.128.173', // 土岐
-			'217.178.116.13', // 大村
-			'175.41.201.54', // SSVPN
-		);
 	}
 
 	/**
