@@ -21,11 +21,6 @@ add_action(
 );
 
 /**
- * Require config.php
- */
-require_once get_theme_file_path( '/config/config.php' );
-
-/**
  * Require inc
  */
 $incs = array(
