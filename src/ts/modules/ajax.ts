@@ -41,7 +41,7 @@ jQuery(function ($) {
 		form.target = "n2_another"
 		const input = document.createElement("input");
 		input.type = "hidden";
-		input.name = btnName;
+		input.name = 'ids';
 		input.value = ids;
 		form.appendChild(input);
 		body.appendChild(form);
