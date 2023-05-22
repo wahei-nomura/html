@@ -1,7 +1,7 @@
 <?php
 /**
- * LedgeHOMEの商品エクスポート専用
- * LedgeHOMECSVの仕様：https://steamship.docbase.io/posts/2917248
+ * LedgHOMEの商品エクスポート専用
+ * LedgHOMECSVの仕様：https://steamship.docbase.io/posts/2917248
  * class-n2-item-export-ledghome.php
  * デバッグモード：admin-ajax.php?action=n2_item_export_ledghome&mode=debug
  *
@@ -31,7 +31,7 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 	);
 
 	/**
-	 * LedgeHOMECSVヘッダーを取得
+	 * LedgHOMECSVヘッダーを取得
 	 */
 	protected function set_header() {
 		global $n2;
@@ -45,7 +45,7 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 
 	/**
 	 * データのマッピング（正しい値かどうかここでチェックする）
-	 * LedgeHOMECSVの仕様：https://steamship.docbase.io/posts/2917248
+	 * LedgHOMECSVの仕様：https://steamship.docbase.io/posts/2917248
 	 *
 	 * @param string $val 項目名
 	 * @param string $index インデックス
