@@ -32,7 +32,6 @@ jQuery(function ($) {
 		btnName: string,
 		ids: string
 	): Window => {
-		if (!ids) return;
 		const win = window.open("about:blank", 'n2_another');
 		const form = document.createElement("form");
 		const body = document.getElementsByTagName("body")[0];
