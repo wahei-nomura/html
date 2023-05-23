@@ -35,7 +35,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 	 */
 	protected function set_header() {
 		global $n2;
-		$auth = $n2->choice['auth'];
+		$auth = $n2->portal_setting['ふるさとチョイス']['auth'];
 		$args = array(
 			'headers' => array(
 				'Authorization' => 'Basic ' . base64_encode( "{$auth['user']}:{$auth['pass']}" ),

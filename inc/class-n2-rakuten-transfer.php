@@ -32,7 +32,7 @@ class N2_Rakuten_Transfer {
 	public function transfer_rakuten() {
 		// 各種設定読み込み
 		global $n2;
-		$rakuten = $n2->rakuten;
+		$rakuten = $n2->portal_setting['楽天'];
 		// print_r($rakuten);
 		// setlocale(LC_ALL, 'ja_JP.UTF-8');
 		$error_options = array();

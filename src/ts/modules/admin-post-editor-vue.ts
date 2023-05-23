@@ -16,7 +16,7 @@ export default $ => {
 	}
 	// current_user追加
 	data['current_user'] = n2.current_user.roles[0];
-	data['楽天SPA'] = n2.rakuten.spa || '';
+	data['楽天SPA'] = n2.portal_setting.楽天.spa || '';
 	data['寄附金額チェッカー'] = '';
 	data['寄附金額自動計算値'] = '';
 	const created = async function() {

@@ -90,39 +90,11 @@ class N2 {
 	public $formula;
 
 	/**
-	 * 機種依存文字変換
+	 * 文字変換
 	 *
 	 * @var array
 	 */
 	public $special_str_convert;
-
-	/**
-	 * ポータル共通説明文
-	 *
-	 * @var array
-	 */
-	public $portal_common_discription;
-
-	/**
-	 * 楽天市場
-	 *
-	 * @var array
-	 */
-	public $rakuten;
-
-	/**
-	 * ふるさとチョイス
-	 *
-	 * @var array
-	 */
-	public $choice;
-
-	/**
-	 * レジホーム
-	 *
-	 * @var array
-	 */
-	public $ledghome;
 
 	/**
 	 * ポータル設定
@@ -151,20 +123,6 @@ class N2 {
 	 * @var object
 	 */
 	public $query;
-
-	/**
-	 * ポータル一覧
-	 *
-	 * @var object
-	 */
-	public $portals;
-
-	/**
-	 * ポータル毎の自治体コード
-	 *
-	 * @var object
-	 */
-	public $town_code;
 
 	/**
 	 * N2稼働状況
@@ -266,17 +224,16 @@ class N2 {
 		$this->current_user->__set( 'meta', $user_meta );
 
 		// カスタムフィールド
-		$this->custom_field = array(
-			'スチームシップ用' => yaml_parse_file( get_theme_file_path( 'config/n2-ss-fields.yml' ) ),
-			'事業者用'     => yaml_parse_file( get_theme_file_path( 'config/n2-fields.yml' ) ),
-		);
+		$this->custom_field = yaml_parse_file( get_theme_file_path( 'config/custom-field.yml' ) );
+
 		// 自治体ごとのLHカテゴリー
-		if ( ! empty( $n2_option['lh']['category'] ) ) {
+		if ( ! empty( $n2_option['portal_setting']['LedgHOME']['category'] ) ) {
 			// LHカテゴリーの設定値を配列化
-			$n2_option['lh']['category'] = preg_replace( '/\r\n|\r|\n/', "\n", trim( $n2_option['lh']['category'] ) );
-			$n2_option['lh']['category'] = explode( "\n", $n2_option['lh']['category'] );
+			$lh_category = $n2_option['portal_setting']['LedgHOME']['category'];
+			$lh_category = preg_replace( '/\r\n|\r|\n/', "\n", trim( $lh_category ) );
+			$lh_category = explode( "\n", $lh_category );
 			// option設定
-			$this->custom_field['事業者用']['LHカテゴリー']['option'] = $n2_option['lh']['category'];
+			$this->custom_field['事業者用']['LHカテゴリー']['option'] = $lh_category;
 		}
 
 		// プリントアウト
@@ -304,45 +261,11 @@ class N2 {
 			)
 		);
 
-		// ポータル一覧
-		$this->portals   = array(
-			'rakuten' => '楽天',
-			'choice'  => 'チョイス',
-		);
-		$this->town_code = $this->get_portal_town_code_list();
-
 		// ポータル共通説明文
 		$this->portal_common_discription = $n2_option['add_text'][ get_bloginfo( 'name' ) ] ?? '';
 
-		// 楽天
-		$this->rakuten = wp_parse_args(
-			$n2_option['rakuten'] ?? array(),
-			apply_filters(
-				'n2_setting_rakuten',
-				yaml_parse_file( get_theme_file_path( 'config/n2-setting-rakuten.yml' ) )
-			)
-		);
-
-		// チョイス
-		$this->choice = wp_parse_args(
-			$n2_option['choice'] ?? array(),
-			apply_filters(
-				'n2_setting_furusato_choice',
-				yaml_parse_file( get_theme_file_path( 'config/n2-setting-furusato-choice.yml' ) )
-			),
-		);
-
-		// レジホーム
-		$this->ledghome = wp_parse_args(
-			$n2_option['ledghome'] ?? array(),
-			apply_filters(
-				'n2_setting_ledghome',
-				yaml_parse_file( get_theme_file_path( 'config/n2-setting-ledghome.yml' ) )
-			),
-		);
-
 		// ポータル設定
-		$this->portal_setting = wp_parse_args(
+		$this->portal_setting = array_merge_recursive(
 			$n2_option['portal_setting'] ?? array(),
 			apply_filters(
 				'n2_portal_setting',
@@ -363,20 +286,4 @@ class N2 {
 		}
 	}
 
-	/**
-	 * 自治体コードを一つの配列にまとめる
-	 *
-	 * @return array
-	 */
-	public function get_portal_town_code_list() {
-		$town_code_list = array();
-		// ポータル一覧
-		$town_code = yaml_parse_file( get_theme_file_path( 'config/n2-towncode.yml' ) );
-		$municipal = explode( '/', get_option( 'home' ) );
-		$town_name = end( $municipal );
-		return array(
-			'rakuten' => $this->rakuten['town_code'] ?? $town_code[ $town_name ]['楽天'] ?? '',
-			'choice'  => $this->choice['town_code'] ?? $this->town,
-		);
-	}
 }

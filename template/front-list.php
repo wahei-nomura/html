@@ -10,7 +10,7 @@
 
 <?php
 	global $n2;
-	$rakuten = $n2->rakuten;
+	$rakuten = $n2->portal_setting['楽天'];
 	if( ! isset( $rakuten['img_dir'] ) ){
 		echo '<p style="color:#f00">※セットアップが完了していないため画像が表示されません。</p>';
 	}

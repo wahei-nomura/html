@@ -36,7 +36,7 @@ class N2_Item_Export_Rakuten_Select extends N2_Item_Export_Base {
 	protected function set_header() {
 		global $n2;
 		// CSVヘッダー配列化
-		$this->data['header'] = $n2->rakuten['select_csv'];
+		$this->data['header'] = $n2->portal_setting['楽天']['select_csv'];
 		/**
 		 * [hook] n2_item_export_rakuten_select_set_header
 		 */
