@@ -71,7 +71,7 @@ class N2_Settings {
 		}
 		?>
 		<div class="wrap">
-			<h1>N2設定</h1>
+			<h1><span class="dashicons dashicons-admin-settings" style="transform: scale(2) translateY(.1em);"></span>　N2設定</h1>
 			<form method="post" action="options.php">
 				<?php settings_fields( 'n2_settings' ); ?>
 				<div id="crontrol-header">
