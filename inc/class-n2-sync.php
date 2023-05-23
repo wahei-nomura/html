@@ -110,7 +110,9 @@ class N2_Sync {
 			add_menu_page( 'N2 SYNC', 'N2 SYNC', 'ss_crew', 'n2_sync', array( $this, 'error_ui' ), 'dashicons-update' );
 			return;
 		}
-		add_menu_page( 'N2 SYNC', 'N2 SYNC', 'ss_crew', 'n2_sync', array( $this, 'sync_ui' ), 'dashicons-update' );
+		add_menu_page( 'N2 SYNC', 'N2 SYNC', 'ss_crew', 'sync_ui_n1', array( $this, 'sync_ui' ), 'dashicons-update' );
+		add_submenu_page( 'sync_ui_n1', 'N1（旧NENG）', 'N1（旧NENG）', 'ss_crew', 'sync_ui_n1', array( $this, 'sync_ui' ), 1 );
+		add_submenu_page( 'sync_ui_n1', 'Google スプレットシート', 'G スプレットシート', 'ss_crew', 'sync_ui_spreadsheet', array( $this, 'sync_ui' ), 2 );
 		register_setting( 'n2_sync_settings_n1', 'n2_sync_settings_n1' );
 		register_setting( 'n2_sync_settings_spreadsheet', 'n2_sync_settings_spreadsheet' );
 	}
@@ -131,10 +133,23 @@ class N2_Sync {
 	 * 同期の為のUI
 	 */
 	public function sync_ui() {
-		$template = isset( $_GET['tab'] ) ? "sync_ui_{$_GET['tab']}" : 'sync_ui_n1';
+		$template = $_GET['page'];
+		$tabs     = array(
+			'sync_ui_n1'          => 'N1（旧NENG）',
+			'sync_ui_spreadsheet' => 'Googleスプレットシート',
+		);
 		?>
 		<div class="wrap">
 			<h1>N2 SYNC</h1>
+			<div id="crontrol-header">
+				<nav class="nav-tab-wrapper">
+					<?php
+					foreach ( $tabs as $page => $name ) {
+						printf( '<a href="?page=%s" class="nav-tab%s">%s</a>', $page, $page === $template ? ' nav-tab-active' : '', $name );
+					}
+					?>
+				</nav>
+			</div>
 			<?php echo $this->$template(); ?>
 		</div>
 		<?php
@@ -155,12 +170,6 @@ class N2_Sync {
 		);
 		$settings = get_option( 'n2_sync_settings_n1', $default );
 		?>
-		<div id="crontrol-header">
-			<nav class="nav-tab-wrapper">
-				<a href="admin.php?page=n2_sync" class="nav-tab nav-tab-active">N1（旧NENG）</a>
-				<a href="admin.php?page=n2_sync&tab=spreadsheet" class="nav-tab">Googleスプレットシート</a>
-			</nav>
-		</div>
 		<h2>N1（旧NENG）との同期</h2>
 		<ul style="padding: 1em; background: white; margin: 2em 0; border: 1px solid;">
 			<li>※ N1（旧NENG）と同期した情報（返礼品・ユーザー）が、N1から無くなるとN2からも削除されます。</li>
@@ -208,12 +217,6 @@ class N2_Sync {
 		);
 		$settings = get_option( 'n2_sync_settings_spreadsheet', $default );
 		?>
-		<div id="crontrol-header">
-			<nav class="nav-tab-wrapper">
-				<a href="admin.php?page=n2_sync" class="nav-tab">N1（旧NENG）</a>
-				<a href="admin.php?page=n2_sync&tab=spreadsheet" class="nav-tab nav-tab-active">Googleスプレットシート</a>
-			</nav>
-		</div>
 		<h2>Googleスプレットシートからの追加・上書き</h2>
 		<ul style="padding: 1em; background: white; margin: 2em 0; border: 1px solid;">
 			<li>※ ユーザーの更新はスプレットシートにある情報を追加、既に存在する場合は上書きします。</li>
