@@ -80,7 +80,6 @@ class N2_Setupmenu {
 	 */
 	public function add_engineer_setup_submenu_page() {
 		$this->wrapping_contents( '自治体インポーター', 'add_importer_widget', array( 'wp_ajax' => 'n2_municipal_importer' ) );
-		$this->wrapping_contents( '自治体コード', 'towncode_setup_widget' );
 	}
 
 	/**
@@ -240,6 +239,14 @@ class N2_Setupmenu {
 				<label for="input-quality" class="form-label">画質（右に行くほど高画質）</label>
 				<input type="range" class="form-range" id="input-quality" name="<?php echo $this->cls; ?>[rakuten][quality]" value="<?php echo get_option( $this->cls )['rakuten']['quality'] ?? ''; ?>">
 			</div>
+			<div class="mb-3">
+				<label for="input-item_csv" class="form-label">item.csvヘッダー貼付（タブ区切り）</label>
+				<textarea class="form-control" id="input-item_csv" name="<?php echo $this->cls; ?>[rakuten][item_csv]" rows="2" style="overflow-x: hidden;"><?php echo get_option( $this->cls )['rakuten']['item_csv'] ?? ''; ?></textarea>
+			</div>
+			<div class="mb-3">
+				<label for="input-select_csv" class="form-label">select.csvヘッダー貼付（タブ区切り）</label>
+				<textarea class="form-control" id="input-select_csv" name="<?php echo $this->cls; ?>[rakuten][select_csv]" rows="2" style="overflow-x: hidden;"><?php echo get_option( $this->cls )['rakuten']['select_csv'] ?? ''; ?></textarea>
+			</div>
 			<div class="mb-3 col-md-4">
 				<label for="input-img_dir" class="form-label">商品画像ディレクトリ</label>
 				<input type="text" class="form-control" id="input-img_dir" name="<?php echo $this->cls; ?>[rakuten][img_dir]" value="<?php echo get_option( $this->cls )['rakuten']['img_dir'] ?? ''; ?>">
@@ -361,25 +368,5 @@ class N2_Setupmenu {
 	 */
 	public function setup_menu_style() {
 		// wp_enqueue_style( 'n2-setupmenu', get_theme_file_uri() . '/dist/setupmenu.css', array(), wp_get_theme()->get( 'Version' ) );
-	}
-
-	/**
-	 *  自治体コード設定
-	 */
-	public function towncode_setup_widget() {
-		global $n2;
-		?>
-		<form>
-		<input type="hidden" name="action" value="<?php echo $this->cls; ?>">
-		<input type="hidden" name="judge" value="option">
-		<?php foreach ( $n2->town_code as $portal => $town_code ) : ?>
-			<p class="input-text-wrap">
-				<?php echo $n2->portals[ $portal ]; ?>：<br>
-				<input type="text" name="<?php echo $this->cls; ?>[<?php echo $portal; ?>][town_code]" value="<?php echo $town_code; ?>">
-			</p>
-		<?php endforeach; ?>
-		<input type="submit" class="button button-primary sissubmit" value="更新する">
-		</form>
-		<?php
 	}
 }
