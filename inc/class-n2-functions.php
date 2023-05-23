@@ -16,37 +16,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 class N2_Functions {
 
 	/**
-	 * 寄附金額計算式をそのままJSの構文として渡す
-	 *
-	 * @param string $lang php or js
-	 * @param Array  $price_data 価格 送料
-	 * @return string
-	 */
-	public static function kifu_auto_pattern( $lang, $price_data = null ) {
-
-		if ( 'php' === $lang ) {
-			list( $kakaku, $souryou ) = $price_data;
-		}
-
-		$pattern = array(
-			'零号機' => 'php' === $lang ? ceil( ( $kakaku + $souryou ) / 300 ) * 1000 : 'Math.ceil((kakaku + souryou) / 300) * 1000',
-			'初号機' => 'php' === $lang ? ceil( $kakaku / 300 ) * 1000 : 'Math.ceil(kakaku / 300) * 1000',
-			'弐号機' => 'php' === $lang ? ceil( ( $kakaku + $souryou ) / 350 ) * 1000 : 'Math.ceil((kakaku + souryou) / 350) * 1000',
-		);
-
-		if ( 'php' === $lang ) {
-			$pattern['使徒'] = $pattern['初号機'] > $pattern['弐号機'] ? $pattern['初号機'] : $pattern['弐号機'];
-		} else {
-			$pattern['使徒'] = "{$pattern['初号機']}>{$pattern['弐号機']}?{$pattern['初号機']}:{$pattern['弐号機']}";
-		}
-
-		$pattern_type = '初号機';
-		$pattern_type = apply_filters( 'n2_setpost_change_kifu_pattern', $pattern_type );
-
-		return $pattern[ $pattern_type ];
-	}
-
-	/**
 	 * カスタムフィールド全取得
 	 *
 	 * @param Object $object 現在の投稿の詳細データ
@@ -91,61 +60,6 @@ class N2_Functions {
 	}
 
 	/**
-	 * 管理画面、ページ指定、ユーザー権限指定判定(条件から外れたらtrueを返す)
-	 *
-	 * @param string $page $pegenow
-	 * @param string $type $post_type
-	 * @param string $user current_user_can
-	 * @return boolean
-	 */
-	public static function admin_param_judge( $page, $type = 'post', $user = 'jigyousya' ) {
-		global $pagenow, $post_type;
-		return ! is_admin() || current_user_can( $user ) || $page !== $pagenow || $type !== $post_type;
-	}
-
-
-	/**
-	 * html文を文字列出力する
-	 *
-	 * @param function $html_function 関数名を文字列として渡す
-	 * @return null|string html_tags
-	 */
-	public static function html2str( $html_function ) {
-		// 関数でなければ終了
-		if ( ! is_callable( $html_function ) ) {
-			return null;
-		}
-		ob_start();
-		?>
-		<?php $html_function(); ?>
-		<?php
-		return rtrim( str_replace( "\t", '', ob_get_clean() ), PHP_EOL );
-	}
-
-	/**
-	 * get_post_metaをまとめて実行
-	 *
-	 * @param int   $post_id post_id
-	 * @param array $keys keys get_post_meta用にdefaultは空文字
-	 * @return array $post_meta_list 更新後のmetaリスト
-	 */
-	public static function get_post_meta_multiple( $post_id, $keys = '' ) {
-		$post_meta_list = array();
-		if ( ! $keys || ! is_array( $keys ) ) {
-			return get_metadata( 'post', $post_id, $keys, true );
-		}
-		foreach ( $keys as $key ) {
-			// キーが存在しないなら空文字を設定する
-			$post_meta = get_metadata( 'post', $post_id, $key );
-			if ( ! $post_meta ) {
-				$post_meta_list[ $key ] = '';
-				continue;
-			}
-			$post_meta_list[ $key ] = $post_meta[0];
-		}
-		return $post_meta_list;
-	}
-	/**
 	 * get_template_partのwrapper
 	 *
 	 * @param string $slug The slug name for the generic template.
@@ -159,85 +73,6 @@ class N2_Functions {
 			get_template_part( $slug, $name, $args );
 		}
 		return false;
-	}
-
-	/**
-	 * download_csv
-	 *
-	 * @param array $args デフォルト地を宇賀脇する配列
-	 * @return void
-	 */
-	public static function download_csv( $args ) {
-
-		$defaults = array(
-			'file_name'      => 'exported_item',
-			'header'         => array(),
-			'items_arr'      => array(),
-			'csv_title'      => '',
-			'type'           => 'csv',
-			'character_code' => 'sjis',
-		);
-
-		// デフォルト値を引数で上書き
-		$parsed_args = wp_parse_args( $args, $defaults );
-
-		$file_name      = $parsed_args['file_name'];
-		$header         = $parsed_args['header'];
-		$items_arr      = $parsed_args['items_arr'];
-		$csv_title      = $parsed_args['csv_title'];
-		$type           = $parsed_args['type'];
-		$character_code = $parsed_args['character_code'];
-
-		// headerとitem_arrは必須
-		if ( 0 === count( $header ) || 0 === count( $items_arr ) ) {
-			echo 'Error function download_csv';
-			exit;
-		}
-
-		// 初期化
-		$csv       = '';
-		$delimiter = ',';
-		// titleと空要素追加
-		if ( $csv_title ) {
-			$csv .= $csv_title;
-			$csv .= PHP_EOL;
-		}
-		// 区切り文字とヘッダーを設定
-		switch ( $type ) {
-			case 'tsv':
-				$delimiter = '	';
-				break;
-			default: // デフォルトはcsv。イレギュラーも同様。
-				$delimiter = ',';
-				$csv      .= implode( $delimiter, $header ) . PHP_EOL;
-				break;
-		}
-
-		// CSV文字列生成
-		foreach ( $items_arr as $item ) {
-			$item = array(
-				...array_map( fn() => '', array_flip( $header ) ),
-				...$item,
-			);
-			// ダブルクォートで囲んでおく
-			$item = array_map( fn( $val ) => "\"{$val}\"", $item );
-			foreach ( $header as $head ) {
-				$csv .= $item[ $head ] . $delimiter;
-			}
-			$csv  = rtrim( $csv, $delimiter );
-			$csv .= PHP_EOL;
-		}
-
-		if ( 'sjis' === $character_code ) {
-			// sjisに変換
-			$csv = mb_convert_encoding( $csv, 'SJIS-win', 'utf-8' );
-		}
-
-		header( 'Content-Type: application/octet-stream' );
-		header( "Content-Disposition: attachment; filename={$file_name}.{$type}" );
-		echo htmlspecialchars_decode( $csv );
-
-		die();
 	}
 
 	/**
