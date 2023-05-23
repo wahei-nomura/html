@@ -28,8 +28,8 @@ class N2_Setmenu {
 		add_filter( 'get_site_icon_url', array( $this, 'change_site_icon' ) );
 		add_action( 'admin_head', array( $this, 'my_custom_logo' ) );
 		add_action( 'admin_bar_menu', array( $this, 'remove_admin_bar_menus' ), 999 );
-		add_action( 'admin_head', array( $this, 'remove_help_tabs' ) );
-		add_filter( 'admin_footer_text', array( $this, 'custom_admin_footer' ) );
+		add_action( 'admin_head', array( $this, 'remove_help_tabs' ) );// ヘルプ削除
+		add_filter( 'admin_footer_text', '__return_false' );// 「WordPress のご利用ありがとうございます。」を削除
 	}
 
 	/**
@@ -172,12 +172,7 @@ class N2_Setmenu {
 	 * ヘルプタブ非表示 @yamasaki
 	 */
 	public function remove_help_tabs() {
-		$screen = get_current_screen();
-		$screen->remove_help_tabs();
-	}
-	/**
-	 * 「WordPressのご利用ありがとうございます。」の削除 @yamasaki
-	 */
-	public function custom_admin_footer() {
+		global $current_screen;
+		$current_screen->remove_help_tabs();
 	}
 }
