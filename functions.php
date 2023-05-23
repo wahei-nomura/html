@@ -28,6 +28,7 @@ $incs = array(
 	'class-n2-loginlimit',
 	'class-n2-functions',
 	'class-n2-jigyousyaparam',
+	'class-n2-settings',
 	'class-n2-setupmenu',
 	'class-n2-setmenu',
 	'class-n2-admin-post-editor',
