@@ -91,10 +91,10 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			preg_match( '/^販売価格$/', $val )  => $n2values['寄附金額'],
 			preg_match( '/^送料$/', $val )  => 1,
 			preg_match( '/^のし対応$/', $val )  =>  ( '有り' === $n2values['のし対応'] ) ? 1 : '',
-			preg_match( '/^PC用商品説明文$/', $val )  => $this->pc_item_description( $n2values['id'] ),
-			preg_match( '/^スマートフォン用商品説明文$/', $val )  => $this->sp_item_description( $n2values['id'] ),
-			preg_match( '/^PC用販売説明文$/', $val )  => $this->pc_sales_description( $n2values['id'] ),
-			preg_match( '/^商品画像URL$/', $val )  => $this->get_img_urls( $n2values['id'] ),
+			// preg_match( '/^PC用商品説明文$/', $val )  => $this->pc_item_description( $n2values['id'] ),
+			// preg_match( '/^スマートフォン用商品説明文$/', $val )  => $this->sp_item_description( $n2values['id'] ),
+			// preg_match( '/^PC用販売説明文$/', $val )  => $this->pc_sales_description( $n2values['id'] ),
+			preg_match( '/^商品画像URL$/', $val )  => $this->get_img_urls( $n2values ),
 			preg_match( '/^代引料$/', $val )  => 1,
 			preg_match( '/^在庫タイプ$/', $val )  => 1,
 			preg_match( '/^在庫数$/', $val )  => 0,
@@ -161,26 +161,19 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 * @param string $return_type 戻り値判定用(string|html|array)
 	 * @return string|array 楽天の画像URLを(文字列|配列)で取得する
 	 */
-	public function get_img_urls( $post_id, $return_type = 'string' ) {
+	public function get_img_urls( $n2_values, $return_type = 'string' ) {
 		global $n2;
-		// get_post_metaのkey
-		$post_keys = array(
-			'返礼品コード',
-		);
-		// post_meta格納用
-		$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
-		$item_num_low   = trim( mb_strtolower( $post_meta_list['返礼品コード'] ) );
-		$img_dir        = rtrim( $n2->rakuten['img_dir'], '/' );
-
+		$img_dir      = rtrim( $n2->rakuten['img_dir'], '/' );
+		$gift_code = mb_strtolower( $n2_values['返礼品コード'] );
+		$business_code = mb_strtolower( $n2_values['事業者コード'] );
 		// GOLD（ne.jp）とキャビネット（co.jp）を判定してキャビネットは事業者コードディレクトリを追加
-		preg_match( '/^[a-z]{2,3}/', $item_num_low, $m );// 事業者コード
-		if ( ! preg_match( '/ne\.jp/', $img_dir ) && array_key_exists( 0, $m ) ) {
-			$img_dir .= "/{$m[0]}";// キャビネットの場合事業者コード追加
+		if ( ! preg_match( '/ne\.jp/', $img_dir ) ) {
+			$img_dir .= "/{$business_code}";// キャビネットの場合事業者コード追加
 		}
 
 		$result = array();
 		for ( $i = 0; $i < 15; ++$i ) {
-			$img_url = "{$img_dir}/{$item_num_low}";
+			$img_url = "{$img_dir}/{$gift_code}";
 			if ( 0 === $i ) {
 				$img_url .= '.jpg';
 			} else {
