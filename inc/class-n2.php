@@ -191,7 +191,7 @@ class N2 {
 	public function set_vars() {
 		global $pagenow, $wpdb;
 		// wp_options保存値
-		$n2_option = get_option( 'N2_Setupmenu' );
+		$n2_option = get_option( 'n2_settings' );
 
 		// SSのIP
 		$this->ss_ip_address = yaml_parse_file( get_theme_file_path( 'config/ss-ip-address.yml' ) );
@@ -225,16 +225,6 @@ class N2 {
 
 		// カスタムフィールド
 		$this->custom_field = yaml_parse_file( get_theme_file_path( 'config/custom-field.yml' ) );
-
-		// 自治体ごとのLHカテゴリー
-		if ( ! empty( $n2_option['portal_setting']['LedgHOME']['category'] ) ) {
-			// LHカテゴリーの設定値を配列化
-			$lh_category = $n2_option['portal_setting']['LedgHOME']['category'];
-			$lh_category = preg_replace( '/\r\n|\r|\n/', "\n", trim( $lh_category ) );
-			$lh_category = explode( "\n", $lh_category );
-			// option設定
-			$this->custom_field['事業者用']['LHカテゴリー']['option'] = $lh_category;
-		}
 
 		// プリントアウト
 		$this->product_list_print = yaml_parse_file( get_theme_file_path( 'config/n2-product-list-print.yml' ) );
@@ -273,8 +263,20 @@ class N2 {
 			),
 		);
 
+		// LHカテゴリー
+		if ( ! empty( $this->portal_setting['LedgHOME']['カテゴリー'] ) ) {
+			// LHカテゴリーの設定値を配列化
+			$lh_category = $this->portal_setting['LedgHOME']['カテゴリー'];
+			$lh_category = preg_replace( '/\r\n|\r|\n/', "\n", trim( $lh_category ) );
+			$lh_category = explode( "\n", $lh_category );
+			// portal_setting
+			$this->portal_setting['LedgHOME']['カテゴリー'] = $lh_category;
+			// option設定
+			$this->custom_field['事業者用']['LHカテゴリー']['option'] = $lh_category;
+		}
+
 		// N2稼働状況
-		$this->n2_active_flag = $n2_option['N2'] ?? 'false';
+		$this->n2_active_flag = $n2_option['n2']['active'] ?? '';
 	}
 
 	/**

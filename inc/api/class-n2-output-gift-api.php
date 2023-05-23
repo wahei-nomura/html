@@ -35,7 +35,7 @@ class N2_Output_Gift_API {
 		$n2_active_flag = $n2->n2_active_flag;
 
 		// N2が稼働していない or そもそも稼働状態が登録されていなかったらJSONでfalseを返す
-		if ( 'false' === $n2_active_flag ) {
+		if ( ! $n2_active_flag ) {
 			header( 'Content-Type: application/json' );
 			echo '{"N2": "false"}';
 			exit;
@@ -190,7 +190,7 @@ class N2_Output_Gift_API {
 		$n2_active_flag = $n2->n2_active_flag;
 
 		// N2が稼働していない or そもそも稼働状態が登録されていなかったらJSONでfalseを返す
-		if ( 'false' === $n2_active_flag ) {
+		if ( ! $n2_active_flag ) {
 			header( 'Content-Type: application/json' );
 			echo '{"N2": "false"}';
 			exit;

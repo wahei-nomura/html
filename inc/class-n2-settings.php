@@ -188,10 +188,10 @@ class N2_Settings {
 				<th>レターパック送料反映</th>
 				<td>
 					<label style="margin: 0 2em 0 0;">
-						<input type="radio" name="n2_settings[portal_setting][LedgHOME][レターパック送料反映]" value="1" <?php checked( $n2_settings['portal_setting']['LedgHOME']['レターパック送料反映'] ?? '', 1 ); ?>> 反映する
+						<input type="radio" name="n2_settings[portal_setting][LedgHOME][レターパック送料反映]" value="反映する" <?php checked( $n2_settings['portal_setting']['LedgHOME']['レターパック送料反映'] ?? '', '反映する' ); ?>> 反映する
 					</label>
 					<label>
-						<input type="radio" name="n2_settings[portal_setting][LedgHOME][レターパック送料反映]" value="0" <?php checked( $n2_settings['portal_setting']['LedgHOME']['レターパック送料反映'] ?? '', 0 ); ?>> 反映しない
+						<input type="radio" name="n2_settings[portal_setting][LedgHOME][レターパック送料反映]" value="反映しない" <?php checked( $n2_settings['portal_setting']['LedgHOME']['レターパック送料反映'] ?? '', '反映しない' ); ?>> 反映しない
 					</label>
 				</td>
 			</tr>
@@ -249,7 +249,7 @@ class N2_Settings {
 			<tr>
 				<th>項目選択肢</th>
 				<td>
-					<p>※それぞれの項目選択肢は２つ以上の改行をして下さい</p>
+					<p>※それぞれの項目選択肢は２つ以上の連続改行をして下さい</p>
 					<p>※選択肢は最大16文字で１つの改行で区切って下さい</p>
 					<textarea name="n2_settings[portal_setting][楽天][select]" style="width: 100%;" rows="30" placeholder="<?php echo "1.ふるさと納税専用ページです。注文内容確認画面に表示される「注文者情報」を住民票情報とみなします。\n理解した\n\n2.寄附金の用途を選択\n用途１\n用途２\n..."; ?>"><?php echo esc_attr( $n2_settings['portal_setting']['楽天']['select'] ); ?></textarea>
 				</td>
