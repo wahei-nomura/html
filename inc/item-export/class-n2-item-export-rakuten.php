@@ -157,15 +157,15 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	/**
 	 * 楽天の画像URLを取得
 	 *
-	 * @param int    $post_id id
+	 * @param array  $n2values n2dataのループ中の値
 	 * @param string $return_type 戻り値判定用(string|html|array)
 	 * @return string|array 楽天の画像URLを(文字列|配列)で取得する
 	 */
-	public function get_img_urls( $n2_values, $return_type = 'string' ) {
+	public function get_img_urls( $n2values, $return_type = 'string' ) {
 		global $n2;
 		$img_dir      = rtrim( $n2->rakuten['img_dir'], '/' );
-		$gift_code = mb_strtolower( $n2_values['返礼品コード'] );
-		$business_code = mb_strtolower( $n2_values['事業者コード'] );
+		$gift_code = mb_strtolower( $n2values['返礼品コード'] );
+		$business_code = mb_strtolower( $n2values['事業者コード'] );
 		// GOLD（ne.jp）とキャビネット（co.jp）を判定してキャビネットは事業者コードディレクトリを追加
 		if ( ! preg_match( '/ne\.jp/', $img_dir ) ) {
 			$img_dir .= "/{$business_code}";// キャビネットの場合事業者コード追加
@@ -211,7 +211,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	/**
 	 * 楽天のPC用販売説明文
 	 *
-	 * @param int  $post_id id
+	 * @param array  $n2values n2dataのループ中の値
 	 * @param bool $return_string 戻り値判定用(基本は文字列|HTML)
 	 * @return string|void 楽天のPC用商品説明文を(文字列|HTML出力)する
 	 */
