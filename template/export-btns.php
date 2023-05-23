@@ -7,8 +7,8 @@
 
 ?>
 
-<div id="neo-neng-export-btns">
-<div style="clear:both;padding:10px 0;">
+<div id="neo-neng-export-btns" style="display: none;">
+	<div style="clear:both;padding:10px 0;">
 		<form class="sisfile">
 			<input name="ftp_img[]" type="file" multiple="multiple">
 			<input type="submit" class="button" value="楽天に商品画像転送">
@@ -35,6 +35,6 @@
 
 <script>
 	jQuery(function($){
-		$('.subsubsub').before($('#neo-neng-export-btns'));
+		$('.subsubsub').before($('#neo-neng-export-btns').show('slow'));
 	})
 </script>
