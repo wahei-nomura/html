@@ -76,9 +76,9 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			preg_match( '/^販売価格$/', $val )  => $n2values['寄附金額'],
 			preg_match( '/^送料$/', $val )  => 1,
 			preg_match( '/^のし対応$/', $val )  =>  ( '有り' === $n2values['のし対応'] ) ? 1 : '',
-			// preg_match( '/^PC用商品説明文$/', $val )  => $this->pc_item_description( $n2values['id'] ),
-			// preg_match( '/^スマートフォン用商品説明文$/', $val )  => $this->sp_item_description( $n2values['id'] ),
-			preg_match( '/^PC用販売説明文$/', $val )  => $this->pc_sales_description( $n2values['id'], $n2values ),
+			preg_match( '/^PC用商品説明文$/', $val )  => $this->pc_item_description( $n2values ),
+			preg_match( '/^スマートフォン用商品説明文$/', $val )  => $this->sp_item_description( $n2values ),
+			preg_match( '/^PC用販売説明文$/', $val )  => $this->pc_sales_description( $n2values ),
 			preg_match( '/^商品画像URL$/', $val )  => $this->get_img_urls( $n2values ),
 			preg_match( '/^代引料$/', $val )  => 1,
 			preg_match( '/^在庫タイプ$/', $val )  => 1,
@@ -200,24 +200,17 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 * @param bool $return_string 戻り値判定用(基本は文字列|HTML)
 	 * @return string|void 楽天のPC用商品説明文を(文字列|HTML出力)する
 	 */
-	public function pc_sales_description( $post_id, $n2values, $return_string = true ) {
-		// get_post_metaのkey
-		$post_keys = array(
-			'説明文',
-		);
-		// post_meta格納用
-		$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
+	public function pc_sales_description( $n2values, $return_string = true ) {
 		// ========[html]PC用販売説明文========
-		$html = function() use ( $post_meta_list, $post_id, $n2values ) {
+		$html = function() use ( $n2values ) {
 			global $n2;
-			$formatter = fn( $post_key ) => nl2br( N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
 			?>
 			<?php $this->get_img_urls( $n2values, 'html' ); ?>
-			<?php echo $formatter( '説明文' ); ?><br><br>
-			<?php $this->make_itemtable( $post_id, $n2values, false ); ?><br><br>
+			<?php echo nl2br($n2values['説明文']); ?><br><br>
+			<?php $this->make_itemtable( $n2values, false ); ?><br><br>
 			<?php
 				echo $n2->portal_common_discription
-					. apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $post_id, 'PC用販売説明文' )
+					. apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $n2values['id'], 'PC用販売説明文' )
 					. str_replace( '\"', '""', $n2->rakuten['html'] ?? '' );
 				?>
 			<?php
@@ -233,51 +226,37 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	/**
 	 * 楽天のPC用商品説明文
 	 *
-	 * @param int  $post_id id
+	 * @param array  $n2values n2dataのループ中の値
 	 * @param bool $return_string 戻り値判定用(基本は文字列|HTML)
 	 * @return string|void 楽天のPC用商品説明文を(文字列|HTML出力)する
 	 */
-	public function pc_item_description( $post_id, $return_string = true ) {
-		// get_post_metaのkey
-		$post_keys = array(
-			'説明文',
-			'内容量・規格等',
-			'賞味期限',
-			'消費期限',
-			'検索キーワード',
-			'楽天SPAカテゴリー',
-			'原料原産地',
-			'加工地',
-		);
-		// post_meta格納用
-		$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
+	public function pc_item_description( $n2values, $return_string = true ) {
 
 		// ========[html]PC用商品説明文========
-		$html = function() use ( $post_meta_list, $post_id ) {
-			$formatter = fn( $post_key ) => nl2br( N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
+		$html = function() use ( $n2values ) {
 			?>
-			<?php echo $formatter( '説明文' ); ?><br><br>
-			<?php echo $formatter( '内容量・規格等' ); ?><br>
-			<?php if ( $post_meta_list['賞味期限'] ) : ?>
-				<br>【賞味期限】<br><?php echo $formatter( '賞味期限' ); ?><br>
+			<?php echo nl2br($n2values['説明文']); ?><br><br>
+			<?php echo nl2br($n2values['内容量・規格等']); ?><br>
+			<?php if ( $n2values['賞味期限'] ) : ?>
+				<br>【賞味期限】<br><?php echo nl2br($n2values['賞味期限']); ?><br>
 			<?php endif; ?>
-			<?php if ( $post_meta_list['消費期限'] ) : ?>
-				<br>【消費期限】<br><?php echo $formatter( '消費期限' ); ?><br>
+			<?php if ( $n2values['消費期限'] ) : ?>
+				<br>【消費期限】<br><?php echo nl2br($n2values['消費期限']); ?><br>
 			<?php endif; ?>
-			<?php echo apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $post_id, '対応機器' ); ?>
-			<?php if ( $post_meta_list['原料原産地'] ) : ?>
+			<?php echo apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $n2values['id'], '対応機器' ); ?>
+			<?php if ( $n2values['原料原産地'] ) : ?>
 				<br><br>【原料原産地】<br>
-				<?php echo $formatter( '原料原産地' ); ?>
+				<?php echo nl2br($n2values['原料原産地']); ?>
 			<?php endif; ?>
-			<?php if ( $post_meta_list['加工地'] ) : ?>
+			<?php if ( $n2values['加工地'] ) : ?>
 				<br><br>【加工地】<br>
-				<?php echo $formatter( '加工地' ); ?><br>
+				<?php echo nl2br($n2values['加工地']); ?><br>
 			<?php endif; ?>
-			<?php if ( $post_meta_list['検索キーワード'] ) : ?>
-				<br><br><?php echo $formatter( '検索キーワード' ); ?>
+			<?php if ( $n2values['検索キーワード'] ) : ?>
+				<br><br><?php echo nl2br($n2values['検索キーワード']); ?>
 			<?php endif; ?>
-			<?php if ( $post_meta_list['楽天SPAカテゴリー'] ) : ?>
-				<br><br><?php echo $formatter( '楽天SPAカテゴリー' ); ?>
+			<?php if ( $n2values['楽天SPAカテゴリー'] ) : ?>
+				<br><br><?php echo nl2br($n2values['楽天SPAカテゴリー']); ?>
 			<?php endif; ?>
 			<?php
 		};
@@ -293,38 +272,23 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	/**
 	 * 楽天のSP用商品説明文
 	 *
-	 * @param int  $post_id id
+	 * @param array  $n2values n2dataのループ中の値
 	 * @param bool $return_string 戻り値判定用(基本は文字列|HTML)
 	 * @return string|void 楽天のSP用商品説明文を(文字列|HTML出力)する
 	 */
-	public function sp_item_description( $post_id, $return_string = true ) {
-		// get_post_metaのkey
-		$post_keys = array(
-			'説明文',
-			'内容量・規格等',
-			'賞味期限',
-			'消費期限',
-			'検索キーワード',
-			'楽天SPAカテゴリー',
-			'原料原産地',
-			'加工地',
-		);
-		// post_meta格納用
-		$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
-
+	public function sp_item_description( $n2values, $return_string = true ) {
 		// ========[html]SP用商品説明文========
-		$html = function() use ( $post_id, $post_meta_list, ) {
+		$html = function() use ( $n2values ) {
 			global $n2;
-			$formatter = fn( $post_key ) => nl2br( N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
 			?>
-			<?php $this->get_img_urls( $post_id, 'html' ); ?>
-			<?php echo $formatter( '説明文' ); ?><br><br>
-			<?php $this->make_itemtable( $post_id, false ); ?>
-			<?php if ( $post_meta_list['検索キーワード'] ) : ?>
-				<br><br><?php echo $formatter( '検索キーワード' ); ?>
+			<?php $this->get_img_urls( $n2values, 'html' ); ?>
+			<?php echo nl2br($n2values['説明文']); ?><br><br>
+			<?php $this->make_itemtable( $n2values, false ); ?>
+			<?php if ( $n2values['検索キーワード'] ) : ?>
+				<br><br><?php echo nl2br($n2values['検索キーワード']); ?>
 			<?php endif; ?>
-			<?php if ( $post_meta_list['楽天SPAカテゴリー'] ) : ?>
-				<br><br><?php echo $formatter( '楽天SPAカテゴリー' ); ?>
+			<?php if ( $n2values['楽天SPAカテゴリー'] ) : ?>
+				<br><br><?php echo nl2br($n2values['楽天SPAカテゴリー']); ?>
 			<?php endif ?>
 			<?php
 				echo $n2->portal_common_discription
@@ -382,7 +346,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 *
 	 * @return string 商品説明テーブル
 	 */
-	public function make_itemtable( $post_id, $n2values, $return_string = true ) {
+	public function make_itemtable( $n2values, $return_string = true ) {
 		// アレルギー表示
 		$allergy_display_str = $this->allergy_display( $n2values );
 		$trs       = array(
