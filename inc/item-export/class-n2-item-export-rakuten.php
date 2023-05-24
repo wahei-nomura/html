@@ -55,13 +55,13 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 */
 	protected function walk_values( &$val, $index, $n2values ) {
 		global $n2;
-		// 説明文
-		$n2values['説明文'] .= $n2->portal_common_discription ? "\n\n{$n2->portal_common_discription}" : '';
-		$n2values['説明文'] .= $n2values['検索キーワード'] ? "\n\n{$n2values['検索キーワード']}" : '';
-
 		// アレルゲン
 		$n2values['アレルゲン'] = array_column( (array) $n2values['アレルゲン'], 'label' );// ラベルだけにする
 		$n2values['アレルゲン'] = preg_replace( '/（.*?）/', '', $n2values['アレルゲン'] );// 不純物（カッコの部分）を削除
+
+		// 自治体のタグIDと返礼品タグIDをいい感じに結合する
+		$n2values['タグID'] = $n2->rakuten['tag_id'] . '/' . $n2values['タグID'];
+		$n2values['タグID'] = implode( '/', array_filter( explode( '/', $n2values['タグID'] ) ) );
 
 		// preg_matchで判定
 		$data = match ( 1 ) {
@@ -69,7 +69,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			preg_match( '/^商品管理番号（商品URL）$/', $val )  => mb_strtolower( $n2values['返礼品コード'] ),
 			preg_match( '/^商品番号$/', $val )  => $n2values['返礼品コード'],
 			preg_match( '/^全商品ディレクトリID$/', $val ) => $n2values['全商品ディレクトリID'],
-			preg_match( '/^タグID$/', $val ) => $n2->rakuten['tag_id'],
+			preg_match( '/^タグID$/', $val ) => $n2values['タグID'],
 			preg_match( '/^PC用キャッチコピー$/', $val )  => $n2values['キャッチコピー'],
 			preg_match( '/^モバイル用キャッチコピー$/', $val )  => $n2values['キャッチコピー'],
 			preg_match( '/商品名$/', $val )  => '【ふるさと納税】' . $n2values['タイトル'] . '[' . $n2values['返礼品コード'] . ']',
@@ -200,7 +200,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 * @param bool $return_string 戻り値判定用(基本は文字列|HTML)
 	 * @return string|void 楽天のPC用商品説明文を(文字列|HTML出力)する
 	 */
-	public function pc_sales_description( $n2values, $return_string = true ) {
+	public function pc_sales_description( $n2values ) {
 		// ========[html]PC用販売説明文========
 		$html = function() use ( $n2values ) {
 			global $n2;
@@ -215,11 +215,6 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 				?>
 			<?php
 		};
-		// ========戻り値判定========
-		// 文字列を返却
-		if ( $return_string ) {
-			return N2_Functions::html2str( $html );
-		}
 		// html出力
 		$html();
 	}
@@ -230,7 +225,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 * @param bool $return_string 戻り値判定用(基本は文字列|HTML)
 	 * @return string|void 楽天のPC用商品説明文を(文字列|HTML出力)する
 	 */
-	public function pc_item_description( $n2values, $return_string = true ) {
+	public function pc_item_description( $n2values ) {
 
 		// ========[html]PC用商品説明文========
 		$html = function() use ( $n2values ) {
@@ -261,11 +256,6 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			<?php
 		};
 
-		// ========戻り値判定========
-		// 文字列を返却
-		if ( $return_string ) {
-			return N2_Functions::html2str( $html );
-		}
 		// html出力
 		$html();
 	}
@@ -276,7 +266,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 * @param bool $return_string 戻り値判定用(基本は文字列|HTML)
 	 * @return string|void 楽天のSP用商品説明文を(文字列|HTML出力)する
 	 */
-	public function sp_item_description( $n2values, $return_string = true ) {
+	public function sp_item_description( $n2values ) {
 		// ========[html]SP用商品説明文========
 		$html = function() use ( $n2values ) {
 			global $n2;
@@ -296,11 +286,6 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			?>
 			<?php
 		};
-		// ========戻り値判定========
-		// 文字列を返却
-		if ( $return_string ) {
-			return N2_Functions::html2str( $html );
-		}
 		// html出力
 		$html();
 	}
