@@ -93,7 +93,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			preg_match( '/^のし対応$/', $val )  =>  ( '有り' === $n2values['のし対応'] ) ? 1 : '',
 			// preg_match( '/^PC用商品説明文$/', $val )  => $this->pc_item_description( $n2values['id'] ),
 			// preg_match( '/^スマートフォン用商品説明文$/', $val )  => $this->sp_item_description( $n2values['id'] ),
-			// preg_match( '/^PC用販売説明文$/', $val )  => $this->pc_sales_description( $n2values['id'] ),
+			preg_match( '/^PC用販売説明文$/', $val )  => $this->pc_sales_description( $n2values['id'], $n2values ),
 			preg_match( '/^商品画像URL$/', $val )  => $this->get_img_urls( $n2values ),
 			preg_match( '/^代引料$/', $val )  => 1,
 			preg_match( '/^在庫タイプ$/', $val )  => 1,
@@ -215,7 +215,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 * @param bool $return_string 戻り値判定用(基本は文字列|HTML)
 	 * @return string|void 楽天のPC用商品説明文を(文字列|HTML出力)する
 	 */
-	public function pc_sales_description( $post_id, $return_string = true ) {
+	public function pc_sales_description( $post_id, $n2values, $return_string = true ) {
 		// get_post_metaのkey
 		$post_keys = array(
 			'説明文',
@@ -223,13 +223,13 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		// post_meta格納用
 		$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
 		// ========[html]PC用販売説明文========
-		$html = function() use ( $post_meta_list, $post_id ) {
+		$html = function() use ( $post_meta_list, $post_id, $n2values ) {
 			global $n2;
 			$formatter = fn( $post_key ) => nl2br( N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
 			?>
-			<?php $this->get_img_urls( $post_id, 'html' ); ?>
+			<?php $this->get_img_urls( $n2values, 'html' ); ?>
 			<?php echo $formatter( '説明文' ); ?><br><br>
-			<?php $this->make_itemtable( $post_id, false ); ?><br><br>
+			<?php $this->make_itemtable( $post_id, $n2values, false ); ?><br><br>
 			<?php
 				echo $n2->portal_common_discription
 					. apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $post_id, 'PC用販売説明文' )
@@ -356,40 +356,33 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		$html();
 	}
 	/**
-	 * アレルギ表示
+	 * アレルギー表示
 	 *
-	 * @param string $post_id id
+	 * @param array  $n2values n2dataのループ中の値
 	 * @param string $type type
 	 *
 	 * @return string
 	 */
-	public static function allergy_display( $post_id, $type = '' ) {
-		$post_meta_list            = get_post_meta( $post_id, '', true );
-		$post_meta_list['アレルゲン']   = unserialize( $post_meta_list['アレルゲン'][0] );
-		$post_meta_list['アレルゲン注釈'] = $post_meta_list['アレルゲン注釈'][0];
-		$allergens                 = array();
-		$is_food                   = in_array( '食品', get_post_meta( $post_id, '商品タイプ', true ), true );
-		$has_allergy               = in_array( 'アレルギー品目あり', get_post_meta( $post_id, 'アレルギー有無確認', true ) ?: array(), true );
-		foreach ( $post_meta_list['アレルゲン'] as $v ) {
-			if ( is_numeric( $v['value'] ) ) {
-				$allergens = array( ...$allergens, $v['label'] );
-			}
-		}
+	public static function allergy_display( $n2values, $type = '' ) {
+		$allergy_annotation = $n2values['アレルゲン注釈'];
+		$allergens                 = $n2values['アレルゲン'];
 		$allergens                 = implode( '・', $allergens );
-		$post_meta_list['アレルゲン注釈'] = $post_meta_list['アレルゲン注釈'] ? '<br>※' . $post_meta_list['アレルゲン注釈'] : '';
+		$not_food                  = in_array( '食品ではない', $n2values['アレルゲン'], true );
+		$not_allergy               = in_array( 'アレルゲンなし食品', $n2values['アレルゲン'] ?: array(), true );
+		$allergy_annotation = $allergy_annotation ? '<br>※' . $allergy_annotation : '';
 		$result                    = '';
 		switch ( true ) {
-			case ! $is_food && 'print' === $type:
+			case ! $not_food && 'print' === $type:
 				$result = 'アレルギー表示しない';
 				break;
-			case ! $is_food:
+			case $not_food:
 				break;
-			case ! $has_allergy:
+			case $not_allergy:
 				$result = 'アレルギーなし食品';
 				break;
-			case '' !== $allergens || '' !== $post_meta_list['アレルゲン注釈']:
+			case '' !== $allergens || '' !== $allergy_annotation:
 				$allergens = $allergens ?: 'なし';
-				$result    = "含んでいる品目：{$allergens}{$post_meta_list['アレルゲン注釈']}";
+				$result    = "含んでいる品目：{$allergens}{$allergy_annotation}";
 				break;
 		}
 		return $result;
@@ -399,11 +392,15 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 * 商品説明テーブル
 	 *
 	 * @param int  $post_id post_id
+	 * @param array  $n2values n2dataのループ中の値
 	 * @param bool $return_string 戻り値を文字列で返す
 	 *
 	 * @return string 商品説明テーブル
 	 */
-	public function make_itemtable( $post_id, $return_string = true ) {
+	public function make_itemtable( $post_id, $n2values, $return_string = true ) {
+		print_r('test0');
+		print_r($post_id);
+		print_r($n2values);
 		$post_keys      = array(
 			'表示名称',
 			'略称',
@@ -421,7 +418,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		);
 		$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
 		// アレルギー表示
-		$allergy_display_str = $this->allergy_display( $post_id );
+		$allergy_display_str = $this->allergy_display( $n2values );
 
 		$formatter = fn( $post_key ) => nl2br( N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
 		$trs       = array(
