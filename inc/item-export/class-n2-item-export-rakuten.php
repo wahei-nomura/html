@@ -59,24 +59,9 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		$n2values['説明文'] .= $n2->portal_common_discription ? "\n\n{$n2->portal_common_discription}" : '';
 		$n2values['説明文'] .= $n2values['検索キーワード'] ? "\n\n{$n2values['検索キーワード']}" : '';
 
-		// 内容量
-		$n2values['内容量・規格等'] = array(
-			$n2values['内容量・規格等'],
-			$n2values['原料原産地'] ? "【原料原産地】\n{$n2values['原料原産地']}" : '',
-			$n2values['加工地'] ? "【加工地】\n{$n2values['加工地']}" : '',
-		);// implode用の配列作成
-		$n2values['内容量・規格等'] = implode( "\n\n", array_filter( $n2values['内容量・規格等'] ) );// 空要素削除して連結
-
 		// アレルゲン
 		$n2values['アレルゲン'] = array_column( (array) $n2values['アレルゲン'], 'label' );// ラベルだけにする
 		$n2values['アレルゲン'] = preg_replace( '/（.*?）/', '', $n2values['アレルゲン'] );// 不純物（カッコの部分）を削除
-
-		// 賞味期限・消費期限
-		$n2values['消費期限'] = array(
-			$n2values['賞味期限'] ? "【賞味期限】\n{$n2values['賞味期限']}" : '',
-			$n2values['消費期限'],
-		);// implode用の配列作成
-		$n2values['消費期限'] = implode( "\n\n【消費期限】\n", array_filter( $n2values['消費期限'] ) );// 空要素削除して連結
 
 		// preg_matchで判定
 		$data = match ( 1 ) {
@@ -194,9 +179,9 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 					?>
 					<?php foreach ( $result  as $index => $img_url ) : ?>
 						<?php if ( array_key_last( $result ) === $index ) : ?>
-							<img src=""<?php echo $img_url; ?>"" width=""100%""><br><br>
+							<img src="<?php echo $img_url; ?>" width="100%"><br><br>
 						<?php else : ?>
-							<img src=""<?php echo $img_url; ?>"" width=""100%"">
+							<img src="<?php echo $img_url; ?>" width="100%">
 						<?php endif; ?>
 					<?php endforeach; ?>
 					<?php
@@ -398,85 +383,64 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 * @return string 商品説明テーブル
 	 */
 	public function make_itemtable( $post_id, $n2values, $return_string = true ) {
-		print_r('test0');
-		print_r($post_id);
-		print_r($n2values);
-		$post_keys      = array(
-			'表示名称',
-			'略称',
-			'内容量・規格等',
-			'賞味期限',
-			'消費期限',
-			'発送方法',
-			'配送期間',
-			'提供事業者名',
-			'アレルゲン',
-			'アレルゲン注釈',
-			'アレルギー品目あり',
-			'原料原産地',
-			'加工地',
-		);
-		$post_meta_list = N2_Functions::get_post_meta_multiple( $post_id, $post_keys );
 		// アレルギー表示
 		$allergy_display_str = $this->allergy_display( $n2values );
-
-		$formatter = fn( $post_key ) => nl2br( N2_Functions::special_str_convert( $post_meta_list[ $post_key ] ) );
 		$trs       = array(
 			'名称'      => array(
-				'td' => ( $formatter( '表示名称' ) ?: $formatter( '略称' ) ?: N2_Functions::special_str_convert( get_the_title( $post_id ) ) ),
+				'td' => $n2values['LH表示名'] ?: $n2values['タイトル'],
 			),
 			'内容量'     => array(
-				'td' => $formatter( '内容量・規格等' ),
+				'td' => $n2values['内容量・規格等'],
 			),
 			'原料原産地'   => array(
-				'td'        => $formatter( '原料原産地' ),
-				'condition' => $post_meta_list['原料原産地'],
+				'td'        => nl2br( $n2values['原料原産地'] ),
+				'condition' => $n2values['原料原産地'],
 			),
 			'加工地'     => array(
-				'td'        => $formatter( '加工地' ),
-				'condition' => $post_meta_list['加工地'],
+				'td'        => nl2br( $n2values['加工地'] ),
+				'condition' => $n2values['加工地'],
 			),
 			'賞味期限'    => array(
-				'td'        => $formatter( '賞味期限' ),
-				'condition' => $post_meta_list['賞味期限'],
+				'td'        => nl2br( $n2values['賞味期限'] ),
+				'condition' => $n2values['賞味期限'],
 			),
 			'消費期限'    => array(
-				'td'        => $formatter( '消費期限' ),
-				'condition' => $post_meta_list['消費期限'],
+				'td'        => nl2br( $n2values['消費期限'] ),
+				'condition' => $n2values['消費期限'],
 			),
 			'アレルギー表示' => array(
 				'td'        => $allergy_display_str,
 				'condition' => $allergy_display_str,
 			),
 			'配送方法'    => array(
-				'td' => $formatter( '発送方法' ),
+				'td' => nl2br( $n2values['発送方法'] ),
 			),
 			'配送期日'    => array(
-				'td' => $formatter( '配送期間' ),
+				'td' => nl2br( $n2values['配送期間'] ),
 			),
 			'提供事業者'   => array(
-				'td'        => $post_meta_list['提供事業者名']
+				'td'        => $n2values['提供事業者']
 				?: preg_replace(
 					'/\（.+?\）/',
 					'',
 					(
-					get_the_author_meta( 'portal', get_post_field( 'post_author', $post_id ) )
-					?: get_the_author_meta( 'first_name', get_post_field( 'post_author', $post_id ) )
+					get_the_author_meta( 'portal_site_display_name', get_post_field( 'post_author', $n2values['id'] ) )
+					?: get_the_author_meta( 'first_name', get_post_field( 'post_author', $n2values['id'] ) )
 					)
 				),
-				'condition' => '記載しない' !== get_the_author_meta( 'portal', get_post_field( 'post_author', $post_id ) ),
+				'condition' => '記載しない' !== get_the_author_meta( 'portal_site_display_name', get_post_field( 'post_author', $n2values['id'] ) ), // ポータル表示名に「記載しない」の表記があったら事業者名出力しない
 			),
 		);
 
 		// 内容を追加、または上書きするためのフック
-		$trs = apply_filters( 'n2_item_export_make_itemtable', $trs, $post_id );
+		$trs = apply_filters( 'n2_item_export_make_itemtable', $trs, $n2values['id'] );
 
 		// ========[html]商品説明テーブル========
 		$itemtable_html = function() use ( $trs ) {
 			?>
 			<!-- 商品説明テーブル -->
-			<p><b><font size=""5"">商品説明</font></b></p><hr noshade color=""black""><br>
-			<table border=""1"" width=""100%"" cellspacing=""0"" cellpadding=""10"" bordercolor=""black"">
+			<p><b><font size="5">商品説明</font></b></p><hr noshade color="black"><br>
+			<table border="1" width="100%" cellspacing="0" cellpadding="10" bordercolor="black">
 			<?php foreach ( $trs as $th => $td_params ) : ?>
 				<?php if ( ! isset( $td_params['condition'] ) || $td_params['condition'] ) : ?>
 				<tr><th><?php echo $th; ?></th><td><?php echo $td_params['td']; ?></td></tr>
