@@ -217,7 +217,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		// ========戻り値判定========
 		// 文字列を返却
 		if ( $return_string ) {
-			return N2_Functions::html2str( $html );
+			return $this->html2str( $html );
 		}
 		// html出力
 		$html();
@@ -263,7 +263,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		// ========戻り値判定========
 		// 文字列を返却
 		if ( $return_string ) {
-			return N2_Functions::html2str( $html );
+			return $this->html2str( $html );
 		}
 		// html出力
 		$html();
@@ -298,7 +298,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		// ========戻り値判定========
 		// 文字列を返却
 		if ( $return_string ) {
-			return N2_Functions::html2str( $html );
+			return $this->html2str( $html );
 		}
 		// html出力
 		$html();
@@ -415,8 +415,8 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		};
 		// ========戻り値判定========
 		// 文字列を返却
-		if ( $return_string ) {
-			return html2str( $itemtable_html );
+	if ( $return_string ) {
+			return $this->html2str( $itemtable_html );
 		}
 		// htmlで出力
 		$itemtable_html();
