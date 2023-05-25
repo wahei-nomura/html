@@ -75,7 +75,7 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 				'送料' => $n2values['送料'],
 				'送料反映' => match ( $n2values['発送サイズ'] ) {
 					'その他' => '反映する',
-					'レターパックプラス', 'レターパックライト' => $n2->portal_setting['LedgHOME']['レターパック送料反映'],// option設定できるようにする
+					'レターパックプラス', 'レターパックライト' => $n2->portal_setting['LedgHOME']['レターパック送料反映'],
 					default => '反映しない',
 				},
 				'発送方法' => $n2values['発送方法'],

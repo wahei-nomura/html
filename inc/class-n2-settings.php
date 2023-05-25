@@ -32,13 +32,6 @@ class N2_Settings {
 	);
 
 	/**
-	 * 設定値
-	 *
-	 * @var array
-	 */
-	public $setting_values;
-
-	/**
 	 * 全ポータルサイト
 	 *
 	 * @var array
@@ -54,7 +47,6 @@ class N2_Settings {
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		$this->setting_values = get_option( 'n2_settings' );
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 	}
 
@@ -62,6 +54,7 @@ class N2_Settings {
 	 * メニュー追加
 	 */
 	public function add_menu() {
+		// delete_option( 'n2_settings' );
 		if ( ! WP_Filesystem() ) {
 			return;
 		}
@@ -137,7 +130,8 @@ class N2_Settings {
 	 * @param string $name ポータル名
 	 */
 	private function is_hide_portal( $name ) {
-		$hide = array_diff( $this->portal_sites, $this->setting_values['n2']['portal_sites'] );
+		global $n2;
+		$hide = array_diff( $this->portal_sites, $n2->portal_sites );
 		return in_array( $name, $hide, true );
 	}
 }

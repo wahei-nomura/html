@@ -101,6 +101,20 @@ class N2 {
 	public $portal_setting;
 
 	/**
+	 * ポータル共通説明文
+	 *
+	 * @var array
+	 */
+	public $portal_common_description;
+
+	/**
+	 * 出品ポータル
+	 *
+	 * @var array
+	 */
+	public $portal_sites;
+
+	/**
 	 * カスタムフィールド
 	 *
 	 * @var array
@@ -187,8 +201,9 @@ class N2 {
 	 */
 	public function set_vars() {
 		global $pagenow, $wpdb;
+
 		// wp_options保存値
-		$n2_option = get_option( 'n2_settings' );
+		$n2_settings = get_option( 'n2_settings', yaml_parse_file( get_theme_file_path( 'config/n2-settings.yml' ) ) );
 
 		// SSのIP
 		$this->ss_ip_address = yaml_parse_file( get_theme_file_path( 'config/ss-ip-address.yml' ) );
@@ -230,30 +245,28 @@ class N2 {
 		$this->special_str_convert = yaml_parse_file( get_theme_file_path( 'config/n2-special-str-comvert.yml' ) );
 
 		// 送料設定
-		$this->delivery_fee = $n2_option['delivery_fee'] ?? false;
+		$n2_settings['delivery_fee'] = $n2_settings['delivery_fee'] ?? array();
+		$this->delivery_fee          = empty( array_filter( array_values( $n2_settings['delivery_fee'] ) ) ) ? false : $n2_settings['delivery_fee'];// 空の値が有る場合はfalseに;
 		if ( $this->delivery_fee ) {
 			// クールの自動加算
-			$this->delivery_fee['0101_cool'] = (string) ( $this->delivery_fee['0101'] + 220 );
-			$this->delivery_fee['0102_cool'] = (string) ( $this->delivery_fee['0102'] + 220 );
-			$this->delivery_fee['0103_cool'] = (string) ( $this->delivery_fee['0103'] + 330 );
-			$this->delivery_fee['0104_cool'] = (string) ( $this->delivery_fee['0104'] + 660 );
+			$this->delivery_fee['0101_cool'] = (string) ( (int) $this->delivery_fee['0101'] + 220 );
+			$this->delivery_fee['0102_cool'] = (string) ( (int) $this->delivery_fee['0102'] + 220 );
+			$this->delivery_fee['0103_cool'] = (string) ( (int) $this->delivery_fee['0103'] + 330 );
+			$this->delivery_fee['0104_cool'] = (string) ( (int) $this->delivery_fee['0104'] + 660 );
 		}
 
 		// 寄附金額計算式タイプ
-		$this->formula = wp_parse_args(
-			$n2_option['formula'] ?? array(),
-			array(
-				'除数'   => 0.3,
-				'送料乗数' => 0,
-			)
-		);
+		$this->formula = empty( array_filter( array_values( $n2_settings['formula'] ) ) ) ? false : $n2_settings['formula'];// 空の値が有る場合はfalseに;
 
 		// ポータル共通説明文
-		$this->portal_common_discription = $n2_option['add_text'][ get_bloginfo( 'name' ) ] ?? '';
+		$this->portal_common_description = $n2_settings['portal_common_description'] ?? '';
+
+		// 出品ポータル
+		$this->portal_sites = $n2_settings['n2']['portal_sites'];
 
 		// ポータル設定
 		$this->portal_setting = array_merge_recursive(
-			$n2_option['portal_setting'] ?? array(),
+			$n2_settings['portal_setting'] ?? array(),
 			apply_filters(
 				'n2_portal_setting',
 				yaml_parse_file( get_theme_file_path( 'config/n2-portal-setting.yml' ) )
@@ -273,7 +286,7 @@ class N2 {
 		}
 
 		// N2稼働状況
-		$this->n2_active_flag = $n2_option['n2']['active'] ?? '';
+		$this->n2_active_flag = $n2_settings['n2']['active'];
 	}
 
 	/**
