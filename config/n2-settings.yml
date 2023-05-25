@@ -3,7 +3,7 @@ n2:
     active: 1
     portal_sites:
         - ふるさとチョイス
-        - 楽天市場
+        - 楽天ふるさと納税
 formula:
     送料乗数: 0
     除数: 0.3

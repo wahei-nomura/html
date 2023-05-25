@@ -215,6 +215,9 @@ class N2 {
 		// $this->cash_buster = 'develop' === $this->mode ? time() : wp_get_theme()->get( 'Version' );
 		$this->cash_buster = time();
 
+		// N2稼働状況
+		$this->n2_active_flag = $n2_settings['n2']['active'];
+
 		// サイト基本情報
 
 		$this->blog_prefix = $wpdb->get_blog_prefix();
@@ -234,9 +237,6 @@ class N2 {
 
 		// ユーザーメタ追加
 		$this->current_user->__set( 'meta', $user_meta );
-
-		// カスタムフィールド
-		$this->custom_field = yaml_parse_file( get_theme_file_path( 'config/custom-field.yml' ) );
 
 		// プリントアウト
 		$this->product_list_print = yaml_parse_file( get_theme_file_path( 'config/n2-product-list-print.yml' ) );
@@ -273,6 +273,23 @@ class N2 {
 			),
 		);
 
+		// カスタムフィールド
+		$this->custom_field = yaml_parse_file( get_theme_file_path( 'config/custom-field.yml' ) );
+		// 出品しないポータルの場合はカスタムフィールドを削除
+		foreach ( $this->custom_field as $key => $custom_field ) {
+			foreach ( $custom_field as $name => $value ) {
+				if ( isset( $value['portal'] ) && ! in_array( $value['portal'], $this->portal_sites, true ) ) {
+					unset( $this->custom_field[ $key ][ $name ] );
+				}
+			}
+		}
+		// 出品禁止ポータルから削除
+		foreach ( $this->custom_field['スチームシップ用']['出品禁止ポータル']['option'] as $index => $option ) {
+			if ( ! in_array( $option, $this->portal_sites, true ) ) {
+				unset( $this->custom_field['スチームシップ用']['出品禁止ポータル']['option'][ $index ] );
+			}
+		}
+
 		// LHカテゴリー
 		if ( ! empty( $this->portal_setting['LedgHOME']['カテゴリー'] ) ) {
 			// LHカテゴリーの設定値を配列化
@@ -284,9 +301,6 @@ class N2 {
 			// option設定
 			$this->custom_field['事業者用']['LHカテゴリー']['option'] = $lh_category;
 		}
-
-		// N2稼働状況
-		$this->n2_active_flag = $n2_settings['n2']['active'];
 	}
 
 	/**

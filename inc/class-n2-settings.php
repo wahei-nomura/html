@@ -26,7 +26,7 @@ class N2_Settings {
 		'n2'               => 'N2',
 		'formula-delivery' => '寄附金額・送料',
 		'ledghome'         => 'LedgHOME',
-		'rakuten'          => '楽天市場',
+		'rakuten'          => '楽天ふるさと納税',
 		'furunavi'         => 'ふるなび',
 		'ana'              => 'ANA',
 	);
@@ -38,7 +38,7 @@ class N2_Settings {
 	 */
 	public $portal_sites = array(
 		'ふるさとチョイス',
-		'楽天市場',
+		'楽天ふるさと納税',
 		'ふるなび',
 		'ANA',
 	);

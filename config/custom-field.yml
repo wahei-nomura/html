@@ -22,6 +22,7 @@
         "@change": "force_half_size_text($event, 'number', '寄附金額');calc_donation(価格, 送料, 定期便)"
 
     全商品ディレクトリID:
+        portal: 楽天ふるさと納税
         type: rakuten-genreid
         min: 0
         v-model: 全商品ディレクトリID.text
@@ -29,6 +30,7 @@
         description: 下のボタンが無くなるまで押していかないと楽天で地味にエラーが出ます。
 
     タグID:
+        portal: 楽天ふるさと納税
         type: rakuten-tagid
         description: 楽天登録に必要なタグを複数選択します。
         maxlength: 161
@@ -38,7 +40,9 @@
         style: 'width: 100%;'
         "@focus": set_info($event.target);get_genreid();auto_fit_tetxarea($event.target)
 
+
     楽天SPAカテゴリー:
+        portal: 楽天ふるさと納税
         type: rakuten-spa-category
         v-model: 楽天SPAカテゴリー.text
         v-if: "!出品禁止ポータル.includes('楽天ふるさと納税') && 楽天SPA"

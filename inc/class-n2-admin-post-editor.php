@@ -143,6 +143,7 @@ class N2_Admin_Post_Editor {
 		<div class="n2-fields fs-6">
 			<?php foreach ( $custom_field as $field => $detail ) : ?>
 			<?php
+				unset( $detail['portal'] );
 				$detail['name'] = sprintf( 'n2field[%s]', $detail['name'] ?? $field );
 				// hiddenタイプはそのまま出力
 				if ( 'hidden' === $detail['type'] ) {
