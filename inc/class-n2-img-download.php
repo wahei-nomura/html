@@ -33,7 +33,11 @@ class N2_Img_Download {
 	public function download_by_url() {
 		// ajaxで渡ってきたpostidの配列
 		$ids = explode( ',', $_POST['id'] );
-		$url = $_GET['url'] ?: $_POST['url'];
+		$url = filter_input( INPUT_POST, 'url', FILTER_VALIDATE_URL );
+		if ( $url ) {
+			echo 'error!not url';
+			exit;
+		}
 		add_filter( 'https_ssl_verify', '__return_false' );
 		// シングルダウンロード(zipとの判断基準は$_POST['id']を持ってるかどうか)
 		if ( ! $_POST['id'] ) {
