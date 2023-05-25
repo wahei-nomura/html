@@ -1,3 +1,11 @@
+<?php
+/**
+ * レジホーム
+ *
+ * @package neoneng
+ */
+
+?>
 <table class="form-table">
 	<tr>
 		<th>カテゴリー</th>

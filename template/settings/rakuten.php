@@ -1,3 +1,11 @@
+<?php
+/**
+ * 楽天市場
+ *
+ * @package neoneng
+ */
+
+?>
 <table class="form-table">
 	<tr>
 		<th>FTPユーザー</th>

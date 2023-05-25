@@ -1,3 +1,11 @@
+<?php
+/**
+ * N2設定
+ *
+ * @package neoneng
+ */
+
+?>
 <table class="form-table">
 <tr>
 	<th>稼働状況</th>

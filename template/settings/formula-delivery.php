@@ -1,3 +1,11 @@
+<?php
+/**
+ * 寄附金額・送料
+ *
+ * @package neoneng
+ */
+
+?>
 <table class="form-table">
 	<tr>
 		<th>送料を寄附金額計算に含める</th>
