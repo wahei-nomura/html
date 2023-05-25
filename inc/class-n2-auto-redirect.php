@@ -5,10 +5,6 @@
  * @package neoneng
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
 if ( class_exists( 'N2_Auto_Redirect' ) ) {
 	new N2_Auto_Redirect();
 	return;

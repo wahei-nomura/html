@@ -5,10 +5,6 @@
  * @package neoneng
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
 if ( class_exists( 'N2_Rakuten_Transfer' ) ) {
 	new N2_Rakuten_Transfer();
 	return;

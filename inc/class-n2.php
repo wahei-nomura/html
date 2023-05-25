@@ -5,9 +5,6 @@
  * @package neoneng
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
 /**
  * N2オブジェクト
  */

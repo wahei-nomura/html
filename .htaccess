@@ -1,3 +1,3 @@
-<Files ~ "^.*?\.(md|ini|yml|yaml)$">
+<Files ~ "^.*?\.(md|ini|yml|yaml|php)$">
 deny from all
 </Files>

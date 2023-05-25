@@ -5,10 +5,6 @@
  * @package neoneng
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
 if ( class_exists( 'N2_Sync' ) ) {
 	$GLOBALS['n2_sync'] = new N2_Sync();
 	return;

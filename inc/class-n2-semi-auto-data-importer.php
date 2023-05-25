@@ -5,10 +5,6 @@
  * @package neoneng
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
 if ( class_exists( 'N2_Semi_Auto_Data_Importer' ) ) {
 	new N2_Semi_Auto_Data_Importer();
 	return;

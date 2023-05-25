@@ -5,11 +5,7 @@
  * @package neoneng
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
-if ( class_exists( 'N2_Jigyousyaparam' ) ) {
+ if ( class_exists( 'N2_Jigyousyaparam' ) ) {
 	new N2_Jigyousyaparam();
 	return;
 }
