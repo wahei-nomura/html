@@ -72,37 +72,6 @@
 			<div>
 				複製元：<span class="original-title"></span>
 			</div>
-			<div class="form-block">
-				<label>複製後のステータス</label>
-				<select name="status">
-					<option value="draft">事業者下書き</option>
-					<option value="pending">スチームシップ確認待ち</option>
-				</select>
-			</div>
-			<div class="form-block">
-				<label>定期便として複製しますか？</label>
-				<select name="定期">
-				<?php
-				for ( $i = 1; $i <= 12; $i++ ) {
-					printf( '<option value="%d">%s</option>', $i, $i < 2 ? '定期便ではない' : "{$i}回定期便として複製" );
-				}
-				?>
-					
-				</select>
-			</div>
-			<div class="form-block">
-				<label>返礼品名(【全〇〇回定期便】は自動追加されます)</label>
-				<p class="new-title"><span></span><input type="text" name="複写後商品名"></p>
-			</div>
-			<div class="form-block is-teiki">
-				<label>内容量・規格(追加または置換されます)</label>
-				<div>※以下の内容を全◯◯回（月<input type="number" name="同月回数" min="1" max="12">回）お届けいたします。</div>
-			</div>
-			<div class="form-block is-teiki">
-				<label>配送期間(追加または置換されます)</label>
-				<div>※初回発送はお申込み翌月の<input type="number" name="初回発送日" min="1" max="31">日までに発送致します。なお2回目以降も毎月<input type="number"
-						name="毎月発送日" min="1" max="31">日までに発送致します。</div>
-			</div>
 			<button class="button button-primary submit" type="submit">複製する</button>
 		</form>
 	</div>

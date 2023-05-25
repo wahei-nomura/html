@@ -27,6 +27,9 @@ class N2_Setmenu {
 		add_action( 'admin_init', array( $this, 'not_edit_user' ) );
 		add_filter( 'get_site_icon_url', array( $this, 'change_site_icon' ) );
 		add_action( 'admin_head', array( $this, 'my_custom_logo' ) );
+		add_action( 'admin_bar_menu', array( $this, 'remove_admin_bar_menus' ), 999 );
+		add_action( 'admin_head', array( $this, 'remove_help_tabs' ) );
+		add_filter( 'admin_footer_text', array( $this, 'custom_admin_footer' ) );
 	}
 
 	/**
@@ -70,6 +73,7 @@ class N2_Setmenu {
 				$menus[] = 'themes.php';
 				$menus[] = 'upload.php';
 				$menus[] = 'edit-comments.php';
+				$menus[] = 'options-general.php';
 				$menus[] = 'aiowpsec'; // All In One WP Security
 				break;
 			case 'jigyousya':
@@ -99,7 +103,7 @@ class N2_Setmenu {
 	}
 
 	/**
-	 * not_edhit_user
+	 * not_edit_user
 	 */
 	public function not_edit_user() {
 		global $pagenow;
@@ -113,7 +117,7 @@ class N2_Setmenu {
 			'upload.php',
 		);
 		if ( in_array( $pagenow, $hide_pages, true ) ) {
-			wp_redirect( admin_url( 'edit.php' ) );
+			wp_safe_redirect( admin_url( 'edit.php' ) );
 		}
 		if ( 'profile.php' === $pagenow ) {
 			wp_die( 'ユーザープロフィールを変更したい場合は「Steamship」へお問い合わせください。<p><a class="button" href="' . admin_url( 'edit.php' ) . '">返礼品一覧へ戻る</a></p>' );
@@ -133,5 +137,47 @@ class N2_Setmenu {
 	 */
 	public function my_custom_logo() {
 		echo '<style type="text/css">#wpadminbar #wp-admin-bar-wp-logo > .ab-item > .ab-icon:before { content: url(' . get_theme_file_uri( 'neo_neng_logo.svg' ) . ');}</style>';
+	}
+	/**
+	 * 管理画面のヘッダーメニューバーで不要なものを除去 @yamasaki
+	 *
+	 * @param array $wp_admin_bar 管理バーの項目を格納
+	 */
+	public function remove_admin_bar_menus( $wp_admin_bar ) {
+		$wp_admin_bar->remove_menu( 'wp-logo' ); // WordPressロゴ.
+		$wp_admin_bar->remove_menu( 'comments' );     // コメント
+		$wp_admin_bar->remove_menu( 'new-content' );  // 新規
+		$wp_admin_bar->remove_menu( 'view-site' );    // サイト名 → サイトを表示
+		$dashboard_url = admin_url();
+		$wp_admin_bar->add_node(
+			array(
+				'id'   => 'site-name',
+				'href' => $dashboard_url,
+			),
+		);
+		$wp_admin_bar->add_node(
+			array(
+				'id'    => 'my-sites',
+				'title' => '自治体',
+			),
+		);
+		if ( ! current_user_can( 'administrator' ) ) {
+			$wp_admin_bar->remove_menu( 'edit-profile' ); // ユーザー / プロフィールを編集.
+		}
+		if ( ! current_user_can( 'administrator' ) && ! current_user_can( 'ss-crew' ) ) {
+			$wp_admin_bar->remove_menu( 'my-sites' ); // 参加サイト.
+		}
+	}
+	/**
+	 * ヘルプタブ非表示 @yamasaki
+	 */
+	public function remove_help_tabs() {
+		$screen = get_current_screen();
+		$screen->remove_help_tabs();
+	}
+	/**
+	 * 「WordPressのご利用ありがとうございます。」の削除 @yamasaki
+	 */
+	public function custom_admin_footer() {
 	}
 }

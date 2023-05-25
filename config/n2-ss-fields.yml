@@ -18,37 +18,47 @@
     placeholder: 例）AAA000
     :value: 返礼品コード
     "@focus": set_info($event.target)
-    "@input": "force_half_size_text($event, 'uppercase', '返礼品コード')"
+    "@change": "force_half_size_text($event, 'uppercase', '返礼品コード')"
 
 LH表示名:
     type: text
     placeholder: 例）ヒレステーキ 200g
+    style: 'width: 100%;'
 
 寄附金額:
     type: donation-amount
-    description: 寄附金額を固定したい場合はチェックしてください。
+    description: 寄附金額を手動入力したい場合はチェックボックスにチェックを入れてください。<br>チェックが入っていない場合は寄附金額は自動計算されます。
     placeholder: 例）10000
     style: "width: 12em;"
     "@focus": set_info($event.target)
     :value: 寄附金額
-    "@input": "force_half_size_text($event, 'number', '寄附金額')"
+    "@change": "force_half_size_text($event, 'number', '寄附金額');calc_donation(価格, 送料, 定期便)"
 
 全商品ディレクトリID:
     type: rakuten-genreid
     min: 0
     v-model: 全商品ディレクトリID.text
     v-if: "!出品禁止ポータル.includes('楽天ふるさと納税')"
-    alert: 下のボタンが無くなるまで押していかないと楽天で地味にエラーが出ます。
+    description: 下のボタンが無くなるまで押していかないと楽天で地味にエラーが出ます。
 
 タグID:
     type: rakuten-tagid
     description: 楽天登録に必要なタグを複数選択します。
-    maxlength: 256
+    maxlength: 161
     rows: auto
     v-model: タグID.text
     v-if: "!出品禁止ポータル.includes('楽天ふるさと納税')&&全商品ディレクトリID.text"
     style: 'width: 100%;'
     "@focus": set_info($event.target);get_genreid();auto_fit_tetxarea($event.target)
+
+楽天SPAカテゴリー:
+    type: rakuten-spa-category
+    v-model: 楽天SPAカテゴリー.text
+    v-if: "!出品禁止ポータル.includes('楽天ふるさと納税') && 楽天SPA"
+    style: 'width: 100%;'
+    rows: auto
+    "@focus": set_info($event.target);get_spa_category();auto_fit_tetxarea($event.target)
+    "@input": auto_fit_tetxarea($event.target)
 
 検索キーワード:
     type: textarea
@@ -61,6 +71,7 @@ LH表示名:
 地場産品類型:
     type: select
     option:
+        '': 選択してしてください。
         1 : 1.当該地方団体の区域内において生産されたもの。
         2 : 2.当該地方団体の区域内において返礼品等の原材料の主要な部分が生産されたもの。
         3 : 3.当該地方団体の区域内において返礼品等の製造、加工その他の工程のうち主要な部分を行うことにより相応の付加価値が生じているもの。

@@ -84,6 +84,10 @@ class N2_Postlist {
 
 		$get_param_array = array();
 		foreach ( $_GET as $key => $value ) {
+			if ( is_array( $value ) ) {
+				$get_param_array[ $key ] = "{$key}[]=" . implode( "&{$key}[]=", $value );
+				continue;
+			}
 			if ( $value ) {
 				$get_param_array[ $key ] = "{$key}={$value}";
 			}
@@ -149,6 +153,8 @@ class N2_Postlist {
 	 */
 	public function add_posts_columns_row( $column_name ) {
 		global $post;
+		global $n2;
+
 		$post_data = N2_Functions::get_all_meta( $post );
 
 		$title = get_the_title();
@@ -204,7 +210,14 @@ class N2_Postlist {
 			array(
 				'text'      => 'ゴミ箱へ移動',
 				'add_class' => 'neo-neng-deletepost-btn',
-				'is_show'   => ! isset( $_GET['post_status'] ) || 'trash' !== $_GET['post_status'],
+				'is_show'   => ( ! isset( $_GET['post_status'] ) || 'trash' !== $_GET['post_status'] ) // ゴミ箱ページじゃない
+								// かつ事業者以外または、事業者でステータスが下書き
+								&& ( 'jigyousya' !== $n2->current_user->roles[0] || ( '入力中' === $status && 'jigyousya' === $n2->current_user->roles[0] ) ),
+			),
+			array(
+				'text'      => '事業者変更',
+				'add_class' => 'neo-neng-change-author-btn',
+				'is_show'   => ( ! isset( $_GET['post_status'] ) || 'trash' !== $_GET['post_status'] ) && ( 'jigyousya' !== $n2->current_user->roles[0] ),
 			),
 			array(
 				'text'      => '復元',
@@ -350,25 +363,17 @@ class N2_Postlist {
 		}
 
 		// 事業者検索 ===============================================================
-		$show_author      = '';
-		$get_jigyousya_id = filter_input( INPUT_GET, '事業者', FILTER_VALIDATE_INT );
 
-		// datalist生成
-		echo '<datalist id="jigyousya-list">';
+		echo '<div class="n2-jigyousya-selectbox"><select name="事業者[]" multiple size="1">';
+		echo '<option value="" style="padding-top: 4px;">事業者複数選択</option>';
 		foreach ( get_users( 'role=jigyousya' ) as $user ) {
-			$author_id   = (int) $user->ID;
-			$author_name = $user->display_name;
-			if ( $author_id === $get_jigyousya_id ) {
-				$show_author = $author_name;
-			}
+				$author_id   = (int) $user->ID;
+				$author_name = $user->display_name;
 
-			printf( '<option value="%s" data-id="%s">', $author_name, $author_id );
+				printf( '<option value="%s">%s</option>', $author_id, $author_name );
 		}
-		echo '</datalist>';
 
-		// 表示用と送信用にinput生成
-		echo "<input type='text' name='' id='jigyousya-list-tag' list='jigyousya-list' value='{$show_author}' placeholder='事業者入力' style='float:left'>";
-		echo "<input id='jigyousya-value' type='hidden' name='事業者' value='{$get_jigyousya_id}'>";
+		echo '</select></div>';
 		// ここまで事業者 ===========================================================
 
 		// 返礼品コード検索
@@ -385,7 +390,6 @@ class N2_Postlist {
 			}
 		}
 		echo '</select></div>';
-
 
 		// ステータス検索
 		$status = array(
@@ -691,8 +695,16 @@ class N2_Postlist {
 
 		// 事業者絞り込み ----------------------------------------
 		if ( ! empty( $_GET['事業者'] ) ) {
-			$where .= "AND {$wpdb->posts}.post_author = '%s'";
-			array_push( $args, filter_input( INPUT_GET, '事業者', FILTER_VALIDATE_INT ) );
+			$jigyousya_arr = $_GET['事業者'];
+			$where        .= 'AND (';
+			foreach ( $jigyousya_arr as $key => $author_id ) {
+				if ( 0 !== $key ) {
+					$where .= ' OR '; // 複数事業者をOR検索(前後の空白必須)
+				}
+				$where .= "{$wpdb->posts}.post_author = '%s'";
+				array_push( $args, $author_id );
+			}
+			$where .= ')';
 		}
 
 		// 返礼品コード絞り込み------------------------------------
@@ -750,7 +762,7 @@ class N2_Postlist {
 	 * @return void
 	 */
 	public function ajax() {
-		$jigyousya = filter_input( INPUT_GET, '事業者', FILTER_VALIDATE_INT );
+		$jigyousya = filter_input( INPUT_GET, '事業者' );
 
 		if ( empty( $jigyousya ) ) {
 			echo wp_json_encode( array() );
@@ -761,9 +773,28 @@ class N2_Postlist {
 		$arr   = array();
 		foreach ( $posts as $post ) {
 			if ( ! empty( get_post_meta( $post->ID, '返礼品コード', 'true' ) ) ) {
-				$arr[ $post->ID ] = get_post_meta( $post->ID, '返礼品コード', 'true' );
+
+				array_push(
+					$arr,
+					array(
+						'id'   => $post->ID,
+						'code' => get_post_meta(
+							$post->ID,
+							'返礼品コード',
+							'true'
+						),
+					),
+				);
+
 			}
 		}
+
+		usort(
+			$arr,
+			function( $a, $b ) {
+				return strcmp( $a['code'], $b['code'] );
+			}
+		);
 
 		echo wp_json_encode( $arr );
 

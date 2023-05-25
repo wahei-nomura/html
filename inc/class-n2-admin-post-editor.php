@@ -40,6 +40,7 @@ class N2_Admin_Post_Editor {
 		add_filter( 'post_link', array( $this, 'set_post_paermalink' ), 10, 3 );
 		add_action( 'init', array( $this, 'register_post_status' ) );
 		add_action( 'transition_post_status', array( $this, 'transition_status_action' ), 10, 3 );
+		// add_filter( 'wp_check_post_lock_window', '__return_zero' );
 	}
 
 	/**
@@ -145,6 +146,14 @@ class N2_Admin_Post_Editor {
 		<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
 		<div class="n2-fields fs-6">
 			<?php foreach ( $custom_field as $field => $detail ) : ?>
+			<?php
+				$detail['name'] = sprintf( 'n2field[%s]', $detail['name'] ?? $field );
+				// hiddenタイプはそのまま出力
+				if ( 'hidden' === $detail['type'] ) {
+					get_template_part( "template/forms/{$detail['type']}", null, $detail );
+					continue;
+				}
+			?>
 			<div id="<?php echo $field; ?>" class="n2-fields-list d-flex flex-wrap border-bottom p-3" v-if="<?php echo $detail['v-if'] ?? ''; ?>">
 				<div class="n2-fields-title col-12 mb-1 col-sm-3 mb-sm-0 d-flex align-items-center">
 					<?php echo ! empty( $detail['label'] ) ? $detail['label'] : $field; ?>
@@ -153,7 +162,6 @@ class N2_Admin_Post_Editor {
 				<?php
 					// templateに渡すために不純物を除去
 					unset( $detail['description'], $detail['label'], $detail['v-if'] );
-					$detail['name'] = sprintf( 'n2field[%s]', $detail['name'] ?? $field );
 					/**
 					 * プラグインでテンプレートを追加したい場合は、get_template_part_{$slug}フック
 					 * フック参考：https://github.com/WordPress/wordpress-develop/blob/6.1/src/wp-includes/general-template.php#L167-L207

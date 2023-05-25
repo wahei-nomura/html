@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( class_exists( 'N2_Sync' ) ) {
-	new N2_Sync();
+	$GLOBALS['n2_sync'] = new N2_Sync();
 	return;
 }
 
@@ -47,11 +47,29 @@ class N2_Sync {
 	private $spreadsheet_auth_path = '/var/www/keys/steamship-gcp.json';
 
 	/**
+	 * 同期の間隔（複数起動するとへんな挙動になるため）
+	 *
+	 * @var int
+	 */
+	private $sleep = 300;
+
+	/**
+	 * ファイルのリダイレクト対策
+	 *
+	 * @var array
+	 */
+	private $redirect = array(
+		'from' => '#steamship.co.jp/[a-z]*/wp-content/uploads#',
+		'to'   => 'steamship.co.jp/wp-content/uploads',
+	);
+
+	/**
 	 * コンストラクタ
 	 */
 	public function __construct() {
 		global $current_blog, $wp_filesystem;
-		$this->n1_ajax_url = "https://steamship.co.jp{$current_blog->path}wp-admin/admin-ajax.php";
+		$n1_path           = preg_replace( '/f[0-9]{6}-/', '', $current_blog->path );
+		$this->n1_ajax_url = "https://steamship.co.jp{$n1_path}wp-admin/admin-ajax.php";
 		add_action( 'wp_ajax_n2_sync_users_from_n1', array( $this, 'sync_users' ) );
 		add_action( 'wp_ajax_n2_sync_users_from_spreadsheet', array( $this, 'sync_users' ) );
 		add_action( 'wp_ajax_n2_sync_posts', array( $this, 'sync_posts' ) );
@@ -87,9 +105,26 @@ class N2_Sync {
 	 * N2 SYNC　メニューの追加
 	 */
 	public function add_menu() {
+		global $n2;
+		if ( ! $n2->delivery_fee ) {
+			add_menu_page( 'N2 SYNC', 'N2 SYNC', 'ss_crew', 'n2_sync', array( $this, 'error_ui' ), 'dashicons-update' );
+			return;
+		}
 		add_menu_page( 'N2 SYNC', 'N2 SYNC', 'ss_crew', 'n2_sync', array( $this, 'sync_ui' ), 'dashicons-update' );
 		register_setting( 'n2_sync_settings_n1', 'n2_sync_settings_n1' );
 		register_setting( 'n2_sync_settings_spreadsheet', 'n2_sync_settings_spreadsheet' );
+	}
+
+	/**
+	 * セットアップ不足エラーページ
+	 */
+	public function error_ui() {
+		?>
+		<div class="wrap">
+			<h1>N2 SYNC</h1>
+			<p>N2 SYNCを使うには<a href="?page=n2_crew_setup_menu">各種セットアップ</a>の送料タブの値を入力して下さい。</p>
+		</div>
+		<?php
 	}
 
 	/**
@@ -183,9 +218,11 @@ class N2_Sync {
 		<ul style="padding: 1em; background: white; margin: 2em 0; border: 1px solid;">
 			<li>※ ユーザーの更新はスプレットシートにある情報を追加、既に存在する場合は上書きします。</li>
 			<li>※ 返礼品の更新モードは、返礼品コードで照合して返礼品があれば更新、無ければ追加します。</li>
+			<li>※ 特定の項目だけ更新したい場合は、<b>項目を空欄にするのではなくカラムごと消して下さい。</b>空欄にすると空で更新されます。</li>
+			<li>※ <b>シート雛形</b>は<a href="https://docs.google.com/spreadsheets/d/13HZn6w6S0XaXgAd_3RSkB46XUrRDkMQArVeE99pFD9Q/edit#gid=0" target="_blank">ココ</a>。複製して使用してください！</li>
 			<li>※ シートの範囲については<a href="https://developers.google.com/sheets/api/guides/concepts?hl=ja#expandable-1" target="_blank">ココ</a>を参照。</li>
 		</ul>
-		<div style="padding: 1em 0;">
+		<div id="n2sync-link-wrapper" style="padding: 1em 0;">
 			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_users_from_spreadsheet"; ?>" class="button" target="_blank" style="margin-right: 1em;">
 				今すぐユーザーを更新
 			</a>
@@ -200,8 +237,8 @@ class N2_Sync {
 			<?php settings_fields( 'n2_sync_settings_spreadsheet' ); ?>
 			<table class="widefat striped" style="margin-bottom: 2em;">
 				<tr>
-					<th>スプレットシートのID</th>
-					<td><input type="text" class="large-text" name="n2_sync_settings_spreadsheet[id]" value="<?php echo $settings['id']; ?>" placeholder="1lIYQRNRLdZytrE3n9ANIjfXZWjD37uGdWXMvjfaINDs"></td>
+					<th>スプレットシートのIDまたはURL</th>
+					<td><input type="text" class="large-text" name="n2_sync_settings_spreadsheet[id]" value="<?php echo $settings['id']; ?>" placeholder="スプレッドシートのIDはたまURL"><a target="_blank"></a></td>
 				</tr>
 				<tr>
 					<th>ユーザーシートの範囲</th>
@@ -286,10 +323,11 @@ class N2_Sync {
 		while ( $max_num_pages >= $params['paged'] ) {
 
 			// ツイン起動しないためにSync中のフラグをチェックして終了
-			$sleep = $_GET['sleep'] ?? 300;
+			$sleep = $_GET['sleep'] ?? $this->sleep;
 			if ( $sleep > ( strtotime( 'now' ) - get_option( "n2syncing-{$params['paged']}", strtotime( '-1 hour' ) ) ) ) {
 				$logs[] = '2重起動防止のため終了';
 				$this->log( $logs );
+				echo '2重起動防止のため終了';
 				exit;
 			}
 			$ch         = curl_init();
@@ -403,6 +441,9 @@ class N2_Sync {
 			// 同期用 裏カスタムフィールドNENGのID追加
 			$postarr['meta_input']['_neng_id'] = $v['ID'];
 
+			// 寄附金額をロックする
+			$postarr['meta_input']['寄附金額固定'] = array( '固定する' );
+
 			// 「取り扱い方法1〜2」を「取り扱い方法」に変換
 			$handling                        = array_filter( $postarr['meta_input'], fn( $k ) => preg_match( '/取り扱い方法[0-9]/u', $k ), ARRAY_FILTER_USE_KEY );
 			$postarr['meta_input']['取り扱い方法'] = array_filter( array_values( $handling ), fn( $v ) => $v );
@@ -411,10 +452,28 @@ class N2_Sync {
 			}
 
 			// 「商品画像１〜８」を「商品画像」に変換
-			$images                        = array_filter( $postarr['meta_input'], fn( $k ) => preg_match( '/商品画像[０-９]/u', $k ), ARRAY_FILTER_USE_KEY );
+			$images = array_filter( $postarr['meta_input'], fn( $k ) => preg_match( '/商品画像[０-９]/u', $k ), ARRAY_FILTER_USE_KEY );
+			// 値の浄化
 			$postarr['meta_input']['商品画像'] = array_filter( array_values( $images ), fn( $v ) => $v );
+			foreach ( $postarr['meta_input']['商品画像'] as $index => $value ) {
+				if ( ! isset( $value['sizes'] ) ) {
+					$postarr['meta_input']['商品画像'][ $index ]['sizes']['thumbnail'] = preg_replace( '/\.(\w+)$/', '-$1.jpg', $value['url'] );
+				}
+			}
+			// URLの置換のためにjson化
+			$str = wp_json_encode( $postarr['meta_input']['商品画像'], JSON_UNESCAPED_SLASHES );
+			if ( $str ) {
+				// N1自治体ごとリダイレクトのため実URLに変更
+				$str = preg_replace( $this->redirect['from'], $this->redirect['to'], $str );
+				// jsonを配列に戻して代入
+				$postarr['meta_input']['商品画像'] = json_decode( $str, true );
+			}
 			foreach ( array_keys( $images ) as $k ) {
 				unset( $postarr['meta_input'][ $k ] );
+			}
+			if ( isset( $postarr['meta_input']['商品画像をzipファイルでまとめて送る']['url'] ) ) {
+				$postarr['meta_input']['N1zip'] = $postarr['meta_input']['商品画像をzipファイルでまとめて送る']['url'];
+				$postarr['meta_input']['N1zip'] = preg_replace( $this->redirect['from'], $this->redirect['to'], $postarr['meta_input']['N1zip'] );
 			}
 			unset( $postarr['meta_input']['商品画像をzipファイルでまとめて送る'] );
 
@@ -428,9 +487,14 @@ class N2_Sync {
 			if ( isset( $postarr['meta_input']['アレルゲン'] ) ) {
 				$allergen = array_column( $postarr['meta_input']['アレルゲン'], 'value' );
 				if ( $allergen ) {
-					if ( ! in_array( '食品ではない', $allergen, true ) ) {
+					if ( in_array( '食品ではない', $allergen, true ) ) {
+						unset( $postarr['meta_input']['アレルゲン'] );
+					} else {
 						$postarr['meta_input']['商品タイプ'][] = '食品';
-						if ( ! in_array( 'アレルゲンなし食品', $allergen, true ) ) {
+						if ( in_array( 'アレルゲンなし食品', $allergen, true ) ) {
+							$postarr['meta_input']['アレルギー有無確認'] = array( '' );
+							unset( $postarr['meta_input']['アレルゲン'] );
+						} else {
 							$postarr['meta_input']['アレルギー有無確認'] = array( 'アレルギー品目あり' );
 						}
 					}
@@ -438,6 +502,10 @@ class N2_Sync {
 			}
 			// 地場産品類型互換
 			$postarr['meta_input']['地場産品類型'] = $postarr['meta_input']['地場産品類型']['value'] ?? '';
+
+			// LH表示名
+			$postarr['meta_input']['LH表示名'] = $postarr['meta_input']['略称'] ?? '';
+			unset( $postarr['meta_input']['略称'] );
 
 			// キャッチコピー１と楽天カテゴリーの変換
 			$postarr['meta_input']['キャッチコピー']    = $postarr['meta_input']['キャッチコピー１'] ?? '';
@@ -484,7 +552,7 @@ class N2_Sync {
 				}
 				$neng_ids[] = $p->ID;
 				// 更新されてない場合はスキップ
-				if ( $p->post_modified === $postarr['post_modified'] ) {
+				if ( $p->post_modified >= $postarr['post_modified'] ) {
 					continue;
 				}
 				$postarr['ID'] = $p->ID;
@@ -540,10 +608,28 @@ class N2_Sync {
 				$default  = array(
 					'id'         => '',
 					'user_range' => '',
+					'item_range' => '',
 				);
 				$settings = get_option( 'n2_sync_settings_spreadsheet', $default );
+
+				// GETパラメータ優先、なければDB
+				$input_id         = filter_input( INPUT_GET, 'id', FILTER_SANITIZE_SPECIAL_CHARS );
+				$input_user_range = filter_input( INPUT_GET, 'user_range', FILTER_SANITIZE_SPECIAL_CHARS );
+
+				$sheet_id   = $input_id && '' !== $input_id ? $input_id : $settings['id'];
+				$user_range = $input_user_range && '' !== $input_user_range ? $input_user_range : $settings['user_range'];
 				// データ取得
-				$data = $this->get_spreadsheet_data( $settings['id'], $settings['user_range'] );
+				$data = $this->get_spreadsheet_data( $sheet_id, $user_range );
+
+				// GETパラメータで受け取ったidとuser_rangeも保存
+				update_option(
+					'n2_sync_settings_spreadsheet',
+					array(
+						'id'         => $sheet_id,
+						'user_range' => $user_range,
+						'item_range' => $settings['item_range'],
+					)
+				);
 				break;
 		}
 		// IP制限 or データが無い
@@ -630,7 +716,10 @@ class N2_Sync {
 
 			// パスワードの適切な加工
 			add_filter( 'wp_pre_insert_user_data', array( $this, 'insert_user_pass' ), 10, 4 );
-			$from_ids[] = wp_insert_user( $userdata );
+			$from_id = wp_insert_user( $userdata );
+			if ( ! is_wp_error( $from_id ) ) {
+				$from_ids[] = $from_id;
+			}
 			remove_filter( 'wp_pre_insert_user_data', array( $this, 'insert_user_pass' ) );
 		}
 
@@ -646,6 +735,7 @@ class N2_Sync {
 		}
 		echo "N2-User-Sync「{$n2->town}」ユーザーデータを同期しました。";
 		$logs[] = 'ユーザーシンクロ完了 ' . number_format( microtime( true ) - $before, 2 ) . ' sec';
+
 		$this->log( $logs );
 		exit;
 	}
@@ -664,12 +754,21 @@ class N2_Sync {
 		$default  = array(
 			'spreadsheet' => array(
 				'id'         => '',
+				'user_range' => '',
 				'item_range' => '',
 			),
 		);
 		$settings = get_option( 'n2_sync_settings_spreadsheet', $default );
+
+		// GETパラメータ優先、なければDB
+		$input_id         = filter_input( INPUT_GET, 'id', FILTER_SANITIZE_SPECIAL_CHARS );
+		$input_item_range = filter_input( INPUT_GET, 'item_range', FILTER_SANITIZE_SPECIAL_CHARS );
+
+		$sheet_id   = $input_id && '' !== $input_id ? $input_id : $settings['id'];
+		$item_range = $input_item_range && '' !== $input_item_range ? $input_item_range : $settings['item_range'];
+
 		// データ取得
-		$data = $this->get_spreadsheet_data( $settings['id'], $settings['item_range'] );
+		$data = $this->get_spreadsheet_data( $sheet_id, $item_range );
 
 		// IP制限等で終了のケース
 		if ( ! $data ) {
@@ -684,32 +783,72 @@ class N2_Sync {
 		// 投稿配列
 		$postarr = array();
 		foreach ( $data as $k => $d ) {
-			$postarr[ $k ]['post_title']  = $d['タイトル'];
-			$postarr[ $k ]['post_author'] = $this->get_userid_by_last_name( $d['事業者コード'] );
+			$author_code = $d['事業者コード'] ?? preg_replace( '/[0-9]*/', '', $d['返礼品コード'] );
+			// 投稿配列作成
+			$postarr[ $k ]['post_title']  = $d['タイトル'] ?? '';
+			$postarr[ $k ]['post_author'] = $this->get_userid_by_last_name( $author_code );
 			unset( $d['タイトル'], $d['事業者コード'], $d['事業者名'] );
 			// 寄附金額固定（入力あれば固定）
-			$d['寄附金額固定'] = array( $d['寄附金額固定'] ? '固定する' : '' );
+			if ( isset( $d['寄附金額固定'] ) ) {
+				$d['寄附金額固定'] = array( $d['寄附金額固定'] ? '固定する' : '' );
+			}
 			// 商品タイプ（入力値をそのまま出力）
-			$d['商品タイプ'] = array( $d['商品タイプ'] );
+			if ( isset( $d['商品タイプ'] ) ) {
+				$d['商品タイプ'] = array( $d['商品タイプ'] );
+			}
 			// アレルギーの有無確認（入力あればアレルギー品目あり）
-			$d['アレルギー有無確認'] = array( $d['アレルギー有無確認'] ? 'アレルギー品目あり' : '' );
+			if ( isset( $d['アレルギー有無確認'] ) ) {
+				$d['アレルギー有無確認'] = array( $d['アレルギー有無確認'] ? 'アレルギー品目あり' : '' );
+			}
 			// アレルゲン（label,value必要）
-			$d['アレルゲン'] = array_map(
-				function( $v ) use ( $n2 ) {
-					return array(
-						'label' => $v,
-						'value' => (string) array_search( $v, $n2->custom_field['事業者用']['アレルゲン']['option'], true ),
-					);
-				},
-				// 区切り文字列でいい感じに配列化
-				array_values( array_filter( preg_split( $sep, $d['アレルゲン'] ) ) )
-			);
+			if ( isset( $d['アレルゲン'] ) ) {
+				$d['アレルゲン'] = array_map(
+					function( $v ) use ( $n2 ) {
+						return array(
+							'label' => $v,
+							'value' => (string) array_search( $v, $n2->custom_field['事業者用']['アレルゲン']['option'], true ),
+						);
+					},
+					// 区切り文字列でいい感じに配列化
+					array_values( array_filter( preg_split( $sep, $d['アレルゲン'] ) ) )
+				);
+			}
 			// 取り扱い方法（区切り文字列でいい感じに配列化）
-			$d['取り扱い方法'] = array_values( array_filter( preg_split( $sep, $d['取り扱い方法'] ) ) );
+			if ( isset( $d['取り扱い方法'] ) ) {
+				$d['取り扱い方法'] = array_values( array_filter( preg_split( $sep, $d['取り扱い方法'] ) ) );
+			}
+			// 発送サイズの想定入力ミスに対応
+			if ( isset( $d['発送サイズ'] ) ) {
+				if ( preg_match( '/[1１][0０][1-8１-８]/u', $d['発送サイズ'], $m ) ) {
+					// 0が抜けた発送サイズコードの場合
+					$d['発送サイズ'] = '0' . mb_convert_kana( $m[0], 'n' );
+				} else {
+					preg_match( '/[1-9１-９]{1,2}[0０]/u', $d['発送サイズ'], $m );
+					if ( $m ) {
+						// 発送サイズ名で入れたの場合（全角にも対応）
+						$d['発送サイズ'] = '010' . ( mb_convert_kana( $m[0], 'n' ) - 40 ) / 20;
+					}
+				}
+			}
+			if ( empty( $d['送料'] ) && ! empty( $d['発送サイズ'] ) && ! empty( $d['発送方法'] ) ) {
+				$delivery_code = N2_Donation_Amount_API::create_delivery_code( $d['発送サイズ'], $d['発送方法'] );
+				// 送料計算
+				$d['送料'] = $n2->delivery_fee[ $delivery_code ] ?? '';
+			}
 			// $postarrにセット
 			$postarr[ $k ]['meta_input'] = $d;
 		}
-		$this->multi_insert_posts( $postarr, 100, $_GET['update'] || false );
+		$this->multi_insert_posts( $postarr, 100, $_GET['update'] ?? false );
+		// GETパラメータで受け取ったidとitem_rangeも保存
+		update_option(
+			'n2_sync_settings_spreadsheet',
+			array(
+				'id'         => $sheet_id,
+				'user_range' => $settings['user_range'],
+				'item_range' => $item_range,
+			)
+		);
+
 		echo "N2-Insert-Posts-From-Spreadsheet「{$n2->town}の返礼品」スプレットシートからの追加完了！" . number_format( microtime( true ) - $before, 2 ) . ' sec';
 		$logs[] = '返礼品の追加完了 ' . number_format( microtime( true ) - $before, 2 ) . ' sec';
 		$this->log( $logs );
@@ -729,7 +868,14 @@ class N2_Sync {
 	 * @param string $sheetid スプレットシートのID
 	 * @param string $range スプレットシートの範囲
 	 */
-	private function get_spreadsheet_data( $sheetid, $range ) {
+	public function get_spreadsheet_data( $sheetid, $range ) {
+
+		// URLが渡ってきた場合はSheetIDを抜き出す
+		if ( false !== strpos( $sheetid, 'spreadsheet' ) ) {
+			preg_match( '/spreadsheets\/d\/(.*?)(\/|$)/', $sheetid, $m );
+			$sheetid = $m[1];
+		}
+
 		$secret = wp_json_file_decode( $this->spreadsheet_auth_path );
 		// token取得
 		$url  = 'https://www.googleapis.com/oauth2/v4/token';
@@ -849,9 +995,12 @@ class N2_Sync {
 		}
 		foreach ( $posts as $post ) {
 			// 「updateモード」かつ「登録済み」
-			$p = get_posts( "meta_key=返礼品コード&meta_value={$post['meta_input']['返礼品コード']}&fields=ids&post_status=any" );
+			$p = get_posts( "meta_key=返礼品コード&meta_value={$post['meta_input']['返礼品コード']}&post_status=any" );
 			if ( isset( $_POST['update'] ) && ! empty( $p ) ) {
-				$post['ID'] = $p[0];
+				$post['ID']          = $p[0]->ID;
+				$post['post_status'] = $post['post_status'] ?? $p[0]->post_status;
+				$post['post_title']  = $post['post_title'] ?: $p[0]->post_title;
+				$post['post_author'] = $post['post_author'] ?: $p[0]->post_author;
 			}
 			wp_insert_post( $post );
 		}

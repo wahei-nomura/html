@@ -50,6 +50,9 @@ class N2_Enqueuescript {
 			'toplevel_page_n2_crew_setup_menu' => 'admin-setup',
 			'profile.php'                 => 'admin-user-profile',
 			'user-edit.php'               => 'admin-user-profile',
+			'user-new.php'                => 'admin-user-new',
+			'users.php'                   => 'admin-users',
+			'toplevel_page_n2_sync'       => 'admin-n2-sync',
 		);
 		if ( isset( $names[ $hook_suffix ] ) ) {
 			$name = $names[ $hook_suffix ];
@@ -95,7 +98,9 @@ class N2_Enqueuescript {
 	 * @return $classes
 	 */
 	public function add_admin_body_class( $classes ) {
+		global $n2;
 		$classes .= isset( $_COOKIE['n2-darkmode'] ) ? ' n2-darkmode' : '';
+		$classes .= 'true' === $n2->n2_active_flag ? ' n2-active-on' : ' n2-active-off';
 		return $classes;
 	}
 

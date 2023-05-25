@@ -13,6 +13,7 @@ $option_equal = $args['option-equal'] ?? false;// optionのvalueと表示名が�
 unset( $args['option'], $args['value'], $args['option-equal'] );
 $attr = '';
 foreach ( $args as $k => $v ) {
+	$v     = esc_attr( $v );// エスケープしないとバグる
 	$attr .= " {$k}=\"{$v}\"";
 }
 ?>

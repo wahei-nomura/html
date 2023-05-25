@@ -1,3 +1,4 @@
+import { post } from "jquery";
 import { prefix, neoNengPath, ajaxUrl } from "./functions";
 
 
@@ -10,26 +11,15 @@ jQuery(function($) {
 
 	const n2 = window['n2'];
 
-	/**
-	 * フォーム内の表示やinput内容切り替え
-	 * @param teikiNum 定期回数
-	 */
-	const formControll=(teikiNum: number) => {
-		if(teikiNum>1) {
-			$('.is-teiki').css('display', 'block')
-			$('#n2-copypost-modal .new-title span').text(`【全${teikiNum}回定期便】`);
-			$('#n2-copypost-form .is-teiki input').prop('disabled', false)
-		} else {
-			$('.is-teiki').css('display', 'none')
-			$('#n2-copypost-form .is-teiki input').prop('disabled', true)
-			$('#n2-copypost-modal .new-title span').text('');
-		}
-	}
-
 	// 初回読み込み
 	$("#wpbody-content").append(`<div id="${prefix}-content"></div>`);
 	$(`#${prefix}-content`).load(
 		neoNengPath(window) + "/template/copy-post.php"
+	);
+
+	$("#wpbody-content").append(`<div id="${prefix}-change-author-content"></div>`);
+	$(`#${prefix}-change-author-content`).load(
+		neoNengPath(window) + "/template/change-author.php"
 	);
 
 	/**
@@ -42,8 +32,6 @@ jQuery(function($) {
 		$("#n2-copypost-modal .original-title").text(title);
 		$('input[name="複写後商品名"]').val(title);
 		$("#n2-copypost-modal input[name='id']").val(id);
-		$("select[name='定期']>option[value='1']").prop('selected', true)
-		formControll(1)
 	}
 
 	// モーダル展開クリックイベント
@@ -54,6 +42,62 @@ jQuery(function($) {
 		);
 		const itemTitle=itemTr.find(".item-title a").text();
 		setModal(originalId, itemTitle);
+	});
+
+	// 事業者変更クリックイベント
+	$(`.${prefix}-change-author-btn`).on("click", (e) => {
+		console.log('change-author')
+		const itemTr = $(e.target).parents('tr');
+		const originalId: number = Number(
+			itemTr.find("th.check-column input").val()
+		);
+		const itemCode = itemTr.find(".column-code div").text();
+		const author = itemTr.find(".column-poster div").text();
+		const itemTitle=itemTr.find(".item-title a").text();
+
+		$('#n2-change-author-modal-wrapper').css('display', 'block')
+		$("#n2-change-author-modal .original-title").text(itemTitle);
+		$("#n2-change-author-modal .item-code>span").text(itemCode);
+		$("#n2-change-author-modal .current-author>span").text(author);
+		$("#n2-change-author-modal input[name='post_id']").val(originalId);
+
+		$.ajax({
+			url: n2.ajaxurl,
+			data:{
+				action: 'n2_users_api',
+				role: 'jigyousya'
+			}
+		}).done(res=>{
+			const users = JSON.parse(res)
+			$('#n2-change-author-modal .author-select>option').remove()
+			$('#n2-change-author-modal .author-select').append('<option value="">事業者を選択</option>')
+
+			Object.keys(users).forEach(i=>{
+				$('#n2-change-author-modal .author-select').append(`<option value='${users[i].ID}'>${users[i].display_name}</option>`)
+			})
+		}).fail(error => {
+			console.log(error)
+		});
+	});
+
+	// 事業者変更submit
+	$("body").on("click", '#n2-change-author-modal button', () => {
+
+		$.ajax({
+			url: n2.ajaxurl,
+			type: 'POST',
+			data:{
+				action: 'n2_post_author_update',
+				post_id: $('#n2-change-author-modal input[name="post_id"]').val(),
+				author_id: $('#n2-change-author-modal select[name="author_id"]').val()
+			}
+		}).done(res=>{
+			location.reload();
+		}).fail(error => {
+			alert('更新に失敗しました')
+			console.log(error)
+		});
+
 	});
 
 	// ゴミ箱へ移動イベント
@@ -102,16 +146,16 @@ jQuery(function($) {
 		itemTr.remove()
 	});
 
-	// 定期便、単品切り替え
-	$('body').on('change', 'select[name="定期"]', e => {
-		const teikiNum = +$(e.target).val();
-		formControll(teikiNum)
-	})
 
 	// モーダルキャンセル
 	$("body").on("click", "#n2-copypost-modal .close-btn,#n2-copypost-modal-wrapper", (e) => {
 		if($(e.target).attr('id')==='n2-copypost-modal-wrapper' || $(e.target).hasClass('dashicons-no')) {	
 			$('#n2-copypost-modal-wrapper').css('display', 'none')
+		}
+	});
+	$("body").on("click", "#n2-change-author-modal .close-btn,#n2-change-author-modal-wrapper", (e) => {
+		if($(e.target).attr('id')==='n2-change-author-modal-wrapper' || $(e.target).hasClass('dashicons-no')) {	
+			$('#n2-change-author-modal-wrapper').css('display', 'none')
 		}
 	});
 

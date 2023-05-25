@@ -14,7 +14,7 @@ export default ($: any, target: string) => {
 				action: 'n2_download_images_by_id',
 				id: window['wp'].data.select('core/editor').getCurrentPost().id,
 			}).toString();
-			location.href = `${window['n2'].ajaxurl}?${params}`;
+			window.open( `${window['n2'].ajaxurl}?${params}`, '_blank' );
 		});
 	});
 }

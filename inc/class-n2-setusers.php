@@ -24,6 +24,7 @@ class N2_Setusers {
 	public function __construct() {
 		add_action( 'init', array( $this, 'remove_usertype' ) );
 		add_action( 'init', array( $this, 'add_usertype' ) );
+		add_action( 'admin_init', array( $this, 'crew_in_allsite' ) );
 	}
 
 	/**
@@ -80,6 +81,7 @@ class N2_Setusers {
 		$wp_roles->add_cap( 'ss-crew', 'delete_published_posts' );
 		$wp_roles->add_cap( 'ss-crew', 'publish_posts' );
 		$wp_roles->add_cap( 'ss-crew', 'upload_files' );
+		$wp_roles->add_cap( 'ss-crew', 'manage_options' );
 		$wp_roles->add_cap( 'ss-crew', 'ss_crew' ); // role判定用に追加
 
 		$user_caps = array(
@@ -95,5 +97,22 @@ class N2_Setusers {
 			$wp_roles->add_cap( 'ss-crew', $cap );
 		}
 
+	}
+
+	/**
+	 * ss-crewは全自治体へ追加
+	 */
+	public function crew_in_allsite() {
+		global $n2;
+		$user = $n2->current_user;
+		if ( 'ss-crew' !== $user->roles[0] ) {
+			return;
+		}
+		$sites = get_sites();
+
+		foreach ( $sites as $site ) {
+			$blog_id = $site->blog_id;
+			add_user_to_blog( $blog_id, $user->ID, 'ss-crew' );
+		}
 	}
 }

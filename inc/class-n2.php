@@ -76,11 +76,11 @@ class N2 {
 	public $delivery_fee;
 
 	/**
-	 * 寄附金額計算式タイプ
+	 * 寄附金額計算に必要な情報
 	 *
 	 * @var array
 	 */
-	public $formula_type;
+	public $formula;
 
 	/**
 	 * 機種依存文字変換
@@ -153,6 +153,13 @@ class N2 {
 	public $town_code;
 
 	/**
+	 * N2稼働状況
+	 *
+	 * @var object
+	 */
+	public $n2_active_flag;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -186,6 +193,12 @@ class N2 {
 							}
 						}
 					}
+					if ( '楽天SPAカテゴリー' === $name ) {
+						$value = array(
+							'text' => preg_replace( '/\r/', '', $value ),
+							'list' => array(),
+						);
+					}
 					$this->custom_field[ $id ][ $name ]['value'] = $value;
 				}
 			}
@@ -212,7 +225,8 @@ class N2 {
 		$this->mode = preg_match( '/localhost/', wp_parse_url( get_bloginfo( 'url' ), PHP_URL_HOST ) ) ? 'develop' : 'production';
 
 		// キャッシュバスター
-		$this->cash_buster = 'develop' === $this->mode ? time() : wp_get_theme()->get( 'Version' );
+		// $this->cash_buster = 'develop' === $this->mode ? time() : wp_get_theme()->get( 'Version' );
+		$this->cash_buster = time();
 
 		// サイト基本情報
 
@@ -239,6 +253,14 @@ class N2 {
 			'スチームシップ用' => yaml_parse_file( get_theme_file_path( 'config/n2-ss-fields.yml' ) ),
 			'事業者用'     => yaml_parse_file( get_theme_file_path( 'config/n2-fields.yml' ) ),
 		);
+		// 自治体ごとのLHカテゴリー
+		if ( ! empty( $n2_option['lh']['category'] ) ) {
+			// LHカテゴリーの設定値を配列化
+			$n2_option['lh']['category'] = preg_replace( '/\r\n|\r|\n/', "\n", trim( $n2_option['lh']['category'] ) );
+			$n2_option['lh']['category'] = explode( "\n", $n2_option['lh']['category'] );
+			// option設定
+			$this->custom_field['事業者用']['LHカテゴリー']['option'] = $n2_option['lh']['category'];
+		}
 
 		// プリントアウト
 		$this->product_list_print = yaml_parse_file( get_theme_file_path( 'config/n2-product-list-print.yml' ) );
@@ -247,15 +269,23 @@ class N2 {
 		$this->special_str_convert = yaml_parse_file( get_theme_file_path( 'config/n2-special-str-comvert.yml' ) );
 
 		// 送料設定
-		$this->delivery_fee = $n2_option['delivery_fee'] ?? yaml_parse_file( get_theme_file_path( 'config/n2-delivery-fee.yml' ) );
-		// クールの自動加算
-		$this->delivery_fee['0101_cool'] = (string) ( $this->delivery_fee['0101'] + 220 );
-		$this->delivery_fee['0102_cool'] = (string) ( $this->delivery_fee['0102'] + 220 );
-		$this->delivery_fee['0103_cool'] = (string) ( $this->delivery_fee['0103'] + 330 );
-		$this->delivery_fee['0104_cool'] = (string) ( $this->delivery_fee['0104'] + 660 );
+		$this->delivery_fee = $n2_option['delivery_fee'] ?? false;
+		if ( $this->delivery_fee ) {
+			// クールの自動加算
+			$this->delivery_fee['0101_cool'] = (string) ( $this->delivery_fee['0101'] + 220 );
+			$this->delivery_fee['0102_cool'] = (string) ( $this->delivery_fee['0102'] + 220 );
+			$this->delivery_fee['0103_cool'] = (string) ( $this->delivery_fee['0103'] + 330 );
+			$this->delivery_fee['0104_cool'] = (string) ( $this->delivery_fee['0104'] + 660 );
+		}
 
 		// 寄附金額計算式タイプ
-		$this->formula_type = $n2_option['formula_type'] ?? '';
+		$this->formula = wp_parse_args(
+			$n2_option['formula'] ?? array(),
+			array(
+				'除数'   => 0.3,
+				'送料乗数' => 0,
+			)
+		);
 
 		// ポータル一覧
 		$this->portals   = array(
@@ -278,7 +308,10 @@ class N2 {
 		$this->choice = array( ...$choice_yml, ...$this->choice );
 
 		// レジホーム
-		$this->ledghome_csv_contents = yaml_parse_file( get_theme_file_path( 'config/n2-ledghome-csv-header.yml' ) );
+		$this->ledghome_csv_contents = apply_filters( 'n2_item_export_ledghome_header', yaml_parse_file( get_theme_file_path( 'config/n2-ledghome-csv-header.yml' ) ) );
+
+		// N2稼働状況
+		$this->n2_active_flag = $n2_option['N2'] ?? 'false';
 	}
 
 	/**

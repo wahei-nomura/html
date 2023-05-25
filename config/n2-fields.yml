@@ -8,6 +8,10 @@
 # 属性値を自動的に追加
 
 # ===================================================
+寄附金額:
+    type: hidden
+    :value: 寄附金額
+    v-if: current_user == 'jigyousya'
 
 価格:
     type : text
@@ -19,7 +23,7 @@
     style: 'width: 10em'
     :value: 価格
     "@focus": set_info($event.target)
-    "@input": "force_half_size_text($event, 'number', '価格')"
+    "@change": "force_half_size_text($event, 'number', '価格')"
 
 キャッチコピー:
     type : text
@@ -31,7 +35,7 @@
     "@input": set_info($event.target);auto_fit_tetxarea($event.target)
 
 説明文:
-    type : textarea
+    type : item-description
     rows: auto
     maxlength : 900
     placeholder: '例）
@@ -46,17 +50,6 @@
 
     【その他】真空パックにてお届けします。温める際は十分に注意して、湯銭してください。'
     description : '【メリット】この返礼品を申し込むことで、寄附者が得られる恩恵やハッピーをお書きください。<br>【実績】この返礼品の良さを裏付ける「実績」「口コミ」「施策」等をお書きください。<br>【アドバンテージ】その他の商品よりも特に優れている「こだわり」や「強み」をお書きください。<br>【特徴】返礼品や事業者様の「特徴」「説明」「想い」をお書きください。<br>【その他】上記以外で伝えたいことがあれば、お書きください。'
-    value: '例）
-
-    【メリット】ほおばると口の中に肉汁があふれ出し、思わず笑顔がこぼれるハンバーグです。
-
-    【実績】2022年グルメグランプリのハンバーグ部門にて「金賞」をいただきました！
-    
-    【アドバンテージ】厳選した黒毛和牛と国産の豚肉を、こだわりの黄金比率で合い挽きすることで、ジューシーさを生み出しています。
-    
-    【特徴】全国の皆さまの食卓へ「美味しさ」と「安心」をお届けするべく、原材料にはとてもこだわっています。
-    
-    【その他】真空パックにてお届けします。温める際は十分に注意して、湯銭してください。'
     "@focus": set_info($event.target);
     "@input": set_info($event.target);auto_fit_tetxarea($event.target)
 
@@ -96,15 +89,17 @@
 
 アレルギー有無確認:
     type : checkbox
-    value: []
+    value: ['アレルギー品目あり']
     v-model: アレルギー有無確認
     v-if: 商品タイプ.includes('食品')
+    required: required
     option :
         - アレルギー品目あり
 
 アレルゲン:
     type : checkbox2
     v-if: 商品タイプ.includes('食品')&&アレルギー有無確認.filter(v=>v).length
+    required: required
     option :
         0: 卵
         1: 乳
@@ -191,6 +186,14 @@
     type : text
     placeholder : 例）指定なし
 
+包装対応:
+    type: radio
+    value: 無し
+    option-equal: true
+    option:
+        - 無し
+        - 有り
+
 のし対応:
     type: radio
     value: 無し
@@ -211,6 +214,7 @@
 
 発送サイズ:
     type : select
+    required: required
     option :
         '': 未選択
         '0101': ヤマト 60サイズ
@@ -239,15 +243,18 @@
     v-model: 発送サイズ
 
 送料:
-    type : text
-    description: '送料はサイズ等を元に計算された金額が自動で設定されています。'
-    style: 'width: 6em'
-    # v-if: 発送サイズ!=''
+    type: hidden
     :value: 送料
-    ':readonly': "発送サイズ!='その他' ? true: false"
-    "@focus": if (発送サイズ!='その他') { set_info($event.target) }
-    "@input": "force_half_size_text($event, 'number', '送料')"
     required: required
+
+その他送料:
+    type : text
+    label: 送料
+    description: 発送サイズ「その他」を選択の場合は必須項目です
+    style: 'width: 6em'
+    v-if: 発送サイズ=='その他'
+    :value: その他送料
+    "@change": "force_half_size_text($event, 'number', 'その他送料')"
 
 取り扱い方法:
     type : checkbox
@@ -268,9 +275,9 @@
 配送伝票表示名:
     type : text
     description : 配送伝票に表示したい自社での品番・名称等がある場合はご記入ください。<br>※特に記載がない場合は、返礼品名の最初の20文字が伝票へ記載されます。
-    maxlength : 20
-    placeholder : 20文字以内
-    style: 'width: 20em;'
+    maxlength : 17
+    placeholder : 17文字以内
+    style: 'width: 17em;'
     "@focus": set_info($event.target)
     "@input": set_info($event.target)
 
@@ -315,3 +322,6 @@ LHカテゴリー:
     value: []
     label : 商品画像（8枚以上推奨）
     description : 画像を複数選択、またはアップロードしてください。画像は可能であれば8枚以上を推奨いたします。
+
+N1zip:
+    type: hidden

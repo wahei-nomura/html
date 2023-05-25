@@ -34,6 +34,8 @@ class N2_Choice {
 		$choice_user   = $n2->choice['auth']['user'];
 		$choice_pass   = $n2->choice['auth']['pass'];
 		$choice_url    = $n2->choice['auth']['url'];
+		// カスタムフィールドのアレルゲン全選択肢
+		$all_allergen  = $n2->custom_field['事業者用']['アレルゲン']['option'];
 		$sumple_header = wp_remote_get( str_replace( '//', "//{$choice_user}:{$choice_pass}@", $choice_url ), array() )['body'];
 		$sumple_header = trim( $sumple_header );
 		$sumple_header = array_flip( explode( "\t", $sumple_header ) );
@@ -60,23 +62,8 @@ class N2_Choice {
 					$items_arr[ $id ][ $k ] = '';
 				}
 			}
+			$product_type     = get_post_meta( $id, '商品タイプ' )[0][0];
 
-			// アレルゲン処理
-			$allergen    = '';
-			$no_allergen = 0;
-			foreach ( get_post_meta( $id, 'アレルゲン' )[0] as $v ) {
-				$v['value'] === 'アレルゲンなし食品' ? $no_allergen = 1 : ( is_numeric( $v['value'] ) ? $allergen .= $v['value'] . ',' : '' );
-			}
-			$allergen      = rtrim( $allergen, ',' );
-			$allergen_text = get_post_meta( $id, 'アレルゲン注釈', true ) ?: '';
-
-			if ( $allergen !== '' || $allergen_text !== '' ) {
-				$display_allergen = $allergen . '|' . $allergen_text;
-			} elseif ( $no_allergen === 1 ) {
-				$display_allergen = '|';
-			} else {
-				$display_allergen = '';
-			}
 
 			// 寄附金額チェック
 			$error_items .= get_post_meta( $id, '寄附金額', true ) === 0 || get_post_meta( $id, '寄附金額', true ) === '' ? "【{$item_code}】" . '<br>' : '';
@@ -135,7 +122,7 @@ class N2_Choice {
 								),
 				'申込期日'           => get_post_meta( $id, '申込期間', true ),
 				'発送期日'           => get_post_meta( $id, '配送期間', true ),
-				'（必須）アレルギー表示'    => $display_allergen,
+				'アレルギー特記事項'   => get_post_meta( $id, 'アレルゲン注釈', true ) ?: '',
 				'地場産品類型番号'       => get_post_meta( $id, '地場産品類型', true )
 												? get_post_meta( $id, '地場産品類型', true ) . '|' . get_post_meta( $id, '類型該当理由', true )
 												: '',
@@ -153,12 +140,30 @@ class N2_Choice {
 				'（必須）包装対応'       => ( get_post_meta( $id, '包装対応', true ) === '有り' ) ? 1 : 0,
 				'（必須）のし対応'       => ( get_post_meta( $id, 'のし対応', true ) === '有り' ) ? 1 : 0,
 				'（必須）定期配送対応'     => ( get_post_meta( $id, '定期便', true ) === '1' || get_post_meta( $id, '定期便', true ) === '' ) ? 0 : 1,
-				'（必須）クレジット決済限定'  => ( get_post_meta( $id, 'クレジット決済限定', true ) === 'クレジット決済限定' ) ? 1 : 0,
+				'（必須）オンライン決済限定'  => ( get_post_meta( $id, 'オンライン決済限定', true ) === 'オンライン決済限定' ) ? 1 : 0,
 				'カテゴリー'          => '',
 				'お礼の品画像'         => mb_strtolower( $item_code ) . '.jpg',
 				'受付開始日時'         => '2025/04/01 00:00',
 				'（条件付き必須）還元率（%）' => 30,
 			);
+
+			// デフォルトで全てのアレルギーに2をセット
+			foreach ( $all_allergen as $allergen_name ) {
+				if ( '落花生' === $allergen_name ) {
+					$arr['アレルギー：落花生（ピーナッツ）'] = 2;
+					continue;
+				}
+				$arr[ "アレルギー：{$allergen_name}" ] = 2;
+			}
+			// アレルゲンの値がある項目のindexで全アレルギー項目から名前を取得し1をセット
+			foreach ( get_post_meta( $id, 'アレルゲン' )[0] as $selected ) {
+				if ( '落花生' === $all_allergen[ $selected['value'] ] ) {
+					$arr['アレルギー：落花生（ピーナッツ）'] = 1;
+					continue;
+				}
+				$arr[ "アレルギー：{$all_allergen[ $selected['value'] ]}" ] = 1;
+			}
+
 			// 「スライド画像」カラムに値を入れる処理
 			for ( $i = 1; $i < 9; $i++ ) {
 				$ii  = ( ( $i - 1 ) === 0 ) ? '' : '-' . ( $i - 1 );
@@ -170,6 +175,14 @@ class N2_Choice {
 
 		}
 
+		// 管理コード（返礼品コード）で昇順ソート
+		uasort(
+			$items_arr,
+			function ( $a, $b ) {
+				return strnatcmp( $a['管理コード'], $b['管理コード'] );
+			}
+		);
+
 		// 寄附金額0アラート
 		$kifukin_alert_str = '【以下の返礼品が寄附金額が０になっていたため、ダウンロードを中止しました】<br>';
 		$kifukin_check_str = isset( $error_items ) ? $error_items : '';
@@ -178,7 +191,16 @@ class N2_Choice {
 		}
 
 		// tsv出力
-		N2_Functions::download_csv( 'choice', array_keys( $sumple_header ), $items_arr, '', 'tsv' );
+		N2_Functions::download_csv(
+			array(
+				'file_name'      => 'choice',
+				'header'         => array_keys( $sumple_header ),
+				'items_arr'      => $items_arr,
+				'type'           => 'tsv',
+				'character_code' => 'utf-8',
+			)
+		);
+
 	}
 }
 

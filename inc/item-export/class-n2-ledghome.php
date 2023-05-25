@@ -37,6 +37,7 @@ class N2_Ledghome {
 		$items_arr   = array();
 		$error_items = '';
 		// あとでヘッダの上の連結するのに必要
+
 		$ledghome_csv_contents = $n2->ledghome_csv_contents;
 		$csv_title             = $ledghome_csv_contents['ledghome']['csv_header']['title'];
 		$header                = $ledghome_csv_contents['ledghome']['csv_header']['values'];
@@ -45,12 +46,8 @@ class N2_Ledghome {
 		// ajaxで渡ってきたpostidの配列
 		$ids = explode( ',', filter_input( INPUT_POST, 'ledghome' ) );
 		foreach ( $ids as $id ) {
-			$teiki           = get_post_meta( $id, '定期便', true );
-			$price           = ( get_post_meta( $id, '定期便価格', true ) && ( $teiki > 1 ) ) ? get_post_meta( $id, '定期便価格', true ) : get_post_meta( $id, '価格', true );
-			$handling_method = array();
-			for ( $i = 1; $i <= 2; $i++ ) {
-				$handling_method[] = get_post_meta( $id, '取り扱い方法' . $i, true ) ? get_post_meta( $id, '取り扱い方法' . $i, true ) : '';
-			}
+			$teiki = get_post_meta( $id, '定期便', true );
+			$price = ( get_post_meta( $id, '定期便価格', true ) && ( $teiki > 1 ) ) ? get_post_meta( $id, '定期便価格', true ) : get_post_meta( $id, '価格', true );
 
 			for ( $i = 1; $i <= $teiki; $i++ ) {
 				$key_id   = 1 < $teiki ? "{$id}_{$i}" : $id;
@@ -59,6 +56,11 @@ class N2_Ledghome {
 					$items_arr[ $key_id ][ $head ] = ! empty( get_post_meta( $id, $head, true ) ) ? get_post_meta( $id, $head, true ) : '';
 				}
 				$item_num        = trim( strtoupper( get_post_meta( $id, '返礼品コード', true ) ) ) . $teikinum;
+				$item_name       = $item_num . ' ' . (
+														get_post_meta( $id, '略称', true )
+															? get_post_meta( $id, '略称', true )
+															: N2_Functions::special_str_convert( get_the_title( $id ) )
+													 ) . apply_filters( 'append_text_item_name', '' ); // 謝礼品名に追加するフック
 				$deliva_price    = get_post_meta( $id, '送料', true );
 				$deliva_size     = get_post_meta( $id, '発送サイズ', true );
 				$jibasanpin_type = implode( 'ー', mb_str_split( mb_convert_kana( get_post_meta( $id, '地場産品類型', true ), 'KA' ), 1 ) );
@@ -66,13 +68,9 @@ class N2_Ledghome {
 				$error_items .= get_post_meta( $id, '寄附金額', true ) === 0 || get_post_meta( $id, '寄附金額', true ) === '' ? "【{$item_code}】" . '<br>' : '';
 				$arr          = array(
 					'謝礼品番号'      => $item_num,
-					'謝礼品名'       => $item_num . ' ' . (
-															get_post_meta( $id, '略称', true )
-																? get_post_meta( $id, '略称', true )
-																: N2_Functions::special_str_convert( get_the_title( $id ) )
-														) . apply_filters( 'append_text_item_name', '' ), // 謝礼品名に追加するフック
+					'謝礼品名'       => ( get_post_meta( $id, 'LH表示名', true ) ) ? ( $item_num . ' ' . get_post_meta( $id, 'LH表示名', true ) ) : $item_name,
 					'事業者'        => get_the_author_meta( 'first_name', get_post_field( 'post_author', $id ) ),
-					'配送名称'       => ( get_post_meta( $id, '配送伝票表示名', true ) ) ? ( $item_num . ' ' . get_post_meta( $id, '配送伝票表示名', true ) ) : $item_num,
+					'配送名称'       => ( get_post_meta( $id, '配送伝票表示名', true ) ) ? ( $item_num . ' ' . get_post_meta( $id, '配送伝票表示名', true ) ) : $item_name,
 					'ふるさとチョイス名称' => N2_Functions::special_str_convert( get_the_title( $id ) ) . " [{$item_num}]",
 					'楽天名称'       => '【ふるさと納税】' . N2_Functions::special_str_convert( get_the_title( $id ) ) . " [{$item_num}]",
 					'謝礼品カテゴリー'   => get_post_meta( $id, 'LHカテゴリー', true ),
@@ -82,8 +80,6 @@ class N2_Ledghome {
 					'状態'         => '表示',
 					'寄附設定金額'     => $i < 2 ? get_post_meta( $id, '寄附金額', true ) : 0,
 					'価格（税込み）'    => ( $setting['teiki_price'] === true ) ? ( ( $i < 2 ) ? $price * $teiki : 0 ) : $price,
-					// 用途は様々。デフォルト空欄
-					'その他経費'      => apply_filters( 'ledghome_other_expence', '' ),
 					'送料'         => $deliva_price,
 					// 特定自治体の処理をフックで行う。
 					'送料反映'       => ( ( ( ( apply_filters( 'deliva_price_no_reflect', '' )
@@ -97,7 +93,7 @@ class N2_Ledghome {
 														: '反映しない',
 
 					'発送方法'       => get_post_meta( $id, '発送方法', true ),
-					'取り扱い方法'     => rtrim( implode( ',', array_unique( $handling_method ) ), ',' ),
+					'取り扱い方法'     => get_post_meta( $id, '取り扱い方法', true ) ? rtrim( implode( ',', get_post_meta( $id, '取り扱い方法', true ) ), ',' ) : '',
 					'申込可能期間'     => '通年',
 					'自由入力欄1'     => date( 'Y/m/d' ) . '：' . wp_get_current_user()->display_name,
 					'自由入力欄2'     => get_post_meta( $id, '送料', true ),
@@ -110,6 +106,14 @@ class N2_Ledghome {
 			}
 		}
 
+		// 謝礼品番号（返礼品コード）で昇順ソート
+		uasort(
+			$items_arr,
+			function ( $a, $b ) {
+				return strnatcmp( $a['謝礼品番号'], $b['謝礼品番号'] );
+			}
+		);
+
 		// 寄附金額アラート
 		$kifukin_alert_str = '【以下の返礼品が寄附金額が０になっていたため、ダウンロードを中止しました】<br>';
 		$kifukin_check_str = isset( $error_items ) ? $error_items : '';
@@ -117,6 +121,13 @@ class N2_Ledghome {
 			exit( $kifukin_alert_str . $kifukin_check_str );
 		}
 
-		N2_Functions::download_csv( 'ledghome', $header, $items_arr, $csv_title, 'csv' );
+		N2_Functions::download_csv(
+			array(
+				'file_name' => 'ledghome',
+				'header'    => $header,
+				'items_arr' => $items_arr,
+				'csv_title' => $csv_title,
+			)
+		);
 	}
 }
