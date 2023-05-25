@@ -18,7 +18,7 @@ class N2_Setmenu {
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		add_action( 'admin_menu', array( $this, 'change_menulabel' ) );
+		// add_action( 'admin_menu', array( $this, 'change_menulabel' ) );
 		add_action( 'admin_menu', array( $this, 'remove_menulabel' ), 999 );
 		add_action( 'admin_init', array( $this, 'not_edit_user' ) );
 		add_filter( 'get_site_icon_url', array( $this, 'change_site_icon' ) );
@@ -37,16 +37,6 @@ class N2_Setmenu {
 		$name                      = '返礼品';
 		$menu[5][0]                = $name;
 		$submenu['edit.php'][5][0] = $name . '一覧';
-
-		// 各種セットアップ用
-		$menu[90][0] = '各種セットアップ';
-		if ( isset( $submenu['n2_crew_setup_menu'] ) ) {
-			foreach ( $submenu['n2_crew_setup_menu'] as $index => $sub ) {
-				if ( 'n2_setup_menus' === $sub[0] ) {
-					$submenu['n2_crew_setup_menu'][ $index ][0] = 'クルー専用';
-				}
-			}
-		}
 	}
 
 	/**
