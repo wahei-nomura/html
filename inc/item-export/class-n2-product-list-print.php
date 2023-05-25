@@ -5,10 +5,6 @@
  * @package neoneng
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
 if ( class_exists( 'N2_Product_List_Print' ) ) {
 	new N2_Product_List_Print();
 	return;
