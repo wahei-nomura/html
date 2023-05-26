@@ -116,6 +116,11 @@ tbody#the-list>tr>td {
 tbody#the-list>tr>th {
 	background-color: #fff;
 }
+tbody#the-list{
+	.no-code{
+		color: $danger;
+	}
+}
 
 #n2-copypost-modal,
 #n2-update-status-modal,

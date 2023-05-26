@@ -33,7 +33,11 @@ class N2_Img_Download {
 	public function download_by_url() {
 		// ajaxで渡ってきたpostidの配列
 		$ids = explode( ',', $_POST['id'] );
-		$url = $_GET['url'] ?: $_POST['url'];
+		$url = filter_input( INPUT_POST, 'url', FILTER_VALIDATE_URL );
+		if ( $url ) {
+			echo 'error!not url';
+			exit;
+		}
 		add_filter( 'https_ssl_verify', '__return_false' );
 		// シングルダウンロード(zipとの判断基準は$_POST['id']を持ってるかどうか)
 		if ( ! $_POST['id'] ) {
@@ -62,16 +66,15 @@ class N2_Img_Download {
 			exit();
 			}
 			foreach ( $ids as  $idkey => $id ) {
-				$item_code = get_post_meta( $id, '返礼品コード', true ) ? get_post_meta( $id, '返礼品コード', true ) : '投稿者名(' . get_the_author_meta( 'display_name', get_post_field( 'post_author', $id ) ) . ')';
-				// ファイルナンバー保持のため
-				// $fnum = 1;
-				// echo  $fnum;
+				$auther_display_name = get_the_author_meta( 'display_name', get_post_field( 'post_author', $id ) );
+				$list_title          = get_the_title( $id );
+				$img_file_name       = get_post_meta( $id, '返礼品コード', true ) ? get_post_meta( $id, '返礼品コード', true ) : $id . '-' . $auther_display_name . '-' . $list_title;
 				// 画像数保持
 				$file_length  = 0;
-				$fname        = mb_strtolower( $item_code );
+				$fname        = mb_strtolower( $img_file_name );
 				$meta_pic_arr = get_post_meta( $id, '商品画像', true );
 				foreach ( $meta_pic_arr as $pickey => $meta_pic ) {
-					$fname = mb_strtolower( $item_code );
+					$fname = mb_strtolower( $img_file_name );
 					// $pic_id    = attachment_url_to_postid( $meta_pic );
 					// $fpath     = get_attached_file( $pic_id, true );
 					$furl      = $meta_pic['url'];
@@ -81,10 +84,9 @@ class N2_Img_Download {
 						$fname .= '-' . ( $pickey + 1 ) . '.' . $extension['extension'];
 						if ( WP_Filesystem() ) {
 							global $wp_filesystem;
-							$zip->addFromString( $item_code . '/' . $fname, $wp_filesystem->get_contents( $furl ) );
+							$zip->addFromString( $img_file_name . '/' . $fname, $wp_filesystem->get_contents( $furl ) );
 
 						}
-						$fnum ++;
 						$file_length ++;
 					};
 				}
@@ -93,13 +95,13 @@ class N2_Img_Download {
 				$zip_path      = get_attached_file( $zip_id );
 				if ( $zip_path ) {
 					// 返礼品コード名でzip
-					$zip->addFile( $zip_path, $item_code . '/' . mb_strtolower( get_post_meta( $id, '返礼品コード', true ) ) . '内のzipファイル.zip' );
+					$zip->addFile( $zip_path, $img_file_name . '/' . mb_strtolower( get_post_meta( $id, '返礼品コード', true ) ) . '内のzipファイル.zip' );
 					$file_length ++;
 				}
 
 				// 画像ファイルが１つもない場合商品コードを記録
 				if ( 0 === $file_length ) {
-					array_push( $undifind_images, $item_code );
+					array_push( $undifind_images, $img_file_name );
 				}
 			}
 			// もし選択した返礼品全てに画像がなければ
@@ -173,9 +175,9 @@ class N2_Img_Download {
 		$zip     = new ZipArchive();
 		$zip->open( $tmp_uri, ZipArchive::CREATE );
 		foreach ( $ids as $id ) {
-			$item_code = get_post_meta( $id, '返礼品コード', true );
-			$dirname   = $item_code ?: get_the_title( $id );
-			$filename  = mb_strtolower( $item_code ) ?: get_the_title( $id );
+			$img_file_name = get_post_meta( $id, '返礼品コード', true );
+			$dirname       = $img_file_name ?: get_the_title( $id );
+			$filename      = mb_strtolower( $img_file_name ) ?: get_the_title( $id );
 			foreach ( get_post_meta( $id, '商品画像', true ) as $i => $img ) {
 				$i         = $i > 0 ? "-{$i}" : '';
 				$extension = pathinfo( $img['url'] )['extension'];
