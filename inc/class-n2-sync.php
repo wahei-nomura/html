@@ -456,6 +456,9 @@ class N2_Sync {
 			// 値の浄化
 			$postarr['meta_input']['商品画像'] = array_filter( array_values( $images ), fn( $v ) => $v );
 			foreach ( $postarr['meta_input']['商品画像'] as $index => $value ) {
+				if ( ! is_array( $value ) ) {
+					continue;
+				}
 				if ( ! isset( $value['sizes'] ) ) {
 					$postarr['meta_input']['商品画像'][ $index ]['sizes']['thumbnail'] = preg_replace( '/\.(\w+)$/', '-$1.jpg', $value['url'] );
 				}
