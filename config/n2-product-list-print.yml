@@ -12,7 +12,7 @@
     定期便回数:
       meta_key: 定期便
     キャッチコピー:
-      meta_key: キャッチコピー１
+      meta_key: キャッチコピー
       attr:
         th:
           style: "border-top-width: 3px;border-left-width: 3px;"
