@@ -16,10 +16,10 @@ jobs:
             GITHUB_TOKEN: ${{ secrets.MACHINERN_GITHUB_TOKEN }}
             REPOSITORY: ${{ github.repository }}
             MERGE_COMMIT_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+            PULL_NUMBER: ${{ github.event.pull_request.number }}
             DOCBASE_API_KEY: ${{ secrets.DOCBASE_API_KEY }}
             DOCBASE_TEAMS: ${{ secrets.DOCBASE_TEAMS }}
             TZ: "Asia/Tokyo" # タイムゾーンを指定
           run: |
-            echo "{PULL_NUMBER}={$(echo $GITHUB_REF | sed -e 's/[^0-9]//g')}" >> $GITHUB_ENV
             chmod +x ./.github/script.sh
             ./.github/script.sh
