@@ -20,5 +20,6 @@ jobs:
             DOCBASE_TEAMS: ${{ secrets.DOCBASE_TEAMS }}
             TZ: "Asia/Tokyo" # タイムゾーンを指定
           run: |
+            echo "{PULL_NUMBER}={$(echo $GITHUB_REF | sed -e 's/[^0-9]//g')}" >> $GITHUB_ENV
             chmod +x ./.github/script.sh
             ./.github/script.sh
