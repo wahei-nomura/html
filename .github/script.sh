@@ -2,7 +2,6 @@
 
 DOCBASE_POST_ID=2958885
 DATE=$(date "+%Y/%m/%d %H:%M")
-PULL_NUMBER=$( echo $GITHUB_REF | sed -e 's/[^0-9]//g' )
 
 echo "pull_request number : '$PULL_NUMBER'"
 
