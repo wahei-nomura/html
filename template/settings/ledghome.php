@@ -12,7 +12,7 @@ global $n2;
 		<th>カテゴリー</th>
 		<td>
 			<p>※改行区切りでカテゴリーを記入</p>
-			<textarea name="n2_settings[portal_setting][LedgHOME][カテゴリー]" rows="10" style="width: 100%;"><?php echo esc_attr( implode( "\n", $n2->portal_setting['LedgHOME']['カテゴリー'] ) ); ?></textarea>
+			<textarea name="n2_settings[portal_setting][LedgHOME][カテゴリー]" rows="10" style="width: 100%;"><?php echo esc_attr( implode( "\n", (array) $n2->portal_setting['LedgHOME']['カテゴリー'] ) ); ?></textarea>
 		</td>
 	</tr>
 	<tr>

@@ -284,7 +284,7 @@ class N2_Postlist {
 		// var_dump( $n2->current_user->roles );
 		if (
 				is_admin() &&
-				in_array( 'jigyousya', $n2->current_user->roles, true ) &&
+				in_array( 'jigyousya', $n2->current_user->roles ?? array(), true ) &&
 				// ! current_user_can( 'ss_crew' ) &&
 				$query->is_main_query() &&
 				( ! isset( $_GET['author'] ) || intval( $_GET['author'] ) === get_current_user_id() )
