@@ -35,6 +35,7 @@ class N2_Item_Export_Base {
 	 * @var array
 	 */
 	protected $data = array(
+		'params'  => array(),
 		'header'  => array(),
 		'n2field' => array(),
 		'n2data'  => array(),
@@ -55,25 +56,8 @@ class N2_Item_Export_Base {
 	 * エクスポートページ
 	 */
 	public function export() {
-
-		// メモリUP
-		wp_raise_memory_limit();
-		add_filter( 'admin_memory_limit', fn() => '512M' );
-
-		$defaults = array(
-			'post_status' => 'any',
-			'numberposts' => -1,
-			'mode'        => 'download',
-			'sort'        => '返礼品コード',
-			'order'       => '',
-		);
-		// デフォルト値を$_GETで上書き
-		$_GET = wp_parse_args( $_GET, $defaults );
-
-		if ( ! method_exists( 'N2_Item_Export_Base', $_GET['mode'] ) ) {
-			echo "「{$_GET['mode']}」メソッドは存在しません。";
-			exit;
-		}
+		// パラメーターをセット
+		$this->set_params();
 
 		// n2としてのデータをセット
 		$this->set_n2field();
@@ -83,7 +67,27 @@ class N2_Item_Export_Base {
 		$this->set_header();
 		$this->set_data();
 
-		$this->{$_GET['mode']}();
+		$this->{$this->data['params']['mode']}();
+	}
+
+	/**
+	 * パラメータのセット
+	 */
+	private function set_params() {
+		$params = $_GET;
+		// $_POSTを$paramsで上書き
+		if ( wp_verify_nonce( $_POST['n2nonce'] ?? '', 'n2nonce' ) ) {
+			$params = wp_parse_args( $params, $_POST );
+		}
+		$defaults = array(
+			'post_status' => 'any',
+			'numberposts' => -1,
+			'mode'        => 'download',
+			'sort'        => '返礼品コード',
+			'order'       => '',
+		);
+		// デフォルト値を$paramsで上書き
+		$this->data['params'] = wp_parse_args( $params, $defaults );
 	}
 
 	/**
@@ -115,41 +119,18 @@ class N2_Item_Export_Base {
 	 */
 	private function set_n2data() {
 		$n2data = array();
-		// 投稿制御
-		$args = array(
-			'post_status' => $_GET['post_status'],
-			'numberposts' => $_GET['numberposts'],
-			'fields'      => 'ids',
+		$fields = array(
+			'id',
+			'タイトル',
+			'事業者コード',
+			'事業者名',
+			'ステータス',
+			...$this->data['n2field'],
 		);
-		// POSTされた投稿ID
-		$ids = filter_input( INPUT_POST, 'ids' );
-		$ids = $ids ? explode( ',', $ids ) : get_posts( $args );
-		foreach ( $ids as $id ) {
-			$post = get_post( $id );
-			// ID追加
-			$n2data[ $id ]['id'] = $id;
-			// タイトル追加
-			$n2data[ $id ]['タイトル'] = $post->post_title;
-			// 事業者コード追加
-			$n2data[ $id ]['事業者コード'] = get_user_meta( $post->post_author, 'last_name', true );
-			// 提供事業者名・ポータル表示名があれば取得
-			$portal_site_display_name = get_post_meta( $id, '提供事業者名', true ) ?: get_user_meta( $post->post_author, 'portal_site_display_name', true );
-			// 事業者名
-			$n2data[ $id ]['事業者名'] = match ( $portal_site_display_name ) {
-				'記載しない' => '',
-				'' => get_user_meta( $post->post_author, 'first_name', true ),
-				default => $portal_site_display_name
-			};
-			// 投稿ステータス追加
-			$n2data[ $id ]['ステータス'] = get_post_status( $id );
-			// n2fieldのカスタムフィールド全取得
-			foreach ( $this->data['n2field'] as $key ) {
-				$meta = get_post_meta( $id, $key, true );
-				// 値が配列の場合、空は削除
-				if ( is_array( $meta ) ) {
-					$meta = array_filter( $meta, fn( $v ) => $v );
-				}
-				$n2data[ $id ][ $key ] = $meta;
+		foreach ( N2_Items_API::get_items() as $v ) {
+			// fieldを絞る
+			foreach ( $fields as $key ) {
+				$n2data[ $v['id'] ][ $key ] = $v[ $key ] ?? '';
 			}
 		}
 		/**
@@ -158,8 +139,8 @@ class N2_Item_Export_Base {
 		$n2data = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_n2data', $n2data );
 		// ソート
 		array_multisort(
-			array_column( $n2data, $_GET['sort'] ),
-			'desc' === $_GET['order'] ? SORT_DESC : SORT_ASC,
+			array_column( $n2data, $this->data['params']['sort'] ),
+			'desc' === strtolower( $this->data['params']['order'] ) ? SORT_DESC : SORT_ASC,
 			$n2data
 		);
 		$this->data['n2data'] = $n2data;
@@ -402,11 +383,9 @@ class N2_Item_Export_Base {
 	private function debug() {
 		$this->set_header_string();
 		$this->set_data_string();
-		echo '<title>[DEV] エクスポート</title>';
-		echo '<pre>';
+		header( 'Content-Type: application/json; charset=utf-8' );
 		print_r( $this->settings );
 		print_r( $this->data );
-		echo '</pre>';
 		exit;
 	}
 }
