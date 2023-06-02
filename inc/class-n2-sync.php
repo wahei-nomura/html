@@ -101,34 +101,18 @@ class N2_Sync {
 	 * N2 SYNC　メニューの追加
 	 */
 	public function add_menu() {
-		global $n2;
-		if ( ! $n2->delivery_fee ) {
-			add_menu_page( 'N2 SYNC', 'N2 SYNC', 'ss_crew', 'n2_sync', array( $this, 'error_ui' ), 'dashicons-update' );
-			return;
-		}
 		add_menu_page( 'N2 SYNC', 'N2 SYNC', 'ss_crew', 'sync_ui_n1', array( $this, 'sync_ui' ), 'dashicons-update' );
 		add_submenu_page( 'sync_ui_n1', 'N1（旧NENG）', 'N1（旧NENG）', 'ss_crew', 'sync_ui_n1', array( $this, 'sync_ui' ), 1 );
-		add_submenu_page( 'sync_ui_n1', 'Google スプレットシート', 'G スプレットシート', 'ss_crew', 'sync_ui_spreadsheet', array( $this, 'sync_ui' ), 2 );
 		register_setting( 'n2_sync_settings_n1', 'n2_sync_settings_n1' );
+		add_submenu_page( 'sync_ui_n1', 'Google スプレットシート', 'G スプレットシート', 'ss_crew', 'sync_ui_spreadsheet', array( $this, 'sync_ui' ), 2 );
 		register_setting( 'n2_sync_settings_spreadsheet', 'n2_sync_settings_spreadsheet' );
-	}
-
-	/**
-	 * セットアップ不足エラーページ
-	 */
-	public function error_ui() {
-		?>
-		<div class="wrap">
-			<h1>N2 SYNC</h1>
-			<p>N2 SYNCを使うには<a href="?page=n2_crew_setup_menu">各種セットアップ</a>の送料タブの値を入力して下さい。</p>
-		</div>
-		<?php
 	}
 
 	/**
 	 * 同期の為のUI
 	 */
 	public function sync_ui() {
+		global $n2;
 		$template = $_GET['page'];
 		$tabs     = array(
 			'sync_ui_n1'          => 'N1（旧NENG）',
@@ -206,6 +190,12 @@ class N2_Sync {
 	 */
 	public function sync_ui_spreadsheet() {
 		global $n2;
+		if ( ! $n2->delivery_fee ) {
+			?>
+			<br><p>Googleスプレットシート同期を使うには「<a href="?page=n2_settings_formula-delivery">N2設定 > 寄附金額・送料</a>」の値を適切に入力して下さい。</p>
+			<?php
+			return;
+		}
 		$default  = array(
 			'id'         => '',
 			'user_range' => '',
