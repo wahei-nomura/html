@@ -45,6 +45,7 @@ class N2_Postlist {
 		add_action( "wp_ajax_{$this->cls}_deletepost", array( $this, 'delete_post' ) );
 		add_action( "wp_ajax_{$this->cls}_recoverypost", array( $this, 'recovery_post' ) );
 		add_action( "wp_ajax_{$this->cls}_bulk_update_status", array( $this, 'bulk_update_status' ) );
+		add_action( "wp_ajax_{$this->cls}_ban_portal_list", array( $this, 'ban_portal_list' ) );
 		add_filter( 'bulk_actions-edit-post', array( $this, 'bulk_manipulate' ) );
 	}
 
@@ -868,4 +869,23 @@ class N2_Postlist {
 		return $actions;
 	}
 
+	/**
+	 * 出品禁止ポータル一覧取得
+	 */
+	public function ban_portal_list() {
+		$list = array();
+		$func = __FUNCTION__;
+		$ids  = explode( ',', filter_input( INPUT_POST, 'ids', FILTER_SANITIZE_SPECIAL_CHARS ) );
+		foreach ( $ids as $id ) {
+			$ban_portal = get_post_meta( $id, '出品禁止ポータル', 'true' );
+			if ( ! $ban_portal ) {
+				continue;
+			}
+			$item_code = get_post_meta( $id, '返礼品コード', 'true' ) ?: $id;
+			// 空の要素を削除
+			$list[ $item_code ] = array_values( array_filter( $ban_portal ) );
+		}
+		echo wp_json_encode( $list );
+		die();
+	}
 }
