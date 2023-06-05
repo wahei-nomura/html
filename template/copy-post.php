@@ -71,6 +71,7 @@
 			<h1>返礼品の複製</h1>
 			<div>
 				複製元：<span class="original-title"></span>
+				<p class="copypost-caution">【注意】「返礼品コード」等一部の項目は複製されません。</p>
 			</div>
 			<button class="button button-primary submit" type="submit">複製する</button>
 		</form>

@@ -144,7 +144,12 @@ tbody#the-list{
 		background-color: rgba(0, 0, 0, 0.7);
 	}
 }
-
+#n2-copypost-modal {
+	height: 30%;
+	.copypost-caution{
+		color: #930000;
+	}
+}
 .wp-core-ui {
 	.button {
 		&.not-click {
