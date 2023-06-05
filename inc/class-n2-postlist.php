@@ -873,9 +873,11 @@ class N2_Postlist {
 	 * 出品禁止ポータル一覧取得
 	 */
 	public function ban_portal_list() {
-		$list = array();
-		$func = __FUNCTION__;
-		$ids  = explode( ',', filter_input( INPUT_POST, 'ids', FILTER_SANITIZE_SPECIAL_CHARS ) );
+		global $n2;
+		$export_portals = array_keys( $n2->export );
+		$ban_list       = array_fill_keys( $export_portals, array() );
+		$func           = __FUNCTION__;
+		$ids            = explode( ',', filter_input( INPUT_POST, 'ids', FILTER_SANITIZE_SPECIAL_CHARS ) );
 		foreach ( $ids as $id ) {
 			$ban_portal = get_post_meta( $id, '出品禁止ポータル', 'true' );
 			if ( ! $ban_portal ) {
@@ -883,9 +885,12 @@ class N2_Postlist {
 			}
 			$item_code = get_post_meta( $id, '返礼品コード', 'true' ) ?: $id;
 			// 空の要素を削除
-			$list[ $item_code ] = array_values( array_filter( $ban_portal ) );
+			$ban_portals = array_values( array_filter( $ban_portal ) );
+			foreach ( $ban_portals as $portal ) {
+				$ban_list[ $portal ] = array( ...$ban_list[ $portal ], $item_code );
+			}
 		}
-		echo wp_json_encode( $list );
+		echo wp_json_encode( $ban_list );
 		die();
 	}
 }
