@@ -38,11 +38,30 @@ export const openByPostAnotherPage = (
 	return win;
 };
 
-jQuery(function ($) {
-	$(".sisbtn").on("click", (e) => {
-		const btnName = $(e.target).attr("id");
-		openByPostAnotherPage(ajaxUrl(window), btnName, getIds());
+export const ajax = async (action:string) =>{
+	return await $.ajax({
+		url: ajaxUrl(window) + "?action=" + action,
+		dataType: "json",
+		type: "POST",
+		data: {
+			ids: getIds(),
+		},
+	})
+}
 
+jQuery(function ($) {
+	$(".sisbtn").on("click", async (e) => {
+		const btnName = $(e.target).attr("id");
+		const banList = await ajax("N2_Postlist_ban_portal_list");
+		console.log(banList);
+		
+		if ( ! banList ) {
+			return;
+		}
+		let alertMessage = '出品禁止ポータル分が含まれています。続けますか？';
+		if (  confirm(alertMessage) ){
+			openByPostAnotherPage(ajaxUrl(window), btnName, getIds());
+		}
 		console.log(getIds());
 	});	
 	$(document).on("click", '.siserror',(e) => {
