@@ -6,35 +6,30 @@
  */
 
 ?>
-
-<div id="neo-neng-export-btns" style="display: none;">
-	<div style="clear:both;padding:10px 0;">
-		<form class="sisfile">
-			<input name="ftp_img[]" type="file" multiple="multiple">
-			<input type="submit" class="button" value="楽天に商品画像転送">
-		</form>
+<div id="n2-checked-posts" :class="active ? 'is-active': ''" v-if="ids.length" style="display: none;">
+	<div id="n2-checked-posts-title">
+		<span v-text="`${ids.length} 件選択中`"></span>
+		<span class="dashicons dashicons-no-alt" @click="active = ! active"></span>
 	</div>
-	<div style="clear:both;padding:10px 0;">
-		<form class="sisfile">
-			<input name="ftp_file[]" type="file" multiple="multiple">
-			<input type="submit" class="button" value="楽天に商品CSV転送">
-		</form>
+	<div id="n2-checked-posts-content">
+		<table class="widefat striped">
+			<thead>
+				<tr>
+					<template v-for="name in thead">
+						<th v-if="name == ''" @click="clear_ids()" style="cursor: pointer">全解除</th>
+						<th v-else v-text="name"></th>
+					</template>
+				</tr>
+			</thead>
+			<tbody>
+				<tr v-for="item in items">
+					<template v-for="name in thead">
+						<td v-if="name == ''"><span class="dashicons dashicons-remove" @click="clear_ids(item.id)"></span></td>
+						<td v-else v-text="item[name]"></td>
+					</template>
+				</tr>
+			</tbody>
+		</table>
 	</div>
-	<div style="clear:both;padding:10px 0;">
-		<a href="#" class="button sisbtn" id="print">印刷</a>
-		<a href="#" class="button button-primary sisbtn" id="n2_item_export_base">エクスポート</a>
-		<a href="#" class="button button-primary sisbtn" id="n2_item_export_ledghome">Ledg HOME</a>
-		<a href="#" class="button button-primary sisbtn" id="n2_item_export_furusato_choice">チョイス</a>
-		<a href="#" class="button button-primary sisbtn" id="n2_item_export_rakuten">楽天 item</a>
-		<a href="#" class="button button-primary sisbtn" id="n2_item_export_rakuten_select">楽天 select</a>
-		<a href="#" class="button button-primary siserror" id="error_log">楽天エラーログ</a>
-		<a href="#" class="button button-primary dlbtn" id="download_by_url">画像をダウンロード</a>
-		<button type="button" class="button button-primary" id="bulk_update_status">ステータス一括変更</button>
-	</div>
+	<div id="n2-checked-posts-toggler" @click="active = ! active"></div>
 </div>
-
-<script>
-	jQuery(function($){
-		$('.subsubsub').before($('#neo-neng-export-btns').show('slow'));
-	})
-</script>
