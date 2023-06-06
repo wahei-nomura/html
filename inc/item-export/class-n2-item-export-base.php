@@ -120,11 +120,9 @@ class N2_Item_Export_Base {
 	private function set_n2data() {
 		$n2data = array();
 		$fields = array(
-			'id',
 			'タイトル',
 			'事業者コード',
 			'事業者名',
-			'ステータス',
 			...$this->data['n2field'],
 		);
 		foreach ( N2_Items_API::get_items() as $v ) {

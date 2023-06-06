@@ -20,6 +20,7 @@
         "@focus": set_info($event.target)
         :value: 寄附金額
         "@change": "force_half_size_text($event, 'number', '寄附金額');calc_donation(価格, 送料, 定期便)"
+    寄附金額固定: # N2エクスポートに入れるために必須
 
     全商品ディレクトリID:
         portal: 楽天ふるさと納税
