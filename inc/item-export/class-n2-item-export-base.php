@@ -163,7 +163,8 @@ class N2_Item_Export_Base {
 	 */
 	private function set_data() {
 		$data = array();
-		foreach ( $this->data['n2data'] as $id => $values ) {
+		foreach ( $this->data['n2data'] as $key => $values ) {
+			$id = $values['id'];
 			// ヘッダーをセット
 			$data[ $id ] = $this->data['header'];
 			array_walk( $data[ $id ], array( $this, 'walk_values' ), $values );
@@ -173,7 +174,9 @@ class N2_Item_Export_Base {
 		 * [hook] n2_item_export_base_set_data
 		 */
 		$data = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_data', $data );
+		// エラーは排除
 		$data = array_diff_key( $data, $this->data['error'] );
+		$data = array_values( $data );
 		// dataをセット
 		$this->data['data'] = $data;
 	}
@@ -343,7 +346,7 @@ class N2_Item_Export_Base {
 			exit;
 		}
 		// エラーしか無い場合
-		if ( ! $str ) {
+		if ( empty( $this->data['data'] ) ) {
 			echo '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">';
 			$this->display_error();
 			exit;
@@ -351,6 +354,7 @@ class N2_Item_Export_Base {
 		?>
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
 		<form method="post" class="p-3 m-0 sticky-top justify-content-center d-flex bg-dark">
+			<input type="hidden" name="action" value="<?php echo esc_attr( mb_strtolower( get_class( $this ) ) ); ?>">
 			<input type="hidden" name="str" value="<?php echo esc_attr( $str ); ?>">
 			<button id="download" class="btn btn-success px-5">エラーが無い返礼品のみダウンロードする</button>
 		</form>
