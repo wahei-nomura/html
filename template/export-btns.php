@@ -1,15 +1,48 @@
 <?php
 /**
  * template/export.php
+ * 削除・印刷・エクスポート・画像ダウンロード
  *
  * @package neoneng
  */
 
 ?>
 <div id="n2-checked-posts" :class="active ? 'is-active': ''" v-if="ids.length" style="display: none;">
-	<div id="n2-checked-posts-title">
+	<div id="n2-checked-posts-header">
 		<span v-text="`${ids.length} 件選択中`"></span>
 		<span class="dashicons dashicons-no-alt" @click="active = ! active"></span>
+		<ul id="n2-checked-posts-actions">
+			<li>
+				エクスポート
+				<div class="childs">
+					<form method="post" action="admin-ajax.php" target="_blank">
+						<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
+						<input type="hidden" name="include[]" v-for="id in ids" :value="id">
+						<div style="margin-bottom: 1em;">
+							<span>フォーマット選択 ：　</span>
+							<label><input type="radio" name="action" value="n2_item_export_base" checked> N2</label>
+							<label><input type="radio" name="action" value="n2_item_export_ledghome"> LedgHOME</label>
+							<label><input type="radio" name="action" value="n2_item_export_furusato_choice"> ふるさとチョイス</label>
+							<label><input type="radio" name="action" value="n2_item_export_rakuten"> 楽天 [ item.csv ]</label>
+							<label><input type="radio" name="action" value="n2_item_export_rakuten_select"> 楽天 [ select.csv ]</label>
+						</div>
+						<div style="margin-bottom: 1em;">
+							<span>モード選択 ：　</span>
+							<label><input type="radio" name="mode" value="download" checked> CSV・TSVダウンロード</label>
+							<label><input type="radio" name="mode" value="spreadsheet"> スプレットシート貼付</label>
+							<label><input type="radio" name="mode" value="debug"> デバッグモード</label>
+						</div>
+						<button>エクスポート実行</button>
+					</form>
+				</div>
+			</li>
+			<li>印刷</li>
+			<li>画像ダウンロード</li>
+			<!--
+			<li>削除</li>
+			<li>変更</li>
+			-->
+		</ul>
 	</div>
 	<div id="n2-checked-posts-content">
 		<table class="widefat striped">
