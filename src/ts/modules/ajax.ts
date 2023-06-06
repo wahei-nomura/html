@@ -52,14 +52,20 @@ export const ajax = async (action:string) =>{
 jQuery(function ($) {
 	$(".sisbtn").on("click", async (e) => {
 		const btnName = $(e.target).attr("id");
-		const banList = await ajax("N2_Postlist_ban_portal_list");
-		console.log(banList);
+		const banAjaxList = await ajax("N2_Postlist_ban_portal_list");
+		console.log(banAjaxList);
+		const banPortal = Object.keys(window['n2'].export).find((key)=> {
+			return window['n2'].export[ key ].includes(btnName);
+		});
 		
-		if ( ! banList ) {
-			return;
-		}
-		let alertMessage = '出品禁止ポータル分が含まれています。続けますか？';
-		if (  confirm(alertMessage) ){
+		let alertMessage = '出品禁止ポータルに指定されている返礼品が含まれています。続けますか？';
+		banAjaxList[banPortal].forEach(item => {
+			alertMessage += `\n・${item}`;
+		});
+		console.log(banPortal);
+		
+		
+		if ( banAjaxList[banPortal].length && confirm(alertMessage) ) {
 			openByPostAnotherPage(ajaxUrl(window), btnName, getIds());
 		}
 		console.log(getIds());
