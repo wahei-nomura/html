@@ -26,7 +26,7 @@ class N2_Postlist {
 	public function __construct() {
 		$this->cls  = get_class( $this );
 		$this->page = 'edit.php';
-		add_action( 'admin_head-edit.php', array( $this, 'show_exportbtns' ) );
+		add_action( 'admin_footer-edit.php', array( $this, 'save_post_ids_ui' ) );
 		add_filter( 'manage_posts_columns', array( $this, 'add_posts_columns' ), 10, 2 );
 		add_action( 'init', array( $this, 'change_postlabel' ) );
 		add_filter( 'manage_posts_custom_column', array( $this, 'add_posts_columns_row' ), 10, 2 );
@@ -50,9 +50,9 @@ class N2_Postlist {
 	 *
 	 * @return void
 	 */
-	public function show_exportbtns() {
+	public function save_post_ids_ui() {
 		if ( current_user_can( 'ss_crew' ) ) {
-			get_template_part( 'template/export-btns' );
+			get_template_part( 'template/admin-postlist/save-post-ids' );
 		}
 	}
 

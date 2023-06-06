@@ -1,6 +1,6 @@
 <?php
 /**
- * template/export.php
+ * 投稿IDを選択して保存するUI
  * 削除・印刷・エクスポート・画像ダウンロード
  *
  * @package neoneng
