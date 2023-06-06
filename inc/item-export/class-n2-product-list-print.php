@@ -19,7 +19,7 @@ class N2_Product_List_Print {
 	 * constructor
 	 */
 	public function __construct() {
-		add_action( 'wp_ajax_print', array( $this, 'print_out' ) );
+		add_action( 'wp_ajax_n2_print_out', array( $this, 'print_out' ) );
 	}
 	/**
 	 * 連想配列をhtmlのattrとして追加する
@@ -47,7 +47,7 @@ class N2_Product_List_Print {
 	 */
 	public function print_out() {
 		global $n2;
-		$ids                   = filter_input( INPUT_POST, 'print' );
+		$ids                   = filter_input( INPUT_POST, 'ids' );
 		$print_css             = get_theme_file_uri( 'dist/css/admin-print.css' );
 		$confirm_table_th_list = $n2->product_list_print['確認用テーブル']['th'];
 		$product_table_tr_list = $n2->product_list_print['返礼品テーブル']['tr'];
@@ -133,7 +133,7 @@ class N2_Product_List_Print {
 												$td .= '類型該当理由：' . get_post_meta( $p->ID, '類型該当理由', true );
 												break;
 											case 'アレルギー':
-												$td = N2_Rakuten_CSV::allergy_display( $p->ID, 'print' );
+												// $td = N2_Rakuten_CSV::allergy_display( $p->ID, 'print' );
 												break;
 											case '発送サイズ':
 												$td = ( is_numeric( $td ) )
