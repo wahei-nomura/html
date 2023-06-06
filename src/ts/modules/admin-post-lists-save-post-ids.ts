@@ -55,6 +55,7 @@ export default ($: any) => {
 					},
 				});
 				this.items = this.items.items;
+				console.log(this.items)
 			},
 			clear_ids( id ) {
 				// id指定の場合はidのみ削除

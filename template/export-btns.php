@@ -33,11 +33,22 @@
 							<label><input type="radio" name="mode" value="debug"> デバッグモード</label>
 						</div>
 						<button>エクスポート実行</button>
+						<div style="margin-top: 1em;">
+							<input type="checkbox" name="include" value=""> 選択しているものに関わらず「<?php bloginfo( 'name' ); ?>」全返礼品を対象にする
+						</div>
 					</form>
 				</div>
 			</li>
-			<li>印刷</li>
-			<li>画像ダウンロード</li>
+			<li style="padding: 0;">
+				<form method="post" action="admin-ajax.php" target="_blank">
+					<button>印刷</button>
+				</form>
+			</li>
+			<li style="padding: 0;">
+				<form method="post" action="admin-ajax.php" target="_blank">
+					<button>画像ダウンロード</button>
+				</form>
+			</li>
 			<!--
 			<li>削除</li>
 			<li>変更</li>

@@ -411,20 +411,28 @@ tbody#the-list>tr>th {
 								padding: 1em;
 							}
 							button{
-								border: none;
-								outline: none;
 								background-color: rgba(255,255,255,.9);
 								color: darken( $header-bg, 5% );
 								width: 100%;
 								display: block;
 								cursor: pointer;
 								padding: .5em 1em;
+								line-height: 2;
 								&:hover{
 									background-color: white;
 								}
 							}
 						}
 					}
+				}
+				button{
+					border: none;
+					outline: none;
+					background: none;
+					color: white;
+					line-height: 3rem;
+					cursor: pointer;
+					padding: 0 1em;
 				}
 				.childs{
 					display: none;
