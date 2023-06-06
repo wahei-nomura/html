@@ -160,6 +160,13 @@ class N2 {
 	public $n2_active_flag;
 
 	/**
+	 * エクスポート機能
+	 *
+	 * @var object
+	 */
+	public $export;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -312,6 +319,17 @@ class N2 {
 
 		// N2稼働状況
 		$this->n2_active_flag = $n2_option['N2'] ?? 'false';
+
+		// エクスポート機能
+		$this->export = array(
+			'ふるさとチョイス' => array( 'choice' ),
+			'楽天ふるさと納税' => array(
+				'print',
+				'item_csv',
+				'select_csv',
+				'error_log',
+			),
+		);
 	}
 
 	/**
