@@ -54,6 +54,7 @@ export default ($: any, target: string) => {
 				if ( ! name ) continue;
 				// 配列型：文字列型
 				meta[ name[1] ] = d[0].match(/\[\]/) ? fd.getAll(d[0]) : fd.get(d[0]);
+				// json型はパースしてから渡す
 				try { meta[ name[1] ] = JSON.parse(meta[ name[1] ]); } catch {}
 			}
 			wp.data.dispatch( 'core/editor' ).editPost({ meta });
