@@ -94,6 +94,13 @@ class N2 {
 	public $special_str_convert;
 
 	/**
+	 * アレルゲン文字列変換
+	 *
+	 * @var array
+	 */
+	public $allergen_convert;
+
+	/**
 	 * ポータル設定
 	 *
 	 * @var array
@@ -240,7 +247,10 @@ class N2 {
 		$this->product_list_print = yaml_parse_file( get_theme_file_path( 'config/n2-product-list-print.yml' ) );
 
 		// 文字列変換
-		$this->special_str_convert = yaml_parse_file( get_theme_file_path( 'config/n2-special-str-comvert.yml' ) );
+		$this->special_str_convert = yaml_parse_file( get_theme_file_path( 'config/special-str-convert.yml' ) );
+
+		// 文字列変換
+		$this->allergen_convert = yaml_parse_file( get_theme_file_path( 'config/allergen-convert.yml' ) );
 
 		// 送料設定
 		$n2_settings['delivery_fee'] = $n2_settings['delivery_fee'] ?? array();
