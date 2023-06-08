@@ -191,8 +191,6 @@ class N2_Item_Export_Base {
 		// 最終的に入る項目の値（文字列）
 		$data = $n2values[ $val ] ?: '';
 		if ( is_array( $data ) ) {
-			// 多次元になっているものはラベルだけの配列に変更
-			$data = array_column( $data, 'label' ) ?: $data;
 			// |で連結
 			$data = implode( '|', $data );
 		}
