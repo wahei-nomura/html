@@ -168,26 +168,24 @@ class N2 {
 				foreach ( $arr as $name => $v ) {
 					$value = $v['value'] ?? '';
 					$value = get_post_meta( $post->ID, $name, true ) ?: $value;
-					if ( '商品タイプ' === $name ) {
-						if ( empty( $value ) ) {
-							$user_meta = $this->current_user->data->meta;
-							if ( ! empty( $user_meta['商品タイプ'] ) ) {
-								$value = array_keys( array_filter( $user_meta['商品タイプ'], fn( $v ) => 'true' === $v ) );
-							}
-						}
+					// ====== 新規登録時の初期化 ======
+					if ( empty( $value ) ) {
+						$user_meta = $this->current_user->data->meta;
+						$value     = match ( $name ) {
+							'商品タイプ' => array_keys( array_filter( $user_meta['商品タイプ'] ?? array(), fn( $v ) => 'true' === $v ) ),
+							'寄附金額固定' => array(),
+							default => '',
+						};
 					}
-					if ( '楽天SPAカテゴリー' === $name ) {
+					// ====== 特殊フィールド系 ======
+					if ( '楽天SPAカテゴリー' === $name && is_string( $value ) ) {
 						$value = array(
-							'text' => preg_replace( '/\r/', '', $value ),
+							'text' => $value,
 							'list' => array(),
 						);
 					}
 					$this->custom_field[ $id ][ $name ]['value'] = $value;
 				}
-			}
-			// 寄附金額固定の初期化
-			if ( ! isset( $this->custom_field['スチームシップ用']['寄附金額固定'] ) ) {
-				$this->custom_field['スチームシップ用']['寄附金額固定']['value'] = array();
 			}
 			/**
 			 * カスタムフィールドの値の変更

@@ -120,6 +120,7 @@ class N2_Item_Export_Base {
 	private function set_n2data() {
 		$n2data = array();
 		$fields = array(
+			'id',
 			'タイトル',
 			'事業者コード',
 			'事業者名',
