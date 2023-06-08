@@ -126,35 +126,33 @@ class N2_Items_API {
 	 * @param bool  $update              Whether this is an existing post being updated.
 	 */
 	public function insert_post_data( $data, $postarr, $unsanitized_postarr, $update ) {
-		if ( 'post' !== $postarr['post_type'] ) {
+		if ( 'post' !== $postarr['post_type'] || ( ! isset( $postarr['meta_input'] ) && ! $update ) ) {
 			return $data;
 		}
 		$post_content = array();
 		// タイトル追加
-		$post_content['タイトル'] = $postarr['post_title'];
-		// 更新の場合は、meta_inputに値を突っ込む
-		if ( ! isset( $postarr['meta_input'] ) ) {
-			if ( ! $update ) {
-				return $data;
-			}
-			foreach ( array_keys( get_post_meta( $postarr['ID'] ) ) as $key ) {
-				$postarr['meta_input'][ $key ] = get_post_meta( $postarr['ID'], $key, true );
-			}
+		$post_content['タイトル'] = $data['post_title'];
+		// 特定のカスタムフィールド値のみ更新することがあるので既存の値とマージしないといけない
+		$meta_input = array();
+		foreach ( array_keys( (array) get_post_meta( $postarr['ID'] ) ) as $key ) {
+			$meta_input[ $key ] = get_post_meta( $postarr['ID'], $key, true );
 		}
+		$meta_input = wp_parse_args( $postarr['meta_input'] ?? array(), $meta_input );
+
 		// 事業者コード追加
-		$post_content['事業者コード'] = get_user_meta( $postarr['post_author'], 'last_name', true );
+		$post_content['事業者コード'] = get_user_meta( $data['post_author'], 'last_name', true );
 		// 提供事業者名・ポータル表示名があれば取得
-		$portal_site_display_name = $postarr['meta_input']['提供事業者名'] ?? get_user_meta( $postarr['post_author'], 'portal_site_display_name', true );
+		$portal_site_display_name = $meta_input['提供事業者名'] ?? get_user_meta( $data['post_author'], 'portal_site_display_name', true );
 		// 事業者名
 		$post_content['事業者名'] = match ( $portal_site_display_name ) {
 			'記載しない' => '',
-			'' => get_user_meta( $postarr['post_author'], 'first_name', true ),
+			'' => get_user_meta( $data['post_author'], 'first_name', true ),
 			default => $portal_site_display_name
 		};
 		// 投稿ステータス追加
-		$post_content['ステータス'] = $postarr['post_status'];
+		$post_content['ステータス'] = $data['post_status'];
 		// n2fieldのカスタムフィールド全取得
-		foreach ( $postarr['meta_input'] as $key => $meta ) {
+		foreach ( $meta_input as $key => $meta ) {
 			// 値が配列の場合、空は削除
 			if ( is_array( $meta ) ) {
 				$meta = array_filter( $meta, fn( $v ) => $v );
