@@ -41,13 +41,22 @@ export default ($: any, target: string) => {
 			? `<div id="n2-save-post" class="${btn_class.save}" title="保存"><span></span>保存</div>`
 			: `<div id="n2-save-post" class="${btn_class.saved}" title="保存"><span class="dashicons dashicons-saved me-2"></span>保存</div>`;
 		$(target).prepend(button);
-		
 		$('#n2-save-post').on('click', () => {
 			if ( ! editor.getEditedPostAttribute("title") ) {
 				alert('保存するには返礼品の名前を入力してください');
 				return;
 			}
 			$('#n2-save-post span').attr('class', 'spinner-border spinner-border-sm me-2');
+			const meta = {};
+			const fd:any = new FormData($('#事業者用').parents('form').get(0));
+			for (let d of Array.from(fd.entries()) ) {
+				const name = d[0].match(/\[(.+?)\]/);
+				if ( ! name ) continue;
+				// 配列型：文字列型
+				meta[ name[1] ] = d[0].match(/\[\]/) ? fd.getAll(d[0]) : fd.get(d[0]);
+				try { meta[ name[1] ] = JSON.parse(meta[ name[1] ]); } catch {}
+			}
+			wp.data.dispatch( 'core/editor' ).editPost({ meta });
 			wp.data.dispatch('core/editor').savePost().then(
 				() => {
 					$(window).off('beforeunload');

@@ -31,7 +31,7 @@ class N2_Items_API {
 	 */
 	public function __construct() {
 		// post_contentに必要なデータを全部ぶっこむ
-		add_action( 'wp_after_insert_post', array( $this, 'after_insert_post' ), 10, 3 );
+		add_action( 'wp_insert_post_data', array( $this, 'insert_post_data' ), 20, 4 );
 		add_action( 'wp_ajax_n2_items_api', array( $this, 'api' ) );
 		add_action( 'wp_ajax_nopriv_n2_items_api', array( $this, 'api' ) );
 	}
@@ -77,7 +77,16 @@ class N2_Items_API {
 		self::set_params();
 		$posts = get_posts( self::$data['params'] );
 		// post_contentのみにする
-		$posts = array_map( fn( $v ) => json_decode( $v->post_content, true ), $posts );
+		$posts = array_map(
+			function( $v ) {
+				$post_content = json_decode( $v->post_content, true );
+				// idを混ぜ込む
+				$post_content['id'] = $v->ID;
+				return $post_content;
+			},
+			$posts
+		);
+		$posts = array_filter( $posts );
 		/**
 		 * [hook] n2_items_api_get_items
 		 */
@@ -99,43 +108,60 @@ class N2_Items_API {
 	}
 
 	/**
+	 * 全件post_contentをアップデート
+	 */
+	public static function update() {
+		set_time_limit( 0 );
+		foreach ( get_posts( self::$data['params'] ) as $post ) {
+			wp_insert_post( $post );
+		}
+	}
+	/**
 	 * 投稿保存時にpost_contentにAPIデータを全部ぶち込む
 	 *
-	 * @param int     $post_id Post ID.
-	 * @param WP_Post $post    Post object.
-	 * @param bool    $update  Whether this is an existing post being updated.
+	 * @param array $data                An array of slashed, sanitized, and processed post data.
+	 * @param array $postarr             An array of sanitized (and slashed) but otherwise unmodified post data.
+	 * @param array $unsanitized_postarr An array of slashed yet *unsanitized* and unprocessed post data as
+	 *                                   originally passed to wp_insert_post().
+	 * @param bool  $update              Whether this is an existing post being updated.
 	 */
-	public function after_insert_post( $post_id, $post, $update ) {
-		if ( 'post' !== $post->post_type ) {
-			return;
+	public function insert_post_data( $data, $postarr, $unsanitized_postarr, $update ) {
+		if ( 'post' !== $postarr['post_type'] ) {
+			return $data;
 		}
-		$items = array();
-		// ID追加
-		$items['id'] = $post_id;
+		$post_content = array();
 		// タイトル追加
-		$items['タイトル'] = $post->post_title;
+		$post_content['タイトル'] = $postarr['post_title'];
+		// 更新の場合は、meta_inputに値を突っ込む
+		if ( ! isset( $postarr['meta_input'] ) ) {
+			if ( ! $update ) {
+				return $data;
+			}
+			foreach ( array_keys( get_post_meta( $postarr['ID'] ) ) as $key ) {
+				$postarr['meta_input'][ $key ] = get_post_meta( $postarr['ID'], $key, true );
+			}
+		}
 		// 事業者コード追加
-		$items['事業者コード'] = get_user_meta( $post->post_author, 'last_name', true );
+		$post_content['事業者コード'] = get_user_meta( $postarr['post_author'], 'last_name', true );
 		// 提供事業者名・ポータル表示名があれば取得
-		$portal_site_display_name = get_post_meta( $post_id, '提供事業者名', true ) ?: get_user_meta( $post->post_author, 'portal_site_display_name', true );
+		$portal_site_display_name = $postarr['meta_input']['提供事業者名'] ?? get_user_meta( $postarr['post_author'], 'portal_site_display_name', true );
 		// 事業者名
-		$items['事業者名'] = match ( $portal_site_display_name ) {
+		$post_content['事業者名'] = match ( $portal_site_display_name ) {
 			'記載しない' => '',
-			'' => get_user_meta( $post->post_author, 'first_name', true ),
+			'' => get_user_meta( $postarr['post_author'], 'first_name', true ),
 			default => $portal_site_display_name
 		};
 		// 投稿ステータス追加
-		$items['ステータス'] = get_post_status( $post_id );
+		$post_content['ステータス'] = $postarr['post_status'];
 		// n2fieldのカスタムフィールド全取得
-		foreach ( array_keys( get_post_meta( $post_id ) ) as $key ) {
-			$meta = get_post_meta( $post_id, $key, true );
+		foreach ( $postarr['meta_input'] as $key => $meta ) {
 			// 値が配列の場合、空は削除
 			if ( is_array( $meta ) ) {
 				$meta = array_filter( $meta, fn( $v ) => $v );
 			}
-			$items[ $key ] = $meta;
+			$post_content[ $key ] = $meta;
 		}
-		$post->post_content = addslashes( wp_json_encode( $items, JSON_UNESCAPED_UNICODE ) );
-		wp_insert_post( $post, false, false );
+		$data['post_content'] = addslashes( wp_json_encode( $post_content, JSON_UNESCAPED_UNICODE ) );
+		return $data;
 	}
 }

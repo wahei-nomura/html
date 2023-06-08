@@ -28,7 +28,7 @@ class N2_Admin_Post_Editor {
 		$this->cls = get_class( $this );
 		add_action( 'init', array( $this, 'remove_editor_support' ) );
 		add_action( 'admin_menu', array( $this, 'add_customfields' ) );
-		add_action( 'save_post', array( $this, 'save_customfields' ) );
+		add_action( 'rest_pre_insert_post', array( $this, 'rest_pre_insert_post_meta' ), 10, 2 );
 		add_action( 'ajax_query_attachments_args', array( $this, 'display_only_self_uploaded_medias' ) );
 		add_filter( 'enter_title_here', array( $this, 'change_title' ) );
 		add_filter( 'intermediate_image_sizes_advanced', array( $this, 'not_create_image' ) );
@@ -36,7 +36,6 @@ class N2_Admin_Post_Editor {
 		add_filter( 'post_link', array( $this, 'set_post_paermalink' ), 10, 3 );
 		add_action( 'init', array( $this, 'register_post_status' ) );
 		add_action( 'transition_post_status', array( $this, 'transition_status_action' ), 10, 3 );
-		// add_filter( 'wp_check_post_lock_window', '__return_zero' );
 	}
 
 	/**
@@ -80,7 +79,7 @@ class N2_Admin_Post_Editor {
 	/**
 	 * 投稿ステータス「ポータル登録済み」を追加
 	 */
-	public function register_post_status(){
+	public function register_post_status() {
 		register_post_status(
 			'registered',
 			array(
@@ -138,8 +137,6 @@ class N2_Admin_Post_Editor {
 		global $n2;
 		$custom_field = array_filter( $n2->custom_field[ $metabox['id'] ], fn( $v ) => isset( $v['type'] ) );
 		?>
-		<!-- n2field保存の為のnonce -->
-		<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
 		<div class="n2-fields fs-6">
 			<?php foreach ( $custom_field as $field => $detail ) : ?>
 			<?php
@@ -176,28 +173,15 @@ class N2_Admin_Post_Editor {
 	}
 
 	/**
-	 * カスタムフィールド「n2fields」の保存
-	 * 「n2nonce」を渡さないと発火させない
+	 * カスタムフィールドの保存
 	 *
-	 * @param int $post_id first parameter
+	 * @param stdClass        $prepared_post An object representing a single post prepared
+	 *                                       for inserting or updating the database.
+	 * @param WP_REST_Request $request       Request object.
 	 */
-	public function save_customfields( $post_id ) {
-		if ( ! wp_verify_nonce( $_POST['n2nonce'] ?? '', 'n2nonce' ) || ! isset( $_POST['n2field'] ) ) {
-			return;
-		}
-		// カスタムフィールド（n2field）の保存
-		foreach ( (array) $_POST['n2field'] as $key => $value ) {
-			// チェックボックスのデータ整形
-			if ( array_key_exists( 'checkbox2', (array) $value ) ) {
-				unset( $value['checkbox2'] );
-				$value = array_filter( $value, fn( $v ) => array_key_exists( 'value', $v ) );
-				$value = array_values( $value );
-			}
-			if ( '商品画像' === $key ) {
-				$value = json_decode( stripslashes( $value ), true );
-			}
-			update_post_meta( $post_id, $key, $value );
-		}
+	public function rest_pre_insert_post_meta( $prepared_post, $request ) {
+		$prepared_post->meta_input = $request['meta'];
+		return $prepared_post;
 	}
 
 	/**
@@ -292,7 +276,6 @@ class N2_Admin_Post_Editor {
 	 */
 	public function transition_status_action( $new_status, $old_status, $post ) {
 		global $n2;
-		
 		if ( 'production' === $n2->mode && 'pending' === $old_status && 'pending' === $new_status && current_user_can( 'jigyousya' ) ) {
 			$town  = $n2->town;
 			$name  = $n2->current_user->first_name;
