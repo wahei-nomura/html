@@ -62,9 +62,9 @@ class N2_Img_Download {
 		$zip     = new ZipArchive();
 		$zip->open( $tmp_uri, ZipArchive::CREATE );
 		foreach ( $ids as $id ) {
-			$item_code = get_post_meta( $id, '返礼品コード', true );
-			$dirname   = $item_code ?: get_the_title( $id );
-			$filename  = mb_strtolower( $item_code ) ?: get_the_title( $id );
+			$img_file_name = get_post_meta( $id, '返礼品コード', true );
+			$dirname       = $img_file_name ?: get_the_title( $id );
+			$filename      = mb_strtolower( $img_file_name ) ?: get_the_title( $id );
 			foreach ( get_post_meta( $id, '商品画像', true ) as $i => $img ) {
 				$index     = $i + 1;
 				$extension = pathinfo( $img['url'] )['extension'];

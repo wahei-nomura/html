@@ -150,6 +150,13 @@ class N2 {
 	public $n2_active_flag;
 
 	/**
+	 * エクスポート機能
+	 *
+	 * @var object
+	 */
+	public $export;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {

@@ -112,7 +112,7 @@ class N2_Product_List_Print {
 												$td = number_format( $td );
 												break;
 											case '送料':
-												if ( ! $td ) {
+												if ( ! $td || is_numeric( get_post_meta( $p->ID, '発送サイズ', true ) ) ) {
 													continue 2;
 												}
 												$td = number_format( $td );

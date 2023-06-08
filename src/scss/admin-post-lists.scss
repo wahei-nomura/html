@@ -116,6 +116,11 @@ tbody#the-list>tr>td {
 tbody#the-list>tr>th {
 	background-color: #fff;
 }
+tbody#the-list{
+	.no-code{
+		color: $danger;
+	}
+}
 
 #n2-copypost-modal,
 #n2-update-status-modal,
@@ -139,7 +144,12 @@ tbody#the-list>tr>th {
 		background-color: rgba(0, 0, 0, 0.7);
 	}
 }
-
+#n2-copypost-modal {
+	height: 30%;
+	.copypost-caution{
+		color: #930000;
+	}
+}
 .wp-core-ui {
 	.button {
 		&.not-click {
