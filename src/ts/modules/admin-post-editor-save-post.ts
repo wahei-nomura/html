@@ -47,6 +47,8 @@ export default ($: any, target: string) => {
 				return;
 			}
 			$('#n2-save-post span').attr('class', 'spinner-border spinner-border-sm me-2');
+
+			// カスタムフィールドの保存
 			const meta = {};
 			const fd:any = new FormData($('#事業者用').parents('form').get(0));
 			for (let d of Array.from(fd.entries()) ) {
@@ -58,6 +60,8 @@ export default ($: any, target: string) => {
 				try { meta[ name[1] ] = JSON.parse(meta[ name[1] ]); } catch {}
 			}
 			wp.data.dispatch( 'core/editor' ).editPost({ meta });
+
+			// 保存時の挙動
 			wp.data.dispatch('core/editor').savePost().then(
 				() => {
 					$(window).off('beforeunload');
