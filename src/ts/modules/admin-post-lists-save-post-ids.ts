@@ -8,6 +8,7 @@
 import Vue from 'vue/dist/vue.min'
 export default ($: any) => {
 	const n2 = window['n2'];
+	const save_name = `n2_checked_post_ids_${n2.site_id}`;
 	new Vue({
 		el: '#n2-checked-posts',
 		data: {
@@ -17,7 +18,7 @@ export default ($: any) => {
 			items: [],
 		},
 		async created(){
-			this.ids = (sessionStorage.getItem('n2_checked_post_ids') || '').split(',').filter(v=>v);
+			this.ids = (sessionStorage.getItem(save_name) || '').split(',').filter(v=>v);
 			if ( this.ids ) {
 				this.set_items();
 				this.update_checked();
@@ -34,7 +35,7 @@ export default ($: any) => {
 					this.ids = [...this.ids, ...checked_ids ];
 					this.ids = new Set(this.ids);
 					this.ids = Array.from(this.ids);
-					sessionStorage.setItem('n2_checked_post_ids', this.ids.join(','));
+					sessionStorage.setItem(save_name, this.ids.join(','));
 					this.set_items();
 				});
 			}
@@ -62,7 +63,7 @@ export default ($: any) => {
 				if ( id ) {
 					this.ids = this.ids.filter(v=>v!=id);
 					this.items = this.items.filter(v=>v.id!=id);
-					sessionStorage.setItem('n2_checked_post_ids', this.ids.join(','));
+					sessionStorage.setItem(save_name, this.ids.join(','));
 					this.active = this.ids.length ? this.active : false;
 				} else{
 					if( confirm('全解除してよろしいですか') ) {
