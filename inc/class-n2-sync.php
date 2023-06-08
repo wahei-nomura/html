@@ -485,6 +485,11 @@ class N2_Sync {
 							unset( $postarr['meta_input']['アレルゲン'] );
 						} else {
 							$postarr['meta_input']['アレルギー有無確認'] = array( 'アレルギー品目あり' );
+							// アレルゲンをラベルだけに変更
+							$postarr['meta_input']['アレルゲン'] = array_column( $postarr['meta_input']['アレルゲン'], 'label' );
+							// アレルゲンをいい感じにN2に存在するものに変換する
+							$postarr['meta_input']['アレルゲン'] = $this->change_n2_allergen( $postarr['meta_input']['アレルゲン'] );
+
 						}
 					}
 				}
@@ -789,18 +794,12 @@ class N2_Sync {
 			if ( isset( $d['アレルギー有無確認'] ) ) {
 				$d['アレルギー有無確認'] = array( $d['アレルギー有無確認'] ? 'アレルギー品目あり' : '' );
 			}
-			// アレルゲン（label,value必要）
+			// アレルゲン（完全一致じゃなく部分一致にする）
 			if ( isset( $d['アレルゲン'] ) ) {
-				$d['アレルゲン'] = array_map(
-					function( $v ) use ( $n2 ) {
-						return array(
-							'label' => $v,
-							'value' => (string) array_search( $v, $n2->custom_field['事業者用']['アレルゲン']['option'], true ),
-						);
-					},
-					// 区切り文字列でいい感じに配列化
-					array_values( array_filter( preg_split( $sep, $d['アレルゲン'] ) ) )
-				);
+				// 区切り文字列でいい感じに配列化
+				$d['アレルゲン'] = array_values( array_filter( preg_split( $sep, $d['アレルゲン'] ) ) );
+				// アレルゲンをいい感じにN2に存在するものに変換する
+				$d['アレルゲン'] = $this->change_n2_allergen( $d['アレルゲン'] );
 			}
 			// 取り扱い方法（区切り文字列でいい感じに配列化）
 			if ( isset( $d['取り扱い方法'] ) ) {
@@ -1068,6 +1067,31 @@ class N2_Sync {
 			)
 		);
 		return $id;
+	}
+
+	/**
+	 * アレルゲンをいい感じにN2に存在するものに変換する
+	 *
+	 * @param array $allergens アレルゲン配列
+	 */
+	private function change_n2_allergen( $allergens ) {
+		global $n2;
+		$allergens = array_map(
+			function( $v ) use ( $n2 ) {
+				$pattern = trim( preg_split( '/\(|（/', $v )[0] );// カッコの前だけにする
+				$pattern = $n2->allergen_convert[ $pattern ] ?? $pattern;// カタカナとか漢字も互換する
+				$str     = '';// 最終的にリターンする文字列
+				foreach ( $n2->custom_field['事業者用']['アレルゲン']['option'] as $value ) {
+					if ( preg_match( "/{$pattern}/", $value ) ) {
+						$str = $value;
+					}
+				}
+				return $str;
+			},
+			$allergens
+		);
+		$allergens = array_filter( $allergens );
+		return $allergens;
 	}
 
 }
