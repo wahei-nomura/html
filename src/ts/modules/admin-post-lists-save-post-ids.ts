@@ -42,7 +42,7 @@ export default ($: any) => {
 		methods: {
 			async set_items() {
 				// idsがない場合は初期化
-				if ( ! this.ids ) {
+				if ( ! this.ids.length ) {
 					this.items = [];
 					return;
 				}
