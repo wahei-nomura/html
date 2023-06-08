@@ -124,6 +124,7 @@ class N2_Item_Export_Base {
 			'タイトル',
 			'事業者コード',
 			'事業者名',
+			'ステータス',
 			...$this->data['n2field'],
 		);
 		foreach ( N2_Items_API::get_items() as $v ) {
@@ -150,7 +151,9 @@ class N2_Item_Export_Base {
 	 */
 	protected function set_header() {
 		// n2dataをもとに配列を作成
-		$this->data['header'] = array_keys( reset( $this->data['n2data'] ) );
+		$header = reset( $this->data['n2data'] );
+		unset( $header['id'], $header['ステータス'] );
+		$this->data['header'] = array_keys( $header );
 		/**
 		 * [hook] n2_item_export_base_set_header
 		 */
