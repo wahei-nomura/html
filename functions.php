@@ -57,6 +57,7 @@ $incs = array(
 	'api/class-n2-output-gift-api',
 	'api/class-n2-post-history-api',
 	'api/class-n2-users-api',
+	'class-n2-change-allergen',
 );
 foreach ( $incs as $name ) {
 	require_once get_theme_file_path( "/inc/{$name}.php" );

@@ -19,7 +19,9 @@ export const openByPostAnotherPage = (
 	btnName: string,
 	ids: string
 ): Window => {
-	if (!ids) return;
+	if('changeallergen' !== btnName){
+		if (!ids) return;
+	}
 	const target_tab = 'n2_another'
 	const win = window.open("about:blank", target_tab);
 	const form = document.createElement("form");
@@ -57,7 +59,6 @@ jQuery(function ($) {
 		const banPortal = Object.keys(window['n2'].export).find((key)=> {
 			return window['n2'].export[ key ].includes(btnName);
 		});
-		
 		let alertMessage = '出品禁止ポータルに指定されている返礼品が含まれています。続けますか？';
 		banAjaxList[banPortal].forEach(item => {
 			alertMessage += `\n・${item}`;
@@ -75,6 +76,12 @@ jQuery(function ($) {
 		openByPostAnotherPage(ajaxUrl(window), btnName, '1');
 		console.log(getIds());
 	});
+	$(".arrbtn").on("click", async (e) => {
+		const btnName = $(e.target).attr("id");
+		console.log(btnName);
+		openByPostAnotherPage(ajaxUrl(window), btnName, getIds());
+		console.log(getIds());
+	});	
 
 	// POST送信してURLを開く
 	const openByPost = (
