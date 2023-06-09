@@ -24,7 +24,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 * @var array
 	 */
 	public $settings = array(
-		'filename'      => 'n2_export_rakuten.csv',
+		'filename'      => 'item.csv',
 		'delimiter'     => ',',
 		'charset'       => 'sjis',
 		'header_string' => '', // 基本は自動設定、falseでヘッダー文字列無し
@@ -35,10 +35,8 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 */
 	protected function set_header() {
 		global $n2;
-		// CSVヘッダー本体
-		$csv_header = trim( $n2->rakuten['item_csv'] );
-		// CSVヘッダー配列化
-		$this->data['header'] = explode( "\t", $csv_header );
+		// CSVヘッダー
+		$this->data['header'] = $n2->portal_setting['楽天']['csv_header']['item'];
 		/**
 		 * [hook] n2_item_export_rakuten_set_header
 		 */
@@ -60,7 +58,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		$n2values['アレルゲン'] = preg_replace( '/（.*?）/', '', $n2values['アレルゲン'] );// 不純物（カッコの部分）を削除
 
 		// 自治体と返礼品のタグIDをいい感じに結合する
-		$n2values['タグID'] = $n2->rakuten['tag_id'] . '/' . $n2values['タグID'];
+		$n2values['タグID'] = $n2->portal_setting['楽天']['tag_id'] . '/' . $n2values['タグID'];
 		$n2values['タグID'] = implode( '/', array_filter( explode( '/', $n2values['タグID'] ) ) );
 		// preg_matchで判定
 		$data = match ( 1 ) {
@@ -147,7 +145,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 */
 	public function get_img_urls( $n2values, $return_type = 'string' ) {
 		global $n2;
-		$img_dir      = rtrim( $n2->rakuten['img_dir'], '/' );
+		$img_dir      = rtrim( $n2->portal_setting['楽天']['img_dir'], '/' );
 		$gift_code = mb_strtolower( $n2values['返礼品コード'] );
 		$business_code = mb_strtolower( $n2values['事業者コード'] );
 		// GOLD（ne.jp）とキャビネット（co.jp）を判定してキャビネットは事業者コードディレクトリを追加
@@ -210,7 +208,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			<?php
 				echo $n2->portal_common_discription
 					. apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $n2values['id'], 'PC用販売説明文' )
-					. str_replace( '\"', '""', $n2->rakuten['html'] ?? '' );
+					. str_replace( '\"', '""', $n2->portal_setting['楽天']['html'] ?? '' );
 				?>
 			<?php
 		};
@@ -291,7 +289,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			<?php endif ?>
 			<?php
 				echo $n2->portal_common_discription
-					. str_replace( '\"', '""', $n2->rakuten['html'] ?? '' );
+					. str_replace( '\"', '""', $n2->portal_setting['楽天']['html'] ?? '' );
 			?>
 			<?php
 		};
