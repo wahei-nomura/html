@@ -284,7 +284,7 @@ class N2 {
 			$n2_settings['portal_setting'] ?? array(),
 			apply_filters(
 				'n2_portal_setting',
-				yaml_parse_file( get_theme_file_path( 'config/n2-portal-setting.yml' ) )
+				yaml_parse_file( get_theme_file_path( 'config/portal-setting.yml' ) )
 			),
 		);
 
