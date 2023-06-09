@@ -165,6 +165,7 @@ class N2_Item_Export_Base {
 	 */
 	private function set_data() {
 		$data = array();
+		$this->check_fatal_error( $this->data['header'], 'ヘッダーが正しくセットされていません' );
 		foreach ( $this->data['n2data'] as $key => $values ) {
 			$id = $values['id'];
 			// ヘッダーをセット
@@ -311,6 +312,20 @@ class N2_Item_Export_Base {
 			<?php echo $html; ?>
 		</table>
 		<?php
+	}
+
+	/**
+	 * 致命的なエラーのチェック
+	 *
+	 * @param array  $data チェックするデータ
+	 * @param string $message メッセージ
+	 */
+	private function check_fatal_error( $data, $message ) {
+		if ( ! $data ) {
+			header( 'Content-Type: application/json; charset=utf-8' );
+			echo $message;
+			exit;
+		}
 	}
 
 	/**
