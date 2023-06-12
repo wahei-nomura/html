@@ -6,6 +6,7 @@
  * @package neoneng
  */
 
+global $n2;
 ?>
 <div id="n2-checked-posts" :class="active ? 'is-active': ''" v-if="ids.length" style="display: none;">
 	<div id="n2-checked-posts-header">
@@ -22,9 +23,13 @@
 							<span>フォーマット選択 ：　</span>
 							<label><input type="radio" name="action" value="n2_item_export_base" checked> N2</label>
 							<label><input type="radio" name="action" value="n2_item_export_ledghome"> LedgHOME</label>
-							<label><input type="radio" name="action" value="n2_item_export_furusato_choice"> ふるさとチョイス</label>
-							<label><input type="radio" name="action" value="n2_item_export_rakuten"> 楽天 [ item.csv ]</label>
-							<label><input type="radio" name="action" value="n2_item_export_rakuten_select"> 楽天 [ select.csv ]</label>
+							<?php if ( in_array( 'ふるさとチョイス', $n2->portal_sites, true ) ) : ?>
+								<label><input type="radio" name="action" value="n2_item_export_furusato_choice"> ふるさとチョイス</label>
+							<?php endif; ?>
+							<?php if ( in_array( '楽天ふるさと納税', $n2->portal_sites, true ) ) : ?>
+								<label><input type="radio" name="action" value="n2_item_export_rakuten"> 楽天 [ item.csv ]</label>
+								<label><input type="radio" name="action" value="n2_item_export_rakuten_select"> 楽天 [ select.csv ]</label>
+							<?php endif; ?>
 						</div>
 						<div style="margin-bottom: 1em;">
 							<span>モード選択 ：　</span>
