@@ -303,7 +303,7 @@ class N2 {
 		// 出品しないポータルの場合はカスタムフィールドを削除
 		foreach ( $this->custom_field as $key => $custom_field ) {
 			foreach ( $custom_field as $name => $value ) {
-				if ( isset( $value['portal'] ) && ! in_array( $value['portal'], $this->portal_sites, true ) ) {
+				if ( isset( $value['portal'] ) && ! in_array( $value['portal'], (array) $this->portal_sites, true ) ) {
 					unset( $this->custom_field[ $key ][ $name ] );
 				}
 			}
