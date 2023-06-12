@@ -1,3 +1,8 @@
 <Files ~ "^.*?\.(md|ini|yml|yaml|php)$">
+order deny,allow
 deny from all
+# local
+allow from 172.23.0.2
+# GCE IP
+allow from 35.247.98.73
 </Files>

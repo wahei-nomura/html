@@ -24,6 +24,13 @@ class N2 {
 	public $cash_buster;
 
 	/**
+	 * アクセス中のIP
+	 *
+	 * @var array
+	 */
+	public $ip_address;
+
+	/**
 	 * SSのIP
 	 *
 	 * @var array
@@ -216,6 +223,9 @@ class N2 {
 
 		// wp_options保存値
 		$n2_settings = get_option( 'n2_settings', yaml_parse_file( get_theme_file_path( 'config/n2-settings.yml' ) ) );
+
+		// アクセス中のIP
+		$this->ip_address = $_SERVER['REMOTE_ADDR'];
 
 		// SSのIP
 		$this->ss_ip_address = yaml_parse_file( get_theme_file_path( 'config/ss-ip-address.yml' ) );
