@@ -3,7 +3,6 @@ import "./modules/ajax";
 import "./modules/search";
 import "./modules/tools";
 import "./modules/ajax-rakuten-transfer";
-import "./modules/bulk-update-status";
 import "../../node_modules/bootstrap/js/dist/dropdown"
 
 const n2 = window['n2'];
@@ -13,4 +12,4 @@ jQuery( $ => {
 		// 新規追加ボタンを削除
 		$('.page-title-action').remove();
 	}
-})
+});
