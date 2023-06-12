@@ -236,16 +236,18 @@ class N2_Rakuten_FTP {
 			'password' => $n2->portal_setting['楽天']['ftp_pass'],
 		);
 		$ftp = new WP_Filesystem_ftpsockets( $opt );
-		$ftp->connect();
-		if ( ! empty( $ftp->errors->errors ) ) {
+		if ( ! $ftp->connect() ) {
 			$opt['password'] = rtrim( $opt['password'], 1 ) .'2';
 			$ftp             = new WP_Filesystem_ftpsockets( $opt );
-			$ftp->connect();
+			if ( ! $ftp->connect() ) {
+				echo '接続エラー';
+				exit;
+			}
 		}
 		$logs = $ftp->dirlist( 'ritem/logs' );
 		$logs = array_reverse( $logs );
 		if ( empty( $logs ) ) {
-			echo "エラーログはありません。";
+			echo 'エラーログはありません。';
 			exit;
 		}
 		?>
