@@ -41,6 +41,8 @@ $incs = array(
 	'class-n2-semi-auto-data-importer',
 	// 'class-n2-front-comment', // 2022-11-29 コメントアウト taiki
 	'class-n2-rakuten-transfer',
+	'class-n2-chonbo',
+	'class-n2-rakuten-ftp',
 	'api/class-n2-donation-amount-api',
 	'api/class-n2-rakuten-items-api',
 	'api/class-n2-furusato-choice-items-api',
