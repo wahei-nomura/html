@@ -284,7 +284,7 @@ class N2 {
 		$this->formula = empty( array_filter( array_values( $n2_settings['formula'] ) ) ) ? false : $n2_settings['formula'];// 空の値が有る場合はfalseに;
 
 		// ポータル共通説明文
-		$this->portal_common_description = $n2_settings['portal_common_description'] ?? '';
+		$this->portal_common_description = $n2_settings['n2']['portal_common_description'] ?? '';
 
 		// 出品ポータル
 		$this->portal_sites = $n2_settings['n2']['portal_sites'];

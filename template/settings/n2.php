@@ -26,4 +26,12 @@
 		<?php endforeach; ?>
 	</td>
 </tr>
+<tr>
+	<th>ポータル共通説明文</th>
+	<td>
+		<label style="margin: 0 2em 0 0;">
+			<textarea name="n2_settings[n2][portal_common_description]" rows="5" style="width: 100%;"><?php echo $n2->portal_common_description; ?></textarea>
+		</label>
+	</td>
+</tr>
 </table>
