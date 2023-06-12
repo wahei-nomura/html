@@ -287,7 +287,7 @@ class N2 {
 		$this->portal_common_description = $n2_settings['n2']['portal_common_description'] ?? '';
 
 		// 出品ポータル
-		$this->portal_sites = $n2_settings['n2']['portal_sites'];
+		$this->portal_sites = $n2_settings['n2']['portal_sites'] ?? array();
 
 		// ポータル設定
 		$this->portal_setting = array_merge_recursive(
@@ -303,7 +303,7 @@ class N2 {
 		// 出品しないポータルの場合はカスタムフィールドを削除
 		foreach ( $this->custom_field as $key => $custom_field ) {
 			foreach ( $custom_field as $name => $value ) {
-				if ( isset( $value['portal'] ) && ! in_array( $value['portal'], (array) $this->portal_sites, true ) ) {
+				if ( isset( $value['portal'] ) && ! in_array( $value['portal'], $this->portal_sites, true ) ) {
 					unset( $this->custom_field[ $key ][ $name ] );
 				}
 			}
