@@ -108,13 +108,16 @@ class N2_Items_API {
 	}
 
 	/**
-	 * 全件post_contentをアップデート
+	 * 全件アップデート
 	 */
 	public static function update() {
 		set_time_limit( 0 );
 		foreach ( get_posts( self::$data['params'] ) as $post ) {
+			$post->post_status = self::$data['params']['change_status'] ?: $post->post_status;
+			$post->post_author = self::$data['params']['change_author'] ?: $post->post_author;
 			wp_insert_post( $post );
 		}
+		wp_safe_redirect( $_SERVER['HTTP_REFERER'] );
 	}
 	/**
 	 * 投稿保存時にpost_contentにAPIデータを全部ぶち込む

@@ -55,10 +55,41 @@
 					<button>画像ダウンロード</button>
 				</form>
 			</li>
-			<!--
-			<li>削除</li>
-			<li>変更</li>
-			-->
+			<li>
+				情報変更
+				<div class="childs">
+					<form method="post" action="admin-ajax.php" onsubmit="if ( ! confirm('本当に変更してよろしいですか？') ) return false;">
+						<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
+						<input type="hidden" name="include[]" v-for="id in ids" :value="id">
+						<input type="hidden" name="action" value="n2_items_api">
+						<input type="hidden" name="mode" value="update">
+						<div style="margin-bottom: 1em;">
+							<span>ステータス変更 ：　</span>
+							<select name="change_status">
+								<option value="">選択してください</option>
+								<option value="draft">入力中</option>
+								<option value="pending">スチームシップ確認中</option>
+								<option value="publish">ポータル登録準備中</option>
+								<option value="registered">ポータル登録済</option>
+								<option value="trash">ゴミ箱</option>
+							</select>
+						</div>
+						<div style="margin-bottom: 1em;">
+							<span>ユーザー変更 ：　</span>
+							<select name="change_author">
+								<option value="">選択してください</option>
+								<?php foreach ( get_users( 'role=jigyousya' ) as $user ) : ?>
+									<option value="<?php echo $user->ID; ?>"><?php echo $user->display_name; ?></option>
+								<?php endforeach; ?>
+							</select>
+						</div>
+						<button>変更</button>
+						<div style="margin-top: 1em;">
+							<input type="checkbox" name="include" value=""> 選択しているものに関わらず「<?php bloginfo( 'name' ); ?>」全返礼品を対象にする
+						</div>
+					</form>
+				</div>
+			</li>
 		</ul>
 	</div>
 	<div id="n2-checked-posts-content">
