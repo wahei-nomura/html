@@ -206,7 +206,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			<?php echo nl2br($n2values['説明文']); ?><br><br>
 			<?php $this->make_itemtable( $n2values, false ); ?><br><br>
 			<?php
-				echo $n2->portal_common_discription
+				echo $n2->portal_common_description
 					. apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $n2values['id'], 'PC用販売説明文' )
 					. str_replace( '\"', '""', $n2->portal_setting['楽天']['html'] ?? '' );
 				?>
@@ -288,7 +288,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 				<br><br><?php echo nl2br($n2values['楽天SPAカテゴリー']); ?>
 			<?php endif ?>
 			<?php
-				echo $n2->portal_common_discription
+				echo $n2->portal_common_description
 					. str_replace( '\"', '""', $n2->portal_setting['楽天']['html'] ?? '' );
 			?>
 			<?php
