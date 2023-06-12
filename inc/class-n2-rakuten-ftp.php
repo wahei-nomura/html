@@ -229,16 +229,16 @@ class N2_Rakuten_FTP {
 	public function error_log() {
 		global $n2;
 		WP_Filesystem();
-		require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-ftpsockets.php';
+		require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-ftpext.php';
 		$opt = array(
 			'hostname' => $n2->portal_setting['楽天']['upload_server'],
 			'username' => $n2->portal_setting['楽天']['ftp_user'],
 			'password' => $n2->portal_setting['楽天']['ftp_pass'],
 		);
-		$ftp = new WP_Filesystem_ftpsockets( $opt );
+		$ftp = new WP_Filesystem_FTPext( $opt );
 		if ( ! $ftp->connect() ) {
 			$opt['password'] = rtrim( $opt['password'], 1 ) .'2';
-			$ftp             = new WP_Filesystem_ftpsockets( $opt );
+			$ftp             = new WP_Filesystem_FTPext( $opt );
 			if ( ! $ftp->connect() ) {
 				echo '接続エラー';
 				exit;
