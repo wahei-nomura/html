@@ -30,12 +30,11 @@ class N2_Change_Allergen {
 	public function change_allergen() {
 		foreach ( get_posts( 'posts_per_page=-1&post_status=any' ) as $post ) {
 			$allergens = get_post_meta( $post->ID, 'アレルゲン', true );
-			if ( empty( $allergens ) ) {
-				continue;
+			if ( ! empty( $allergens ) ) {
+				$allergens = array_map( fn( $v ) => isset( $v['label'] ) ? $v['label'] : $v, $allergens );// labelありの場合はlabelのみ、それ以外はそのまま
+				$allergens = str_replace( '（ピーナッツ）', '', $allergens );// チョイスの新仕様の「落花生（ピーナッツ）」は「落花生」
+				update_post_meta( $post->ID, 'アレルゲン', $allergens );// アレルゲン更新
 			}
-			$allergens = array_map( fn( $v ) => isset( $v['label'] ) ? $v['label'] : $v, $allergens );// labelありの場合はlabelのみ、それ以外はそのまま
-			$allergens = str_replace( '（ピーナッツ）', '', $allergens );// チョイスの新仕様の「落花生（ピーナッツ）」は「落花生」
-			update_post_meta( $post->ID, 'アレルゲン', $allergens );// アレルゲン更新
 			wp_insert_post( $post );// API更新フック発火
 		}
 		echo 'アレルゲン更新と、ついでにAPI更新完了！';
