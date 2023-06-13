@@ -52,7 +52,7 @@ global $n2;
 					<button>印刷</button>
 				</form>
 			</li>
-			<li style="padding: 0;" v-if="items.filter(v=>v.商品画像.length).length">
+			<li style="padding: 0;" v-if="items.filter(v=>v.商品画像 && v.商品画像.length).length">
 				<form method="post" action="admin-ajax.php">
 					<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
 					<input type="hidden" name="action" value="n2_download_images_by_id">
