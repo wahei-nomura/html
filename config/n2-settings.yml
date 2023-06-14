@@ -1,6 +1,6 @@
 # デフォルトのN2の設定
 n2:
-    active: 1
+    active: 0
     portal_sites:
         - ふるさとチョイス
         - 楽天ふるさと納税
