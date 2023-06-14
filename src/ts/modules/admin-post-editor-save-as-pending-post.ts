@@ -1,3 +1,5 @@
+import get_meta from "./admin-post-editor-get-meta";
+
 /**
  * スチームシップへ送信
  * 
@@ -39,7 +41,9 @@ export default ($: any, target: string) => {
 			}
 			if ( ! confirm('スチームシップへ送信後の編集はできません。本当に送信しますか？') ) return;
 			$('#n2-save-as-pending span').attr('class', 'spinner-border spinner-border-sm me-2');
-			wp.data.dispatch('core/editor').editPost({ status: 'pending' });
+			// カスタムフィールドの保存
+			const meta = get_meta($);
+			wp.data.dispatch( 'core/editor' ).editPost({ meta, status: 'pending' });
 			wp.data.dispatch('core/editor').savePost().then(()=>{
 				$('#n2-save-as-pending span').attr('class', 'dashicons dashicons-saved me-2');
 				$(window).off('beforeunload');
