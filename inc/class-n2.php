@@ -195,7 +195,7 @@ class N2 {
 						$value     = match ( $name ) {
 							'商品タイプ' => array_keys( array_filter( $user_meta['商品タイプ'] ?? array(), fn( $v ) => 'true' === $v ) ),
 							'寄附金額固定', '商品画像' => array(),
-							default => '',
+							default => 'checkbox' === $v['type'] ? array() : '',
 						};
 					}
 					// ====== 特殊フィールド系 ======
