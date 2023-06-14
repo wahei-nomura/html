@@ -77,7 +77,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 		$n2values['内容量・規格等'] = implode( "\n\n", array_filter( $n2values['内容量・規格等'] ) );// 空要素削除して連結
 
 		// アレルゲン
-		$n2values['アレルゲン'] = $n2values['アレルゲン'];
+		$n2values['アレルゲン'] = (array) $n2values['アレルゲン'];
 		$n2values['アレルゲン'] = preg_replace( '/（.*?）/', '', $n2values['アレルゲン'] );// 不純物（カッコの部分）を削除
 
 		// 賞味期限・消費期限
