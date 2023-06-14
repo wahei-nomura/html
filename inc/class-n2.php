@@ -194,7 +194,7 @@ class N2 {
 						$user_meta = $this->current_user->data->meta;
 						$value     = match ( $name ) {
 							'商品タイプ' => array_keys( array_filter( $user_meta['商品タイプ'] ?? array(), fn( $v ) => 'true' === $v ) ),
-							'寄附金額固定' => array(),
+							'寄附金額固定', '商品画像' => array(),
 							default => '',
 						};
 					}
