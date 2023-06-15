@@ -82,7 +82,7 @@ class N2_Rakuten_FTP {
 	 * @return void
 	 */
 	public function upload_to_rakuten() {
-
+		header( 'Content-Type: application/json; charset=utf-8' );
 		// 各種設定読み込み
 		global $n2;
 		$rakuten = $n2->portal_setting['楽天'];
