@@ -26,6 +26,7 @@ class N2_Settings {
 		'n2'               => 'N2',
 		'formula-delivery' => '寄附金額・送料',
 		'ledghome'         => 'LedgHOME',
+		'furusato-choice'  => 'ふるさとチョイス',
 		'rakuten'          => '楽天ふるさと納税',
 		'furunavi'         => 'ふるなび',
 		'ana'              => 'ANA',
