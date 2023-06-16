@@ -37,6 +37,10 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 		global $n2;
 		// CSVヘッダー配列化
 		$this->data['header'] = $n2->portal_setting['LedgHOME']['csv_header'];
+		// その他経費を利用しない場合はヘッダーから抹消
+		if ( '利用しない' === $n2->portal_setting['LedgHOME']['その他経費'] ) {
+			$this->data['header'] = array_filter( $this->data['header'], fn( $v ) => 'その他経費' !== $v );
+		}
 		/**
 		 * [hook] n2_item_export_ledghome_set_header
 		 */
@@ -71,11 +75,22 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 				'ステータス' => '受付中',
 				'状態' => '表示',
 				'寄附設定金額' => $i > 1 ? 0 : $n2values['寄附金額'],// 定期便の場合は１回目のみ
-				'価格（税込み）' => $n2values['価格'],// 1回目に全部含めるかどうかの設定値を使う（まだ設定できるとこが無い）
-				'送料' => $n2values['送料'],
+				'価格（税込み）' => match ( $n2->portal_setting['LedgHOME']['価格'] ) {
+					'定期便初回に全額をまとめて登録' => $i > 1 ? '' : (int) $n2values['価格'] * (int) $n2values['定期便'],
+					default => $n2values['価格'],
+				},
+				'その他経費' => match ( $n2->portal_setting['LedgHOME']['その他経費'] ) {
+					'ヤマト以外の送料を登録' => is_numeric( $n2values['発送サイズ'] ) ? '' : $n2values['送料'],
+					default => '',
+				},
+				'送料' => match ( $n2->portal_setting['LedgHOME']['送料'] ) {
+					'ヤマト以外は送料を空欄で登録' => is_numeric( $n2values['発送サイズ'] ) ? $n2values['送料'] : 0,// 土岐カオスなのでやっつけたい By わかちゃん
+					'送料は空欄で登録' => '',
+					default => $n2values['送料'],
+				},
 				'送料反映' => match ( $n2values['発送サイズ'] ) {
-					'その他' => '反映する',
-					'レターパックプラス', 'レターパックライト' => $n2->portal_setting['LedgHOME']['レターパック送料反映'],
+					'その他' => in_array( 'その他', $n2->portal_setting['LedgHOME']['送料反映'], true ) ? '反映する' : '反映しない',
+					'レターパックプラス', 'レターパックライト' => in_array( 'レターパック', $n2->portal_setting['LedgHOME']['送料反映'], true ) ? '反映する' : '反映しない',
 					default => '反映しない',
 				},
 				'発送方法' => $n2values['発送方法'],
