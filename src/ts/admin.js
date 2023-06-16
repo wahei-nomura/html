@@ -36,5 +36,5 @@ function refererjump(){ // 自治体跨ぎで飛んできたら現自治体の�
 			}
 		});
 	});
-	location.href = jump_url; // refererを元にしたページにジャンプ
+	// location.href = jump_url; // refererを元にしたページにジャンプ
 }
