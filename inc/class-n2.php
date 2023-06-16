@@ -314,6 +314,13 @@ class N2 {
 				unset( $this->custom_field['スチームシップ用']['出品禁止ポータル']['option'][ $index ] );
 			}
 		}
+		// 商品タイプの選択肢制御
+		if ( '対応する' !== ( $this->portal_setting['LedgHOME']['eチケット'] ?? false ) ) {
+			$this->custom_field['事業者用']['商品タイプ']['option'] = array_filter(
+				$this->custom_field['事業者用']['商品タイプ']['option'],
+				fn( $v ) => 'eチケット' !== $v
+			);
+		}
 
 		// LHカテゴリー
 		if ( ! empty( $this->portal_setting['LedgHOME']['カテゴリー'] ) ) {

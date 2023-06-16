@@ -27,7 +27,7 @@
         type: rakuten-genreid
         min: 0
         v-model: 全商品ディレクトリID.text
-        v-if: "!出品禁止ポータル.includes('楽天ふるさと納税')"
+        v-if: "!出品禁止ポータル.includes('楽天ふるさと納税') && !商品タイプ.includes('eチケット')"
         description: 下のボタンが無くなるまで押していかないと楽天で地味にエラーが出ます。
 
     タグID:
@@ -37,7 +37,7 @@
         maxlength: 161
         rows: auto
         v-model: タグID.text
-        v-if: "!出品禁止ポータル.includes('楽天ふるさと納税')&&全商品ディレクトリID.text"
+        v-if: "!出品禁止ポータル.includes('楽天ふるさと納税')&&全商品ディレクトリID.text && !商品タイプ.includes('eチケット')"
         style: 'width: 100%;'
         "@focus": set_info($event.target);get_genreid();auto_fit_tetxarea($event.target)
 
@@ -46,7 +46,7 @@
         portal: 楽天ふるさと納税
         type: rakuten-spa-category
         v-model: 楽天SPAカテゴリー.text
-        v-if: "!出品禁止ポータル.includes('楽天ふるさと納税') && 楽天SPA"
+        v-if: "!出品禁止ポータル.includes('楽天ふるさと納税') && 楽天SPA  && !商品タイプ.includes('eチケット')"
         style: 'width: 100%;'
         rows: auto
         "@focus": set_info($event.target);get_spa_category();auto_fit_tetxarea($event.target)
@@ -57,11 +57,13 @@
         description: 商品名や説明文に入っていないキーワードをスペース区切りで書いてください。
         placeholder: 例）はちみつ 蜂蜜 お歳暮 お中元
         style: 'width: 100%;'
+        v-if: "!商品タイプ.includes('eチケット')"
         "@focus": set_info($event.target)
         "@input": auto_fit_tetxarea($event.target)
 
     地場産品類型:
         type: select
+        v-if: "!商品タイプ.includes('eチケット')"
         option:
             '': 選択して下さい
             1 : 1.当該地方団体の区域内において生産されたもの。
@@ -79,6 +81,7 @@
     類型該当理由:
         type: textarea
         style: 'width: 100%;'
+        v-if: "!商品タイプ.includes('eチケット')"
         description: 上記、地場産品類型に該当する理由を書いてください。
         placeholder: 例）〇〇県が認定した返礼品であるため。
         "@focus": set_info($event.target)
@@ -91,6 +94,7 @@
         option-equal: true
         description: この返礼品を出品しないポータルサイトがあればチェックを入れてください。
         v-model: 出品禁止ポータル
+        v-if: "!商品タイプ.includes('eチケット')"
         option:
             - ふるさとチョイス
             - 楽天ふるさと納税
@@ -133,6 +137,7 @@
         type : text
         description : こだわりやポイントを端的にご記載ください。
         maxlength : 30
+        v-if: "!商品タイプ.includes('eチケット')"
         placeholder: 例）○○にて金賞受賞！溢れる肉汁をご堪能ください！
         style: 'width: 100%'
         "@focus": set_info($event.target)
@@ -168,6 +173,7 @@
     原料原産地:
         type : text
         maxlength : 50
+        v-if: "!商品タイプ.includes('eチケット')"
         description : 主要となる原料の主要原産地を記載ください。
         placeholder: 例）〇〇県産
         style: 'width: 100%'
@@ -177,6 +183,7 @@
     加工地:
         type : text
         maxlength : 50
+        v-if: "!商品タイプ.includes('eチケット')"
         description : 加工食品の加工地（製造地）を記載ください。
         placeholder: 例）〇〇県〇〇市
         style: 'width: 100%'
@@ -190,6 +197,7 @@
         v-model: 商品タイプ
         option : 
             - 食品
+            - eチケット
 
     アレルギー有無確認:
         type : checkbox
@@ -235,12 +243,14 @@
             - りんご
 
     アレルゲン注釈:
-        type : text
-        description : アレルギー品目なしの場合でもなにか特記があればご記載ください。
+        type: textarea
         placeholder: 例）同じ工場で〇〇を含む製品を製造しております。
-        style: 'width: 100%'
+        description: アレルゲンに関連する注釈があれば入力してください。
+        rows: auto
+        style: 'width: 100%;height: 2em;'
         v-if: 商品タイプ.includes('食品')
         "@focus": set_info($event.target)
+        "@input": set_info($event.target);auto_fit_tetxarea($event.target)
 
     賞味期限:
         type : textarea
@@ -248,7 +258,7 @@
         maxlength : 200
         rows: auto
         style: 'width: 100%;'
-        v-if: 商品タイプ.includes('食品')
+        v-if: "商品タイプ.includes('食品') && !商品タイプ.includes('eチケット')"
         "@focus": set_info($event.target)
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
 
@@ -258,17 +268,7 @@
         style: 'width: 100%;'
         maxlength : 200
         rows: auto
-        v-if: 商品タイプ.includes('食品')
-        "@focus": set_info($event.target)
-        "@input": set_info($event.target);auto_fit_tetxarea($event.target)
-
-    アレルゲン注釈:
-        type: textarea
-        placeholder: 例）同じ工場で〇〇を含む製品を製造しております。
-        description: アレルゲンに関連する注釈があれば入力してください。
-        rows: auto
-        style: 'width: 100%;height: 2em;'
-        v-if: 商品タイプ.includes('食品')
+        v-if: "商品タイプ.includes('食品') && !商品タイプ.includes('eチケット')"
         "@focus": set_info($event.target)
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
 
@@ -281,6 +281,7 @@
         type : textarea
         description : 配送までにかかる最大納期を入力ください。「即納」表記は避けていただき、最短でも1週間前後で入力をお願いいたします。
         maxlength : 200
+        v-if: "!商品タイプ.includes('eチケット')"
         placeholder: 例）入金確認後1ヶ月以内にお届けいたします。
         style: 'width: 100%;'
         "@focus": set_info($event.target)
@@ -293,6 +294,7 @@
     包装対応:
         type: radio
         value: 無し
+        v-if: "!商品タイプ.includes('eチケット')"
         option-equal: true
         option:
             - 無し
@@ -301,6 +303,7 @@
     のし対応:
         type: radio
         value: 無し
+        v-if: "!商品タイプ.includes('eチケット')"
         option-equal: true
         option:
             - 無し
@@ -309,6 +312,7 @@
     発送方法:
         type : radio
         value: 常温
+        v-if: "!商品タイプ.includes('eチケット')"
         option-equal: true
         option :
             - 常温
@@ -319,6 +323,7 @@
     発送サイズ:
         type : select
         required: required
+        v-if: "!商品タイプ.includes('eチケット')"
         option :
             '': 未選択
             '0101': ヤマト 60サイズ
@@ -348,7 +353,7 @@
 
     送料:
         type: hidden
-        :value: 送料
+        :value: "!商品タイプ.includes('eチケット') ? 送料 : 0"
         required: required
 
     その他送料:
@@ -388,6 +393,7 @@
     定期便:
         type : select
         value: 1
+        v-if: "!商品タイプ.includes('eチケット')"
         option :
             1: 定期便では無い
             2: ２回定期便

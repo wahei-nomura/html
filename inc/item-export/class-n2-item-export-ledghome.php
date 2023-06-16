@@ -35,11 +35,16 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 	 */
 	protected function set_header() {
 		global $n2;
+		$lh_setting = $n2->portal_setting['LedgHOME'];
 		// CSVヘッダー配列化
-		$this->data['header'] = $n2->portal_setting['LedgHOME']['csv_header'];
+		$this->data['header'] = $lh_setting['csv_header'];
 		// その他経費を利用しない場合はヘッダーから抹消
-		if ( '利用しない' === $n2->portal_setting['LedgHOME']['その他経費'] ) {
+		if ( '利用しない' === $lh_setting['その他経費'] ) {
 			$this->data['header'] = array_filter( $this->data['header'], fn( $v ) => 'その他経費' !== $v );
+		}
+		// eチケットを対応しない場合はヘッダーから抹消
+		if ( ! isset( $lh_setting['eチケット'] ) ) {
+			$this->data['header'] = array_filter( $this->data['header'], fn( $v ) => '特設サイト名称' !== $v );
 		}
 		/**
 		 * [hook] n2_item_export_ledghome_set_header
@@ -58,16 +63,26 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 	protected function walk_values( &$val, $index, $n2values ) {
 		global $n2;
 		$data = array();
+		// LH設定
+		$lh_setting = $n2->portal_setting['LedgHOME'];
+		// 定期便の初期化
+		$n2values['定期便'] = $n2values['定期便'] ?: 1;
+		// eチケット判定
+		$is_e_ticket = in_array( 'eチケット', $n2values['商品タイプ'], true );
+		// 発送サイズがヤマトか判定
+		$is_yamato = is_numeric( $n2values['発送サイズ'] );
 		for ( $i = 1; $i <= $n2values['定期便']; $i++ ) {
 			// 返礼品コード
 			$item_code = $n2values['返礼品コード'] . ( $n2values['定期便'] > 1 ? "_{$i}/{$n2values['定期便']}" : '' );
 			// データ配列
 			$data[ $i ] = match ( $val ) {
 				'謝礼品番号' => $item_code,// 定期便の場合は「_1/12」をつける
+				'取扱年度' => $is_e_ticket ? '2023' : '',// 謎の2023
 				'謝礼品名' => "{$item_code} " . ( $n2values['LH表示名'] ?: $n2values['タイトル'] ),// LH表示名 > タイトル
 				'配送名称' => "{$item_code} " . ( $n2values['配送伝票表示名'] ?: $n2values['タイトル'] ),// 配送伝票表示名 > タイトル
-				'ふるさとチョイス名称' => "{$n2values['タイトル']} [{$n2values['返礼品コード']}]",// タイトル [返礼品コード]
-				'楽天名称' => "【ふるさと納税】{$n2values['タイトル']} [{$n2values['返礼品コード']}]",// 【ふるさと納税】タイトル [返礼品コード]
+				'特設サイト名称' => $is_e_ticket ? "{$item_code} " . ( $n2values['配送伝票表示名'] ?: $n2values['タイトル'] ) : '',// eチケット
+				'ふるさとチョイス名称' => $is_e_ticket ? '' : "{$n2values['タイトル']} [{$n2values['返礼品コード']}]",// タイトル [返礼品コード]
+				'楽天名称' => $is_e_ticket ? '' : "【ふるさと納税】{$n2values['タイトル']} [{$n2values['返礼品コード']}]",// 【ふるさと納税】タイトル [返礼品コード]
 				'事業者' => $n2values['事業者名'],
 				'謝礼品カテゴリー' => $n2values['LHカテゴリー'],
 				'セット内容' => $n2values['内容量・規格等'],
@@ -75,30 +90,30 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 				'ステータス' => '受付中',
 				'状態' => '表示',
 				'寄附設定金額' => $i > 1 ? 0 : $n2values['寄附金額'],// 定期便の場合は１回目のみ
-				'価格（税込み）' => match ( $n2->portal_setting['LedgHOME']['価格'] ) {
+				'価格（税込み）' => match ( $lh_setting['価格'] ) {
 					'定期便初回に全額をまとめて登録' => $i > 1 ? '' : (int) $n2values['価格'] * (int) $n2values['定期便'],
 					default => $n2values['価格'],
 				},
-				'その他経費' => match ( $n2->portal_setting['LedgHOME']['その他経費'] ) {
-					'ヤマト以外の送料を登録' => is_numeric( $n2values['発送サイズ'] ) ? '' : $n2values['送料'],
+				'その他経費' => match ( $lh_setting['その他経費'] ) {
+					'ヤマト以外の送料を登録' => $is_yamato ? '' : $n2values['送料'],
 					default => '',
 				},
-				'送料' => match ( $n2->portal_setting['LedgHOME']['送料'] ) {
-					'ヤマト以外は送料を空欄で登録' => is_numeric( $n2values['発送サイズ'] ) ? $n2values['送料'] : 0,// 土岐カオスなのでやっつけたい By わかちゃん
+				'送料' => match ( $lh_setting['送料'] ) {
+					'ヤマト以外は送料を空欄で登録' => $is_yamato ? $n2values['送料'] : 0,// 土岐カオスなのでやっつけたい By わかちゃん
 					'送料は空欄で登録' => '',
 					default => $n2values['送料'],
 				},
 				'送料反映' => match ( $n2values['発送サイズ'] ) {
-					'その他' => in_array( 'その他', $n2->portal_setting['LedgHOME']['送料反映'], true ) ? '反映する' : '反映しない',
-					'レターパックプラス', 'レターパックライト' => in_array( 'レターパック', $n2->portal_setting['LedgHOME']['送料反映'], true ) ? '反映する' : '反映しない',
+					'その他' => in_array( 'その他', $lh_setting['送料反映'], true ) ? '反映する' : '反映しない',
+					'レターパックプラス', 'レターパックライト' => in_array( 'レターパック', $lh_setting['送料反映'], true ) ? '反映する' : '反映しない',
 					default => '反映しない',
 				},
 				'発送方法' => $n2values['発送方法'],
 				'取り扱い方法' => implode( ',', (array) $n2values['取り扱い方法'] ),
 				'申込可能期間' => '通年',
-				'自由入力欄1' => wp_date( 'Y/m/d' ) . "：{$n2->current_user->data->display_name}",
-				'自由入力欄2' => $n2values['送料'],
-				'配送サイズコード' => is_numeric( $n2values['発送サイズ'] ) ? $n2values['発送サイズ'] : '',
+				'自由入力欄1' => $is_e_ticket ? '' : wp_date( 'Y/m/d' ) . "：{$n2->current_user->data->display_name}",
+				'自由入力欄2' => $is_e_ticket ? wp_date( 'Y/m/d' ) . "：{$n2->current_user->data->display_name}" : $n2values['送料'],
+				'配送サイズコード' => $is_yamato ? $n2values['発送サイズ'] : '',
 				'地場産品類型' => implode( 'ー', mb_str_split( mb_convert_kana( $n2values['地場産品類型'], 'KA' ) ) ),// 全角（「８ーイ」形式）
 				'類型該当理由' => $n2values['類型該当理由'],
 				default => '',
