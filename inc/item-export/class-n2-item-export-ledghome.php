@@ -113,7 +113,7 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 				'取り扱い方法' => implode( ',', (array) $n2values['取り扱い方法'] ),
 				'申込可能期間' => '通年',
 				'自由入力欄1' => $is_e_ticket ? '' : wp_date( 'Y/m/d' ) . "：{$n2->current_user->data->display_name}",
-				'自由入力欄2' => $is_e_ticket ? wp_date( 'Y/m/d' ) . "：{$n2->current_user->data->display_name}" : $n2values['送料'],
+				'自由入力欄2' => $is_e_ticket ? wp_date( 'Y/m/d' ) . "：{$n2->current_user->data->display_name}" : '',
 				'配送サイズコード' => $is_yamato ? $n2values['発送サイズ'] : '',
 				'地場産品類型' => implode( 'ー', mb_str_split( mb_convert_kana( $n2values['地場産品類型'], 'KA' ) ) ),// 全角（「８ーイ」形式）
 				'類型該当理由' => $n2values['類型該当理由'],
