@@ -315,11 +315,9 @@ class N2 {
 			}
 		}
 		// 商品タイプの選択肢制御
-		if ( '対応する' !== ( $this->portal_setting['LedgHOME']['eチケット'] ?? false ) ) {
-			$this->custom_field['事業者用']['商品タイプ']['option'] = array_filter(
-				$this->custom_field['事業者用']['商品タイプ']['option'],
-				fn( $v ) => 'eチケット' !== $v
-			);
+		$this->custom_field['事業者用']['商品タイプ']['option'] = array_filter( $n2_settings['n2']['item_types'] );
+		if ( empty( $this->custom_field['事業者用']['商品タイプ']['option'] ) ) {
+			$this->custom_field['事業者用']['商品タイプ']['type'] = 'hidden';
 		}
 
 		// LHカテゴリー

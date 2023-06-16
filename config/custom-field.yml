@@ -197,7 +197,6 @@
         v-model: 商品タイプ
         option : 
             - 食品
-            - eチケット
 
     アレルギー有無確認:
         type : checkbox

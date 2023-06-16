@@ -5,7 +5,10 @@
  * @package neoneng
  */
 
- global $n2;
+global $n2;
+$settings = array(
+	'商品タイプ' => array( '食品', 'やきもの', 'eチケット' ),
+);
 ?>
 <table class="form-table">
 	<tr>
@@ -14,6 +17,17 @@
 			<label>
 				<input type="checkbox" name="n2_settings[n2][active]" value="1" <?php checked( $n2->n2_active_flag ?? '' ); ?>> N2稼働中
 			</label>
+		</td>
+	</tr>
+	<tr>
+		<th>商品タイプ</th>
+		<td>
+			<?php foreach ( $settings['商品タイプ'] as $v ) : ?>
+			<label style="margin: 0 2em 0 0;">
+				<input type="checkbox" name="n2_settings[n2][item_types][]" value="<?php echo $v; ?>" <?php checked( in_array( $v, $n2->custom_field['事業者用']['商品タイプ']['option'], true ) ); ?>> <?php echo $v; ?>
+			</label>
+			<?php endforeach; ?>
+			<input type="hidden" name="n2_settings[n2][item_types][]">
 		</td>
 	</tr>
 	<tr>

@@ -43,7 +43,7 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 			$this->data['header'] = array_filter( $this->data['header'], fn( $v ) => 'その他経費' !== $v );
 		}
 		// eチケットを対応しない場合はヘッダーから抹消
-		if ( ! isset( $lh_setting['eチケット'] ) ) {
+		if ( ! in_array( 'eチケット', $n2->custom_field['事業者用']['商品タイプ']['option'], true ) ) {
 			$this->data['header'] = array_filter( $this->data['header'], fn( $v ) => '特設サイト名称' !== $v );
 		}
 		/**

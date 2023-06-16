@@ -11,20 +11,9 @@ $settings = array(
 	'その他経費' => array( '利用しない', 'ヤマト以外の送料を登録', 'ヤマト以外の送料を登録（定期便の場合は1回目に総額）' ),
 	'送料' => array( '送料を全て登録', 'ヤマト以外は送料を空欄で登録', '送料は空欄で登録' ),
 	'価格' => array( '定期便1回ごとに登録', '定期便初回に全額をまとめて登録' ),
-	'eチケット' => array( '対応する' ),
 );
 ?>
 <table class="form-table">
-	<tr>
-		<th>eチケット</th>
-		<td>
-			<?php foreach ( $settings['eチケット'] as $v ) : ?>
-			<label style="margin: 0 2em 0 0;">
-				<input type="checkbox" name="n2_settings[portal_setting][LedgHOME][eチケット]" value="<?php echo $v; ?>" <?php checked( $n2->portal_setting['LedgHOME']['eチケット'] ?? false, $v ); ?>> <?php echo $v; ?>
-			</label>
-			<?php endforeach; ?>
-		</td>
-	</tr>
 	<tr>
 		<th>カテゴリー</th>
 		<td>

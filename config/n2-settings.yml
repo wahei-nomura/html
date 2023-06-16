@@ -1,9 +1,12 @@
 # デフォルトのN2の設定
 n2:
     active: 0
+    item_types:
+        - 食品
     portal_sites:
         - ふるさとチョイス
         - 楽天ふるさと納税
+        
 formula:
     送料乗数: 0
     除数: 0.3
