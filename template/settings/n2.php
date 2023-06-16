@@ -20,7 +20,7 @@ $settings = array(
 		</td>
 	</tr>
 	<tr>
-		<th>商品タイプ</th>
+		<th>出品する特殊な商品タイプ</th>
 		<td>
 			<?php foreach ( $settings['商品タイプ'] as $v ) : ?>
 			<label style="margin: 0 2em 0 0;">
