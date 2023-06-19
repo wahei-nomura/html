@@ -63,7 +63,10 @@ class N2_Product_List_Print {
 				<link rel="stylesheet" href="<?php echo $print_css; ?>">
 			</head>
 			<body>
-				<?php foreach ( get_posts( "include={$ids}&meta_key=返礼品コード&orderby=meta_value&order=ASC&post_status=any" ) as $p ) : ?>
+				<?php
+					foreach ( get_posts( "include={$ids}&meta_key=返礼品コード&orderby=meta_value&order=ASC&post_status=any" ) as $p ) :
+					$meta = json_decode( $p->post_content, true );
+				?>
 					<?php $confirm_table_th_list['コード'] = get_post_meta( $p->ID, '返礼品コード', true ) . '&nbsp;'; ?>
 					<div class="page-break">
 						<table>
@@ -133,7 +136,8 @@ class N2_Product_List_Print {
 												$td .= '類型該当理由：' . get_post_meta( $p->ID, '類型該当理由', true );
 												break;
 											case 'アレルギー':
-												// $td = N2_Rakuten_CSV::allergy_display( $p->ID, 'print' );
+												$td  = empty( $meta['アレルゲン'] ) ? '' : '含んでいる品目：' . implode( ',', $meta['アレルゲン'] );
+												$td .= $meta['アレルゲン注釈'] ? "<br>※ {$meta['アレルゲン注釈']}" : '';
 												break;
 											case '発送サイズ':
 												$td = ( is_numeric( $td ) )
@@ -147,11 +151,12 @@ class N2_Product_List_Print {
 											? $this->attr_array2str( $val['attr']['td'] )
 											: '';
 									?>
-
+								<?php if ( ! empty( $td ) ) : ?>
 								<tr>
 									<th<?php echo $th_attr; ?>><?php echo $th; ?></th>
 									<td colspan="2"<?php echo $td_attr; ?>><?php echo $td; ?></td>
 								</tr>
+								<?php endif; ?>
 								<?php endforeach; ?>
 								<tr style="border: 3px solid #000;">
 									<th class="bg">寄附金額</th>
