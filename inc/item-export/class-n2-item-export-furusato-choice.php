@@ -93,6 +93,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 			preg_match( '/^（必須）お礼の品名$/', $val ) => "{$n2values['タイトル']} [{$n2values['返礼品コード']}]",// * 200文字以内
 			preg_match( '/^サイト表示事業者名$/', $val )  => $n2values['事業者名'],// 64文字以内
 			preg_match( '/必要寄付金額$/', $val )  => $n2values['寄附金額'],// * 半角数字
+			preg_match( '/（条件付き必須）ポイント$/', $val ) => '導入する' === $n2->portal_setting['ふるさとチョイス']['ポイント導入'] ? $n2values['価格'] * $n2values['定期便'] : '',// * 半角数字
 			preg_match( '/^説明$/', $val )  => $n2values['説明文'],// 1,000文字以内
 			preg_match( '/^キャッチコピー$/', $val )  => $n2values['キャッチコピー'],// 40文字以内
 			preg_match( '/^容量$/', $val )  => $n2values['内容量・規格等'],// お礼の品の容量情報を1,000文字以内で入力
@@ -108,7 +109,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 			preg_match( '/^（必須）((包装|のし)対応)$/', $val, $m ) => false !== strpos( '有り', $n2values[ $m[1] ] ) ? 1 : 0,// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
 			preg_match( '/^（必須）定期配送対応$/', $val ) => $n2values['定期便'] > 1 ? 1 : 0,// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
 			preg_match( '/^（必須）(会員|チョイス)限定$/', $val ) => 0,// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
-			preg_match( '/^（必須）オンライン決済限定$/', $val ) => (int) in_array( '限定', $n2values['オンライン決済限定'], true ),// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
+			preg_match( '/^（必須）オンライン決済限定$/', $val ) => (int) in_array( '限定', (array) $n2values['オンライン決済限定'], true ),// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
 			preg_match( '/^（必須）(発送|配達|配送).+$/', $val ) => 0,// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
 			preg_match( '/^（必須）容量単位$/', $val ) => 0,// * グラムは半角数字の0、キログラムは半角数字の1、ミリリットルは半角数字の2、リットルは半角数字の3
 			preg_match( '/^（必須）地域の生産者応援の品/', $val ) => 0,// * 適用する場合は半角数字の1、適用しない場合は半角数字の0
