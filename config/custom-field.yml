@@ -283,6 +283,57 @@
         "@focus": set_info($event.target)
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
 
+    # 対応機器:
+    #     type : textarea
+    #     value: "電子レンジ：◯×\nオーブン　：◯×\n食洗機　　：◯×"
+    #     placeholder : "例）電子レンジ：2～3分程の電子レンジ使用は可能です\nオーブン　：×\n食洗機　　：◯"
+    #     description: ◯ × 説明等を記入してください。
+    #     style: 'width: 100%;'
+    #     rows: 3
+    #     v-if: "商品タイプ.includes('やきもの') && !商品タイプ.includes('eチケット')"
+    #     "@focus": set_info($event.target)
+    #     "@input": set_info($event.target);auto_fit_tetxarea($event.target)
+
+    電子レンジ対応:
+        type: radio
+        value: ○
+        v-model: 電子レンジ対応
+        v-if: "商品タイプ.includes('やきもの') && !商品タイプ.includes('eチケット')"
+        option:
+            ○: 対応
+            △: 対応（備考あり）
+            ×: 非対応
+
+    オーブン対応:
+        type: radio
+        value: ○
+        v-model: オーブン対応
+        v-if: "商品タイプ.includes('やきもの') && !商品タイプ.includes('eチケット')"
+        option:
+            ○: 対応
+            △: 対応（備考あり）
+            ×: 非対応
+
+    食洗機対応:
+        type: radio
+        value: ○
+        v-model: 食洗機対応
+        v-if: "商品タイプ.includes('やきもの') && !商品タイプ.includes('eチケット')"
+        option:
+            ○: 対応
+            △: 対応（備考あり）
+            ×: 非対応
+
+    対応機器備考:
+        type : textarea
+        description : 電子レンジ・オーブン・食洗機対応のいずれかで「備考あり」を選択した場合は必ずお書きください。
+        v-if: "[電子レンジ対応, オーブン対応, 食洗機対応].includes('△')"
+        placeholder: 例）2～3分程の電子レンジ使用は可能です。
+        style: 'width: 100%;'
+        "@focus": set_info($event.target)
+        "@input": set_info($event.target);auto_fit_tetxarea($event.target)
+
+
     申込期間:
         type : text
         placeholder : 例）通年4月〜6月など
