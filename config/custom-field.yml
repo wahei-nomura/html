@@ -327,7 +327,7 @@
     対応機器備考:
         type : textarea
         description : 電子レンジ・オーブン・食洗機対応のいずれかで「備考あり」を選択した場合は必ずお書きください。
-        v-if: "[電子レンジ対応, オーブン対応, 食洗機対応].includes('△') && 商品タイプ.includes('やきもの') && !商品タイプ.includes('eチケット')"
+        v-if: "商品タイプ.includes('やきもの') && !商品タイプ.includes('eチケット')"
         placeholder: 例）2～3分程の電子レンジ使用は可能です。
         style: 'width: 100%;'
         "@focus": set_info($event.target)
