@@ -22,6 +22,31 @@
         "@change": "force_half_size_text($event, 'number', '寄附金額');calc_donation(価格, 送料, 定期便)"
     寄附金額固定:  # N2エクスポートに入れるために必須
 
+    出品禁止ポータル:
+        label: 出品禁止ポータルサイト
+        type: checkbox
+        value: []
+        option-equal: true
+        description: この返礼品を出品しないポータルサイトがあればチェックを入れてください。
+        v-model: 出品禁止ポータル
+        v-if: "!商品タイプ.includes('eチケット')"
+        option:
+            - ふるさとチョイス
+            - 楽天ふるさと納税
+        "@mouseover": set_info($event.target)
+
+    オンライン決済限定:
+        portal: ふるさとチョイス
+        type: checkbox
+        value: []
+        option-equal: true
+        description: ふるさとチョイスオンライン決済限定に反映されます。
+        v-model: オンライン決済限定
+        v-if: "!出品禁止ポータル.includes('ふるさとチョイス')"
+        option:
+            - 限定
+        "@mouseover": set_info($event.target)
+
     全商品ディレクトリID:
         portal: 楽天ふるさと納税
         type: rakuten-genreid
@@ -86,19 +111,6 @@
         placeholder: 例）〇〇県が認定した返礼品であるため。
         "@focus": set_info($event.target)
         "@input": auto_fit_tetxarea($event.target)
-
-    出品禁止ポータル:
-        label: 出品禁止ポータルサイト
-        type: checkbox
-        value: []
-        option-equal: true
-        description: この返礼品を出品しないポータルサイトがあればチェックを入れてください。
-        v-model: 出品禁止ポータル
-        v-if: "!商品タイプ.includes('eチケット')"
-        option:
-            - ふるさとチョイス
-            - 楽天ふるさと納税
-        "@mouseover": set_info($event.target)
 
     # 事業者確認:
     #     type: checkbox

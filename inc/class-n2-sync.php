@@ -474,13 +474,19 @@ class N2_Sync {
 			// やきもの
 			if ( 'やきもの' === ( $postarr['meta_input']['やきもの'] ?? '' ) ) {
 				$postarr['meta_input']['商品タイプ'][] = 'やきもの';
-				unset( $postarr['meta_input']['やきもの'] );
 			}
 			// eチケット
 			if ( '該当する' === ( $postarr['meta_input']['eチケット'] ?? '' ) ) {
 				$postarr['meta_input']['商品タイプ'][] = 'eチケット';
-				unset( $postarr['meta_input']['eチケット'] );
 			}
+			unset( $postarr['meta_input']['やきもの'], $postarr['meta_input']['eチケット'] );
+
+			// クレジット決済限定
+			if ( 'クレジット決済限定' === ( $postarr['meta_input']['クレジット決済限定'] ?? '' ) ) {
+				$postarr['meta_input']['オンライン決済限定'][] = '限定';
+			}
+			unset( $postarr['meta_input']['クレジット決済限定'] );
+
 			// アレルギー関連
 			if ( isset( $postarr['meta_input']['アレルゲン'] ) ) {
 				$allergen = array_column( $postarr['meta_input']['アレルゲン'], 'value' );

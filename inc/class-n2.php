@@ -238,7 +238,7 @@ class N2 {
 		$this->cash_buster = time();
 
 		// N2稼働状況
-		$this->n2_active_flag = $n2_settings['n2']['active'];
+		$this->n2_active_flag = $n2_settings['n2']['active'] ?? false;
 
 		// サイト基本情報
 
@@ -319,7 +319,10 @@ class N2 {
 		if ( empty( $this->custom_field['事業者用']['商品タイプ']['option'] ) ) {
 			$this->custom_field['事業者用']['商品タイプ']['type'] = 'hidden';
 		}
-
+		// オンライン決済限定の制御
+		if ( ! isset( $this->portal_setting['ふるさとチョイス']['オンライン決済限定'] ) ) {
+			unset( $this->custom_field['スチームシップ用']['オンライン決済限定'] );
+		}
 		// LHカテゴリー
 		if ( ! empty( $this->portal_setting['LedgHOME']['カテゴリー'] ) ) {
 			// LHカテゴリーの設定値を配列化
