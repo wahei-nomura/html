@@ -112,13 +112,14 @@ class N2_Items_API {
 	 */
 	public static function update() {
 		set_time_limit( 0 );
+		do_action( 'n2_items_api_before_update', self::$data['params'] );
 		foreach ( get_posts( self::$data['params'] ) as $post ) {
 			$post->post_status = self::$data['params']['change_status'] ?: $post->post_status;
 			$post->post_author = self::$data['params']['change_author'] ?: $post->post_author;
 			/**
 			 *  [hook] n2_items_api_update
 			 */
-			$post = apply_filters( 'n2_items_api_update', $post );
+			$post = apply_filters( 'n2_items_api_update', $post, self::$data['params'] );
 			wp_insert_post( $post );
 		}
 		wp_safe_redirect( $_SERVER['HTTP_REFERER'] );
