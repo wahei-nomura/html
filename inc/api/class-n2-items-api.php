@@ -112,6 +112,9 @@ class N2_Items_API {
 	 */
 	public static function update() {
 		set_time_limit( 0 );
+		/**
+		 *  [hook] n2_items_api_before_update
+		 */
 		do_action( 'n2_items_api_before_update', self::$data['params'] );
 		foreach ( get_posts( self::$data['params'] ) as $post ) {
 			$post->post_status = self::$data['params']['change_status'] ?: $post->post_status;
