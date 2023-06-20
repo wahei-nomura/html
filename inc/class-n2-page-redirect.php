@@ -46,8 +46,10 @@ class N2_Page_Redirect {
 				}	
 			}
 		}
-		print_r( is_404($jump_url));
-		echo is_404('https://wp-multi.ss.localhost/hasami/wp-admin/aaa.html');
+		print_r($jump_url);
+		// $jump_url = 'https://wp-multi.ss.localhost/hasami/wp-admin/aaa.html';
+		$response = wp_remote_request( $jump_url );
+		print_r($response);
 		// wp_redirect( $jump_url );
 		return;
 	}
