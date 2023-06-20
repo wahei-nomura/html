@@ -202,6 +202,17 @@ export default $ => {
 				this.寄附金額チェッカー = check[ Math.sign( this.寄附金額 - this.寄附金額自動計算値 ) + 1 ];
 			}
 		},
+		// 取り扱い方法自動設定
+		check_handling_method() {
+			// 既に登録されている or 発送サイズがヤマト以外は何もしない
+			if ( this.取り扱い方法.length || ! this.発送サイズ.match(/010[1-8]+/) ) return;
+			// やきものにチェックしたら自動で「ビン・ワレモノ」「下積み禁止」
+			if ( this.商品タイプ.includes('やきもの') ) {
+				if ( confirm( '取り扱い方法を「ビン・ワレモノ」「下積み禁止」に設定しますか？') ) {
+					this.取り扱い方法 =  ['ビン・ワレモノ', '下積み禁止'];
+				}
+			}
+		},
 		// スチームシップへ送信ボタンの制御
 		show_submit() {
 			if ( this.価格 > 0 && this.送料 > 0  ) {

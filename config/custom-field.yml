@@ -209,6 +209,7 @@
         v-model: 商品タイプ
         option : 
             - 食品
+        "@change": check_handling_method
 
     アレルギー有無確認:
         type : checkbox
@@ -412,6 +413,7 @@
                 v-if: 発送方法=='常温'&&n2.delivery_fee.レターパックライト
             その他: その他
         v-model: 発送サイズ
+        "@change": check_handling_method
 
     送料:
         type: hidden
