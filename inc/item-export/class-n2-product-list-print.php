@@ -131,7 +131,7 @@ class N2_Product_List_Print {
 												$td .= '類型該当理由：' . $p['類型該当理由'];
 												break;
 											case 'アレルギー':
-												$td  = empty( $p['アレルゲン'] ) ? '' : '含んでいる品目：' . implode( ',', $pattern['アレルゲン'] );
+												$td  = empty( $p['アレルゲン'] ) ? '' : '含んでいる品目：' . implode( ',', $p['アレルゲン'] );
 												$td .= $p['アレルゲン注釈'] ? "<br>※ {$p['アレルゲン注釈']}" : '';
 												break;
 											case '発送サイズ':
