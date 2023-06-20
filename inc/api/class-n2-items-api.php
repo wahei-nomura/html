@@ -115,6 +115,10 @@ class N2_Items_API {
 		foreach ( get_posts( self::$data['params'] ) as $post ) {
 			$post->post_status = self::$data['params']['change_status'] ?: $post->post_status;
 			$post->post_author = self::$data['params']['change_author'] ?: $post->post_author;
+			/**
+			 *  [hook] n2_items_api_update
+			 */
+			$post = apply_filters( 'n2_items_api_update', $post );
 			wp_insert_post( $post );
 		}
 		wp_safe_redirect( $_SERVER['HTTP_REFERER'] );
