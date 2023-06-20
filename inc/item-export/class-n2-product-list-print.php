@@ -131,8 +131,8 @@ class N2_Product_List_Print {
 												$td .= '類型該当理由：' . $p['類型該当理由'];
 												break;
 											case 'アレルギー':
-												$td  = empty( $meta['アレルゲン'] ) ? '' : '含んでいる品目：' . implode( ',', $meta['アレルゲン'] );
-												$td .= $meta['アレルゲン注釈'] ? "<br>※ {$meta['アレルゲン注釈']}" : '';
+												$td  = empty( $p['アレルゲン'] ) ? '' : '含んでいる品目：' . implode( ',', $pattern['アレルゲン'] );
+												$td .= $p['アレルゲン注釈'] ? "<br>※ {$p['アレルゲン注釈']}" : '';
 												break;
 											case '発送サイズ':
 												$td = ( is_numeric( $td ) )
