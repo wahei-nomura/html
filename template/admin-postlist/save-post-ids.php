@@ -48,7 +48,7 @@ global $n2;
 				<form method="post" action="admin-ajax.php" target="_blank">
 					<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
 					<input type="hidden" name="action" value="n2_print_out">
-					<input type="hidden" name="ids" :value="ids.join(',')">
+					<input type="hidden" name="include[]" v-for="id in ids" :value="id">
 					<button>印刷</button>
 				</form>
 			</li>

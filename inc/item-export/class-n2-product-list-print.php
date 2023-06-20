@@ -64,16 +64,15 @@ class N2_Product_List_Print {
 			</head>
 			<body>
 				<?php
-					foreach ( get_posts( "include={$ids}&meta_key=返礼品コード&orderby=meta_value&order=ASC&post_status=any" ) as $p ) :
-					$meta = json_decode( $p->post_content, true );
+					foreach ( N2_Items_API::get_items() as $p ) :
 				?>
-					<?php $confirm_table_th_list['コード'] = get_post_meta( $p->ID, '返礼品コード', true ) . '&nbsp;'; ?>
+					<?php $confirm_table_th_list['コード'] = $p['返礼品コード'] . '&nbsp;'; ?>
 					<div class="page-break">
 						<table>
 							<tbody>
 								<tr>
 									<th class="none" colspan="2" rowspan="2">
-										<h1><?php echo $p->post_title; ?></h1>
+										<h1><?php echo $p['タイトル']; ?></h1>
 									</th>
 									<?php foreach ( $confirm_table_th_list as $th => $_ ) : ?>
 										<th class="bg"><?php echo $th; ?></th>
@@ -97,25 +96,21 @@ class N2_Product_List_Print {
 								</tr>
 								<?php foreach ( $product_table_tr_list as $th => $val ) : ?>
 									<?php
-										$td = isset( $val['meta_key'] )
-											? get_post_meta( $p->ID, $val['meta_key'], true )
-											: get_post_meta( $p->ID, $th, true );
+										$td = $p[ $val['meta_key'] ] ?? $p[ $th ];
 										$td = nl2br( $td );
 										$td = preg_replace( '@\t|\r|\n|@', '', $td );
 										$td = preg_replace( '@(<br />)+@', '<br />', $td );
 										// thで分岐
 										switch ( $th ) {
 											case '事業者名':
-												$td = get_the_author_meta( $val['meta_key'], $p->post_author );
+												$td = $p['事業者名'];
 												break;
 											case '価格':
-												$td = ( get_post_meta( $p->ID, '定期便価格', true ) && ( get_post_meta( $p->ID, '定期便', true ) > 1 ) )
-													? get_post_meta( $p->ID, '定期便価格', true )
-													: $td;
+												$td = $p['価格'];
 												$td = number_format( $td );
 												break;
 											case '送料':
-												if ( ! $td || is_numeric( get_post_meta( $p->ID, '発送サイズ', true ) ) ) {
+												if ( ! $td || is_numeric( $p['発送サイズ'] ) ) {
 													continue 2;
 												}
 												$td = number_format( $td );
@@ -133,7 +128,7 @@ class N2_Product_List_Print {
 												if ( $td ) {
 													$td .= '<br>';
 												}
-												$td .= '類型該当理由：' . get_post_meta( $p->ID, '類型該当理由', true );
+												$td .= '類型該当理由：' . $p['類型該当理由'];
 												break;
 											case 'アレルギー':
 												$td  = empty( $meta['アレルゲン'] ) ? '' : '含んでいる品目：' . implode( ',', $meta['アレルゲン'] );
@@ -160,7 +155,7 @@ class N2_Product_List_Print {
 								<?php endforeach; ?>
 								<tr style="border: 3px solid #000;">
 									<th class="bg">寄附金額</th>
-									<td colspan="2" style="font-size: 18px;font-weight: bold;"><?php echo number_format( get_post_meta( $p->ID, '寄附金額', true ) ); ?></td>
+									<td colspan="2" style="font-size: 18px;font-weight: bold;"><?php echo number_format( $p['寄附金額'] ); ?></td>
 								</tr>
 							</tbody>
 						</table>
