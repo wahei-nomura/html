@@ -54,7 +54,6 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	protected function walk_values( &$val, $index, $n2values ) {
 		global $n2;
 		// アレルゲン
-		$n2values['アレルゲン'] = array_column( (array) $n2values['アレルゲン'], 'label' );// ラベルだけにする
 		$n2values['アレルゲン'] = preg_replace( '/（.*?）/', '', $n2values['アレルゲン'] );// 不純物（カッコの部分）を削除
 
 		// 自治体と返礼品のタグIDをいい感じに結合する
@@ -351,7 +350,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 				'td' => $n2values['LH表示名'] ?: $n2values['タイトル'],
 			),
 			'内容量'     => array(
-				'td' => $n2values['内容量・規格等'],
+				'td' => nl2br( $n2values['内容量・規格等'] ),
 			),
 			'原料原産地'   => array(
 				'td'        => nl2br( $n2values['原料原産地'] ),
