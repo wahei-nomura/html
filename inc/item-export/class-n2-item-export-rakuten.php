@@ -311,9 +311,11 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	public static function allergy_display( $n2values, $type = '' ) {
 		$allergy_annotation = $n2values['アレルゲン注釈'];
 		$allergens                 = $n2values['アレルゲン'];
-		$allergens                 = implode( '・', $allergens );
-		$not_food                  = in_array( '食品ではない', $n2values['アレルゲン'], true );
-		$not_allergy               = in_array( 'アレルゲンなし食品', $n2values['アレルゲン'] ?: array(), true );
+		if( is_array( $allergens ) ) {
+			$allergens             = implode( '・', $allergens );
+		}
+		$not_food                  = ! in_array( '食品', $n2values['商品タイプ'], true );
+		$not_allergy               = empty( $n2values['アレルゲン'] ?: array() );
 		$allergy_annotation = $allergy_annotation ? '<br>※' . $allergy_annotation : '';
 		$result                    = '';
 		switch ( true ) {
