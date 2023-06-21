@@ -152,7 +152,8 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			$img_dir .= "/{$business_code}";// キャビネットの場合事業者コード追加
 		}
 
-		$result = array();
+		$result   = array();
+		$requests = array();
 		for ( $i = 0; $i < 15; ++$i ) {
 			$img_url = "{$img_dir}/{$gift_code}";
 			if ( 0 === $i ) {
@@ -160,11 +161,24 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			} else {
 				$img_url .= "-{$i}.jpg";
 			}
-			$response = wp_remote_get( $img_url );
-			if ( ! is_wp_error( $response ) && 200 === $response['response']['code'] ) {
-				$result[ $i ] = $img_url;
-			}
+			$requests[ $i ] = array(
+				'url'     => $img_url,
+				'headers' => array(
+					'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0',
+				),
+			);
 		}
+		$response = Requests::request_multiple( $requests );
+		$result   = array_filter(
+			array_map(
+				function( $res ) {
+					return ( 200 === $res->status_code ) ? $res->url : '';
+				},
+				$response
+			)
+		);
+		ksort( $result );
+
 		// ========戻り値判定========
 		switch ( $return_type ) {
 			// 文字列を返却
