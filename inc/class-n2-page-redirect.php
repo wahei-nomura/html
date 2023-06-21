@@ -48,9 +48,16 @@ class N2_Page_Redirect {
 		}
 		print_r($jump_url);
 		// $jump_url = 'https://wp-multi.ss.localhost/hasami/wp-admin/aaa.html';
-		$response = wp_remote_request( $jump_url );
+		$response = wp_remote_get( $jump_url );
 		print_r($response);
 		// wp_redirect( $jump_url );
+		$url = 'http://www.example.com/';
+		$response = @file_get_contents($url);
+		if ($response !== false) {
+			echo '存在した';
+		} else {
+			echo '存在しない';
+		}
 		return;
 	}
 
