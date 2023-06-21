@@ -47,16 +47,21 @@ class N2_Page_Redirect {
 			}
 		}
 		print_r($jump_url);
-		// $jump_url = 'https://wp-multi.ss.localhost/hasami/wp-admin/aaa.html';
+		$jump_url2 = 'https://wp-multi.ss.localhost/hasami/wp-admin/aaa.html';
 		$response = wp_remote_get( $jump_url );
 		print_r($response);
 		// wp_redirect( $jump_url );
-		$url = 'http://www.example.com/';
-		$response = @file_get_contents($url);
+		$response = @file_get_contents($jump_url);
 		if ($response !== false) {
-			echo '存在した';
+			echo '存在した1';
 		} else {
-			echo '存在しない';
+			echo '存在しない1';
+		}
+		$response2 = @file_get_contents($jump_url2);
+		if ($response2 !== false) {
+			echo '存在した2';
+		} else {
+			echo '存在しない2';
 		}
 		return;
 	}
