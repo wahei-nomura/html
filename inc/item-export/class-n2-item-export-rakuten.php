@@ -324,11 +324,14 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 */
 	public static function allergy_display( $n2values, $type = '' ) {
 		$allergy_annotation = $n2values['アレルゲン注釈'];
-		$allergens          = $n2values['アレルゲン'];
-		if ( is_array( $allergens ) ) {
-			$allergens = implode( '・', $allergens );
-		}
-		$not_food           = ! in_array( '食品', $n2values['商品タイプ'], true );
+		$allergens          = match ( is_array( $n2values['アレルゲン'] ) ) {
+			true => implode( '・', $n2values['アレルゲン'] ),
+			false => $n2values['アレルゲン'],
+		};
+		$not_food = match ( is_array( $n2values['商品タイプ'] ) ) {
+			true => ! in_array( '食品', $n2values['商品タイプ'], true ),
+			false => '食品' === $n2values['商品タイプ'],
+		};
 		$not_allergy        = empty( $n2values['アレルゲン'] ?: array() );
 		$allergy_annotation = $allergy_annotation ? '<br>※' . $allergy_annotation : '';
 		$result             = '';
@@ -395,7 +398,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			),
 			'提供事業者'   => array(
 				'td'        => $n2values['提供事業者']
-				?: preg_replace(
+				?? preg_replace(
 					'/\（.+?\）/',
 					'',
 					(
