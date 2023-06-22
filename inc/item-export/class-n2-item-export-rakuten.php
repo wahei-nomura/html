@@ -197,17 +197,14 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 				}
 				$requests[ $i ] = $img_url;
 			}
-			$response = N2_Multi_URL_Request_API::requests( $requests );
-
-			$result = array_filter(
-				array_map(
-					function( $res ) {
-						return ( 200 === $res->status_code ) ? $res->url : '';
-					},
-					$response
-				)
+			$response = N2_Multi_URL_Request_API::verify_images( $requests );
+			$result   = array_map(
+				function( $req ) use ( $response ) {
+					return $response[ $req ] ? $req : '';
+				},
+				$requests,
 			);
-			ksort( $result );
+			$result   = array_filter( $result, fn( $r ) => $r );
 		}
 
 		// ========戻り値判定========

@@ -25,15 +25,19 @@ class N2_Multi_URL_Request_API {
 	}
 
 	/**
-	 * URLを並列化でリクエストするサムシングAPI
+	 * URLを並列化でリクエストするAPI
 	 *
 	 * @param array|string $args パラメータ
 	 * @return array|void
 	 */
 	public static function requests( $args ) {
-		$urls = $args ?? $_GET['urls'];
+		$urls = $args ?: $_GET['urls'];
+		if ( is_string( $urls ) ) {
+			$urls = array( $urls );
+		}
 		$args = $args ? wp_parse_args( $args ) : $_GET;
 		if ( wp_verify_nonce( $_POST['n2nonce'] ?? '', 'n2nonce' ) ) {
+			$args = wp_parse_args( $args, $_POST );
 			$urls = wp_parse_args( $urls, $_POST['urls'] );
 		}
 		$action   = $args['action'] ?? false;
@@ -49,7 +53,38 @@ class N2_Multi_URL_Request_API {
 		}
 		$result = Requests::request_multiple( $requests );
 
-		if ( $action ) {
+		if ( $action && 'n2_item_export_rakuten' !== $action ) {
+			header( 'Content-Type: application/json; charset=utf-8' );
+			echo wp_json_encode( $result );
+			exit;
+		}
+		return $result;
+	}
+
+	/**
+	 * 画像が存在するかチェックするAPI
+	 *
+	 * @param array|string $args arg
+	 * @return array
+	 */
+	public static function verify_images( $args ) {
+		$urls = $args ?: $_GET['urls'];
+		if ( is_string( $urls ) ) {
+			$urls = array( $urls );
+		}
+		$args = $args ? wp_parse_args( $args ) : $_GET;
+		if ( wp_verify_nonce( $_POST['n2nonce'] ?? '', 'n2nonce' ) ) {
+			$args = wp_parse_args( $args, $_POST );
+			$urls = wp_parse_args( $urls, $_POST['urls'] );
+		}
+		$action   = $args['action'] ?? false;
+		$response = self::requests( $urls );
+		$result   = array();
+
+		foreach ( $response as $index => $res ) {
+			$result[ $res->url ] = 200 === $res->status_code;
+		}
+		if ( $action && 'n2_item_export_rakuten' !== $action ) {
 			header( 'Content-Type: application/json; charset=utf-8' );
 			echo wp_json_encode( $result );
 			exit;
