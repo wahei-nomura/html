@@ -101,7 +101,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			preg_match( '/^PC用商品説明文$/', $val )  => $this->pc_item_description( $n2values ),
 			preg_match( '/^スマートフォン用商品説明文$/', $val )  => $this->sp_item_description( $n2values ),
 			preg_match( '/^PC用販売説明文$/', $val )  => $this->pc_sales_description( $n2values ),
-			preg_match( '/^商品画像URL$/', $val )  => $n2values['商品画像URL'],
+			preg_match( '/^商品画像URL$/', $val )  => $this->get_img_urls( $n2values ),
 			preg_match( '/^代引料$/', $val )  => 1,
 			preg_match( '/^在庫タイプ$/', $val )  => 1,
 			preg_match( '/^在庫数$/', $val )  => 0,
