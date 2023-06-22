@@ -40,7 +40,7 @@ class N2_Multi_URL_Request_API {
 		$args = $args ? wp_parse_args( $args ) : $_GET;
 		if ( wp_verify_nonce( $_POST['n2nonce'] ?? '', 'n2nonce' ) ) {
 			$args = wp_parse_args( $args, $_POST );
-			$urls = wp_parse_args( $urls, $_POST['urls'] );
+			$urls = wp_parse_args( $urls, $_POST['urls'] ?? array() );
 		}
 		$action   = $args['action'] ?? false;
 		$requests = array();
@@ -77,7 +77,7 @@ class N2_Multi_URL_Request_API {
 		$args = $args ? wp_parse_args( $args ) : $_GET;
 		if ( wp_verify_nonce( $_POST['n2nonce'] ?? '', 'n2nonce' ) ) {
 			$args = wp_parse_args( $args, $_POST );
-			$urls = wp_parse_args( $urls, $_POST['urls'] );
+			$urls = wp_parse_args( $urls, $_POST['urls'] ?? array() );
 		}
 		$action   = $args['action'] ?? false;
 		$response = self::requests( $urls );
