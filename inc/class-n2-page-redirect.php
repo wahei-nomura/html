@@ -46,25 +46,10 @@ class N2_Page_Redirect {
 				}	
 			}
 		}
-		print_r($jump_url);
-		$jump_url1 = 'https://www.google.com/';
-		$jump_url2 = 'https://n2.steamship.co.jp/f402141-buzen/wp-admin/aaa.html';
-		$fp1 = @fopen($jump_url, 'r');
-		$fp2 = @fopen($jump_url2, 'r');
-		print_r('-----');
-		print_r($fp1);
-		print_r('+++++');
-		print_r($fp2);
-		print_r('-----');
-		if($fp1 == false){
-			print_r('1無し');
-		}else{
-			print_r('1有り');
-		}
-		if($fp2 == false){
-			print_r('2無し');
-		}else{
-			print_r('2有り');
+		$check_url = 'https://ss:ss@' . $_SERVER['HTTP_HOST'] . '/' . $now_path_array[1];
+		$response = @file_get_contents($check_url, NULL, NULL, 0, 1);
+		if ($response !== false) {
+			wp_redirect($jump_url);
 		}
 		return;
 	}
