@@ -22,6 +22,8 @@ class N2_Multi_URL_Request_API {
 	public function __construct() {
 		add_action( 'wp_ajax_n2_multi_url_request_api', array( $this, 'requests' ) );
 		add_action( 'wp_ajax_nopriv_n2_multi_url_request_api', array( $this, 'requests' ) );
+		add_action( 'wp_ajax_n2_multi_veryfy_images_api', array( $this, 'veryfy_images' ) );
+		add_action( 'wp_ajax_nopriv_n2_multi_veryfy_images_api', array( $this, 'veryfy_images' ) );
 	}
 
 	/**
