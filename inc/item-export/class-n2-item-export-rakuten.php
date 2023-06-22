@@ -143,7 +143,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 * @return string|array 楽天の画像URLを(文字列|配列)で取得する
 	 */
 	public function get_img_urls( $n2values, $return_type = 'string' ) {
-		set_time_limit( 0 );
+		set_time_limit( 60 );
 		global $n2;
 		$img_dir       = rtrim( $n2->portal_setting['楽天']['img_dir'], '/' );
 		$gift_code     = mb_strtolower( $n2values['返礼品コード'] );
