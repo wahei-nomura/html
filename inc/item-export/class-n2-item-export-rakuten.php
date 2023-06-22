@@ -44,6 +44,32 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	}
 
 	/**
+	 * 楽天用の内容を配列で作成
+	 */
+	protected function set_data() {
+		$data = array();
+		// $this->check_fatal_error( $this->data['header'], 'ヘッダーが正しくセットされていません' );
+		foreach ( $this->data['n2data'] as $key => $values ) {
+			$id                = $values['id'];
+			// 画像を取得
+			$values['商品画像URL'] = $this->get_img_urls( $values );
+			// ヘッダーをセット
+			$data[ $id ] = $this->data['header'];
+			array_walk( $data[ $id ], array( $this, 'walk_values' ), $values );
+			$data[ $id ] = array_combine( $this->data['header'], $data[ $id ] );
+		}
+		/**
+		 * [hook] n2_item_export_base_set_data
+		 */
+		$data = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_data', $data );
+		// エラーは排除
+		$data = array_diff_key( $data, $this->data['error'] );
+		$data = array_values( $data );
+		// dataをセット
+		$this->data['data'] = $data;
+	}
+
+	/**
 	 * データのマッピング（正しい値かどうかここでチェックする）
 	 * 楽天CSVの仕様：https://steamship.docbase.io/posts/2774108
 	 *
@@ -75,7 +101,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			preg_match( '/^PC用商品説明文$/', $val )  => $this->pc_item_description( $n2values ),
 			preg_match( '/^スマートフォン用商品説明文$/', $val )  => $this->sp_item_description( $n2values ),
 			preg_match( '/^PC用販売説明文$/', $val )  => $this->pc_sales_description( $n2values ),
-			preg_match( '/^商品画像URL$/', $val )  => $this->get_img_urls( $n2values ),
+			preg_match( '/^商品画像URL$/', $val )  => $n2values['商品画像URL'],
 			preg_match( '/^代引料$/', $val )  => 1,
 			preg_match( '/^在庫タイプ$/', $val )  => 1,
 			preg_match( '/^在庫数$/', $val )  => 0,
