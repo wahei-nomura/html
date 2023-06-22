@@ -47,23 +47,25 @@ class N2_Page_Redirect {
 			}
 		}
 		print_r($jump_url);
-		$jump_url2 = 'https://wp-multi.ss.localhost/hasami/wp-admin/aaa.html';
-		$response = wp_remote_get( $jump_url );
-		print_r($response);
-		// wp_redirect( $jump_url );
-		$response = @file_get_contents($jump_url);
-		if ($response !== false) {
-			echo '存在した1';
-		} else {
-			echo '存在しない1';
+		$jump_url1 = 'https://www.google.com/';
+		$jump_url2 = 'https://n2.steamship.co.jp/f402141-buzen/wp-admin/aaa.html';
+		$fp1 = @fopen($jump_url, 'r');
+		$fp2 = @fopen($jump_url2, 'r');
+		print_r('-----');
+		print_r($fp1);
+		print_r('+++++');
+		print_r($fp2);
+		print_r('-----');
+		if($fp1 == false){
+			print_r('1無し');
+		}else{
+			print_r('1有り');
 		}
-		$response2 = @file_get_contents($jump_url2);
-		if ($response2 !== false) {
-			echo '存在した2';
-		} else {
-			echo '存在しない2';
+		if($fp2 == false){
+			print_r('2無し');
+		}else{
+			print_r('2有り');
 		}
 		return;
 	}
-
 }
