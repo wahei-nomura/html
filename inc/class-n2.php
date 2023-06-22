@@ -157,6 +157,13 @@ class N2 {
 	public $n2_active_flag;
 
 	/**
+	 * 役場確認
+	 *
+	 * @var object
+	 */
+	public $town_check;
+
+	/**
 	 * エクスポート機能
 	 *
 	 * @var object
@@ -239,6 +246,9 @@ class N2 {
 
 		// N2稼働状況
 		$this->n2_active_flag = $n2_settings['n2']['active'] ?? false;
+
+		// 役場確認
+		$this->town_check = $n2_settings['n2']['town_check'] ?? false;
 
 		// サイト基本情報
 

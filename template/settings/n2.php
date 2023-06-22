@@ -48,4 +48,12 @@ $settings = array(
 			</label>
 		</td>
 	</tr>
+	<tr>
+		<th>役場確認</th>
+		<td>
+			<label>
+				<input type="checkbox" name="n2_settings[n2][town_check]" value="1" <?php checked( $n2->town_check ?? '' ); ?>> 役場確認する
+			</label>
+		</td>
+	</tr>
 </table>
