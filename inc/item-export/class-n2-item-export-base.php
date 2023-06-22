@@ -163,7 +163,7 @@ class N2_Item_Export_Base {
 	/**
 	 * 内容を配列で作成
 	 */
-	private function set_data() {
+	protected function set_data() {
 		$data = array();
 		$this->check_fatal_error( $this->data['header'], 'ヘッダーが正しくセットされていません' );
 		foreach ( $this->data['n2data'] as $key => $values ) {
