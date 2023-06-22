@@ -175,6 +175,13 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			false => array(),
 		};
 
+		$use_rms_api = false;
+
+		if ( ! $result && $use_rms_api ) {
+			// RMSを利用する
+			$result = array();
+		}
+
 		if ( ! $result ) {
 			set_time_limit( 60 );
 			global $n2;
