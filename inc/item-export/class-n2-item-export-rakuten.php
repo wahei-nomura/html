@@ -54,7 +54,6 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	protected function walk_values( &$val, $index, $n2values ) {
 		global $n2;
 		// アレルゲン
-		$n2values['アレルゲン'] = array_column( (array) $n2values['アレルゲン'], 'label' );// ラベルだけにする
 		$n2values['アレルゲン'] = preg_replace( '/（.*?）/', '', $n2values['アレルゲン'] );// 不純物（カッコの部分）を削除
 
 		// 自治体と返礼品のタグIDをいい感じに結合する
@@ -312,9 +311,11 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	public static function allergy_display( $n2values, $type = '' ) {
 		$allergy_annotation = $n2values['アレルゲン注釈'];
 		$allergens                 = $n2values['アレルゲン'];
-		$allergens                 = implode( '・', $allergens );
-		$not_food                  = in_array( '食品ではない', $n2values['アレルゲン'], true );
-		$not_allergy               = in_array( 'アレルゲンなし食品', $n2values['アレルゲン'] ?: array(), true );
+		if( is_array( $allergens ) ) {
+			$allergens             = implode( '・', $allergens );
+		}
+		$not_food                  = ! in_array( '食品', $n2values['商品タイプ'], true );
+		$not_allergy               = empty( $n2values['アレルゲン'] ?: array() );
 		$allergy_annotation = $allergy_annotation ? '<br>※' . $allergy_annotation : '';
 		$result                    = '';
 		switch ( true ) {
@@ -351,7 +352,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 				'td' => $n2values['LH表示名'] ?: $n2values['タイトル'],
 			),
 			'内容量'     => array(
-				'td' => $n2values['内容量・規格等'],
+				'td' => nl2br( $n2values['内容量・規格等'] ),
 			),
 			'原料原産地'   => array(
 				'td'        => nl2br( $n2values['原料原産地'] ),
