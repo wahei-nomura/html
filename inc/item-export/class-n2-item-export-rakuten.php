@@ -195,15 +195,11 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 				} else {
 					$img_url .= "-{$i}.jpg";
 				}
-				$requests[ $i ] = array(
-					'url'     => $img_url,
-					'headers' => array(
-						'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0',
-					),
-				);
+				$requests[ $i ] = $img_url;
 			}
-			$response = Requests::request_multiple( $requests );
-			$result   = array_filter(
+			$response = N2_Multi_URL_Request_API::requests( $requests );
+
+			$result = array_filter(
 				array_map(
 					function( $res ) {
 						return ( 200 === $res->status_code ) ? $res->url : '';
