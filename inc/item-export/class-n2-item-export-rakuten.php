@@ -169,42 +169,47 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 * @return string|array 楽天の画像URLを(文字列|配列)で取得する
 	 */
 	public function get_img_urls( $n2values, $return_type = 'string' ) {
-		set_time_limit( 60 );
-		global $n2;
-		$img_dir       = rtrim( $n2->portal_setting['楽天']['img_dir'], '/' );
-		$gift_code     = mb_strtolower( $n2values['返礼品コード'] );
-		$business_code = mb_strtolower( $n2values['事業者コード'] );
-		// GOLD（ne.jp）とキャビネット（co.jp）を判定してキャビネットは事業者コードディレクトリを追加
-		if ( ! preg_match( '/ne\.jp/', $img_dir ) ) {
-			$img_dir .= "/{$business_code}";// キャビネットの場合事業者コード追加
-		}
 
-		$result   = array();
-		$requests = array();
-		for ( $i = 0; $i < 15; ++$i ) {
-			$img_url = "{$img_dir}/{$gift_code}";
-			if ( 0 === $i ) {
-				$img_url .= '.jpg';
-			} else {
-				$img_url .= "-{$i}.jpg";
+		$result = $n2values['商品画像URL'] ?? array();
+
+		if ( ! $result ) {
+			set_time_limit( 60 );
+			global $n2;
+			$img_dir       = rtrim( $n2->portal_setting['楽天']['img_dir'], '/' );
+			$gift_code     = mb_strtolower( $n2values['返礼品コード'] );
+			$business_code = mb_strtolower( $n2values['事業者コード'] );
+			// GOLD（ne.jp）とキャビネット（co.jp）を判定してキャビネットは事業者コードディレクトリを追加
+			if ( ! preg_match( '/ne\.jp/', $img_dir ) ) {
+				$img_dir .= "/{$business_code}";// キャビネットの場合事業者コード追加
 			}
-			$requests[ $i ] = array(
-				'url'     => $img_url,
-				'headers' => array(
-					'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0',
-				),
+
+			$result   = array();
+			$requests = array();
+			for ( $i = 0; $i < 15; ++$i ) {
+				$img_url = "{$img_dir}/{$gift_code}";
+				if ( 0 === $i ) {
+					$img_url .= '.jpg';
+				} else {
+					$img_url .= "-{$i}.jpg";
+				}
+				$requests[ $i ] = array(
+					'url'     => $img_url,
+					'headers' => array(
+						'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0',
+					),
+				);
+			}
+			$response = Requests::request_multiple( $requests );
+			$result   = array_filter(
+				array_map(
+					function( $res ) {
+						return ( 200 === $res->status_code ) ? $res->url : '';
+					},
+					$response
+				)
 			);
+			ksort( $result );
 		}
-		$response = Requests::request_multiple( $requests );
-		$result   = array_filter(
-			array_map(
-				function( $res ) {
-					return ( 200 === $res->status_code ) ? $res->url : '';
-				},
-				$response
-			)
-		);
-		ksort( $result );
 
 		// ========戻り値判定========
 		switch ( $return_type ) {
