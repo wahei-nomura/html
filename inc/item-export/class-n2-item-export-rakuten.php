@@ -53,6 +53,12 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			$id = $values['id'];
 			// 画像を取得
 			$values['商品画像URL'] = $this->get_img_urls( $values );
+			// アレルゲン
+			$values['アレルゲン'] = preg_replace( '/（.*?）/', '', $values['アレルゲン'] );// 不純物（カッコの部分）を削除
+
+			// 自治体と返礼品のタグIDをいい感じに結合する
+			$values['タグID'] = $n2->portal_setting['楽天']['tag_id'] . '/' . $values['タグID'];
+			$values['タグID'] = implode( '/', array_filter( explode( '/', $values['タグID'] ) ) );
 			// ヘッダーをセット
 			$data[ $id ] = $this->data['header'];
 			array_walk( $data[ $id ], array( $this, 'walk_values' ), $values );
@@ -79,12 +85,6 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 */
 	protected function walk_values( &$val, $index, $n2values ) {
 		global $n2;
-		// アレルゲン
-		$n2values['アレルゲン'] = preg_replace( '/（.*?）/', '', $n2values['アレルゲン'] );// 不純物（カッコの部分）を削除
-
-		// 自治体と返礼品のタグIDをいい感じに結合する
-		$n2values['タグID'] = $n2->portal_setting['楽天']['tag_id'] . '/' . $n2values['タグID'];
-		$n2values['タグID'] = implode( '/', array_filter( explode( '/', $n2values['タグID'] ) ) );
 		// preg_matchで判定
 		$data = match ( 1 ) {
 			preg_match( '/^コントロールカラム$/', $val )  => 'n',
