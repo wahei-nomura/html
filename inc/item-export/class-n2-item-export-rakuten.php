@@ -125,24 +125,33 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 * @return $value
 	 */
 	public function check_error( $value, $name, $n2values ) {
-		// 必須漏れエラー
-		if ( preg_match( '/（必須）|必要寄付金額/', $name ) && '' === $value ) {
+		/**
+		 * 必須漏れエラー
+		 */
+		$required = match ( true ) {
+			preg_match( '/（必須）|必要寄付金額/', $name ) && '' === $value => true,
+			default => false,
+		};
+		if ( $required ) {
 			$this->add_error( $n2values['id'], "「{$name}」がありません。" );
 		}
-		// 文字数制限エラー
-		$len       = mb_strlen( $value );// $valueの文字数
-		$maxlength = array(
-			40   => 'キャッチコピー',
-			64   => 'サイト表示事業者名',
-			100  => '地場産品類型番号',
-			200  => '（必須）お礼の品名',
-			1000 => '^説明$|^容量$|^申込期日$|^発送期日$|アレルギー特記事項|消費期限',
-		);
-		foreach ( $maxlength as $max => $pattern ) {
-			if ( preg_match( "/{$pattern}/", $name ) && $len > $max ) {
-				$over = $len - $max;
-				$this->add_error( $n2values['id'], "<div title='{$value}'>「{$name}」の文字数が{$over}文字多いです。</div>" );
-			}
+
+		/**
+		 * 文字数制限エラー
+		 */
+		$len = mb_strlen( $value );// $valueの文字数
+		$max = match ( $name ) {
+			'キャッチコピー' => 40,
+			'サイト表示事業者名' => 64,
+			'地場産品類型番号' => 100,
+			'（必須）お礼の品名' => 200,
+			'説明','容量','申込期日','発送期日','アレルギー特記事項','消費期限' => 1000,
+			default => 10000,
+		};
+		$is_over = $len > $max;
+		if ( $is_over ) {
+			$over = $len - $max;
+			$this->add_error( $n2values['id'], "<div title='{$value}'>「{$name}」の文字数が{$over}文字多いです。</div>" );
 		}
 		return $value;
 	}
