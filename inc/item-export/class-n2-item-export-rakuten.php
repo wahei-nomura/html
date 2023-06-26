@@ -172,11 +172,10 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			'地場産品類型番号' => 100,
 			'（必須）お礼の品名' => 200,
 			'説明','容量','申込期日','発送期日','アレルギー特記事項','消費期限' => 1000,
-			default => 10000,
+			default => 10000,// 仮で設定
 		};
-		$is_over = $len > $max;
-		if ( $is_over ) {
-			$over = $len - $max;
+		$over = $len - $max;
+		if ( $over > 0 ) {
 			$this->add_error( $n2values['id'], "<div title='{$value}'>「{$name}」の文字数が{$over}文字多いです。</div>" );
 		}
 		return $value;
