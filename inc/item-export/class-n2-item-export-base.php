@@ -374,6 +374,7 @@ class N2_Item_Export_Base {
 			<input type="hidden" name="action" value="<?php echo esc_attr( mb_strtolower( get_class( $this ) ) ); ?>">
 			<input type="hidden" name="str" value="<?php echo esc_attr( $str ); ?>">
 			<button id="download" class="btn btn-success px-5">エラーが無い返礼品のみダウンロードする</button>
+			<button id="download" class="btn btn-success px-5">エラーが無い返礼品のみダウンロードする</button>
 		</form>
 		<?php
 		$this->display_error();
