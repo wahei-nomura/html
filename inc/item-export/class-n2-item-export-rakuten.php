@@ -219,7 +219,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 
 		// 事業者コードでハッシュ化
 		$this->rms['cabinet'][ $sku ] = match ( ! isset( $this->rms['cabinet'][ $sku ] ) ) {
-			true => N2_Rakuten_Cabinet_API::files_search(
+			true => N2_RMS_Cabinet_API::files_search(
 				array(
 					'sku'    => $sku,
 					'header' => $this->rms['header'],
@@ -279,11 +279,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			$result = array_filter( $result, fn( $r ) => $r );
 
 		} elseif ( ! $result ) { // 直接存在チェック
-
-			echo 'here:' . $gift_code;
-
 			set_time_limit( 60 );
-			global $n2;
 
 			$result   = array();
 			$response = N2_Multi_URL_Request_API::verify_images( $requests );

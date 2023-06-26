@@ -5,21 +5,21 @@
  * @package neoneng
  */
 
-if ( class_exists( 'N2_Rakuten_Cabinet_API' ) ) {
-	new N2_Rakuten_Cabinet_API();
+if ( ! class_exists( 'N2_RMS_Cabinet_API' ) ) {
+	new N2_RMS_Cabinet_API();
 	return;
 }
 
 /**
  * N2からCABINETへ送信したりするAPI
  */
-class N2_Rakuten_Cabinet_API extends N2_RMS_Base_API {
+class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	/**
 	 * option_name
 	 *
 	 * @var string
 	 */
-	protected $option_name = 'n2_rakuten_cabinet_api';
+	protected $option_name = 'n2_rms_cabinet_api';
 	/**
 	 * connect
 	 *
