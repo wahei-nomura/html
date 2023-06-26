@@ -178,6 +178,31 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		if ( $over > 0 ) {
 			$this->add_error( $n2values['id'], "<div title='{$value}'>「{$name}」の文字数が{$over}文字多いです。</div>" );
 		}
+		//存在する画像ファイルだけの配列を生成する
+		$exist_images = function () use ( $n2values, $name ) {
+			return  array_filter(
+				$this->make_img_urls( $n2values),
+				fn( $image ) => in_array($image , explode( ' ', $n2values[ $name ] ), true),
+			);
+		};
+		/**
+		 * 画像エラー
+		 */
+		$images = match ( $name ) {
+			'商品画像URL' => $exist_images( $this->make_img_urls( $n2values, $name) ),
+			default => false,
+		};
+
+		if ( false !== $images ) {
+			$max_index = end( array_keys( $images ) );
+			for ( $index=0; $index <= $max_index ; $index++) {
+				$gift_code     = mb_strtolower( $n2values['返礼品コード'] );
+				$image = $gift_code . ($index !== 0 ? '_' . $index : '') . '.jpg';
+				if( ! isset($images[$index ])) {
+					$this->add_error( $n2values['id'], "商品画像を先にアップロードしてください！ {$image}" );
+				}
+			}
+		}
 		return $value;
 	}
 	/**
