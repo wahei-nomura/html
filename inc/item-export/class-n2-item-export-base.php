@@ -403,7 +403,7 @@ class N2_Item_Export_Base {
 	 */
 	private function debug( $time ) {
 		$time = microtime( true ) - $time;
-		var_dump( '実行結果: ' . $time . '秒' ); // 実行時間を出力する
+		print_r( '実行結果: ' . $time . '秒 ' ); // 実行時間を出力する
 		$this->set_header_string();
 		$this->set_data_string();
 		header( 'Content-Type: application/json; charset=utf-8' );
