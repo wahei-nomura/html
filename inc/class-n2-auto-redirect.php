@@ -20,7 +20,7 @@ class N2_Auto_Redirect {
 	 */
 	public function __construct() {
 		add_action( 'after_setup_theme', array( $this, 'redirect_to_code_path' ) );
-		add_action( 'admin_init', array( $this, 'redirect_to_same_page' ) );
+		// add_action( 'admin_init', array( $this, 'redirect_to_same_page' ) );
 	}
 
 	/**
