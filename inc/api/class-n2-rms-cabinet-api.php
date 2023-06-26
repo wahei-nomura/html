@@ -13,7 +13,7 @@ if ( class_exists( 'N2_Rakuten_Cabinet_API' ) ) {
 /**
  * N2からCABINETへ送信したりするAPI
  */
-class N2_Rakuten_Cabinet_API extends N2_Rakuten_RMS_Base_API {
+class N2_Rakuten_Cabinet_API extends N2_RMS_Base_API {
 	/**
 	 * option_name
 	 *

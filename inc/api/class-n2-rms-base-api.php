@@ -5,21 +5,21 @@
  * @package neoneng
  */
 
-if ( class_exists( 'N2_Rakuten_RMS_Base_API' ) ) {
-	new N2_Rakuten_RMS_Base_API();
+if ( class_exists( 'N2_RMS_Base_API' ) ) {
+	new N2_RMS_Base_API();
 	return;
 }
 /**
  * 寄附金額の計算のためのAPI
  */
-class N2_Rakuten_RMS_Base_API {
+class N2_RMS_Base_API {
 
 	/**
 	 * option_name
 	 *
 	 * @var string
 	 */
-	protected $option_name = 'n2_rakuten_rms_base_api';
+	protected $option_name = 'N2_RMS_Base_API';
 
 	/**
 	 * RMSのキー取得の為のスプレットシートID
@@ -58,25 +58,12 @@ class N2_Rakuten_RMS_Base_API {
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		add_action( 'n2_rakuten_rms_api_connect', array( $this, 'connect' ) );
-		add_action( 'wp_ajax_n2_rakuten_rms_api_connect', array( $this, 'connect' ) );
+		add_action( 'n2_rms_api_connect', array( $this, 'connect' ) );
+		add_action( 'wp_ajax_n2_rms_api_connect', array( $this, 'connect' ) );
 	}
 
-
 	/**
-	 * 外部用API
-	 */
-	public function get() {
-		$data = get_option( $this->option_name );
-		$data = wp_json_encode( $data, JSON_UNESCAPED_UNICODE );
-		header( 'Content-Type: application/json; charset=utf-8' );
-		echo $data;
-		exit;
-	}
-
-
-	/**
-	 * RMSがアクセス可能か判定用
+	 * 接続確認用API
 	 *
 	 * @return array
 	 */
