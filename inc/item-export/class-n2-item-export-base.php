@@ -400,6 +400,8 @@ class N2_Item_Export_Base {
 
 	/**
 	 * デバッグ用
+	 *
+	 * @param floot $time 開始時刻
 	 */
 	private function debug( $time ) {
 		$time = microtime( true ) - $time;

@@ -228,8 +228,37 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		};
 		return true;
 	}
+
+
 	/**
-	 * 楽天の画像URLを取得
+	 * URLを単純に生成する機能
+	 * 
+	 * @param array $n2values n2values
+	 * @return array
+	 */
+	protected function make_img_urls ( $n2values ) {
+		global $n2;
+		$img_dir       = rtrim( $n2->portal_setting['楽天']['img_dir'], '/' );
+		$gift_code     = mb_strtolower( $n2values['返礼品コード'] );
+		$business_code = mb_strtolower( $n2values['事業者コード'] );
+		// GOLD（ne.jp）とキャビネット（co.jp）を判定してキャビネットは事業者コードディレクトリを追加
+		if ( ! preg_match( '/ne\.jp/', $img_dir ) ) {
+			$img_dir .= "/{$business_code}";// キャビネットの場合事業者コード追加
+		}
+		$result = array();
+		for ( $i = 0; $i < 15; ++$i ) {
+			$img_url = "{$img_dir}/{$gift_code}";
+			if ( 0 === $i ) {
+				$img_url .= '.jpg';
+			} else {
+				$img_url .= "-{$i}.jpg";
+			}
+			$result[ $i ] = $img_url;
+		}
+		return $result;
+	}
+	/**
+	 * 楽天の存在する画像URLを取得
 	 *
 	 * @param array  $n2values n2dataのループ中の値
 	 * @param string $return_type 戻り値判定用(string|html|array)
@@ -242,23 +271,8 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			false => array(),
 		};
 
-		$img_dir       = rtrim( $n2->portal_setting['楽天']['img_dir'], '/' );
-		$gift_code     = mb_strtolower( $n2values['返礼品コード'] );
 		$business_code = mb_strtolower( $n2values['事業者コード'] );
-		// GOLD（ne.jp）とキャビネット（co.jp）を判定してキャビネットは事業者コードディレクトリを追加
-		if ( ! preg_match( '/ne\.jp/', $img_dir ) ) {
-			$img_dir .= "/{$business_code}";// キャビネットの場合事業者コード追加
-		}
-		$requests = array();
-		for ( $i = 0; $i < 15; ++$i ) {
-			$img_url = "{$img_dir}/{$gift_code}";
-			if ( 0 === $i ) {
-				$img_url .= '.jpg';
-			} else {
-				$img_url .= "-{$i}.jpg";
-			}
-			$requests[ $i ] = $img_url;
-		}
+		$requests = $this->make_img_urls( $n2values );
 
 		// RMSを利用する
 		if ( ! $result && $this->set_cabinet_files( $business_code ) ) {
