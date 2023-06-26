@@ -20,7 +20,7 @@ class N2_Auto_Redirect {
 	 */
 	public function __construct() {
 		add_action( 'after_setup_theme', array( $this, 'redirect_to_code_path' ) );
-		// add_action( 'admin_init', array( $this, 'redirect_to_same_page' ) );
+		add_action( 'admin_init', array( $this, 'redirect_to_same_page' ) );
 	}
 
 	/**
@@ -53,7 +53,7 @@ class N2_Auto_Redirect {
 		$now = $_SERVER['REQUEST_URI'];
 		$ref = $_SERVER['HTTP_REFERER'];
 		// リダイレクトしてほしくないパターン
-		if ( ! preg_match( '#/wp-admin/$#', $now ) || preg_match( '#(/wp-admin/$|/network/)#', $ref ) ) {
+		if ( ! preg_match( '#/wp-admin/$#', $now ) || preg_match( '#(/wp-admin/$|/network/)#', $ref ) || ! preg_match( '#/wp-admin/#', $ref ) ) {
 			return;
 		}
 		$redirect = preg_replace( '#.*?/wp-admin/#', $now, $ref );
