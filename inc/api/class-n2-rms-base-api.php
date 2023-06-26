@@ -5,10 +5,6 @@
  * @package neoneng
  */
 
-if ( class_exists( 'N2_RMS_Base_API' ) ) {
-	new N2_RMS_Base_API();
-	return;
-}
 /**
  * RMS BASE API
  */

@@ -207,11 +207,11 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	private function set_cabinet_files( $sku ) {
 		if ( null === $this->rms['header'] ) {
 			// api keyを取得
-			$this->rms['header'] = N2_RMS_Base_API::set_api_keys();
+			$this->rms['header'] = N2_RMS_Cabinet_API::set_api_keys();
 		}
 		// 一度だけ実行する
 		if ( null === $this->rms['use_api'] ) {
-			$this->rms['use_api'] = 200 === N2_RMS_Base_API::connect()['code'];
+			$this->rms['use_api'] = 200 === N2_RMS_Cabinet_API::connect()['code'];
 		}
 		if ( ! $this->rms['use_api'] ) {
 			return false;
