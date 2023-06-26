@@ -44,6 +44,8 @@ $incs = array(
 	'class-n2-rakuten-ftp',
 	'api/class-n2-donation-amount-api',
 	'api/class-n2-rakuten-items-api',
+	'api/class-n2-rakuten-rms-base-api',
+	'api/class-n2-rakuten-cabinet-api',
 	'api/class-n2-furusato-choice-items-api',
 	'class-n2-chonbo',
 	'api/class-n2-output-gift-api',

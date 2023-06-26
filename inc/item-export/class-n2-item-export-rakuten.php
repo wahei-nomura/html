@@ -31,6 +31,17 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	);
 
 	/**
+	 * RMS
+	 *
+	 * @var array
+	 */
+	private $rms = array(
+		'header'  => null,
+		'cabinet'   => array(),
+		'use_api' => null,
+	);
+
+	/**
 	 * 楽天CSVヘッダーを取得
 	 */
 	protected function set_header() {
@@ -47,7 +58,22 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 * 楽天用の内容を配列で作成
 	 */
 	protected function set_data() {
+		global $n2;
 		$data = array();
+		
+
+		$sku_list = array_map(
+			function( $item ) {
+				return mb_strtolower( $item['事業者コード'] );
+			},
+			$this->data['n2data'],
+		);
+		// 事業者コード一覧
+		$sku_list = array_unique( $sku_list );
+		foreach ( $sku_list as $sku ) {
+			$this->set_cabinet_files( $sku );
+		}
+
 		// $this->check_fatal_error( $this->data['header'], 'ヘッダーが正しくセットされていません' );
 		foreach ( $this->data['n2data'] as $key => $values ) {
 			$id = $values['id'];
@@ -170,6 +196,39 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		$str = apply_filters( mb_strtolower( get_class( $this ) ) . '_special_str_convert', $str );
 		return $str;
 	}
+
+	/**
+	 * キャビネットの画像ファイルを設定
+	 *
+	 * @param string $sku 事業者コード
+	 *
+	 * @return bool 設定可否
+	 */
+	private function set_cabinet_files( $sku ) {
+		if ( null === $this->rms['header'] ) {
+			// api keyを取得
+			$this->rms['header'] = N2_Rakuten_RMS_Base_API::set_api_keys();
+		}
+		// 一度だけ実行する
+		if ( null === $this->rms['use_api'] ) {
+			$this->rms['use_api'] = 200 === N2_Rakuten_RMS_Base_API::connect()['code'];
+		}
+		if ( ! $this->rms['use_api'] ) {
+			return false;
+		}
+
+		// 事業者コードでハッシュ化
+		$this->rms['cabinet'][ $sku ] = match ( ! isset( $this->rms['cabinet'][ $sku ] ) ) {
+			true => N2_Rakuten_Cabinet_API::files_search(
+				array(
+					'sku'    => $sku,
+					'header' => $this->rms['header'],
+				),
+			),
+			default => $this->rms['cabinet'][ $sku ] ?? array(),
+		};
+		return true;
+	}
 	/**
 	 * 楽天の画像URLを取得
 	 *
@@ -178,41 +237,55 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 * @return string|array 楽天の画像URLを(文字列|配列)で取得する
 	 */
 	public function get_img_urls( $n2values, $return_type = 'string' ) {
-
+		global $n2;
 		$result = match ( isset( $n2values['商品画像URL'] ) ) {
 			true => explode( ' ', $n2values['商品画像URL'] ),
 			false => array(),
 		};
 
-		$use_rms_api = false;
-
-		if ( ! $result && $use_rms_api ) {
-			// RMSを利用する
-			$result = array();
+		$img_dir       = rtrim( $n2->portal_setting['楽天']['img_dir'], '/' );
+		$gift_code     = mb_strtolower( $n2values['返礼品コード'] );
+		$business_code = mb_strtolower( $n2values['事業者コード'] );
+		// GOLD（ne.jp）とキャビネット（co.jp）を判定してキャビネットは事業者コードディレクトリを追加
+		if ( ! preg_match( '/ne\.jp/', $img_dir ) ) {
+			$img_dir .= "/{$business_code}";// キャビネットの場合事業者コード追加
+		}
+		$requests = array();
+		for ( $i = 0; $i < 15; ++$i ) {
+			$img_url = "{$img_dir}/{$gift_code}";
+			if ( 0 === $i ) {
+				$img_url .= '.jpg';
+			} else {
+				$img_url .= "-{$i}.jpg";
+			}
+			$requests[ $i ] = $img_url;
 		}
 
-		if ( ! $result ) {
+		// RMSを利用する
+		if ( ! $result && $this->set_cabinet_files( $business_code ) ) {
+
+			$files  = array_map(
+				function( $req ) {
+					return $req['FileUrl'];
+				},
+				$this->rms['cabinet'][ $business_code ],
+			);
+			$result = array_map(
+				function( $req ) use ( $files ) {
+					return in_array( $req, $files, true ) ? $req : '';
+				},
+				$requests,
+			);
+			$result = array_filter( $result, fn( $r ) => $r );
+
+		} elseif ( ! $result ) { // 直接存在チェック
+
+			echo 'here:' . $gift_code;
+
 			set_time_limit( 60 );
 			global $n2;
-			$img_dir       = rtrim( $n2->portal_setting['楽天']['img_dir'], '/' );
-			$gift_code     = mb_strtolower( $n2values['返礼品コード'] );
-			$business_code = mb_strtolower( $n2values['事業者コード'] );
-			// GOLD（ne.jp）とキャビネット（co.jp）を判定してキャビネットは事業者コードディレクトリを追加
-			if ( ! preg_match( '/ne\.jp/', $img_dir ) ) {
-				$img_dir .= "/{$business_code}";// キャビネットの場合事業者コード追加
-			}
 
 			$result   = array();
-			$requests = array();
-			for ( $i = 0; $i < 15; ++$i ) {
-				$img_url = "{$img_dir}/{$gift_code}";
-				if ( 0 === $i ) {
-					$img_url .= '.jpg';
-				} else {
-					$img_url .= "-{$i}.jpg";
-				}
-				$requests[ $i ] = $img_url;
-			}
 			$response = N2_Multi_URL_Request_API::verify_images( $requests );
 			$result   = array_map(
 				function( $req ) use ( $response ) {
