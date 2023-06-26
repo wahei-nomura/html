@@ -55,7 +55,7 @@ class N2_Multi_URL_Request_API {
 		}
 		$result = Requests::request_multiple( $requests );
 
-		if ( $action && 'n2_multi_url_request_api' === $action ) {
+		if ( 'n2_multi_url_request_api' === $action ) {
 			header( 'Content-Type: application/json; charset=utf-8' );
 			echo wp_json_encode( $result );
 			exit;
@@ -83,10 +83,10 @@ class N2_Multi_URL_Request_API {
 		$response = self::requests( $urls );
 		$result   = array();
 
-		foreach ( $response as $index => $res ) {
+		foreach ( $response as $res ) {
 			$result[ $res->url ] = 200 === $res->status_code;
 		}
-		if ( $action && 'n2_item_export_rakuten' !== $action ) {
+		if ( 'n2_multi_veryfy_images_api' === $action ) {
 			header( 'Content-Type: application/json; charset=utf-8' );
 			echo wp_json_encode( $result );
 			exit;
