@@ -1,6 +1,6 @@
 <?php
 /**
- * RMS API
+ * RMS BASE API
  *
  * @package neoneng
  */
@@ -10,10 +10,9 @@ if ( class_exists( 'N2_RMS_Base_API' ) ) {
 	return;
 }
 /**
- * 寄附金額の計算のためのAPI
+ * RMS BASE API
  */
-class N2_RMS_Base_API {
-
+abstract class N2_RMS_Base_API {
 	/**
 	 * option_name
 	 *
