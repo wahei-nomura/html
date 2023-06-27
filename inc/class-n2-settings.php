@@ -132,10 +132,10 @@ class N2_Settings {
 	 */
 	private function is_hide_menu( $name ) {
 		global $n2;
-		$hide = array_diff( $this->portal_sites, $n2->portal_sites );
+		$hide = array_diff( $this->portal_sites, $n2->settings['N2']['出品ポータル'] );
 		// LedgHOME
-		if ( isset( $n2->ledghome ) ) {
-			$hide[] = match ( $n2->ledghome ) {
+		if ( isset( $n2->settings['N2']['LedgHOME'] ) ) {
+			$hide[] = match ( $n2->settings['N2']['LedgHOME'] ) {
 				'通常版レジ' => 'クラウド版 LedgHOME',
 				default => '通常版 LedgHOME',
 			};

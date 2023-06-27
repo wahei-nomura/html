@@ -18,7 +18,7 @@ $settings = array(
 		<th>カテゴリー</th>
 		<td>
 			<p>※改行区切りでカテゴリーを記入</p>
-			<textarea name="n2_settings[クラウド版レジ][カテゴリー]" rows="10" style="width: 100%;"><?php echo $n2->settings['クラウド版レジ']['カテゴリー']; ?></textarea>
+			<textarea name="n2_settings[クラウド版レジ][カテゴリー]" rows="10" style="width: 100%;"><?php echo esc_attr( $n2->settings['クラウド版レジ']['カテゴリー'] ); ?></textarea>
 		</td>
 	</tr>
 	<tr>

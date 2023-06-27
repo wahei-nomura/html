@@ -16,7 +16,7 @@ export default $ => {
 	}
 	// current_user追加
 	data['current_user'] = n2.current_user.roles[0];
-	data['楽天SPA'] = n2.portal_setting.楽天.spa || '';
+	data['楽天SPA'] = n2.settings.楽天.楽天SPA || '';
 	data['寄附金額チェッカー'] = '';
 	data['寄附金額自動計算値'] = '';
 	const created = async function() {
@@ -60,7 +60,7 @@ export default $ => {
 				].filter(v=>v);
 				this.送料 = 'その他' == this.発送サイズ
 					? newVal.その他送料
-					: n2.delivery_fee[size.join('_')] || '';
+					: n2.settings['寄附金額・送料']['送料'][size.join('_')] || '';
 				this.寄附金額 = await this.calc_donation(newVal.価格,this.送料,newVal.定期便);
 				// 保存ボタン
 				this.show_submit();

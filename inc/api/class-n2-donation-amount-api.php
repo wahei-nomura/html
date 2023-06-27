@@ -34,8 +34,8 @@ class N2_Donation_Amount_API {
 		global $n2;
 		$args = $args ? wp_parse_args( $args ) : $_GET;
 		// 除数と送料乗数
-		$divisor             = $n2->formula['除数'];// 0.3 0.35 0.4 など
-		$delivery_multiplier = $n2->formula['送料乗数'];// 0 or 1
+		$divisor             = $n2->settings['寄附金額・送料']['除数'];// 0.3 0.35 0.4 など
+		$delivery_multiplier = $n2->settings['寄附金額・送料']['送料乗数'];// 0 or 1
 		// 価格・送料
 		$price        = (int) ( $args['price'] ?? 0 );
 		$delivery_fee = (int) ( $args['delivery_fee'] ?? 0 ) * $delivery_multiplier;
@@ -107,13 +107,13 @@ class N2_Donation_Amount_API {
 	 */
 	private function update_dellivery_fee( $post_id ) {
 		global $n2;
-		// $n2->delivery_feeのキーを生成
+		// 送料のキーを生成
 		$delivery_code = $this->create_delivery_code(
 			get_post_meta( $post_id, '発送サイズ', true ),
 			get_post_meta( $post_id, '発送方法', true )
 		);
 		// 新送料
-		$calc_delivery_fee = $n2->delivery_fee[ $delivery_code ] ?? false;
+		$calc_delivery_fee = $n2->settings['寄附金額・送料']['送料'][ $delivery_code ] ?? false;
 		// 旧送料
 		$delivery_fee = get_post_meta( $post_id, '送料', true );
 		// 新旧一致、または不明の場合は何もしない

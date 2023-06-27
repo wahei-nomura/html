@@ -34,7 +34,7 @@ class N2_Rakuten_FTP {
 	 */
 	public function add_menu() {
 		global $n2;
-		if ( isset( $n2->portal_setting['楽天'] ) ) {
+		if ( isset( $n2->settings['楽天'] ) ) {
 			add_menu_page( '楽天FTP', '楽天FTP', 'ss_crew', 'n2_rakuten_ftp_upload', array( $this, 'ftp_ui' ), 'dashicons-admin-site-alt3' );
 			add_submenu_page( 'n2_rakuten_ftp_upload', '楽天エラーログ', '楽天エラーログ', 'ss_crew', 'n2_rakuten_error_log', array( $this, 'ftp_ui' ) );
 		}
@@ -85,15 +85,15 @@ class N2_Rakuten_FTP {
 		header( 'Content-Type: application/json; charset=utf-8' );
 		// 各種設定読み込み
 		global $n2;
-		$rakuten = $n2->portal_setting['楽天'];
+		$rakuten = $n2->settings['楽天'];
 		// print_r($rakuten);
 		// setlocale(LC_ALL, 'ja_JP.UTF-8');
 		$error_options = array();
 
-		if ( ! isset( $rakuten['ftp_user'] ) || ! $rakuten['ftp_user'] ) {
+		if ( ! isset( $rakuten['FTP']['user'] ) || ! $rakuten['FTP']['user'] ) {
 			$error_options = array( ...$error_options, '楽天セットアップ > FTPユーザー' );
 		}
-		if ( ! isset( $rakuten['ftp_pass'] ) || ! $rakuten['ftp_pass'] ) {
+		if ( ! isset( $rakuten['FTP']['pass'] ) || ! $rakuten['FTP']['pass'] ) {
 			$error_options = array( ...$error_options, '楽天セットアップ > FTPパスワード' );
 		}
 		if ( $error_options ) {
@@ -102,8 +102,8 @@ class N2_Rakuten_FTP {
 			exit();
 			die();
 		}
-		$ftp_user = $rakuten['ftp_user'];
-		$ftp_pass = $rakuten['ftp_pass'];
+		$ftp_user = $rakuten['FTP']['user'];
+		$ftp_pass = $rakuten['FTP']['pass'];
 
 		extract( $_POST );
 
@@ -115,13 +115,13 @@ class N2_Rakuten_FTP {
 				$tmp = wp_tempnam( __CLASS__, dirname( __DIR__ ) . '/' );
 				unlink( $tmp );
 				mkdir( $tmp );
-				$img_dir = rtrim( $rakuten['img_dir'], '/' ) . '/';
+				$img_dir = rtrim( $rakuten['商品画像ディレクトリ'], '/' ) . '/';
 				// GOLD（ne.jp）とキャビネット（co.jp）を判定して接続先を変更
 				$server = preg_match( '/ne\.jp/', $img_dir ) ? 'ftp_server' : 'upload_server';
 				$port = "{$server}_port";
-				$set_server = $rakuten[$server];
-				$set_port = $rakuten[$port];
-				$conn_id = ftp_connect( $set_server, $set_port ); // 可変変数
+				$set_server = $rakuten['FTP'][ $server ];
+				$set_port   = $rakuten['FTP'][ $port ];
+				$conn_id    = ftp_connect( $set_server, $set_port ); // 可変変数
 				$login = ftp_login( $conn_id, $ftp_user, $ftp_pass );
 				// ログインできない場合は末尾を２に変更
 				if ( ! $login ) {
@@ -190,8 +190,8 @@ class N2_Rakuten_FTP {
 			setlocale( LC_ALL, 'ja_JP.UTF-8' );
 			extract( $_FILES[$judge] );
 			if ( ! empty( $tmp_name[0] ) ) {
-				$upload_server = $rakuten['upload_server'];
-				$upload_server_port = $rakuten['upload_server_port'];
+				$upload_server = $rakuten['FTP']['upload_server'];
+				$upload_server_port = $rakuten['FTP']['upload_server_port'];
 				$conn_id = ftp_connect( $upload_server, $upload_server_port );
 				$login = ftp_login( $conn_id, $ftp_user, $ftp_pass );
 				if ( ! $login ) {
@@ -231,9 +231,9 @@ class N2_Rakuten_FTP {
 		WP_Filesystem();
 		require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-ftpext.php';
 		$opt = array(
-			'hostname' => $n2->portal_setting['楽天']['upload_server'],
-			'username' => $n2->portal_setting['楽天']['ftp_user'],
-			'password' => $n2->portal_setting['楽天']['ftp_pass'],
+			'hostname' => $n2->settings['楽天']['FTP']['upload_server'],
+			'username' => $n2->settings['楽天']['FTP']['ftp_user'],
+			'password' => $n2->settings['楽天']['FTP']['ftp_pass'],
 		);
 		$ftp = new WP_Filesystem_FTPext( $opt );
 		if ( ! $ftp->connect() ) {
@@ -286,9 +286,9 @@ class N2_Rakuten_FTP {
 		WP_Filesystem();
 		require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-ftpsockets.php';
 		$opt = array(
-			'hostname' => $n2->portal_setting['楽天']['upload_server'],
-			'username' => $n2->portal_setting['楽天']['ftp_user'],
-			'password' => $n2->portal_setting['楽天']['ftp_pass'],
+			'hostname' => $n2->settings['楽天']['FTP']['upload_server'],
+			'username' => $n2->settings['楽天']['FTP']['ftp_user'],
+			'password' => $n2->settings['楽天']['FTP']['ftp_pass'],
 		);
 		$ftp = new WP_Filesystem_ftpsockets( $opt );
 		$ftp->connect();

@@ -1,22 +1,21 @@
 <?php
 /**
- * LedgHOMEの商品エクスポート専用
- * LedgHOMECSVの仕様：https://steamship.docbase.io/posts/2917248
- * class-n2-item-export-ledghome.php
- * デバッグモード：admin-ajax.php?action=n2_item_export_ledghome&mode=debug
+ * クラウド版レジの商品エクスポート専用
+ * クラウド版レジCSVの仕様：https://steamship.docbase.io/posts/2917248
+ * class-n2-item-export-lhcloud.php
  *
  * @package neoneng
  */
 
-if ( class_exists( 'N2_Item_Export_Ledghome' ) ) {
-	new N2_Item_Export_Ledghome();
+if ( class_exists( 'N2_Item_Export_LHcloud' ) ) {
+	new N2_Item_Export_LHcloud();
 	return;
 }
 
 /**
- * N2_Item_Export_Ledghome
+ * N2_Item_Export_LHcloud
  */
-class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
+class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 
 	/**
 	 * 設定
@@ -24,18 +23,18 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 	 * @var array
 	 */
 	public $settings = array(
-		'filename'      => 'n2_export_ledghome.csv',
+		'filename'      => 'n2_export_lhcloud.csv',
 		'delimiter'     => ',',
 		'charset'       => 'sjis',
 		'header_string' => '"LedgHOMEクラウド謝礼品リスト"' . PHP_EOL,
 	);
 
 	/**
-	 * LedgHOMECSVヘッダーを取得
+	 * クラウド版レジCSVヘッダーを取得
 	 */
 	protected function set_header() {
 		global $n2;
-		$lh_setting = $n2->portal_setting['LedgHOME'];
+		$lh_setting = $n2->settings['クラウド版レジ'];
 		// CSVヘッダー配列化
 		$this->data['header'] = $lh_setting['csv_header'];
 		// その他経費を利用しない場合はヘッダーから抹消
@@ -47,14 +46,14 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 			$this->data['header'] = array_filter( $this->data['header'], fn( $v ) => '特設サイト名称' !== $v );
 		}
 		/**
-		 * [hook] n2_item_export_ledghome_set_header
+		 * [hook] n2_item_export_lhcloud_set_header
 		 */
 		$this->data['header'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_header', $this->data['header'] );
 	}
 
 	/**
 	 * データのマッピング（正しい値かどうかここでチェックする）
-	 * LedgHOMECSVの仕様：https://steamship.docbase.io/posts/2917248
+	 * クラウド版レジCSVの仕様：https://steamship.docbase.io/posts/2917248
 	 *
 	 * @param string $val 項目名
 	 * @param string $index インデックス
@@ -64,7 +63,7 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 		global $n2;
 		$data = array();
 		// LH設定
-		$lh_setting = $n2->portal_setting['LedgHOME'];
+		$lh_setting = $n2->settings['クラウド版レジ'];
 		// 定期便の初期化
 		$n2values['定期便'] = $n2values['定期便'] ?: 1;
 		// eチケット判定
@@ -121,7 +120,7 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 			};
 		}
 		/**
-		 * [hook] n2_item_export_ledghome_walk_values
+		 * [hook] n2_item_export_lhcloud_walk_values
 		 */
 		$val = apply_filters( mb_strtolower( get_class( $this ) ) . '_walk_values', $data, $val, $n2values );
 	}
@@ -158,7 +157,7 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 		global $n2;
 		$str = str_replace( array_keys( $n2->special_str_convert ), array_values( $n2->special_str_convert ), $str );
 		/**
-		 * [hook] n2_item_export_ledghome_special_str_convert
+		 * [hook] n2_item_export_lhcloud_special_str_convert
 		 */
 		$str = apply_filters( mb_strtolower( get_class( $this ) ) . '_special_str_convert', $str );
 		return $str;

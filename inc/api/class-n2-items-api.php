@@ -64,7 +64,7 @@ class N2_Items_API {
 			'post_status'    => 'any',
 			'numberposts'    => -1,
 			'mode'           => 'json',
-			'n2_active_flag' => $n2->n2_active_flag,
+			'n2_active_flag' => $n2->settings['N2']['稼働中'],
 		);
 		// デフォルト値を$paramsで上書き
 		self::$data['params'] = wp_parse_args( $params, $defaults );

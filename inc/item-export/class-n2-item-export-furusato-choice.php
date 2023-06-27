@@ -35,7 +35,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 	 */
 	protected function set_header() {
 		global $n2;
-		$auth = $n2->portal_setting['ふるさとチョイス']['tsv_header'];
+		$auth = $n2->settings['ふるさとチョイス']['tsv_header'];
 		$args = array(
 			'headers' => array(
 				'Authorization' => 'Basic ' . base64_encode( "{$auth['user']}:{$auth['pass']}" ),
@@ -63,10 +63,10 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 	 */
 	protected function walk_values( &$val, $index, $n2values ) {
 		global $n2;
-		$choice_settings = $n2->portal_setting['ふるさとチョイス'];
+		$choice_settings = $n2->settings['ふるさとチョイス'];
 
 		// 説明文
-		$n2values['説明文'] .= $n2->portal_common_description ? "\n\n{$n2->portal_common_description}" : '';
+		$n2values['説明文'] .= $n2->settings['N2']['ポータル共通説明文'] ? "\n\n{$n2->settings['N2']['ポータル共通説明文']}" : '';
 		$n2values['説明文'] .= $n2values['検索キーワード'] ? "\n\n{$n2values['検索キーワード']}" : '';
 
 		// 内容量

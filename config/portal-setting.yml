@@ -9,10 +9,11 @@
 ########################
 
 楽天:
-    ftp_server: ftp.rakuten.ne.jp
-    ftp_server_port: "16910"
-    upload_server: upload.rakuten.ne.jp
-    upload_server_port: "21"
+    FTP:
+        ftp_server: ftp.rakuten.ne.jp
+        ftp_server_port: "16910"
+        upload_server: upload.rakuten.ne.jp
+        upload_server_port: "21"
     csv_header:
         item:
             - コントロールカラム
@@ -44,7 +45,7 @@
 
 ########################
 
-LedgHOME:
+クラウド版レジ:
     csv_header:
         - 謝礼品番号
         - 取扱年度

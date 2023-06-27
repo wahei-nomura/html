@@ -190,7 +190,7 @@ class N2_Sync {
 	 */
 	public function sync_ui_spreadsheet() {
 		global $n2;
-		if ( ! $n2->delivery_fee ) {
+		if ( ! $n2->settings['寄附金額・送料']['送料'] ) {
 			?>
 			<br><p>Googleスプレットシート同期を使うには「<a href="?page=n2_settings_formula-delivery">N2設定 > 寄附金額・送料</a>」の値を適切に入力して下さい。</p>
 			<?php
@@ -844,7 +844,7 @@ class N2_Sync {
 			if ( empty( $d['送料'] ) && ! empty( $d['発送サイズ'] ) && ! empty( $d['発送方法'] ) ) {
 				$delivery_code = N2_Donation_Amount_API::create_delivery_code( $d['発送サイズ'], $d['発送方法'] );
 				// 送料計算
-				$d['送料'] = $n2->delivery_fee[ $delivery_code ] ?? '';
+				$d['送料'] = $n2->settings['寄附金額・送料']['送料'][ $delivery_code ] ?? '';
 			}
 			// $postarrにセット
 			$postarr[ $k ]['meta_input'] = $d;
