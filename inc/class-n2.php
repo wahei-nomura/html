@@ -174,17 +174,86 @@ class N2 {
 	}
 
 	/**
+	 * 旧設定と互換
+	 */
+	private function compatible_settings() {
+		if ( isset( $this->settings['n2'] ) ) {
+			$default = yaml_parse_file( get_theme_file_path( 'config/n2-settings.yml' ) );
+
+			// N2　＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+			$this->settings['N2'] = $default['N2'];
+			$pair = array(
+				'active'                    => '稼働中',
+				'portal_sites'              => '出品ポータル',
+				'portal_common_description' => 'ポータル共通説明文',
+			);
+			foreach ( $pair as $old => $new ) {
+				$this->settings['N2'][ $new ] = $this->settings['n2'][ $old ];
+			}
+			// 楽天ふるさと納税を楽天に変換
+			$this->settings['N2']['出品ポータル'] = array_map(
+				fn( $v ) => str_replace( 'ふるさと納税', '', $v ),
+				$this->settings['N2']['出品ポータル']
+			);
+			// 寄附金額・送料　＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+			$this->settings['寄附金額・送料']['送料'] = $this->settings['delivery_fee'];
+			$this->settings['寄附金額・送料'] = array(
+				...$this->settings['寄附金額・送料'],
+				...$this->settings['formula'],
+			);
+
+			// LedgHOME　＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+			$this->settings['LedgHOME'] = $default['LedgHOME'];
+			// LedgHOMEカテゴリー
+			$this->settings['LedgHOME']['カテゴリー'] = $this->settings['portal_setting']['LedgHOME']['カテゴリー'];
+			// LedgHOME送料反映
+			if ( '反映しない' === $this->settings['portal_setting']['LedgHOME']['レターパック送料反映'] ) {
+				$this->settings['LedgHOME']['送料反映'] = array_values(
+					array_filter(
+						$this->settings['LedgHOME']['送料反映'],
+						fn( $v ) => 'レターパック' !== $v
+					)
+				);
+			}
+
+			// 楽天　＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+			$this->settings['楽天'] = $default['楽天'];
+			$pair = array(
+				'html'    => '説明文追加html',
+				'img_dir' => '商品画像ディレクトリ',
+				'select'  => '項目選択肢',
+				'spa'     => '楽天SPA',
+				'tag_id'  => '共通タグID',
+			);
+			foreach ( $pair as $old => $new ) {
+				$this->settings['楽天'][ $new ] = $this->settings['portal_setting']['楽天'][ $old ];
+			}
+			$this->settings['楽天']['FTP']['user'] = $this->settings['portal_setting']['楽天']['ftp_user'];
+			$this->settings['楽天']['FTP']['pass'] = $this->settings['portal_setting']['楽天']['ftp_pass'];
+
+			// ふるさとチョイス　＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+			$this->settings['ふるさとチョイス'] = $default['ふるさとチョイス'];
+
+			// 旧設定の破棄
+			unset( $this->settings['n2'], $this->settings['delivery_fee'], $this->settings['formula'], $this->settings['portal_setting'] );
+		}
+	}
+
+	/**
 	 * プロパティのセット
 	 */
 	public function set_vars() {
 		global $pagenow, $wpdb;
 		// wp_options保存値
 		// delete_option( 'n2_settings' );
+		$this->settings = get_option(
+			'n2_settings',
+			yaml_parse_file( get_theme_file_path( 'config/n2-settings.yml' ) )
+		);
+		$this->compatible_settings();
+		// ポータル設定のymlをマージ
 		$this->settings = array_merge_recursive(
-			get_option(
-				'n2_settings',
-				yaml_parse_file( get_theme_file_path( 'config/n2-settings.yml' ) )
-			),
+			$this->settings,
 			apply_filters(
 				'n2_portal_setting',
 				yaml_parse_file( get_theme_file_path( 'config/portal-setting.yml' ) )
@@ -251,19 +320,19 @@ class N2 {
 			// 出品しないポータルの場合はカスタムフィールドを削除
 			foreach ( $this->custom_field as $key => $custom_field ) {
 				foreach ( $custom_field as $name => $value ) {
-					if ( isset( $value['portal'] ) && ! in_array( $value['portal'], $this->settings['N2']['出品ポータル'], true ) ) {
+					if ( isset( $value['portal'] ) && ! in_array( $value['portal'], (array) $this->settings['N2']['出品ポータル'], true ) ) {
 						unset( $this->custom_field[ $key ][ $name ] );
 					}
 				}
 			}
 			// 出品禁止ポータルから削除
 			foreach ( $this->custom_field['スチームシップ用']['出品禁止ポータル']['option'] as $index => $option ) {
-				if ( ! in_array( $option, $this->settings['N2']['出品ポータル'], true ) ) {
+				if ( ! in_array( $option, (array) $this->settings['N2']['出品ポータル'], true ) ) {
 					unset( $this->custom_field['スチームシップ用']['出品禁止ポータル']['option'][ $index ] );
 				}
 			}
 			// 商品タイプの選択肢制御
-			$this->custom_field['事業者用']['商品タイプ']['option'] = array_filter( $this->settings['N2']['商品タイプ'] );
+			$this->custom_field['事業者用']['商品タイプ']['option'] = array_filter( (array) $this->settings['N2']['商品タイプ'] );
 			if ( empty( $this->custom_field['事業者用']['商品タイプ']['option'] ) ) {
 				$this->custom_field['事業者用']['商品タイプ']['type'] = 'hidden';
 			}
