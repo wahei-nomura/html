@@ -17,7 +17,7 @@ global $n2;
 	<tr>
 		<th>FTPパスワード</th>
 		<td>
-			<input type="text" name="n2_settings[楽天][FTP][pass]" value="<?php echo esc_attr( $n2->settings['楽天']['FTP']['pass'] ); ?>">
+			<input type="password" name="n2_settings[楽天][FTP][pass]" value="<?php echo esc_attr( $n2->settings['楽天']['FTP']['pass'] ); ?>">
 		</td>
 	</tr>
 	<tr>

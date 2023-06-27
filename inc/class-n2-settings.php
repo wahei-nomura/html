@@ -25,8 +25,7 @@ class N2_Settings {
 	public $settings = array(
 		'n2'               => 'N2',
 		'formula-delivery' => '寄附金額・送料',
-		'lhcloud'          => 'クラウド版 LedgHOME',
-		'ledghome'         => '通常版 LedgHOME',
+		'ledghome'         => 'LedgHOME',
 		'furusato-choice'  => 'ふるさとチョイス',
 		'rakuten'          => '楽天',
 		'furunavi'         => 'ふるなび',
@@ -133,13 +132,6 @@ class N2_Settings {
 	private function is_hide_menu( $name ) {
 		global $n2;
 		$hide = array_diff( $this->portal_sites, $n2->settings['N2']['出品ポータル'] );
-		// LedgHOME
-		if ( isset( $n2->settings['N2']['LedgHOME'] ) ) {
-			$hide[] = match ( $n2->settings['N2']['LedgHOME'] ) {
-				'通常版レジ' => 'クラウド版 LedgHOME',
-				default => '通常版 LedgHOME',
-			};
-		}
 		return in_array( $name, $hide, true );
 	}
 }

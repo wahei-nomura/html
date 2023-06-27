@@ -1,7 +1,7 @@
 <?php
 /**
- * クラウド版レジの商品エクスポート専用
- * クラウド版レジCSVの仕様：https://steamship.docbase.io/posts/2917248
+ * LedgHOMEの商品エクスポート専用
+ * LedgHOMECSVの仕様：https://steamship.docbase.io/posts/2917248
  * class-n2-item-export-lhcloud.php
  *
  * @package neoneng
@@ -23,18 +23,18 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 	 * @var array
 	 */
 	public $settings = array(
-		'filename'      => 'n2_export_lhcloud.csv',
+		'filename'      => 'n2_export_ledghome.csv',
 		'delimiter'     => ',',
 		'charset'       => 'sjis',
 		'header_string' => '"LedgHOMEクラウド謝礼品リスト"' . PHP_EOL,
 	);
 
 	/**
-	 * クラウド版レジCSVヘッダーを取得
+	 * LedgHOMECSVヘッダーを取得
 	 */
 	protected function set_header() {
 		global $n2;
-		$lh_setting = $n2->settings['クラウド版レジ'];
+		$lh_setting = $n2->settings['LedgHOME'];
 		// CSVヘッダー配列化
 		$this->data['header'] = $lh_setting['csv_header'];
 		// その他経費を利用しない場合はヘッダーから抹消
@@ -53,7 +53,7 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 
 	/**
 	 * データのマッピング（正しい値かどうかここでチェックする）
-	 * クラウド版レジCSVの仕様：https://steamship.docbase.io/posts/2917248
+	 * LedgHOMECSVの仕様：https://steamship.docbase.io/posts/2917248
 	 *
 	 * @param string $val 項目名
 	 * @param string $index インデックス
@@ -63,7 +63,7 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 		global $n2;
 		$data = array();
 		// LH設定
-		$lh_setting = $n2->settings['クラウド版レジ'];
+		$lh_setting = $n2->settings['LedgHOME'];
 		// 定期便の初期化
 		$n2values['定期便'] = $n2values['定期便'] ?: 1;
 		// eチケット判定

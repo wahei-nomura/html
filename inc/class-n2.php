@@ -272,8 +272,7 @@ class N2 {
 				unset( $this->custom_field['スチームシップ用']['オンライン決済限定'] );
 			}
 			// LHカテゴリーの設定値を配列化
-			$ledghome    = $this->settings['N2']['LedgHOME'];
-			$lh_category = $this->settings[ $ledghome ]['カテゴリー'];
+			$lh_category = $this->settings['LedgHOME']['カテゴリー'];
 			$lh_category = preg_split( '/\r\n|\r|\n/', trim( $lh_category ) );
 			// option設定
 			$this->custom_field['事業者用']['LHカテゴリー']['option'] = $lh_category;

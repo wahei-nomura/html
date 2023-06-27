@@ -7,7 +7,7 @@
 
 global $n2;
 $settings = array(
-	'LedgHOME' => array( 'クラウド版レジ', '通常版レジ' ),
+	'LedgHOME' => array( 'lhcloud' => 'クラウド版レジ', 'ledghome' => '通常版レジ' ),
 	'商品タイプ' => array( '食品', 'やきもの', 'eチケット' ),
 );
 ?>
@@ -15,6 +15,7 @@ $settings = array(
 	<tr>
 		<th>稼働状況</th>
 		<td>
+			<input type="hidden" name="n2_settings[N2][稼働中]">
 			<label>
 				<input type="checkbox" name="n2_settings[N2][稼働中]" value="1" <?php checked( $n2->settings['N2']['稼働中'] ?? '' ); ?>> N2稼働中
 			</label>
@@ -23,9 +24,9 @@ $settings = array(
 	<tr>
 		<th>LedgHOME</th>
 		<td>
-			<?php foreach ( $settings['LedgHOME'] as $ledghome ) : ?>
+			<?php foreach ( $settings['LedgHOME'] as $name => $label ) : ?>
 			<label style="margin: 0 2em 0 0;">
-				<input type="radio" name="n2_settings[N2][LedgHOME]" value="<?php echo $ledghome; ?>" <?php checked( $n2->settings['N2']['LedgHOME'] ?? '', $ledghome ); ?>> <?php echo $ledghome; ?>
+				<input type="radio" name="n2_settings[N2][LedgHOME]" value="<?php echo $name; ?>" <?php checked( $n2->settings['N2']['LedgHOME'] ?? '', $name ); ?>> <?php echo $label; ?>
 			</label>
 			<?php endforeach; ?>
 		</td>
