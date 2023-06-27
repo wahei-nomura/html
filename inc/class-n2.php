@@ -320,19 +320,19 @@ class N2 {
 			// 出品しないポータルの場合はカスタムフィールドを削除
 			foreach ( $this->custom_field as $key => $custom_field ) {
 				foreach ( $custom_field as $name => $value ) {
-					if ( isset( $value['portal'] ) && ! in_array( $value['portal'], (array) $this->settings['N2']['出品ポータル'], true ) ) {
+					if ( isset( $value['portal'] ) && ! in_array( $value['portal'], $this->settings['N2']['出品ポータル'], true ) ) {
 						unset( $this->custom_field[ $key ][ $name ] );
 					}
 				}
 			}
 			// 出品禁止ポータルから削除
 			foreach ( $this->custom_field['スチームシップ用']['出品禁止ポータル']['option'] as $index => $option ) {
-				if ( ! in_array( $option, (array) $this->settings['N2']['出品ポータル'], true ) ) {
+				if ( ! in_array( $option, $this->settings['N2']['出品ポータル'], true ) ) {
 					unset( $this->custom_field['スチームシップ用']['出品禁止ポータル']['option'][ $index ] );
 				}
 			}
 			// 商品タイプの選択肢制御
-			$this->custom_field['事業者用']['商品タイプ']['option'] = array_filter( (array) $this->settings['N2']['商品タイプ'] );
+			$this->custom_field['事業者用']['商品タイプ']['option'] = array_filter( $this->settings['N2']['商品タイプ'] );
 			if ( empty( $this->custom_field['事業者用']['商品タイプ']['option'] ) ) {
 				$this->custom_field['事業者用']['商品タイプ']['type'] = 'hidden';
 			}
