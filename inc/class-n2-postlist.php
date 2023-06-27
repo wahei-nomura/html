@@ -98,7 +98,9 @@ class N2_Postlist {
 			'poster'          => '事業者名',
 			'code'            => "<div class='text-center'><a href='{$sort_base_url}&orderby=返礼品コード&order={$asc_or_desc}'>返礼品<br>コード{$this->judging_icons_order('返礼品コード')}</a></div>",
 			'goods_price'     => "<div class='text-center'><a href='{$sort_base_url}&orderby=価格&order={$asc_or_desc}'>価格{$this->judging_icons_order('価格')}</a></div>",
+			'hold_price'      => '寄附額固定',
 			'donation_amount' => "<a href='{$sort_base_url}&orderby=寄附金額&order={$asc_or_desc}'>寄附金額{$this->judging_icons_order('寄附金額')}</a>",
+			'cda'             => '寄附額(計算)',
 			'teiki'           => "<a href='{$sort_base_url}&orderby=定期便&order={$asc_or_desc}'>定期便{$this->judging_icons_order('定期便')}</a>",
 			'thumbnail'       => '<div class="text-center">画像</div>',
 			'modified-last'   => "<div class='text-center'><a href='{$sort_base_url}&orderby=date&order={$asc_or_desc}'>最終<br>更新日{$this->judging_icons_order('date')}</a></div>",
@@ -170,6 +172,11 @@ class N2_Postlist {
 		$ssmemo          = ! empty( $post_data['社内共有事項'] ) ? nl2br( $post_data['社内共有事項'] ) : '';
 		$ssmemo_isset    = $ssmemo ? 'n2-postlist-ssmemo' : '';
 		$modified_last   = get_the_modified_date( 'Y/m/d' );
+		$divisor         = $n2->formula['除数'];
+		$teiki_no        = ! empty( $post_data['定期便'] ) && 1 !== (int) $post_data['定期便'] ? $post_data['定期便'] : 1;
+		$calc_don_amount = ceil( ( $post_data['価格'] / $divisor ) * $teiki_no / 1000 ) * 1000;
+		$goods_cda       = ! empty( $calc_don_amount ) && 0 !== $calc_don_amount ? number_format( $calc_don_amount ) : '-';
+		$hold_price      = ! empty( $post_data['寄附金額固定'] ) && '固定する' === $post_data['寄附金額固定'][0] ? '固定' : '-';
 
 		$status       = '';
 		$status_bar   = 0;
@@ -238,8 +245,14 @@ class N2_Postlist {
 			case 'goods_price':
 				echo "<div class='text-center'>{$goods_price}</div>";
 				break;
+			case 'hold_price':
+				echo "<div class='text-center'>{$hold_price}</div>";
+				break;
 			case 'donation_amount':
 				echo "<div class='text-center'>{$donation_amount}</div>";
+				break;
+			case 'cda':
+				echo "<div class='text-center'>{$goods_cda}</div>";
 				break;
 			case 'teiki':
 				echo "<div class='text-center'>{$teiki}</div>";
