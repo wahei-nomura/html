@@ -115,6 +115,13 @@ class N2 {
 	public $portal_setting;
 
 	/**
+	 * N2設定
+	 *
+	 * @var array
+	 */
+	public $settings;
+
+	/**
 	 * ポータル共通説明文
 	 *
 	 * @var array
@@ -162,6 +169,13 @@ class N2 {
 	 * @var object
 	 */
 	public $town_check;
+
+	/**
+	 * LedgHOMEのタイプ
+	 *
+	 * @var object
+	 */
+	public $ledghome;
 
 	/**
 	 * エクスポート機能
@@ -227,9 +241,17 @@ class N2 {
 	 */
 	public function set_vars() {
 		global $pagenow, $wpdb;
-
+		// N2設定の全項目
+		$default_settings = yaml_parse_file( get_theme_file_path( 'config/n2-settings.yml' ) );
 		// wp_options保存値
-		$n2_settings = get_option( 'n2_settings', yaml_parse_file( get_theme_file_path( 'config/n2-settings.yml' ) ) );
+		delete_option( 'n2_settings' );
+		$n2_settings = get_option( 'n2_settings', $default_settings );
+		foreach ( $n2_settings as $tab => $values ) {
+			foreach ( $values as $name => $value ) {
+				$this->settings[ $tab ][ $name ] = isset( $n2_settings[ $tab ][ $name ] ) ? $n2_settings[ $tab ][ $name ] : $value;
+			}
+		}
+		$n2_settings = $this->settings;
 
 		// アクセス中のIP
 		$this->ip_address = $_SERVER['REMOTE_ADDR'];
@@ -245,10 +267,13 @@ class N2 {
 		$this->cash_buster = time();
 
 		// N2稼働状況
-		$this->n2_active_flag = $n2_settings['n2']['active'] ?? false;
+		$this->n2_active_flag = $n2_settings['N2']['稼働中'] ?? false;
+
+		// LedgHOME
+		$this->ledghome = $n2_settings['N2']['LedgHOME'] ?? false;
 
 		// 役場確認
-		$this->town_check = $n2_settings['n2']['town_check'] ?? false;
+		$this->town_check = $n2_settings['N2']['役場確認'] ?? false;
 
 		// サイト基本情報
 
@@ -291,13 +316,13 @@ class N2 {
 		}
 
 		// 寄附金額計算式タイプ
-		$this->formula = empty( array_filter( array_values( $n2_settings['formula'] ) ) ) ? false : $n2_settings['formula'];// 空の値が有る場合はfalseに;
+		$this->formula = empty( array_filter( array_values( $n2_settings['寄附金額・送料'] ) ) ) ? false : $n2_settings['寄附金額・送料'];// 空の値が有る場合はfalseに;
 
 		// ポータル共通説明文
-		$this->portal_common_description = $n2_settings['n2']['portal_common_description'] ?? '';
+		$this->portal_common_description = $n2_settings['N2']['ポータル共通説明文'] ?? '';
 
 		// 出品ポータル
-		$this->portal_sites = $n2_settings['n2']['portal_sites'] ?? array();
+		$this->portal_sites = $n2_settings['N2']['出品ポータル'] ?? array();
 
 		// ポータル設定
 		$this->portal_setting = array_merge_recursive(
@@ -325,7 +350,7 @@ class N2 {
 			}
 		}
 		// 商品タイプの選択肢制御
-		$this->custom_field['事業者用']['商品タイプ']['option'] = array_filter( $n2_settings['n2']['item_types'] );
+		$this->custom_field['事業者用']['商品タイプ']['option'] = array_filter( $n2_settings['N2']['商品タイプ'] );
 		if ( empty( $this->custom_field['事業者用']['商品タイプ']['option'] ) ) {
 			$this->custom_field['事業者用']['商品タイプ']['type'] = 'hidden';
 		}
@@ -333,17 +358,16 @@ class N2 {
 		if ( ! isset( $this->portal_setting['ふるさとチョイス']['オンライン決済限定'] ) ) {
 			unset( $this->custom_field['スチームシップ用']['オンライン決済限定'] );
 		}
-		// LHカテゴリー
-		if ( ! empty( $this->portal_setting['LedgHOME']['カテゴリー'] ) ) {
-			// LHカテゴリーの設定値を配列化
-			$lh_category = $this->portal_setting['LedgHOME']['カテゴリー'];
-			$lh_category = preg_replace( '/\r\n|\r|\n/', "\n", trim( $lh_category ) );
-			$lh_category = explode( "\n", $lh_category );
-			// portal_setting
-			$this->portal_setting['LedgHOME']['カテゴリー'] = $lh_category;
-			// option設定
-			$this->custom_field['事業者用']['LHカテゴリー']['option'] = $lh_category;
-		}
+		// LH関連 ===========
+		$ledghome = $this->settings['N2']['LedgHOME'];
+		// LHカテゴリーの設定値を配列化
+		$lh_category = $this->settings[ $ledghome ]['カテゴリー'];
+		$lh_category = preg_replace( '/\r\n|\r|\n/', "\n", trim( $lh_category ) );
+		$lh_category = explode( "\n", $lh_category );
+		// portal_setting
+		$this->settings[ $ledghome ]['カテゴリー'] = $lh_category;
+		// option設定
+		$this->custom_field['事業者用']['LHカテゴリー']['option'] = $lh_category;
 	}
 
 	/**

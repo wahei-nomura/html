@@ -25,9 +25,10 @@ class N2_Settings {
 	public $settings = array(
 		'n2'               => 'N2',
 		'formula-delivery' => '寄附金額・送料',
-		'ledghome'         => 'LedgHOME',
+		'lhcloud'          => 'クラウド版 LedgHOME',
+		'ledghome'         => '通常版 LedgHOME',
 		'furusato-choice'  => 'ふるさとチョイス',
-		'rakuten'          => '楽天ふるさと納税',
+		'rakuten'          => '楽天',
 		'furunavi'         => 'ふるなび',
 		'ana'              => 'ANA',
 	);
@@ -39,7 +40,7 @@ class N2_Settings {
 	 */
 	public $portal_sites = array(
 		'ふるさとチョイス',
-		'楽天ふるさと納税',
+		'楽天',
 		'ふるなび',
 		'ANA',
 	);
@@ -68,7 +69,7 @@ class N2_Settings {
 				continue;
 			}
 			// 出品しないポータルの場合はスキップする
-			if ( $this->is_hide_portal( $name ) ) {
+			if ( $this->is_hide_menu( $name ) ) {
 				continue;
 			}
 			$menu_slug = $this->create_menu_slug( $page );
@@ -89,15 +90,14 @@ class N2_Settings {
 		// n2_settings
 		foreach ( $this->settings as $page => $name ) {
 			$menu_slug = $this->create_menu_slug( $page );
+			if ( ! $this->is_hide_menu( $name ) ) {
+				// ナビゲーション
+				$html['nav'] .= sprintf( '<a href="?page=%s" class="nav-tab%s">%s</a>', $menu_slug, $menu_slug === $template ? ' nav-tab-active' : '', $name );
+			}
 			// フォームコンテンツ
 			ob_start();
 			get_template_part( "template/settings/{$page}", null, $this );
 			$html['contents'] .= sprintf( '<div style="display: %s;padding: 3em 0;">%s</div>', $menu_slug === $template ? 'block' : 'none', ob_get_clean() );
-			// ナビゲーション
-			if ( $this->is_hide_portal( $name ) ) {
-				continue;
-			}
-			$html['nav'] .= sprintf( '<a href="?page=%s" class="nav-tab%s">%s</a>', $menu_slug, $menu_slug === $template ? ' nav-tab-active' : '', $name );
 		}
 		?>
 		<div class="wrap">
@@ -125,14 +125,21 @@ class N2_Settings {
 	}
 
 	/**
-	 * 出品しないポータルか
+	 * 表示しないメニュー判定
 	 * ?page=n2_settings_xxxx
 	 *
-	 * @param string $name ポータル名
+	 * @param string $name メニュー名
 	 */
-	private function is_hide_portal( $name ) {
+	private function is_hide_menu( $name ) {
 		global $n2;
 		$hide = array_diff( $this->portal_sites, $n2->portal_sites );
+		// LedgHOME
+		if ( isset( $n2->ledghome ) ) {
+			$hide[] = match ( $n2->ledghome ) {
+				'通常版レジ' => 'クラウド版 LedgHOME',
+				default => '通常版 LedgHOME',
+			};
+		}
 		return in_array( $name, $hide, true );
 	}
 }

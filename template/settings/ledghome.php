@@ -1,6 +1,6 @@
 <?php
 /**
- * レジホーム
+ * 通常版 レジホーム
  *
  * @package neoneng
  */
@@ -18,38 +18,7 @@ $settings = array(
 		<th>カテゴリー</th>
 		<td>
 			<p>※改行区切りでカテゴリーを記入</p>
-			<textarea name="n2_settings[portal_setting][LedgHOME][カテゴリー]" rows="10" style="width: 100%;"><?php echo esc_attr( implode( "\n", (array) $n2->portal_setting['LedgHOME']['カテゴリー'] ) ); ?></textarea>
-		</td>
-	</tr>
-	<tr>
-		<th>送料</th>
-		<td>
-			<?php foreach ( $settings['送料'] as $v ) : ?>
-			<label style="margin: 0 2em 0 0;">
-				<input type="radio" name="n2_settings[portal_setting][LedgHOME][送料]" value="<?php echo $v; ?>" <?php checked( $n2->portal_setting['LedgHOME']['送料'], $v ); ?>> <?php echo $v; ?>
-			</label>
-			<?php endforeach; ?>
-		</td>
-	</tr>
-	<tr>
-		<th>送料反映</th>
-		<td>
-			<?php foreach ( $settings['送料反映'] as $v ) : ?>
-			<label style="margin: 0 2em 0 0;">
-				<input type="checkbox" name="n2_settings[portal_setting][LedgHOME][送料反映][]" value="<?php echo $v; ?>" <?php checked( in_array( $v, $n2->portal_setting['LedgHOME']['送料反映'], true ) ); ?>> <?php echo $v; ?>
-			</label>
-			<?php endforeach; ?>
-			<input type="hidden" name="n2_settings[portal_setting][LedgHOME][送料反映][]">
-		</td>
-	</tr>
-	<tr>
-		<th>その他経費</th>
-		<td>
-			<?php foreach ( $settings['その他経費'] as $v ) : ?>
-			<label style="margin: 0 2em 0 0;">
-				<input type="radio" name="n2_settings[portal_setting][LedgHOME][その他経費]" value="<?php echo $v; ?>" <?php checked( $n2->portal_setting['LedgHOME']['その他経費'], $v ); ?>> <?php echo $v; ?>
-			</label>
-			<?php endforeach; ?>
+			<textarea name="n2_settings[通常版レジ][カテゴリー]" rows="10" style="width: 100%;"><?php echo esc_attr( $n2->settings['通常版レジ']['カテゴリー'] ); ?></textarea>
 		</td>
 	</tr>
 	<tr>
@@ -57,7 +26,7 @@ $settings = array(
 		<td>
 			<?php foreach ( $settings['価格'] as $v ) : ?>
 			<label style="margin: 0 2em 0 0;">
-				<input type="radio" name="n2_settings[portal_setting][LedgHOME][価格]" value="<?php echo $v; ?>" <?php checked( $n2->portal_setting['LedgHOME']['価格'], $v ); ?>> <?php echo $v; ?>
+				<input type="radio" name="n2_settings[通常版レジ][価格]" value="<?php echo $v; ?>" <?php checked( $n2->settings['通常版レジ']['価格'], $v ); ?>> <?php echo $v; ?>
 			</label>
 			<?php endforeach; ?>
 		</td>

@@ -26,7 +26,7 @@ global $n2;
 							<?php if ( in_array( 'ふるさとチョイス', $n2->portal_sites, true ) ) : ?>
 								<label><input type="radio" name="action" value="n2_item_export_furusato_choice"> ふるさとチョイス</label>
 							<?php endif; ?>
-							<?php if ( in_array( '楽天ふるさと納税', $n2->portal_sites, true ) ) : ?>
+							<?php if ( in_array( '楽天', $n2->portal_sites, true ) ) : ?>
 								<label><input type="radio" name="action" value="n2_item_export_rakuten"> 楽天 [ item.csv ]</label>
 								<label><input type="radio" name="action" value="n2_item_export_rakuten_select"> 楽天 [ select.csv ]</label>
 							<?php endif; ?>

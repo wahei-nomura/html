@@ -7,6 +7,7 @@
 
 global $n2;
 $settings = array(
+	'LedgHOME' => array( 'クラウド版レジ', '通常版レジ' ),
 	'商品タイプ' => array( '食品', 'やきもの', 'eチケット' ),
 );
 ?>
@@ -15,8 +16,18 @@ $settings = array(
 		<th>稼働状況</th>
 		<td>
 			<label>
-				<input type="checkbox" name="n2_settings[n2][active]" value="1" <?php checked( $n2->n2_active_flag ?? '' ); ?>> N2稼働中
+				<input type="checkbox" name="n2_settings[N2][稼働中]" value="1" <?php checked( $n2->settings['N2']['稼働中'] ?? '' ); ?>> N2稼働中
 			</label>
+		</td>
+	</tr>
+	<tr>
+		<th>LedgHOME</th>
+		<td>
+			<?php foreach ( $settings['LedgHOME'] as $ledghome ) : ?>
+			<label style="margin: 0 2em 0 0;">
+				<input type="radio" name="n2_settings[N2][LedgHOME]" value="<?php echo $ledghome; ?>" <?php checked( $n2->settings['N2']['LedgHOME'] ?? '', $ledghome ); ?>> <?php echo $ledghome; ?>
+			</label>
+			<?php endforeach; ?>
 		</td>
 	</tr>
 	<tr>
@@ -24,10 +35,10 @@ $settings = array(
 		<td>
 			<?php foreach ( $settings['商品タイプ'] as $v ) : ?>
 			<label style="margin: 0 2em 0 0;">
-				<input type="checkbox" name="n2_settings[n2][item_types][]" value="<?php echo $v; ?>" <?php checked( in_array( $v, $n2->custom_field['事業者用']['商品タイプ']['option'], true ) ); ?>> <?php echo $v; ?>
+				<input type="checkbox" name="n2_settings[N2][商品タイプ][]" value="<?php echo $v; ?>" <?php checked( in_array( $v, $n2->settings['N2']['商品タイプ'], true ) ); ?>> <?php echo $v; ?>
 			</label>
 			<?php endforeach; ?>
-			<input type="hidden" name="n2_settings[n2][item_types][]">
+			<input type="hidden" name="n2_settings[N2][商品タイプ][]">
 		</td>
 	</tr>
 	<tr>
@@ -35,24 +46,26 @@ $settings = array(
 		<td>
 			<?php foreach ( $args->portal_sites as $portal ) : ?>
 			<label style="margin: 0 2em 0 0;">
-				<input type="checkbox" name="n2_settings[n2][portal_sites][]" value="<?php echo esc_attr( $portal ); ?>" <?php checked( in_array( $portal, $n2->portal_sites ?? array(), true ) ); ?>> <?php echo $portal; ?>
+				<input type="checkbox" name="n2_settings[N2][出品ポータル][]" value="<?php echo esc_attr( $portal ); ?>" <?php checked( in_array( $portal, $n2->settings['N2']['出品ポータル'], true ) ); ?>> <?php echo $portal; ?>
 			</label>
 			<?php endforeach; ?>
+			<input type="hidden" name="n2_settings[N2][出品ポータル][]">
 		</td>
 	</tr>
 	<tr>
 		<th>ポータル共通説明文</th>
 		<td>
 			<label style="margin: 0 2em 0 0;">
-				<textarea name="n2_settings[n2][portal_common_description]" rows="5" style="width: 100%;"><?php echo $n2->portal_common_description; ?></textarea>
+				<textarea name="n2_settings[N2][ポータル共通説明文]" rows="5" style="width: 100%;"><?php echo $n2->settings['N2']['ポータル共通説明文']; ?></textarea>
 			</label>
 		</td>
 	</tr>
 	<tr>
 		<th>役場確認</th>
 		<td>
+			<input type="hidden" name="n2_settings[N2][役場確認]">
 			<label>
-				<input type="checkbox" name="n2_settings[n2][town_check]" value="1" <?php checked( $n2->town_check ?? '' ); ?>> 役場確認する
+				<input type="checkbox" name="n2_settings[N2][役場確認]" value="1" <?php checked( $n2->settings['N2']['役場確認'] ); ?>> 役場確認する
 			</label>
 		</td>
 	</tr>
