@@ -99,7 +99,7 @@ class N2_Postlist {
 			'code'            => "<div class='text-center'><a href='{$sort_base_url}&orderby=返礼品コード&order={$asc_or_desc}'>返礼品<br>コード{$this->judging_icons_order('返礼品コード')}</a></div>",
 			'goods_price'     => "<div class='text-center'><a href='{$sort_base_url}&orderby=価格&order={$asc_or_desc}'>価格{$this->judging_icons_order('価格')}</a></div>",
 			'hold_price'      => '寄附額固定',
-			'donation_amount' => "<a href='{$sort_base_url}&orderby=寄附金額&order={$asc_or_desc}'>寄附金額{$this->judging_icons_order('寄附金額')}</a>",
+			'donation_amount' => "<a href='{$sort_base_url}&orderby=寄附金額&order={$asc_or_desc}'>寄附金額{$this->judging_icons_order('寄附金額')}<br>(返礼率)</a>",
 			'cda'             => '寄附額(計算)',
 			'teiki'           => "<a href='{$sort_base_url}&orderby=定期便&order={$asc_or_desc}'>定期便{$this->judging_icons_order('定期便')}</a>",
 			'thumbnail'       => '<div class="text-center">画像</div>',
@@ -179,7 +179,7 @@ class N2_Postlist {
 		$goods_cda       = ! empty( $calc_don_amount ) && 0 !== $calc_don_amount ? number_format( $calc_don_amount ) : '-';
 		$true_gcda       = $price_diff > 0 ? $goods_cda : '-'; // 計算値と差分がある場合だけ金額表示
 		$hold_price      = ! empty( $post_data['寄附金額固定'] ) && '固定する' === $post_data['寄附金額固定'][0] ? '固定' : '-';
-
+		$return_rate     = ! empty( $post_data['寄附金額'] && $post_data['価格'] ) ? round( $post_data['価格'] / $post_data['寄附金額'], 2 ) . '%' : '-';
 		$status       = '';
 		$status_bar   = 0;
 		$status_color = '';
@@ -251,7 +251,7 @@ class N2_Postlist {
 				echo "<div class='text-center'>{$hold_price}</div>";
 				break;
 			case 'donation_amount':
-				echo "<div class='text-center'>{$donation_amount}</div>";
+				echo "<div class='text-center'>{$donation_amount}<br><span style='font-size:.7rem;'>({$return_rate})</span></div>";
 				break;
 			case 'cda':
 				echo "<div class='text-center'>{$true_gcda}</div>";
