@@ -22,7 +22,7 @@ global $n2;
 						<div style="margin-bottom: 1em;">
 							<span>フォーマット選択 ：　</span>
 							<label><input type="radio" name="action" value="n2_item_export_base" checked> N2</label>
-							<label><input type="radio" name="action" value="n2_item_export_lhcloud"> LedgHOME</label>
+							<label><input type="radio" name="action" value="<?php echo "n2_item_export_{$n2->settings['N2']['LedgHOME']}"; ?>"> LedgHOME</label>
 							<?php if ( in_array( 'ふるさとチョイス', $n2->settings['N2']['出品ポータル'], true ) ) : ?>
 								<label><input type="radio" name="action" value="n2_item_export_furusato_choice"> ふるさとチョイス</label>
 							<?php endif; ?>
