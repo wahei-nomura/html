@@ -184,8 +184,11 @@ class N2_Postlist {
 		$hold_price      = ! empty( $post_data['寄附金額固定'] ) && '固定する' === $post_data['寄附金額固定'][0] ? '固定' : '-';
 		$delivery_size   = ! empty( $post_data['寄附金額固定'] ) ? '常温' !== $post_data['発送方法'] ?  $post_data['発送サイズ'] : $post_data['発送サイズ'] . '_cool' : '-';
 		$delivery_fee    = ! empty( $post_data['寄附金額固定'] ) ? $n2->delivery_fee[$delivery_size] : 0;
+		$price           = $post_data['価格'];
+		$subscription    = $post_data['定期便'];
+		$cda2            = N2_Donation_Amount_API::calc( compact( 'price', 'delivery_fee', 'subscription' ) );
 		$include_fee     = $n2->formula['送料乗数'];
-		$return_rate     = ! empty( $post_data['寄附金額'] && $post_data['価格'] ) ? '1' === $include_fee ? round( $post_data['価格'] / ( $post_data['寄附金額'] + $delivery_fee / $teiki_no ), 2 ) : round( $post_data['価格'] / ( $post_data['寄附金額'] / $teiki_no ), 2 ) : '-';
+		$return_rate     = N2_Donation_Amount_API::calc_return_rate( $post_data );
 		$status       = '';
 		$status_bar   = 0;
 		$status_color = '';

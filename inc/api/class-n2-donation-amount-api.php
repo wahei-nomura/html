@@ -41,7 +41,6 @@ class N2_Donation_Amount_API {
 		$delivery_fee = (int) ( $args['delivery_fee'] ?? 0 ) * $delivery_multiplier;
 		$subscription = (int) ( $args['subscription'] ?? 1 );
 		$action       = $args['action'] ?? false;
-
 		// 下限寄附額（3割ルール）
 		$min_donation_amount = ceil( $price * $subscription / 300 ) * 1000;
 		// 寄附金額
@@ -66,6 +65,23 @@ class N2_Donation_Amount_API {
 		}
 		// N2_Donation_Amount_API::calc()呼び出し
 		return $donation_amount;
+	}
+
+	/**
+	 * 返礼率生成
+	 *
+	 * @param string $post_data 投稿データ
+	 */
+	public static function calc_return_rate( $post_data ) {
+		global $n2;
+
+		$delivery_multiplier = $n2->formula['送料乗数'];// 0 or 1
+		$delivery_size       = ! empty( $post_data['寄附金額固定'] ) ? '常温' !== $post_data['発送方法'] ?  $post_data['発送サイズ'] : $post_data['発送サイズ'] . '_cool' : '-';
+		$delivery_fee        = ! empty( $post_data['寄附金額固定'] ) ? $n2->elivery_fee[$delivery_size] : 0;
+		$teiki_no            = ! empty( $post_data['定期便'] ) && 1 !== (int) $post_data['定期便'] ? $post_data['定期便'] : 1;
+		$return_rate         = ! empty( $post_data['寄附金額'] && $post_data['価格'] ) ? '1' === $delivery_multiplier ? ceil( $post_data['価格'] / ( $post_data['寄附金額'] + $delivery_fee / $teiki_no ), 2 ) : round( $post_data['価格'] / ( $post_data['寄附金額'] / $teiki_no ), 2 ) : '-';
+		// N2_Donation_Amount_API::calc_return_rate()呼び出し
+		return $return_rate;
 	}
 
 	/**
@@ -144,4 +160,5 @@ class N2_Donation_Amount_API {
 		$delivery_code = implode( '_', $delivery_code );// 0101_coolなど
 		return $delivery_code;
 	}
+
 }
