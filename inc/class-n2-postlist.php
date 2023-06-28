@@ -77,6 +77,7 @@ class N2_Postlist {
 	 * @return array $columns 一覧に追加するカラム
 	 */
 	public function add_posts_columns( $columns ) {
+		global $n2;
 
 		$get_param_array = array();
 		foreach ( $_GET as $key => $value ) {
@@ -91,6 +92,8 @@ class N2_Postlist {
 
 		$sort_base_url = admin_url() . 'edit.php?' . implode( '&', $get_param_array );
 		$asc_or_desc   = empty( $_GET['order'] ) || 'asc' === $_GET['order'] ? 'desc' : 'asc';
+		$include_fee   = $n2->formula['送料乗数'];
+		$cl_cda_header = '1' === $include_fee ? '寄附額(計算:送料含)' : '寄附額(計算)';
 
 		$columns = array(
 			'cb'              => '<input type="checkbox" />',
@@ -100,7 +103,7 @@ class N2_Postlist {
 			'goods_price'     => "<div class='text-center'><a href='{$sort_base_url}&orderby=価格&order={$asc_or_desc}'>価格{$this->judging_icons_order('価格')}</a></div>",
 			'hold_price'      => '寄附額固定',
 			'donation_amount' => "<a href='{$sort_base_url}&orderby=寄附金額&order={$asc_or_desc}'>寄附金額{$this->judging_icons_order('寄附金額')}<br>(返礼率)</a>",
-			'cda'             => '寄附額(計算)',
+			'cda'             => "{$cl_cda_header}",
 			'teiki'           => "<a href='{$sort_base_url}&orderby=定期便&order={$asc_or_desc}'>定期便{$this->judging_icons_order('定期便')}</a>",
 			'thumbnail'       => '<div class="text-center">画像</div>',
 			'modified-last'   => "<div class='text-center'><a href='{$sort_base_url}&orderby=date&order={$asc_or_desc}'>最終<br>更新日{$this->judging_icons_order('date')}</a></div>",
@@ -179,11 +182,14 @@ class N2_Postlist {
 		$goods_cda       = ! empty( $calc_don_amount ) && 0 !== $calc_don_amount ? number_format( $calc_don_amount ) : '-';
 		$true_gcda       = $price_diff > 0 ? $goods_cda : '-'; // 計算値と差分がある場合だけ金額表示
 		$hold_price      = ! empty( $post_data['寄附金額固定'] ) && '固定する' === $post_data['寄附金額固定'][0] ? '固定' : '-';
-		$return_rate     = ! empty( $post_data['寄附金額'] && $post_data['価格'] ) ? round( $post_data['価格'] / $post_data['寄附金額'], 2 ) . '%' : '-';
+		$delivery_size   = ! empty( $post_data['寄附金額固定'] ) ? '常温' !== $post_data['発送方法'] ?  $post_data['発送サイズ'] : $post_data['発送サイズ'] . '_cool' : '-';
+		$delivery_fee    = ! empty( $post_data['寄附金額固定'] ) ? $n2->delivery_fee[$delivery_size] : 0;
+		$include_fee     = $n2->formula['送料乗数'];
+		$return_rate     = ! empty( $post_data['寄附金額'] && $post_data['価格'] ) ? '1' === $include_fee ? round( $post_data['価格'] / ( $post_data['寄附金額'] + $delivery_fee / $teiki_no ), 2 ) : round( $post_data['価格'] / ( $post_data['寄附金額'] / $teiki_no ), 2 ) : '-';
 		$status       = '';
 		$status_bar   = 0;
 		$status_color = '';
-
+		'1' === $include_fee ? '寄附額(計算:送料含)' : '寄附額(計算)';
 		if ( 'draft' === get_post_status() || 'inherit' === get_post_status() ) {
 			$status       = '入力中';
 			$status_bar   = 30;
