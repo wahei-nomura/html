@@ -312,7 +312,7 @@ class N2 {
 			foreach ( array( 200, 200, 300, 600 ) as $i => $cool ) {
 				$i++;
 				// 消費税
-				$tax_rate = 1.1;// 設定できるようにする
+				$tax_rate = $this->settings['寄附金額・送料']['税込送料'] ? 1.1 : 1;// 設定できるようにする
 				// クール加算
 				$delivery_fee[ "010{$i}_cool" ] = (string) ( (int) $delivery_fee[ "010{$i}" ] + ( $cool * $tax_rate ) );
 			}
