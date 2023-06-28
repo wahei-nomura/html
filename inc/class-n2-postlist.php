@@ -175,7 +175,9 @@ class N2_Postlist {
 		$divisor         = $n2->formula['除数'];
 		$teiki_no        = ! empty( $post_data['定期便'] ) && 1 !== (int) $post_data['定期便'] ? $post_data['定期便'] : 1;
 		$calc_don_amount = ceil( ( $post_data['価格'] / $divisor ) * $teiki_no / 1000 ) * 1000;
+		$price_diff      = $calc_don_amount - $post_data['寄附金額'];
 		$goods_cda       = ! empty( $calc_don_amount ) && 0 !== $calc_don_amount ? number_format( $calc_don_amount ) : '-';
+		$true_gcda       = $price_diff > 0 ? $goods_cda : '-'; // 計算値と差分がある場合だけ金額表示
 		$hold_price      = ! empty( $post_data['寄附金額固定'] ) && '固定する' === $post_data['寄附金額固定'][0] ? '固定' : '-';
 
 		$status       = '';
@@ -252,7 +254,7 @@ class N2_Postlist {
 				echo "<div class='text-center'>{$donation_amount}</div>";
 				break;
 			case 'cda':
-				echo "<div class='text-center'>{$goods_cda}</div>";
+				echo "<div class='text-center'>{$true_gcda}</div>";
 				break;
 			case 'teiki':
 				echo "<div class='text-center'>{$teiki}</div>";
