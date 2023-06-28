@@ -36,10 +36,21 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 * @var array
 	 */
 	private $rms = array(
-		'header'  => null,
-		'cabinet' => array(),
-		'use_api' => null,
+		'header'       => null,
+		'cabinet'      => array(),
+		'use_api'      => null,
+		'ignore_error' => false,
+		'image_error'  => false,
 	);
+
+	/**
+	 * コンストラクタ
+	 */
+	public function __construct() {
+		parent::__construct();
+		add_filter( mb_strtolower( get_class( $this ) ) . '_download_add_btn', array( $this, 'add_download_btn' ) );
+		add_filter( mb_strtolower( get_class( $this ) ) . '_download_str', array( $this, 'change_download_str' ), 10, 2 );
+	}
 
 	/**
 	 * 楽天CSVヘッダーを取得
@@ -197,13 +208,46 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			for ( $index = 0; $index <= $max_index; $index++ ) {
 				$gift_code = mb_strtolower( $n2values['返礼品コード'] );
 				$image     = $gift_code . ( 0 !== $index ? '_' . $index : '' ) . '.jpg';
-				if ( ! isset( $images[ $index ] ) ) {
+				if ( ! isset( $images[ $index ] ) && 'ignore_img_error' !== filter_input( INPUT_POST, 'option' ) ) {
+					$this->rms['image_error'] = true;
 					$this->add_error( $n2values['id'], "商品画像を先にアップロードしてください！ {$image}" );
 				}
 			}
 		}
 		return $value;
 	}
+
+	/**
+	 * add download btn
+	 *
+	 * @param array $add_btn 追加ボタン一覧
+	 * @return array
+	 */
+	public function add_download_btn( $add_btn ) {
+		if ( $this->rms['image_error'] ) {
+			$add_btn[] = array(
+				'id'    => 'ignore_img_error',
+				'class' => 'btn-warning',
+				'text'  => '画像エラーDL',
+			);
+		}
+		return $add_btn;
+	}
+
+	/**
+	 * change download $str
+	 *
+	 * @param string $str str
+	 * @param string $option option
+	 * @return string
+	 */
+	public function change_download_str( $str, $option ) {
+		return match ( $option ) {
+			'ignore_img_error' => '',
+			default => $str,
+		};
+	}
+
 	/**
 	 * 文字列の置換
 	 *
@@ -603,5 +647,4 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		<?php
 		return rtrim( str_replace( "\t", '', ob_get_clean() ), PHP_EOL );
 	}
-
 }

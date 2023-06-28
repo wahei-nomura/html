@@ -343,9 +343,22 @@ class N2_Item_Export_Base {
 		 * [hook] n2_item_export_base_filename
 		 */
 		$filename = apply_filters( mb_strtolower( get_class( $this ) ) . '_filename', $n2->town . $this->settings['filename'] );
+		/**
+		 * [hook] n2_item_export_base_download_add_btn
+		 */
+		$add_btn = apply_filters( mb_strtolower( get_class( $this ) ) . '_download_add_btn', array() );
 
 		// POST送信されたか判定
-		$str = filter_input( INPUT_POST, 'str' );
+		$str      = filter_input( INPUT_POST, 'str' );
+		$option   = filter_input( INPUT_POST, 'option' );
+		$n2nonce  = filter_input( INPUT_POST, 'n2nonce' );
+		$includes = filter_input( INPUT_POST, 'include', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
+
+		/**
+		 * [hook] n2_item_export_base_download_str
+		 */
+		$str = apply_filters( mb_strtolower( get_class( $this ) ) . '_download_str', $str, $option );
+
 		if ( ! $str ) {
 			$this->set_header_string();
 			$this->set_data_string();
@@ -370,11 +383,27 @@ class N2_Item_Export_Base {
 		}
 		?>
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
-		<form method="post" class="p-3 m-0 sticky-top justify-content-center d-flex bg-dark">
+		<form method="post" class="p-3 m-0 sticky-top justify-content-evenly d-flex bg-dark">
 			<input type="hidden" name="action" value="<?php echo esc_attr( mb_strtolower( get_class( $this ) ) ); ?>">
 			<input type="hidden" name="str" value="<?php echo esc_attr( $str ); ?>">
-			<button id="download" class="btn btn-success px-5">エラーが無い返礼品のみダウンロードする</button>
+			<input type="hidden" name="n2nonce" value="<?php echo esc_attr( $n2nonce ); ?>">
+			<input type="hidden" name="option">
+			<?php foreach ( $includes as $include ) : ?>
+				<input type="hidden" name="include[]" value="<?php echo esc_attr( $include ); ?>">
+			<?php endforeach; ?>
+			<?php if ( ! empty( $add_btn ) ) : ?>  
+			<?php foreach ( $add_btn as $btn ) : ?>
+				<button id="<?php echo $btn['id']; ?>" class="btn px-5 <?php echo $btn['class']; ?>" onclick="changeOption(this)"><?php echo $btn['text']; ?></button>
+			<?php endforeach; ?>
+			<?php endif; ?>
+			<button id="download" class="btn btn-success px-5" onclick="changeOption(this)">エラーが無い返礼品のみダウンロードする</button>
 		</form>
+		<script>
+			const changeOption = (btn) => {
+				console.log(btn.id);
+				document.getElementsByName('option')[0].value = btn.id;
+			}
+		</script>
 		<?php
 		$this->display_error();
 		exit;
