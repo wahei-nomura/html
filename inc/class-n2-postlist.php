@@ -93,7 +93,7 @@ class N2_Postlist {
 		$sort_base_url = admin_url() . 'edit.php?' . implode( '&', $get_param_array );
 		$asc_or_desc   = empty( $_GET['order'] ) || 'asc' === $_GET['order'] ? 'desc' : 'asc';
 		$include_fee   = $n2->formula['送料乗数'];
-		$cl_cda_header = '1' === $include_fee ? '寄附額(計算:送料含)' : '寄附額(計算)';
+		$rr_header     = '1' === $include_fee ? '(返礼率:送料含)' : '(返礼率)';
 
 		$columns = array(
 			'cb'              => '<input type="checkbox" />',
@@ -102,8 +102,7 @@ class N2_Postlist {
 			'code'            => "<div class='text-center'><a href='{$sort_base_url}&orderby=返礼品コード&order={$asc_or_desc}'>返礼品<br>コード{$this->judging_icons_order('返礼品コード')}</a></div>",
 			'goods_price'     => "<div class='text-center'><a href='{$sort_base_url}&orderby=価格&order={$asc_or_desc}'>価格{$this->judging_icons_order('価格')}</a></div>",
 			'hold_price'      => '寄附額固定',
-			'donation_amount' => "<a href='{$sort_base_url}&orderby=寄附金額&order={$asc_or_desc}'>寄附金額{$this->judging_icons_order('寄附金額')}<br>(返礼率)</a>",
-			'cda'             => "{$cl_cda_header}",
+			'donation_amount' => "<a href='{$sort_base_url}&orderby=寄附金額&order={$asc_or_desc}'>寄附金額{$this->judging_icons_order('寄附金額')}<br>{$rr_header}</a>",
 			'teiki'           => "<a href='{$sort_base_url}&orderby=定期便&order={$asc_or_desc}'>定期便{$this->judging_icons_order('定期便')}</a>",
 			'thumbnail'       => '<div class="text-center">画像</div>',
 			'modified-last'   => "<div class='text-center'><a href='{$sort_base_url}&orderby=date&order={$asc_or_desc}'>最終<br>更新日{$this->judging_icons_order('date')}</a></div>",
@@ -175,20 +174,9 @@ class N2_Postlist {
 		$ssmemo          = ! empty( $post_data['社内共有事項'] ) ? nl2br( $post_data['社内共有事項'] ) : '';
 		$ssmemo_isset    = $ssmemo ? 'n2-postlist-ssmemo' : '';
 		$modified_last   = get_the_modified_date( 'Y/m/d' );
-		$divisor         = $n2->formula['除数'];
-		$teiki_no        = ! empty( $post_data['定期便'] ) && 1 !== (int) $post_data['定期便'] ? $post_data['定期便'] : 1;
-		$calc_don_amount = ceil( ( $post_data['価格'] / $divisor ) * $teiki_no / 1000 ) * 1000;
-		$price_diff      = $calc_don_amount - $post_data['寄附金額'];
-		$goods_cda       = ! empty( $calc_don_amount ) && 0 !== $calc_don_amount ? number_format( $calc_don_amount ) : '-';
-		$true_gcda       = $price_diff > 0 ? $goods_cda : '-'; // 計算値と差分がある場合だけ金額表示
 		$hold_price      = ! empty( $post_data['寄附金額固定'] ) && '固定する' === $post_data['寄附金額固定'][0] ? '固定' : '-';
-		$delivery_size   = ! empty( $post_data['寄附金額固定'] ) ? '常温' !== $post_data['発送方法'] ?  $post_data['発送サイズ'] : $post_data['発送サイズ'] . '_cool' : '-';
-		$delivery_fee    = ! empty( $post_data['寄附金額固定'] ) ? $n2->delivery_fee[$delivery_size] : 0;
-		$price           = $post_data['価格'];
-		$subscription    = $post_data['定期便'];
-		$cda2            = N2_Donation_Amount_API::calc( compact( 'price', 'delivery_fee', 'subscription' ) );
-		$include_fee     = $n2->formula['送料乗数'];
 		$return_rate     = N2_Donation_Amount_API::calc_return_rate( $post_data );
+
 		$status       = '';
 		$status_bar   = 0;
 		$status_color = '';
@@ -261,9 +249,6 @@ class N2_Postlist {
 				break;
 			case 'donation_amount':
 				echo "<div class='text-center'>{$donation_amount}<br><span style='font-size:.7rem;'>({$return_rate})</span></div>";
-				break;
-			case 'cda':
-				echo "<div class='text-center'>{$true_gcda}</div>";
 				break;
 			case 'teiki':
 				echo "<div class='text-center'>{$teiki}</div>";
