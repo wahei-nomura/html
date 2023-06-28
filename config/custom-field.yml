@@ -494,6 +494,13 @@
             - 雑貨・日用品・ファッション
             - その他
 
+    提供事業者名:
+        type: datalists
+        placeholder: 例）〇〇商店
+        v-if: "'ledghome' === n2.settings.N2.LedgHOME"
+        required: required
+        option: []
+
     商品画像:
         type : item-image
         value: []

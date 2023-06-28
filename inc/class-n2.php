@@ -136,13 +136,14 @@ class N2 {
 	 * @param object $query クエリ
 	 */
 	public function add_post_data( $query ) {
+		remove_action( 'pre_get_posts', array( $this, 'add_post_data' ) );// 無限ループ回避
 		// クエリ生データをセット
 		if ( is_user_logged_in() ) {
 			$this->query = $query;
 		}
 		// カスタムフィールドに値をセット
-		global $post;
-		if ( isset( $post->ID ) ) {
+		global $post, $pagenow;
+		if ( isset( $post->ID ) && in_array( $pagenow, array( 'post.php', 'post-new.php' ), true ) ) {
 			foreach ( $this->custom_field as $id => $arr ) {
 				foreach ( $arr as $name => $v ) {
 					$value = $v['value'] ?? '';
@@ -166,6 +167,24 @@ class N2 {
 					$this->custom_field[ $id ][ $name ]['value'] = $value;
 				}
 			}
+			// 提供事業者名の自動取得
+			if ( 'ledghome' === $this->settings['N2']['LedgHOME'] ) {
+				$option = array();
+				$args   = array(
+					'author'       => $post->post_author,
+					'post_status'  => 'any',
+					'numberposts'  => -1,
+					'fields'       => 'ids',
+					'meta_key'     => '提供事業者名',
+					'meta_value'   => null,
+					'meta_compare' => '!=',
+				);
+				foreach ( get_posts( $args ) as $id ) {
+					$option[] = get_post_meta( $id, '提供事業者名', true );
+				}
+				$this->custom_field['事業者用']['提供事業者名']['option'] = array_values( array_unique( array_filter( $option ) ) );
+			}
+
 			/**
 			 * カスタムフィールドの値の変更
 			 */
