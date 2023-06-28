@@ -28,8 +28,9 @@ global $n2;
 	<tr>
 		<th>送料</th>
 		<td>
+			<p><span style="display:inline-block; width: 9em;">宅急便コンパクト : </span><input type="number" name="n2_settings[寄附金額・送料][送料][0100]" value="<?php echo esc_attr( $n2->settings['寄附金額・送料']['送料']['0100'] ?? '' ); ?>" style="width: 7em;"></p>
 			<?php for ( $i = 1; $i <= 8; $i++ ) : ?>
-			<p><span style="display:inline-block; width: 7em;"><?php echo ( 20 * $i ) + 40; ?> サイズ : </span><input type="number" name="n2_settings[寄附金額・送料][送料][010<?php echo $i; ?>]" value="<?php echo esc_attr( $n2->settings['寄附金額・送料']['送料'][ "010{$i}" ] ?? '' ); ?>" style="width: 7em;"></p>
+			<p><span style="display:inline-block; width: 9em;"><?php echo ( 20 * $i ) + 40; ?> サイズ : </span><input type="number" name="n2_settings[寄附金額・送料][送料][010<?php echo $i; ?>]" value="<?php echo esc_attr( $n2->settings['寄附金額・送料']['送料'][ "010{$i}" ] ?? '' ); ?>" style="width: 7em;"></p>
 			<?php endfor; ?>
 		</td>
 	</tr>
