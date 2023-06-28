@@ -228,7 +228,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			$add_btn[] = array(
 				'id'    => 'ignore_img_error',
 				'class' => 'btn-warning',
-				'text'  => '画像エラーDL',
+				'text'  => '画像エラーを無視してダウンロードする',
 			);
 		}
 		return $add_btn;
