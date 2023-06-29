@@ -76,7 +76,7 @@ class N2_Donation_Amount_API {
 		global $n2;
 
 		$delivery_multiplier = $n2->formula['送料乗数'];// 0 or 1
-		$delivery_size       = ! empty( $post_data['寄附金額固定'] ) ? '常温' !== $post_data['発送方法'] ? $post_data['発送サイズ'] : $post_data['発送サイズ'] . '_cool' : '-';
+		$delivery_size       = ! empty( $post_data['寄附金額固定'] ) ? '常温' !== $post_data['発送方法'] ? $post_data['発送サイズ'] . '_cool' : $post_data['発送サイズ'] : '-';
 		$delivery_fee        = ! empty( $post_data['寄附金額固定'] ) ? $n2->delivery_fee[ $delivery_size ] : 0;
 		$teiki_no            = ! empty( $post_data['定期便'] ) && 1 !== (int) $post_data['定期便'] ? $post_data['定期便'] : 1;
 		$return_rate         = ! empty( $post_data['寄附金額'] && $post_data['価格'] ) ? '1' === $delivery_multiplier ? ceil( ( $post_data['価格'] / ( $post_data['寄附金額'] + $delivery_fee / $teiki_no ) ) * 100 ) / 100 : ceil( ( $post_data['価格'] / ( $post_data['寄附金額'] / $teiki_no ) ) * 100 ) / 100 : '-';
