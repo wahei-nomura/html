@@ -79,7 +79,7 @@ class N2_Donation_Amount_API {
 		$delivery_size       = ! empty( $post_data['発送サイズ'] ) ? '常温' !== $post_data['発送方法'] ? $post_data['発送サイズ'] . '_cool' : $post_data['発送サイズ'] : '-';
 		$delivery_fee        = ( ! empty( $post_data['発送サイズ'] ) && in_array( $post_data['発送サイズ'], $df_array, true ) ) ? $n2->delivery_fee[ $delivery_size ] : 0;
 		$teiki_no            = ! empty( $post_data['定期便'] ) && 1 !== (int) $post_data['定期便'] ? $post_data['定期便'] : 1;
-		$return_rate         = ! empty( $post_data['寄附金額'] && $post_data['価格'] ) ? '1' === $delivery_multiplier ? ceil( ( $post_data['価格'] / ( $post_data['寄附金額'] + $delivery_fee / $teiki_no ) ) * 100 ) / 100 : ceil( ( $post_data['価格'] / ( $post_data['寄附金額'] / $teiki_no ) ) * 100 ) / 100 : '-';
+		$return_rate         = ! empty( $post_data['寄附金額'] ) && ! empty( $post_data['価格'] ) ? '1' === $delivery_multiplier ? ceil( ( $post_data['価格'] / ( $post_data['寄附金額'] + $delivery_fee / $teiki_no ) ) * 100 ) / 100 : ceil( ( $post_data['価格'] / ( $post_data['寄附金額'] / $teiki_no ) ) * 100 ) / 100 : '-';
 		// N2_Donation_Amount_API::calc_return_rate()呼び出し
 		return $return_rate;
 	}
