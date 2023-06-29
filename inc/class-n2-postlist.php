@@ -77,7 +77,7 @@ class N2_Postlist {
 	 * @return array $columns 一覧に追加するカラム
 	 */
 	public function add_posts_columns( $columns ) {
-
+		global $n2;
 		$get_param_array = array();
 		foreach ( $_GET as $key => $value ) {
 			if ( is_array( $value ) ) {
@@ -103,6 +103,9 @@ class N2_Postlist {
 			'thumbnail'       => '<div class="text-center">画像</div>',
 			'modified-last'   => "<div class='text-center'><a href='{$sort_base_url}&orderby=date&order={$asc_or_desc}'>最終<br>更新日{$this->judging_icons_order('date')}</a></div>",
 		);
+		if ( $n2->settings['N2']['役場確認'] ) {
+			$columns['yakuba'] = '役場確認';
+		}
 		if ( 'municipal-office' !== wp_get_current_user()->roles[0] ) {
 			$columns = array(
 				...$columns,
@@ -166,6 +169,7 @@ class N2_Postlist {
 		$teiki           = ! empty( $post_data['定期便'] ) && 1 !== (int) $post_data['定期便'] ? $post_data['定期便'] : '-';
 		$poster          = ! empty( get_userdata( $post->post_author ) ) ? get_userdata( $post->post_author )->display_name : '-';
 		$code            = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '未(id:' . $post->ID . ')';
+		$yakuba          = $post_data['役場確認'];
 		$code_no_class   = empty( $post_data['返礼品コード'] ) ? ' no-code' : '';
 		$ssmemo          = ! empty( $post_data['社内共有事項'] ) ? nl2br( $post_data['社内共有事項'] ) : '';
 		$ssmemo_isset    = $ssmemo ? 'n2-postlist-ssmemo' : '';
@@ -246,6 +250,9 @@ class N2_Postlist {
 				break;
 			case 'code':
 				echo "<div class='text-center{$code_no_class}'>{$code}</div>";
+				break;
+			case 'yakuba':
+				echo "<div class='text-center'>{$yakuba}</div>";
 				break;
 			case 'thumbnail':
 				echo "<div class='text-center'>{$image}</div>";
