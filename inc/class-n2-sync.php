@@ -531,6 +531,14 @@ class N2_Sync {
 			if ( 'その他（ヤマト以外）' === $postarr['meta_input']['発送サイズ'] ) {
 				$postarr['meta_input']['発送サイズ'] = 'その他';
 			}
+			// 役場確認
+			if ( isset( $postarr['meta_input']['市役所確認'] ) ) {
+				$postarr['meta_input']['役場確認'] = match ( $postarr['meta_input']['市役所確認'] ) {
+					'不要', '要', '済' => '承諾',
+					default => '未',
+				};
+				unset( $postarr['meta_input']['市役所確認'] );
+			}
 
 			// 事業者確認を強制執行
 			if ( strtotime( '-1 week' ) > strtotime( $v['post_modified'] ) ) {
