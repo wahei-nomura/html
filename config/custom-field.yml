@@ -1,3 +1,23 @@
+役場用:
+    役場確認:
+        type: radio
+        value: 未
+        v-model: 役場確認
+        v-if: n2.settings.N2.役場確認
+        option-equal: true
+        option:
+            - 未
+            - 却下
+            - 承諾
+
+    却下理由:
+        type: textarea
+        style: 'width: 100%;'
+        v-if: "'却下' === 役場確認 && n2.settings.N2.役場確認"
+        rows: auto
+        "@input": auto_fit_tetxarea($event.target)
+
+
 スチームシップ用:
     返礼品コード:
         type: text

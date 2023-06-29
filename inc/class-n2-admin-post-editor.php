@@ -107,6 +107,14 @@ class N2_Admin_Post_Editor {
 		);
 		if ( in_array( $n2->current_user->roles[0], $ss, true ) ) {
 			add_meta_box(
+				'役場用',
+				'役場用',
+				array( $this, 'show_customfields' ),
+				'post',
+				'normal',
+				'default',
+			);
+			add_meta_box(
 				'スチームシップ用',
 				'スチームシップ用',
 				array( $this, 'show_customfields' ),
