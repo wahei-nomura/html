@@ -22,7 +22,14 @@ global $n2;
 	<tr>
 		<th>寄附金額計算の除数</th>
 		<td>
-			<input type="number" step="0.01" name="n2_settings[寄附金額・送料][除数]" value="<?php echo esc_attr( $n2->settings['寄附金額・送料']['除数'] ); ?>">
+			<input type="number" step="0.01" name="n2_settings[寄附金額・送料][除数]" value="<?php echo esc_attr( $n2->settings['寄附金額・送料']['除数'] ); ?>" style="width: 6em;">
+		</td>
+	</tr>
+	<tr>
+		<th>下限寄附金額</th>
+		<td>
+			<input type="number" step="1000" name="n2_settings[寄附金額・送料][下限寄附金額]" value="<?php echo esc_attr( $n2->settings['寄附金額・送料']['下限寄附金額'] ); ?>" style="width: 6em;">
+			<p><small>自動計算時に、ここに設定された「下限寄附金額」を下回る場合は「下限寄附金額」に自動設定されます</small></p>
 		</td>
 	</tr>
 	<tr>

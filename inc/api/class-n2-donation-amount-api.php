@@ -42,12 +42,14 @@ class N2_Donation_Amount_API {
 		$subscription = (int) ( $args['subscription'] ?? 1 );
 		$action       = $args['action'] ?? false;
 
-		// 下限寄附額（3割ルール）
+		// 下限寄附金額（3割ルール）
 		$min_donation_amount = ceil( $price * $subscription / 300 ) * 1000;
+		// 下限寄附金額（N2設定値）
+		$n2_min_donation_amount = (int) $n2->settings['寄附金額・送料']['下限寄附金額'] ?? 0;
 		// 寄附金額
 		$donation_amount = ceil( ( $price + $delivery_fee ) * $subscription / ( $divisor * 1000 ) ) * 1000;
-		// 下限寄附額（3割ルール）より高くなるように設定するので、下限寄附額と比較して高い方を選択
-		$donation_amount = max( $min_donation_amount, $donation_amount );
+		// 最大値を選択
+		$donation_amount = max( $min_donation_amount, $n2_min_donation_amount, $donation_amount );
 		/**
 		 * Filters the attached file based on the given ID.
 		 *
