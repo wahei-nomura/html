@@ -329,6 +329,33 @@ class N2_Item_Export_Base {
 	}
 
 	/**
+	 * 事業者名の変換（提供事業者名 > ポータル表示名 > 事業者名）
+	 *
+	 * @param array $data ループ中の返礼品データ
+	 */
+	protected function get_author_name( $data ) {
+		$author = $data['事業者名'];
+		// ポータル表示名
+		$portal_site_display_name = get_user_meta(
+			get_post( $data['id'] )->post_author,
+			'portal_site_display_name',
+			true
+		);
+		// ポータル表示名ロジック
+		$author = match ( $portal_site_display_name ) {
+			'記載しない' => '',
+			'' => $author,
+			default => $portal_site_display_name
+		};
+		// 提供事業者名
+		$author = match ( $data['提供事業者名'] ?? '' ) {
+			'' => $author,
+			default => $data['提供事業者名'],
+		};
+		return $author;
+	}
+
+	/**
 	 * ダウンロード
 	 */
 	private function download() {

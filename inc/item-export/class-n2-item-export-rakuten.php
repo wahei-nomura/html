@@ -432,16 +432,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 				'td' => nl2br( $n2values['配送期間'] ),
 			),
 			'提供事業者'   => array(
-				'td'        => $n2values['提供事業者']
-				?? preg_replace(
-					'/\（.+?\）/',
-					'',
-					(
-					get_the_author_meta( 'portal_site_display_name', get_post_field( 'post_author', $n2values['id'] ) )
-					?: get_the_author_meta( 'first_name', get_post_field( 'post_author', $n2values['id'] ) )
-					)
-				),
-				'condition' => '記載しない' !== get_the_author_meta( 'portal_site_display_name', get_post_field( 'post_author', $n2values['id'] ) ), // ポータル表示名に「記載しない」の表記があったら事業者名出力しない
+				'td' => $this->get_author_name( $n2values ),
 			),
 		);
 
