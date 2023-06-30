@@ -33,35 +33,36 @@ class N2_Donation_Amount_API {
 	public static function calc( $args ) {
 		global $n2;
 		$args = $args ? wp_parse_args( $args ) : $_GET;
-		// 除数と送料乗数
-		$divisor             = $n2->settings['寄附金額・送料']['除数'];// 0.3 0.35 0.4 など
-		$delivery_multiplier = $n2->settings['寄附金額・送料']['送料乗数'];// 0 or 1
-		// 価格・送料
-		$price        = (int) ( $args['price'] ?? 0 );
-		$delivery_fee = (int) ( $args['delivery_fee'] ?? 0 ) * $delivery_multiplier;
-		$subscription = (int) ( $args['subscription'] ?? 1 );
-		$action       = $args['action'] ?? false;
 
-		// 下限寄附金額（3割ルール）
-		$min_donation_amount = ceil( $price * $subscription / 300 ) * 1000;
-		// 下限寄附金額（N2設定値）
-		$n2_min_donation_amount = (int) $n2->settings['寄附金額・送料']['下限寄附金額'] ?? 0;
-		// 寄附金額
-		$donation_amount = ceil( ( $price + $delivery_fee ) * $subscription / ( $divisor * 1000 ) ) * 1000;
-		// 最大値を選択
-		$donation_amount = max( $min_donation_amount, $n2_min_donation_amount, $donation_amount );
+		// 除数と送料乗数
+		$args['divisor']             = (float) ( $args['divisor'] ?? $n2->settings['寄附金額・送料']['除数'] );// 0.3 0.35 0.4 など
+		$args['delivery_multiplier'] = (int) ( $args['delivery_multiplier'] ?? $n2->settings['寄附金額・送料']['送料乗数'] );// 0 or 1
+
+		// 価格・送料
+		$args['price']        = (int) ( $args['price'] ?? 0 );
+		$args['delivery_fee'] = (int) ( $args['delivery_fee'] ?? 0 ) * $args['delivery_multiplier'];
+		$args['subscription'] = (int) ( $args['subscription'] ?? 1 );
+		$args['action']       = $args['action'] ?? false;
+
 		/**
-		 * Filters the attached file based on the given ID.
+		 * [hook] n2_donation_amount_api_args
 		 *
-		 * @since 2.1.0
-		 *
-		 * @param int $donation_amount 寄附金額
-		 * @param array compact( 'price', 'delivery_fee', 'eva' ) 寄附金額算出のための情報
+		 * @param array $args 寄附金額計算素材
 		*/
-		$donation_amount = apply_filters( 'n2_donation_amount_api', $donation_amount, compact( 'price', 'delivery_fee', 'subscription' ) );
+		$args = apply_filters( 'n2_donation_amount_api_args', $args );
+
+		// 最大値を選択
+		$donation_amount = max(
+			// 下限寄附金額（3割ルール）
+			ceil( $args['price'] * $args['subscription'] / 300 ) * 1000,
+			// 下限寄附金額（N2設定値）
+			(int) $n2->settings['寄附金額・送料']['下限寄附金額'] ?? 0,
+			// 寄附金額
+			ceil( ( $args['price'] + $args['delivery_fee'] ) * $args['subscription'] / ( $args['divisor'] * 1000 ) ) * 1000
+		);
 
 		// admin-ajax.phpアクセス時
-		if ( $action ) {
+		if ( $args['action'] ) {
 			header( 'Content-Type: application/json; charset=utf-8' );
 			echo wp_json_encode( $donation_amount );
 			exit;
