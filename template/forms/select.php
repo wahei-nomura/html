@@ -9,8 +9,8 @@ $defaults     = array();
 $args         = wp_parse_args( $args, $defaults );
 $option       = $args['option'];
 $value        = $args['value'];
-$option_equal = $args['option-equal'] ?? false;// optionのvalueと表示名が一緒かどうか判定
-unset( $args['option'], $args['value'], $args['option-equal'] );
+$option_equal = array_values( $option ) === $option;// optionのvalueと表示名が一緒かどうか判定
+unset( $args['option'], $args['value'] );
 $attr = '';
 foreach ( $args as $k => $v ) {
 	$v     = esc_attr( $v );// エスケープしないとバグる
