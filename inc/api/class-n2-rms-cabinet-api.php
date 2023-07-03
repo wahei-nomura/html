@@ -5,7 +5,7 @@
  * @package neoneng
  */
 
-if ( ! class_exists( 'N2_RMS_Cabinet_API' ) ) {
+if ( class_exists( 'N2_RMS_Cabinet_API' ) ) {
 	new N2_RMS_Cabinet_API();
 	return;
 }
