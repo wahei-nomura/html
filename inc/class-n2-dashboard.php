@@ -19,6 +19,7 @@ class N2_Dashboard {
 	 */
 	public function __construct() {
 		add_action( 'wp_dashboard_setup', array( $this, 'remove_widgets' ) );
+		add_action( 'wp_dashboard_setup', array( $this, 'add_widgets' ) );
 	}
 
 	/**
@@ -44,5 +45,51 @@ class N2_Dashboard {
 		remove_menu_page( 'wp-mail-smtp' );
 
 		remove_action( 'welcome_panel', 'wp_welcome_panel' );
+	}
+	/**
+	 * add_widgets
+	 * ダッシュボードに項目追加
+	 *
+	 * @return void
+	 */
+	public function add_widgets() {
+		wp_add_dashboard_widget( 'custom_help_widget', '返礼率規定オーバーリスト', array( $this, 'dashboard_text' ) );
+	}
+	public function dashboard_text() {
+	// 条件の設定
+	$args = Array(
+		'post_type' => 'post',        // 投稿
+		'posts_per_page' => -1,    // 表示する投稿数(-1を指定すると全投稿を表示)
+		'orderby' => 'meta_value',
+		'meta_key' => '返礼品コード',
+		'order' => 'ASC',
+	);
+
+	// クエリの定義
+	$wp_query = new WP_Query( $args );
+
+	// ループ
+	if ( $wp_query->have_posts() ) {
+		echo '<ul>';
+		echo '<li style="border-bottom:1px solid #bbb; background:#ccc;display:flex;padding:10px 0;">' . '<span style="display:inline-block; width:60px;flex-shrink: 0;text-align:center;">返礼率</span>' . '<span style="display:inline-block; width:100px;flex-shrink: 0;text-align:center;">返礼品コード</span>' . '<span style="display:inline-block;width:100%;text-align:center;">返礼品名</span>' . '</li>';
+		while ( $wp_query->have_posts() ) {
+			$wp_query->the_post();
+			$post = get_post(get_the_ID());
+			$post_data = N2_Functions::get_all_meta( $post );
+			$post_edit_url   = get_edit_post_link();
+			$goods_price     = ! empty( $post_data['価格'] ) && 0 !== $post_data['価格'] ? number_format( $post_data['価格'] ) : '-';
+			$donation_amount = ! empty( $post_data['寄附金額'] ) && 0 !== $post_data['寄附金額'] ? number_format( $post_data['寄附金額'] ) : '-';
+			$code            = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '未(id:' . $post->ID . ')';
+			$return_rate     = N2_Donation_Amount_API::calc_return_rate( $post_data ); // 返礼率計算
+			$rr_threshold    = N2_Donation_Amount_API::calc_return_rate( $post_data, true ); // 返礼率がしきい値(0.3 or 0.35)を超えてるかチェック
+			if( $rr_threshold ) {
+				echo '<li style="border-bottom:1px solid #ccc;padding:5px 0;"><a href="' . $post_edit_url . '" style="display:flex;">' . '<span style="display:inline-block; width:60px;flex-shrink: 0;text-align:center;">' . $return_rate . '</span>' . '<span style="display:inline-block; width:100px;flex-shrink: 0;text-align:center;">' . $code . '</span>' . '<span style="display:inline-block;">'  . get_the_title() . '</span>' . '</a></li>';
+			}
+		}
+		echo '</ul>';
+	}
+
+	// 投稿データのリセット
+	wp_reset_postdata();
 	}
 }
