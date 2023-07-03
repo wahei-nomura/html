@@ -539,7 +539,14 @@ class N2_Sync {
 				};
 				unset( $postarr['meta_input']['市役所確認'] );
 			}
-
+			// オリジナル商品変換
+			if ( isset( $postarr['meta_input']['オリジナル商品'] ) ) {
+				$postarr['meta_input']['オリジナル商品'] = match ( $postarr['meta_input']['オリジナル商品'] ) {
+					'適' => 'オリジナル商品である',
+					default => '',
+				};
+				unset( $postarr['meta_input']['市役所確認'] );
+			}
 			// 事業者確認を強制執行
 			if ( strtotime( '-1 week' ) > strtotime( $v['post_modified'] ) ) {
 				$postarr['meta_input']['事業者確認'] = array( '確認済', '2022-10-30 00:00:00', 'ssofice' );
