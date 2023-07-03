@@ -13,6 +13,7 @@ $name    = $args['name'];
 $option  = $args['option'];
 $value   = (array) $args['value'];
 $style   = $args['style'];
+$option_equal = $args['option-equal'] ?? false;// optionのvalueと表示名が一緒かどうか判定
 $attr    = '';
 unset( $args['option'], $args['name'], $args['value'], $args['style'] );
 foreach ( $args as $k => $v ) {
@@ -29,7 +30,7 @@ foreach ( $option as $v ) :
 		<?php echo $attr; ?>
 		<?php checked( in_array( (string) $v, $value, true ) ); ?>
 	>
-	<?php echo $v; ?>
+	<span v-text="`<?php echo $v; ?>`"></sapn>
 </label>
 <?php endforeach; ?>
 <!-- 全チェック外しも保存するために必須 -->

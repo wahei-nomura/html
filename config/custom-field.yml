@@ -304,6 +304,16 @@
         "@focus": set_info($event.target)
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
 
+    返礼品ルール:
+        type: checkbox
+        value:
+        option:
+            - A：商品の付加価値（価格）の半分以上が${n2.town}で製造されている
+            - B：${n2.town}で製造された陶土を8割以上使用した自社のオリジナル商品で、他の事業者から出品されることはない
+
+    
+
+
     # 対応機器:
     #     type : textarea
     #     value: "電子レンジ：◯×\nオーブン　：◯×\n食洗機　　：◯×"
@@ -517,6 +527,7 @@
     提供事業者名:
         type: datalists
         placeholder: 例）〇〇商店
+        # これ通常レジだからっているわけでもないし、クラウドレジでも欲しくなるのでは？
         v-if: "'ledghome' === n2.settings.N2.LedgHOME"
         required: required
         option: []

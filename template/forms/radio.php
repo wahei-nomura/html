@@ -28,6 +28,6 @@ foreach ( $option as $k => $v ) :
 		<?php echo $attr; ?>
 		<?php checked( $value, $option_equal ? $v : $k ); ?>
 	>
-	<?php echo $v; ?>
+	<span v-text="`<?php echo $v; ?>`"></sapn>
 </label>
 <?php endforeach; ?>
