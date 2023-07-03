@@ -314,7 +314,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			$img_dir .= "/{$business_code}";// キャビネットの場合事業者コード追加
 		}
 		$result = array();
-		for ( $i = 0; $i < 15; ++$i ) {
+		for ( $i = 0; $i < 20; ++$i ) {
 			$img_url = "{$img_dir}/{$gift_code}";
 			if ( 0 === $i ) {
 				$img_url .= '.jpg';
