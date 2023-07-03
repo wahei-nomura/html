@@ -92,7 +92,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 		$data = match ( 1 ) {
 			preg_match( '/^管理コード$/', $val )  => $n2values['返礼品コード'],
 			preg_match( '/^（必須）お礼の品名$/', $val ) => "{$n2values['タイトル']} [{$n2values['返礼品コード']}]",// * 200文字以内
-			preg_match( '/^サイト表示事業者名$/', $val )  => $n2values['事業者名'],// 64文字以内
+			preg_match( '/^サイト表示事業者名$/', $val )  => $this->get_author_name( $n2values ),// 64文字以内
 			preg_match( '/必要寄付金額$/', $val )  => $n2values['寄附金額'],// * 半角数字
 			preg_match( '/（条件付き必須）ポイント$/', $val ) => match ( $choice_settings['ポイント導入'] ?? false ) {
 				'導入する' => $n2values['寄附金額'] * 0.3,// 必要ポイントを半角数字で入力してください。

@@ -4,7 +4,6 @@
         value: 未
         v-model: 役場確認
         v-if: n2.settings.N2.役場確認
-        option-equal: true
         option:
             - 未
             - 却下
@@ -46,7 +45,6 @@
         label: 出品禁止ポータルサイト
         type: checkbox
         value: []
-        option-equal: true
         description: この返礼品を出品しないポータルサイトがあればチェックを入れてください。
         v-model: 出品禁止ポータル
         v-if: "!商品タイプ.includes('eチケット')"
@@ -59,7 +57,6 @@
         portal: ふるさとチョイス
         type: checkbox
         value: []
-        option-equal: true
         description: ふるさとチョイスオンライン決済限定に反映されます。
         v-model: オンライン決済限定
         v-if: "!出品禁止ポータル.includes('ふるさとチョイス')"
@@ -134,7 +131,6 @@
 
     # 事業者確認:
     #     type: checkbox
-    #     option-equal: true
     #     option:
     #         - 確認済み
 
@@ -225,7 +221,6 @@
     商品タイプ:
         type : checkbox
         value: []
-        option-equal: true
         v-model: 商品タイプ
         option : 
             - 食品
@@ -388,7 +383,6 @@
         type: radio
         value: 無し
         v-if: "!商品タイプ.includes('eチケット')"
-        option-equal: true
         option:
             - 無し
             - 有り
@@ -397,7 +391,6 @@
         type: radio
         value: 無し
         v-if: "!商品タイプ.includes('eチケット')"
-        option-equal: true
         option:
             - 無し
             - 有り
@@ -406,7 +399,6 @@
         type : radio
         value: 常温
         v-if: "!商品タイプ.includes('eチケット')"
-        option-equal: true
         option :
             - 常温
             - 冷蔵
@@ -466,7 +458,6 @@
         type : checkbox
         value: []
         description : 配送時の取り扱い方法で該当するものを選択してください（２つまで）。
-        option-equal: true
         option :
             - ビン・ワレモノ
             - 天地無用
@@ -509,7 +500,6 @@
     LHカテゴリー:
         label: カテゴリー
         type : select
-        option-equal: true
         option :
             - 未選択
             - 肉

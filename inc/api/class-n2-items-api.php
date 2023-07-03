@@ -152,14 +152,10 @@ class N2_Items_API {
 
 		// 事業者コード追加
 		$post_content['事業者コード'] = get_user_meta( $data['post_author'], 'last_name', true );
-		// 提供事業者名・ポータル表示名があれば取得
-		$portal_site_display_name = $meta_input['提供事業者名'] ?? get_user_meta( $data['post_author'], 'portal_site_display_name', true );
+
 		// 事業者名
-		$post_content['事業者名'] = match ( $portal_site_display_name ) {
-			'記載しない' => '',
-			'' => get_user_meta( $data['post_author'], 'first_name', true ),
-			default => $portal_site_display_name
-		};
+		$post_content['事業者名'] = get_user_meta( $data['post_author'], 'first_name', true );
+
 		// 投稿ステータス追加
 		$post_content['ステータス'] = $data['post_status'];
 		// n2fieldのカスタムフィールド全取得

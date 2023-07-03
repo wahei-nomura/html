@@ -44,6 +44,32 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	}
 
 	/**
+	 * 楽天用の内容を配列で作成
+	 */
+	protected function set_data() {
+		$data = array();
+		// $this->check_fatal_error( $this->data['header'], 'ヘッダーが正しくセットされていません' );
+		foreach ( $this->data['n2data'] as $key => $values ) {
+			$id = $values['id'];
+			// 画像を取得
+			$values['商品画像URL'] = $this->get_img_urls( $values );
+			// ヘッダーをセット
+			$data[ $id ] = $this->data['header'];
+			array_walk( $data[ $id ], array( $this, 'walk_values' ), $values );
+			$data[ $id ] = array_combine( $this->data['header'], $data[ $id ] );
+		}
+		/**
+		 * [hook] n2_item_export_base_set_data
+		 */
+		$data = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_data', $data );
+		// エラーは排除
+		$data = array_diff_key( $data, $this->data['error'] );
+		$data = array_values( $data );
+		// dataをセット
+		$this->data['data'] = $data;
+	}
+
+	/**
 	 * データのマッピング（正しい値かどうかここでチェックする）
 	 * 楽天CSVの仕様：https://steamship.docbase.io/posts/2774108
 	 *
@@ -152,19 +178,50 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			$img_dir .= "/{$business_code}";// キャビネットの場合事業者コード追加
 		}
 
-		$result = array();
-		for ( $i = 0; $i < 15; ++$i ) {
-			$img_url = "{$img_dir}/{$gift_code}";
-			if ( 0 === $i ) {
-				$img_url .= '.jpg';
-			} else {
-				$img_url .= "-{$i}.jpg";
+		$result = match ( isset( $n2values['商品画像URL'] ) ) {
+			true => explode( ' ', $n2values['商品画像URL'] ),
+			false => array(),
+		};
+
+		if ( ! $result ) {
+			set_time_limit( 60 );
+			global $n2;
+			$img_dir       = rtrim( $n2->portal_setting['楽天']['img_dir'], '/' );
+			$gift_code     = mb_strtolower( $n2values['返礼品コード'] );
+			$business_code = mb_strtolower( $n2values['事業者コード'] );
+			// GOLD（ne.jp）とキャビネット（co.jp）を判定してキャビネットは事業者コードディレクトリを追加
+			if ( ! preg_match( '/ne\.jp/', $img_dir ) ) {
+				$img_dir .= "/{$business_code}";// キャビネットの場合事業者コード追加
 			}
-			$response = wp_remote_get( $img_url );
-			if ( ! is_wp_error( $response ) && 200 === $response['response']['code'] ) {
-				$result[ $i ] = $img_url;
+
+			$result   = array();
+			$requests = array();
+			for ( $i = 0; $i < 15; ++$i ) {
+				$img_url = "{$img_dir}/{$gift_code}";
+				if ( 0 === $i ) {
+					$img_url .= '.jpg';
+				} else {
+					$img_url .= "-{$i}.jpg";
+				}
+				$requests[ $i ] = array(
+					'url'     => $img_url,
+					'headers' => array(
+						'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0',
+					),
+				);
 			}
+			$response = Requests::request_multiple( $requests );
+			$result   = array_filter(
+				array_map(
+					function( $res ) {
+						return ( 200 === $res->status_code ) ? $res->url : '';
+					},
+					$response
+				)
+			);
+			ksort( $result );
 		}
+
 		// ========戻り値判定========
 		switch ( $return_type ) {
 			// 文字列を返却
@@ -192,8 +249,8 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	/**
 	 * 楽天のPC用販売説明文
 	 *
-	 * @param array  $n2values n2dataのループ中の値
-	 * @param bool $return_string 戻り値判定用(基本は文字列|HTML)
+	 * @param array $n2values n2dataのループ中の値
+	 * @param bool  $return_string 戻り値判定用(基本は文字列|HTML)
 	 * @return string|void 楽天のPC用商品説明文を(文字列|HTML出力)する
 	 */
 	public function pc_sales_description( $n2values, $return_string = true ) {
@@ -202,7 +259,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			global $n2;
 			?>
 			<?php $this->get_img_urls( $n2values, 'html' ); ?>
-			<?php echo nl2br($n2values['説明文']); ?><br><br>
+			<?php echo nl2br( $n2values['説明文'] ); ?><br><br>
 			<?php $this->make_itemtable( $n2values, false ); ?><br><br>
 			<?php
 				echo $n2->settings['N2']['ポータル共通説明文']
@@ -222,8 +279,8 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	/**
 	 * 楽天のPC用商品説明文
 	 *
-	 * @param array  $n2values n2dataのループ中の値
-	 * @param bool $return_string 戻り値判定用(基本は文字列|HTML)
+	 * @param array $n2values n2dataのループ中の値
+	 * @param bool  $return_string 戻り値判定用(基本は文字列|HTML)
 	 * @return string|void 楽天のPC用商品説明文を(文字列|HTML出力)する
 	 */
 	public function pc_item_description( $n2values, $return_string = true ) {
@@ -231,28 +288,28 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		// ========[html]PC用商品説明文========
 		$html = function() use ( $n2values ) {
 			?>
-			<?php echo nl2br($n2values['説明文']); ?><br><br>
-			<?php echo nl2br($n2values['内容量・規格等']); ?><br>
+			<?php echo nl2br( $n2values['説明文'] ); ?><br><br>
+			<?php echo nl2br( $n2values['内容量・規格等'] ); ?><br>
 			<?php if ( $n2values['賞味期限'] ) : ?>
-				<br>【賞味期限】<br><?php echo nl2br($n2values['賞味期限']); ?><br>
+				<br>【賞味期限】<br><?php echo nl2br( $n2values['賞味期限'] ); ?><br>
 			<?php endif; ?>
 			<?php if ( $n2values['消費期限'] ) : ?>
-				<br>【消費期限】<br><?php echo nl2br($n2values['消費期限']); ?><br>
+				<br>【消費期限】<br><?php echo nl2br( $n2values['消費期限'] ); ?><br>
 			<?php endif; ?>
 			<?php echo apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $n2values['id'], '対応機器' ); ?>
 			<?php if ( $n2values['原料原産地'] ) : ?>
 				<br><br>【原料原産地】<br>
-				<?php echo nl2br($n2values['原料原産地']); ?>
+				<?php echo nl2br( $n2values['原料原産地'] ); ?>
 			<?php endif; ?>
 			<?php if ( $n2values['加工地'] ) : ?>
 				<br><br>【加工地】<br>
-				<?php echo nl2br($n2values['加工地']); ?><br>
+				<?php echo nl2br( $n2values['加工地'] ); ?><br>
 			<?php endif; ?>
 			<?php if ( $n2values['検索キーワード'] ) : ?>
-				<br><br><?php echo nl2br($n2values['検索キーワード']); ?>
+				<br><br><?php echo nl2br( $n2values['検索キーワード'] ); ?>
 			<?php endif; ?>
 			<?php if ( $n2values['楽天SPAカテゴリー'] ) : ?>
-				<br><br><?php echo nl2br($n2values['楽天SPAカテゴリー']); ?>
+				<br><br><?php echo nl2br( $n2values['楽天SPAカテゴリー'] ); ?>
 			<?php endif; ?>
 			<?php
 		};
@@ -268,8 +325,8 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	/**
 	 * 楽天のSP用商品説明文
 	 *
-	 * @param array  $n2values n2dataのループ中の値
-	 * @param bool $return_string 戻り値判定用(基本は文字列|HTML)
+	 * @param array $n2values n2dataのループ中の値
+	 * @param bool  $return_string 戻り値判定用(基本は文字列|HTML)
 	 * @return string|void 楽天のSP用商品説明文を(文字列|HTML出力)する
 	 */
 	public function sp_item_description( $n2values, $return_string = true ) {
@@ -278,13 +335,13 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			global $n2;
 			?>
 			<?php $this->get_img_urls( $n2values, 'html' ); ?>
-			<?php echo nl2br($n2values['説明文']); ?><br><br>
+			<?php echo nl2br( $n2values['説明文'] ); ?><br><br>
 			<?php $this->make_itemtable( $n2values, false ); ?>
 			<?php if ( $n2values['検索キーワード'] ) : ?>
-				<br><br><?php echo nl2br($n2values['検索キーワード']); ?>
+				<br><br><?php echo nl2br( $n2values['検索キーワード'] ); ?>
 			<?php endif; ?>
 			<?php if ( $n2values['楽天SPAカテゴリー'] ) : ?>
-				<br><br><?php echo nl2br($n2values['楽天SPAカテゴリー']); ?>
+				<br><br><?php echo nl2br( $n2values['楽天SPAカテゴリー'] ); ?>
 			<?php endif ?>
 			<?php
 				echo $n2->settings['N2']['ポータル共通説明文']
@@ -310,14 +367,17 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 */
 	public static function allergy_display( $n2values, $type = '' ) {
 		$allergy_annotation = $n2values['アレルゲン注釈'];
-		$allergens                 = $n2values['アレルゲン'];
-		if( is_array( $allergens ) ) {
-			$allergens             = implode( '・', $allergens );
-		}
-		$not_food                  = ! in_array( '食品', $n2values['商品タイプ'], true );
-		$not_allergy               = empty( $n2values['アレルゲン'] ?: array() );
+		$allergens          = match ( is_array( $n2values['アレルゲン'] ) ) {
+			true => implode( '・', $n2values['アレルゲン'] ),
+			false => $n2values['アレルゲン'],
+		};
+		$not_food = match ( is_array( $n2values['商品タイプ'] ) ) {
+			true => ! in_array( '食品', $n2values['商品タイプ'], true ),
+			false => '食品' === $n2values['商品タイプ'],
+		};
+		$not_allergy        = empty( $n2values['アレルゲン'] ?: array() );
 		$allergy_annotation = $allergy_annotation ? '<br>※' . $allergy_annotation : '';
-		$result                    = '';
+		$result             = '';
 		switch ( true ) {
 			case ! $not_food && 'print' === $type:
 				$result = 'アレルギー表示しない';
@@ -338,16 +398,15 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	/**
 	 * 商品説明テーブル
 	 *
-	 * @param int  $post_id post_id
-	 * @param array  $n2values n2dataのループ中の値
-	 * @param bool $return_string 戻り値を文字列で返す
+	 * @param array $n2values n2dataのループ中の値
+	 * @param bool  $return_string 戻り値を文字列で返す
 	 *
 	 * @return string 商品説明テーブル
 	 */
 	public function make_itemtable( $n2values, $return_string = true ) {
 		// アレルギー表示
 		$allergy_display_str = $this->allergy_display( $n2values );
-		$trs       = array(
+		$trs                 = array(
 			'名称'      => array(
 				'td' => $n2values['LH表示名'] ?: $n2values['タイトル'],
 			),
@@ -381,16 +440,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 				'td' => nl2br( $n2values['配送期間'] ),
 			),
 			'提供事業者'   => array(
-				'td'        => $n2values['提供事業者']
-				?: preg_replace(
-					'/\（.+?\）/',
-					'',
-					(
-					get_the_author_meta( 'portal_site_display_name', get_post_field( 'post_author', $n2values['id'] ) )
-					?: get_the_author_meta( 'first_name', get_post_field( 'post_author', $n2values['id'] ) )
-					)
-				),
-				'condition' => '記載しない' !== get_the_author_meta( 'portal_site_display_name', get_post_field( 'post_author', $n2values['id'] ) ), // ポータル表示名に「記載しない」の表記があったら事業者名出力しない
+				'td' => $this->get_author_name( $n2values ),
 			),
 		);
 

@@ -12,7 +12,7 @@ export default ($: any, target: string) => {
 		$("#n2-download-images").on('click',()=>{
 			const params = new URLSearchParams({
 				action: 'n2_download_images_by_id',
-				id: window['wp'].data.select('core/editor').getCurrentPost().id,
+				ids: window['wp'].data.select('core/editor').getCurrentPost().id,
 			}).toString();
 			window.open( `${window['n2'].ajaxurl}?${params}`, '_blank' );
 		});
