@@ -8,7 +8,6 @@
             - 未
             - 却下
             - 承諾
-
     却下理由:
         type: textarea
         style: 'width: 100%;'
@@ -25,12 +24,10 @@
         :value: 返礼品コード
         "@focus": set_info($event.target)
         "@change": "force_half_size_text($event, 'uppercase', '返礼品コード')"
-
     LH表示名:
         type: text
         placeholder: 例）ヒレステーキ 200g
         style: 'width: 100%;'
-
     寄附金額:
         type: donation-amount
         description: 寄附金額を手動入力したい場合はチェックボックスにチェックを入れてください。<br>チェックが入っていない場合は寄附金額は自動計算されます。
@@ -40,7 +37,6 @@
         :value: 寄附金額
         "@change": "force_half_size_text($event, 'number', '寄附金額');calc_donation(価格, 送料, 定期便)"
     寄附金額固定:  # N2エクスポートに入れるために必須
-
     出品禁止ポータル:
         label: 出品禁止ポータルサイト
         type: checkbox
@@ -52,7 +48,6 @@
             - ふるさとチョイス
             - 楽天
         "@mouseover": set_info($event.target)
-
     オンライン決済限定:
         portal: ふるさとチョイス
         type: checkbox
@@ -64,6 +59,7 @@
             - 限定
         "@mouseover": set_info($event.target)
 
+# ▼ =========== 楽天専用のフィールド ==========
     全商品ディレクトリID:
         portal: 楽天
         type: rakuten-genreid
@@ -71,7 +67,6 @@
         v-model: 全商品ディレクトリID.text
         v-if: "!出品禁止ポータル.includes('楽天') && !商品タイプ.includes('eチケット')"
         description: 下のボタンが無くなるまで押していかないと楽天で地味にエラーが出ます。
-
     タグID:
         portal: 楽天
         type: rakuten-tagid
@@ -82,8 +77,6 @@
         v-if: "!出品禁止ポータル.includes('楽天')&&全商品ディレクトリID.text && !商品タイプ.includes('eチケット')"
         style: 'width: 100%;'
         "@focus": set_info($event.target);get_genreid();auto_fit_tetxarea($event.target)
-
-
     楽天SPAカテゴリー:
         portal: 楽天
         type: rakuten-spa-category
@@ -93,6 +86,7 @@
         rows: auto
         "@focus": set_info($event.target);get_spa_category();auto_fit_tetxarea($event.target)
         "@input": auto_fit_tetxarea($event.target)
+# ▲ =========== 楽天専用のフィールド ==========
 
     検索キーワード:
         type: textarea
@@ -102,7 +96,6 @@
         v-if: "!商品タイプ.includes('eチケット')"
         "@focus": set_info($event.target)
         "@input": auto_fit_tetxarea($event.target)
-
     地場産品類型:
         type: select
         v-if: "!商品タイプ.includes('eチケット')"
@@ -119,7 +112,6 @@
             8ロ : 8ロ：都道府県が当該都道府県の区域内の複数の市区町村と連携し、<br>当該連携する市区町村の区域内において前各号のいずれかに該当するものを当該都道府県及び当該市区町村の共通の返礼品等とするもの。
             8ハ : 8ハ：都道府県が当該都道府県の区域内の複数の市区町村において地域資源として相当程度認識されているもの及び当該市区町村を認定し、当該地域資源を当該市区町村がそれぞれ返礼品等とするもの。
             9 : 9.震災、風水害、落雷、火災その他これらに類する災害により甚大な被害を受けたことにより、その被害を受ける前に提供していた前各号のいずれかに該当する返礼品等を提供することができなくなった場合において、当該返礼品等を代替するものとして提供するもの。
-
     類型該当理由:
         type: textarea
         style: 'width: 100%;'
@@ -148,7 +140,6 @@
         type: hidden
         :value: 寄附金額
         v-if: current_user == 'jigyousya'
-
     価格:
         type : text
         # step: 300
@@ -160,7 +151,6 @@
         :value: 価格
         "@focus": set_info($event.target)
         "@change": "force_half_size_text($event, 'number', '価格')"
-
     キャッチコピー:
         type : text
         description : こだわりやポイントを端的にご記載ください。
@@ -170,7 +160,6 @@
         style: 'width: 100%'
         "@focus": set_info($event.target)
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
-
     説明文:
         type : item-description
         rows: auto
@@ -189,7 +178,6 @@
         description : '【メリット】この返礼品を申し込むことで、寄附者が得られる恩恵やハッピーをお書きください。<br>【実績】この返礼品の良さを裏付ける「実績」「口コミ」「施策」等をお書きください。<br>【アドバンテージ】その他の商品よりも特に優れている「こだわり」や「強み」をお書きください。<br>【特徴】返礼品や事業者様の「特徴」「説明」「想い」をお書きください。<br>【その他】上記以外で伝えたいことがあれば、お書きください。'
         "@focus": set_info($event.target);
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
-
     内容量・規格等:
         type : textarea
         maxlength : 1000
@@ -197,7 +185,6 @@
         description : 内容量、数量、サイズ、重さなど詳しくお書きください。
         "@focus": set_info($event.target)
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
-
     原料原産地:
         type : text
         maxlength : 50
@@ -207,7 +194,6 @@
         style: 'width: 100%'
         "@focus": set_info($event.target)
         "@input": set_info($event.target)
-
     加工地:
         type : text
         maxlength : 50
@@ -217,7 +203,6 @@
         style: 'width: 100%'
         "@focus": set_info($event.target)
         "@input": set_info($event.target)
-
     商品タイプ:
         type : checkbox
         value: []
@@ -226,6 +211,7 @@
             - 食品
         "@change": check_handling_method
 
+# ▼ =========== 食品専用のフィールド ==========
     アレルギー有無確認:
         type : checkbox
         value: ['アレルギー品目あり']
@@ -234,7 +220,6 @@
         required: required
         option :
             - アレルギー品目あり
-
     アレルゲン:
         type : checkbox
         v-if: 商品タイプ.includes('食品')&&アレルギー有無確認.filter(v=>v).length
@@ -268,7 +253,6 @@
             - バナナ
             - もも
             - りんご
-
     アレルゲン注釈:
         type: textarea
         placeholder: 例）同じ工場で〇〇を含む製品を製造しております。
@@ -278,7 +262,6 @@
         v-if: 商品タイプ.includes('食品')
         "@focus": set_info($event.target)
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
-
     賞味期限:
         type : textarea
         placeholder : 例）配送から５日間
@@ -288,7 +271,6 @@
         v-if: "商品タイプ.includes('食品') && !商品タイプ.includes('eチケット')"
         "@focus": set_info($event.target)
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
-
     消費期限:
         type : textarea
         placeholder : 例）冷凍庫９０日間
@@ -298,28 +280,41 @@
         v-if: "商品タイプ.includes('食品') && !商品タイプ.includes('eチケット')"
         "@focus": set_info($event.target)
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
+# ▲ =========== 食品専用のフィールド ==========
 
+# ▼ =========== やきもの専用のフィールド ==========
     返礼品ルール:
         type: checkbox
-        value:
+        v-model: 返礼品ルール
+        v-if: n2.settings.N2.返礼品の出品基準チェック && 商品タイプ.includes('やきもの')
+        value: []
+        required: required
         option:
-            - A：商品の付加価値（価格）の半分以上が${n2.town}で製造されている
-            - B：${n2.town}で製造された陶土を8割以上使用した自社のオリジナル商品で、他の事業者から出品されることはない
-
-    
-
-
-    # 対応機器:
-    #     type : textarea
-    #     value: "電子レンジ：◯×\nオーブン　：◯×\n食洗機　　：◯×"
-    #     placeholder : "例）電子レンジ：2～3分程の電子レンジ使用は可能です\nオーブン　：×\n食洗機　　：◯"
-    #     description: ◯ × 説明等を記入してください。
-    #     style: 'width: 100%;'
-    #     rows: 3
-    #     v-if: "商品タイプ.includes('やきもの') && !商品タイプ.includes('eチケット')"
-    #     "@focus": set_info($event.target)
-    #     "@input": set_info($event.target);auto_fit_tetxarea($event.target)
-
+            A: 商品価値の半分以上が${n2.town}で製造されている
+            B: ${n2.town}で製造された陶土を8割以上使用した自社のオリジナル商品で、他の事業者から出品されることはない
+    製造元:
+        type: text
+        v-if: "返礼品ルール.filter(v=>v).length"
+        placeholder: 例）○○窯
+    オリジナル商品:
+        type: checkbox
+        v-if: "!返礼品ルール.includes('B') && 返礼品ルール.filter(v=>v).length"
+        v-model: オリジナル商品
+        option:
+            - オリジナル商品である
+    オリジナル商品理由:
+        type: textarea
+        v-if: "オリジナル商品.filter(v=>v).length || 返礼品ルール.includes('B')"
+        required: required
+        rows: auto
+        description: オリジナル性が認められる部分をお答えください。
+        "@focus": set_info($event.target)
+        "@input": set_info($event.target);auto_fit_tetxarea($event.target)
+    陶土の製造元:
+        type: text
+        v-if: "!返礼品ルール.includes('A') && 返礼品ルール.filter(v=>v).length"
+        placeholder: 例）○○陶料
+        required: required
     電子レンジ対応:
         type: radio
         value: ○
@@ -329,7 +324,6 @@
             ○: 対応
             △: 対応（備考あり）
             ×: 非対応
-
     オーブン対応:
         type: radio
         value: ○
@@ -339,7 +333,6 @@
             ○: 対応
             △: 対応（備考あり）
             ×: 非対応
-
     食洗機対応:
         type: radio
         value: ○
@@ -349,7 +342,6 @@
             ○: 対応
             △: 対応（備考あり）
             ×: 非対応
-
     対応機器備考:
         type : textarea
         description : 電子レンジ・オーブン・食洗機対応のいずれかで「備考あり」を選択した場合は必ずお書きください。
@@ -358,13 +350,12 @@
         style: 'width: 100%;'
         "@focus": set_info($event.target)
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
-
+# ▲ =========== やきもの専用のフィールド ==========
 
     申込期間:
         type : text
         placeholder : 例）通年4月〜6月など
         style: 'width: 100%'
-
     配送期間:
         type : textarea
         description : 配送までにかかる最大納期を入力ください。「即納」表記は避けていただき、最短でも1週間前後で入力をお願いいたします。
@@ -374,11 +365,9 @@
         style: 'width: 100%;'
         "@focus": set_info($event.target)
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
-
     限定数量:
         type : text
         placeholder : 例）指定なし
-
     包装対応:
         type: radio
         value: 無し
@@ -386,7 +375,6 @@
         option:
             - 無し
             - 有り
-
     のし対応:
         type: radio
         value: 無し
@@ -394,7 +382,6 @@
         option:
             - 無し
             - 有り
-
     発送方法:
         type : radio
         value: 常温
@@ -404,7 +391,6 @@
             - 冷蔵
             - 冷凍
         v-model: 発送方法
-
     発送サイズ:
         type : select
         required: required
@@ -439,12 +425,10 @@
             その他: その他
         v-model: 発送サイズ
         "@change": check_handling_method
-
     送料:
         type: hidden
         :value: "!商品タイプ.includes('eチケット') ? 送料 : 0"
         required: required
-
     その他送料:
         type : text
         label: 送料
@@ -453,7 +437,6 @@
         v-if: 発送サイズ=='その他'
         :value: その他送料
         "@change": "force_half_size_text($event, 'number', 'その他送料')"
-
     取り扱い方法:
         type : checkbox
         value: []
@@ -468,7 +451,6 @@
         v-if: "!['','その他', 'レターパックプラス', 'レターパックライト'].includes(発送サイズ)"
         v-model: 取り扱い方法
         '@click': 'if (取り扱い方法.filter(v=>v).length == 2 ) { $event.target.checked = false; set_info($event.target) }'
-
     配送伝票表示名:
         type : text
         description : 配送伝票に表示したい自社での品番・名称等がある場合はご記入ください。<br>※特に記載がない場合は、返礼品名の最初の20文字が伝票へ記載されます。
@@ -477,7 +459,6 @@
         style: 'width: 17em;'
         "@focus": set_info($event.target)
         "@input": set_info($event.target)
-
     定期便:
         type : select
         value: 1
@@ -496,7 +477,6 @@
             11: １１回定期便
             12: １２回定期便
         v-model: 定期便
-
     LHカテゴリー:
         label: カテゴリー
         type : select
@@ -513,7 +493,6 @@
             - 体験・宿泊
             - 雑貨・日用品・ファッション
             - その他
-
     提供事業者名:
         type: datalists
         placeholder: 例）〇〇商店
@@ -521,12 +500,10 @@
         v-if: "'ledghome' === n2.settings.N2.LedgHOME"
         required: required
         option: []
-
     商品画像:
         type : item-image
         value: []
         label : 商品画像（8枚以上推奨）
         description : 画像を複数選択、またはアップロードしてください。画像は可能であれば8枚以上を推奨いたします。
-
     N1zip:
         type: hidden

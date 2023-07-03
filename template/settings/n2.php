@@ -70,4 +70,13 @@ $settings = array(
 			</label>
 		</td>
 	</tr>
+	<tr>
+		<th>返礼品の出品基準チェック</th>
+		<td>
+			<input type="hidden" name="n2_settings[N2][返礼品の出品基準チェック]">
+			<label>
+				<input type="checkbox" name="n2_settings[N2][返礼品の出品基準チェック]" value="1" <?php checked( $n2->settings['N2']['返礼品の出品基準チェック'] ); ?>> 返礼品の出品基準チェックする
+			</label>
+		</td>
+	</tr>
 </table>
