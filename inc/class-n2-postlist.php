@@ -77,6 +77,7 @@ class N2_Postlist {
 	 * @return array $columns 一覧に追加するカラム
 	 */
 	public function add_posts_columns( $columns ) {
+		global $n2;
 
 		$get_param_array = array();
 		foreach ( $_GET as $key => $value ) {
@@ -91,6 +92,8 @@ class N2_Postlist {
 
 		$sort_base_url = admin_url() . 'edit.php?' . implode( '&', $get_param_array );
 		$asc_or_desc   = empty( $_GET['order'] ) || 'asc' === $_GET['order'] ? 'desc' : 'asc';
+		$include_fee   = $n2->formula['送料乗数'];
+		$rr_header     = '(返礼率)';
 
 		$columns = array(
 			'cb'              => '<input type="checkbox" />',
@@ -98,7 +101,7 @@ class N2_Postlist {
 			'poster'          => '事業者名',
 			'code'            => "<div class='text-center'><a href='{$sort_base_url}&orderby=返礼品コード&order={$asc_or_desc}'>返礼品<br>コード{$this->judging_icons_order('返礼品コード')}</a></div>",
 			'goods_price'     => "<div class='text-center'><a href='{$sort_base_url}&orderby=価格&order={$asc_or_desc}'>価格{$this->judging_icons_order('価格')}</a></div>",
-			'donation_amount' => "<a href='{$sort_base_url}&orderby=寄附金額&order={$asc_or_desc}'>寄附金額{$this->judging_icons_order('寄附金額')}</a>",
+			'donation_amount' => "<a href='{$sort_base_url}&orderby=寄附金額&order={$asc_or_desc}'>寄附金額{$this->judging_icons_order('寄附金額')}</a><br>{$rr_header}",
 			'teiki'           => "<a href='{$sort_base_url}&orderby=定期便&order={$asc_or_desc}'>定期便{$this->judging_icons_order('定期便')}</a>",
 			'thumbnail'       => '<div class="text-center">画像</div>',
 			'modified-last'   => "<div class='text-center'><a href='{$sort_base_url}&orderby=date&order={$asc_or_desc}'>最終<br>更新日{$this->judging_icons_order('date')}</a></div>",
@@ -170,11 +173,14 @@ class N2_Postlist {
 		$ssmemo          = ! empty( $post_data['社内共有事項'] ) ? nl2br( $post_data['社内共有事項'] ) : '';
 		$ssmemo_isset    = $ssmemo ? 'n2-postlist-ssmemo' : '';
 		$modified_last   = get_the_modified_date( 'Y/m/d' );
+		$return_rate     = N2_Donation_Amount_API::calc_return_rate( $post_data ); // 返礼率計算
+		$include_fee     = $n2->formula['送料乗数'];
+		$rr_threshold    = N2_Donation_Amount_API::calc_return_rate( $post_data, true ); // 返礼率がしきい値(0.3 or 0.35)を超えてるかチェック
+		$rr_caution      = false === $rr_threshold ?: '; color:red; font-weight:bold'; // 返礼率がしきい値を超えてたら装飾
 
 		$status       = '';
 		$status_bar   = 0;
 		$status_color = '';
-
 		if ( 'draft' === get_post_status() || 'inherit' === get_post_status() ) {
 			$status       = '入力中';
 			$status_bar   = 30;
@@ -239,7 +245,7 @@ class N2_Postlist {
 				echo "<div class='text-center'>{$goods_price}</div>";
 				break;
 			case 'donation_amount':
-				echo "<div class='text-center'>{$donation_amount}</div>";
+				echo "<div class='text-center'>{$donation_amount}<br><span style='font-size:.7rem{$rr_caution};'>({$return_rate})</span></div>";
 				break;
 			case 'teiki':
 				echo "<div class='text-center'>{$teiki}</div>";
