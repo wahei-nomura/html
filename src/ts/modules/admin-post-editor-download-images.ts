@@ -1,10 +1,10 @@
 /**
  * エディタでの画像一括ダウンロード
  *
- * @param $ jQuery
  * @param string target 切り替えスイッチを追加する要素のセレクタ名
+ * @param any $ jQuery
  */
-export default ($: any, target: string) => {
+export default (target: string, $: any = jQuery ) => {
 	// ターゲットDOMが生成されてから
 	$(target).ready(() => {
 		if ( ! window['n2'].custom_field.事業者用.商品画像.value.length ) return;

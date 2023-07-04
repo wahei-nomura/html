@@ -1,9 +1,9 @@
 /**
  * 投稿ステータスのプログレスバーの制御
  *
- * @param $ JQuery
+ * @param any $ JQuery
  */
-export default $ => {
+export default ($:any = jQuery) => {
 	const n2 = window['n2'];
 	const wp = window['wp'];
 	const statuses = [

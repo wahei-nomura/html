@@ -1,9 +1,9 @@
 /**
  * ブロックエディタへ目次を追加する
  *
- * @param $ JQuery
+ * @param any $ JQuery
  */
-export default $ => {
+export default ($:any = jQuery) => {
 	// 目次
 	const mokuji_generator = () => {
 		$('.edit-post-editor__list-view-panel-content').addClass('p-0').html('<div id="目次">');

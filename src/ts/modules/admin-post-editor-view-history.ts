@@ -1,10 +1,10 @@
 /**
  * 投稿の履歴
  * 
- * @param $ jQuery
  * @param string target 履歴を見るボタンを追加する要素のセレクタ名
+ * @param any $ jQuery
  */
-export default ($: any, target: string) => {
+export default (target: string, $:any = jQuery) => {
 	// ターゲットDOMが生成されてから
 	$(target).ready(() => {
 		if ( window['n2'].current_user.roles.includes('jigyousya') || window['n2'].current_user.roles.includes('municipal-office') ) return

@@ -3,10 +3,10 @@
  * 投稿idの破棄（全部・１つ１つ）
  * 投稿idを元に商品APIを使ってリスト表示
  * 
- * @param $ jQuery
+ * @param any $ jQuery
  */
 import Vue from 'vue/dist/vue.min'
-export default ($: any) => {
+export default ($: any = jQuery) => {
 	const n2 = window['n2'];
 	const save_name = `n2_checked_post_ids_${n2.site_id}`;
 	new Vue({

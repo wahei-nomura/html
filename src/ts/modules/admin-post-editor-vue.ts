@@ -1,11 +1,15 @@
 import Vue from 'vue/dist/vue.min'
 import draggable from 'vuedraggable'
+import loading_view from "./loading-view";
+import save_as_pending from "./admin-post-editor-save-as-pending-post"
+
 /**
  * カスタムフィールドをVueで制御
- *
- * @param $ jQuery
- */
-export default $ => {
+*
+* @param $ jQuery
+*/
+export default ($: any = jQuery) => {
+	loading_view.add('#wpwrap');// ローディング
 	const n2 = window['n2'];
 	const wp = window['wp'];
 	const data = {};
@@ -20,6 +24,7 @@ export default $ => {
 	data['寄附金額チェッカー'] = '';
 	data['寄附金額自動計算値'] = '';
 	const created = async function() {
+		save_as_pending.append_button("#n2-save-post");// スチームシップへ送信
 		this.全商品ディレクトリID = {
 			text: this.全商品ディレクトリID,
 			list: [],
@@ -31,7 +36,7 @@ export default $ => {
 		};
 		
 		this.寄附金額 = await this.calc_donation(this.価格,this.送料,this.定期便);
-		this.show_submit();
+		this.control_submit();
 		// 発送サイズ・発送方法をダブル監視
 		this.$watch(
 			() => {
@@ -46,6 +51,8 @@ export default $ => {
 				return data;
 			},
 			async function(newVal, oldVal) {
+				// 保存ボタン
+				this.control_submit();
 				// タグIDのリセット
 				if ( newVal.全商品ディレクトリID != oldVal.全商品ディレクトリID && this.タグID.text.length ) {
 					if ( confirm('全商品ディレクトリIDが変更されます。\nそれに伴い入力済みのタグIDをリセットしなければ楽天で地味にエラーがでます。\n\nタグIDをリセットしてよろしいでしょうか？') ) {
@@ -62,8 +69,6 @@ export default $ => {
 					? newVal.その他送料
 					: n2.settings['寄附金額・送料']['送料'][size.join('_')] || '';
 				this.寄附金額 = await this.calc_donation(newVal.価格,this.送料,newVal.定期便);
-				// 保存ボタン
-				this.show_submit();
 			},
 		);
 		// テキストエリア調整
@@ -73,7 +78,7 @@ export default $ => {
 		// 投稿のメタ情報を全保存
 		n2.saved_post = JSON.stringify($('form').serializeArray());
 		// ローディング削除
-		n2.remove_loading('#wpwrap', 500);
+		loading_view.show('#wpwrap', 500);
 	};
 	const methods = {
 		// 説明文・テキストカウンター
@@ -216,7 +221,13 @@ export default $ => {
 			}
 		},
 		// スチームシップへ送信ボタンの制御
-		show_submit() {
+		control_submit() {
+			// 必須漏れがあれば、「スチームシップへ送信」できなくする
+			if ( save_as_pending.rejection().length > 0 ) {
+				$('#n2-save-as-pending').addClass('opacity-50');
+			} else {
+				$('#n2-save-as-pending').removeClass('opacity-50');
+			}
 			if ( this.価格 > 0 && this.送料 > 0  ) {
 				wp.data.dispatch( 'core/editor' ).unlockPostSaving( 'n2-lock' );
 			} else {
@@ -271,6 +282,7 @@ export default $ => {
 	const components = {
 		draggable,
 	};
+
 	// メタボックスが生成されてから
 	$('.edit-post-layout__metaboxes').ready(()=>{
 		n2.vue = new Vue({

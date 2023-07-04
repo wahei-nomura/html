@@ -1,9 +1,9 @@
 /**
  * ブロックエディタへ目次を追加する
  *
- * @param $ JQuery
+ * @param any $ JQuery
  */
-export default $ => {
+export default ($:any = jQuery) => {
 	const wp = window['wp'];
 	// タイトル文字数カウンター
 	$('.editor-post-title__input').ready(function () {

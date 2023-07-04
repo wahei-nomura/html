@@ -1,10 +1,10 @@
 /**
  * 投稿の削除
  * 
- * @param $ jQuery
  * @param string target 投稿の削除を追加する要素のセレクタ名
+ * @param any $ jQuery
  */
-export default ($: any, target: string) => {
+export default (target: string, $:any = jQuery) => {
 	// ターゲットDOMが生成されてから
 	$(target).ready(() => {
 		const status = window['wp'].data.select("core/editor").getEditedPostAttribute("status");

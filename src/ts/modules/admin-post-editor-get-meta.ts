@@ -1,9 +1,9 @@
 /**
  * メタデータを取得
  * 
- * @param $ jQuery
+ * @param any $ jQuery
  */
-export default ($: any) => {
+export default ($: any = jQuery) => {
 	// カスタムフィールドの保存
 	const meta = {};
 	const fd:any = new FormData($('#事業者用').parents('form').get(0));

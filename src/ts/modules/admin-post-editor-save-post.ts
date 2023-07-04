@@ -6,7 +6,7 @@ import get_meta from "./admin-post-editor-get-meta";
  * @param $ jQuery
  * @param string target 返礼品の保存を追加する要素のセレクタ名
  */
-export default ($: any, target: string) => {
+export default (target: string, $: any = jQuery) => {
 	const n2 = window['n2'];
 	const wp = window['wp'];
 	const btn_class = {
@@ -49,7 +49,7 @@ export default ($: any, target: string) => {
 			$('#n2-save-post span').attr('class', 'spinner-border spinner-border-sm me-2');
 
 			// カスタムフィールドの保存
-			const meta = get_meta($);
+			const meta = get_meta();
 			wp.data.dispatch( 'core/editor' ).editPost({ meta });
 
 			// 保存時の挙動
