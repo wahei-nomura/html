@@ -15,18 +15,6 @@ if ( class_exists( 'N2_RMS_Cabinet_API' ) ) {
  */
 class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	/**
-	 * option_name
-	 *
-	 * @var string
-	 */
-	protected $option_name = 'n2_rms_cabinet_api';
-	/**
-	 * connect
-	 *
-	 * @var bool
-	 */
-	protected $is_connect;
-	/**
 	 * フォルダ一覧
 	 *
 	 * @var array
@@ -34,30 +22,16 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	protected $folders = array();
 
 	/**
-	 * コンストラクター
-	 */
-	public function __construct() {
-		parent::__construct();
-		add_action( 'wp_ajax_n2_rakuten_cabinet_files', array( $this, 'files_get' ) );
-		add_action( 'wp_ajax_n2_rakuten_cabinet_files_search', array( $this, 'files_search' ) );
-		add_action( 'wp_ajax_n2_rakuten_cabinet_folders', array( $this, 'folders_get' ) );
-	}
-
-	/**
 	 * フォルダ一覧取得
 	 *
 	 * @return array フォルダ一覧
 	 */
-	public function folders_get() {
-		if ( ! $this->is_connect ) {
-			return false;
-		}
-		$header  = parent::set_api_keys();
+	public static function folders_get() {
 		$params  = array(
 			'limit' => 100,
 		);
-		$url     = self::ENDPOINT . 'cabinet/folders/get?' . http_build_query( $params );
-		$data    = wp_remote_get( $url, array( 'headers' => $header ) );
+		$url     = static::$settings['endpoint'] . '/1.0/cabinet/folders/get?' . http_build_query( $params );
+		$data    = wp_remote_get( $url, array( 'headers' => static::$data['header'] ) );
 		$folders = simplexml_load_string( $data['body'] )->cabinetFoldersGetResult->folders;
 		$folders = json_decode( wp_json_encode( $folders ), true )['folder'];
 
@@ -66,20 +40,18 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	/**
 	 * ファイル一覧取得
 	 *
-	 * @param string $args パラメータ
 	 * @return array ファイル一覧
 	 */
-	public function files_get( $args ) {
-		$sku              = $args ?: $_GET['sku'];
-		$action           = $_GET['action'] ?? false;
-		$this->is_connect = $this->connect();
-		$this->folders    = $this->folders_get();
-		if ( ! $this->folders ) {
-			return false;
-		}
-		$folder_id = $this->folders[ array_search( $sku, array_column( $this->folders, 'FolderName' ), true ) ]['FolderId'];
+	public static function files_get() {
 
-		$header     = parent::set_api_keys();
+		$sku                               = static::$data['params']['sku'];
+		static::$data['params']['cabinet'] = self::folders_get();
+
+		static::check_fatal_error( static::$data['params']['cabinet'], 'フォルダーIDの取得に失敗しました。' );
+
+		$forder_name = array_search( $sku, array_column( static::$data['params']['cabinet'], 'FolderName' ), true );
+		$folder_id   = static::$data['params']['cabinet'][ $forder_name ]['FolderId'];
+
 		$limit      = 100;
 		$params     = array(
 			'folderId' => $folder_id,
@@ -89,8 +61,8 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 		$file_count = $limit;
 		$files      = array();
 		do {
-			$url       = self::ENDPOINT . 'cabinet/folder/files/get?' . http_build_query( $params );
-			$data      = wp_remote_get( $url, array( 'headers' => $header ) );
+			$url       = self::$settings['endpoint'] . '/1.0/cabinet/folder/files/get?' . http_build_query( $params );
+			$data      = wp_remote_get( $url, array( 'headers' => static::$data['header'] ) );
 			$res_files = simplexml_load_string( $data['body'] )->cabinetFolderFilesGetResult->files;
 			$res_files = json_decode( wp_json_encode( $res_files ), true )['file'];
 
@@ -108,30 +80,20 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			$files,
 		);
 
-		if ( $action ) {
-			header( 'Content-Type: application/json; charset=utf-8' );
-			$json = wp_json_encode( $files, JSON_UNESCAPED_UNICODE );
-			echo $json;
-			exit;
-		}
-		return files;
+		return $files;
 	}
 	/**
 	 * ファイル一覧(検索)
-	 *
-	 * @param array $args パラメータ
+	 * 
+	 * @return array 検索結果
 	 */
-	public static function files_search( $args ) {
+	public static function files_search() {
 		$files = array();
-		$sku   = $args['sku'] ?? $_GET['sku'] ?? null;
-		if ( null === $sku ) {
-			return $files;
-		}
 
-		$action     = false;
-		$header     = $args['header'] ?? parent::set_api_keys();
+		static::check_fatal_error( static::$data['params']['sku'] ?? false, '検索ワードが設定されていません。' );
+
 		$params     = array(
-			'fileName' => $sku,
+			'fileName' => static::$data['params']['sku'],
 			'limit'    => 100,
 			'offset'   => 1,
 		);
@@ -139,8 +101,8 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 		$file_count = 100;
 
 		do {
-			$url        = self::ENDPOINT . 'cabinet/files/search?' . http_build_query( $params );
-			$data       = wp_remote_get( $url, array( 'headers' => $header ) );
+			$url        = static::$settings['endpoint'] . '/1.0/cabinet/files/search?' . http_build_query( $params );
+			$data       = wp_remote_get( $url, array( 'headers' => static::$data['header'] ) );
 			$file_count = (int) simplexml_load_string( $data['body'] )->cabinetFilesSearchResult->fileAllCount->__toString() - 1;
 			$req_files  = simplexml_load_string( $data['body'] )->cabinetFilesSearchResult->files;
 			$req_files  = json_decode( wp_json_encode( $req_files ), true )['file'] ?? array();
@@ -151,12 +113,6 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			++$params['offset'];
 		} while ( ( $params['offset'] - 1 ) * $limit < $file_count );
 
-		if ( $action ) {
-			header( 'Content-Type: application/json; charset=utf-8' );
-			$json = wp_json_encode( $files, JSON_UNESCAPED_UNICODE );
-			echo $json;
-			exit;
-		}
 		return $files;
 	}
 }
