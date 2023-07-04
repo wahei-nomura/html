@@ -35,15 +35,15 @@ export default $ => {
 		// 発送サイズ・発送方法をダブル監視
 		this.$watch(
 			() => {
-				return {
-					全商品ディレクトリID: this.$data.全商品ディレクトリID.text,
-					価格: this.$data.価格,
-					発送方法: this.$data.発送方法,
-					発送サイズ: this.$data.発送サイズ,
-					送料: this.$data.送料,
-					その他送料: this.$data.その他送料,
-					定期便: this.$data.定期便,
+				// dataを全部監視する準備
+				const data = {};
+				for ( const name in this.$data ) {
+					data[name] = this.$data[name];
+					if ( '全商品ディレクトリID' === name ) {
+						data[name] = data[name].text;
+					}
 				}
+				return data;
 			},
 			async function(newVal, oldVal) {
 				// タグIDのリセット
@@ -72,6 +72,8 @@ export default $ => {
 		});
 		// 投稿のメタ情報を全保存
 		n2.saved_post = JSON.stringify($('form').serializeArray());
+		// ローディング削除
+		n2.remove_loading('#wpwrap', 500);
 	};
 	const methods = {
 		// 説明文・テキストカウンター
