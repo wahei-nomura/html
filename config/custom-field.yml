@@ -217,13 +217,13 @@
         value: ['アレルギー品目あり']
         v-model: アレルギー有無確認
         v-if: 商品タイプ.includes('食品')
-        required: required
         option :
             - アレルギー品目あり
     アレルゲン:
         type : checkbox
         v-if: 商品タイプ.includes('食品')&&アレルギー有無確認.filter(v=>v).length
         required: required
+        v-model: アレルゲン
         option :
             - 卵
             - 乳
@@ -305,6 +305,7 @@
     オリジナル商品理由:
         type: textarea
         v-if: "オリジナル商品.filter(v=>v).length || 返礼品ルール.includes('B')"
+        v-model: オリジナル商品理由
         required: required
         rows: auto
         description: オリジナル性が認められる部分をお答えください。
@@ -315,6 +316,7 @@
         type: text
         v-if: "!返礼品ルール.includes('A') && 返礼品ルール.filter(v=>v).length"
         placeholder: 例）○○陶料
+        v-model: 陶土の製造元
         required: required
     電子レンジ対応:
         type: radio
@@ -499,7 +501,7 @@
         placeholder: 例）〇〇商店
         # これ通常レジだからっているわけでもないし、クラウドレジでも欲しくなるのでは？
         v-if: "'ledghome' === n2.settings.N2.LedgHOME"
-        required: required
+        v-model: 提供事業者名
         option: []
     商品画像:
         type : item-image

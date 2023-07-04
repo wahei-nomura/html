@@ -4,16 +4,17 @@ import get_meta from "./admin-post-editor-get-meta";
 * @returns rejection
 */
 const rejection = ($: any = jQuery) => {
-	let rejection = [];
-	// 必須項目対象
-	let required = $('.edit-post-layout__metaboxes [required]').serializeArray();
-	rejection = required.filter( v => !v.value );
-	// アレルギー品目ありの場合はアレルゲンを必須にする
-	if ( 1 == required.filter( v => ( v.value.match(/アレルギー品目あり/) || v.name.match(/アレルゲン/) ) ).length ) {
-		rejection.push({ name: 'n2field[アレルゲン]' });
-	}
-	rejection = rejection.map( v => v.name.match(/n2field\[(.*?)\]/)[1] );
-	return rejection;
+	let required = [];
+	let ok = [];
+	$('.edit-post-layout__metaboxes [required]').each((k,v) => {
+		required.push(v.name.match(/n2field\[(.*?)\]/)[1]);
+		if ( v.value && ( 'checkbox' !== v.type || v.checked ) ) ok.push(v.name.match(/n2field\[(.*?)\]/)[1]);
+	});
+	// それぞれの重複削除
+	required = Array.from(new Set(required));
+	ok = Array.from(new Set(ok));
+	// 拒否項目
+	return required.filter( v => !ok.includes(v) );
 };
 
 /**
