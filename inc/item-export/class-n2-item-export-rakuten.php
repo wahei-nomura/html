@@ -272,24 +272,14 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 * @return bool 設定可否
 	 */
 	private function set_cabinet_files( $sku ) {
-		if ( null === $this->rms['header'] ) {
-			// api keyを取得
-			$this->rms['header'] = N2_RMS_Cabinet_API::set_api_keys();
-		}
-		// 一度だけ実行する
-		if ( null === $this->rms['use_api'] ) {
-			$this->rms['use_api'] = 200 === N2_RMS_Cabinet_API::connect()['code'];
-		}
-		if ( ! $this->rms['use_api'] ) {
-			return false;
-		}
 
 		// 事業者コードでハッシュ化
 		$this->rms['cabinet'][ $sku ] = match ( ! isset( $this->rms['cabinet'][ $sku ] ) ) {
-			true => N2_RMS_Cabinet_API::files_search(
+			true => N2_RMS_Cabinet_API::ajax(
 				array(
-					'sku'    => $sku,
-					'header' => $this->rms['header'],
+					'sku'     => $sku,
+					'request' => 'files_search',
+					'mode'    => 'func',
 				),
 			),
 			default => $this->rms['cabinet'][ $sku ] ?? array(),
