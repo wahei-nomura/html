@@ -353,7 +353,13 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			set_time_limit( 60 );
 
 			$result   = array();
-			$response = N2_Multi_URL_Request_API::verify_images( $requests );
+			$response = N2_Multi_URL_Request_API::ajax(
+				array(
+					'urls'    => $requests,
+					'mode'    => 'func',
+					'request' => 'verify_images',
+				)
+			);
 			$result   = array_map(
 				function( $req ) use ( $response ) {
 					return $response[ $req ] ? $req : '';
