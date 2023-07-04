@@ -308,6 +308,7 @@
         required: required
         rows: auto
         description: オリジナル性が認められる部分をお答えください。
+        placeholder: "例）形状が自社オリジナルであるから\n例）デザインが自社オリジナルである\n例）裏印を刻印している"
         "@focus": set_info($event.target)
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
     陶土の製造元:
