@@ -88,7 +88,7 @@ abstract class N2_RMS_Base_API {
 	}
 
 	/**
-	 * ヘッダー配列の作成
+	 * 各パラメータ配列の作成
 	 *
 	 * @param array $args args
 	 */
