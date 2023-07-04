@@ -55,8 +55,7 @@ abstract class N2_RMS_Base_API {
 	 */
 	protected static function connect() {
 		$path                  = 'shop/shopMaster';
-		$header                = self::set_api_keys();
-		$data                  = wp_remote_get( static::$settings['endpoint'] . $path, array( 'headers' => $header ) );
+		$data                  = wp_remote_get( static::$settings['endpoint'] . $path, array( 'headers' => static::$data['header'] ) );
 		$code                  = $data['response']['code'];
 		self::$data['connect'] = 200 === $code;
 	}
@@ -80,7 +79,7 @@ abstract class N2_RMS_Base_API {
 	 * ヘッダー配列の作成
 	 */
 	private static function set_header() {
-		if ( empty( self::$data['header'] ) ) {
+		if ( empty( static::$data['header'] ) ) {
 			/**
 			 * [hook] n2_rms_base_api_set_header
 			 */
@@ -146,13 +145,13 @@ abstract class N2_RMS_Base_API {
 	 */
 	public static function ajax( $args ) {
 
+		static::set_header();
+		static::set_params( $args );
+
 		// 利用可能か確認
 		if ( static::connect() ) {
 			return;
 		}
-
-		static::set_header();
-		static::set_params( $args );
 
 		static::$data['response'] = static::request();
 
