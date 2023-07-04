@@ -93,7 +93,7 @@ class N2_Postlist {
 		$sort_base_url = admin_url() . 'edit.php?' . implode( '&', $get_param_array );
 		$asc_or_desc   = empty( $_GET['order'] ) || 'asc' === $_GET['order'] ? 'desc' : 'asc';
 		$include_fee   = $n2->formula['送料乗数'];
-		$rr_header     = '1' === $include_fee ? '(返礼率:送料含)' : '(返礼率)';
+		$rr_header     = '(返礼率)';
 
 		$columns = array(
 			'cb'              => '<input type="checkbox" />',
@@ -181,7 +181,6 @@ class N2_Postlist {
 		$status       = '';
 		$status_bar   = 0;
 		$status_color = '';
-		'1' === $include_fee ? '寄附額(計算:送料含)' : '寄附額(計算)';
 		if ( 'draft' === get_post_status() || 'inherit' === get_post_status() ) {
 			$status       = '入力中';
 			$status_bar   = 30;
