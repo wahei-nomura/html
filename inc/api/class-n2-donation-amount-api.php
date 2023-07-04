@@ -81,7 +81,7 @@ class N2_Donation_Amount_API {
 		$delivery_fee        = ( ! empty( $post_data['発送サイズ'] ) && in_array( $post_data['発送サイズ'], $df_array, true ) ) ? $n2->delivery_fee[ $delivery_size ] : 0;
 		$teiki_no            = ! empty( $post_data['定期便'] ) && 1 !== (int) $post_data['定期便'] ? $post_data['定期便'] : 1;
 		$return_rate         = ! empty( $post_data['寄附金額'] ) && ! empty( $post_data['価格'] ) ? '1' === $delivery_multiplier ? ceil( ( $post_data['価格'] / ( $post_data['寄附金額'] + $delivery_fee / $teiki_no ) ) * 100 ) / 100 : ceil( ( $post_data['価格'] / ( $post_data['寄附金額'] / $teiki_no ) ) * 100 ) / 100 : '-';
-		$rr_threshold        = '1' === $delivery_multiplier ? ( 0.35 <= $return_rate ? true : false ) : ( 0.3 <= $return_rate ? true : false );
+		$rr_threshold        = '1' === $delivery_multiplier ? ( 0.35 < $return_rate ? true : false ) : ( 0.3 < $return_rate ? true : false );
 		// N2_Donation_Amount_API::calc_return_rate()呼び出し
 		if ( $threshold_flg ) {
 			return $rr_threshold;
