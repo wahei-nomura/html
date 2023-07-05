@@ -54,10 +54,13 @@ abstract class N2_RMS_Base_API {
 	 * 接続確認用API
 	 */
 	protected static function connect() {
-		$path                  = 'shop/shopMaster';
+		$path                  = '/1.0/shop/shopMaster';
 		$data                  = wp_remote_get( static::$settings['endpoint'] . $path, array( 'headers' => static::$data['header'] ) );
 		$code                  = $data['response']['code'];
 		self::$data['connect'] = 200 === $code;
+		// 利用可能か確認
+		static::check_fatal_error( self::$data['connect'], 'RMS APIにアクセスできません' );
+		return self::$data['connect'];
 	}
 
 	/**
@@ -100,9 +103,10 @@ abstract class N2_RMS_Base_API {
 			$params = wp_parse_args( $params, $_POST );
 		}
 		$default = array(
-			'mode'    => 'func',
-			'request' => 'anonymous',
-			'action'  => false,
+			'mode'     => 'func',
+			'request'  => 'anonymous',
+			'action'   => false,
+			'multiple' => true,
 		);
 		// デフォルト値を$paramsで上書き
 		$params = wp_parse_args( $params, $default );
@@ -127,6 +131,7 @@ abstract class N2_RMS_Base_API {
 		switch ( static::$data['params']['mode'] ) {
 			case 'debug': // デバッグモード
 				header( 'Content-Type: application/json; charset=utf-8' );
+				print_r( static::$data['params'] );
 				print_r( static::$data['response'] );
 				exit;
 			case 'json': // json出力
@@ -147,11 +152,6 @@ abstract class N2_RMS_Base_API {
 
 		static::set_header();
 		static::set_params( $args );
-
-		// 利用可能か確認
-		if ( static::connect() ) {
-			return;
-		}
 
 		static::$data['response'] = static::request();
 

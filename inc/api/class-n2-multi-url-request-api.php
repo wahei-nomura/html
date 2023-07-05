@@ -156,7 +156,7 @@ class N2_Multi_URL_Request_API {
 				'headers' => static::$data['header'],
 			);
 		}
-		return Requests::request_multiple( $requests );
+		return Requests::request_multiple( $requests, array( 'timeout' => 60 ) );
 	}
 
 	/**

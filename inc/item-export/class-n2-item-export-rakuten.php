@@ -72,17 +72,16 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		global $n2;
 		$data = array();
 
-		$sku_list = array_map(
+		$item_code_list = array_map(
 			function( $item ) {
-				return mb_strtolower( $item['事業者コード'] );
+				return mb_strtolower( $item['返礼品コード'] );
 			},
 			$this->data['n2data'],
 		);
 		// 事業者コード一覧
-		$sku_list = array_unique( $sku_list );
-		foreach ( $sku_list as $sku ) {
-			$this->set_cabinet_files( $sku );
-		}
+		$item_code_list = array_unique( $item_code_list );
+		// 事前に取得
+		$this->set_cabinet_files( $item_code_list );
 
 		// $this->check_fatal_error( $this->data['header'], 'ヘッダーが正しくセットされていません' );
 		foreach ( $this->data['n2data'] as $key => $values ) {
@@ -207,7 +206,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			$max_index = end( array_keys( $images ) );
 			for ( $index = 0; $index <= $max_index; $index++ ) {
 				$gift_code = mb_strtolower( $n2values['返礼品コード'] );
-				$image     = $gift_code . ( 0 !== $index ? '_' . $index : '' ) . '.jpg';
+				$image     = $gift_code . ( 0 !== $index ? '-' . $index : '' ) . '.jpg';
 				if ( ! isset( $images[ $index ] ) && 'ignore_img_error' !== filter_input( INPUT_POST, 'option' ) ) {
 					$this->rms['image_error'] = true;
 					$this->add_error( $n2values['id'], "商品画像を先にアップロードしてください！ {$image}" );
@@ -267,24 +266,21 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	/**
 	 * キャビネットの画像ファイルを設定
 	 *
-	 * @param string $sku 事業者コード
-	 *
-	 * @return bool 設定可否
+	 * @param array $keywords 検索ワード
 	 */
-	private function set_cabinet_files( $sku ) {
-
-		// 事業者コードでハッシュ化
-		$this->rms['cabinet'][ $sku ] = match ( ! isset( $this->rms['cabinet'][ $sku ] ) ) {
-			true => N2_RMS_Cabinet_API::ajax(
-				array(
-					'sku'     => $sku,
-					'request' => 'files_search',
-					'mode'    => 'func',
-				),
+	private function set_cabinet_files( $keywords ) {
+		// 検索ワードでハッシュ化
+		$cabinet              = N2_RMS_Cabinet_API::ajax(
+			array(
+				'keywords' => $keywords,
+				'request'  => 'files_search',
+				'mode'     => 'func',
 			),
-			default => $this->rms['cabinet'][ $sku ] ?? array(),
-		};
-		return true;
+		);
+		$this->rms['cabinet'] = array(
+			...$this->rms['cabinet'],
+			...$cabinet,
+		);
 	}
 
 
@@ -323,23 +319,35 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 * @return string|array 楽天の画像URLを(文字列|配列)で取得する
 	 */
 	public function get_img_urls( $n2values, $return_type = 'string' ) {
+		set_time_limit( 60 );
 		global $n2;
 		$result = match ( isset( $n2values['商品画像URL'] ) ) {
 			true => explode( ' ', $n2values['商品画像URL'] ),
 			false => array(),
 		};
 
-		$business_code = mb_strtolower( $n2values['事業者コード'] );
-		$requests      = $this->make_img_urls( $n2values );
+		$code     = mb_strtolower( $n2values['返礼品コード'] );
+		$requests = $this->make_img_urls( $n2values );
+
+		if ( null === $this->rms['use_api'] ) {
+			$this->rms['use_api'] = N2_RMS_Cabinet_API::ajax(
+				array(
+					'request' => 'connect',
+					'mode'    => 'func',
+				),
+			);
+		}
 
 		// RMSを利用する
-		if ( ! $result && $this->set_cabinet_files( $business_code ) ) {
-
+		if ( ! $result && $this->rms['use_api'] ) {
+			if ( ! isset( $this->rms['cabinet'][ $code ] ) ) {
+				$this->set_cabinet_files( array( $code ) );
+			}
 			$files  = array_map(
 				function( $req ) {
 					return $req['FileUrl'];
 				},
-				$this->rms['cabinet'][ $business_code ],
+				$this->rms['cabinet'][ $code ] ?? array(),
 			);
 			$result = array_map(
 				function( $req ) use ( $files ) {
@@ -348,10 +356,9 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 				$requests,
 			);
 			$result = array_filter( $result, fn( $r ) => $r );
+		}
 
-		} elseif ( ! $result ) { // 直接存在チェック
-			set_time_limit( 60 );
-
+		if ( ! $result ) { // 直接存在チェック
 			$result   = array();
 			$response = N2_Multi_URL_Request_API::ajax(
 				array(
