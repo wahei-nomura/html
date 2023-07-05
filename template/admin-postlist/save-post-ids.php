@@ -79,6 +79,7 @@ global $n2;
 								<option value="pending">スチームシップ確認中</option>
 								<option value="publish">ポータル登録準備中</option>
 								<option value="registered">ポータル登録済</option>
+								<option value="private">非公開</option>
 								<option value="trash">ゴミ箱</option>
 							</select>
 						</div>
