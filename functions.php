@@ -44,12 +44,15 @@ $incs = array(
 	'class-n2-rakuten-ftp',
 	'api/class-n2-donation-amount-api',
 	'api/class-n2-rakuten-items-api',
+	'api/class-n2-rms-base-api',
+	'api/class-n2-rms-cabinet-api',
 	'api/class-n2-furusato-choice-items-api',
 	'class-n2-chonbo',
 	'api/class-n2-output-gift-api',
 	'api/class-n2-post-history-api',
 	'api/class-n2-users-api',
 	'api/class-n2-items-api',
+	'api/class-n2-multi-url-request-api',
 	'class-n2-change-allergen',
 );
 foreach ( $incs as $name ) {
