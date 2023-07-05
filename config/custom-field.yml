@@ -216,12 +216,12 @@
         type : checkbox
         value: ['アレルギー品目あり']
         v-model: アレルギー有無確認
-        v-if: 商品タイプ.includes('食品')
+        v-if: 商品タイプ.some(v=>['食品','酒'].includes(v))
         option :
             - アレルギー品目あり
     アレルゲン:
         type : checkbox
-        v-if: 商品タイプ.includes('食品')&&アレルギー有無確認.filter(v=>v).length
+        v-if: 商品タイプ.some(v=>['食品','酒'].includes(v)) && アレルギー有無確認.filter(v=>v).length
         required: required
         v-model: アレルゲン
         option :
@@ -259,7 +259,7 @@
         description: アレルゲンに関連する注釈があれば入力してください。
         rows: auto
         style: 'width: 100%;height: 2em;'
-        v-if: 商品タイプ.includes('食品')
+        v-if: 商品タイプ.some(v=>['食品','酒'].includes(v))
         "@focus": set_info($event.target)
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
     賞味期限:
@@ -268,7 +268,7 @@
         maxlength : 200
         rows: auto
         style: 'width: 100%;'
-        v-if: "商品タイプ.includes('食品') && !商品タイプ.includes('eチケット')"
+        v-if: "商品タイプ.some(v=>['食品','酒'].includes(v)) && !商品タイプ.includes('eチケット')"
         "@focus": set_info($event.target)
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
     消費期限:
@@ -277,7 +277,7 @@
         style: 'width: 100%;'
         maxlength : 200
         rows: auto
-        v-if: "商品タイプ.includes('食品') && !商品タイプ.includes('eチケット')"
+        v-if: "商品タイプ.some(v=>['食品','酒'].includes(v)) && !商品タイプ.includes('eチケット')"
         "@focus": set_info($event.target)
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
 # ▲ =========== 食品専用のフィールド ==========

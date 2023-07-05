@@ -8,7 +8,7 @@
 global $n2;
 $settings = array(
 	'LedgHOME' => array( 'lhcloud' => 'クラウド版レジ', 'ledghome' => '通常版レジ' ),
-	'商品タイプ' => array( '食品', 'やきもの', 'eチケット' ),
+	'商品タイプ' => array( '食品', '酒', 'やきもの', 'eチケット' ),
 );
 ?>
 <table class="form-table">
