@@ -103,10 +103,9 @@ abstract class N2_RMS_Base_API {
 			$params = wp_parse_args( $params, $_POST );
 		}
 		$default = array(
-			'mode'     => 'func',
-			'request'  => 'anonymous',
-			'action'   => false,
-			'multiple' => true,
+			'mode'    => 'func',
+			'request' => 'anonymous',
+			'action'  => false,
 		);
 		// デフォルト値を$paramsで上書き
 		$params = wp_parse_args( $params, $default );
