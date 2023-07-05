@@ -16,8 +16,8 @@ global $n2;
 			</label>
 		</td>
 	</tr>
-	<?php foreach ( array_filter( $n2->settings['N2']['商品タイプ'] ) as $type ) : ?>
-	<tr>
+	<?php foreach ( $args->data['商品タイプ'] as $type ) : ?>
+	<tr <?php echo ! in_array( $type, $n2->settings['N2']['商品タイプ'], true ) ? 'style="display: none;"' : ''; ?>>
 		<th><?php echo $type; ?></th>
 		<td>
 			<label style="margin: 0 2em 0 0;">

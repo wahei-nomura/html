@@ -7,8 +7,10 @@
 
 global $n2;
 $settings = array(
-	'LedgHOME' => array( 'lhcloud' => 'クラウド版レジ', 'ledghome' => '通常版レジ' ),
-	'商品タイプ' => array( '食品', '酒', 'やきもの', 'eチケット' ),
+	'LedgHOME' => array(
+		'lhcloud'  => 'クラウド版レジ',
+		'ledghome' => '通常版レジ',
+	),
 );
 ?>
 <table class="form-table">
@@ -34,7 +36,7 @@ $settings = array(
 	<tr>
 		<th>出品する特殊な商品タイプ</th>
 		<td>
-			<?php foreach ( $settings['商品タイプ'] as $v ) : ?>
+			<?php foreach ( $args->data['商品タイプ'] as $v ) : ?>
 			<label style="margin: 0 2em 0 0;">
 				<input type="checkbox" name="n2_settings[N2][商品タイプ][]" value="<?php echo $v; ?>" <?php checked( in_array( $v, $n2->settings['N2']['商品タイプ'], true ) ); ?>> <?php echo $v; ?>
 			</label>

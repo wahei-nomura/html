@@ -46,6 +46,15 @@ class N2_Settings {
 	);
 
 	/**
+	 * その他データ
+	 *
+	 * @var array
+	 */
+	public $data = array(
+		'商品タイプ' => array( '食品', '酒', 'やきもの', 'eチケット' ),
+	);
+
+	/**
 	 * コンストラクタ
 	 */
 	public function __construct() {
