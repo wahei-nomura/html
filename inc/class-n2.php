@@ -202,9 +202,8 @@ class N2 {
 			{
 				$this->settings['N2'] = $default['N2'];
 				$pair = array(
-					'active'                    => '稼働中',
-					'portal_sites'              => '出品ポータル',
-					'portal_common_description' => 'ポータル共通説明文',
+					'active'       => '稼働中',
+					'portal_sites' => '出品ポータル',
 				);
 				foreach ( $pair as $old => $new ) {
 					$this->settings['N2'][ $new ] = $this->settings['n2'][ $old ];
@@ -237,6 +236,10 @@ class N2 {
 						)
 					);
 				}
+			}
+			// 注意書き　＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+			{
+				$this->settings['注意書き']['共通'] = $this->settings['n2']['portal_common_description'];
 			}
 			// 楽天　＝＝＝＝＝＝＝＝＝＝＝＝＝＝
 			{

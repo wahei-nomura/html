@@ -54,14 +54,6 @@ $settings = array(
 		</td>
 	</tr>
 	<tr>
-		<th>ポータル共通説明文</th>
-		<td>
-			<label style="margin: 0 2em 0 0;">
-				<textarea name="n2_settings[N2][ポータル共通説明文]" rows="5" style="width: 100%;"><?php echo $n2->settings['N2']['ポータル共通説明文']; ?></textarea>
-			</label>
-		</td>
-	</tr>
-	<tr>
 		<th>役場確認</th>
 		<td>
 			<input type="hidden" name="n2_settings[N2][役場確認]">
