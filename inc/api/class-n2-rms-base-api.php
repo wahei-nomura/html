@@ -31,8 +31,6 @@ abstract class N2_RMS_Base_API {
 		'params'   => array(),
 		'header'   => array(),
 		'response' => array(),
-		'error'    => array(),
-		'string'   => '',
 	);
 	/**
 	 * option_name

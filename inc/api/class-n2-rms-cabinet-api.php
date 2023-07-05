@@ -53,7 +53,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 
 		foreach ( $keywords as $keyword ) {
 			$forder_name = array_search( $keyword, $folder_name_list, true );
-			
+
 			if ( false !== $forder_name ) {
 				$exist_forder[] = $forder_name;
 			}
@@ -89,9 +89,9 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 		foreach ( $response as $res ) {
 			$keyword           = $res->headers->getValues( 'folderid' )[0];
 			$keyword           = array_search( $keyword, $dict, true );
-			$req_files         = simplexml_load_string( $res->body )->cabinetFolderFilesGetResult->files;
-			$req_files         = json_decode( wp_json_encode( $req_files ), true )['file'] ?? array();
-			$files[ $keyword ] = $req_files;
+			$res_files         = simplexml_load_string( $res->body )->cabinetFolderFilesGetResult->files;
+			$res_files         = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
+			$files[ $keyword ] = $res_files;
 		}
 		return $files;
 	}
@@ -129,9 +129,9 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 
 		foreach ( $response as $res ) {
 			$keyword           = $res->headers->getValues( 'filename' )[0];
-			$req_files         = simplexml_load_string( $res->body )->cabinetFilesSearchResult->files;
-			$req_files         = json_decode( wp_json_encode( $req_files ), true )['file'] ?? array();
-			$files[ $keyword ] = $req_files;
+			$res_files         = simplexml_load_string( $res->body )->cabinetFilesSearchResult->files;
+			$res_files         = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
+			$files[ $keyword ] = $res_files;
 		}
 		return $files;
 	}
