@@ -56,7 +56,7 @@ class N2_Item_Export_Base {
 	 * エクスポートページ
 	 */
 	public function export() {
-		$time_start = microtime( true );
+		$this->data['time']['start'] = microtime( true );
 		// ↓ここから計測したいPHPの処理を記述する↓
 		// パラメーターをセット
 		$this->set_params();
@@ -69,7 +69,7 @@ class N2_Item_Export_Base {
 		$this->set_header();
 		$this->set_data();
 
-		$this->{$this->data['params']['mode']}( $time_start );
+		$this->{$this->data['params']['mode']}();
 	}
 
 	/**
@@ -459,11 +459,11 @@ class N2_Item_Export_Base {
 	 *
 	 * @param floot $time 開始時刻
 	 */
-	private function debug( $time ) {
-		$time = microtime( true ) - $time;
+	private function debug() {
 		$this->set_header_string();
 		$this->set_data_string();
 		header( 'Content-Type: application/json; charset=utf-8' );
+		$time = microtime( true ) - $this->data['time']['start'];
 		print_r( '実行結果: ' . $time . '秒 ' ); // 実行時間を出力する
 		print_r( $this->settings );
 		print_r( $this->data );

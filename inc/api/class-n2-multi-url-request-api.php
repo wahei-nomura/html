@@ -20,10 +20,7 @@ class N2_Multi_URL_Request_API {
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		add_action( 'wp_ajax_n2_multi_url_request_api', array( $this, 'requests' ) );
-		add_action( 'wp_ajax_nopriv_n2_multi_url_request_api', array( $this, 'requests' ) );
-		add_action( 'wp_ajax_n2_multi_veryfy_images_api', array( $this, 'veryfy_images' ) );
-		add_action( 'wp_ajax_nopriv_n2_multi_veryfy_images_api', array( $this, 'veryfy_images' ) );
+		add_action( 'wp_ajax_' . mb_strtolower( get_class( $this ) ) . '_ajax', array( $this, 'ajax' ) );
 	}
 
 	/**
@@ -70,7 +67,7 @@ class N2_Multi_URL_Request_API {
 		$default = array(
 			'mode'    => 'func',
 			'action'  => false,
-			'request' => 'multiple_request',
+			'request' => 'request_multiple',
 		);
 		// デフォルト値を$paramsで上書き
 		$params = wp_parse_args( $params, $default );
