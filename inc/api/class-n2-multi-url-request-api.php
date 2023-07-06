@@ -67,7 +67,7 @@ class N2_Multi_URL_Request_API {
 		$default = array(
 			'mode'    => 'func',
 			'action'  => false,
-			'request' => 'multiple_request',
+			'request' => 'request_multiple',
 		);
 		// デフォルト値を$paramsで上書き
 		$params = wp_parse_args( $params, $default );
