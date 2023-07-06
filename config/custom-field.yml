@@ -88,7 +88,6 @@
         label: 出品禁止ポータルサイト
         type: checkbox
         value: []
-        option-equal: true
         description: この返礼品を出品しないポータルサイトがあればチェックを入れてください。
         v-model: 出品禁止ポータル
         option:
@@ -98,7 +97,6 @@
 
     # 事業者確認:
     #     type: checkbox
-    #     option-equal: true
     #     option:
     #         - 確認済み
 
@@ -186,7 +184,6 @@
     商品タイプ:
         type : checkbox
         value: []
-        option-equal: true
         v-model: 商品タイプ
         option : 
             - 食品
@@ -293,7 +290,6 @@
     包装対応:
         type: radio
         value: 無し
-        option-equal: true
         option:
             - 無し
             - 有り
@@ -301,7 +297,6 @@
     のし対応:
         type: radio
         value: 無し
-        option-equal: true
         option:
             - 無し
             - 有り
@@ -309,7 +304,6 @@
     発送方法:
         type : radio
         value: 常温
-        option-equal: true
         option :
             - 常温
             - 冷蔵
@@ -364,7 +358,6 @@
         type : checkbox
         value: []
         description : 配送時の取り扱い方法で該当するものを選択してください（２つまで）。
-        option-equal: true
         option :
             - ビン・ワレモノ
             - 天地無用
@@ -406,7 +399,6 @@
     LHカテゴリー:
         label: カテゴリー
         type : select
-        option-equal: true
         option :
             - 未選択
             - 肉

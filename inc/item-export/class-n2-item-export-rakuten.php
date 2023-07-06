@@ -31,6 +31,28 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	);
 
 	/**
+	 * RMS
+	 *
+	 * @var array
+	 */
+	private $rms = array(
+		'header'       => null,
+		'cabinet'      => array(),
+		'use_api'      => null,
+		'ignore_error' => false,
+		'image_error'  => false,
+	);
+
+	/**
+	 * コンストラクタ
+	 */
+	public function __construct() {
+		parent::__construct();
+		add_filter( mb_strtolower( get_class( $this ) ) . '_download_add_btn', array( $this, 'add_download_btn' ) );
+		add_filter( mb_strtolower( get_class( $this ) ) . '_download_str', array( $this, 'change_download_str' ), 10, 2 );
+	}
+
+	/**
 	 * 楽天CSVヘッダーを取得
 	 */
 	protected function set_header() {
@@ -47,12 +69,31 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 * 楽天用の内容を配列で作成
 	 */
 	protected function set_data() {
+		global $n2;
 		$data = array();
+
+		$item_code_list = array_map(
+			function( $item ) {
+				return mb_strtolower( $item['返礼品コード'] );
+			},
+			$this->data['n2data'],
+		);
+		// 事業者コード一覧
+		$item_code_list = array_unique( $item_code_list );
+		// 事前に取得
+		$this->set_cabinet_files( $item_code_list );
+
 		// $this->check_fatal_error( $this->data['header'], 'ヘッダーが正しくセットされていません' );
 		foreach ( $this->data['n2data'] as $key => $values ) {
 			$id = $values['id'];
 			// 画像を取得
 			$values['商品画像URL'] = $this->get_img_urls( $values );
+			// アレルゲン
+			$values['アレルゲン'] = preg_replace( '/（.*?）/', '', $values['アレルゲン'] );// 不純物（カッコの部分）を削除
+
+			// 自治体と返礼品のタグIDをいい感じに結合する
+			$values['タグID'] = $n2->portal_setting['楽天']['tag_id'] . '/' . $values['タグID'];
+			$values['タグID'] = implode( '/', array_filter( explode( '/', $values['タグID'] ) ) );
 			// ヘッダーをセット
 			$data[ $id ] = $this->data['header'];
 			array_walk( $data[ $id ], array( $this, 'walk_values' ), $values );
@@ -79,12 +120,6 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 */
 	protected function walk_values( &$val, $index, $n2values ) {
 		global $n2;
-		// アレルゲン
-		$n2values['アレルゲン'] = preg_replace( '/（.*?）/', '', $n2values['アレルゲン'] );// 不純物（カッコの部分）を削除
-
-		// 自治体と返礼品のタグIDをいい感じに結合する
-		$n2values['タグID'] = $n2->portal_setting['楽天']['tag_id'] . '/' . $n2values['タグID'];
-		$n2values['タグID'] = implode( '/', array_filter( explode( '/', $n2values['タグID'] ) ) );
 		// preg_matchで判定
 		$data = match ( 1 ) {
 			preg_match( '/^コントロールカラム$/', $val )  => 'n',
@@ -125,27 +160,93 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 * @return $value
 	 */
 	public function check_error( $value, $name, $n2values ) {
-		// 必須漏れエラー
-		if ( preg_match( '/（必須）|必要寄付金額/', $name ) && '' === $value ) {
+		/**
+		 * 必須漏れエラー
+		 */
+		$required = match ( true ) {
+			preg_match( '/（必須）|必要寄付金額/', $name ) && '' === $value => true,
+			default => false,
+		};
+		if ( $required ) {
 			$this->add_error( $n2values['id'], "「{$name}」がありません。" );
 		}
-		// 文字数制限エラー
-		$len       = mb_strlen( $value );// $valueの文字数
-		$maxlength = array(
-			40   => 'キャッチコピー',
-			64   => 'サイト表示事業者名',
-			100  => '地場産品類型番号',
-			200  => '（必須）お礼の品名',
-			1000 => '^説明$|^容量$|^申込期日$|^発送期日$|アレルギー特記事項|消費期限',
-		);
-		foreach ( $maxlength as $max => $pattern ) {
-			if ( preg_match( "/{$pattern}/", $name ) && $len > $max ) {
-				$over = $len - $max;
-				$this->add_error( $n2values['id'], "<div title='{$value}'>「{$name}」の文字数が{$over}文字多いです。</div>" );
+
+		/**
+		 * 文字数制限エラー
+		 */
+		$len = mb_strlen( $value );// $valueの文字数
+		$max = match ( $name ) {
+			'キャッチコピー' => 40,
+			'サイト表示事業者名' => 64,
+			'地場産品類型番号' => 100,
+			'（必須）お礼の品名' => 200,
+			'説明','容量','申込期日','発送期日','アレルギー特記事項','消費期限' => 1000,
+			default => 10000,// 仮で設定
+		};
+		$over = $len - $max;
+		if ( $over > 0 ) {
+			$this->add_error( $n2values['id'], "<div title='{$value}'>「{$name}」の文字数が{$over}文字多いです。</div>" );
+		}
+		// 存在する画像ファイルだけの配列を生成する
+		$exist_images = function () use ( $n2values, $name ) {
+			return array_filter(
+				$this->make_img_urls( $n2values ),
+				fn( $image ) => in_array( $image, explode( ' ', $n2values[ $name ] ), true ),
+			);
+		};
+		/**
+		 * 画像エラー
+		 */
+		$images = match ( $name ) {
+			'商品画像URL' => $exist_images(),
+			default => false,
+		};
+
+		if ( false !== $images ) {
+			$max_index = end( array_keys( $images ) );
+			for ( $index = 0; $index <= $max_index; $index++ ) {
+				$gift_code = mb_strtolower( $n2values['返礼品コード'] );
+				$image     = $gift_code . ( 0 !== $index ? '-' . $index : '' ) . '.jpg';
+				if ( ! isset( $images[ $index ] ) && 'ignore_img_error' !== filter_input( INPUT_POST, 'option' ) ) {
+					$this->rms['image_error'] = true;
+					$this->add_error( $n2values['id'], "商品画像を先にアップロードしてください！ {$image}" );
+				}
 			}
 		}
 		return $value;
 	}
+
+	/**
+	 * add download btn
+	 *
+	 * @param array $add_btn 追加ボタン一覧
+	 * @return array
+	 */
+	public function add_download_btn( $add_btn ) {
+		if ( $this->rms['image_error'] ) {
+			$add_btn[] = array(
+				'id'    => 'ignore_img_error',
+				'class' => 'btn-warning',
+				'text'  => '画像エラーを無視してダウンロードする',
+			);
+		}
+		return $add_btn;
+	}
+
+	/**
+	 * change download $str
+	 *
+	 * @param string $str str
+	 * @param string $option option
+	 * @return string
+	 */
+	public function change_download_str( $str, $option ) {
+		return match ( $option ) {
+			'ignore_img_error' => '',
+			default => $str,
+		};
+	}
+
 	/**
 	 * 文字列の置換
 	 *
@@ -161,57 +262,118 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		$str = apply_filters( mb_strtolower( get_class( $this ) ) . '_special_str_convert', $str );
 		return $str;
 	}
+
 	/**
-	 * 楽天の画像URLを取得
+	 * キャビネットの画像ファイルを設定
+	 *
+	 * @param array $keywords 検索ワード
+	 */
+	private function set_cabinet_files( $keywords ) {
+		// 検索ワードでハッシュ化
+		$cabinet              = N2_RMS_Cabinet_API::ajax(
+			array(
+				'keywords' => $keywords,
+				'request'  => 'files_search',
+				'mode'     => 'func',
+			),
+		);
+		$this->rms['cabinet'] = array(
+			...$this->rms['cabinet'],
+			...$cabinet,
+		);
+	}
+
+
+	/**
+	 * URLを単純に生成する機能
+	 *
+	 * @param array $n2values n2values
+	 * @return array
+	 */
+	protected function make_img_urls( $n2values ) {
+		global $n2;
+		$img_dir       = rtrim( $n2->portal_setting['楽天']['img_dir'], '/' );
+		$gift_code     = mb_strtolower( $n2values['返礼品コード'] );
+		$business_code = mb_strtolower( $n2values['事業者コード'] );
+		// GOLD（ne.jp）とキャビネット（co.jp）を判定してキャビネットは事業者コードディレクトリを追加
+		if ( ! preg_match( '/ne\.jp/', $img_dir ) ) {
+			$img_dir .= "/{$business_code}";// キャビネットの場合事業者コード追加
+		}
+		$result = array();
+		for ( $i = 0; $i < 20; ++$i ) {
+			$img_url = "{$img_dir}/{$gift_code}";
+			if ( 0 === $i ) {
+				$img_url .= '.jpg';
+			} else {
+				$img_url .= "-{$i}.jpg";
+			}
+			$result[ $i ] = $img_url;
+		}
+		return $result;
+	}
+	/**
+	 * 楽天の存在する画像URLを取得
 	 *
 	 * @param array  $n2values n2dataのループ中の値
 	 * @param string $return_type 戻り値判定用(string|html|array)
 	 * @return string|array 楽天の画像URLを(文字列|配列)で取得する
 	 */
 	public function get_img_urls( $n2values, $return_type = 'string' ) {
-
+		set_time_limit( 60 );
+		global $n2;
 		$result = match ( isset( $n2values['商品画像URL'] ) ) {
 			true => explode( ' ', $n2values['商品画像URL'] ),
 			false => array(),
 		};
 
-		if ( ! $result ) {
-			set_time_limit( 60 );
-			global $n2;
-			$img_dir       = rtrim( $n2->portal_setting['楽天']['img_dir'], '/' );
-			$gift_code     = mb_strtolower( $n2values['返礼品コード'] );
-			$business_code = mb_strtolower( $n2values['事業者コード'] );
-			// GOLD（ne.jp）とキャビネット（co.jp）を判定してキャビネットは事業者コードディレクトリを追加
-			if ( ! preg_match( '/ne\.jp/', $img_dir ) ) {
-				$img_dir .= "/{$business_code}";// キャビネットの場合事業者コード追加
-			}
+		$code     = mb_strtolower( $n2values['返礼品コード'] );
+		$requests = $this->make_img_urls( $n2values );
 
-			$result   = array();
-			$requests = array();
-			for ( $i = 0; $i < 15; ++$i ) {
-				$img_url = "{$img_dir}/{$gift_code}";
-				if ( 0 === $i ) {
-					$img_url .= '.jpg';
-				} else {
-					$img_url .= "-{$i}.jpg";
-				}
-				$requests[ $i ] = array(
-					'url'     => $img_url,
-					'headers' => array(
-						'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0',
-					),
-				);
+		if ( null === $this->rms['use_api'] ) {
+			$this->rms['use_api'] = N2_RMS_Cabinet_API::ajax(
+				array(
+					'request' => 'connect',
+					'mode'    => 'func',
+				),
+			);
+		}
+
+		// RMSを利用する
+		if ( ! $result && $this->rms['use_api'] ) {
+			if ( ! isset( $this->rms['cabinet'][ $code ] ) ) {
+				$this->set_cabinet_files( array( $code ) );
 			}
-			$response = Requests::request_multiple( $requests );
-			$result   = array_filter(
-				array_map(
-					function( $res ) {
-						return ( 200 === $res->status_code ) ? $res->url : '';
-					},
-					$response
+			$files  = array_map(
+				function( $req ) {
+					return $req['FileUrl'];
+				},
+				$this->rms['cabinet'][ $code ] ?? array(),
+			);
+			$result = array_map(
+				function( $req ) use ( $files ) {
+					return in_array( $req, $files, true ) ? $req : '';
+				},
+				$requests,
+			);
+			$result = array_filter( $result, fn( $r ) => $r );
+		}
+
+		if ( ! $result ) { // 直接存在チェック
+			$result   = array();
+			$response = N2_Multi_URL_Request_API::ajax(
+				array(
+					'urls'    => $requests,
+					'mode'    => 'func',
+					'request' => 'verify_images',
 				)
 			);
-			ksort( $result );
+			$result   = array_map(
+				function( $req ) use ( $response ) {
+					return $response[ $req ] ? $req : '';
+				},
+				$requests,
+			);
+			$result   = array_filter( $result, fn( $r ) => $r );
 		}
 
 		// ========戻り値判定========
@@ -432,16 +594,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 				'td' => nl2br( $n2values['配送期間'] ),
 			),
 			'提供事業者'   => array(
-				'td'        => $n2values['提供事業者']
-				?? preg_replace(
-					'/\（.+?\）/',
-					'',
-					(
-					get_the_author_meta( 'portal_site_display_name', get_post_field( 'post_author', $n2values['id'] ) )
-					?: get_the_author_meta( 'first_name', get_post_field( 'post_author', $n2values['id'] ) )
-					)
-				),
-				'condition' => '記載しない' !== get_the_author_meta( 'portal_site_display_name', get_post_field( 'post_author', $n2values['id'] ) ), // ポータル表示名に「記載しない」の表記があったら事業者名出力しない
+				'td' => $this->get_author_name( $n2values ),
 			),
 		);
 
@@ -488,5 +641,4 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		<?php
 		return rtrim( str_replace( "\t", '', ob_get_clean() ), PHP_EOL );
 	}
-
 }

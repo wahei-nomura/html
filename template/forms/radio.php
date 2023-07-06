@@ -12,9 +12,9 @@ $args         = wp_parse_args( $args, $default );
 $option       = $args['option'];
 $value        = $args['value'];
 $style        = $args['style'];
-$option_equal = $args['option-equal'] ?? false;// optionのvalueと表示名が一緒かどうか判定
+$option_equal = array_values( $option ) === $option;// optionのvalueと表示名が一緒かどうか判定
 $attr         = '';
-unset( $args['option'], $args['value'], $args['style'], $args['option-equal'] );
+unset( $args['option'], $args['value'], $args['style'] );
 foreach ( $args as $k => $v ) {
 	$v     = esc_attr( $v );// エスケープしないとバグる
 	$attr .= " {$k}=\"{$v}\"";
