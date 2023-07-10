@@ -72,6 +72,25 @@ class N2_Donation_Amount_API {
 	}
 
 	/**
+	 * 返礼率生成・しきい値チェック
+	 *
+	 * @param string  $post_data 投稿データ
+	 * @param boolean $threshold_flg 出力切り替えフラグ
+	 */
+	public static function calc_return_rate( $post_data, $threshold_flg = false ) {
+		global $n2;
+		$teiki_no            = ! empty( $post_data['定期便'] ) && 1 !== (int) $post_data['定期便'] ? $post_data['定期便'] : 1;
+		$return_rate         = ! empty( $post_data['寄附金額'] ) && ! empty( $post_data['価格'] ) ? ceil( ( ( $post_data['価格'] * $teiki_no ) / $post_data['寄附金額'] ) * 100 ) / 100 : '-';
+		$rr_threshold        = 0.3 < $return_rate ? true : false;
+		// N2_Donation_Amount_API::calc_return_rate()呼び出し
+		if ( $threshold_flg ) {
+			return $rr_threshold;
+		} else {
+			return $return_rate;
+		}
+	}
+
+	/**
 	 * 寄附金額一括自動計算
 	 */
 	public function update_all_donation_amount() {
@@ -147,4 +166,5 @@ class N2_Donation_Amount_API {
 		$delivery_code = implode( '_', $delivery_code );// 0101_coolなど
 		return $delivery_code;
 	}
+
 }
