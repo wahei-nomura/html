@@ -126,7 +126,7 @@ class N2_Change_Sku_Firstaid {
 				if ( isset( $item_array[ $item_val ] ) ) {
 					$new_item_array[ $item_key ] = $item_array[ $item_val ];
 				} else if($item_val === '非製品属性タグID'){
-					print_r('たぐあいでぃー：'.$item_array[ 'タグID' ]);
+					$new_item_array[ $item_key ] = $item_array[ 'タグID' ];
 				} else {
 					$new_item_array[ $item_key ] = '';
 				}
@@ -151,19 +151,21 @@ class N2_Change_Sku_Firstaid {
 			$output_column[$column_count] = $new_item_value_column;
 			$column_count++;
 			// 項目選択肢
-			$selects = $n2->portal_setting['楽天']['項目選択肢'];
+			$selects = $n2->portal_setting['楽天']['select'];
 			$selects = str_replace( array( "\r\n", "\r" ), "\n", $selects );// 改行コード統一
 			$selects = preg_split( '/\n{2,}/', $selects );// 連続改行で分ける
 			$select_count = count( $selects );
 			if ( $select_count > 0 ) {
 				$select_no = array_search( '選択肢タイプ', $new_item_column_array );
-				for($i = 0; $i < $select_no; $i++){
-					$select_array[$i] = '';
-				}
 				foreach ( $selects as $select ) {
+					$select_array = [];
+					for($i = 0; $i < $select_no; $i++){
+						$select_array[$i] = '';
+					}
 					$select = explode( "\n", $select );
 					$select_array[0] = $item_array['商品管理番号（商品URL）'];
 					$select_array[$select_no] = "s";
+					$new_select_value_column = '';
 					foreach($select as $select_key => $value){
 						$select_array[$select_no + $select_key +1] = $value;
 					}
@@ -177,12 +179,13 @@ class N2_Change_Sku_Firstaid {
 							$new_select_value_column .= $select_value;
 						}
 					}
+					print_r('new:'.$new_select_value_column);
 					$output_column[$column_count] = $new_select_value_column;
 					$column_count++;
 				}
 			}
 			foreach($output_column as $output){
-				echo $output;
+				echo $output . "\n";
 			}
 			exit();
 			die();
