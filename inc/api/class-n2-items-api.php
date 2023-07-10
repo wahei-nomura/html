@@ -34,6 +34,7 @@ class N2_Items_API {
 		add_action( 'wp_insert_post_data', array( $this, 'insert_post_data' ), 20, 4 );
 		add_action( 'wp_ajax_n2_items_api', array( $this, 'api' ) );
 		add_action( 'wp_ajax_nopriv_n2_items_api', array( $this, 'api' ) );
+		add_action( 'profile_update', array( $this, 'update_api_from_user' ) );
 	}
 
 	/**
@@ -111,21 +112,28 @@ class N2_Items_API {
 	 * 全件アップデート
 	 */
 	public static function update() {
+		if ( ! is_user_logged_in() ) {
+			echo '不正アクセス';
+			exit;
+		}
 		set_time_limit( 0 );
+		$params = self::$data['params'];
 		/**
 		 *  [hook] n2_items_api_before_update
 		 */
-		do_action( 'n2_items_api_before_update', self::$data['params'] );
-		foreach ( get_posts( self::$data['params'] ) as $post ) {
-			$post->post_status = self::$data['params']['change_status'] ?: $post->post_status;
-			$post->post_author = self::$data['params']['change_author'] ?: $post->post_author;
+		do_action( 'n2_items_api_before_update', $params );
+		foreach ( get_posts( $params ) as $post ) {
+			$post->post_status = ! empty( $params['change_status'] ) ? $params['change_status'] : $post->post_status;
+			$post->post_author = ! empty( $params['change_author'] ) ? $params['change_author'] : $post->post_author;
 			/**
 			 *  [hook] n2_items_api_update
 			 */
-			$post = apply_filters( 'n2_items_api_update', $post, self::$data['params'] );
+			$post = apply_filters( 'n2_items_api_update', $post, $params );
 			wp_insert_post( $post );
 		}
-		wp_safe_redirect( $_SERVER['HTTP_REFERER'] );
+		if ( isset( $_SERVER['HTTP_REFERER'] ) ) {
+			wp_safe_redirect( $_SERVER['HTTP_REFERER'] );
+		}
 	}
 	/**
 	 * 投稿保存時にpost_contentにAPIデータを全部ぶち込む
@@ -168,5 +176,24 @@ class N2_Items_API {
 		}
 		$data['post_content'] = addslashes( wp_json_encode( $post_content, JSON_UNESCAPED_UNICODE ) );
 		return $data;
+	}
+
+	/**
+	 * 事業者名更新時にAPI側もアップデート
+	 *
+	 * @param int $user_id ユーザーID
+	 */
+	public function update_api_from_user( $user_id ) {
+		global $n2;
+		$args = array(
+			'body'      => array(
+				'action' => 'n2_items_api',
+				'mode'   => 'update',
+				'author' => $user_id,
+			),
+			'cookies'   => $_COOKIE,
+			'sslverify' => false,
+		);
+		wp_remote_get( $n2->ajaxurl, $args );
 	}
 }

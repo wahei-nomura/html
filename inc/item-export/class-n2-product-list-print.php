@@ -63,9 +63,11 @@ class N2_Product_List_Print {
 				<link rel="stylesheet" href="<?php echo $print_css; ?>">
 			</head>
 			<body>
-				<?php
-					foreach ( N2_Items_API::get_items() as $p ) :
-				?>
+				<?php foreach ( N2_Items_API::get_items() as $p ) : ?>
+					<?php if ( ! isset( $p['寄附金額'] ) || '' === $p['寄附金額'] ) : ?>
+						<h1><?php echo $p['返礼品コード']; ?>：寄附金額が入力されていません。</h1>
+					<?php else : ?>
+
 					<?php $confirm_table_th_list['コード'] = $p['返礼品コード'] . '&nbsp;'; ?>
 					<div class="page-break">
 						<table>
@@ -160,6 +162,7 @@ class N2_Product_List_Print {
 							</tbody>
 						</table>
 					</div>
+					<?php endif; ?>
 				<?php endforeach; ?>
 			</body>
 		</html>
