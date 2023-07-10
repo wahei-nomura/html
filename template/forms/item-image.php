@@ -13,6 +13,7 @@ $name    = $args['name'];
 	<input type="hidden" name="<?php echo $name; ?>" :value="JSON.stringify(商品画像)">
 	<draggable v-model="商品画像" class="">
 		<div v-for="(attr, index) in 商品画像" class="d-inline-block position-relative details attachment" style="width: auto;max-width: 25%;">
+			<span v-if="attr.description.length" :title="attr.description" class="position-absolute bottom-0 start-0 badge rounded-pill bg-danger text-white text-decoration-none" @click="alert(attr.description)">i</span>
 			<!-- リンク -->
 			<a :href="attr.url" class="d-block" target="_blank">
 				<img :src="attr.sizes.thumbnail.url || attr.sizes.thumbnail" style="cursor: move;">

@@ -445,7 +445,12 @@ class N2_Sync {
 			// 値の浄化
 			$postarr['meta_input']['商品画像'] = array_filter( array_values( $images ), fn( $v ) => $v );
 			foreach ( $postarr['meta_input']['商品画像'] as $index => $value ) {
+				// 商品画像説明の場合
 				if ( ! is_array( $value ) ) {
+					if ( isset( $postarr['meta_input']['商品画像'][ $index - 1 ] ) ) {
+						$postarr['meta_input']['商品画像'][ $index - 1 ]['description'] = $value;
+					}
+					unset( $postarr['meta_input']['商品画像'][ $index ] );
 					continue;
 				}
 				if ( ! isset( $value['sizes'] ) ) {
@@ -542,10 +547,15 @@ class N2_Sync {
 			// オリジナル商品変換
 			if ( isset( $postarr['meta_input']['オリジナル商品'] ) ) {
 				$postarr['meta_input']['オリジナル商品'] = match ( $postarr['meta_input']['オリジナル商品'] ) {
-					'適' => 'オリジナル商品である',
-					default => '',
+					'適' => array( 'オリジナル商品である' ),
+					default => array(),
 				};
 				unset( $postarr['meta_input']['市役所確認'] );
+			}
+			// 旧コードを社内共有事項に付ける
+			if ( isset( $postarr['meta_input']['旧コード'] ) ) {
+				$postarr['meta_input']['社内共有事項'] .= "\n旧コード：{$postarr['meta_input']['旧コード']}";
+				unset( $postarr['meta_input']['旧コード'] );
 			}
 			// 事業者確認を強制執行
 			if ( strtotime( '-1 week' ) > strtotime( $v['post_modified'] ) ) {
