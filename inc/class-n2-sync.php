@@ -457,6 +457,8 @@ class N2_Sync {
 					$postarr['meta_input']['商品画像'][ $index ]['sizes']['thumbnail'] = preg_replace( '/\.(\w+)$/', '-$1.jpg', $value['url'] );
 				}
 			}
+			$postarr['meta_input']['商品画像'] = array_values( $postarr['meta_input']['商品画像'] );
+
 			// URLの置換のためにjson化
 			$str = wp_json_encode( $postarr['meta_input']['商品画像'], JSON_UNESCAPED_SLASHES );
 			if ( $str ) {
@@ -553,7 +555,7 @@ class N2_Sync {
 				unset( $postarr['meta_input']['市役所確認'] );
 			}
 			// 旧コードを社内共有事項に付ける
-			if ( isset( $postarr['meta_input']['旧コード'] ) ) {
+			if ( ! empty( $postarr['meta_input']['旧コード'] ) ) {
 				$postarr['meta_input']['社内共有事項'] .= "\n旧コード：{$postarr['meta_input']['旧コード']}";
 				unset( $postarr['meta_input']['旧コード'] );
 			}
