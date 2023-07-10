@@ -128,10 +128,16 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 		);
 
 		foreach ( $response as $res ) {
-			$keyword           = $res->headers->getValues( 'filename' )[0];
-			$res_files         = simplexml_load_string( $res->body )->cabinetFilesSearchResult->files;
-			$res_files         = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
-			$files[ $keyword ] = $res_files;
+			$keyword       = $res->headers->getValues( 'filename' )[0];
+			$search_result = simplexml_load_string( $res->body )->cabinetFilesSearchResult;
+			$res_files     = $search_result->files;
+			$file_count    = (int) $search_result->fileCount->__toString();
+			$res_files     = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
+
+			$files[ $keyword ] = match ( $file_count > 1 ) {
+				true => $res_files,
+				default => array( $res_files ),
+			};
 		}
 		return $files;
 	}
