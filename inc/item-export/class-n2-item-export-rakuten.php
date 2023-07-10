@@ -438,7 +438,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 * @return string|void 楽天のPC用商品説明文を(文字列|HTML出力)する
 	 */
 	public function pc_item_description( $n2values, $return_string = true ) {
-
+		global $n2;
 		// ========[html]PC用商品説明文========
 		$html = function() use ( $n2values ) {
 			?>
@@ -465,7 +465,10 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			<?php endif; ?>
 			<?php if ( $n2values['対応機器備考'] ) : ?>
 				<br><br>【対応機器備考】<br>
-				<?php echo nl2br( $n2values['対応機器備考'] ); ?><br>
+				※<?php echo nl2br( $n2values['対応機器備考'] ); ?><br>
+			<?php endif; ?>
+			<?php if ( isset( $n2->settings['注意書き']['やきもの'] ) ) : ?>
+				<?php echo nl2br( $n2->settings['注意書き']['やきもの'] ); ?><br>
 			<?php endif; ?>
 			<?php if ( $n2values['検索キーワード'] ) : ?>
 				<br><br><?php echo nl2br( $n2values['検索キーワード'] ); ?><br>
@@ -572,7 +575,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 				$result .= '電子レンジ' . $n2values['電子レンジ対応'] . ' / オーブン' . $n2values['オーブン対応'] . ' / 食器洗浄機' . $n2values['食洗機対応'] . '<br>';
 			}
 			if ( isset( $n2values['対応機器備考'] ) ) {
-				$result .= $n2values['対応機器備考'] . '<br>';
+				$result .= '※' . $n2values['対応機器備考'] . '<br>';
 			}
 			if ( isset( $n2->settings['注意書き']['やきもの'] ) ) {
 				$result .= $n2->settings['注意書き']['やきもの'] . '<br>';
