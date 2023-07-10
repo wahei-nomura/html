@@ -125,8 +125,12 @@ class N2_Change_Sku_Firstaid {
 			foreach ( $new_item_column_array as $item_key => $item_val ) {
 				if ( isset( $item_array[ $item_val ] ) ) {
 					$new_item_array[ $item_key ] = $item_array[ $item_val ];
-				} else if($item_val === '非製品属性タグID'){
-					$new_item_array[ $item_key ] = $item_array[ 'タグID' ];
+				} else if($item_val === '非製品属性タグID'){ // タグIDは/(スラッシュ)から|(パイプ)に変換
+					$new_tag_id_array  = explode('/', $item_array[ 'タグID' ]);
+					$new_tag_id = implode('|', $new_tag_id_array);
+					$new_item_array[ $item_key ] = $new_tag_id;
+				} else if($item_val === 'カタログIDなしの理由'){ // 5で固定
+					$new_item_array[ $item_key ] = '5';
 				} else {
 					$new_item_array[ $item_key ] = '';
 				}
@@ -179,7 +183,6 @@ class N2_Change_Sku_Firstaid {
 							$new_select_value_column .= $select_value;
 						}
 					}
-					print_r('new:'.$new_select_value_column);
 					$output_column[$column_count] = $new_select_value_column;
 					$column_count++;
 				}
