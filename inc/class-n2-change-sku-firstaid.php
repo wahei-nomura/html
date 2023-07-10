@@ -76,11 +76,11 @@ class N2_Change_Sku_Firstaid {
 		// 各種設定読み込み
 		global $n2;
 		$column_count = 0;
-		$rakuten      = $n2->settings['楽天'];
+		$rakuten      = $n2->portal_setting['楽天'];
 		// setlocale(LC_ALL, 'ja_JP.UTF-8');
 		$error_options = array();
 
-		if ( ! isset( $rakuten['項目選択肢'] ) || ! $rakuten['項目選択肢'] ) {
+		if ( ! isset( $rakuten['select'] ) || ! $rakuten['select'] ) {
 			$error_options = array( ...$error_options, '楽天セットアップ > 項目選択肢' );
 		}
 		if ( $error_options ) {
@@ -151,7 +151,7 @@ class N2_Change_Sku_Firstaid {
 			$output_column[$column_count] = $new_item_value_column;
 			$column_count++;
 			// 項目選択肢
-			$selects = $n2->settings['楽天']['項目選択肢'];
+			$selects = $n2->portal_setting['楽天']['項目選択肢'];
 			$selects = str_replace( array( "\r\n", "\r" ), "\n", $selects );// 改行コード統一
 			$selects = preg_split( '/\n{2,}/', $selects );// 連続改行で分ける
 			$select_count = count( $selects );
@@ -196,9 +196,9 @@ class N2_Change_Sku_Firstaid {
 		WP_Filesystem();
 		require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-ftpext.php';
 		$opt = array(
-			'hostname' => $n2->settings['楽天']['FTP']['upload_server'],
-			'username' => $n2->settings['楽天']['FTP']['ftp_user'],
-			'password' => $n2->settings['楽天']['FTP']['ftp_pass'],
+			'hostname' => $n2->portal_setting['楽天']['FTP']['upload_server'],
+			'username' => $n2->portal_setting['楽天']['FTP']['ftp_user'],
+			'password' => $n2->portal_setting['楽天']['FTP']['ftp_pass'],
 		);
 		$ftp = new WP_Filesystem_FTPext( $opt );
 		if ( ! $ftp->connect() ) {
