@@ -40,13 +40,79 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 		'ignore_error' => false,
 		'image_error'  => false,
 	);
+
 	/**
 	 * 楽天CSVヘッダーを取得
 	 */
 	protected function set_header() {
 		global $n2;
+		// 初期化
+		$this->data['sku'] = array(
+			'max' => array(),
+		);
+
+		// 旧select.csv部分
+		$selects = $n2->portal_setting['楽天']['select'];
+		$selects = str_replace( array( "\r\n", "\r" ), "\n", $selects );// 改行コード統一
+		$selects = preg_split( '/\n{2,}/', $selects );// 連続改行で分ける
+
+		foreach ( $selects as $index => $select ) {
+			$select                             = array_filter( explode( "\n", $select ) );
+			$name                               = array_shift( $select );
+			$this->data['sku']['max']['select'] = max( $this->data['sku']['max']['select'] ?? 0, count( $select ) );
+			$selects[ $index ]                  = array( $name => $select );
+		}
+
+		// 商品画像をあらかじめ取得
+		$sku_list = array_map(
+			function( $item ) {
+				return mb_strtolower( $item['返礼品コード'] );
+			},
+			$this->data['n2data'],
+		);
+		// 返礼品コード一覧
+		$sku_list = array_unique( $sku_list );
+		$this->set_cabinet_files( $sku_list );
+
+		foreach ( $this->data['n2data'] as $key => $values ) {
+			$this->data['n2data'][ $key ]['商品画像URL'] = $this->get_img_urls( $values );
+			$images                                  = array_filter( explode( ' ', $this->data['n2data'][ $key ]['商品画像URL'] ) );
+			$this->data['sku']['max']['cabinet']     = max( $this->data['sku']['max']['cabinet'] ?? 0, count( $images ) );
+			$variation                               = $values['バリエーション項目名定義'] ?? ''; // keyを仮に設定
+			$variation                               = array_filter( explode( '|', $variation ) );
+			$this->data['sku']['max']['variation']   = max( $this->data['sku']['max']['variation'] ?? 0, count( $variation ) );
+			$attribute                               = $values['商品属性'] ?? ''; // keyを仮に設定
+			$attribute                               = array_filter( explode( '|', $attribute ) );
+			$this->data['sku']['max']['attribute']   = max( $this->data['sku']['max']['attribute'] ?? 0, count( $attribute ) );
+		}
+
 		// CSVヘッダー
-		$this->data['header'] = $n2->portal_setting['楽天']['csv_header']['sku'];
+		$sku_header = $n2->portal_setting['楽天']['csv_header']['sku'];
+
+		foreach ( $sku_header as $type => $headers ) {
+			// レベル毎
+			foreach ( $headers as $index => $header ) {
+				if ( ! is_array( $header ) ) {
+					$this->data['sku']['header'][ $type ][] = $header;
+					continue;
+				}
+
+				$loop_count = match ( true ) {
+					(bool) preg_grep( '/商品画像/', $header )=> $this->data['sku']['max']['cabinet'],
+					(bool) preg_grep( '/バリエーション\%d選択肢定義/', $header ) => $this->data['sku']['max']['variation'],
+					(bool) preg_grep( '/商品オプション選択肢/', $header ) => $this->data['sku']['max']['select'],
+					(bool) preg_grep( '/バリエーション項目キー/', $header ) => $this->data['sku']['max']['variation'],
+					(bool) preg_grep( '/商品属性/', $header ) => $this->data['sku']['max']['attribute'],
+				};
+
+				for ( $i = 1; $i <= $loop_count; $i++ ) {
+					foreach ( $header as $head ) {
+						$this->data['sku']['header'][ $type ][] = sprintf( $head, $i );
+					}
+				}
+			}
+		}
+		$this->data['header'] = array_reduce( array_values( $this->data['sku']['header'] ), 'array_merge', array() );
 		/**
 		 * [hook] n2_item_export_rakuten_sku_set_header
 		 */
@@ -58,60 +124,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 	 */
 	protected function set_data() {
 		global $n2;
-		$data     = array();
-		$sku_list = array_map(
-			function( $item ) {
-				return mb_strtolower( $item['事業者コード'] );
-			},
-			$this->data['n2data'],
-		);
-		// 事業者コード一覧
-		$sku_list = array_unique( $sku_list );
-		foreach ( $sku_list as $sku ) {
-			$this->set_cabinet_files( $sku );
-		}
-
-		
-
-		$selects    = $n2->portal_setting['楽天']['select'];
-		$selects    = str_replace( array( "\r\n", "\r" ), "\n", $selects );// 改行コード統一
-		$selects    = preg_split( '/\n{2,}/', $selects );// 連続改行で分ける
-		$max_select = 0;
-		foreach ( $selects as $index => $select ) {
-			$select            = explode( "\n", $select );
-			$name              = array_shift( $select );
-			$max_select        = count( $select ) > $max_select ? count( $select ) : $max_select;
-			$selects[ $index ] = array( $name => $select );
-		}
-		$max_images    = 0;
-		$max_variation = 0;
-		foreach ( $this->data['n2data'] as $key => $values ) {
-			$this->data['n2data'][ $key ]['商品画像URL'] = $this->get_img_urls( $values );
-			$images        = explode( ' ', $this->data['n2data'][ $key ]['商品画像URL'] );
-			$max_images    = count( $images ) > $max_images ? count( $images ) : $max_images;
-			$variation     = $values['バリエーション項目名定義'] ?? ''; // keyを仮に設定
-			$variation     = explode( '|', $variation );
-			$max_variation = count( $variation ) > $max_variation ? count( $variation ) : $max_variation;
-		}
-
-		foreach ( $this->data['header'] as $type => $headers ) {
-			foreach ( $headers as $index => $header ) {
-				if ( ! is_array( $header ) ) {
-					continue;
-				}
-				$this->data['header'][ $type ][ $index ] = match ( true ) {
-					is_array( preg_grep( '/商品画像/', $header ) ) => '商品画像',
-					is_array( preg_grep( '/バリエーション\%v選択肢定義/', $header ) ) => 'バリエーション%v選択肢定義',
-					is_array( preg_grep( '/商品オプション選択肢/', $header ) ) => '商品オプション選択肢',
-					is_array( preg_grep( '/バリエーション項目キー/', $header ) ) => 'バリエーション項目キー',
-					is_array( preg_grep( '/商品属性/', $header ) ) => '商品属性',
-				};
-			}
-		}
-		$header = array_reduce( array_values( $this->data['header'] ), 'array_merge', array() );
-		echo '<pre>';
-		var_dump( $header );
-		echo '</pre><br>';
+		$data = array();
 
 		foreach ( $this->data['n2data'] as $key => $values ) {
 			$id = $values['id'];
@@ -137,27 +150,9 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 		$data = array_diff_key( $data, $this->data['error'] );
 		$data = array_values( $data );
 
-		$new_haeder = array(
-			...array_filter(
-				$header,
-				function( $head ) {
-					return ! is_array( $head );
-				},
-			),
-			...array_reduce(
-				array_filter(
-					$header,
-					function( $head ) {
-						return is_array( $head );
-					},
-				),
-				'array_merge',
-				array(),
-			),
-		);
+		
 		// dataをセット
-		$this->data['data']   = $data;
-		$this->data['header'] = $new_haeder;
+		$this->data['data'] = $data;
 
 	}
 	/**

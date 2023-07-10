@@ -268,7 +268,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 *
 	 * @param array $keywords 検索ワード
 	 */
-	private function set_cabinet_files( $keywords ) {
+	protected function set_cabinet_files( $keywords ) {
 		// 検索ワードでハッシュ化
 		$cabinet              = N2_RMS_Cabinet_API::ajax(
 			array(
