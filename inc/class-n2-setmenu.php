@@ -120,8 +120,8 @@ class N2_Setmenu {
 			$int_blog_id = intval( $my_blog->blog_id );
 			switch_to_blog( $int_blog_id );
 			$options = get_blog_option( $int_blog_id, 'n2_settings' );
-			if ( ! empty( $options['n2']['active'] ) ) {
-				if ( $now_blog_id === $int_blog_id && '1' === $options['n2']['active'] ) {
+			if ( ! empty( $options['N2']['稼働中'] ) ) {
+				if ( $now_blog_id === $int_blog_id && '1' === $options['N2']['稼働中'] ) {
 					restore_current_blog();
 					return get_theme_file_uri( 'neo_neng_logo.svg' );
 				}
