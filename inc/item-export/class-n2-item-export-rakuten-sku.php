@@ -220,6 +220,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 			$select = explode( "\n", $select );
 			$name   = array_shift( $select );
 			$data[] = match ( 1 ) {
+				preg_match( '/^商品管理番号（商品URL）$/', $val )  => mb_strtolower( $n2values['返礼品コード'] ),
 				preg_match( '/^選択肢タイプ$/', $val ) => 's',// s：セレクトボックス　c：チェックボックス　f：フリーテキスト　i：項目選択肢別在庫　全角・大文字を半角に自動的に変換。
 				preg_match( '/^商品オプション項目名$/', $val ) => $name,// 255byteまで。
 				preg_match( '/(?<=商品オプション選択肢)[0-9]{1,}/', $val, $match ) => $select[ $match[0] -1 ] ?? '',// 32byteまで。
@@ -245,7 +246,8 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 		global $n2;
 		// preg_matchで判定
 		$data = match ( 1 ) {
-			
+			preg_match( '/^商品管理番号（商品URL）$/', $val )  => mb_strtolower( $n2values['返礼品コード'] ),
+
 			preg_match( '/^SKU管理番号$/', $val )  => mb_strtolower( $n2values['返礼品コード'] ),
 			preg_match( '/^システム連携用SKU番号$/', $val )  => mb_strtolower( $n2values['返礼品コード'] ),
 			preg_match( '/^販売価格$/', $val )  => $n2values['寄附金額'],
