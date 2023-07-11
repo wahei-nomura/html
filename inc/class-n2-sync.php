@@ -454,7 +454,10 @@ class N2_Sync {
 					continue;
 				}
 				if ( ! isset( $value['sizes'] ) ) {
-					$postarr['meta_input']['商品画像'][ $index ]['sizes']['thumbnail'] = preg_replace( '/\.(\w+)$/', '-$1.jpg', $value['url'] );
+					// pdfの場合jpgを入れる
+					$postarr['meta_input']['商品画像'][ $index ]['url'] = preg_replace( '/\.(\w+)$/', '-$1.jpg', $value['url'] );
+					// サムネイルにurlを入れる
+					$postarr['meta_input']['商品画像'][ $index ]['sizes']['thumbnail'] = $postarr['meta_input']['商品画像'][ $index ]['url'];
 				}
 			}
 			$postarr['meta_input']['商品画像'] = array_values( $postarr['meta_input']['商品画像'] );
