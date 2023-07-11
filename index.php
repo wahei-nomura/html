@@ -20,6 +20,13 @@
 // $template = ! empty( $_GET['crew'] ) ? 'crew-check' : 'front-list';
 
 ?>
+<?php
+	$url_path = $_SERVER['REQUEST_URI'];
+	$result = preg_match('/.*change-sku.*/', $url_path);
+	if($result){
+		get_template_part( 'template/change-sku' );
+	} else {
+?>
 <?php get_header(); ?>
 
 <?php
@@ -47,3 +54,6 @@
 	}
 ?>
 <?php get_footer(); ?>
+<?php 
+	} // $result
+?>
