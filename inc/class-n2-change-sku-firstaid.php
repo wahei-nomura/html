@@ -40,7 +40,9 @@ class N2_Change_Sku_Firstaid {
 				get_template_part( 'template/change-sku' );
 				exit;
 			default:
-				$files = $_FILES['item_files'];
+				$files          = $_FILES['item_files'];
+				$csv_item_flg   = 0;
+				$csv_select_flg = 0;
 				// csvの読み込み&配列格納
 				for ( $i = 0; $i < count( $files['name'] ); $i++ ) {
 					$filename         = $files['name'][ $i ];
@@ -75,6 +77,7 @@ class N2_Change_Sku_Firstaid {
 							}
 						}
 						$csv_item_count = $countloop;
+						$csv_item_flg   = 1;
 					}
 					if ( $result_select ) {
 						// select.csvの要素を配列($csv_select_array)に格納
@@ -88,9 +91,21 @@ class N2_Change_Sku_Firstaid {
 							}
 							$csv_select_array[ $csv_select_count ][] = ${'csv_array_' . $j}[4];
 						}
+						$csv_select_flg = 1;
 					}
 				}
-				$this->output_csv( $csv_item_array, $csv_select_array );
+				if ( ! $csv_item_flg || ! $csv_select_flg ) {
+					if ( ! $csv_item_flg ) {
+						print_r( 'item.csvがアップロードされていません。(ファイル名に「item」が入っていない場合もこのエラーが出ます)' );
+					}
+					if ( ! $csv_select_flg ) {
+						print_r( 'select.csvがアップロードされていません。(ファイル名に「select」が入っていない場合もこのエラーが出ます)' );
+					}
+					exit();
+					die();
+				} else {
+					$this->output_csv( $csv_item_array, $csv_select_array );
+				}
 		}
 	}
 	public function output_csv( $csv_item_array, $csv_select_array ) {
@@ -262,44 +277,28 @@ class N2_Change_Sku_Firstaid {
 				$output_data   .= $sku_data;
 			}
 		}
-		// テキストファイルのパス
-		$filepath = 'path/to/your/textfile.txt';
-
-		// CSVファイル名
+		// CSVファイルでダウンロード
 		$csvfilename = 'normal-item.csv';
-
 		$csvfilepathdir = sys_get_temp_dir();
 		// CSVファイルを作成する一時ファイルのパス
 		$csvfilepath = $csvfilepathdir . '/normal-item.csv';
-		// print_r( $csvfilepath );
-
-		// テキストファイルを読み込む
-		$textfile = file( $filepath );
-
 		// 一時的なCSVファイルを作成
 		$csvfile = fopen( $csvfilepath, 'w' );
-
 		// テキストファイルの各行をCSV形式に変換して書き込む
 		foreach ( $output_array as $line ) {
-			$csvline = mb_convert_encoding($line, 'SJIS-win', 'UTF-8'); // エンコーディングをShift-JISに変換
-			fputcsv($csvfile, str_getcsv($csvline, ',', '"', "\\")); // エスケープ処理を追加
+			$csvline = mb_convert_encoding( $line, 'SJIS-win', 'UTF-8' ); // エンコーディングをShift-JISに変換
+			fputcsv( $csvfile, str_getcsv( $csvline, ',', '"', '\\' ) ); // エスケープ処理を追加
 		}
-
-		// ファイルハンドルを閉じる
 		fclose( $csvfile );
-
 		// ダウンロードヘッダを設定
 		header( 'Content-Type: application/csv' );
 		header( 'Content-Disposition: attachment; filename=' . $csvfilename );
 		header( 'Content-Length: ' . filesize( $csvfilepath ) );
-
 		// 一時ファイルを出力し、ダウンロードさせる
 		readfile( $csvfilepath );
-
 		// 一時ファイルを削除
 		unlink( $csvfilepath );
-		// print_r( $output_array );
-		// print_r( $output_data );
+		// print_r( $output_data ); // ブラウザで見る時はこちら
 		exit();
 		die();
 	}
