@@ -289,7 +289,10 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 		$img_dir = preg_replace( '/\/item.*$/', '', $img_dir );
 		$imgs    = array_filter( explode( ' ', $this->get_img_urls( $n2values ) ) );
 		$img     = $imgs[ $index ] ?? '';
-		$img     = '/' . ltrim( str_replace( $img_dir, '', $img ), '/' );
+		$img     = match ( ! $img ) {
+			true    => '',
+			default => '/' . ltrim( str_replace( $img_dir, '', $img ), '/' ),
+		};
 		return $img;
 	}
 }
