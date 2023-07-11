@@ -87,7 +87,7 @@ class N2_Change_Sku_Firstaid {
 	public function output_csv( $csv_item_array, $csv_select_array ) {
 		header( 'Content-Type: application/json; charset=utf-8' );
 		setlocale( LC_ALL, 'ja_JP.UTF-8' );
-		$new_item_column = '商品管理番号（商品URL）,商品番号,商品名,倉庫指定,ジャンルID,非製品属性タグID,キャッチコピー,PC用商品説明文,スマートフォン用商品説明文,PC用販売説明文,商品画像タイプ1,商品画像パス1,商品画像名（ALT）1,商品画像タイプ2,商品画像パス2,商品画像名（ALT）2,商品画像タイプ3,商品画像パス3,商品画像名（ALT）3,商品画像タイプ4,商品画像パス4,商品画像名（ALT）4,商品画像タイプ5,商品画像パス5,商品画像名（ALT）5,商品画像タイプ6,商品画像パス6,商品画像名（ALT）6,商品画像タイプ7,商品画像パス7,商品画像名（ALT）7,商品画像タイプ8,商品画像パス8,商品画像名（ALT）8,商品画像タイプ9,商品画像パス9,商品画像名（ALT）9,商品画像タイプ10,商品画像パス10,商品画像名（ALT）10,商品画像タイプ11,商品画像パス11,商品画像名（ALT）11,商品画像タイプ12,商品画像パス12,商品画像名（ALT）12,商品画像タイプ13,商品画像パス13,商品画像名（ALT）13,商品画像タイプ14,商品画像パス14,商品画像名（ALT）14,商品画像タイプ15,商品画像パス15,商品画像名（ALT）15,商品画像タイプ16,商品画像パス16,商品画像名（ALT）16,商品画像タイプ17,商品画像パス17,商品画像名（ALT）17,商品画像タイプ18,商品画像パス18,商品画像名（ALT）18,商品画像タイプ19,商品画像パス19,商品画像名（ALT）19,商品画像タイプ20,商品画像パス20,商品画像名（ALT）20,バリエーション項目キー定義,バリエーション項目名定義,バリエーション1選択肢定義,バリエーション2選択肢定義,バリエーション3選択肢定義,バリエーション4選択肢定義,バリエーション5選択肢定義,選択肢タイプ,商品オプション項目名,商品オプション選択肢1,商品オプション選択肢2,商品オプション選択肢3,商品オプション選択肢4,商品オプション選択肢5,商品オプション選択肢6,商品オプション選択肢7,商品オプション選択肢8,商品オプション選択肢9,商品オプション選択必須,SKU管理番号,販売価格,再入荷お知らせボタン,のし対応,在庫数,在庫あり時納期管理番号,送料,カタログIDなしの理由';
+		$new_item_column = '商品管理番号（商品URL）,商品番号,商品名,倉庫指定,ジャンルID,非製品属性タグID,キャッチコピー,PC用商品説明文,スマートフォン用商品説明文,PC用販売説明文,商品画像タイプ1,商品画像パス1,商品画像名（ALT）1,商品画像タイプ2,商品画像パス2,商品画像名（ALT）2,商品画像タイプ3,商品画像パス3,商品画像名（ALT）3,商品画像タイプ4,商品画像パス4,商品画像名（ALT）4,商品画像タイプ5,商品画像パス5,商品画像名（ALT）5,商品画像タイプ6,商品画像パス6,商品画像名（ALT）6,商品画像タイプ7,商品画像パス7,商品画像名（ALT）7,商品画像タイプ8,商品画像パス8,商品画像名（ALT）8,商品画像タイプ9,商品画像パス9,商品画像名（ALT）9,商品画像タイプ10,商品画像パス10,商品画像名（ALT）10,商品画像タイプ11,商品画像パス11,商品画像名（ALT）11,商品画像タイプ12,商品画像パス12,商品画像名（ALT）12,商品画像タイプ13,商品画像パス13,商品画像名（ALT）13,商品画像タイプ14,商品画像パス14,商品画像名（ALT）14,商品画像タイプ15,商品画像パス15,商品画像名（ALT）15,商品画像タイプ16,商品画像パス16,商品画像名（ALT）16,商品画像タイプ17,商品画像パス17,商品画像名（ALT）17,商品画像タイプ18,商品画像パス18,商品画像名（ALT）18,商品画像タイプ19,商品画像パス19,商品画像名（ALT）19,商品画像タイプ20,商品画像パス20,商品画像名（ALT）20,バリエーション項目キー定義,バリエーション項目名定義,バリエーション1選択肢定義,バリエーション2選択肢定義,バリエーション3選択肢定義,バリエーション4選択肢定義,バリエーション5選択肢定義,選択肢タイプ,商品オプション項目名,商品オプション選択肢1,商品オプション選択肢2,商品オプション選択肢3,商品オプション選択肢4,商品オプション選択肢5,商品オプション選択肢6,商品オプション選択肢7,商品オプション選択肢8,商品オプション選択肢9,商品オプション選択必須,SKU管理番号,システム連携用SKU番号,販売価格,再入荷お知らせボタン,のし対応,在庫数,在庫あり時納期管理番号,送料,カタログIDなしの理由';
 		$output_data     = $new_item_column . "\n";
 		// １行目：新ヘッダー
 		$new_item_column_array = explode( ',', $new_item_column );
@@ -132,7 +132,7 @@ class N2_Change_Sku_Firstaid {
 					$picture_array = explode( ' ', $csv_item[ $picture_no ] );
 					foreach ( $picture_array as $picture_key => $picture_val ) {
 						$picture_name         = explode( '/', $picture_val );
-						$picture_last_names[] = $picture_name[ array_key_last( $picture_name ) - 2 ] . '/' . $picture_name[ array_key_last( $picture_name ) - 1 ] . '/' . $picture_name[ array_key_last( $picture_name ) ];
+						$picture_last_names[] = '/' . $picture_name[ array_key_last( $picture_name ) - 2 ] . '/' . $picture_name[ array_key_last( $picture_name ) - 1 ] . '/' . $picture_name[ array_key_last( $picture_name ) ];
 					}
 					$picture_count = count( $picture_last_names );
 				}
@@ -167,6 +167,8 @@ class N2_Change_Sku_Firstaid {
 							$item_val_no = array_search( $item_val, $csv_item_array[0] );
 							if ( $item_val === '商品管理番号（商品URL）' ) {
 								$code_value = $csv_item[ $item_val_no ];
+							} elseif ( $item_val === '商品番号' ) {
+								$large_code_value = $csv_item[ $item_val_no ];
 							}
 							$new_item_array[ $new_item_key ] = $csv_item[ $item_val_no ];
 
@@ -178,10 +180,17 @@ class N2_Change_Sku_Firstaid {
 						$new_item_array[ $new_item_key ] = $new_tag_id;
 					} elseif ( $item_val === 'キャッチコピー' ) { // モバイル用を入れる
 						$catchcopy_no                    = array_search( 'モバイル用キャッチコピー', $csv_item_array[0] );
-						$new_item_array[ $new_item_key ] = $item_array[ $catchcopy_no ];
+						$new_item_array[ $new_item_key ] = $csv_item[ $catchcopy_no ];
 					} elseif ( $item_val === 'SKU管理番号' ) {
 						$sku_key                         = $new_item_key; // SKUスタートの番号を取っておく
 						$new_item_array[ $new_item_key ] = '';
+					} elseif ( $item_val === 'ジャンルID' ) {
+						$catchcopy_no                    = array_search( '全商品ディレクトリID', $csv_item_array[0] );
+						$new_item_array[ $new_item_key ] = $csv_item[ $catchcopy_no ];
+					} elseif ( $item_val === '倉庫指定' ) {
+						$new_item_array[ $new_item_key ] = 0;
+					} elseif ( $item_val === 'システム連携用SKU番号' ) {
+						$new_system_sku_no = $new_item_key;
 					} else {
 						$new_item_array[ $new_item_key ] = '';
 					}
@@ -221,6 +230,8 @@ class N2_Change_Sku_Firstaid {
 						$sku_data .= $zaiko_value . ',';
 					} elseif ( $k === $new_postage_no ) {
 						$sku_data .= $postage_value . ',';
+					} elseif ( $k === $new_system_sku_no ) {
+						$sku_data .= $large_code_value . ',';
 					} elseif ( $k === $new_catalog_no ) {
 						$sku_data .= $catalog_value . ',';
 					} else {
