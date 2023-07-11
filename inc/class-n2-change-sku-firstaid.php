@@ -31,58 +31,67 @@ class N2_Change_Sku_Firstaid {
 	 * @return void
 	 */
 	public function change_sku_firstaid() {
-		$files = $_FILES['item_files'];
-
-		// csvの読み込み&配列格納
-		for ( $i = 0; $i < count( $files['name'] ); $i++ ) {
-			$filename         = $files['name'][ $i ];
-			$filetmp          = $files['tmp_name'][ $i ];
-			$filesize         = $files['size'][ $i ];
-			$fileerror        = $files['error'][ $i ];
-			$result_item      = preg_match( '/.*item.*/', $filename );
-			$result_select    = preg_match( '/.*select.*/', $filename );
-			$fn               = fopen( $filetmp, 'r' );
-			$countloop        = 0;
-			$csv_header_array = array();
-			while ( ( $arr = fgetcsv( $fn ) ) != false ) {
-				${'csv_array_' . $countloop} = array();
-				foreach ( $arr as $key => $val ) {
-					if ( 0 === $countloop ) {
-						$csv_header_array[] = mb_convert_encoding( $val, 'UTF-8', 'SJIS' );
-					} else {
-						${'csv_array_' . $countloop}[] = str_replace( '"', '""', mb_convert_encoding( $val, 'UTF-8', 'SJIS' ) ?? '' );
+		$defaults = array(
+			'mode' => 'ui',
+		);
+		$params   = wp_parse_args( $_GET, $defaults );
+		switch ( $params['mode'] ) {
+			case 'ui':
+				get_template_part( 'template/change-sku' );
+				exit;
+			default:
+				$files = $_FILES['item_files'];
+				// csvの読み込み&配列格納
+				for ( $i = 0; $i < count( $files['name'] ); $i++ ) {
+					$filename         = $files['name'][ $i ];
+					$filetmp          = $files['tmp_name'][ $i ];
+					$filesize         = $files['size'][ $i ];
+					$fileerror        = $files['error'][ $i ];
+					$result_item      = preg_match( '/.*item.*/', $filename );
+					$result_select    = preg_match( '/.*select.*/', $filename );
+					$fn               = fopen( $filetmp, 'r' );
+					$countloop        = 0;
+					$csv_header_array = array();
+					while ( ( $arr = fgetcsv( $fn ) ) != false ) {
+						${'csv_array_' . $countloop} = array();
+						foreach ( $arr as $key => $val ) {
+							if ( 0 === $countloop ) {
+								$csv_header_array[] = mb_convert_encoding( $val, 'UTF-8', 'SJIS' );
+							} else {
+								${'csv_array_' . $countloop}[] = str_replace( '"', '""', mb_convert_encoding( $val, 'UTF-8', 'SJIS' ) ?? '' );
+							}
+						}
+						$countloop++;
+					}
+					if ( $result_item ) {
+						// item.csvの要素を配列($csv_item_array)に格納
+						$csv_item_array = array();
+						$csv_item_count = 0;
+						for ( $j = 0; $j < $countloop; ++$j ) {
+							if ( 0 == $j ) {
+								$csv_item_array[] = $csv_header_array;
+							} else {
+								$csv_item_array[] = ${'csv_array_' . $j};
+							}
+						}
+						$csv_item_count = $countloop;
+					}
+					if ( $result_select ) {
+						// select.csvの要素を配列($csv_select_array)に格納
+						$csv_select_array = array();
+						$csv_select_count = 0;
+						for ( $j = 1; $j < $countloop; ++$j ) {
+							if ( ${'csv_array_' . $j}[3] !== $csv_select_array[ $csv_select_count ][1] ) {
+								$csv_select_count++;
+								$csv_select_array[ $csv_select_count ][0] = 's';
+								$csv_select_array[ $csv_select_count ][1] = ${'csv_array_' . $j}[3];
+							}
+							$csv_select_array[ $csv_select_count ][] = ${'csv_array_' . $j}[4];
+						}
 					}
 				}
-				$countloop++;
-			}
-			if ( $result_item ) {
-				// item.csvの要素を配列($csv_item_array)に格納
-				$csv_item_array = array();
-				$csv_item_count = 0;
-				for ( $j = 0; $j < $countloop; ++$j ) {
-					if ( 0 == $j ) {
-						$csv_item_array[] = $csv_header_array;
-					} else {
-						$csv_item_array[] = ${'csv_array_' . $j};
-					}
-				}
-				$csv_item_count = $countloop;
-			}
-			if ( $result_select ) {
-				// select.csvの要素を配列($csv_select_array)に格納
-				$csv_select_array = array();
-				$csv_select_count = 0;
-				for ( $j = 1; $j < $countloop; ++$j ) {
-					if ( ${'csv_array_' . $j}[3] !== $csv_select_array[ $csv_select_count ][1] ) {
-						$csv_select_count++;
-						$csv_select_array[ $csv_select_count ][0] = 's';
-						$csv_select_array[ $csv_select_count ][1] = ${'csv_array_' . $j}[3];
-					}
-					$csv_select_array[ $csv_select_count ][] = ${'csv_array_' . $j}[4];
-				}
-			}
+				$this->output_csv( $csv_item_array, $csv_select_array );
 		}
-		$this->output_csv( $csv_item_array, $csv_select_array );
 	}
 	public function output_csv( $csv_item_array, $csv_select_array ) {
 		header( 'Content-Type: application/json; charset=utf-8' );
