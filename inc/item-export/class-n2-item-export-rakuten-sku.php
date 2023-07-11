@@ -194,8 +194,8 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 			preg_match( '/^PC用商品説明文$/', $val )  => $this->pc_item_description( $n2values ),
 			preg_match( '/^スマートフォン用商品説明文$/', $val )  => $this->sp_item_description( $n2values ),
 			preg_match( '/^PC用販売説明文$/', $val )  => $this->pc_sales_description( $n2values ),
-			preg_match( '/^商品画像タイプ/', $val )  => 'CABINET',
-			preg_match( '/(?<=商品画像パス)[0-9]{1,}/', $val, $match )  => explode( ' ', $this->get_img_urls( $n2values ) )[ $match[0] ] ?? '',
+			preg_match( '/(?<=商品画像タイプ)[0-9]{1,}/', $val, $match ) & ( $match[0] - 1 < count( array_filter( explode( ' ', $this->get_img_urls( $n2values ) ) ) ) )  => 'CABINET',
+			preg_match( '/(?<=商品画像パス)[0-9]{1,}/', $val, $match )  => $this->get_relative_img_path( $n2values, $match[0] - 1 ),
 			default => '',
 		};
 		/**
@@ -223,7 +223,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 				preg_match( '/^商品管理番号（商品URL）$/', $val )  => mb_strtolower( $n2values['返礼品コード'] ),
 				preg_match( '/^選択肢タイプ$/', $val ) => 's',// s：セレクトボックス　c：チェックボックス　f：フリーテキスト　i：項目選択肢別在庫　全角・大文字を半角に自動的に変換。
 				preg_match( '/^商品オプション項目名$/', $val ) => $name,// 255byteまで。
-				preg_match( '/(?<=商品オプション選択肢)[0-9]{1,}/', $val, $match ) => $select[ $match[0] -1 ] ?? '',// 32byteまで。
+				preg_match( '/(?<=商品オプション選択肢)[0-9]{1,}/', $val, $match ) => $select[ $match[0] - 1 ] ?? '',// 32byteまで。
 				preg_match( '/^商品オプション選択必須$/', $val ) => 1,// 空欄可。0：選択必須としない 1：選択必須とする
 				default => '',
 			};
@@ -275,5 +275,21 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 	 */
 	public function check_error( $value, $name, $n2values ) {
 		return $value;
+	}
+
+	/**
+	 * 画像の相対パス
+	 *
+	 * @param array $n2values n2dataのループ中の値
+	 * @param int   $index index
+	 */
+	protected function get_relative_img_path( $n2values, $index ) {
+		global $n2;
+		$img_dir = $n2->portal_setting['楽天']['img_dir'];
+		$img_dir = preg_replace( '/\/item.*$/', '', $img_dir );
+		$imgs    = array_filter( explode( ' ', $this->get_img_urls( $n2values ) ) );
+		$img     = $imgs[ $index ] ?? '';
+		$img     = '/' . ltrim( str_replace( $img_dir, '', $img ), '/' );
+		return $img;
 	}
 }
