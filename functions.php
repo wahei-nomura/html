@@ -52,6 +52,7 @@ $incs = array(
 	'api/class-n2-items-api',
 	'api/class-n2-multi-url-request-api',
 	'class-n2-change-allergen',
+	'class-n2-change-sku-firstaid',
 );
 
 // （仮）とりあえず、長崎市のみチョンボAPIを有効化
