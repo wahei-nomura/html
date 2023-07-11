@@ -249,7 +249,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 			preg_match( '/^商品管理番号（商品URL）$/', $val )  => mb_strtolower( $n2values['返礼品コード'] ),
 
 			preg_match( '/^SKU管理番号$/', $val )  => mb_strtolower( $n2values['返礼品コード'] ),
-			preg_match( '/^システム連携用SKU番号$/', $val )  => mb_strtolower( $n2values['返礼品コード'] ),
+			preg_match( '/^システム連携用SKU番号$/', $val )  => mb_strtoupper( $n2values['返礼品コード'] ),
 			preg_match( '/^販売価格$/', $val )  => $n2values['寄附金額'],
 			preg_match( '/^のし対応$/', $val )  =>  ( '有り' === $n2values['のし対応'] ) ? 1 : '',
 			preg_match( '/^在庫数$/', $val )  => 0,
