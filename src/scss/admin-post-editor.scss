@@ -153,4 +153,19 @@ body.n2-darkmode{
 			}
 		}
 	}
+	.media-sidebar{
+		.description,.setting{
+			display: none;
+			&[data-setting="description"]{
+				display: block;
+				> * {
+					display: block;
+					margin: 0;
+					float: none;
+					text-align: left;
+					width: 100%;
+				}
+			}
+		}
+	}
 }

@@ -23,6 +23,7 @@ export default ($: any = jQuery) => {
 	data['楽天SPA'] = n2.settings.楽天.楽天SPA || '';
 	data['寄附金額チェッカー'] = '';
 	data['寄附金額自動計算値'] = '';
+	data['media'] = false;
 	const created = async function() {
 		save_as_pending.append_button("#n2-save-post");// スチームシップへ送信
 		this.全商品ディレクトリID = {
@@ -127,25 +128,30 @@ export default ($: any = jQuery) => {
 		},
 		// メディアアップローダー関連
 		add_media(){
+			if ( this.media ) {
+				this.media.open();
+				return;
+			}
 			// N1の画像データにはnoncesが無い
-			const images = wp.media({
+			this.media = wp.media({
 				title: "商品画像", 
 				multiple: "add",
-				library: {type: "image"}
+				library: {type: "image"},
 			});
-			images.on( 'open', () => {
+			this.media.on( 'open', () => {
 				// N2のものだけに
+				console.log(this.media)
 				const add =  n2.vue.商品画像.filter( v => v.nonces );
-				images.state().get('selection').add( add.map( v => wp.media.attachment(v.id) ) );
+				this.media.state().get('selection').add( add.map( v => wp.media.attachment(v.id) ) );
 			});
-			images.on( 'select close', () => {
-				images.state().get('selection').forEach( img => {
+			this.media.on( 'select close', () => {
+				this.media.state().get('selection').forEach( img => {
 					if ( ! n2.vue.商品画像.find( v => v.id == img.attributes.id ) ) {
 						n2.vue.商品画像.push( img.attributes );
 					}
 				})
 			});
-			images.open();
+			this.media.open();
 		},
 		// 楽天の全商品ディレクトリID取得（タグIDでも利用）
 		async get_genreid(){
