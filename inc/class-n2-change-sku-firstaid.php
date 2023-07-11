@@ -171,9 +171,9 @@ class N2_Change_Sku_Firstaid {
 						$output_data .= $new_item;
 					}
 				}
-				$output_data       .= "\n";
-				$new_output_select .= str_replace( '商品管理番号(仮)', $code_value, $output_select );
-				$output_data       .= $new_output_select;
+				$output_data      .= "\n";
+				$new_output_select = str_replace( '商品管理番号(仮)', $code_value, $output_select );
+				$output_data      .= $new_output_select;
 			}
 		}
 		print_r( $output_data );
