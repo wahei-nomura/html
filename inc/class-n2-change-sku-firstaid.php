@@ -131,7 +131,7 @@ class N2_Change_Sku_Firstaid {
 				}
 			}
 			$output_select_array[] = $new_select_value_column;
-			$output_select .= $new_select_value_column . "\n";
+			$output_select        .= $new_select_value_column . "\n";
 		}
 		// itemの出力データを作る
 		$picture_no = array_search( '商品画像URL', $csv_item_array[0] );
@@ -216,23 +216,23 @@ class N2_Change_Sku_Firstaid {
 				$output_new_item_data = '';
 				foreach ( $new_item_array as $new_item_key => $new_item ) {
 					if ( $new_item_key !== 0 ) {
-						$output_data .= ',';
+						$output_data          .= ',';
 						$output_new_item_data .= ',';
 					}
 					if ( '' !== $new_item ) {
-						$output_data .= '"' . $new_item . '"';
+						$output_data          .= '"' . $new_item . '"';
 						$output_new_item_data .= '"' . $new_item . '"';
 					} else {
-						$output_data .= $new_item;
+						$output_data          .= $new_item;
 						$output_new_item_data .= $new_item;
 					}
 				}
-				$output_array[] = $output_new_item_data;
+				$output_array[]    = $output_new_item_data;
 				$output_data      .= "\n";
 				$new_output_select = str_replace( '商品管理番号(仮)', $code_value, $output_select );
 				$output_data      .= $new_output_select;
-				foreach($output_select_array as $output_select_val){
-					$output_array[] = str_replace( '商品管理番号(仮)', $code_value,$output_select_val );
+				foreach ( $output_select_array as $output_select_val ) {
+					$output_array[] = str_replace( '商品管理番号(仮)', $code_value, $output_select_val );
 				}
 				// SKU出力
 				$sku_data = '';
@@ -281,8 +281,8 @@ class N2_Change_Sku_Firstaid {
 
 		// テキストファイルの各行をCSV形式に変換して書き込む
 		foreach ( $output_array as $line ) {
-		$csvline = str_getcsv( $line );
-		fputcsv( $csvfile, $csvline );
+			$csvline = mb_convert_encoding($line, 'SJIS-win', 'UTF-8'); // エンコーディングをShift-JISに変換
+			fputcsv($csvfile, str_getcsv($csvline, ',', '"', "\\")); // エスケープ処理を追加
 		}
 
 		// ファイルハンドルを閉じる
