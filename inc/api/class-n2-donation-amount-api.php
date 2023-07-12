@@ -23,6 +23,8 @@ class N2_Donation_Amount_API {
 		add_action( 'wp_ajax_n2_update_all_donation_amount', array( $this, 'update_all_donation_amount' ) );
 		add_action( 'wp_ajax_n2_donation_amount_api', array( $this, 'calc' ) );
 		add_action( 'wp_ajax_nopriv_n2_donation_amount_api', array( $this, 'calc' ) );
+		add_action( 'wp_ajax_n2_adjust_price_api', array( $this, 'adjust_price' ) );
+		add_action( 'wp_ajax_nopriv_n2_adjust_price_api', array( $this, 'adjust_price' ) );
 	}
 
 	/**
@@ -167,4 +169,46 @@ class N2_Donation_Amount_API {
 		return $delivery_code;
 	}
 
+	/**
+	 * 自動価格調整
+	 *
+	 * @param array|string $args 必要なデータ
+	 * N2設定値を使いたくない場合は、独自にGETパラメータで渡す
+	 *
+	 * @return int $price 価格
+	 */
+	public static function adjust_price( $args ) {
+		global $n2;
+		$args    = $args ? wp_parse_args( $args ) : $_GET;
+		$default = array(
+			'adjust_type'  => $n2->settings['寄附金額・送料']['自動価格調整'],
+			'price'        => 0,
+			'subscription' => 1,
+			'divisor'      => $n2->settings['寄附金額・送料']['除数'],
+			'step'         => $n2->settings['寄附金額・送料']['除数'] * 1000,
+			'min_donation' => $n2->settings['寄附金額・送料']['下限寄附金額'],
+		);
+		$args    = wp_parse_args( $args, $default );
+
+		// 価格の調整
+		$args['price'] = match ( $args['adjust_type'] ) {
+			1, '1回毎に調整する' => ceil( $args['price'] / $args['step'] ) * $args['step'],
+			2, '総額で調整する' => ( ceil( ( $args['price'] * $args['subscription'] ) / $args['step'] ) * $args['step'] ) / $args['subscription'],
+			default => $args['price'],
+		};
+
+		// この価格で下限寄付額を下回らないか調査
+		if ( ( $args['price'] / $args['divisor'] ) < (int) $args['min_donation'] ) {
+			$args['price'] = (int) $args['min_donation'] * $args['divisor'];
+		}
+
+		// admin-ajax.phpアクセス時
+		if ( $args['action'] ) {
+			header( 'Content-Type: application/json; charset=utf-8' );
+			echo wp_json_encode( $args['price'] );
+			exit;
+		}
+		// N2_Donation_Amount_API::adjust_price()呼び出し
+		return $args['price'];
+	}
 }
