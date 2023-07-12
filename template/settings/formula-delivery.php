@@ -11,12 +11,11 @@ global $n2;
 	<tr>
 		<th>送料を寄附金額計算に含める</th>
 		<td>
+			<?php foreach ( array( '含めない', '含める' ) as $i => $label ) : ?>
 			<label style="margin: 0 2em 0 0;">
-				<input type="radio" name="n2_settings[寄附金額・送料][送料乗数]" value="0" <?php checked( $n2->settings['寄附金額・送料']['送料乗数'] ?? 0, 0 ); ?>> 含めない
+				<input type="radio" name="n2_settings[寄附金額・送料][送料乗数]" value="<?php echo $i; ?>" <?php checked( $n2->settings['寄附金額・送料']['送料乗数'] ?? 0, $i ); ?>> <?php echo $label; ?>
 			</label>
-			<label>
-				<input type="radio" name="n2_settings[寄附金額・送料][送料乗数]" value="1" <?php checked( $n2->settings['寄附金額・送料']['送料乗数'] ?? 0, 1 ); ?>> 含める
-			</label>
+			<?php endforeach; ?>
 		</td>
 	</tr>
 	<tr>
@@ -30,6 +29,16 @@ global $n2;
 		<td>
 			<input type="number" step="1000" name="n2_settings[寄附金額・送料][下限寄附金額]" value="<?php echo esc_attr( $n2->settings['寄附金額・送料']['下限寄附金額'] ); ?>" style="width: 6em;">
 			<p><small>自動計算時に、ここに設定された「下限寄附金額」を下回る場合は「下限寄附金額」に自動設定されます</small></p>
+		</td>
+	</tr>
+	<tr>
+		<th>価格の端数の自動調整</th>
+		<td>
+			<?php foreach ( array( '調整しない', '1回毎に調整する', '総額で調整する' ) as $v ) : ?>
+			<label style="margin: 0 2em 0 0;">
+				<input type="radio" name="n2_settings[寄附金額・送料][自動価格調整]" value="<?php echo $v; ?>" <?php checked( $n2->settings['寄附金額・送料']['自動価格調整'] ?? '調整しない', $v ); ?>> <?php echo $v; ?>
+			</label>
+			<?php endforeach; ?>
 		</td>
 	</tr>
 	<tr>
