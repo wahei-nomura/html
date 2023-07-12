@@ -193,7 +193,7 @@ class N2_Donation_Amount_API {
 		// 価格の調整
 		$args['price'] = match ( $args['adjust_type'] ) {
 			1, '1回毎に調整する' => ceil( $args['price'] / $args['step'] ) * $args['step'],
-			2, '総額で調整する' => ( ceil( ( $args['price'] * $args['subscription'] ) / $args['step'] ) * $args['step'] ) / $args['subscription'],
+			2, '総額で調整する' => ( ceil( ( $args['price'] * $args['subscription'] ) / (int) gmp_lcm( $args['step'], $args['subscription'] ) ) * (int) gmp_lcm( $args['step'], $args['subscription'] ) ) / $args['subscription'],
 			default => $args['price'],
 		};
 
