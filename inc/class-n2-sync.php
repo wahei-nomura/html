@@ -833,11 +833,21 @@ class N2_Sync {
 			}
 			// 寄附金額を半角数字のみに
 			if ( isset( $d['寄附金額'] ) ) {
-				$d['寄附金額'] = mb_convert_kana( preg_replace( '/[^0-9]/', '', $d['寄附金額'] ), 'n' );
+				$d['寄附金額'] = preg_replace( '/[^0-9]/', '', mb_convert_kana( $d['寄附金額'], 'n' ) );
+			}
+			if ( isset( $d['定期便'] ) ) {
+				$d['定期便'] = preg_replace( '/[^0-9]/', '', mb_convert_kana( $d['定期便'], 'n' ) ) ?: 1;
 			}
 			// 価格を半角数字のみに
 			if ( isset( $d['価格'] ) ) {
-				$d['価格'] = mb_convert_kana( preg_replace( '/[^0-9]/', '', $d['価格'] ), 'n' );
+				$d['価格'] = preg_replace( '/[^0-9]/', '', mb_convert_kana( $d['価格'], 'n' ) );
+				// 自動価格調整
+				$d['価格'] = N2_Donation_Amount_API::adjust_price(
+					array(
+						'price'        => (int) $d['価格'],
+						'subscription' => (int) $d['定期便'],
+					)
+				);
 			}
 			// 商品タイプ（入力値をそのまま出力）
 			if ( isset( $d['商品タイプ'] ) ) {
