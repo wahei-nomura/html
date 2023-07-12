@@ -118,6 +118,8 @@ abstract class N2_RMS_Base_API {
 	 * APIを実行するサムシング
 	 */
 	private static function request() {
+		$is_callable = is_callable( array( 'static', static::$data['params']['request'] ?? '' ) );
+		static::check_fatal_error( $is_callable, '未定義のmethodです' );
 		return static::{ static::$data['params']['request'] }();
 	}
 
