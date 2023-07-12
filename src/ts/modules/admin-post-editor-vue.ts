@@ -123,8 +123,20 @@ export default ($: any = jQuery) => {
 			if ( ! target ) {
 				return text;
 			}
-			$event.target.value = text;
-			this[target] = text;
+			$event.target.value = this[target] = text;
+		},
+		// 価格の端数の自動調整
+		async auto_adjust_price() {
+			if ( n2.settings['寄附金額・送料']['自動価格調整'] == '調整しない' ) return;
+			const opt = {
+				url: n2.ajaxurl,
+				data: {
+					action: 'n2_adjust_price_api',
+					price: this.価格,
+					subscription: this.定期便,
+				}
+			}
+			this.価格 = await $.ajax(opt);
 		},
 		// メディアアップローダー関連
 		add_media(){
