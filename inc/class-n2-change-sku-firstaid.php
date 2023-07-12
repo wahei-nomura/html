@@ -124,7 +124,7 @@ class N2_Change_Sku_Firstaid {
 		foreach ( $csv_select_array as $csv_select ) {
 			$select_array            = array();
 			$new_select_value_column = '';
-			for ( $i = 0; $i <= $select_option_no; $i++ ) {
+			for ( $i = 0; $i < $new_item_count; $i++ ) {
 				if ( $i === $select_option_no ) {
 					$select_array[ $i ] = '1';
 				} else {
@@ -133,7 +133,7 @@ class N2_Change_Sku_Firstaid {
 			}
 			$select_array[0] = '商品管理番号(仮)';
 			foreach ( $csv_select as $select_key => $value ) {
-				$select_array[ $select_no + $select_key + 1 ] = $value;
+				$select_array[ $select_no + $select_key ] = $value;
 			}
 			foreach ( $select_array as $select_value_key => $select_value ) {
 				if ( $select_value_key !== 0 ) {
@@ -217,6 +217,7 @@ class N2_Change_Sku_Firstaid {
 						$new_item_array[ $new_item_key ] = 0;
 					} elseif ( $item_val === 'システム連携用SKU番号' ) {
 						$new_system_sku_no = $new_item_key;
+						$new_item_array[ $new_item_key ] = '';
 					} else {
 						$new_item_array[ $new_item_key ] = '';
 					}
