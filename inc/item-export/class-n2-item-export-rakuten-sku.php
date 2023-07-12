@@ -126,6 +126,8 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 		global $n2;
 		$data = array();
 
+		$this->check_fatal_error( $this->data['sku']['header'] && $this->data['header'], 'ヘッダーが設定されていません' );
+
 		foreach ( $this->data['n2data'] as $key => $values ) {
 			$id = $values['id'];
 			// アレルゲン
@@ -135,9 +137,9 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 			$data[ $id ] = array_keys( $this->data['sku']['header'] );
 			array_walk( $data[ $id ], array( $this, 'walk_values' ), $values );
 
-			
-			
+			// 配列の縦横を入れ替える
 			$data[ $id ] = array_map( null, ...$data[ $id ] );
+			// 複数行のレベルについて次元削除
 			$data[ $id ] = array_map(
 				function( $row ) {
 					return array( $row[0], ...$row[1], $row[2] );
@@ -158,7 +160,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 		$this->data['data'] = $data;
 	}
 	/**
-	 * データのマッピング（正しい値かどうかここでチェックする）
+	 * レベル毎のデータマッピング（正しい値かどうかここでチェックする）
 	 * 楽天CSVの仕様：https://docs.google.com/spreadsheets/d/1OSvaCDPOG9L3YUGlq7NH3tliL7VScWOC9v8Whw3qw9U/edit#gid=2033843158
 	 *
 	 * @param string $val 項目名
@@ -166,6 +168,8 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 	 * @param array  $n2values n2dataのループ中の値
 	 */
 	protected function walk_values( &$val, $index, $n2values ) {
+		$is_callable = is_callable( array( $this, "walk_${val}_values" ) );
+		$this->check_fatal_error( $is_callable, '未定義のレベルです' );
 
 		$header = $this->data['header'];
 		array_walk( $header, array( $this, "walk_${val}_values" ), $n2values );
@@ -199,7 +203,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 			default => '',
 		};
 		/**
-		 * [hook] n2_item_export_rakuten_sku_walk_values
+		 * [hook] n2_item_export_rakuten_sku_walk_item_values
 		 */
 		$val = apply_filters( mb_strtolower( get_class( $this ) ) . __FUNCTION__, $data, $val, $n2values );
 	}
@@ -229,7 +233,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 			};
 		}
 		/**
-		 * [hook] n2_item_export_rakuten_sku_walk_values
+		 * [hook] n2_item_export_rakuten_sku_walk_option_values
 		 */
 		$val = apply_filters( mb_strtolower( get_class( $this ) ) . __FUNCTION__, $data, $val, $n2values );
 	}
@@ -258,7 +262,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 			default => '',
 		};
 		/**
-		 * [hook] n2_item_export_rakuten_sku_walk_values
+		 * [hook] n2_item_export_rakuten_sku_walk_sku_values
 		 */
 		$val = apply_filters( mb_strtolower( get_class( $this ) ) . __FUNCTION__, $data, $val, $n2values );
 	}
