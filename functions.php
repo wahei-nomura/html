@@ -46,6 +46,7 @@ $incs = array(
 	'api/class-n2-rakuten-items-api',
 	'api/class-n2-rms-base-api',
 	'api/class-n2-rms-cabinet-api',
+	'api/class-n2-rms-navigation-api',
 	'api/class-n2-furusato-choice-items-api',
 	'class-n2-chonbo',
 	'api/class-n2-output-gift-api',
