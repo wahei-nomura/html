@@ -190,10 +190,12 @@ class N2_Donation_Amount_API {
 		);
 		$args    = wp_parse_args( $args, $default );
 
+		// 総額調整用の最小公倍数
+		$lcm = (int) gmp_lcm( $args['step'], $args['subscription'] );
 		// 価格の調整
 		$args['price'] = match ( $args['adjust_type'] ) {
 			1, '1回毎に調整する' => ceil( $args['price'] / $args['step'] ) * $args['step'],
-			2, '総額で調整する' => ( ceil( ( $args['price'] * $args['subscription'] ) / (int) gmp_lcm( $args['step'], $args['subscription'] ) ) * (int) gmp_lcm( $args['step'], $args['subscription'] ) ) / $args['subscription'],
+			2, '総額で調整する' => ( ceil( ( $args['price'] * $args['subscription'] ) / $lcm ) * $lcm ) / $args['subscription'],
 			default => $args['price'],
 		};
 
