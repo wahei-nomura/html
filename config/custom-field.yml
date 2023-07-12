@@ -136,13 +136,31 @@
 
 
 事業者用:
+    定期便:
+        type : select
+        value: 1
+        v-if: "!商品タイプ.includes('eチケット')"
+        option :
+            1: 定期便では無い
+            2: ２回定期便
+            3: ３回定期便
+            4: ４回定期便
+            5: ５回定期便
+            6: ６回定期便
+            7: ７回定期便
+            8: ８回定期便
+            9: ９回定期便
+            10: １０回定期便
+            11: １１回定期便
+            12: １２回定期便
+        v-model: 定期便
+        "@change": auto_adjust_price()
     寄附金額:
         type: hidden
         :value: 寄附金額
         v-if: current_user == 'jigyousya'
     価格:
         type : text
-        # step: 300
         label : 価格（税込）
         required: required
         placeholder: 例）1000
@@ -150,7 +168,7 @@
         style: 'width: 10em'
         :value: 価格
         "@focus": set_info($event.target)
-        "@change": "force_half_size_text($event, 'number', '価格')"
+        "@change": "force_half_size_text($event, 'number', '価格');auto_adjust_price()"
     キャッチコピー:
         type : text
         description : こだわりやポイントを端的にご記載ください。
@@ -462,24 +480,6 @@
         style: 'width: 17em;'
         "@focus": set_info($event.target)
         "@input": set_info($event.target)
-    定期便:
-        type : select
-        value: 1
-        v-if: "!商品タイプ.includes('eチケット')"
-        option :
-            1: 定期便では無い
-            2: ２回定期便
-            3: ３回定期便
-            4: ４回定期便
-            5: ５回定期便
-            6: ６回定期便
-            7: ７回定期便
-            8: ８回定期便
-            9: ９回定期便
-            10: １０回定期便
-            11: １１回定期便
-            12: １２回定期便
-        v-model: 定期便
     LHカテゴリー:
         label: カテゴリー
         type : select
