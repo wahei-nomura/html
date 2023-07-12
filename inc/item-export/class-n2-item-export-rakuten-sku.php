@@ -42,6 +42,16 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 	);
 
 	/**
+	 * constructor
+	 */
+	public function __construct() {
+		parent::__construct();
+		add_filter( mb_strtolower( get_class( $this ) ) . '_walk_item_values', array( $this, 'check_error' ), 10, 3 );
+		add_filter( mb_strtolower( get_class( $this ) ) . '_walk_option_values', array( $this, 'check_error' ), 10, 3 );
+		add_filter( mb_strtolower( get_class( $this ) ) . '_walk_sku_values', array( $this, 'check_error' ), 10, 3 );
+	}
+
+	/**
 	 * 楽天CSVヘッダーを取得
 	 */
 	protected function set_header() {
@@ -53,6 +63,8 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 
 		// 旧select.csv部分
 		$selects = $n2->portal_setting['楽天']['select'];
+		$this->check_fatal_error( $selects, "項目選択肢が設定されていません" );
+
 		$selects = str_replace( array( "\r\n", "\r" ), "\n", $selects );// 改行コード統一
 		$selects = preg_split( '/\n{2,}/', $selects );// 連続改行で分ける
 
@@ -160,7 +172,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 		$this->data['data'] = $data;
 	}
 	/**
-	 * レベル毎のデータマッピング（正しい値かどうかここでチェックする）
+	 * レベル毎のデータマッピング
 	 * 楽天CSVの仕様：https://docs.google.com/spreadsheets/d/1OSvaCDPOG9L3YUGlq7NH3tliL7VScWOC9v8Whw3qw9U/edit#gid=2033843158
 	 *
 	 * @param string $val 項目名
@@ -177,7 +189,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 	}
 
 	/**
-	 * データのマッピング（正しい値かどうかここでチェックする）
+	 * 商品レベルのデータマッピング（正しい値かどうかここでチェックする）
 	 * 楽天CSVの仕様：https://docs.google.com/spreadsheets/d/1OSvaCDPOG9L3YUGlq7NH3tliL7VScWOC9v8Whw3qw9U/edit#gid=2033843158
 	 *
 	 * @param string $val 項目名
@@ -205,10 +217,10 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 		/**
 		 * [hook] n2_item_export_rakuten_sku_walk_item_values
 		 */
-		$val = apply_filters( mb_strtolower( get_class( $this ) ) . __FUNCTION__, $data, $val, $n2values );
+		$val = apply_filters( mb_strtolower( get_class( $this ) ) . '_' . __FUNCTION__, $data, $val, $n2values );
 	}
 	/**
-	 * データのマッピング（正しい値かどうかここでチェックする）
+	 * 商品オプションレベルのマッピング（正しい値かどうかここでチェックする）
 	 * 楽天CSVの仕様：https://docs.google.com/spreadsheets/d/1OSvaCDPOG9L3YUGlq7NH3tliL7VScWOC9v8Whw3qw9U/edit#gid=2033843158
 	 *
 	 * @param string $val 項目名
@@ -235,10 +247,10 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 		/**
 		 * [hook] n2_item_export_rakuten_sku_walk_option_values
 		 */
-		$val = apply_filters( mb_strtolower( get_class( $this ) ) . __FUNCTION__, $data, $val, $n2values );
+		$val = apply_filters( mb_strtolower( get_class( $this ) ) . '_' . __FUNCTION__, $data, $val, $n2values );
 	}
 	/**
-	 * データのマッピング（正しい値かどうかここでチェックする）
+	 * SKUレベルのデータマッピング（正しい値かどうかここでチェックする）
 	 * 楽天CSVの仕様：https://docs.google.com/spreadsheets/d/1OSvaCDPOG9L3YUGlq7NH3tliL7VScWOC9v8Whw3qw9U/edit#gid=2033843158
 	 *
 	 * @param string $val 項目名
@@ -251,7 +263,6 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 		// preg_matchで判定
 		$data = match ( 1 ) {
 			preg_match( '/^商品管理番号（商品URL）$/', $val )  => mb_strtolower( $n2values['返礼品コード'] ),
-
 			preg_match( '/^SKU管理番号$/', $val )  => mb_strtolower( $n2values['返礼品コード'] ),
 			preg_match( '/^販売価格$/', $val )  => $n2values['寄附金額'],
 			preg_match( '/^のし対応$/', $val )  =>  ( '有り' === $n2values['のし対応'] ) ? 1 : '',
@@ -264,7 +275,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 		/**
 		 * [hook] n2_item_export_rakuten_sku_walk_sku_values
 		 */
-		$val = apply_filters( mb_strtolower( get_class( $this ) ) . __FUNCTION__, $data, $val, $n2values );
+		$val = apply_filters( mb_strtolower( get_class( $this ) ) . '_' . __FUNCTION__, $data, $val, $n2values );
 	}
 
 	/**
@@ -277,6 +288,52 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 	 * @return $value
 	 */
 	public function check_error( $value, $name, $n2values ) {
+		$hook = current_filter();
+		$fnc  = str_replace( mb_strtolower( get_class( $this ) ) . '_', '', $hook );
+
+		// 存在する画像ファイルだけの配列を生成する
+		$exist_images = function () use ( $n2values, $name ) {
+			return array_filter(
+				$this->make_img_urls( $n2values ),
+				fn( $image ) => in_array( $image, explode( ' ', $n2values[ $name ] ), true ),
+			);
+		};
+
+		// レベル毎のエラー
+		switch ( $fnc ) {
+			case 'walk_item_values':
+				/**
+				 * 画像エラー
+				 */
+				$images = match ( $name ) {
+					'商品画像URL' => $exist_images(),
+					default => false,
+				};
+
+				if ( false !== $images ) {
+					$max_index = end( array_keys( $images ) );
+					for ( $index = 0; $index <= $max_index; $index++ ) {
+						$gift_code = mb_strtolower( $n2values['返礼品コード'] );
+						$image     = $gift_code . ( 0 !== $index ? '-' . $index : '' ) . '.jpg';
+						if ( ! isset( $images[ $index ] ) && 'ignore_img_error' !== filter_input( INPUT_POST, 'option' ) ) {
+							$this->rms['image_error'] = true;
+							$this->add_error( $n2values['id'], "商品画像を先にアップロードしてください！ {$image}" );
+						}
+					}
+				}
+
+				break;
+			case 'walk_option_values':
+				break;
+			case 'walk_sku_values':
+				/**
+				 * 寄附金額エラー
+				 */
+				if ( '販売価格' === $name && 0 === $value ) {
+					$this->add_error( $n2values['id'], "「{$name}」が0です。" );
+				}
+				break;
+		}
 		return $value;
 	}
 
