@@ -28,7 +28,7 @@ class N2_Item_Export {
 			'class-n2-item-export-base.php',
 			'class-n2-item-export-furusato-choice.php',
 			'class-n2-item-export-ledghome.php',
-			'class-n2-item-export-rakuten-item.php',
+			'class-n2-item-export-rakuten.php',
 			'class-n2-item-export-rakuten-select.php',
 			'class-n2-item-export-rakuten-sku.php',
 			'class-n2-product-list-print.php',
