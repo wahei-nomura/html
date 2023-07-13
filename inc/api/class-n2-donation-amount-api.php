@@ -200,7 +200,8 @@ class N2_Donation_Amount_API {
 		$args = wp_parse_args( $args, $default );
 
 		// 送料乗数が1で送料加算分岐点以下は調整不要のフラグ追加
-		$args['quit'] = ( (int) ( $args['price'] < $args['delivery_add_point'] || 0 === $args['delivery_add_point'] ) ) * $args['delivery_multiplier'];
+		$args['quit'] = (int) ( $args['price'] < $args['delivery_add_point'] || 0 === $args['delivery_add_point'] );
+		$args['quit'] = (bool) ( $args['quit'] * $args['delivery_multiplier'] );
 
 		// 自動価格調整
 		if ( ! $args['quit'] ) {
