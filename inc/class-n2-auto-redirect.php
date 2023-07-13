@@ -51,7 +51,7 @@ class N2_Auto_Redirect {
 	 */
 	public function redirect_to_same_page() {
 		$now = $_SERVER['REQUEST_URI'];
-		$ref = $_SERVER['HTTP_REFERER'];
+		$ref = $_SERVER['HTTP_REFERER'] ?? '';
 		// リダイレクトしてほしくないパターン
 		if ( ! preg_match( '#/wp-admin/$#', $now ) || preg_match( '#(/wp-admin/$|/network/)#', $ref ) || ! preg_match( '#/wp-admin/#', $ref ) ) {
 			return;
