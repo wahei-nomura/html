@@ -45,6 +45,7 @@ $incs = array(
 	'api/class-n2-donation-amount-api',
 	'api/class-n2-rms-base-api',
 	'api/class-n2-rms-cabinet-api',
+	'api/class-n2-rms-navigation-api',
 	'class-n2-chonbo',
 	'api/class-n2-output-gift-api',
 	'api/class-n2-post-history-api',

@@ -161,14 +161,10 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 */
 	public function check_error( $value, $name, $n2values ) {
 		/**
-		 * 必須漏れエラー
+		 * 寄附金額エラー
 		 */
-		$required = match ( true ) {
-			preg_match( '/（必須）|必要寄付金額/', $name ) && '' === $value => true,
-			default => false,
-		};
-		if ( $required ) {
-			$this->add_error( $n2values['id'], "「{$name}」がありません。" );
+		if ( '販売価格' === $name && 0 === $value ) {
+			$this->add_error( $n2values['id'], "「{$name}」が0です。" );
 		}
 
 		/**
@@ -268,7 +264,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 *
 	 * @param array $keywords 検索ワード
 	 */
-	private function set_cabinet_files( $keywords ) {
+	protected function set_cabinet_files( $keywords ) {
 		// 検索ワードでハッシュ化
 		$cabinet              = N2_RMS_Cabinet_API::ajax(
 			array(

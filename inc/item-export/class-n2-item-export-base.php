@@ -322,7 +322,7 @@ class N2_Item_Export_Base {
 	 * @param array  $data チェックするデータ
 	 * @param string $message メッセージ
 	 */
-	private function check_fatal_error( $data, $message ) {
+	protected function check_fatal_error( $data, $message ) {
 		if ( ! $data ) {
 			header( 'Content-Type: application/json; charset=utf-8' );
 			echo $message;
