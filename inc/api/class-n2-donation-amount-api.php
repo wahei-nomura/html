@@ -34,17 +34,22 @@ class N2_Donation_Amount_API {
 	 */
 	public static function calc( $args ) {
 		global $n2;
-		$args = $args ? wp_parse_args( $args ) : $_GET;
+		$args    = $args ? wp_parse_args( $args ) : $_GET;
+		$default = array(
+			'price'               => 0,
+			'subscription'        => 1,
+			'delivery_fee'        => 0,
+			'delivery_multiplier' => (int) $n2->settings['寄附金額・送料']['送料乗数'],
+			'delivery_add_point'  => (int) $n2->settings['寄附金額・送料']['送料加算分岐点'],
+			'divisor'             => (float) $n2->settings['寄附金額・送料']['除数'],
+			'min_donation'        => (int) $n2->settings['寄附金額・送料']['下限寄附金額'],
+			'action'              => false,
+		);
+		$args    = wp_parse_args( $args, $default );
 
-		// 除数と送料乗数
-		$args['divisor']             = (float) ( $args['divisor'] ?? $n2->settings['寄附金額・送料']['除数'] );// 0.3 0.35 0.4 など
-		$args['delivery_multiplier'] = (int) ( $args['delivery_multiplier'] ?? $n2->settings['寄附金額・送料']['送料乗数'] );// 0 or 1
-
-		// 価格・送料
-		$args['price']        = (int) ( $args['price'] ?? 0 );
-		$args['delivery_fee'] = (int) ( $args['delivery_fee'] ?? 0 ) * $args['delivery_multiplier'];
-		$args['subscription'] = (int) ( $args['subscription'] ?? 1 );
-		$args['action']       = $args['action'] ?? false;
+		// ○○円未満は加算
+		$args['delivery_multiplier'] = (int) ( $args['price'] < $args['delivery_add_point'] || 0 === $args['delivery_add_point'] ) * $args['delivery_multiplier'];
+		$args['delivery_fee']        = $args['delivery_fee'] * $args['delivery_multiplier'];
 
 		/**
 		 * [hook] n2_donation_amount_api_args
@@ -58,7 +63,7 @@ class N2_Donation_Amount_API {
 			// 下限寄附金額（3割ルール）
 			ceil( $args['price'] * $args['subscription'] / 300 ) * 1000,
 			// 下限寄附金額（N2設定値）
-			(int) $n2->settings['寄附金額・送料']['下限寄附金額'] ?? 0,
+			$args['min_donation'],
 			// 寄附金額
 			ceil( ( $args['price'] + $args['delivery_fee'] ) * $args['subscription'] / ( $args['divisor'] * 1000 ) ) * 1000
 		);
@@ -181,36 +186,46 @@ class N2_Donation_Amount_API {
 		global $n2;
 		$args    = $args ? wp_parse_args( $args ) : $_GET;
 		$default = array(
-			'adjust_type'  => $n2->settings['寄附金額・送料']['自動価格調整'],
-			'price'        => 0,
-			'subscription' => 1,
-			'divisor'      => min( $n2->settings['寄附金額・送料']['除数'], 0.3 ), // 0.3より大きい場合は0.3を利用
-			'step'         => min( $n2->settings['寄附金額・送料']['除数'], 0.3 ) * 1000,
-			'min_donation' => $n2->settings['寄附金額・送料']['下限寄附金額'],
+			'adjust_type'         => $n2->settings['寄附金額・送料']['自動価格調整'],
+			'price'               => 0,
+			'subscription'        => 1,
+			'divisor'             => min( $n2->settings['寄附金額・送料']['除数'], 0.3 ), // 0.3より大きい場合は0.3を利用
+			'step'                => min( $n2->settings['寄附金額・送料']['除数'], 0.3 ) * 1000,
+			'min_donation'        => $n2->settings['寄附金額・送料']['下限寄附金額'],
+			'delivery_multiplier' => (int) $n2->settings['寄附金額・送料']['送料乗数'],
+			'delivery_add_point'  => (int) $n2->settings['寄附金額・送料']['送料加算分岐点'],
+			'action'              => false,
 		);
-		$args    = wp_parse_args( $args, $default );
+		// 送料乗数が1で送料加算分岐点以下は調整不要のフラグ追加
+		$default['quit'] = (int) ( $default['price'] < $default['delivery_add_point'] || 0 === $default['delivery_add_point'] );
+		$default['quit'] = (bool) ( $default['quit'] * $default['delivery_multiplier'] );
 
-		// 総額調整用の最小公倍数
-		$lcm = (int) gmp_lcm( $args['step'], $args['subscription'] );
-		// 価格の調整
-		$args['price'] = match ( $args['adjust_type'] ) {
-			1, '1回毎に調整する' => ceil( $args['price'] / $args['step'] ) * $args['step'],
-			2, '総額で調整する' => ( ceil( ( $args['price'] * $args['subscription'] ) / $lcm ) * $lcm ) / $args['subscription'],
-			default => $args['price'],
-		};
+		$args = wp_parse_args( $args, $default );
 
-		// この価格で下限寄付額を下回らないか調査
-		if ( ( $args['price'] / $args['divisor'] ) < (int) $args['min_donation'] ) {
-			$args['price'] = (int) $args['min_donation'] * $args['divisor'];
+		// 自動価格調整
+		if ( ! $args['quit'] ) {
+			// 総額調整用の最小公倍数
+			$lcm = (int) gmp_lcm( $args['step'], $args['subscription'] );
+			// 価格の調整
+			$args['price'] = match ( $args['adjust_type'] ) {
+				1, '1回毎に調整する' => ceil( $args['price'] / $args['step'] ) * $args['step'],
+				2, '総額で調整する' => ( ceil( ( $args['price'] * $args['subscription'] ) / $lcm ) * $lcm ) / $args['subscription'],
+				default => $args['price'],
+			};
+
+			// この価格で下限寄付額を下回らないか調査
+			if ( ( $args['price'] / $args['divisor'] ) < (int) $args['min_donation'] ) {
+				$args['price'] = (int) $args['min_donation'] * $args['divisor'];
+			}
 		}
 
 		// admin-ajax.phpアクセス時
 		if ( $args['action'] ) {
 			header( 'Content-Type: application/json; charset=utf-8' );
-			echo wp_json_encode( $args['price'] );
+			echo wp_json_encode( (int) $args['price'] );
 			exit;
 		}
 		// N2_Donation_Amount_API::adjust_price()呼び出し
-		return $args['price'];
+		return (int) $args['price'];
 	}
 }

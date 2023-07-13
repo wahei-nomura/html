@@ -11,11 +11,13 @@ global $n2;
 	<tr>
 		<th>送料を寄附金額計算に含める</th>
 		<td>
-			<?php foreach ( array( '含めない', '含める' ) as $i => $label ) : ?>
 			<label style="margin: 0 2em 0 0;">
-				<input type="radio" name="n2_settings[寄附金額・送料][送料乗数]" value="<?php echo $i; ?>" <?php checked( $n2->settings['寄附金額・送料']['送料乗数'] ?? 0, $i ); ?>> <?php echo $label; ?>
+				<input type="radio" name="n2_settings[寄附金額・送料][送料乗数]" value="0" <?php checked( $n2->settings['寄附金額・送料']['送料乗数'] ?? 0, 0 ); ?>> 含めない
 			</label>
-			<?php endforeach; ?>
+			<label style="margin: 0 2em 0 0;">
+				<input type="radio" name="n2_settings[寄附金額・送料][送料乗数]" value="1" <?php checked( $n2->settings['寄附金額・送料']['送料乗数'] ?? 0, 1 ); ?>> 含める
+				（価格が <input type="number" step="100" min="0" style="width: 6em;" name="n2_settings[寄附金額・送料][送料加算分岐点]" value="<?php echo esc_attr( $n2->settings['寄附金額・送料']['送料加算分岐点'] ); ?>"> 円未満に限る）
+			</label>
 		</td>
 	</tr>
 	<tr>
