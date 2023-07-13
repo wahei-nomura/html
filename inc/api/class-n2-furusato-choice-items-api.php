@@ -37,9 +37,9 @@ class N2_Furusato_Choice_Items_API {
 		add_action( 'wp_ajax_n2_furusato_choice_items_api_update', array( $this, 'update' ) );
 		add_action( 'wp_ajax_n2_furusato_choice_items_api', array( $this, 'get' ) );
 		add_action( 'wp_ajax_nopriv_n2_furusato_choice_items_api', array( $this, 'get' ) );
-		// if ( ! wp_next_scheduled( 'wp_ajax_n2_furusato_choice_items_api_update' ) ) {
-		// 	wp_schedule_event( time() + 200, '30min', 'wp_ajax_n2_furusato_choice_items_api_update' );
-		// }
+		if ( ! wp_next_scheduled( 'wp_ajax_n2_furusato_choice_items_api_update' ) ) {
+			wp_schedule_event( time() + 200, 'hourly', 'wp_ajax_n2_furusato_choice_items_api_update' );
+		}
 	}
 
 	/**

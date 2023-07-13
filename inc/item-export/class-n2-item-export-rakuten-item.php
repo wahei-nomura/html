@@ -2,7 +2,7 @@
 /**
  * 楽天の商品エクスポート専用
  * 楽天CSVの仕様：https://steamship.docbase.io/posts/2774108
- * class-n2-item-export-rakuten.php
+ * class-n2-item-export-rakuten-item.php
  * デバッグモード：admin-ajax.php?action=n2_item_export_rakuten&mode=debug
  *
  * @package neoneng

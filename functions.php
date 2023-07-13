@@ -43,11 +43,9 @@ $incs = array(
 	'class-n2-chonbo',
 	'class-n2-rakuten-ftp',
 	'api/class-n2-donation-amount-api',
-	'api/class-n2-rakuten-items-api',
 	'api/class-n2-rms-base-api',
 	'api/class-n2-rms-cabinet-api',
 	'api/class-n2-rms-navigation-api',
-	'api/class-n2-furusato-choice-items-api',
 	'class-n2-chonbo',
 	'api/class-n2-output-gift-api',
 	'api/class-n2-post-history-api',
@@ -55,7 +53,17 @@ $incs = array(
 	'api/class-n2-items-api',
 	'api/class-n2-multi-url-request-api',
 	'class-n2-change-allergen',
+	'class-n2-change-sku-firstaid',
 );
+
+// （仮）とりあえず、長崎市のみチョンボAPIを有効化
+if ( '長崎市' === get_bloginfo( 'name' ) ) {
+	$incs[] = 'api/class-n2-furusato-choice-items-api';
+	$incs[] = 'api/class-n2-rakuten-items-api';
+	$incs[] = 'api/class-n2-furunavi-items-api';
+	$incs[] = 'api/class-n2-ana-items-api';
+}
+
 foreach ( $incs as $name ) {
 	require_once get_theme_file_path( "/inc/{$name}.php" );
 }
