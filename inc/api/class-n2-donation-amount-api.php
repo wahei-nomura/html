@@ -196,11 +196,11 @@ class N2_Donation_Amount_API {
 			'delivery_add_point'  => (int) $n2->settings['寄附金額・送料']['送料加算分岐点'],
 			'action'              => false,
 		);
-		// 送料乗数が1で送料加算分岐点以下は調整不要のフラグ追加
-		$default['quit'] = (int) ( $default['price'] < $default['delivery_add_point'] || 0 === $default['delivery_add_point'] );
-		$default['quit'] = (bool) ( $default['quit'] * $default['delivery_multiplier'] );
 
 		$args = wp_parse_args( $args, $default );
+
+		// 送料乗数が1で送料加算分岐点以下は調整不要のフラグ追加
+		$args['quit'] = ( (int) ( $args['price'] < $args['delivery_add_point'] || 0 === $args['delivery_add_point'] ) ) * $args['delivery_multiplier'];
 
 		// 自動価格調整
 		if ( ! $args['quit'] ) {
