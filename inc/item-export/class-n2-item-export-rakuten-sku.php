@@ -173,8 +173,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 	}
 	/**
 	 * レベル毎のデータマッピング
-	 * 楽天CSVの仕様：https://docs.google.com/spreadsheets/d/1OSvaCDPOG9L3YUGlq7NH3tliL7VScWOC9v8Whw3qw9U/edit#gid=2033843158
-	 *
+	 * 楽天CSVの仕様：https://steamship.docbase.io/posts/3030639
 	 * @param string $val 項目名
 	 * @param string $index インデックス
 	 * @param array  $n2values n2dataのループ中の値
@@ -190,7 +189,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 
 	/**
 	 * 商品レベルのデータマッピング（正しい値かどうかここでチェックする）
-	 * 楽天CSVの仕様：https://docs.google.com/spreadsheets/d/1OSvaCDPOG9L3YUGlq7NH3tliL7VScWOC9v8Whw3qw9U/edit#gid=2033843158
+	 * 楽天CSVの仕様：https://steamship.docbase.io/posts/3030639#商品レベル
 	 *
 	 * @param string $val 項目名
 	 * @param string $index インデックス
@@ -221,7 +220,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 	}
 	/**
 	 * 商品オプションレベルのマッピング（正しい値かどうかここでチェックする）
-	 * 楽天CSVの仕様：https://docs.google.com/spreadsheets/d/1OSvaCDPOG9L3YUGlq7NH3tliL7VScWOC9v8Whw3qw9U/edit#gid=2033843158
+	 * 楽天CSVの仕様：https://steamship.docbase.io/posts/3030639#商品オプションレベル
 	 *
 	 * @param string $val 項目名
 	 * @param string $index インデックス
@@ -251,7 +250,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 	}
 	/**
 	 * SKUレベルのデータマッピング（正しい値かどうかここでチェックする）
-	 * 楽天CSVの仕様：https://docs.google.com/spreadsheets/d/1OSvaCDPOG9L3YUGlq7NH3tliL7VScWOC9v8Whw3qw9U/edit#gid=2033843158
+	 * 楽天CSVの仕様：https://steamship.docbase.io/posts/3030639#SKUレベル
 	 *
 	 * @param string $val 項目名
 	 * @param string $index インデックス
