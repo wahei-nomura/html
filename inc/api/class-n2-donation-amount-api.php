@@ -184,8 +184,8 @@ class N2_Donation_Amount_API {
 			'adjust_type'  => $n2->settings['寄附金額・送料']['自動価格調整'],
 			'price'        => 0,
 			'subscription' => 1,
-			'divisor'      => $n2->settings['寄附金額・送料']['除数'],
-			'step'         => $n2->settings['寄附金額・送料']['除数'] * 1000,
+			'divisor'      => min( $n2->settings['寄附金額・送料']['除数'], 0.3 ), // 0.3より大きい場合は0.3を利用
+			'step'         => min( $n2->settings['寄附金額・送料']['除数'], 0.3 ) * 1000,
 			'min_donation' => $n2->settings['寄附金額・送料']['下限寄附金額'],
 		);
 		$args    = wp_parse_args( $args, $default );
