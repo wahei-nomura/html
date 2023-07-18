@@ -56,8 +56,7 @@ abstract class N2_RMS_Base_API {
 		$data                  = wp_remote_get( static::$settings['endpoint'] . $path, array( 'headers' => static::$data['header'] ) );
 		$code                  = $data['response']['code'];
 		self::$data['connect'] = 200 === $code;
-		// 利用可能か確認
-		static::check_fatal_error( self::$data['connect'], 'RMS APIにアクセスできません' );
+
 		return self::$data['connect'];
 	}
 

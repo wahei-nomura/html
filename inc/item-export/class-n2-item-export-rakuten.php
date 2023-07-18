@@ -81,6 +81,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		// 事業者コード一覧
 		$item_code_list = array_unique( $item_code_list );
 		// 事前に取得
+
 		$this->set_cabinet_files( $item_code_list );
 
 		// $this->check_fatal_error( $this->data['header'], 'ヘッダーが正しくセットされていません' );
@@ -260,11 +261,29 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	}
 
 	/**
+	 * RMS APIが使えるか判定
+	 */
+	protected function can_use_api() {
+		if ( null === $this->rms['use_api'] ) {
+			$this->rms['use_api'] = N2_RMS_Cabinet_API::ajax(
+				array(
+					'request' => 'connect',
+					'mode'    => 'func',
+				),
+			);
+		}
+		return $this->rms['use_api'];
+	}
+
+	/**
 	 * キャビネットの画像ファイルを設定
 	 *
 	 * @param array $keywords 検索ワード
 	 */
 	protected function set_cabinet_files( $keywords ) {
+		if ( ! $this->can_use_api() ) {
+			return;
+		}
 		// 検索ワードでハッシュ化
 		$cabinet              = N2_RMS_Cabinet_API::ajax(
 			array(
@@ -325,17 +344,8 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		$code     = mb_strtolower( $n2values['返礼品コード'] );
 		$requests = $this->make_img_urls( $n2values );
 
-		if ( null === $this->rms['use_api'] ) {
-			$this->rms['use_api'] = N2_RMS_Cabinet_API::ajax(
-				array(
-					'request' => 'connect',
-					'mode'    => 'func',
-				),
-			);
-		}
-
 		// RMSを利用する
-		if ( ! $result && $this->rms['use_api'] ) {
+		if ( ! $result && $this->can_use_api() ) {
 			if ( ! isset( $this->rms['cabinet'][ $code ] ) ) {
 				$this->set_cabinet_files( array( $code ) );
 			}
