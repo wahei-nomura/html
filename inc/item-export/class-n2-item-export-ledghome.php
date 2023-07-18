@@ -32,10 +32,11 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 	 * LedgHOMECSVヘッダーを取得
 	 */
 	protected function set_header() {
+		global $n2;
 		/**
-		 * [hook] n2_item_export_lhcloud_set_header
+		 * [hook] n2_item_export_ledghome_set_header
 		 */
-		$this->data['header'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_header', array('unko') );
+		$this->data['header'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_header', $n2->settings['LedgHOME']['csv_header'] );
 	}
 
 	/**
@@ -48,7 +49,7 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 	 */
 	protected function walk_values( &$val, $index, $n2values ) {
 		/**
-		 * [hook] n2_item_export_lhcloud_walk_values
+		 * [hook] n2_item_export_ledghome_walk_values
 		 */
 		$val = apply_filters( mb_strtolower( get_class( $this ) ) . '_walk_values', $val, $index, $n2values );
 	}
@@ -64,7 +65,7 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 	 */
 	public function check_error( $value, $name, $n2values ) {
 		/**
-		 * [hook] n2_item_export_lhcloud_check_error
+		 * [hook] n2_item_export_ledghome_check_error
 		 */
 		$value = apply_filters( mb_strtolower( get_class( $this ) ) . '_check_error', $value, $name, $n2values );
 		return $value;
@@ -77,7 +78,7 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 	 */
 	protected function special_str_convert( $str ) {
 		/**
-		 * [hook] n2_item_export_lhcloud_special_str_convert
+		 * [hook] n2_item_export_ledghome_special_str_convert
 		 */
 		$str = apply_filters( mb_strtolower( get_class( $this ) ) . '_special_str_convert', $str );
 		return $str;
