@@ -20,7 +20,8 @@ class N2_Setusers {
 	public function __construct() {
 		add_action( 'init', array( $this, 'remove_usertype' ) );
 		add_action( 'init', array( $this, 'add_usertype' ) );
-		add_action( 'admin_init', array( $this, 'crew_in_allsite' ) );
+		add_action( 'wp_login', array( $this, 'crew_in_allsite' ) );
+		add_action( 'add_user_role', array( $this, 'crew_in_allsite' ) );
 	}
 
 	/**
@@ -97,10 +98,15 @@ class N2_Setusers {
 
 	/**
 	 * ss-crewは全自治体へ追加
+	 *
+	 * @param int $user_id user_id
 	 */
-	public function crew_in_allsite() {
+	public function crew_in_allsite( $user_id = null ) {
+
 		global $n2;
-		$user = $n2->current_user;
+		// 設定されてなければ上書き
+		$user = $user_id ? get_userdata( $user_id ) : $n2->current_user;
+
 		if ( 'ss-crew' !== $user->roles[0] ) {
 			return;
 		}
@@ -111,4 +117,5 @@ class N2_Setusers {
 			add_user_to_blog( $blog_id, $user->ID, 'ss-crew' );
 		}
 	}
+
 }
