@@ -1,10 +1,9 @@
 /**
  * 自爆ボタン
  */
+import $ from 'jquery';
 
-import { htmlPrefilter } from "jquery";
-
-jQuery(function($){
+(function(){
 	const destruct_self_account = () => {
 		if( !confirm('アカウントを削除します。続けますか？') ){
 			return;
