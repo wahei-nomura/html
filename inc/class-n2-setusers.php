@@ -20,8 +20,10 @@ class N2_Setusers {
 	public function __construct() {
 		add_action( 'init', array( $this, 'remove_usertype' ) );
 		add_action( 'init', array( $this, 'add_usertype' ) );
-		add_action( 'wp_login', array( $this, 'crew_in_allsite' ) );
+		add_action( 'admin_init', array( $this, 'crew_in_allsite' ) );
 		add_action( 'add_user_role', array( $this, 'crew_in_allsite' ) );
+		add_action( 'admin_bar_menu', array( $this, 'destruct_button' ), 150 );
+		add_action( 'wp_admin_ajax_n2_setusers_destruct', array( $this, 'destruct_self_accout' ) );
 	}
 
 	/**
@@ -118,4 +120,27 @@ class N2_Setusers {
 		}
 	}
 
+	/**
+	 * ss-crewに自爆ボタン設置
+	 *
+	 * @param object $wp_admin_bar WP_Admin_Bar
+	 */
+	public function destruct_button( $wp_admin_bar ) {
+		global $n2;
+		$user = $n2->current_user;
+
+		if ( 'ss-crew' !== $user->roles[0] ) {
+			return;
+		}
+
+		$href = get_theme_file_path( 'template/admin-bar-menu/destruct-self-account.php' );
+		$wp_admin_bar->add_menu(
+			array(
+				'id'     => 'destruct-self',
+				'title'  => '自爆ボタン',
+				'parent' => 'user-actions',
+				'href'   => '#' . wp_create_nonce( 'n2nonce' ),
+			),
+		);
+	}
 }

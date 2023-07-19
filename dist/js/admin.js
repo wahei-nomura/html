@@ -29,6 +29,17 @@ eval("jQuery(function ($) {\n    /**\n     * 事業者アカウントログイ�
 
 /***/ }),
 
+/***/ "./src/ts/modules/admin-bar-menu-self-destruct.ts":
+/*!********************************************************!*\
+  !*** ./src/ts/modules/admin-bar-menu-self-destruct.ts ***!
+  \********************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+eval("\n/**\n * 自爆ボタン\n */\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\njQuery(function ($) {\n    var destruct_self_account = function () {\n        if (!confirm('アカウントを削除します。続けますか？')) {\n            return;\n        }\n        var params = {\n            action: 'n2_user_destruct',\n        };\n        var urlSearchParam = new URLSearchParams(params).toString();\n        var data = {\n            id: window['n2'].current_user.ID,\n            n2nonce: location.hash.replace('#', ''),\n        };\n        $.ajax({\n            url: window['n2'].ajaxurl + '?' + urlSearchParam,\n            type: 'POST',\n            data: data,\n        }).then(function (res) {\n            alert(res);\n            location.reload();\n        });\n    };\n    $('#wp-admin-bar-destruct-self').on('click', destruct_self_account);\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/modules/admin-bar-menu-self-destruct.ts?");
+
+/***/ }),
+
 /***/ "./src/ts/admin.js":
 /*!*************************!*\
   !*** ./src/ts/admin.js ***!
@@ -36,7 +47,7 @@ eval("jQuery(function ($) {\n    /**\n     * 事業者アカウントログイ�
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _admin_qaform__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./admin-qaform */ \"./src/ts/admin-qaform.ts\");\n/* harmony import */ var _admin_qaform__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_admin_qaform__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var _admin_no_n2_caution__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./admin-no-n2-caution */ \"./src/ts/admin-no-n2-caution.ts\");\n/* harmony import */ var _admin_no_n2_caution__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_admin_no_n2_caution__WEBPACK_IMPORTED_MODULE_1__);\n\n\n\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/admin.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _admin_qaform__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./admin-qaform */ \"./src/ts/admin-qaform.ts\");\n/* harmony import */ var _admin_qaform__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_admin_qaform__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var _admin_no_n2_caution__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./admin-no-n2-caution */ \"./src/ts/admin-no-n2-caution.ts\");\n/* harmony import */ var _admin_no_n2_caution__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_admin_no_n2_caution__WEBPACK_IMPORTED_MODULE_1__);\n/* harmony import */ var _modules_admin_bar_menu_self_destruct__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/admin-bar-menu-self-destruct */ \"./src/ts/modules/admin-bar-menu-self-destruct.ts\");\n\n\n\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/admin.js?");
 
 /***/ })
 

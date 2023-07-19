@@ -21,6 +21,7 @@ class N2_Users_API {
 	 */
 	public function __construct() {
 		add_action( 'wp_ajax_n2_users_api', array( $this, 'get' ) );
+		add_action( 'wp_ajax_n2_user_destruct', array( $this, 'destruct_self_account' ) );
 		add_action( 'wp_ajax_n2_post_author_update', array( $this, 'post_author_update' ) );
 	}
 
@@ -73,6 +74,29 @@ class N2_Users_API {
 		wp_update_post( $post );
 
 		echo wp_json_encode( array('message' => 'success') );
+		exit;
+	}
+
+	/**
+	 * 自アカウントのみ自爆ボタンを起爆する
+	 */
+	public function destruct_self_account ( $args ) {
+		global $n2;
+		// $_GETを引数で上書き
+		$params = wp_parse_args( $args, $_GET );
+		// $_POSTを$paramsで上書き
+		if ( wp_verify_nonce( $_POST['n2nonce'] ?? '', 'n2nonce' ) ) {
+			$params = wp_parse_args( $params, $_POST );
+		}
+
+		$user = $n2->current_user;
+		// 無作為にできないように自アカウントのみに制限
+		if ( $user->ID === (int) $params['id'] ) {
+			wpmu_delete_user( $user->ID );
+			echo '削除しました';
+		} else {
+			echo 'who are you?';
+		}
 		exit;
 	}
 }
