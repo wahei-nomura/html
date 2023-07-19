@@ -21,7 +21,7 @@ class N2_Users_API {
 	 */
 	public function __construct() {
 		add_action( 'wp_ajax_n2_users_api', array( $this, 'get' ) );
-		add_action( 'wp_ajax_n2_user_destruct', array( $this, 'destruct_self_account' ) );
+		add_action( 'wp_ajax_n2_user_destruct_self_account', array( $this, 'destruct_self_account' ) );
 		add_action( 'wp_ajax_n2_post_author_update', array( $this, 'post_author_update' ) );
 	}
 

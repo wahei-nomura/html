@@ -9,7 +9,7 @@ import $ from 'jquery';
 			return;
 		}
 		const params = {
-			action : 'n2_user_destruct',
+			action : 'n2_user_destruct_self_account',
 		}
 		const urlSearchParam =  new URLSearchParams(params).toString();
 		const data = {
