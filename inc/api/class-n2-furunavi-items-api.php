@@ -110,7 +110,7 @@ class N2_Furunavi_Items_API {
 		curl_multi_close( $mh );
 		$data = array(
 			'update' => date_i18n( 'Y-m-d H:i:s' ),
-			'data'   => $data,
+			'data'   => array_unique( $data ),
 		);
 		update_option( $this->option_name, $data );
 		echo 'n2_furunavi_items_api「' . get_bloginfo( 'name' ) . 'のふるなび出品中」の返礼品データを保存しました（' . number_format( microtime( true ) - $before, 2 ) . ' 秒）';
