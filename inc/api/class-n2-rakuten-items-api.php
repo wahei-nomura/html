@@ -105,7 +105,7 @@ class N2_Rakuten_Items_API {
 		}
 		$data = array(
 			'update' => date_i18n( 'Y-m-d H:i:s' ),
-			'data'   => array_unique( $data ),
+			'data'   => array_unique( $data, SORT_REGULAR ),
 		);
 		update_option( $this->option_name, $data );
 		echo 'N2_Rakuten_Items_API「' . get_bloginfo( 'name' ) . 'の楽天出品中」の返礼品データを保存しました（' . number_format( microtime( true ) - $before, 2 ) . ' 秒）';
