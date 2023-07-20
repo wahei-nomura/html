@@ -36,8 +36,8 @@ global $n2;
 							<label><input type="radio" name="mode" value="debug" v-model="fd.mode"> デバッグモード</label>
 						</div>
 						<div style="margin-bottom: 1em;" v-if="'n2_item_export_ledghome' === fd.action">
-							<label><input type="radio" name="type" value="親" v-model="fd.type"> 親</label>
-							<label><input type="radio" name="type" value="子" v-model="fd.type"> 子</label>
+							<label><input type="radio" name="type" value="通常" v-model="fd.type"> 通常</label>
+							<label><input type="radio" name="type" value="定期便子" v-model="fd.type"> 定期便子</label>
 							<label><input type="radio" name="type" value="定期便コース" v-model="fd.type"> 定期便コース</label>
 							<!-- <label v-if="'download' === fd.mode"><input type="radio" name="type" value="3" v-model="fd.type"> 3ファイル一括ダウンロード</label> -->
 						</div>

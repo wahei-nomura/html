@@ -37,6 +37,7 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 			'定期便コース' => '定期便コース',
 			default => '通常',
 		};
+		$this->settings['filename'] = "{$this->data['params']['type']}.csv";
 		/**
 		 * [hook] n2_item_export_ledghome_set_header
 		 */

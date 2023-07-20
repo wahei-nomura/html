@@ -40,6 +40,9 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 		// CSVヘッダー配列化
 		$this->data['header'] = $lh_setting['csv_header'][ $type ];
 
+		// filename変更
+		$this->settings['filename'] = "{$type}.csv";
+
 		switch ( $type ) {
 			case '謝礼品リスト':
 				// その他経費を利用しない場合はヘッダーから抹消
@@ -50,16 +53,13 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 				if ( ! in_array( 'eチケット', $n2->custom_field['事業者用']['商品タイプ']['option'], true ) ) {
 					$this->data['header'] = array_filter( $this->data['header'], fn( $v ) => '特設サイト名称' !== $v );
 				}
-				$this->settings['filename'] = '謝礼品リスト.csv';
 				break;
 			case '定期便（基本情報）リスト':
 				$this->settings['header_string'] = 'LedgHOMEクラウド 定期便（基本情報）リスト' . PHP_EOL;
-				$this->settings['filename']      = '定期便（基本情報）リスト.csv';
 				break;
 			case '定期便（子謝礼品）リスト':
 				// ヘッダー文字列変更
 				add_filter( 'n2_item_export_lhcloud_set_header_string', fn() => $lh_setting['csv_header']['定期便（子謝礼品）リストstring'] );
-				$this->settings['filename'] = '定期便（子謝礼品）リスト.csv';
 				break;
 		}
 
