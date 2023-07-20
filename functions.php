@@ -25,6 +25,7 @@ $incs = array(
 	'class-n2-functions',
 	'class-n2-jigyousyaparam',
 	'class-n2-settings',
+	'class-n2-rakuten-sftp',
 	'class-n2-setmenu',
 	'class-n2-admin-post-editor',
 	'class-n2-postlist',
@@ -42,6 +43,7 @@ $incs = array(
 	// 'class-n2-front-comment', // 2022-11-29 コメントアウト taiki
 	'class-n2-chonbo',
 	'class-n2-rakuten-ftp',
+	
 	'api/class-n2-donation-amount-api',
 	'api/class-n2-rms-base-api',
 	'api/class-n2-rms-cabinet-api',
