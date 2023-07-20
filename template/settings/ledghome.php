@@ -25,6 +25,12 @@ $hide_ledghome = 'lhcloud' === $n2->settings['N2']['LedgHOME'] ? '' : 'style="di
 	</tr>
 	<!-- クラウド版レジのみの設定 -->
 	<tr <?php echo $hide_ledghome; ?>>
+		<th>自動出荷依頼予約日</th>
+		<td>
+			<input type="number" step="1" max="31" min="1" name="n2_settings[LedgHOME][自動出荷依頼予約日]" value="<?php echo $n2->settings['LedgHOME']['自動出荷依頼予約日'] ?? ''; ?>">
+		</td>
+	</tr>
+	<tr <?php echo $hide_ledghome; ?>>
 		<th>送料</th>
 		<td>
 			<?php foreach ( $settings['送料'] as $v ) : ?>
