@@ -21,21 +21,25 @@ global $n2;
 						<input type="hidden" name="include[]" v-for="id in ids" :value="id">
 						<div style="margin-bottom: 1em;">
 							<span>フォーマット選択 ：　</span>
-							<label><input type="radio" name="action" value="n2_item_export_base" checked> N2</label>
-							<label><input type="radio" name="action" value="<?php echo "n2_item_export_{$n2->settings['N2']['LedgHOME']}"; ?>"> LedgHOME</label>
-							<?php if ( in_array( 'ふるさとチョイス', $n2->settings['N2']['出品ポータル'], true ) ) : ?>
-								<label><input type="radio" name="action" value="n2_item_export_furusato_choice"> ふるさとチョイス</label>
-							<?php endif; ?>
-							<?php if ( in_array( '楽天', $n2->settings['N2']['出品ポータル'], true ) ) : ?>
-								<label><input type="radio" name="action" value="n2_item_export_rakuten"> 楽天 [ item.csv ]</label>
-								<label><input type="radio" name="action" value="n2_item_export_rakuten_select"> 楽天 [ select.csv ]</label>
-							<?php endif; ?>
+							<label><input type="radio" name="action" value="n2_item_export_base" v-model="fd.action"> N2</label>
+							<label><input type="radio" name="action" value="<?php echo "n2_item_export_{$n2->settings['N2']['LedgHOME']}"; ?>" v-model="fd.action"> LedgHOME</label>
+							<label v-if="n2.settings.N2.出品ポータル.includes('ふるさとチョイス')"><input type="radio" name="action" value="n2_item_export_furusato_choice" v-model="fd.action"> ふるさとチョイス</label>
+							<template v-if="n2.settings.N2.出品ポータル.includes('楽天')">
+								<label><input type="radio" name="action" value="n2_item_export_rakuten" v-model="fd.action"> 楽天 [ item.csv ]</label>
+								<label><input type="radio" name="action" value="n2_item_export_rakuten_select" v-model="fd.action"> 楽天 [ select.csv ]</label>
+							</template>
 						</div>
 						<div style="margin-bottom: 1em;">
 							<span>モード選択 ：　</span>
-							<label><input type="radio" name="mode" value="download" checked> CSV・TSVダウンロード</label>
-							<label><input type="radio" name="mode" value="spreadsheet"> スプレットシート貼付</label>
-							<label><input type="radio" name="mode" value="debug"> デバッグモード</label>
+							<label><input type="radio" name="mode" value="download" v-model="fd.mode"> CSV・TSVダウンロード</label>
+							<label><input type="radio" name="mode" value="spreadsheet" v-model="fd.mode"> スプレットシート貼付</label>
+							<label><input type="radio" name="mode" value="debug" v-model="fd.mode"> デバッグモード</label>
+						</div>
+						<div style="margin-bottom: 1em;" v-if="'n2_item_export_ledghome' === fd.action">
+							<label><input type="radio" name="type" value="親" v-model="fd.type"> 親</label>
+							<label><input type="radio" name="type" value="子" v-model="fd.type"> 子</label>
+							<label><input type="radio" name="type" value="定期便コース" v-model="fd.type"> 定期便コース</label>
+							<!-- <label v-if="'download' === fd.mode"><input type="radio" name="type" value="3" v-model="fd.type"> 3ファイル一括ダウンロード</label> -->
 						</div>
 						<button>エクスポート実行</button>
 						<div style="margin-top: 1em;">

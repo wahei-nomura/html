@@ -33,10 +33,14 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 	 */
 	protected function set_header() {
 		global $n2;
+		$header_type = match ( $this->data['params']['type'] ) {
+			'定期便コース' => '定期便コース',
+			default => '通常',
+		};
 		/**
 		 * [hook] n2_item_export_ledghome_set_header
 		 */
-		$this->data['header'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_header', $n2->settings['LedgHOME']['csv_header'] );
+		$this->data['header'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_header', $n2->settings['LedgHOME']['csv_header'][ $header_type ] );
 	}
 
 	/**
@@ -48,10 +52,11 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 	 * @param array  $n2values n2dataのループ中の値
 	 */
 	protected function walk_values( &$val, $index, $n2values ) {
+		$data = $this->data;
 		/**
 		 * [hook] n2_item_export_ledghome_walk_values
 		 */
-		$val = apply_filters( mb_strtolower( get_class( $this ) ) . '_walk_values', $val, $index, $n2values );
+		$val = apply_filters( mb_strtolower( get_class( $this ) ) . '_walk_values', $data, $val, $n2values );
 	}
 
 	/**
@@ -67,7 +72,10 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 		/**
 		 * [hook] n2_item_export_ledghome_check_error
 		 */
-		$value = apply_filters( mb_strtolower( get_class( $this ) ) . '_check_error', $value, $name, $n2values );
+		$errors = apply_filters( mb_strtolower( get_class( $this ) ) . '_check_error', array(), $value, $name, $n2values );
+		foreach ( $errors as $id => $error ) {
+			$this->add_error( $id, $error );
+		}
 		return $value;
 	}
 	/**
