@@ -141,7 +141,8 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 				'配送サイズコード' => $is_yamato ? $n2values['発送サイズ'] : '',
 				'地場産品類型' => implode( 'ー', mb_str_split( mb_convert_kana( $n2values['地場産品類型'], 'KA' ) ) ),// 全角（「８ーイ」形式）
 				'類型該当理由' => $n2values['類型該当理由'],
-				'自動出荷依頼予約（種別）' => 'しない',
+				'自動出荷依頼予約（種別）' => $lh_setting['自動出荷依頼予約日'] ? 'する（月指定）' : 'しない',
+				'自動出荷依頼予約（値）' => $lh_setting['自動出荷依頼予約日'] ? 1 : '',
 				'1月1' => 1 <= $n2values['定期便'] ? "{$item_code}_1/{$n2values['定期便']}" : '',
 				'2月1' => 2 <= $n2values['定期便'] ? "{$item_code}_2/{$n2values['定期便']}" : '',
 				'3月1' => 3 <= $n2values['定期便'] ? "{$item_code}_3/{$n2values['定期便']}" : '',
@@ -154,6 +155,18 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 				'10月1' => 10 <= $n2values['定期便'] ? "{$item_code}_10/{$n2values['定期便']}" : '',
 				'11月1' => 11 <= $n2values['定期便'] ? "{$item_code}_11/{$n2values['定期便']}" : '',
 				'12月1' => 12 <= $n2values['定期便'] ? "{$item_code}_12/{$n2values['定期便']}" : '',
+				'1月日' => 1 <= $n2values['定期便'] ? $lh_setting['自動出荷依頼予約日'] : '',
+				'2月日' => 2 <= $n2values['定期便'] ? $lh_setting['自動出荷依頼予約日'] : '',
+				'3月日' => 3 <= $n2values['定期便'] ? $lh_setting['自動出荷依頼予約日'] : '',
+				'4月日' => 4 <= $n2values['定期便'] ? $lh_setting['自動出荷依頼予約日'] : '',
+				'5月日' => 5 <= $n2values['定期便'] ? $lh_setting['自動出荷依頼予約日'] : '',
+				'6月日' => 6 <= $n2values['定期便'] ? $lh_setting['自動出荷依頼予約日'] : '',
+				'7月日' => 7 <= $n2values['定期便'] ? $lh_setting['自動出荷依頼予約日'] : '',
+				'8月日' => 8 <= $n2values['定期便'] ? $lh_setting['自動出荷依頼予約日'] : '',
+				'9月日' => 9 <= $n2values['定期便'] ? $lh_setting['自動出荷依頼予約日'] : '',
+				'10月日' => 10 <= $n2values['定期便'] ? $lh_setting['自動出荷依頼予約日'] : '',
+				'11月日' => 11 <= $n2values['定期便'] ? $lh_setting['自動出荷依頼予約日'] : '',
+				'12月日' => 12 <= $n2values['定期便'] ? $lh_setting['自動出荷依頼予約日'] : '',
 				default => '',
 			};
 		}

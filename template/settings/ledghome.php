@@ -23,13 +23,6 @@ $hide_ledghome = 'lhcloud' === $n2->settings['N2']['LedgHOME'] ? '' : 'style="di
 			<textarea name="n2_settings[LedgHOME][カテゴリー]" rows="10" style="width: 100%;"><?php echo esc_attr( $n2->settings['LedgHOME']['カテゴリー'] ); ?></textarea>
 		</td>
 	</tr>
-	<!-- クラウド版レジのみの設定 -->
-	<tr <?php echo $hide_ledghome; ?>>
-		<th>自動出荷依頼予約日</th>
-		<td>
-			<input type="number" step="1" max="31" min="1" name="n2_settings[LedgHOME][自動出荷依頼予約日]" value="<?php echo $n2->settings['LedgHOME']['自動出荷依頼予約日'] ?? ''; ?>">
-		</td>
-	</tr>
 	<tr <?php echo $hide_ledghome; ?>>
 		<th>送料</th>
 		<td>
@@ -61,7 +54,6 @@ $hide_ledghome = 'lhcloud' === $n2->settings['N2']['LedgHOME'] ? '' : 'style="di
 			<?php endforeach; ?>
 		</td>
 	</tr>
-	<!-- /クラウド版レジのみの設定 -->
 	<tr>
 		<th>価格</th>
 		<td>
@@ -70,6 +62,12 @@ $hide_ledghome = 'lhcloud' === $n2->settings['N2']['LedgHOME'] ? '' : 'style="di
 				<input type="radio" name="n2_settings[LedgHOME][価格]" value="<?php echo $v; ?>" <?php checked( $n2->settings['LedgHOME']['価格'], $v ); ?>> <?php echo $v; ?>
 			</label>
 			<?php endforeach; ?>
+		</td>
+	</tr>
+	<tr <?php echo $hide_ledghome; ?>>
+		<th>自動出荷依頼予約日（定期便）</th>
+		<td>
+			<input type="number" step="1" max="31" min="1" name="n2_settings[LedgHOME][自動出荷依頼予約日]" value="<?php echo $n2->settings['LedgHOME']['自動出荷依頼予約日'] ?? ''; ?>">
 		</td>
 	</tr>
 </table>
