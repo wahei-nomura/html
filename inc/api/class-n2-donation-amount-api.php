@@ -45,7 +45,7 @@ class N2_Donation_Amount_API {
 			'min_donation'        => (int) $n2->settings['寄附金額・送料']['下限寄附金額'],
 			'action'              => false,
 		);
-		$args    = wp_parse_args( $args, $default );
+		$args    = wp_parse_args( array_filter( $args ), $default );
 
 		// ○○円未満は加算
 		$args['delivery_multiplier'] = (int) ( $args['price'] < $args['delivery_add_point'] || 0 === $args['delivery_add_point'] ) * $args['delivery_multiplier'];
