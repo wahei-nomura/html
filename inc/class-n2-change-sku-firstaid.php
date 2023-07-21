@@ -218,9 +218,6 @@ class N2_Change_Sku_Firstaid {
 						$new_item_array[ $new_item_key ] = $csv_item[ $catchcopy_no ];
 					} elseif ( $item_val === '倉庫指定' ) {
 						$new_item_array[ $new_item_key ] = 0;
-					} elseif ( $item_val === 'システム連携用SKU番号' ) {
-						$new_system_sku_no               = $new_item_key;
-						$new_item_array[ $new_item_key ] = '';
 					} else {
 						$new_item_array[ $new_item_key ] = '';
 					}
