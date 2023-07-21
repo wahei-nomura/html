@@ -18,6 +18,8 @@ class N2_Setusers {
 	 * コンストラクタ
 	 */
 	public function __construct() {
+
+		// ここのフックを変更したら高速化できる
 		add_action( 'init', array( $this, 'remove_usertype' ) );
 		add_action( 'init', array( $this, 'add_usertype' ) );
 		add_action( 'admin_init', array( $this, 'crew_in_allsite' ) );
@@ -101,6 +103,9 @@ class N2_Setusers {
 	public function crew_in_allsite() {
 		global $n2;
 		$user = $n2->current_user;
+		if ( count( get_sites() ) === count( get_blogs_of_user( $user->ID ) ) ) {
+			return;
+		}
 		if ( 'ss-crew' !== $user->roles[0] ) {
 			return;
 		}

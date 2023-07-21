@@ -21,7 +21,7 @@ class N2_Setmenu {
 		add_action( 'admin_menu', array( $this, 'change_menulabel' ) );
 		add_action( 'admin_menu', array( $this, 'remove_menulabel' ), 999 );
 		add_action( 'admin_init', array( $this, 'not_edit_user' ) );
-		add_filter( 'get_site_icon_url', array( $this, 'change_site_icon' ) );
+		add_filter( 'get_site_icon_url', array( $this, 'change_site_icon' ) );// ここの処理を効率化すれば高速化できる
 		add_action( 'admin_head', array( $this, 'my_custom_logo' ) );
 		add_action( 'admin_bar_menu', array( $this, 'remove_admin_bar_menus' ), 999 );
 		add_action( 'admin_head', array( $this, 'remove_help_tabs' ) );// ヘルプ削除
