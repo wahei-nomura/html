@@ -21,6 +21,7 @@ class N2_Users_API {
 	 */
 	public function __construct() {
 		add_action( 'wp_ajax_n2_users_api', array( $this, 'get' ) );
+		add_action( 'wp_ajax_n2_user_destruct_self_account', array( $this, 'destruct_self_account' ) );
 		add_action( 'wp_ajax_n2_post_author_update', array( $this, 'post_author_update' ) );
 	}
 
@@ -73,6 +74,44 @@ class N2_Users_API {
 		wp_update_post( $post );
 
 		echo wp_json_encode( array('message' => 'success') );
+		exit;
+	}
+
+	/**
+	 * 自アカウントのみ自爆ボタンを起爆する
+	 */
+	public function destruct_self_account ( $args ) {
+		global $n2;
+		// $_GETを引数で上書き
+		$params = wp_parse_args( $args, $_GET );
+		// $_POSTを$paramsで上書き
+		if ( wp_verify_nonce( $_POST['n2nonce'] ?? '', 'n2nonce' ) ) {
+			$params = wp_parse_args( $params, $_POST );
+		}
+
+		$user = $n2->current_user;
+		global $wpdb;
+		$admin = get_user_by( 'login', 'fullfrontal' );
+		// 無作為にできないように自アカウントのみに制限
+		if ( $user->ID !== (int) $params['id'] ) {
+			echo 'アカウントの削除に失敗しました';
+			error_log( '自爆ボタン不発...' );
+			error_log( 'current :' . $user->ID );
+			error_log( 'param :' . $params['id'] );
+			exit;
+		}
+		if ( $admin ) {
+			// フルフロンタルへ引き継ぐ
+			$wpdb->update(
+				$wpdb->posts,
+				array('post_author' => $admin->ID),
+				array('post_author' => $user->ID)
+			);
+		} else {
+			error_log( 'フルフロンタルが見つかりません。引き継ぎに失敗しました...' );
+		}
+		wpmu_delete_user( $user->ID );
+		echo 'アカウントを削除しました。おつかれさまでした。';
 		exit;
 	}
 }
