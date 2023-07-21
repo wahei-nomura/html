@@ -111,7 +111,7 @@ class N2_Users_API {
 			error_log( 'フルフロンタルが見つかりません。引き継ぎに失敗しました...' );
 		}
 		wpmu_delete_user( $user->ID );
-		echo 'アカウントを削除しました';
+		echo 'アカウントを削除しました。おつかれさまでした。';
 		exit;
 	}
 }
