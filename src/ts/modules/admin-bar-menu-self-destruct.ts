@@ -6,7 +6,16 @@ jQuery(function($){
 		if( !confirm('アカウントを削除します。続けますか？') ){
 			return;
 		}
-		if( !confirm('本当に削除しますか？') ){
+		if( !confirm('本当に辞めるんですか？もう一度考えてください！') ){
+			return;
+		}
+		if( !confirm('おつかれさまでした。ところで、本当に削除してもいいんですよね？') ){
+			return;
+		}
+		if( !confirm('後悔はありませんか？まだ間に合いますよ！') ){
+			return;
+		}
+		if( !confirm('これで最後です。本当にアカウントを削除しますか？\nよーく考えてからボタンをクリックしてくださいね！') ){
 			return;
 		}
 		window.addEventListener('hashchange',function(){
