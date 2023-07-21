@@ -93,9 +93,11 @@ class N2_Users_API {
 		// 無作為にできないように自アカウントのみに制限
 		if ( $user->ID === (int) $params['id'] ) {
 			wpmu_delete_user( $user->ID );
-			echo '削除しました';
+			echo 'アカウントを削除しました';
 		} else {
-			echo 'who are you?';
+			echo 'アカウントの削除に失敗しました';
+			echo 'current :' . $user->ID;
+			echo 'param :' . $params['id'];
 		}
 		exit;
 	}
