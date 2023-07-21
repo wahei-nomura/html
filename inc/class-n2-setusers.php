@@ -109,14 +109,18 @@ class N2_Setusers {
 		// 設定されてなければ上書き
 		$user = $user_id ? get_userdata( $user_id ) : $n2->current_user;
 
-		if ( 'ss-crew' !== $user->roles[0] ) {
+		if ( ! ( in_array( 'ss-crew', $user->roles, true ) || in_array( 'administrator', $user->roles, true ) ) ) {
 			return;
+		}
+		// 特権管理者付与
+		if ( in_array( 'administrator', $user->roles, true ) ) {
+			grant_super_admin( $user->ID );
 		}
 		$sites = get_sites();
 
 		foreach ( $sites as $site ) {
 			$blog_id = $site->blog_id;
-			add_user_to_blog( $blog_id, $user->ID, 'ss-crew' );
+			add_user_to_blog( $blog_id, $user->ID, $user->roles[0] );
 		}
 	}
 
@@ -129,7 +133,7 @@ class N2_Setusers {
 		global $n2;
 		$user = $n2->current_user;
 
-		if ( 'ss-crew' !== $user->roles[0] ) {
+		if ( ! ( in_array( 'ss-crew', $user->roles, true ) || in_array( 'administrator', $user->roles, true ) ) ) {
 			return;
 		}
 
