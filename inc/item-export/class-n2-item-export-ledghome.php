@@ -24,7 +24,7 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 	public $settings = array(
 		'filename'      => 'n2_export_ledghome.csv',
 		'delimiter'     => ',',
-		'charset'       => 'sjis',
+		'charset'       => 'sjis-win',
 		'header_string' => '',
 	);
 
@@ -34,8 +34,8 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 	protected function set_header() {
 		global $n2;
 		$header_type = match ( $this->data['params']['type'] ) {
-			'定期便コース' => '定期便コース',
-			default => '通常',
+			'定期便子' => '通常',
+			default => $this->data['params']['type'],
 		};
 		$this->settings['filename'] = "{$this->data['params']['type']}.csv";
 		/**

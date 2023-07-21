@@ -59,7 +59,7 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 				break;
 			case '定期便（子謝礼品）リスト':
 				// ヘッダー文字列変更
-				add_filter( 'n2_item_export_lhcloud_set_header_string', fn() => $lh_setting['csv_header']['定期便（子謝礼品）リストstring'] );
+				add_filter( 'n2_item_export_lhcloud_set_header_string', fn() => $lh_setting['csv_header_string']['定期便（子謝礼品）リスト'] );
 				break;
 		}
 

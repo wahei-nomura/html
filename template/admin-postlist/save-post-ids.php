@@ -35,16 +35,10 @@ global $n2;
 							<label><input type="radio" name="mode" value="spreadsheet" v-model="fd.mode"> スプレットシート貼付</label>
 							<label><input type="radio" name="mode" value="debug" v-model="fd.mode"> デバッグモード</label>
 						</div>
-						<div style="margin-bottom: 1em;" v-if="'n2_item_export_ledghome' === fd.action">
-							<label><input type="radio" name="type" value="通常" checked> 通常</label>
-							<label><input type="radio" name="type" value="定期便子"> 定期便子</label>
-							<label><input type="radio" name="type" value="定期便コース"> 定期便コース</label>
-							<!-- <label v-if="'download' === fd.mode"><input type="radio" name="type" value="3"> 3ファイル一括ダウンロード</label> -->
-						</div>
-						<div style="margin-bottom: 1em;" v-if="'n2_item_export_lhcloud' === fd.action">
-							<label><input type="radio" name="type" value="謝礼品リスト" checked> 謝礼品リスト</label>
-							<label><input type="radio" name="type" value="定期便（基本情報）リスト"> 定期便（基本情報）リスト</label>
-							<label><input type="radio" name="type" value="定期便（子謝礼品）リスト"> 定期便（子謝礼品）リスト</label>
+						<div style="margin-bottom: 1em;" v-if="fd.action.match(/lhcloud|ledghome/)">
+							<?php foreach ( (array) array_keys( $n2->settings['LedgHOME']['csv_header'] ) as $i => $v ) : ?>
+								<label><input type="radio" name="type" value="<?php echo $v; ?>" <?php echo ! $i ? 'checked' : ''; ?>> <?php echo $v; ?></label>
+							<?php endforeach; ?>
 							<!-- <label v-if="'download' === fd.mode"><input type="radio" name="type" value="3"> 3ファイル一括ダウンロード</label> -->
 						</div>
 						<button>エクスポート実行</button>
