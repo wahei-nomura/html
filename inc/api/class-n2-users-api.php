@@ -90,24 +90,28 @@ class N2_Users_API {
 		}
 
 		$user = $n2->current_user;
+		global $wpdb;
+		$admin = get_user_by( 'login', 'fullfrontal' );
 		// 無作為にできないように自アカウントのみに制限
-		if ( $user->ID === (int) $params['id'] ) {
-			global $wpdb;
-			$admin = get_user_by( 'login', 'fullfrontal' ) ?: get_user_by( 'login', 'admin' );
+		if ( $user->ID !== (int) $params['id'] ) {
+			echo 'アカウントの削除に失敗しました';
+			error_log( '自爆ボタン不発...' );
+			error_log( 'current :' . $user->ID );
+			error_log( 'param :' . $params['id'] );
+			exit;
+		}
+		if ( $admin ) {
 			// フルフロンタルへ引き継ぐ
 			$wpdb->update(
 				$wpdb->posts,
 				array('post_author' => $admin->ID),
 				array('post_author' => $user->ID)
 			);
-			wpmu_delete_user( $user->ID );
-			echo 'アカウントを削除しました';
 		} else {
-			echo 'アカウントの削除に失敗しました';
-			error_log( '自爆ボタン不発...' );
-			error_log( 'current :' . $user->ID );
-			error_log( 'param :' . $params['id'] );
+			error_log( 'フルフロンタルが見つかりません。引き継ぎに失敗しました...' );
 		}
+		wpmu_delete_user( $user->ID );
+		echo 'アカウントを削除しました';
 		exit;
 	}
 }
