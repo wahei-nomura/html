@@ -12,8 +12,8 @@
 		<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
 		<div style="margin-bottom: 1em;">
 			<span>モード選択 ：　</span>
-			<label><input type="radio" name="judge" value="sftp_img" checked> 商品画像</label>
-			<label><input type="radio" name="judge" value="sftp_csv"> 商品CSV</label>
+			<label><input type="radio" name="judge" value="img_upload" checked> 商品画像</label>
+			<label><input type="radio" name="judge" value="csv_upload"> 商品CSV</label>
 		</div>
 		<input name="sftp_file[]" type="file" multiple="multiple">
 		<input type="submit" class="button" value="楽天に転送する">

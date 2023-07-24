@@ -124,7 +124,7 @@ class N2_Rakuten_SFTP {
 		$this->log_output();
 	}
 	
-	public function sftp_img () {
+	public function img_upload () {
 		global $n2;
 		$name = $this->data['files']['name'];
 		$type = $this->data['files']['type'];
