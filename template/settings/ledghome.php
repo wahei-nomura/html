@@ -12,8 +12,11 @@ $settings = array(
 	'送料' => array( '送料を全て登録', 'ヤマト以外は送料を空欄で登録', '送料は空欄で登録' ),
 	'価格' => array( '定期便1回ごとに登録', '定期便初回に全額をまとめて登録' ),
 );
-// クラウド版のみ
-$hide_ledghome = 'lhcloud' === $n2->settings['N2']['LedgHOME'] ? '' : 'style="display: none;"';
+// 隠す
+$hide = array(
+	'lhcloud'  => 'lhcloud' === $n2->settings['N2']['LedgHOME'] ? 'style="display: none;"' : '',
+	'ledghome' => 'ledghome' === $n2->settings['N2']['LedgHOME'] ? 'style="display: none;"' : '',
+);
 ?>
 <table class="form-table">
 	<tr>
@@ -23,7 +26,7 @@ $hide_ledghome = 'lhcloud' === $n2->settings['N2']['LedgHOME'] ? '' : 'style="di
 			<textarea name="n2_settings[LedgHOME][カテゴリー]" rows="10" style="width: 100%;"><?php echo esc_attr( $n2->settings['LedgHOME']['カテゴリー'] ); ?></textarea>
 		</td>
 	</tr>
-	<tr <?php echo $hide_ledghome; ?>>
+	<tr <?php echo $hide['ledghome']; ?>>
 		<th>送料</th>
 		<td>
 			<?php foreach ( $settings['送料'] as $v ) : ?>
@@ -33,7 +36,7 @@ $hide_ledghome = 'lhcloud' === $n2->settings['N2']['LedgHOME'] ? '' : 'style="di
 			<?php endforeach; ?>
 		</td>
 	</tr>
-	<tr <?php echo $hide_ledghome; ?>>
+	<tr <?php echo $hide['ledghome']; ?>>
 		<th>送料反映</th>
 		<td>
 			<?php foreach ( $settings['送料反映'] as $v ) : ?>
@@ -44,7 +47,7 @@ $hide_ledghome = 'lhcloud' === $n2->settings['N2']['LedgHOME'] ? '' : 'style="di
 			<input type="hidden" name="n2_settings[LedgHOME][送料反映][]">
 		</td>
 	</tr>
-	<tr <?php echo $hide_ledghome; ?>>
+	<tr <?php echo $hide['ledghome']; ?>>
 		<th>その他経費</th>
 		<td>
 			<?php foreach ( $settings['その他経費'] as $v ) : ?>
@@ -64,7 +67,7 @@ $hide_ledghome = 'lhcloud' === $n2->settings['N2']['LedgHOME'] ? '' : 'style="di
 			<?php endforeach; ?>
 		</td>
 	</tr>
-	<tr <?php echo $hide_ledghome; ?>>
+	<tr <?php echo $hide['lhcloud']; ?>>
 		<th>自動出荷依頼予約日（定期便）</th>
 		<td>
 			<input type="number" step="1" max="31" min="1" name="n2_settings[LedgHOME][自動出荷依頼予約日]" value="<?php echo $n2->settings['LedgHOME']['自動出荷依頼予約日'] ?? ''; ?>">
