@@ -18,6 +18,7 @@ class N2_Setmenu {
 	 * コンストラクタ
 	 */
 	public function __construct() {
+		// echo '<pre>';print_r(get_site_option('blog_count'));echo '</pre>';exit;
 		add_action( 'admin_menu', array( $this, 'change_menulabel' ) );
 		add_action( 'admin_menu', array( $this, 'remove_menulabel' ), 999 );
 		add_action( 'admin_init', array( $this, 'not_edit_user' ) );
@@ -114,21 +115,9 @@ class N2_Setmenu {
 	 * faviconを変更する
 	 */
 	public function change_site_icon() {
-		$now_blog_id = get_current_blog_id();
-		$my_blogs    = get_sites();
-		foreach ( $my_blogs as $my_blog ) {
-			$int_blog_id = intval( $my_blog->blog_id );
-			switch_to_blog( $int_blog_id );
-			$options = get_blog_option( $int_blog_id, 'n2_settings' );
-			if ( ! empty( $options['N2']['稼働中'] ) ) {
-				if ( $now_blog_id === $int_blog_id && '1' === $options['N2']['稼働中'] ) {
-					restore_current_blog();
-					return get_theme_file_uri( 'neo_neng_logo.svg' );
-				}
-			}
-			restore_current_blog();
-		}
-		return get_theme_file_uri( 'no_neo_neng_logo.svg' );
+		$name = end( explode( '/', get_home_url() ) );
+		$n2_active = get_option( 'n2_settings' )['N2']['稼働中'];
+		return $n2_active ? "https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_{$name}.png" : get_theme_file_uri( 'no_neo_neng_logo.svg' );
 	}
 	/**
 	 * 管理画面左上のロゴ変更
