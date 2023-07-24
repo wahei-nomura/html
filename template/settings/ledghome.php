@@ -67,7 +67,7 @@ $hide = array(
 			<?php endforeach; ?>
 		</td>
 	</tr>
-	<tr <?php echo $hide['lhcloud']; ?>>
+	<tr <?php echo $hide['ledghome']; ?>>
 		<th>自動出荷依頼予約日（定期便）</th>
 		<td>
 			<input type="number" step="1" max="31" min="1" name="n2_settings[LedgHOME][自動出荷依頼予約日]" value="<?php echo $n2->settings['LedgHOME']['自動出荷依頼予約日'] ?? ''; ?>">
