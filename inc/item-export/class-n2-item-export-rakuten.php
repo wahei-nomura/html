@@ -309,7 +309,8 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		global $n2;
 		$img_dir       = rtrim( $n2->portal_setting['楽天']['img_dir'], '/' );
 		$gift_code     = mb_strtolower( $n2values['返礼品コード'] );
-		$business_code = mb_strtolower( $n2values['事業者コード'] );
+		preg_match('/[0-9]{0,2}[A-Z]{2,4}/', $n2values['返礼品コード'], $m); # 事業者コード
+		$business_code = mb_strtolower( $m[0] ); 
 		// GOLD（ne.jp）とキャビネット（co.jp）を判定してキャビネットは事業者コードディレクトリを追加
 		if ( ! preg_match( '/ne\.jp/', $img_dir ) ) {
 			$img_dir .= "/{$business_code}";// キャビネットの場合事業者コード追加
