@@ -80,7 +80,7 @@ class N2_Rakuten_SFTP {
 	/**
 	 * SFTP CONNECT
 	 */
-	public function sftp_connect( $args = null ) {
+	public function connect( $args = null ) {
 		// 初回時のみ接続確認
 		if ( null !== $this->data['connect'] ) {
 			return $this->data['connect'];
@@ -117,7 +117,7 @@ class N2_Rakuten_SFTP {
 	 * @return void
 	 */
 	public function upload_to_rakuten() {
-		$this->check_fatal_error( $this->sftp_connect(), 'パスワードが違います' );
+		$this->check_fatal_error( $this->connect(), 'パスワードが違います' );
 		$this->set_params();
 		$this->set_files();
 		$this->{$this->data['params']['judge']}();
