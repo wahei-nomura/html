@@ -23,7 +23,7 @@ class N2_Setusers {
 		// ユーザーロール全更新API
 		add_action( 'wp_ajax_n2_update_all_site_user_roles', array( $this, 'update_all_site_user_roles' ) );
 		// クルーは全サイトに参加
-		add_action( 'admin_init', array( $this, 'crew_in_allsite' ) );
+		add_action( 'admin_init', array( $this, 'crew_join_allsite' ) );
 	}
 
 	/**
@@ -62,20 +62,18 @@ class N2_Setusers {
 	/**
 	 * ss-crewは全自治体へ追加
 	 */
-	public function crew_in_allsite() {
+	public function crew_join_allsite() {
 		global $n2;
-		$user = $n2->current_user;
-		if ( count( get_sites() ) === count( get_blogs_of_user( $user->ID ) ) ) {
-			return;
-		}
-		if ( 'ss-crew' !== $user->roles[0] ) {
-			return;
-		}
-		$sites = get_sites();
-
-		foreach ( $sites as $site ) {
-			$blog_id = $site->blog_id;
-			add_user_to_blog( $blog_id, $user->ID, 'ss-crew' );
+		$user  = $n2->current_user;
+		$sites = array(
+			array_values( array_map( fn( $v ) => $v->blog_id, get_sites() ) ),
+			array_values( array_map( fn( $v ) => $v->userblog_id, get_blogs_of_user( $user->ID ) ) ),
+		);
+		$diff  = array_diff( ...$sites );
+		if ( ! empty( $diff ) && 'ss-crew' === $user->roles[0] ) {
+			foreach ( $diff as $blog_id ) {
+				add_user_to_blog( $blog_id, $user->ID, 'ss-crew' );
+			}
 		}
 	}
 }
