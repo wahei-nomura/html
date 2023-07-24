@@ -1,0 +1,38 @@
+役場:
+    role: municipal-office
+    capabilities:
+        read: true
+        edit_posts: true
+        edit_others_posts: true
+        edit_published_posts: true
+        municipal-office: true
+事業者:
+    role: jigyousya
+    capabilities:
+        read: true
+        edit_posts: true
+        edit_published_posts: true
+        delete_posts: true
+        upload_files: true
+        jigyousya: true
+SSクルー:
+    role: ss-crew
+    capabilities:
+        read: true
+        edit_posts: true
+        edit_others_posts: true
+        edit_published_posts: true
+        delete_posts: true
+        delete_others_posts: true
+        delete_published_posts: true
+        publish_posts: true
+        upload_files: true
+        manage_options: true
+        ss_crew: true
+        list_users: true
+        create_users: true
+        delete_users: true
+        edit_users: true
+        remove_users: true
+        promote_users: true
+        manage_network_users: true

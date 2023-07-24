@@ -18,83 +18,45 @@ class N2_Setusers {
 	 * コンストラクタ
 	 */
 	public function __construct() {
-
-		// ここのフックを変更したら高速化できる
-		add_action( 'init', array( $this, 'remove_usertype' ) );
-		add_action( 'init', array( $this, 'add_usertype' ) );
+		// テーマ有効化時にユーザー設定
+		add_action( 'after_switch_theme', array( $this, 'update_user_roles' ) );
+		// ユーザーロール全更新API
+		add_action( 'wp_ajax_n2_update_all_site_user_roles', array( $this, 'update_all_site_user_roles' ) );
+		// クルーは全サイトに参加
 		add_action( 'admin_init', array( $this, 'crew_in_allsite' ) );
 	}
 
 	/**
-	 * remove_usertype
-	 * 一旦全ユーザ権限を削除
+	 * update_user_roles
 	 *
 	 * @return void
 	 */
-	public function remove_usertype() {
-		global $wp_roles;
-
-		$wp_roles->remove_role( 'municipal-office' ); // 役場初期化
-		$wp_roles->remove_role( 'jigyousya' ); // 事業者初期化
-		$wp_roles->remove_role( 'ss-crew' ); // SSクルー初期化
-		$wp_roles->remove_role( 'editor' ); // 編集者
-		$wp_roles->remove_role( 'subscriber' ); // 購読者
-		$wp_roles->remove_role( 'contributor' ); // 寄稿者
-		$wp_roles->remove_role( 'author' ); // 投稿者
+	public function update_user_roles() {
+		// デフォルトの権限削除
+		remove_role( 'editor' ); // 編集者
+		remove_role( 'subscriber' ); // 購読者
+		remove_role( 'contributor' ); // 寄稿者
+		remove_role( 'author' ); // 投稿者
+		// N2のユーザ権限
+		foreach ( (array) yaml_parse_file( get_theme_file_path( 'config/user-roles.yml' ) ) as $display_name => $v ) {
+			remove_role( $v['role'] ); // 初期化
+			add_role( $v['role'], $display_name, $v['capabilities'] );
+		}
 	}
 
 	/**
-	 * add_usertype
-	 *
-	 * @return void
+	 * ユーザーロール全更新
 	 */
-	public function add_usertype() {
-		global $wp_roles;
-
-		// 役場
-		$wp_roles->add_role( 'municipal-office', '役場', array() );
-		$wp_roles->add_cap( 'municipal-office', 'read' );
-		$wp_roles->add_cap( 'municipal-office', 'edit_posts' );
-		$wp_roles->add_cap( 'municipal-office', 'edit_others_posts' );
-		$wp_roles->add_cap( 'municipal-office', 'edit_published_posts' );
-		$wp_roles->add_cap( 'municipal-office', 'municipal-office' );
-
-		// 事業者
-		$wp_roles->add_role( 'jigyousya', '事業者', array() );
-		$wp_roles->add_cap( 'jigyousya', 'read' );
-		$wp_roles->add_cap( 'jigyousya', 'edit_posts' );
-		$wp_roles->add_cap( 'jigyousya', 'edit_published_posts' );
-		$wp_roles->add_cap( 'jigyousya', 'delete_posts' );
-		$wp_roles->add_cap( 'jigyousya', 'upload_files' );
-		$wp_roles->add_cap( 'jigyousya', 'jigyousya' );
-
-		// SSクルー
-		$wp_roles->add_role( 'ss-crew', 'SSクルー', array() );
-		$wp_roles->add_cap( 'ss-crew', 'read' );
-		$wp_roles->add_cap( 'ss-crew', 'edit_posts' );
-		$wp_roles->add_cap( 'ss-crew', 'edit_others_posts' );
-		$wp_roles->add_cap( 'ss-crew', 'edit_published_posts' );
-		$wp_roles->add_cap( 'ss-crew', 'delete_posts' );
-		$wp_roles->add_cap( 'ss-crew', 'delete_others_posts' );
-		$wp_roles->add_cap( 'ss-crew', 'delete_published_posts' );
-		$wp_roles->add_cap( 'ss-crew', 'publish_posts' );
-		$wp_roles->add_cap( 'ss-crew', 'upload_files' );
-		$wp_roles->add_cap( 'ss-crew', 'manage_options' );
-		$wp_roles->add_cap( 'ss-crew', 'ss_crew' ); // role判定用に追加
-
-		$user_caps = array(
-			'list_users',
-			'create_users',
-			'delete_users',
-			'edit_users',
-			'remove_users',
-			'promote_users',
-			'manage_network_users',
-		);
-		foreach ( $user_caps as $cap ) {
-			$wp_roles->add_cap( 'ss-crew', $cap );
+	public function update_all_site_user_roles() {
+		foreach ( get_sites() as $site ) {
+			switch_to_blog( (int) $site->blog_id );
+			if ( 'neo-neng' === get_template() ) {
+				$this->update_user_roles();
+			}
 		}
-
+		restore_current_blog();
+		echo 'ユーザーロール全更新完了';
+		exit;
 	}
 
 	/**
