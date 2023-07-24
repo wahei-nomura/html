@@ -174,7 +174,7 @@ class N2_Rakuten_SFTP {
 		exec( "rm -Rf {$tmp}" );
 	}
 
-	public function sftp_csv () {
+	public function csv_upload () {
 		$name = $this->data['files']['name'];
 		$type = $this->data['files']['type'];
 		$tmp_name = $this->data['files']['tmp_name'];
