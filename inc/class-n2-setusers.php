@@ -23,7 +23,7 @@ class N2_Setusers {
 		// ユーザーロール全更新API
 		add_action( 'wp_ajax_n2_update_all_site_user_roles', array( $this, 'update_all_site_user_roles' ) );
 		// クルーは全サイトに参加
-		add_action( 'admin_init', array( $this, 'crew_join_allsite' ) );
+		add_action( 'wp_login', array( $this, 'crew_join_allsite' ), 10, 2 );
 	}
 
 	/**
@@ -61,10 +61,12 @@ class N2_Setusers {
 
 	/**
 	 * ss-crewは全自治体へ追加
+	 *
+	 * @param string $user_login ユーザー名
+	 * @param object $current_user WP_User
 	 */
-	public function crew_join_allsite() {
-		global $n2;
-		$user  = $n2->current_user;
+	public function crew_join_allsite( $user_login, $current_user ) {
+		$user  = $current_user ?? wp_get_current_user();
 		$sites = array(
 			array_values( array_map( fn( $v ) => $v->blog_id, get_sites() ) ),
 			array_values( array_map( fn( $v ) => $v->userblog_id, get_blogs_of_user( $user->ID ) ) ),
