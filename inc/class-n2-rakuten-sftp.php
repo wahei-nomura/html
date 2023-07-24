@@ -59,15 +59,15 @@ class N2_Rakuten_SFTP {
 	public function add_menu() {
 		global $n2;
 		if ( isset( $n2->portal_setting['楽天'] ) ) {
-			add_menu_page( '楽天SFTP', 'n2_rakuten_sftp', 'ss_crew', 'n2_rakuten_sftp_upload', array( $this, 'sftp_ui' ), 'dashicons-admin-site-alt3' );
-			add_submenu_page( 'n2_rakuten_sftp_upload', '楽天エラーログ', '楽天エラーログ', 'ss_crew', 'n2_rakuten_sftp_error_log', array( $this, 'sftp_ui' ) );
+			add_menu_page( '楽天SFTP', 'n2_rakuten_sftp', 'ss_crew', 'n2_rakuten_sftp_upload', array( $this, 'display_ui' ), 'dashicons-admin-site-alt3' );
+			add_submenu_page( 'n2_rakuten_sftp_upload', '楽天エラーログ', '楽天エラーログ', 'ss_crew', 'n2_rakuten_sftp_error_log', array( $this, 'display_ui' ) );
 		}
 	}
 
 	/**
 	 * SFTP UI
 	 */
-	public function sftp_ui() {
+	public function display_ui() {
 		$template = str_replace( array('n2_rakuten_sftp_','_'),	array('','-'), $_GET['page'] );
 		?>
 		<div class="wrap">
