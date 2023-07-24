@@ -69,10 +69,14 @@ class N2_Rakuten_SFTP {
 	 */
 	public function display_ui() {
 		$template = str_replace( array('n2_rakuten_sftp_','_'),	array('','-'), $_GET['page'] );
+		$args = match ( $template ) {
+			'error-log' => $this->rakuten_error_log_args(),
+			default     => null,
+		}
 		?>
 		<div class="wrap">
 			<h1>楽天SFTP</h1>
-			<?php get_template_part( 'template/admin-menu/sftp', $template, array( 'sftp' => $this->sftp ) ); ?>
+			<?php get_template_part( 'template/admin-menu/sftp', $template, $args ); ?>
 		</div>
 		<?php
 	}
@@ -109,6 +113,30 @@ class N2_Rakuten_SFTP {
 		$this->data['connect'] = $this->sftp->connect();
 
 		return $this->data['connect'];
+	}
+
+	public function rakuten_error_log_args() {
+		$args = array();
+		$this->connect();
+		$args['connect'] = $this->data['connect'];
+
+		if ( ! $args['connect'] ) {
+			return $args;
+		}
+		$dir = 
+		$args['dir'] = 'ritem/logs';
+		$args['logs'] = $this->sftp->dirlist( $args['dir'] );
+		$args['logs'] = array_reverse( $args['logs'] );
+		$args['logs'] = array_map(function( $log ) use( $args ) {
+			$contents = $this->sftp->get_contents( "{$args['dir']}/{$log['name']}" );
+			$contents = htmlspecialchars( mb_convert_encoding( $contents, 'utf-8', 'sjis' ) );
+			return array(
+				'name' => $log['name'],
+				'time' => date('Y M d', $log['lastmodunix'] ),
+				'contents' => $contents,
+			);
+		},$args['logs']);
+		return $args;
 	}
 
 	/**
