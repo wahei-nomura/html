@@ -9,17 +9,30 @@
 		}
 
 		#wp-admin-bar-my-sites-list {
-			li {
-				border-bottom: 1px dashed gray; /* 下端に「灰色1pxの破線」を引く */
-				padding-bottom: 1em; /* コンテンツ下端と枠線までの余白量 */
-				margin-bottom: 1em; /* 下側の枠線より外側の余白量 */
-
-				a {
+			display: flex;
+			flex-wrap: wrap;
+			width: 100vw;
+			padding: 1em;
+			.menupop {
+				.ab-item {
 					display: block;
-					width: 100%;
-					height: 100%;
+					padding: 1em;
+					.blavatar{
+						display: inline-block;
+						border-radius: 1rem;
+						font-size: 1.5rem !important;
+						margin: 0 8px 2px 0;
+						&::before{
+							width: auto;
+							height: auto;
+							margin: 0;
+						}
+					}
+					img.blavatar{
+						width: 1.5rem;
+						height: 1.5rem;
+					}
 				}
-
 				.ab-sub-wrapper {
 					display: none !important;
 				}
