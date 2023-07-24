@@ -78,4 +78,28 @@ class N2_Setusers {
 			}
 		}
 	}
+
+	/**
+	 * ss-crewに自爆ボタン設置
+	 *
+	 * @param object $wp_admin_bar WP_Admin_Bar
+	 */
+	public function destruct_button( $wp_admin_bar ) {
+		global $n2;
+		$user = $n2->current_user;
+
+		if ( ! ( in_array( 'ss-crew', $user->roles, true ) || in_array( 'administrator', $user->roles, true ) ) ) {
+			return;
+		}
+
+		$href = get_theme_file_path( 'template/admin-bar-menu/destruct-self-account.php' );
+		$wp_admin_bar->add_menu(
+			array(
+				'id'     => 'destruct-self',
+				'title'  => '自爆ボタン',
+				'parent' => 'user-actions',
+				'href'   => '#' . wp_create_nonce( 'n2nonce' ),
+			),
+		);
+	}
 }

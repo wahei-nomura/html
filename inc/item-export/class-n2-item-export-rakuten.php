@@ -2,7 +2,7 @@
 /**
  * 楽天の商品エクスポート専用
  * 楽天CSVの仕様：https://steamship.docbase.io/posts/2774108
- * class-n2-item-export-rakuten.php
+ * class-n2-item-export-rakuten-item.php
  * デバッグモード：admin-ajax.php?action=n2_item_export_rakuten&mode=debug
  *
  * @package neoneng
@@ -81,6 +81,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		// 事業者コード一覧
 		$item_code_list = array_unique( $item_code_list );
 		// 事前に取得
+
 		$this->set_cabinet_files( $item_code_list );
 
 		// $this->check_fatal_error( $this->data['header'], 'ヘッダーが正しくセットされていません' );
@@ -161,14 +162,10 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 */
 	public function check_error( $value, $name, $n2values ) {
 		/**
-		 * 必須漏れエラー
+		 * 寄附金額エラー
 		 */
-		$required = match ( true ) {
-			preg_match( '/（必須）|必要寄付金額/', $name ) && '' === $value => true,
-			default => false,
-		};
-		if ( $required ) {
-			$this->add_error( $n2values['id'], "「{$name}」がありません。" );
+		if ( '販売価格' === $name && 0 === $value ) {
+			$this->add_error( $n2values['id'], "「{$name}」が0です。" );
 		}
 
 		/**
@@ -264,11 +261,29 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	}
 
 	/**
+	 * RMS APIが使えるか判定
+	 */
+	protected function can_use_api() {
+		if ( null === $this->rms['use_api'] ) {
+			$this->rms['use_api'] = N2_RMS_Cabinet_API::ajax(
+				array(
+					'request' => 'connect',
+					'mode'    => 'func',
+				),
+			);
+		}
+		return $this->rms['use_api'];
+	}
+
+	/**
 	 * キャビネットの画像ファイルを設定
 	 *
 	 * @param array $keywords 検索ワード
 	 */
-	private function set_cabinet_files( $keywords ) {
+	protected function set_cabinet_files( $keywords ) {
+		if ( ! $this->can_use_api() ) {
+			return;
+		}
 		// 検索ワードでハッシュ化
 		$cabinet              = N2_RMS_Cabinet_API::ajax(
 			array(
@@ -294,7 +309,8 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		global $n2;
 		$img_dir       = rtrim( $n2->settings['楽天']['商品画像ディレクトリ'], '/' );
 		$gift_code     = mb_strtolower( $n2values['返礼品コード'] );
-		$business_code = mb_strtolower( $n2values['事業者コード'] );
+		preg_match('/[0-9]{0,2}[A-Z]{2,4}/', $n2values['返礼品コード'], $m); # 事業者コード
+		$business_code = mb_strtolower( $m[0] ); 
 		// GOLD（ne.jp）とキャビネット（co.jp）を判定してキャビネットは事業者コードディレクトリを追加
 		if ( ! preg_match( '/ne\.jp/', $img_dir ) ) {
 			$img_dir .= "/{$business_code}";// キャビネットの場合事業者コード追加
@@ -329,17 +345,8 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		$code     = mb_strtolower( $n2values['返礼品コード'] );
 		$requests = $this->make_img_urls( $n2values );
 
-		if ( null === $this->rms['use_api'] ) {
-			$this->rms['use_api'] = N2_RMS_Cabinet_API::ajax(
-				array(
-					'request' => 'connect',
-					'mode'    => 'func',
-				),
-			);
-		}
-
 		// RMSを利用する
-		if ( ! $result && $this->rms['use_api'] ) {
+		if ( ! $result && $this->can_use_api() ) {
 			if ( ! isset( $this->rms['cabinet'][ $code ] ) ) {
 				$this->set_cabinet_files( array( $code ) );
 			}

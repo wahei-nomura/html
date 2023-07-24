@@ -56,8 +56,7 @@ abstract class N2_RMS_Base_API {
 		$data                  = wp_remote_get( static::$settings['endpoint'] . $path, array( 'headers' => static::$data['header'] ) );
 		$code                  = $data['response']['code'];
 		self::$data['connect'] = 200 === $code;
-		// 利用可能か確認
-		static::check_fatal_error( self::$data['connect'], 'RMS APIにアクセスできません' );
+
 		return self::$data['connect'];
 	}
 
@@ -66,11 +65,17 @@ abstract class N2_RMS_Base_API {
 	 */
 	private static function set_api_keys() {
 		global $n2, $n2_sync;
-		$keys = $n2_sync->get_spreadsheet_data( static::$settings['sheetId'], static::$settings['range'] );
-		$keys = array_filter( $keys, fn( $v ) => $v['town'] === $n2->town );
-		$keys = call_user_func_array( 'array_merge', $keys );
+		$keys           = $n2_sync->get_spreadsheet_data( static::$settings['sheetId'], static::$settings['range'] );
+		$keys           = array_filter( $keys, fn( $v ) => $v['town'] === $n2->town );
+		$keys           = call_user_func_array( 'array_merge', $keys );
+		$service_secret = $keys['serviceSecret'] ?? '';
+		$license_key    = $keys['licenseKey'] ?? '';
+
+		if ( ! ( $service_secret && $license_key ) ) {
+			return array();
+		}
 		// base64_encode
-		$authkey = base64_encode( "{$keys['serviceSecret']}:{$keys['licenseKey']}" );
+		$authkey = base64_encode( "{$service_secret}:{$license_key}" );
 		return array(
 			'Authorization' => "ESA {$authkey}",
 		);
@@ -118,6 +123,8 @@ abstract class N2_RMS_Base_API {
 	 * APIを実行するサムシング
 	 */
 	private static function request() {
+		$is_callable = is_callable( array( 'static', static::$data['params']['request'] ?? '' ) );
+		static::check_fatal_error( $is_callable, '未定義のmethodです' );
 		return static::{ static::$data['params']['request'] }();
 	}
 
