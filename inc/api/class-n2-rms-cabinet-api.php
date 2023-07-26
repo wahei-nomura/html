@@ -1,6 +1,7 @@
 <?php
 /**
  * RMS CABINET API
+ * /wp-admin/admin-ajax.php?action=n2_rms_cabinet_api_ajax&mode=debug&request=
  *
  * @package neoneng
  */
