@@ -59,6 +59,13 @@ class N2 {
 	public $town;
 
 	/**
+	 * 自治体名
+	 *
+	 * @var string
+	 */
+	public $logo;
+
+	/**
 	 * ajaxurl
 	 *
 	 * @var string
@@ -304,6 +311,7 @@ class N2 {
 		$this->blog_prefix = $wpdb->get_blog_prefix();
 		$this->site_id     = get_current_blog_id();
 		$this->town        = get_bloginfo( 'name' );
+		$this->logo        = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_' . end( explode( '/', get_home_url() ) ) . '.png';
 		$this->ajaxurl     = admin_url( 'admin-ajax.php' );
 		$this->cookie      = $_COOKIE;
 

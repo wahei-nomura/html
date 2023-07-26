@@ -135,15 +135,20 @@ class N2_Setmenu {
 	 * @param array $wp_admin_bar 管理バーの項目を格納
 	 */
 	public function remove_admin_bar_menus( $wp_admin_bar ) {
+		global $n2;
 		$wp_admin_bar->remove_menu( 'wp-logo' ); // WordPressロゴ.
 		$wp_admin_bar->remove_menu( 'comments' );     // コメント
 		$wp_admin_bar->remove_menu( 'new-content' );  // 新規
 		$wp_admin_bar->remove_menu( 'view-site' );    // サイト名 → サイトを表示
-		$dashboard_url = admin_url();
+		$wp_admin_bar->remove_menu( 'edit-site' );    // サイト名 → サイトを表示
 		$wp_admin_bar->add_node(
 			array(
 				'id'   => 'site-name',
-				'href' => $dashboard_url,
+				'href' => admin_url(),
+				'meta' => array(
+					'class' => $n2->settings['N2']['稼働中'] ? 'n2-active' : '',
+					'html'  => $n2->settings['N2']['稼働中'] ? "<style>#wp-admin-bar-site-name{background-image: url({$n2->logo}) !important;}</style>" : '',
+				),
 			),
 		);
 		$wp_admin_bar->add_node(
