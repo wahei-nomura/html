@@ -71,6 +71,7 @@ class N2_Rakuten_SFTP {
 		$template = str_replace( array('n2_rakuten_sftp_','_'),	array('','-'), $_GET['page'] );
 		$args = match ( $template ) {
 			'error-log' => $this->rakuten_error_log_args(),
+			'upload'    => $this->rakuten_upload_args(),
 			default     => null,
 		}
 		?>
@@ -123,7 +124,6 @@ class N2_Rakuten_SFTP {
 		if ( ! $args['connect'] ) {
 			return $args;
 		}
-		$dir = 
 		$args['dir'] = 'ritem/logs';
 		$args['logs'] = $this->sftp->dirlist( $args['dir'] );
 		$args['logs'] = array_reverse( $args['logs'] );
@@ -137,6 +137,17 @@ class N2_Rakuten_SFTP {
 			);
 		},$args['logs']);
 		return $args;
+	}
+
+	public function rakuten_upload_args() {
+		return array(
+			'action' => 'n2_upload_to_rakuten_sftp',
+			'radio' => array(
+				'img_upload' => '商品画像',
+				'csv_upload' => '商品CSV',
+			),
+			'file' => 'sftp_file[]',
+		);
 	}
 
 	/**
