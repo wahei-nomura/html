@@ -73,39 +73,55 @@ class N2_Sync {
 		add_action( 'wp_ajax_n2_sync_posts_from_spreadsheet', array( $this, 'sync_posts_from_spreadsheet' ) );
 		add_action( 'wp_ajax_n2_insert_posts', array( $this, 'insert_posts' ) );
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
+		add_action( 'init', array( $this, 'cron' ) );
+	}
 
-		// cron登録処理
+	/**
+	 * クーロン
+	 */
+	public function cron() {
+		global $n2;
 		$default  = array(
 			'auto_sync_users' => 1,
 			'auto_sync_posts' => 1,
 		);
 		$settings = get_option( 'n2_sync_settings_n1', $default );
-		add_filter( 'cron_schedules', array( $this, 'intervals' ) );
-		if ( ! wp_next_scheduled( 'wp_ajax_n2_sync_users_from_n1' ) && $settings['auto_sync_users'] ) {
-			wp_schedule_event( time(), 'daily', 'wp_ajax_n2_sync_users_from_n1' );
+		// N2稼働中はN1同期不要
+		if ( $n2->settings['N2']['稼働中'] ) {
+			$settings = array_map( fn( $v ) => 0 * $v, $settings );
 		}
-		if ( ! $settings['auto_sync_users'] ) {
+		add_filter( 'cron_schedules', array( $this, 'intervals' ) );
+		if ( $settings['auto_sync_users'] ) {
+			if ( ! wp_next_scheduled( 'wp_ajax_n2_sync_users_from_n1' ) ) {
+				wp_schedule_event( time(), 'daily', 'wp_ajax_n2_sync_users_from_n1' );
+			}
+		} else {
 			wp_clear_scheduled_hook( 'wp_ajax_n2_sync_users_from_n1' );
 		}
-		if ( ! wp_next_scheduled( 'wp_ajax_n2_multi_sync_posts' ) && $settings['auto_sync_posts'] ) {
-			wp_schedule_event( time() + 100, '30min', 'wp_ajax_n2_multi_sync_posts' );
-		}
-		if ( ! $settings['auto_sync_posts'] ) {
+		if ( $settings['auto_sync_posts'] ) {
+			if ( ! wp_next_scheduled( 'wp_ajax_n2_multi_sync_posts' ) ) {
+				wp_schedule_event( time() + 100, '30min', 'wp_ajax_n2_multi_sync_posts' );
+			}
+		} else {
 			wp_clear_scheduled_hook( 'wp_ajax_n2_multi_sync_posts' );
 		}
-
-		// UI作成
 	}
 
 	/**
 	 * N2 SYNC　メニューの追加
 	 */
 	public function add_menu() {
-		add_menu_page( 'N2 SYNC', 'N2 SYNC', 'ss_crew', 'sync_ui_n1', array( $this, 'sync_ui' ), 'dashicons-update' );
-		add_submenu_page( 'sync_ui_n1', 'N1（旧NENG）', 'N1（旧NENG）', 'ss_crew', 'sync_ui_n1', array( $this, 'sync_ui' ), 1 );
-		register_setting( 'n2_sync_settings_n1', 'n2_sync_settings_n1' );
-		add_submenu_page( 'sync_ui_n1', 'Google スプレットシート', 'G スプレットシート', 'ss_crew', 'sync_ui_spreadsheet', array( $this, 'sync_ui' ), 2 );
-		register_setting( 'n2_sync_settings_spreadsheet', 'n2_sync_settings_spreadsheet' );
+		global $n2;
+		if ( $n2->settings['N2']['稼働中'] ) {
+			add_menu_page( 'N2 SYNC', 'N2 SYNC', 'ss_crew', 'sync_ui_spreadsheet', array( $this, 'sync_ui' ), 'dashicons-update' );
+			register_setting( 'n2_sync_settings_spreadsheet', 'n2_sync_settings_spreadsheet' );
+		} else {
+			add_menu_page( 'N2 SYNC', 'N2 SYNC', 'ss_crew', 'sync_ui_n1', array( $this, 'sync_ui' ), 'dashicons-update' );
+			add_submenu_page( 'sync_ui_n1', 'N1（旧NENG）', 'N1（旧NENG）', 'ss_crew', 'sync_ui_n1', array( $this, 'sync_ui' ), 1 );
+			register_setting( 'n2_sync_settings_n1', 'n2_sync_settings_n1' );
+			add_submenu_page( 'sync_ui_n1', 'Google スプレットシート', 'G スプレットシート', 'ss_crew', 'sync_ui_spreadsheet', array( $this, 'sync_ui' ), 2 );
+			register_setting( 'n2_sync_settings_spreadsheet', 'n2_sync_settings_spreadsheet' );
+		}
 	}
 
 	/**
@@ -121,6 +137,7 @@ class N2_Sync {
 		?>
 		<div class="wrap">
 			<h1>N2 SYNC</h1>
+			<?php if ( ! $n2->settings['N2']['稼働中'] ) : ?>
 			<div id="crontrol-header">
 				<nav class="nav-tab-wrapper">
 					<?php
@@ -130,6 +147,7 @@ class N2_Sync {
 					?>
 				</nav>
 			</div>
+			<?php endif; ?>
 			<?php echo $this->$template(); ?>
 		</div>
 		<?php
@@ -265,7 +283,8 @@ class N2_Sync {
 	 * posts_per_page=10 が最速なのかはまだ未検証
 	 */
 	public function multi_sync_posts() {
-		if ( is_main_site() ) {
+		global $n2;
+		if ( is_main_site() || $n2->settings['N2']['稼働中'] ) {
 			exit;
 		}
 
@@ -640,6 +659,9 @@ class N2_Sync {
 
 		switch ( $from ) {
 			case 'from_n1':
+				if ( $n2->settings['N2']['稼働中'] ) {
+					exit;
+				}
 				$json = wp_remote_get( "{$this->n1_ajax_url}?action=userdata" )['body'];
 				$data = json_decode( $json, true );
 				break;
