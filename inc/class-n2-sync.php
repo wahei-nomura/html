@@ -101,7 +101,7 @@ class N2_Sync {
 		}
 		if ( $settings['auto_sync_posts'] ) {
 			if ( ! wp_next_scheduled( 'wp_ajax_n2_multi_sync_posts' ) ) {
-				wp_schedule_event( time() + 100, '30min', 'wp_ajax_n2_multi_sync_posts' );
+				wp_schedule_event( time() + 100, 'daily', 'wp_ajax_n2_multi_sync_posts' );
 			}
 		} else {
 			wp_clear_scheduled_hook( 'wp_ajax_n2_multi_sync_posts' );
