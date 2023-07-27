@@ -32,11 +32,13 @@ class N2_Setmenu {
 	/**
 	 * 管理画面のbodyにクラス付与
 	 *
-	 * @params string $classes クラス文字列
+	 * @param string $classes クラス文字列
 	 */
 	public function admin_body_class( $classes ) {
 		global $n2;
-		$classes .= $n2->current_user->roles[0];
+		$classes   = explode( ' ', $classes );
+		$classes[] = $n2->current_user->roles[0];
+		$classes   = implode( ' ', $classes );
 		return $classes;
 	}
 
