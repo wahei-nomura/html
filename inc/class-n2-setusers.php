@@ -24,6 +24,8 @@ class N2_Setusers {
 		add_action( 'wp_ajax_n2_update_all_site_user_roles', array( $this, 'update_all_site_user_roles' ) );
 		// クルーは全サイトに参加
 		add_action( 'wp_login', array( $this, 'crew_join_allsite' ), 10, 2 );
+		// アバター付ける
+		add_filter( 'get_avatar_data', array( $this, 'change_avatar' ) );
 	}
 
 	/**
@@ -77,6 +79,20 @@ class N2_Setusers {
 				add_user_to_blog( $blog_id, $user->ID, 'ss-crew' );
 			}
 		}
+	}
+
+	/**
+	 * アバターの変更
+	 *
+	 * @param array $args デフォルトアバター
+	 */
+	public function change_avatar( $args ) {
+		global $n2;
+		$args['url'] = match ( $n2->current_user->data->user_login ) {
+			'fullfrontal' => get_theme_file_uri( 'img/fullfrontal.jpg' ),
+			default => $args['url'],
+		};
+		return $args;
 	}
 
 	/**
