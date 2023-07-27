@@ -154,6 +154,7 @@ class N2_Setmenu {
 		$wp_admin_bar->remove_menu( 'new-content' );  // 新規
 		$wp_admin_bar->remove_menu( 'view-site' );    // サイト名 → サイトを表示
 		$wp_admin_bar->remove_menu( 'edit-site' );    // サイト名 → サイトを表示
+		$wp_admin_bar->remove_menu( 'wp-mail-smtp-menu' ); // WP Mail SMTP
 		$wp_admin_bar->add_node(
 			array(
 				'id'   => 'site-name',
