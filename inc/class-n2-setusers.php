@@ -25,7 +25,7 @@ class N2_Setusers {
 		// クルーは全サイトに参加
 		add_action( 'wp_login', array( $this, 'crew_join_allsite' ), 10, 2 );
 		// アバター付ける
-		add_filter( 'get_avatar_data', array( $this, 'change_avatar' ) );
+		add_filter( 'get_avatar_data', array( $this, 'change_avatar' ), 10, 2 );
 	}
 
 	/**
@@ -84,11 +84,11 @@ class N2_Setusers {
 	/**
 	 * アバターの変更
 	 *
-	 * @param array $args デフォルトアバター
+	 * @param array  $args アバターデータ
+	 * @param string $id_or_email ユーザーID
 	 */
-	public function change_avatar( $args ) {
-		global $n2;
-		$args['url'] = match ( $n2->current_user->roles[0] ) {
+	public function change_avatar( $args, $id_or_email ) {
+		$args['url'] = match ( get_userdata( $id_or_email )->roles[0] ) {
 			'administrator' => get_theme_file_uri( 'img/fullfrontal.jpg' ),
 			default => $args['url'],
 		};
