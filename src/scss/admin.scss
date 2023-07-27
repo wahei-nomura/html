@@ -1,91 +1,101 @@
-#wp-admin-bar-my-sites {
-	.ab-sub-wrapper {
-		max-height: 80vh;
-		overflow-y: scroll;
-		overflow-x: hidden;
-
-		.wp-admin-bar-arrow {
-			display: none;
-		}
-
-		#wp-admin-bar-my-sites-list {
-			display: flex;
-			flex-wrap: wrap;
-			width: 100vw;
-			padding: 1em;
-			.menupop {
-				.ab-item {
-					display: block;
-					padding: 1em;
-					.blavatar{
-						display: inline-block;
-						border-radius: 1rem;
-						font-size: 1.5rem !important;
-						margin: 0 8px 2px 0;
-						&::before{
-							width: auto;
-							height: auto;
-							margin: 0;
-						}
-					}
-					img.blavatar{
-						width: 1.5rem;
-						height: 1.5rem;
-						background-color: white;
-					}
-				}
-				.ab-sub-wrapper {
-					display: none !important;
-				}
-			}
-
-			li:last-child {
-				border-bottom: none;
-				padding-bottom: 0;
-			}
-		}
+#wpadminbar{
+	body.administrator & {
+		background-color: #8b0000;
 	}
-
-	.ab-sub-wrapper::-webkit-scrollbar {
-		width: 10px;
-	}
-
-	.ab-sub-wrapper::-webkit-scrollbar-track {
-		background-color: #ccc;
-	}
-
-	.ab-sub-wrapper::-webkit-scrollbar-thumb {
-		background-color: #9d2c30;
+	body.ss-crew & {
+		background-color: #1a4899;
 	}
 }
-#wp-admin-bar-site-name{
-	&.n2-active{
-		@keyframes activeFlash {
-			0% {
-				box-shadow: 0 0 1em white;
+#wp-admin-bar{
+	&-my-sites {
+		.ab-sub-wrapper {
+			max-height: 80vh;
+			overflow-y: scroll;
+			overflow-x: hidden;
+
+			.wp-admin-bar-arrow {
+				display: none;
 			}
-			50% {
-				box-shadow: 0 0 0 white;
-			}
-			100% {
-				box-shadow: 0 0 1em white;
+
+			#wp-admin-bar-my-sites-list {
+				display: flex;
+				flex-wrap: wrap;
+				width: 100vw;
+				padding: 1em;
+				.menupop {
+					.ab-item {
+						display: block;
+						padding: 1em;
+						.blavatar{
+							display: inline-block;
+							border-radius: 1rem;
+							font-size: 1.5rem !important;
+							margin: 0 8px 2px 0;
+							&::before{
+								width: auto;
+								height: auto;
+								margin: 0;
+							}
+						}
+						img.blavatar{
+							width: 1.5rem;
+							height: 1.5rem;
+							background-color: white;
+						}
+					}
+					.ab-sub-wrapper {
+						display: none !important;
+					}
+				}
+
+				li:last-child {
+					border-bottom: none;
+					padding-bottom: 0;
+				}
 			}
 		}
-		animation: activeFlash 2s infinite;
-		font-weight: bold;
-		background-repeat: no-repeat !important;
-		padding-left: 3em !important;
-		background-color: white !important;
-		background-size: 2em 2em !important;
-		background-position: 0.2em center !important;
-		text-indent: 0 !important;
-		padding:  0 1em 0 2.5em !important;
-		.ab-item{
-			letter-spacing: .1em;
-			color: black !important;
-			background: none !important;
-			&::before{
-				display: none !important;
+
+		.ab-sub-wrapper::-webkit-scrollbar {
+			width: 10px;
+		}
+
+		.ab-sub-wrapper::-webkit-scrollbar-track {
+			background-color: #ccc;
+		}
+
+		.ab-sub-wrapper::-webkit-scrollbar-thumb {
+			background-color: #9d2c30;
+		}
+	}
+	&-site-name{
+		&.n2-active{
+			@keyframes activeFlash {
+				0% {
+					box-shadow: 0 0 1em white;
+				}
+				50% {
+					box-shadow: 0 0 0 white;
+				}
+				100% {
+					box-shadow: 0 0 1em white;
+				}
+			}
+			animation: activeFlash 2s infinite;
+			font-weight: bold;
+			background-repeat: no-repeat !important;
+			padding-left: 3em !important;
+			background-color: white !important;
+			background-size: 2em 2em !important;
+			background-position: 0.2em center !important;
+			text-indent: 0 !important;
+			padding:  0 1em 0 2.5em !important;
+			.ab-item{
+				letter-spacing: .1em;
+				color: black !important;
+				background: none !important;
+				&::before{
+					display: none !important;
+				}
 			}
 		}
 	}

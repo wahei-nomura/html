@@ -88,8 +88,8 @@ class N2_Setusers {
 	 */
 	public function change_avatar( $args ) {
 		global $n2;
-		$args['url'] = match ( $n2->current_user->data->user_login ) {
-			'fullfrontal' => get_theme_file_uri( 'img/fullfrontal.jpg' ),
+		$args['url'] = match ( $n2->current_user->roles[0] ) {
+			'administrator' => get_theme_file_uri( 'img/fullfrontal.jpg' ),
 			default => $args['url'],
 		};
 		return $args;
