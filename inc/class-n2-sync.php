@@ -69,6 +69,7 @@ class N2_Sync {
 		add_action( 'wp_ajax_n2_sync_users_from_n1', array( $this, 'sync_users' ) );
 		add_action( 'wp_ajax_n2_sync_users_from_spreadsheet', array( $this, 'sync_users' ) );
 		add_action( 'wp_ajax_n2_sync_posts', array( $this, 'sync_posts' ) );
+		add_action( 'wp_ajax_nopriv_n2_sync_posts', array( $this, 'sync_posts' ) );
 		add_action( 'wp_ajax_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
 		add_action( 'wp_ajax_n2_sync_posts_from_spreadsheet', array( $this, 'sync_posts_from_spreadsheet' ) );
 		add_action( 'wp_ajax_n2_insert_posts', array( $this, 'insert_posts' ) );
@@ -324,7 +325,8 @@ class N2_Sync {
 		$found_posts   = $data['found_posts'];
 
 		// $params変更
-		$params['action'] = 'n2_sync_posts';
+		$params['action']  = 'n2_sync_posts';
+		$params['n2nonce'] = wp_create_nonce( 'n2nonce' );
 
 		// n2_sync_posts に Multi cURL
 		$mh       = curl_multi_init();
@@ -406,6 +408,14 @@ class N2_Sync {
 		$params            = $_GET;
 		$params['action']  = 'postsdata';
 		$params['orderby'] = 'ID';
+
+		if ( ! wp_verify_nonce( $params['n2nonce'] ?? '', 'n2nonce' ) ) {
+			$msg    = '不正アクセス';
+			$logs[] = $msg;
+			$this->log( $logs );
+			echo $msg;
+			exit;
+		}
 
 		// Syncフラグを記録
 		update_option( "n2syncing-{$params['paged']}", strtotime( 'now' ) );
