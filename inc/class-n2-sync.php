@@ -294,6 +294,7 @@ class N2_Sync {
 		$params = array(
 			'action'         => 'postsdata',
 			'post_type'      => 'post',
+			'post_status'    => 'any',
 			'posts_per_page' => $_GET['posts_per_page'] ?? 100,
 			'paged'          => 1,
 		);

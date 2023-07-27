@@ -316,7 +316,7 @@ class N2_Postlist {
 	 * @return string $status ステータス
 	 */
 	public function change_status( $status ) {
-		$status = str_ireplace( '非公開', '入力中', $status );
+		$status = str_ireplace( '非公開', '非公開', $status );
 		$status = str_ireplace( '下書き', '入力中', $status );
 		$status = str_ireplace( 'レビュー待ち', 'スチームシップ確認待ち', $status );
 		$status = str_ireplace( '公開済み', 'ポータル登録準備中', $status );
@@ -405,6 +405,7 @@ class N2_Postlist {
 			'pending'    => 'スチームシップ確認待ち',
 			'publish'    => 'ポータル登録準備中',
 			'registered' => 'ポータル登録済',
+			'private'    => '非公開',
 		);
 		echo '<select name="ステータス">';
 		echo '<option value="">ステータス</option>';
