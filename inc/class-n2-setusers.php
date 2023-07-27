@@ -88,7 +88,11 @@ class N2_Setusers {
 	 * @param string $id_or_email ユーザーID
 	 */
 	public function change_avatar( $args, $id_or_email ) {
-		$args['url'] = match ( get_userdata( $id_or_email )->roles[0] ) {
+		$user_data = get_userdata( $id_or_email );
+		if ( ! $user_data ) {
+			return $args;
+		}
+		$args['url'] = match ( $user_data->roles[0] ) {
 			'administrator' => get_theme_file_uri( 'img/fullfrontal.jpg' ),
 			default => $args['url'],
 		};
