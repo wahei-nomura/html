@@ -73,28 +73,6 @@ class N2_Sync {
 		add_action( 'wp_ajax_n2_sync_posts_from_spreadsheet', array( $this, 'sync_posts_from_spreadsheet' ) );
 		add_action( 'wp_ajax_n2_insert_posts', array( $this, 'insert_posts' ) );
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
-
-		// cron登録処理
-		$default  = array(
-			'auto_sync_users' => 1,
-			'auto_sync_posts' => 1,
-		);
-		$settings = get_option( 'n2_sync_settings_n1', $default );
-		add_filter( 'cron_schedules', array( $this, 'intervals' ) );
-		if ( ! wp_next_scheduled( 'wp_ajax_n2_sync_users_from_n1' ) && $settings['auto_sync_users'] ) {
-			wp_schedule_event( time(), 'daily', 'wp_ajax_n2_sync_users_from_n1' );
-		}
-		if ( ! $settings['auto_sync_users'] ) {
-			wp_clear_scheduled_hook( 'wp_ajax_n2_sync_users_from_n1' );
-		}
-		if ( ! wp_next_scheduled( 'wp_ajax_n2_multi_sync_posts' ) && $settings['auto_sync_posts'] ) {
-			wp_schedule_event( time() + 100, '30min', 'wp_ajax_n2_multi_sync_posts' );
-		}
-		if ( ! $settings['auto_sync_posts'] ) {
-			wp_clear_scheduled_hook( 'wp_ajax_n2_multi_sync_posts' );
-		}
-
-		// UI作成
 	}
 
 	/**
