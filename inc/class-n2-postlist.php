@@ -91,7 +91,7 @@ class N2_Postlist {
 
 		$sort_base_url = admin_url() . 'edit.php?' . implode( '&', $get_param_array );
 		$asc_or_desc   = empty( $_GET['order'] ) || 'asc' === $_GET['order'] ? 'desc' : 'asc';
-		$include_fee   = $n2->formula['送料乗数'];
+		$include_fee   = $n2->settings['寄附金額・送料']['送料乗数'];
 		$rr_header     = '(返礼率)';
 
 		$columns = array(
@@ -177,7 +177,7 @@ class N2_Postlist {
 		$ssmemo_isset    = $ssmemo ? 'n2-postlist-ssmemo' : '';
 		$modified_last   = get_the_modified_date( 'Y/m/d' );
 		$return_rate     = N2_Donation_Amount_API::calc_return_rate( $post_data ); // 返礼率計算
-		$include_fee     = $n2->formula['送料乗数'];
+		$include_fee     = $n2->settings['寄附金額・送料']['送料乗数'];
 		$rr_threshold    = N2_Donation_Amount_API::calc_return_rate( $post_data, true ); // 返礼率がしきい値(0.3 or 0.35)を超えてるかチェック
 		$rr_caution      = false === $rr_threshold ?: '; color:red; font-weight:bold'; // 返礼率がしきい値を超えてたら装飾
 
