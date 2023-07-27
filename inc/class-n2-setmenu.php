@@ -117,9 +117,9 @@ class N2_Setmenu {
 	 * @param string $url デフォルトURL
 	 */
 	public function change_site_icon( $url ) {
+		global $n2;
 		$name = end( explode( '/', get_home_url() ) );
-		$n2_active = get_option( 'n2_settings' )['N2']['稼働中'];
-		return $n2_active ? "https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_{$name}.png" : $url;
+		return $n2->settings['N2']['稼働中'] ? "https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_{$name}.png" : $url;
 	}
 	/**
 	 * 管理画面左上のロゴ変更
