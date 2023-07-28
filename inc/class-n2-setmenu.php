@@ -37,6 +37,19 @@ class N2_Setmenu {
 		$name                      = '返礼品';
 		$menu[5][0]                = $name;
 		$submenu['edit.php'][5][0] = $name . '一覧';
+
+		foreach ( $menu as $index => $m ) {
+			if ( 'n2_rakuten_sftp' === $m[0] ) {
+				$menu[ $index ][0] = '楽天SFTP';
+			}
+		}
+
+		foreach ( $submenu as $index => $s ) {
+			if ( isset( $s[0][0] ) && 'n2_rakuten_sftp' === $s[0][0] ) {
+				$submenu[ $index ][0][0] = '楽天SFTP';
+				$submenu[ $index ][0][1] = '楽天エラーログ';
+			}
+		}
 	}
 
 	/**
@@ -52,6 +65,16 @@ class N2_Setmenu {
 		);
 		$submenus = array();
 		global $n2;
+
+		$img_dir = rtrim( $n2->portal_setting['楽天']['img_dir'], '/' ) . '/';
+
+		switch ( preg_match( '/ne\.jp/', $img_dir ) ) {
+			case 1:// GOLDの場合はFTP
+				$menus[] = 'n2_rakuten_sftp_upload';
+				break;
+			default:// CABINETはSFTP
+				$menus[] = 'n2_rakuten_ftp_upload';
+		}
 
 		// ロール毎で削除するメニュー
 		switch ( $n2->current_user->roles[0] ) {
