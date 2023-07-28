@@ -499,8 +499,7 @@
     提供事業者名:
         type: datalists
         placeholder: 例）〇〇商店
-        # これ通常レジだからっているわけでもないし、クラウドレジでも欲しくなるのでは？
-        v-if: "'ledghome' === n2.settings.N2.LedgHOME"
+        v-if: n2.settings.N2.提供事業者名
         v-model: 提供事業者名
         option: []
     商品画像:

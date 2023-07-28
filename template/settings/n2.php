@@ -73,4 +73,13 @@ $settings = array(
 			</label>
 		</td>
 	</tr>
+	<tr>
+		<th>提供事業者名入力</th>
+		<td>
+			<input type="hidden" name="n2_settings[N2][提供事業者名]">
+			<label>
+				<input type="checkbox" name="n2_settings[N2][提供事業者名]" value="1" <?php checked( $n2->settings['N2']['提供事業者名'] ); ?>> 提供事業者名を入力可能にする
+			</label>
+		</td>
+	</tr>
 </table>
