@@ -73,7 +73,8 @@ class N2_Setmenu {
 				$menus[] = 'n2_rakuten_sftp_upload';
 				break;
 			default:// CABINETはSFTP
-				$menus[] = 'n2_rakuten_ftp_upload';
+				$menus[] = 'n2_rakuten_sftp_upload';
+				// $menus[] = 'n2_rakuten_ftp_upload';
 		}
 
 		// ロール毎で削除するメニュー
