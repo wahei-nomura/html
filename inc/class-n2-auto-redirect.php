@@ -56,6 +56,9 @@ class N2_Auto_Redirect {
 		if ( ! preg_match( '#/wp-admin/$#', $now ) || preg_match( '#(/wp-admin/$|/network/)#', $ref ) || ! preg_match( '#/wp-admin/#', $ref ) ) {
 			return;
 		}
+		// 投稿一覧の場合はパラメータを破棄
+		$ref = preg_replace( '#/wp-admin/edit.php.*#', '/wp-admin/edit.php', $ref );
+		// リダイレクトURL
 		$redirect = preg_replace( '#.*?/wp-admin/#', $now, $ref );
 		wp_safe_redirect( $redirect );
 	}
