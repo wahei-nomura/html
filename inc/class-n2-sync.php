@@ -301,13 +301,16 @@ class N2_Sync {
 		);
 		$json   = wp_remote_get( "{$this->n1_ajax_url}?" . http_build_query( $params ) )['body'];
 		$data   = json_decode( $json, true );
+		// ページ数取得
+		$max_num_pages = $data['max_num_pages'];
+		$found_posts   = $data['found_posts'];
 
 		// ログテキスト
 		$logs   = array();
 		$logs[] = __METHOD__;
 
 		// IP制限等で終了のケース
-		if ( ! $data ) {
+		if ( ! $data || ! $found_posts ) {
 			$logs[] = $json;
 			$this->log( $logs );
 			echo $json;
@@ -320,9 +323,6 @@ class N2_Sync {
 			$wpdb->query( "DELETE FROM {$wpdb->posts}" );
 			$wpdb->query( "DELETE FROM {$wpdb->postmeta};" );
 		}
-		// ページ数取得
-		$max_num_pages = $data['max_num_pages'];
-		$found_posts   = $data['found_posts'];
 
 		// $params変更
 		$params['action']  = 'n2_sync_posts';
