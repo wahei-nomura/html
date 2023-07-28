@@ -140,6 +140,17 @@ class N2_Product_List_Print {
 												$td = ( is_numeric( $td ) )
 													? ( ( mb_substr( $td, -1 ) * 20 ) + 40 ) . 'サイズ'
 													: $td;
+												break;
+											case '対応機器':
+												if ( in_array( 'やきもの', $p['商品タイプ'], true ) ) {
+													$td = array( '電子レンジ対応', 'オーブン対応', '食洗機対応' );
+													foreach ( $td as $key => $value ) {
+														$td[ $key ] = "{$value}：{$p[ $value ]}";
+													}
+													$td = implode( '　', $td );
+													$td .= "<br>{$p['対応機器備考']}";
+												}
+												break;
 										}
 										$th_attr = isset( $val['attr']['th'] )
 											? $this->attr_array2str( $val['attr']['th'] )
