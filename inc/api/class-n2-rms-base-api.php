@@ -64,11 +64,10 @@ abstract class N2_RMS_Base_API {
 	 * RMSのAPIキーをスプシから取得してセット
 	 */
 	private static function set_api_keys() {
-		$transient  = 'rms_api_auth_key';
-		$authkey    = get_transient( $transient );
-		$expiration = 10 * MINUTE_IN_SECONDS;
-
-		if ( false === $authkey ) {
+		$transient = 'rms_api_auth_key';
+		$authkey   = static::get_decrypted_data_from_transient( $transient );
+		error_log( $authkey );
+		if ( ! $authkey ) {
 			global $n2, $n2_sync;
 			$keys           = $n2_sync->get_spreadsheet_data( static::$settings['sheetId'], static::$settings['range'] );
 			$keys           = array_filter( $keys, fn( $v ) => $v['town'] === $n2->town );
@@ -78,9 +77,10 @@ abstract class N2_RMS_Base_API {
 			if ( ! ( $service_secret && $license_key ) ) {
 				return array();
 			}
-			$authkey = base64_encode( "{$service_secret}:{$license_key}" );
-			set_transient( $transient, $authkey, $expiration );
+			$authkey = "{$service_secret}:{$license_key}";
+			$save = static::save_encrypted_data_to_transient( $transient, $authkey );
 		}
+		$authkey = base64_encode( $authkey );
 		// base64_encode
 		return array(
 			'Authorization' => "ESA {$authkey}",
@@ -192,5 +192,64 @@ abstract class N2_RMS_Base_API {
 			echo $message;
 			exit;
 		}
+	}
+
+	/**
+	 * 秘密鍵を暗号化してtransientに保存する関数
+	 *
+	 * @param  string $key transient key
+	 * @param  string $val transient value
+	 * @param  array  $opt option
+	 *
+	 * @return bool 成功した場合はtrue、失敗した場合はfalse
+	 */
+	private static function save_encrypted_data_to_transient( $key, $val, $opt = array() ) {
+		static::check_fatal_error( $key, '保存するkeyが設定されていません' );
+		static::check_fatal_error( $val, '保存するvalueが設定されていません' );
+		$default = array(
+			'salt'       => SECURE_AUTH_SALT,
+			'expiration' => 10 * MINUTE_IN_SECONDS,
+		);
+		// デフォルト値を$optで上書き
+		$opt = wp_parse_args( $opt, $default );
+		// ソルトと秘密鍵を結合して暗号化
+		$data_to_encrypt = $opt['salt'] . $val;
+		// 16バイトのIVを生成
+		$iv             = openssl_random_pseudo_bytes( 16 );
+		$encrypted_data = openssl_encrypt( $data_to_encrypt, 'AES-256-CBC', $opt['salt'], 0, $iv );
+		// transientに暗号化したデータとIVを保存
+		$data_to_save = base64_encode( $iv . $encrypted_data );
+
+		// transientに暗号化したデータを保存
+		return set_transient( $key, $data_to_save, $opt['expiration'] );
+	}
+
+	/**
+	 * transientから暗号化された値を取得し、復号化する関数
+	 *
+	 * @param string $key  transient key
+	 * @param string $salt salt
+	 *
+	 * @return string|bool 復号化した秘密鍵。失敗した場合はfalse
+	 */
+	private static function get_decrypted_data_from_transient( $key, $salt = null ) {
+		$salt ??= SECURE_AUTH_SALT;
+		// transientから暗号化されたデータを取得
+		$encrypted_data = get_transient( $key );
+		if ( $encrypted_data ) {
+			$encrypted_data = base64_decode( $encrypted_data );
+			// 先頭16バイトがIV
+			$iv = substr( $encrypted_data, 0, 16 );
+			$encrypted_data = substr( $encrypted_data, 16 );
+			// 暗号化されたデータを復号化
+			$decrypted_data = openssl_decrypt( $encrypted_data, 'AES-256-CBC', $salt, 0, $iv );
+
+			// 復号化したデータからソルトを削除して秘密鍵を取得
+			$key = str_replace( $salt, '', $decrypted_data );
+
+			return $key;
+		}
+
+		return false;
 	}
 }
