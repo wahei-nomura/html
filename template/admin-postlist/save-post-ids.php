@@ -13,6 +13,7 @@ global $n2;
 		<span v-text="`${ids.length} 件選択中`"></span>
 		<span class="dashicons dashicons-no-alt" @click="active = ! active"></span>
 		<ul id="n2-checked-posts-actions">
+			<?php if ( current_user_can( 'ss_crew' ) ) : ?>
 			<li>
 				エクスポート
 				<div class="childs">
@@ -45,6 +46,7 @@ global $n2;
 					</form>
 				</div>
 			</li>
+			<?php endif; ?>
 			<li style="padding: 0;">
 				<form method="post" action="admin-ajax.php" target="_blank">
 					<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
@@ -64,6 +66,7 @@ global $n2;
 					<button>画像ダウンロード</button>
 				</form>
 			</li>
+			<?php if ( current_user_can( 'ss_crew' ) ) : ?>
 			<li>
 				情報変更
 				<div class="childs">
@@ -99,6 +102,7 @@ global $n2;
 					</form>
 				</div>
 			</li>
+			<?php endif; ?>
 		</ul>
 	</div>
 	<div id="n2-checked-posts-content">
