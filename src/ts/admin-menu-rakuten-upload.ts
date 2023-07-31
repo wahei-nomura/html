@@ -77,4 +77,28 @@ jQuery( function($){
 			src: $(this).data('url')
 		});
 	});
+
+	// drag&drop制御
+	{
+
+		$(document).on('dragover','.dragable-area',function(e){
+			e.preventDefault();
+			$(this).addClass('dragover');
+		})
+		// ドラッグ＆ドロップエリアからドラッグが外れたときのイベントを追加
+		$(document).on('dragleave','.dragable-area', function(e) {
+			e.preventDefault();
+			$(this).removeClass('dragover');
+		  });
+		  // ドラッグ＆ドロップエリアにファイルがドロップされたときのイベントを追加
+		  $(document).on('drop','.dragable-area', function(e) {
+			e.preventDefault();
+			$(this).removeClass('dragover');
+	  
+			// ドロップされたファイルを取得
+			const files = e.originalEvent.dataTransfer.files;
+
+			$("#ss-cabinet").find('form input[type="file"]').prop('files',files);
+		  });
+	}
 })

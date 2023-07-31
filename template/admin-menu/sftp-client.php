@@ -124,7 +124,7 @@ $tree_list = function ( $parent, $path = null ) use ( &$tree_list, $folders ) {
 			ファイルをドラッグ&ドロップしてください
 		</div>
 	</div>
-	<form action="" style="display:none;">
-		<input type="file">
+	<form action="">
+		<input type="file" multiple="multiple" name="files">
 	</form>
 </div>
