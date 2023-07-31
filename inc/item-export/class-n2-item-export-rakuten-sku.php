@@ -62,8 +62,8 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 		);
 
 		// 旧select.csv部分
-		$selects = $n2->portal_setting['楽天']['select'];
-		$this->check_fatal_error( $selects, "項目選択肢が設定されていません" );
+		$selects = $n2->settings['楽天']['項目選択肢'];
+		$this->check_fatal_error( $selects, '項目選択肢が設定されていません' );
 
 		$selects = str_replace( array( "\r\n", "\r" ), "\n", $selects );// 改行コード統一
 		$selects = preg_split( '/\n{2,}/', $selects );// 連続改行で分ける
@@ -99,7 +99,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 		}
 
 		// CSVヘッダー
-		$sku_header = $n2->portal_setting['楽天']['csv_header']['sku'];
+		$sku_header = $n2->settings['楽天']['csv_header']['sku'];
 
 		foreach ( $sku_header as $type => $headers ) {
 			// レベル毎
@@ -174,6 +174,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 	/**
 	 * レベル毎のデータマッピング
 	 * 楽天CSVの仕様：https://steamship.docbase.io/posts/3030639
+	 *
 	 * @param string $val 項目名
 	 * @param string $index インデックス
 	 * @param array  $n2values n2dataのループ中の値
@@ -204,7 +205,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 			preg_match( '/商品名$/', $val )  => '【ふるさと納税】' . $n2values['タイトル'] . '[' . $n2values['返礼品コード'] . ']',
 			preg_match( '/^倉庫指定$/', $val ) => 0,
 			preg_match( '/^ジャンルID$/', $val ) => preg_replace( '/\//', '|', $n2values['全商品ディレクトリID'] ),
-			preg_match( '/^非製品属性タグID$/', $val ) => preg_replace( '/\//', '|', $n2->portal_setting['楽天']['tag_id'] ),
+			preg_match( '/^非製品属性タグID$/', $val ) => preg_replace( '/\//', '|', $n2->settings['楽天']['共通タグID'] ),
 			preg_match( '/^キャッチコピー$/', $val )  => $n2values['キャッチコピー'],
 			preg_match( '/^PC用商品説明文$/', $val )  => $this->pc_item_description( $n2values ),
 			preg_match( '/^スマートフォン用商品説明文$/', $val )  => $this->sp_item_description( $n2values ),
@@ -228,7 +229,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 	 */
 	protected function walk_option_values( &$val, $index, $n2values ) {
 		global $n2;
-		$selects = $n2->portal_setting['楽天']['select'];
+		$selects = $n2->settings['楽天']['項目選択肢'];
 		$selects = str_replace( array( "\r\n", "\r" ), "\n", $selects );// 改行コード統一
 		$selects = preg_split( '/\n{2,}/', $selects );// 連続改行で分ける
 		foreach ( $selects as $select ) {
@@ -344,7 +345,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 	 */
 	protected function get_relative_img_path( $n2values, $index ) {
 		global $n2;
-		$img_dir = $n2->portal_setting['楽天']['img_dir'];
+		$img_dir = $n2->settings['楽天']['品画像ディレクトリ'];
 		$img_dir = preg_replace( '/\/item.*$/', '', $img_dir );
 		$imgs    = array_filter( explode( ' ', $this->get_img_urls( $n2values ) ) );
 		$img     = $imgs[ $index ] ?? '';

@@ -35,6 +35,7 @@ LedgHOME:
     オンライン決済限定: 
 
 楽天:
+    SKU: false
     FTP:
         user:
         pass:

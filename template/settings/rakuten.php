@@ -9,6 +9,14 @@ global $n2;
 ?>
 <table class="form-table">
 	<tr>
+		<th>SKU対応</th>
+		<td>
+			<label>
+				<input type="checkbox" name="n2_settings[楽天][SKU]" value="1" <?php checked( $n2->settings['楽天']['SKU'] ?? '' ); ?>> SKU対応済
+			</label>
+		</td>
+	</tr>
+	<tr>
 		<th>FTPユーザー</th>
 		<td>
 			<input type="text" name="n2_settings[楽天][FTP][user]" value="<?php echo esc_attr( $n2->settings['楽天']['FTP']['user'] ); ?>">

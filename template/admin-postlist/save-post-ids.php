@@ -25,8 +25,13 @@ global $n2;
 							<label><input type="radio" name="action" :value="`n2_item_export_${n2.settings.N2.LedgHOME}`" v-model="fd.action"> LedgHOME</label>
 							<label v-if="n2.settings.N2.出品ポータル.includes('ふるさとチョイス')"><input type="radio" name="action" value="n2_item_export_furusato_choice" v-model="fd.action"> ふるさとチョイス</label>
 							<template v-if="n2.settings.N2.出品ポータル.includes('楽天')">
-								<label><input type="radio" name="action" value="n2_item_export_rakuten" v-model="fd.action"> 楽天 [ item.csv ]</label>
-								<label><input type="radio" name="action" value="n2_item_export_rakuten_select" v-model="fd.action"> 楽天 [ select.csv ]</label>
+								<template v-if="n2.settings.楽天.SKU">
+									<label><input type="radio" name="action" value="n2_item_export_rakuten_sku" v-model="fd.action"> 楽天</label>
+								</template>
+								<template v-else>
+									<label><input type="radio" name="action" value="n2_item_export_rakuten" v-model="fd.action"> 楽天 [ item.csv ]</label>
+									<label><input type="radio" name="action" value="n2_item_export_rakuten_select" v-model="fd.action"> 楽天 [ select.csv ]</label>
+								</template>
 							</template>
 						</div>
 						<div style="margin-bottom: 1em;">
