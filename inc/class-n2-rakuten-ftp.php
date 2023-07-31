@@ -36,7 +36,7 @@ class N2_Rakuten_FTP {
 		global $n2;
 		if ( isset( $n2->settings['楽天'] ) ) {
 			add_menu_page( '楽天FTP', '楽天FTP', 'ss_crew', 'n2_rakuten_ftp_upload', array( $this, 'ftp_ui' ), 'dashicons-admin-site-alt3' );
-			add_submenu_page( 'n2_rakuten_ftp_upload', '楽天エラーログ', '楽天エラーログ', 'ss_crew', 'n2_rakuten_error_log', array( $this, 'ftp_ui' ) );
+			add_submenu_page( 'n2_rakuten_ftp_upload', '楽天エラーログ', '楽天エラーログ', 'ss_crew', 'n2_rakuten_ftp_error_log', array( $this, 'ftp_ui' ) );
 		}
 	}
 
@@ -44,38 +44,34 @@ class N2_Rakuten_FTP {
 	 * FTP UI
 	 */
 	public function ftp_ui() {
-		$template = str_replace( 'n2_rakuten_', '', $_GET['page'] );
+		$template = str_replace( array('n2_rakuten_ftp_','_'),	array('','-'), $_GET['page'] );
+		$args = match ( $template ) {
+			'error-log' => $this->error_log_args(),
+			'upload' => $this->upload_args(),
+			default     => null,
+		};
 		?>
 		<div class="wrap">
 			<h1>楽天FTP</h1>
-			<?php echo $this->$template(); ?>
+			<?php get_template_part( 'template/admin-menu/sftp', $template, $args ); ?>
 		</div>
 		<?php
 	}
 
 	/**
-	 * アップロード（超突貫）
+	 * upload
 	 */
-	public function ftp_upload() {
-		?>
-		<div style="clear:both;padding:10px 0;">
-			<form action="admin-ajax.php" target="_blank" method="post" enctype="multipart/form-data">
-				<input type="hidden" name="action" value="n2_upload_to_rakuten">
-				<input type="hidden" name="judge" value="ftp_img">
-				<input name="ftp_img[]" type="file" multiple="multiple">
-				<input type="submit" class="button" value="楽天に商品画像転送">
-			</form>
-		</div>
-		<div style="clear:both;padding:10px 0;">
-			<form action="admin-ajax.php" target="_blank" method="post" enctype="multipart/form-data">
-				<input type="hidden" name="action" value="n2_upload_to_rakuten">
-				<input type="hidden" name="judge" value="ftp_file">
-				<input name="ftp_file[]" type="file" multiple="multiple">
-				<input type="submit" class="button" value="楽天に商品CSV転送">
-			</form>
-		</div>
-		<?php
+	public function upload_args() {
+		return array(
+			'action' => 'n2_upload_to_rakuten',
+			'file'   => 'ftp_files[]',
+			'radio'  => array(
+				'ftp_img' => '商品画像',
+				'ftp_file' => '商品CSV',
+			),
+		);
 	}
+
 	/**
 	 * 楽天への転送機能（超突貫）
 	 *
@@ -109,7 +105,7 @@ class N2_Rakuten_FTP {
 
 		if ( 'ftp_img' === $judge ) {
 			setlocale( LC_ALL, 'ja_JP.UTF-8' );
-			extract( $_FILES[ $judge ] ); // $name $type $tmp_name
+			extract( $_FILES[ 'ftp_files' ] ); // $name $type $tmp_name
 			if ( ! empty( $tmp_name[0] ) ) {
 				// テンポラリディレクトリ作成
 				$tmp = wp_tempnam( __CLASS__, dirname( __DIR__ ) . '/' );
@@ -188,7 +184,7 @@ class N2_Rakuten_FTP {
 		// 楽天Uにデータ転送
 		elseif ( 'ftp_file' === $judge ) {
 			setlocale( LC_ALL, 'ja_JP.UTF-8' );
-			extract( $_FILES[$judge] );
+			extract( $_FILES['ftp_files'] );
 			if ( ! empty( $tmp_name[0] ) ) {
 				$upload_server = $rakuten['FTP']['upload_server'];
 				$upload_server_port = $rakuten['FTP']['upload_server_port'];
@@ -224,10 +220,13 @@ class N2_Rakuten_FTP {
 	}
 
 	/**
-	 * エラーログ（超突貫）
+	 * エラーログ変数
 	 */
-	public function error_log() {
+	public function error_log_args() {
 		global $n2;
+		// テンプレート用
+		$args = array();
+
 		WP_Filesystem();
 		require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-ftpext.php';
 		$opt = array(
@@ -236,39 +235,28 @@ class N2_Rakuten_FTP {
 			'password' => $n2->settings['楽天']['FTP']['ftp_pass'],
 		);
 		$ftp = new WP_Filesystem_FTPext( $opt );
-		if ( ! $ftp->connect() ) {
+		$args['connect'] = $ftp->connect();
+		if ( ! $args['connect'] ) {
 			$opt['password'] = rtrim( $opt['password'], 1 ) .'2';
 			$ftp             = new WP_Filesystem_FTPext( $opt );
-			if ( ! $ftp->connect() ) {
-				echo '接続エラー';
-				exit;
-			}
+			$args['connect'] = $ftp->connect();
 		}
-		$logs = $ftp->dirlist( 'ritem/logs' );
+		if ( ! $args['connect'] ) {
+			return $args;
+		}
+		$args['dir'] = 'ritem/logs';
+		$logs = $ftp->dirlist( $args['dir'] );
 		$logs = array_reverse( $logs );
-		if ( empty( $logs ) ) {
-			echo 'エラーログはありません。';
-			exit;
-		}
-		?>
-		<h3>エラーログ</h3>
-		<table class="widefat striped" style="margin: 2em 0;">
-		<?php
-		foreach ( $logs as $log ) :
-			$contents = $ftp->get_contents( "ritem/logs/{$log['name']}" );
+		$args['logs'] = array_map(function( $log ) use( $args,$ftp ) {
+			$contents = $ftp->get_contents( "{$args['dir']}/{$log['name']}" );
 			$contents = htmlspecialchars( mb_convert_encoding( $contents, 'utf-8', 'sjis' ) );
-			?>
-			<tr>
-				<td><?php echo "{$log['year']} {$log['month']} {$log['day']}"; ?></td>
-				<td>
-					<button type="button" popovertarget="<?php echo $log['name']; ?>" class="button button-primary">エラー内容を見る</button>
-					<div popover="auto" id="<?php echo $log['name']; ?>" style="width: 80%; max-height: 80%; overflow-y: scroll;"><pre><?php echo $contents; ?></pre></div>
-				</td>
-				<td><?php echo "ritem/logs/{$log['name']}"; ?></td>
-			</tr>
-		<?php endforeach; ?>
-		</table>
-		<?php
+			return array(
+				'name' => $log['name'],
+				'time' => "{$log['year']} {$log['month']} {$log['day']}",
+				'contents' => $contents,
+			);
+		},$logs);
+		return $args;
 	}
 
 	/**

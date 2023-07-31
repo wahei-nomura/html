@@ -67,6 +67,16 @@ class N2_Setmenu {
 		$submenus = array();
 		global $n2;
 
+		$img_dir = rtrim( $n2->portal_setting['楽天']['img_dir'], '/' ) . '/';
+
+		switch ( preg_match( '/ne\.jp/', $img_dir ) ) {
+			case 1:// GOLDの場合はFTP
+				$menus[] = 'n2_rakuten_sftp_upload';
+				break;
+			default:// CABINETはSFTP
+				$menus[] = 'n2_rakuten_ftp_upload';
+		}
+
 		// ロール毎で削除するメニュー
 		switch ( $n2->current_user->roles[0] ) {
 			case 'ss-crew':
