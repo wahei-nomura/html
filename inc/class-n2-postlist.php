@@ -51,7 +51,7 @@ class N2_Postlist {
 	 * @return void
 	 */
 	public function save_post_ids_ui() {
-		if ( current_user_can( 'municipal-office' ) ) {
+		if ( current_user_can( 'municipal-office' ) || current_user_can( 'ss-crew' ) ) {
 			get_template_part( 'template/admin-postlist/save-post-ids' );
 		}
 	}
