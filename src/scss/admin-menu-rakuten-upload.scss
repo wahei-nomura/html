@@ -1,0 +1,92 @@
+#ss-cabinet {
+	position: relative;
+	#ss-cabinet-images {
+		&.loading {
+			animation: loading 3s infinite;
+		}
+		.card { /* Bootstrapを上書き */
+			width: 18rem;
+			max-width: 160px;
+			padding: 0.5rem 0.7rem 1rem;
+		}
+		.card-img-top {
+			height: 136px;
+			width: 136px;
+			object-fit: contain;
+		}
+		.card-body {
+			padding: 1rem .3rem;
+		}
+		.card-text {
+			text-wrap: nowrap;
+		}
+	}
+	.tree {/*親要素*/
+		position: relative;
+		background: white;
+		padding: 30px;
+		font-size: .85rem;
+		font-weight: 400;
+		line-height: 1.5;
+		color: #212529;
+		& ul {
+			padding-left: 5px;
+			list-style: none;
+			& li {
+				position: relative;
+				padding-top: 5px;
+				padding-bottom: 5px;
+				padding-left: 10px;
+				box-sizing: border-box;
+				margin-bottom: 0px;
+				& .bi {
+					padding-right: 5px;
+				}
+				&.hasChirdlen{
+					> span{
+						&:before {
+							content: '';
+							position: absolute;
+							width: 5px;
+							height: 5px;
+							border: 1px solid #000;
+							border-left: none;
+							border-top: none;
+							top: 15px;
+							left: 0px;
+							transform: translate(-50%,-50%) rotate(-45deg);
+						}
+						&.close {
+							&:before {
+								transform: translate(-50%,-50%) rotate(45deg);
+							}
+						}
+					}
+				}
+				&:last-child:after {/*これ以下は別フォルダになる事を明示する為、少しだけ離す*/
+					height: 15px;
+				}
+				
+			}
+		}
+		& span {/*ファイル名部分*/
+			cursor: pointer;
+			&.active {
+				background-color: #00f2;
+			}
+			
+		}
+	}
+	.modal-content {background-color:#8888;}
+	.dragable-area {
+		border-style: dashed!important;
+	}
+}
+@keyframes loading {
+	0%, 100% {
+		background-color: #fff;
+	}
+	50% {
+		background-color: #0002;
+	}
+}

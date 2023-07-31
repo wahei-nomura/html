@@ -44,6 +44,8 @@ class N2_Enqueuescript {
 			'post-new.php'                => 'admin-post-editor',
 			'edit.php'                    => 'admin-post-lists',
 			'toplevel_page_n2_crew_setup_menu' => 'admin-setup',
+			'toplevel_page_n2_rakuten_ftp_upload'  => 'admin-menu-rakuten-upload',
+			'toplevel_page_n2_rakuten_sftp_upload' => 'admin-menu-rakuten-upload',
 			'profile.php'                 => 'admin-user-profile',
 			'user-edit.php'               => 'admin-user-profile',
 			'user-new.php'                => 'admin-user-new',
