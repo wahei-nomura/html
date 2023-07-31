@@ -66,7 +66,7 @@ $folders = array( ...$folders, $root );
 
 $tree_list = function ( $parent, $path = null ) use ( &$tree_list, $folders ) {
 	?>
-	<ul <?php echo ( $path ) ? ' class="invisible"' : ''; ?>>
+	<ul <?php echo ( null !== $path ) ? ' class="invisible"' : ''; ?>>
 	<?php foreach ( $parent as $li => $child ) : ?>
 		<?php
 			$dir    = null !== $path ? "{$path}/{$li}" : '';
@@ -178,6 +178,7 @@ $tree_list = function ( $parent, $path = null ) use ( &$tree_list, $folders ) {
 				$(this).children('i').attr('class', icons[1] );
 			}
 		})
+		$tree.find('li > span').eq(0).trigger('click');
 	})
 </script>
 
