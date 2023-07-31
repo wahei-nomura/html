@@ -16,9 +16,13 @@ abstract class N2_RMS_Base_API {
 	 * @var class
 	 */
 	protected static $settings = array(
-		'sheetId'  => '1FrFJ7zog1WUCsiREFOQ2pGAdhDYveDgBmGdaITrWeCo', // RMSのキー取得の為のスプレットシートID
-		'range'    => 'RMS_API', // RMSのキー取得の為のスプレットシート範囲
-		'endpoint' => 'https://api.rms.rakuten.co.jp/es/',
+		'sheetId'   => '1FrFJ7zog1WUCsiREFOQ2pGAdhDYveDgBmGdaITrWeCo', // RMSのキー取得の為のスプレットシートID
+		'range'     => 'RMS_API', // RMSのキー取得の為のスプレットシート範囲
+		'endpoint'  => 'https://api.rms.rakuten.co.jp/es/',
+		'transient' => array(
+			'key'  => null,
+			'salt' => SECURE_AUTH_SALT,
+		),
 	);
 
 	/**
@@ -249,10 +253,8 @@ abstract class N2_RMS_Base_API {
 
 			// 復号化したデータからソルトを削除して秘密鍵を取得
 			$key = str_replace( $salt, '', $decrypted_data );
-
 			return $key;
 		}
-
 		return false;
 	}
 }

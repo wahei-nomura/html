@@ -16,8 +16,6 @@ if ( ! $folders ) {
 	echo 'RMS CABINETに接続できませんでした。';
 	die();
 }
-
-
 $tree = array();
 
 // sort
@@ -37,8 +35,6 @@ $folders = array_map(
 );
 
 $root = array_shift( $folders );
-
-
 
 // 再帰的にtreeを生成
 $build_tree = function ( &$parent, $path ) use ( &$build_tree ) {
@@ -70,7 +66,7 @@ $folders = array( ...$folders, $root );
 
 $tree_list = function ( $parent, $path = null ) use ( &$tree_list, $folders ) {
 	?>
-	<ul<?php echo ( null != $path ) ? ' class="invisible"' : ''; ?>>
+	<ul <?php echo ( $path ) ? ' class="invisible"' : ''; ?>>
 	<?php foreach ( $parent as $li => $child ) : ?>
 		<?php
 			$dir    = null !== $path ? "{$path}/{$li}" : '';
@@ -82,8 +78,8 @@ $tree_list = function ( $parent, $path = null ) use ( &$tree_list, $folders ) {
 		<?php else : ?>
 		<li>
 		<?php endif; ?>
-			<span data-path="<?php echo $dir ?: '/'; ?>" data-id="<?php echo $folder['FolderId']; ?>">
-				<i class="bi bi-folder2-open close"></i><?php echo $folder['FolderName']; ?>
+			<span data-path="<?php echo esc_attr( $dir ?: '/' ); ?>" data-id="<?php echo esc_attr( $folder['FolderId'] ); ?>">
+				<i class="bi bi-folder2-open close"></i><?php echo esc_html( $folder['FolderName'] ); ?>
 			</span>
 		<?php if ( $child ) : ?>
 			<?php $tree_list( $child, $dir ); ?>
@@ -106,7 +102,7 @@ $tree_list = function ( $parent, $path = null ) use ( &$tree_list, $folders ) {
 		<div id="ss-cabinet-images" class="overflow-auto border-start border-dark col-9 d-flex align-content-start justify-content-start align-items-start flex-wrap"></div>
 	</div>
 	<div id="card-template" style="display:none;">
-		<div class="card shadow text-center me-2" style="width: 18rem;">
+		<div class="card shadow text-center me-2">
 			<img src="" class="card-img-top" alt="">
 			<div class="card-body">
 				<h6 class="card-title text-truncate"></h6>
@@ -132,11 +128,9 @@ $tree_list = function ( $parent, $path = null ) use ( &$tree_list, $folders ) {
 			});
 		}
 
+		// 
 		const top = $('#ss-cabinet .row').offset().top;
 		const left = $('#ss-cabinet .row').offset().left;
-		
-		console.log(top,left);        
-
 		const $tree = $('.tree')
 		$tree.on('click','li > span', async function(event){
 			const icons = ['spinner-border spinner-border-sm','bi bi-folder2-open'];
@@ -173,8 +167,6 @@ $tree_list = function ( $parent, $path = null ) use ( &$tree_list, $folders ) {
 						$cardGroup.append( $card );
 						return;
 					}
-					// https://image.rakuten.co.jp/f423831-ojika/cabinet/item/daa/daa018-2.jpg
-					// https://thumbnail.image.rakuten.co.jp/@0_mall/f423831-ojika/cabinet/item/dbg/dbg076.jpg?_ex=137x137
 					url = url.replace('image.rakuten.co.jp','thumbnail.image.rakuten.co.jp/@0_mall');
 					url += '?_ex=137x137';
 					$card.find('img').attr('src', url );
@@ -197,6 +189,7 @@ $tree_list = function ( $parent, $path = null ) use ( &$tree_list, $folders ) {
 				animation: loading 3s infinite;
 			}
 			.card { /* Bootstrapを上書き */
+				width: 18rem;
 				max-width: 160px;
 				padding: 0.5rem 0.7rem 1rem;
 			}
@@ -204,6 +197,9 @@ $tree_list = function ( $parent, $path = null ) use ( &$tree_list, $folders ) {
 				height: 136px;
 				width: 136px;
 				object-fit: contain;
+			}
+			.card-body {
+				padding: 1rem .3rem;
 			}
 			.card-text {
 				text-wrap: nowrap;
