@@ -45,40 +45,41 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	 */
 	public static function files_get() {
 
-		$keywords                          = static::$data['params']['keywords'];
-		static::$data['params']['cabinet'] = self::folders_get();
 
-		static::check_fatal_error( static::$data['params']['cabinet'], 'フォルダーIDの取得に失敗しました。' );
+		static::check_fatal_error( static::$data['params']['folderId'] !== null, 'フォルダーIDの取得に失敗しました。' );
 
-		$folder_name_list = array_column( static::$data['params']['cabinet'], 'FolderName' );
-
-		foreach ( $keywords as $keyword ) {
-			$forder_name = array_search( $keyword, $folder_name_list, true );
-
-			if ( false !== $forder_name ) {
-				$exist_forder[] = $forder_name;
-			}
-		}
-		$folder_ids = array_map(
-			function ( $folder ) {
-				$dict[ $folder ] = static::$data['params']['cabinet'][ $folder ]['FolderId'];
-				return static::$data['params']['cabinet'][ $folder ]['FolderId'];
-			},
-			$exist_forder
+		$params = array(
+			'folderId' => static::$data['params']['folderId'],
+			'limit'    => 100,
+			'offset'   => 1,
 		);
 
-		$urls  = array_map(
-			function ( $id ) {
-				$params = array(
-					'folderId' => $id,
-					'limit'    => 100,
-				);
-				return self::$settings['endpoint'] . '/1.0/cabinet/folder/files/get?' . http_build_query( $params );
-			},
-			$folder_ids,
-		);
+		$url      = static::$settings['endpoint'] . '/1.0/cabinet/folder/files/get?' . http_build_query( $params );
+		
 		$files = array();
+		$urls  = array();
 
+		$response = wp_remote_get( $url, array('headers'=> static::$data['header']) );
+
+		$result     = simplexml_load_string( $response['body'] )->cabinetFolderFilesGetResult;
+		$file_count = $result->fileAllCount;   
+		$res_files  = $result->files;
+		$res_files  = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
+		$files      = match( $file_count > 1 ) {
+			true => $res_files,
+			default => array( $res_files ),
+		};
+
+		return $files;
+
+		for ($i=1; $i < $file_count % $params['limit']; $i++) { 
+			$params['offset'] += 1;
+			$urls[] = static::$settings['endpoint'] . '/1.0/cabinet/folder/files/get?' . http_build_query( $params );
+		}
+		if ( empty( $urls ) ) {
+			return $files;
+		}
+		
 		$response = N2_Multi_URL_Request_API::ajax(
 			array(
 				'urls'    => $urls,
@@ -87,12 +88,12 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 				'mode'    => 'func',
 			),
 		);
+
 		foreach ( $response as $res ) {
-			$keyword           = $res->headers->getValues( 'folderid' )[0];
-			$keyword           = array_search( $keyword, $dict, true );
-			$res_files         = simplexml_load_string( $res->body )->cabinetFolderFilesGetResult->files;
-			$res_files         = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
-			$files[ $keyword ] = $res_files;
+			$result     = simplexml_load_string( $res->body )->cabinetFolderFilesGetResult;
+			$res_files  = $result->files;
+			$res_files  = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
+			$files      = array( ...$files, ...$res_files );
 		}
 		return $files;
 	}

@@ -78,6 +78,7 @@ class N2_Rakuten_SFTP {
 		<div class="wrap">
 			<h1>楽天SFTP</h1>
 			<?php get_template_part( 'template/admin-menu/sftp', $template, $args ); ?>
+			<?php get_template_part( 'template/admin-menu/sftp', 'client' ); ?>
 		</div>
 		<?php
 	}
