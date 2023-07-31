@@ -66,7 +66,6 @@ abstract class N2_RMS_Base_API {
 	private static function set_api_keys() {
 		$transient = 'rms_api_auth_key';
 		$authkey   = static::get_decrypted_data_from_transient( $transient );
-		error_log( $authkey );
 		if ( ! $authkey ) {
 			global $n2, $n2_sync;
 			$keys           = $n2_sync->get_spreadsheet_data( static::$settings['sheetId'], static::$settings['range'] );
@@ -78,10 +77,10 @@ abstract class N2_RMS_Base_API {
 				return array();
 			}
 			$authkey = "{$service_secret}:{$license_key}";
-			$save = static::save_encrypted_data_to_transient( $transient, $authkey );
+			$save    = static::save_encrypted_data_to_transient( $transient, $authkey );
 		}
-		$authkey = base64_encode( $authkey );
 		// base64_encode
+		$authkey = base64_encode( $authkey );
 		return array(
 			'Authorization' => "ESA {$authkey}",
 		);
@@ -218,7 +217,12 @@ abstract class N2_RMS_Base_API {
 		$iv             = openssl_random_pseudo_bytes( 16 );
 		$encrypted_data = openssl_encrypt( $data_to_encrypt, 'AES-256-CBC', $opt['salt'], 0, $iv );
 		// transientに暗号化したデータとIVを保存
-		$data_to_save = base64_encode( $iv . $encrypted_data );
+		$data_to_save = wp_json_encode(
+			array(
+				'iv'             => base64_encode( $iv ),
+				'encrypted_data' => $encrypted_data,
+			)
+		);
 
 		// transientに暗号化したデータを保存
 		return set_transient( $key, $data_to_save, $opt['expiration'] );
@@ -237,10 +241,9 @@ abstract class N2_RMS_Base_API {
 		// transientから暗号化されたデータを取得
 		$encrypted_data = get_transient( $key );
 		if ( $encrypted_data ) {
-			$encrypted_data = base64_decode( $encrypted_data );
-			// 先頭16バイトがIV
-			$iv = substr( $encrypted_data, 0, 16 );
-			$encrypted_data = substr( $encrypted_data, 16 );
+			$data           = json_decode( $encrypted_data, true );
+			$iv             = base64_decode( $data['iv'] );
+			$encrypted_data = $data['encrypted_data'];
 			// 暗号化されたデータを復号化
 			$decrypted_data = openssl_decrypt( $encrypted_data, 'AES-256-CBC', $salt, 0, $iv );
 
