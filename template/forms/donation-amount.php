@@ -25,12 +25,15 @@ foreach ( $args as $k => $v ) {
 	</label>
 
 	<!-- 寄附金額 -->
-	<template v-if="!寄附金額固定.filter(v=>v).length">
-		<input type="text"<?php echo $attr; ?> readonly>
-	</template>
-	<template v-else>
-		<input type="text"<?php echo $attr; ?>>
-	</template>
+	<span class="d-inline-block position-relative">
+		<template v-if="!寄附金額固定.filter(v=>v).length">
+			<input type="text"<?php echo $attr; ?> readonly>
+		</template>
+		<template v-else>
+			<input type="text"<?php echo $attr; ?>>
+		</template>
+		<input v-if="number_format" type="text" :value="Number(寄附金額).toLocaleString()" :class="`position-absolute start-0 pe-none z-n1 ${寄附金額チェッカー}`" style="width: 100%;border-top-left-radius: 0; border-bottom-left-radius: 0;">
+	</span>
 
 	<!-- 寄附金額再計算 -->
 	<div class="btn btn-dark" style="white-space: nowrap;" @click="update_donation()" v-if="!寄附金額固定.filter(v=>v).length">再計算</div>

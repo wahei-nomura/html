@@ -33,7 +33,8 @@
         description: 寄附金額を手動入力したい場合はチェックボックスにチェックを入れてください。<br>チェックが入っていない場合は寄附金額は自動計算されます。
         placeholder: 例）10000
         style: "width: 12em;"
-        "@focus": set_info($event.target)
+        "@focus": "set_info($event.target);number_format=false"
+        "@blur": "number_format=true"
         :value: 寄附金額
         "@change": "force_half_size_text($event, 'number', '寄附金額');calc_donation(価格, 送料, 定期便)"
     寄附金額固定:  # N2エクスポートに入れるために必須
@@ -160,14 +161,15 @@
         :value: 寄附金額
         v-if: current_user == 'jigyousya'
     価格:
-        type : text
+        type : price
         label : 価格（税込）
         required: required
         placeholder: 例）1000
-        description: '商品価格を税込でご記載ください。<br>※寄附金額は自動で算出しますので、入力不要です。<br>※定期便の場合、1回分の価格をご記載ください。'
-        style: 'width: 10em'
+        description: '商品価格を税込でご記載ください。<br>※寄附金額は自動で算出しますので、入力不要です。<br>※定期便の場合、<b>1回分の価格</b>をご記載ください。'
+        style: 'width: 7em'
         :value: 価格
-        "@focus": set_info($event.target)
+        "@focus": "set_info($event.target);number_format=false"
+        "@blur": "number_format=true"
         "@change": "force_half_size_text($event, 'number', '価格');auto_adjust_price()"
     キャッチコピー:
         type : text

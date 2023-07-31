@@ -24,6 +24,7 @@ export default ($: any = jQuery) => {
 	data['寄附金額チェッカー'] = '';
 	data['寄附金額自動計算値'] = '';
 	data['media'] = false;
+	data['number_format'] = true;// ３桁区切りカンマ用
 	const created = async function() {
 		save_as_pending.append_button("#n2-save-post");// スチームシップへ送信
 		this.全商品ディレクトリID = {
@@ -127,7 +128,10 @@ export default ($: any = jQuery) => {
 		},
 		// 価格の端数の自動調整
 		async auto_adjust_price() {
-			if ( n2.settings['寄附金額・送料']['自動価格調整'] == '調整しない' ) return;
+			if ( n2.settings['寄附金額・送料']['自動価格調整'] == '調整しない' ) {
+				this.価格 = Math.ceil(this.価格);
+				return;
+			}
 			const opt = {
 				url: n2.ajaxurl,
 				data: {
