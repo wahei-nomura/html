@@ -36,10 +36,35 @@ class N2_Postlist {
 		add_filter( 'post_row_actions', array( $this, 'hide_editbtn' ) );
 		add_filter( 'bulk_actions-edit-post', '__return_false' );
 		add_filter( 'disable_months_dropdown', '__return_true' );
+		add_filter( 'wp_count_posts', array( $this, 'adjust_count_post' ), 10, 3 );
 		add_action( "wp_ajax_{$this->cls}", array( $this, 'ajax' ) );
 		add_action( "wp_ajax_{$this->cls}_deletepost", array( $this, 'delete_post' ) );
 		add_action( "wp_ajax_{$this->cls}_recoverypost", array( $this, 'recovery_post' ) );
 		add_action( "wp_ajax_{$this->cls}_ban_portal_list", array( $this, 'ban_portal_list' ) );
+	}
+
+	/**
+	 * 事業者アカウントの投稿数の調整
+	 *
+	 * @param stdClass $counts An object containing the current post_type's post
+	 *                         counts by status.
+	 * @param string   $type   Post type.
+	 * @param string   $perm   The permission to determine if the posts are 'readable'
+	 *                         by the current user.
+	 */
+	public function adjust_count_post( $counts, $type, $perm ) {
+		global $wpdb, $n2;
+		if ( current_user_can( 'jigyousya' ) ) {
+			$query   = "SELECT post_status, COUNT( * ) AS num_posts FROM {$wpdb->posts} WHERE post_type = %s AND post_author = %d GROUP BY post_status";
+			$results = (array) $wpdb->get_results( $wpdb->prepare( $query, $type, get_current_user_id() ), ARRAY_A );
+			$counts  = array_fill_keys( get_post_stati(), 0 );
+			foreach ( $results as $row ) {
+				$counts[ $row['post_status'] ] = $row['num_posts'];
+			}
+			$counts = (object) $counts;
+			wp_cache_set( $cache_key, $counts, 'counts' );
+		}
+		return $counts;
 	}
 
 	/**
