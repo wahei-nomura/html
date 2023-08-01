@@ -34,7 +34,7 @@ class N2_Postlist {
 		add_filter( 'gettext', array( $this, 'change_status' ) );
 		add_filter( 'ngettext', array( $this, 'change_status' ) );
 		add_filter( 'post_row_actions', array( $this, 'hide_editbtn' ) );
-		add_filter( 'bulk_actions-edit-post', array( $this, 'hide_bulk_btn' ) );
+		add_filter( 'bulk_actions-edit-post', '__return_false' );
 		add_action( 'restrict_manage_posts', array( $this, 'add_search_filter' ) );
 		add_action( 'posts_request', array( $this, 'posts_request' ) );
 		add_action( "wp_ajax_{$this->cls}", array( $this, 'ajax' ) );
@@ -45,10 +45,7 @@ class N2_Postlist {
 	}
 
 	/**
-	 * show_exportbtns
-	 * エクスポートボタン群表示
-	 *
-	 * @return void
+	 * 投稿ID保持＆一括ツールUI
 	 */
 	public function save_post_ids_ui() {
 		if ( current_user_can( 'ss-crew' ) || current_user_can( 'municipal-office' ) ) {
@@ -320,7 +317,6 @@ class N2_Postlist {
 		$status = str_ireplace( '下書き', '入力中', $status );
 		$status = str_ireplace( 'レビュー待ち', 'スチームシップ確認待ち', $status );
 		$status = str_ireplace( '公開済み', 'ポータル登録準備中', $status );
-
 		return $status;
 	}
 
@@ -336,22 +332,6 @@ class N2_Postlist {
 		unset( $actions['inline hide-if-no-js'] );
 		unset( $actions['view'] );
 		unset( $actions['trash'] );
-		return $actions;
-	}
-	/**
-	 * hide_editbtn
-	 * タイトル下の一括編集ボタンの中身を削除
-	 *
-	 * @param object $actions a
-	 * @return object @actions
-	 */
-	public function hide_bulk_btn( $actions ) {
-		global $n2;
-		switch ( $n2->current_user->roles[0] ) {
-			case 'municipal-office':
-				unset( $actions['edit'] );
-				break;
-		}
 		return $actions;
 	}
 
