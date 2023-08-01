@@ -54,7 +54,7 @@ class N2_Postlist {
 	 */
 	public function adjust_count_post( $counts, $type, $perm ) {
 		global $wpdb, $n2;
-		if ( current_user_can( 'jigyousya' ) ) {
+		if ( in_array( 'jigyousya', $n2->current_user->roles ?? array(), true ) ) {
 			$query   = "SELECT post_status, COUNT( * ) AS num_posts FROM {$wpdb->posts} WHERE post_type = %s AND post_author = %d GROUP BY post_status";
 			$results = (array) $wpdb->get_results( $wpdb->prepare( $query, $type, get_current_user_id() ), ARRAY_A );
 			$counts  = array_fill_keys( get_post_stati(), 0 );
