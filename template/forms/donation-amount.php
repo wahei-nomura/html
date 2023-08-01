@@ -6,7 +6,7 @@
  */
 
 $defaults = array(
-	':class' => '寄附金額チェッカー',
+	':class' => '`${寄附金額チェッカー} rounded-0 rounded-end`',
 );
 $args     = wp_parse_args( $args, $defaults );
 $attr     = '';
@@ -20,21 +20,19 @@ foreach ( $args as $k => $v ) {
 
 	<!-- 寄附金額ロック -->
 	<label class="input-group-text" title="寄附金額を手動入力する">
-		<input class="form-check-input mt-0" type="checkbox" name="n2field[寄附金額固定][]" value="固定する" v-model="寄附金額固定">
+		<input class="form-check-input mt-0" type="checkbox" name="n2field[寄附金額固定][]" value="固定する" v-model="寄附金額固定" @mouseover="set_info($event.target);">
 		<input type="hidden" name="n2field[寄附金額固定][]">
 	</label>
 
 	<!-- 寄附金額 -->
 	<span class="d-inline-block position-relative">
-		<template v-if="!寄附金額固定.filter(v=>v).length">
-			<input type="text"<?php echo $attr; ?> readonly>
-			<input v-if="number_format" type="text" :value="Number(寄附金額).toLocaleString()" :class="`position-absolute start-0 end-0 pe-none rounded-0 ${寄附金額チェッカー}`" readonly>
-		</template>
-		<template v-else>
-			<input type="text"<?php echo $attr; ?>>
+		<input type="text"<?php echo $attr; ?>>
+		<template v-if="寄附金額固定.filter(v=>v).length">
 			<input v-if="number_format" type="text" :value="Number(寄附金額).toLocaleString()" :class="`position-absolute start-0 end-0 pe-none rounded-0 rounded-end ${寄附金額チェッカー}`">
 		</template>
-		
+		<template v-else>
+			<input type="text" :value="Number(寄附金額).toLocaleString()" class="position-absolute start-0 end-0 rounded-0 bg-white text-dark" @mouseover="set_info($event.target)" @focus="$event.target.blur()" readonly>
+		</template>
 	</span>
 
 	<!-- 寄附金額再計算 -->
