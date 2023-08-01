@@ -171,6 +171,7 @@
         "@focus": "set_info($event.target);number_format=false"
         "@blur": "number_format=true"
         "@change": "force_half_size_text($event, 'number', '価格');auto_adjust_price()"
+    価格総額: # N2エクスポートに入れるために必須
     キャッチコピー:
         type : text
         description : こだわりやポイントを端的にご記載ください。
