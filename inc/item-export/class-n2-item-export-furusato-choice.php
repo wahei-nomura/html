@@ -130,7 +130,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 			preg_match( '/^サイト表示事業者名$/', $val )  => $this->get_author_name( $n2values ),// 64文字以内
 			preg_match( '/必要寄付金額$/', $val )  => $n2values['寄附金額'],// * 半角数字
 			preg_match( '/（条件付き必須）ポイント$/', $val ) => match ( $choice_settings['ポイント導入'] ?? false ) {
-				'導入する' => $n2values['寄附金額'] * 0.3,// 必要ポイントを半角数字で入力してください。
+				'導入する' => $n2values['価格'] * $n2values['定期便'],// 必要ポイントを半角数字で入力してください。
 				default => '',
 			},
 			preg_match( '/^説明$/', $val )  => $n2values['説明文'],// 1,000文字以内
