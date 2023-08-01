@@ -39,4 +39,4 @@ foreach ( $args as $k => $v ) {
 	<div class="btn btn-dark py-1" style="white-space: nowrap;" @click="update_donation()" v-if="!寄附金額固定.filter(v=>v).length">再計算</div>
 
 </div>
-<p v-html="`寄附金額自動計算値：${Number(寄附金額自動計算値).toLocaleString()}（価格：${価格}　送料：${Number(送料).toLocaleString()}　定期便回数： ${定期便}）`" class="n2-field-addition d-none"></p>
+<p v-html="`寄附金額自動計算値：${Number(寄附金額自動計算値).toLocaleString()}円（価格：${Number(価格).toLocaleString()}円　送料：${Number(送料).toLocaleString()}円　定期便回数： ${定期便}回）`" class="n2-field-addition d-none"></p>
