@@ -28,15 +28,17 @@ foreach ( $args as $k => $v ) {
 	<span class="d-inline-block position-relative">
 		<template v-if="!寄附金額固定.filter(v=>v).length">
 			<input type="text"<?php echo $attr; ?> readonly>
+			<input v-if="number_format" type="text" :value="Number(寄附金額).toLocaleString()" :class="`position-absolute start-0 end-0 pe-none rounded-0 ${寄附金額チェッカー}`" readonly>
 		</template>
 		<template v-else>
 			<input type="text"<?php echo $attr; ?>>
+			<input v-if="number_format" type="text" :value="Number(寄附金額).toLocaleString()" :class="`position-absolute start-0 end-0 pe-none rounded-0 rounded-end ${寄附金額チェッカー}`">
 		</template>
-		<input v-if="number_format" type="text" :value="Number(寄附金額).toLocaleString()" :class="`position-absolute start-0 pe-none z-n1 ${寄附金額チェッカー}`" style="width: 100%;border-top-left-radius: 0; border-bottom-left-radius: 0;">
+		
 	</span>
 
 	<!-- 寄附金額再計算 -->
-	<div class="btn btn-dark" style="white-space: nowrap;" @click="update_donation()" v-if="!寄附金額固定.filter(v=>v).length">再計算</div>
+	<div class="btn btn-dark py-1" style="white-space: nowrap;" @click="update_donation()" v-if="!寄附金額固定.filter(v=>v).length">再計算</div>
 
 </div>
 <p v-html="`寄附金額自動計算値：${Number(寄附金額自動計算値).toLocaleString()}（価格：${価格}　送料：${Number(送料).toLocaleString()}　定期便回数： ${定期便}）`" class="n2-field-addition d-none"></p>

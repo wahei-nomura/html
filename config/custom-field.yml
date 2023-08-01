@@ -32,7 +32,7 @@
         type: donation-amount
         description: 寄附金額を手動入力したい場合はチェックボックスにチェックを入れてください。<br>チェックが入っていない場合は寄附金額は自動計算されます。
         placeholder: 例）10000
-        style: "width: 12em;"
+        style: "width: 12em"
         "@focus": "set_info($event.target);number_format=false"
         "@blur": "number_format=true"
         :value: 寄附金額
