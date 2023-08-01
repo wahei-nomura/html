@@ -105,8 +105,6 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 				'定期便種別' => '回数',
 				'配送名称' => "{$item_code} " . ( $n2values['配送伝票表示名'] ?: $n2values['タイトル'] ),// 配送伝票表示名 > タイトル
 				'特設サイト名称' => $is_e_ticket ? "{$item_code} " . ( $n2values['配送伝票表示名'] ?: $n2values['タイトル'] ) : '',// eチケット
-				'ふるさとチョイス名称' => $is_e_ticket ? '' : "{$n2values['タイトル']} [{$n2values['返礼品コード']}]",// タイトル [返礼品コード]
-				'楽天名称' => $is_e_ticket ? '' : "【ふるさと納税】{$n2values['タイトル']} [{$n2values['返礼品コード']}]",// 【ふるさと納税】タイトル [返礼品コード]
 				'事業者' => $n2values['事業者名'],
 				'謝礼品カテゴリー' => $n2values['LHカテゴリー'],
 				'セット内容' => $n2values['内容量・規格等'],
