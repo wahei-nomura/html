@@ -144,4 +144,83 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 		return $files;
 	}
 
+	/**
+	 * フォルダ追加
+	 */
+	public static function folder_insert () {
+		static::check_fatal_error( static::$data['params']['folderName'] ?? false, 'フォルダ名が設定されていません。' );
+		static::check_fatal_error( static::$data['params']['directoryName'] ?? false, 'directory名が設定されていません。' );
+		static::check_fatal_error( static::$data['params']['upperFolderId'] ?? false, '上位階層フォルダIDが設定されていません。' );
+
+		$url = static::$settings['endpoint'] . '/1.0/cabinet/folder/insert';
+		$xml_request_body = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><request></request>');
+
+		$request = array(
+			'folderInsertRequest' => array(
+				'folder' => array(
+					'folderName' => static::$data['params']['folderName'],
+					'directoryName' => static::$data['params']['directoryName'],
+					'upperFolderId' => static::$data['params']['upperFolderId'],
+				),
+			),
+		);
+		static::array_to_xml( $request, $xml_request_body );
+		// SimpleXMLElementオブジェクトを文字列に変換
+		$xml_data = $xml_request_body->asXML();
+
+		$request_args = array(
+			'method'      => 'POST',
+			'headers'     => array(
+				...static::$data['header'],
+			),
+			'body'        => $xml_data, // XMLデータをリクエストボディに設定
+		);
+		$response = wp_remote_request( $url, $request_args );
+
+		$response_body = wp_remote_retrieve_body($response);
+
+		return $response_body;
+	}
+	/**
+	 * ファイル追加
+	 */
+	public static function file_insert () {
+		// static::check_fatal_error( static::$data['params']['fileName'] ?? false, 'フォルダ名が設定されていません。' );
+		// static::check_fatal_error( static::$data['params']['folderId'] ?? false, 'directory名が設定されていません。' );
+
+		$url = static::$settings['endpoint'] . '/1.0/cabinet/file/insert';
+		$xml_request_body = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><request></request>');
+
+		$request = array(
+			'fileInsertRequest' => array(
+				'file' => array(
+					'fileName' => static::$data['params']['folderName'],
+					'filePath' => static::$data['params']['filePath'],
+					'folderId' => static::$data['params']['folderId'],
+					'overWrite' => static::$data['params']['overWrite'] ?? true,
+				),
+			),
+		);
+		static::array_to_xml( $request, $xml_request_body );
+		// SimpleXMLElementオブジェクトを文字列に変換
+		$xml_data = $xml_request_body->asXML();
+
+		$request_args = array(
+			'method'      => 'POST',
+			'headers'     => array(
+				...static::$data['header'],
+			),
+			'body'        => array(
+				'xml' => $xml_data, // XMLデータをリクエストボディに設定
+				'file' => static::$data['params']['files'],
+			),
+		);
+		// $response = wp_remote_request( $url, $request_args );
+
+		// $response_body = wp_remote_retrieve_body($response);
+
+		return $_FILES;
+		// return $request_args;
+	}
+
 }

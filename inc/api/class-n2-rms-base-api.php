@@ -257,4 +257,23 @@ abstract class N2_RMS_Base_API {
 		}
 		return false;
 	}
+
+	/**
+	 * 連想配列をXMLに変換する
+	 */
+	protected static function array_to_xml ( $array, &$xml ) {
+		foreach( $array as $key => $value ) {
+			if( is_array( $value )) {
+				if( ! is_numeric( $key )){
+					$subnode = $xml->addChild("$key");
+					self::array_to_xml($value, $subnode);
+				} else {
+					self::array_to_xml($value, $xml);
+				}
+			} else {
+				$xml->addChild("$key","$value");
+			}
+		}
+	}
+	  
 }

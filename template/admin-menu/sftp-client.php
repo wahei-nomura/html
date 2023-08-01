@@ -90,6 +90,8 @@ $tree_list = function ( $parent, $path = null ) use ( &$tree_list, $folders ) {
 	<?php
 };
 
+global $n2;
+
 ?>
 <div id="ss-cabinet" class="container">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
@@ -124,7 +126,15 @@ $tree_list = function ( $parent, $path = null ) use ( &$tree_list, $folders ) {
 			ファイルをドラッグ&ドロップしてください
 		</div>
 	</div>
-	<form action="">
-		<input type="file" multiple="multiple" name="files">
+	<form action="<?php echo esc_url( $n2->ajaxurl ); ?>" method="POST" enctype="multipart/form-data">
+		<input type="hidden" name="n2nonce" value="<?php echo esc_attr( wp_create_nonce( 'n2nonce' ) ); ?>">
+		<input type="hidden" name="action" value="n2_rms_cabinet_api_ajax">
+		<input type="hidden" name="mode" value="debug">
+		<input type="hidden" name="request" value="file_insert">
+		<input type="hidden" name="fileName" value="">
+		<input type="hidden" name="filePath" value="">
+		<input type="hidden" name="folderId" value="">
+		<input type="file" multiple="multiple" name="files[]">
+		<input type="submit" value="リクエストを送信">
 	</form>
 </div>

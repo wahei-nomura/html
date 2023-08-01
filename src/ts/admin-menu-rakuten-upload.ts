@@ -41,6 +41,7 @@ jQuery( function($){
 			}
 			
 			$(this).addClass('active');
+			const $active = $(this);
 			const res = await get_files($(this).data('id'));
 			$cardGroup.empty();
 			res.forEach( async file => {
@@ -64,7 +65,20 @@ jQuery( function($){
 				$card.find('.card-text').text(file['FilePath']);
 				$cardGroup.append( $card );
 			});
-			$cardGroup.append($('#dragable-area-template .dragable-area').clone(false));
+			const $dragArea = $('#dragable-area-template .dragable-area').clone(false);
+			$cardGroup.append($dragArea);
+			$('#ss-cabinet form').find('input').each((_,input)=>{
+				switch ($('#ss-cabinet form').find('input').eq(_).attr('name')) {
+					case 'filePath':
+						$('#ss-cabinet form').find('input').eq(_).val( $active.data('path') );
+						break;
+					case 'folderId':
+						$('#ss-cabinet form').find('input').eq(_).val( $active.data('id') );
+						break;
+				}
+			})
+			
+
 			$cardGroup.removeClass('loading');
 			$(this).children('i').attr('class', icons[1] );
 		}
@@ -99,6 +113,7 @@ jQuery( function($){
 			const files = e.originalEvent.dataTransfer.files;
 
 			$("#ss-cabinet").find('form input[type="file"]').prop('files',files);
+			$("#ss-cabinet").find('form input[type="submit"]').trigger('click');
 		  });
 	}
 })
