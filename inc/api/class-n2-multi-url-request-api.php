@@ -54,6 +54,7 @@ class N2_Multi_URL_Request_API {
 
 	/**
 	 * 各パラメータ配列の作成
+	 * $args > $_GET > $_POST > $default
 	 *
 	 * @param array $args args
 	 */
@@ -147,11 +148,16 @@ class N2_Multi_URL_Request_API {
 		$urls = static::$data['params']['urls'] ?? array();
 		static::check_fatal_error( $urls, 'urlsが設定されていません' );
 
-		foreach ( $urls as $url ) {
-			$requests[] = array(
+		foreach ( $urls as $index => $url ) {
+			$request = array(
 				'url'     => $url,
 				'headers' => static::$data['header'],
+				'type'    => static::$data['params']['type'] ?? Requests::GET,
 			);
+			if ( static::$data['params']['data'] ?? false ) {
+				$request['data'] = static::$data['params']['data'][ $index ];
+			}
+			$requests[] = $request;
 		}
 		return Requests::request_multiple( $requests, array( 'timeout' => 60 ) );
 	}
