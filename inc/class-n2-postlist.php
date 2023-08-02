@@ -71,7 +71,7 @@ class N2_Postlist {
 	 * 投稿ID保持＆一括ツールUI
 	 */
 	public function save_post_ids_ui() {
-		if ( current_user_can( 'ss-crew' ) || current_user_can( 'municipal-office' ) ) {
+		if ( current_user_can( 'ss-crew' ) || current_user_can( 'local-government' ) ) {
 			get_template_part( 'template/admin-postlist/save-post-ids' );
 		}
 	}
@@ -125,10 +125,10 @@ class N2_Postlist {
 			'thumbnail'       => '<div class="text-center">画像</div>',
 			'modified-last'   => "<div class='text-center'><a href='{$sort_base_url}&orderby=date&order={$asc_or_desc}'>最終<br>更新日{$this->judging_icons_order('date')}</a></div>",
 		);
-		if ( $n2->settings['N2']['役場確認'] ) {
-			$columns['yakuba'] = '役場確認';
+		if ( $n2->settings['N2']['自治体確認'] ) {
+			$columns['yakuba'] = '自治体確認';
 		}
-		if ( 'municipal-office' !== wp_get_current_user()->roles[0] ) {
+		if ( 'local-government' !== wp_get_current_user()->roles[0] ) {
 			$columns = array(
 				...$columns,
 				...array(
@@ -191,7 +191,7 @@ class N2_Postlist {
 		$teiki           = ! empty( $post_data['定期便'] ) && 1 !== (int) $post_data['定期便'] ? $post_data['定期便'] : '-';
 		$poster          = ! empty( get_userdata( $post->post_author ) ) ? get_userdata( $post->post_author )->display_name : '-';
 		$code            = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '未(id:' . $post->ID . ')';
-		$yakuba          = $post_data['役場確認'] ?? '';
+		$yakuba          = $post_data['自治体確認'] ?? '';
 		$code_no_class   = empty( $post_data['返礼品コード'] ) ? ' no-code' : '';
 		$ssmemo          = ! empty( $post_data['社内共有事項'] ) ? nl2br( $post_data['社内共有事項'] ) : '';
 		$ssmemo_isset    = $ssmemo ? 'n2-postlist-ssmemo' : '';

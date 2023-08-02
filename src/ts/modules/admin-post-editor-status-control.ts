@@ -69,8 +69,8 @@ export default ($:any = jQuery) => {
 			}
 		}
 		else {
-			// 役場以外でステータス変更
-			if ( !n2.current_user.roles.includes('municipal-office') ) {
+			// 自治体以外でステータス変更
+			if ( !n2.current_user.roles.includes('local-government') ) {
 				$('#n2-progress')
 					.css({cursor: 'pointer',height: '2.5em'})
 					.on('mousemove', e => {

@@ -10,7 +10,7 @@ export default (target: string, $:any = jQuery) => {
 		const status = window['wp'].data.select("core/editor").getEditedPostAttribute("status");
 		if ( 
 			( window['n2'].current_user.roles.includes('jigyousya') && ! status.match(/draft/) )
-			|| window['n2'].current_user.roles.includes('municipal-office')
+			|| window['n2'].current_user.roles.includes('local-government')
 		) return
 		// 削除ボタン配置
 		$(target).prepend('<div id="n2-delete-post" class="btn btn-sm btn-outline-danger d-flex align-items-center" title="削除"><span></span>削除</div>');

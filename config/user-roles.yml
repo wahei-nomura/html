@@ -1,11 +1,11 @@
-役場:
-    role: municipal-office
+自治体:
+    role: local-government
     capabilities:
         read: true
         edit_posts: true
         edit_others_posts: true
         edit_published_posts: true
-        municipal-office: true
+        local-government: true
 事業者:
     role: jigyousya
     capabilities:

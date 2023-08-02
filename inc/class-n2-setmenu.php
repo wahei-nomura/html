@@ -91,7 +91,7 @@ class N2_Setmenu {
 				$menus[] = 'edit-comments.php';
 				$menus[] = 'aiowpsec'; // All In One WP Security
 				break;
-			case 'municipal-office':
+			case 'local-government':
 				$menus[]  = 'index.php';
 				$menus[]  = 'edit-comments.php';
 				$menus[]  = 'aiowpsec'; // All In One WP Security

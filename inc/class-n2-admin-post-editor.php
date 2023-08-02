@@ -103,12 +103,12 @@ class N2_Admin_Post_Editor {
 		$ss = array(
 			'administrator',
 			'ss-crew',
-			'municipal-office',
+			'local-government',
 		);
 		if ( in_array( $n2->current_user->roles[0], $ss, true ) ) {
 			add_meta_box(
-				'役場用',
-				'役場用',
+				'自治体用',
+				'自治体用',
 				array( $this, 'show_customfields' ),
 				'post',
 				'normal',

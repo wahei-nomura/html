@@ -7,7 +7,7 @@ import "../../node_modules/bootstrap/js/dist/dropdown"
 const n2 = window['n2'];
 jQuery( $ => {
 	save_post_ids($);
-	if ( n2.current_user.roles[0] === 'municipal-office' ) {
+	if ( n2.current_user.roles[0] === 'local-government' ) {
 		// 新規追加ボタンを削除
 		$('.page-title-action').remove();
 	}

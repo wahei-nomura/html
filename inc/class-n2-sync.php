@@ -571,9 +571,9 @@ class N2_Sync {
 			if ( 'その他（ヤマト以外）' === $postarr['meta_input']['発送サイズ'] ) {
 				$postarr['meta_input']['発送サイズ'] = 'その他';
 			}
-			// 役場確認
+			// 自治体確認
 			if ( isset( $postarr['meta_input']['市役所確認'] ) ) {
-				$postarr['meta_input']['役場確認'] = match ( $postarr['meta_input']['市役所確認'] ) {
+				$postarr['meta_input']['自治体確認'] = match ( $postarr['meta_input']['市役所確認'] ) {
 					'不要', '要', '済' => '承諾',
 					default => '未',
 				};

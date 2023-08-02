@@ -1,9 +1,9 @@
-役場用:
-    役場確認:
+自治体用:
+    自治体確認:
         type: radio
         value: 未
-        v-model: 役場確認
-        v-if: n2.settings.N2.役場確認
+        v-model: 自治体確認
+        v-if: n2.settings.N2.自治体確認
         option:
             - 未
             - 却下
@@ -11,7 +11,7 @@
     却下理由:
         type: textarea
         style: 'width: 100%;'
-        v-if: "'却下' === 役場確認 && n2.settings.N2.役場確認"
+        v-if: "'却下' === 自治体確認 && n2.settings.N2.自治体確認"
         rows: auto
         "@input": auto_fit_tetxarea($event.target)
 

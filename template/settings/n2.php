@@ -56,11 +56,11 @@ $settings = array(
 		</td>
 	</tr>
 	<tr>
-		<th>役場確認</th>
+		<th>自治体確認</th>
 		<td>
-			<input type="hidden" name="n2_settings[N2][役場確認]">
+			<input type="hidden" name="n2_settings[N2][自治体確認]">
 			<label>
-				<input type="checkbox" name="n2_settings[N2][役場確認]" value="1" <?php checked( $n2->settings['N2']['役場確認'] ); ?>> 役場確認する
+				<input type="checkbox" name="n2_settings[N2][自治体確認]" value="1" <?php checked( $n2->settings['N2']['自治体確認'] ); ?>> 自治体確認する
 			</label>
 		</td>
 	</tr>
