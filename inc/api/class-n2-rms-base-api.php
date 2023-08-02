@@ -60,7 +60,6 @@ abstract class N2_RMS_Base_API {
 		$data                  = wp_remote_get( static::$settings['endpoint'] . $path, array( 'headers' => static::$data['header'] ) );
 		$code                  = $data['response']['code'];
 		self::$data['connect'] = 200 === $code;
-
 		return self::$data['connect'];
 	}
 
@@ -70,7 +69,7 @@ abstract class N2_RMS_Base_API {
 	private static function set_api_keys() {
 		$transient = 'rms_api_auth_key';
 		$authkey   = static::get_decrypted_data_from_transient( $transient );
-		if ( ! $authkey ) {
+		if ( ! $authkey || ( static::$data['params']['apiUpdate'] ?? false ) ) {
 			global $n2, $n2_sync;
 			$keys           = $n2_sync->get_spreadsheet_data( static::$settings['sheetId'], static::$settings['range'] );
 			$keys           = array_filter( $keys, fn( $v ) => $v['town'] === $n2->town );
@@ -163,8 +162,9 @@ abstract class N2_RMS_Base_API {
 	 */
 	public static function ajax( $args ) {
 
-		static::set_header();
 		static::set_params( $args );
+		static::set_header();
+		static::check_fatal_error( static::connect(), '無効なAPIキーです。更新してください。');
 
 		static::$data['response'] = static::request();
 
