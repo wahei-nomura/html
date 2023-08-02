@@ -39,6 +39,7 @@ class N2_Setusers {
 		remove_role( 'subscriber' ); // 購読者
 		remove_role( 'contributor' ); // 寄稿者
 		remove_role( 'author' ); // 投稿者
+		remove_role( 'municipal-office' ); // 故 役場権限
 		// N2のユーザ権限
 		foreach ( (array) yaml_parse_file( get_theme_file_path( 'config/user-roles.yml' ) ) as $display_name => $v ) {
 			remove_role( $v['role'] ); // 初期化
