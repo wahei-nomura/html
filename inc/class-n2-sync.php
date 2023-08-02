@@ -721,7 +721,10 @@ class N2_Sync {
 					unset( $v['data']['ID'] );
 					// 権限変換用配列
 					$role = array(
-						'administrator' => 'ss-crew',
+						'administrator' => match ( 1 ) {
+							preg_match( '/市役所$/', $v['data']['first_name'] ) => 'local-government',
+							default => 'ss-crew',
+						},
 						'contributor'   => 'jigyousya',
 					);
 					// dataの変換・追加
