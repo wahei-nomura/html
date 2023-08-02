@@ -58,7 +58,7 @@ class N2_Rakuten_SFTP {
 	 */
 	public function add_menu() {
 		global $n2;
-		if ( isset( $n2->portal_setting['楽天'] ) ) {
+		if ( isset( $n2->settings['楽天'] ) ) {
 			add_menu_page( '楽天SFTP', '楽天SFTP', 'ss_crew', 'n2_rakuten_sftp_upload', array( $this, 'display_ui' ), 'dashicons-admin-site-alt3' );
 			add_submenu_page( 'n2_rakuten_sftp_upload', '楽天エラーログ', '楽天エラーログ', 'ss_crew', 'n2_rakuten_sftp_error_log', array( $this, 'display_ui' ) );
 		}
@@ -92,15 +92,15 @@ class N2_Rakuten_SFTP {
 		}
 		global $n2;
 
-		$user = $args['user'] ?? $n2->portal_setting['楽天']['ftp_user'] ?? '';
-		$pass = $args['pass'] ?? $n2->portal_setting['楽天']['ftp_pass'] ?? '';
+		$user = $args['user'] ?? $n2->settings['楽天']['ftp_user'] ?? '';
+		$pass = $args['pass'] ?? $n2->settings['楽天']['ftp_pass'] ?? '';
 		$this->check_fatal_error( $user && $pass, '楽天セットアップが完了していません。' );
 
 		WP_Filesystem();
 		require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-ssh2.php';
 
 		$opt        = array(
-			'hostname' => $args['hostname'] ?? $n2->portal_setting['楽天']['upload_server'],
+			'hostname' => $args['hostname'] ?? $n2->settings['楽天']['upload_server'],
 			'username' => $user,
 			'password' => $pass,
 		);
@@ -169,7 +169,7 @@ class N2_Rakuten_SFTP {
 		$type = $this->data['files']['type'];
 		$tmp_name = $this->data['files']['tmp_name'];
 	
-		$img_dir = rtrim( $n2->portal_setting['楽天']['img_dir'], '/' ) . '/';
+		$img_dir = rtrim( $n2->settings['楽天']['img_dir'], '/' ) . '/';
 
 		// テンポラリディレクトリ作成
 		$tmp = wp_tempnam( __CLASS__, dirname( __DIR__ ) . '/' );
