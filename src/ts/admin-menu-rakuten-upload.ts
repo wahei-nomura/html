@@ -23,7 +23,7 @@ jQuery( function($){
 	$tree.on('click','li > span', async function(event){
 		const icons = ['spinner-border spinner-border-sm','bi bi-folder2-open'];
 		if (event.target === this) {
-			$(this).toggleClass('close').siblings('ul').toggleClass('invisible');
+			$(this).toggleClass('close').siblings('ul').toggleClass('d-none');
 
 			const $cardGroup = $('#ss-cabinet-images');
 			$cardGroup.css({

@@ -66,7 +66,7 @@ $folders = array( ...$folders, $root );
 
 $tree_list = function ( $parent, $path = null ) use ( &$tree_list, $folders ) {
 	?>
-	<ul <?php echo ( null !== $path ) ? ' class="invisible"' : ''; ?>>
+	<ul <?php echo ( null !== $path ) ? ' class="d-none"' : ''; ?>>
 	<?php foreach ( $parent as $li => $child ) : ?>
 		<?php
 			$dir    = null !== $path ? "{$path}/{$li}" : '';
@@ -126,7 +126,7 @@ global $n2;
 			ファイルをドラッグ&ドロップしてください
 		</div>
 	</div>
-	<form action="<?php echo esc_url( $n2->ajaxurl ); ?>" method="POST" enctype="multipart/form-data">
+	<form action="<?php echo esc_url( $n2->ajaxurl ); ?>" method="POST" enctype="multipart/form-data" style="display:none;">
 		<input type="hidden" name="n2nonce" value="<?php echo esc_attr( wp_create_nonce( 'n2nonce' ) ); ?>">
 		<input type="hidden" name="action" value="n2_rms_cabinet_api_ajax">
 		<input type="hidden" name="mode" value="debug">
