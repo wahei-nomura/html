@@ -35,6 +35,8 @@ abstract class N2_RMS_Base_API {
 		'params'   => array(),
 		'header'   => array(),
 		'response' => array(),
+		'files'    => null,
+		'tmp'      => null,
 	);
 	/**
 	 * option_name
@@ -168,6 +170,8 @@ abstract class N2_RMS_Base_API {
 
 		static::$data['response'] = static::request();
 
+		static::remove_tmp_files();
+
 		// 出力時はここで終了
 		static::export();
 
@@ -275,5 +279,49 @@ abstract class N2_RMS_Base_API {
 			}
 		}
 	}
-	  
+
+	/**
+	 * ファイル配列の作成
+	 */
+	protected static function set_files() {
+		setlocale( LC_ALL, 'ja_JP.UTF-8' );
+		static::$data['files'] = $_FILES[ 'cabinet_file' ];
+		static::check_fatal_error( static::$data['files']['tmp_name'][0], 'ファイルをセットしてください。' );
+		static::image_compressor();
+	}
+
+	/**
+	 * テンプファイルを削除
+	 */
+	private static function remove_tmp_files() {
+		if ( ! static::$data['tmp'] ) {
+			return;
+		}
+		$tmp = static::$data['tmp'];
+		exec( "rm -Rf {$tmp}" );
+	}
+	
+	/**
+	 * 画像圧縮
+	 */
+	private static function image_compressor() {
+		$name = static::$data['files']['name'];
+		$type = static::$data['files']['type'];
+		$tmp_name = static::$data['files']['tmp_name'];
+
+		// 一時ディレクトリ作成
+		static::$data['tmp'] = wp_tempnam( __CLASS__, get_theme_file_path() . '/' );
+		$tmp = static::$data['tmp'];
+
+		unlink( $tmp );
+		mkdir( $tmp );
+		foreach ( $tmp_name as $k => $file ) {
+			// 画像圧縮処理
+			$quality = isset( $quality ) ? $quality : 50;
+			move_uploaded_file( $file, "{$tmp}/{$name[$k]}" );
+			$local_file = "{$tmp}/{$name[$k]}";
+			exec( "mogrify -quality {$quality} {$local_file}" );
+			static::$data['files']['tmp_name'][ $k ] = $local_file; 
+		}
+	}
 }
