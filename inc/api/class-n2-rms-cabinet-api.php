@@ -131,7 +131,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			'requests'    => $requests,
 			'call' => 'request_multiple',
 			'mode'    => 'func',
-		),
+		);
 
 		add_action( 'n2_multi_url_request_api_set_headers', fn( $headers )=> array( ...$headers, ...static::$data['header'] ) );
 		add_action( 'n2_multi_url_request_api_set_params', fn( $params )=> array( ...$params, ...$multi_request_params ) );
@@ -158,8 +158,6 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	 */
 	public static function folder_insert () {
 		static::check_fatal_error( static::$data['params']['folderName'] ?? false, 'フォルダ名が設定されていません。' );
-		static::check_fatal_error( static::$data['params']['directoryName'] ?? false, 'directory名が設定されていません。' );
-		static::check_fatal_error( static::$data['params']['upperFolderId'] ?? false, '上位階層フォルダIDが設定されていません。' );
 
 		$url = static::$settings['endpoint'] . '/1.0/cabinet/folder/insert';
 		$xml_request_body = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><request></request>');
@@ -168,8 +166,8 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			'folderInsertRequest' => array(
 				'folder' => array(
 					'folderName' => static::$data['params']['folderName'],
-					'directoryName' => static::$data['params']['directoryName'],
-					'upperFolderId' => static::$data['params']['upperFolderId'],
+					'directoryName' => static::$data['params']['directoryName'] ?? '',
+					'upperFolderId' => static::$data['params']['upperFolderId'] ?? '',
 				),
 			),
 		);
@@ -197,39 +195,67 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 		// static::check_fatal_error( static::$data['params']['fileName'] ?? false, 'フォルダ名が設定されていません。' );
 		// static::check_fatal_error( static::$data['params']['folderId'] ?? false, 'directory名が設定されていません。' );
 
+		
 		$url = static::$settings['endpoint'] . '/1.0/cabinet/file/insert';
-		$xml_request_body = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><request></request>');
+		static::set_files();
 
-		$request = array(
-			'fileInsertRequest' => array(
-				'file' => array(
-					'fileName' => static::$data['params']['folderName'],
-					'filePath' => static::$data['params']['filePath'],
-					'folderId' => static::$data['params']['folderId'],
-					'overWrite' => static::$data['params']['overWrite'] ?? true,
+		$multi_request_params = array(
+			'requests' => array(),
+			'call' => 'request_multiple',
+			'mode'    => 'func',
+		);
+
+		foreach( static::$data['files']['tmp_name'] as $index => $tmp_name ) {
+			$file_name = static::$data['files']['name'][$index];
+			$file_path = $tmp_name . '/' . $file_name;
+			$request = array(
+				'url' => $url,
+				'type'    => Request::POST,
+				'headers' => array(
 				),
-			),
-		);
-		static::array_to_xml( $request, $xml_request_body );
-		// SimpleXMLElementオブジェクトを文字列に変換
-		$xml_data = $xml_request_body->asXML();
+				'data'    => null,
+			);
 
-		$request_args = array(
-			'method'      => 'POST',
-			'headers'     => array(
-				...static::$data['header'],
-			),
-			'body'        => array(
-				'xml' => $xml_data, // XMLデータをリクエストボディに設定
-				'file' => static::$data['params']['files'],
-			),
-		);
-		// $response = wp_remote_request( $url, $request_args );
+			/**
+			 * XML
+			 */
+			$xml_request_body = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><request></request>');
+			$xml_array = array(
+				'fileInsertRequest' => array(
+					'file' => array(
+						'fileName' => $file_name,
+						'filePath' => $file_name,
+						'folderId' => static::$data['params']['folderId'],
+						'overWrite' => static::$data['params']['overWrite'] ?? false,
+					),
+				),
+			);
+			static::array_to_xml( $xml_array, $xml_request_body );
+			// SimpleXMLElementオブジェクトを文字列に変換
+			$xml_payload = $xml_request_body->asXML();
 
-		// $response_body = wp_remote_retrieve_body($response);
+			/**
+			 * request body
+			 */
+			// Define boundary
+			$boundary = wp_generate_uuid4();
+			$request['data'] = "--{$boundary}\r\n";
+			$request['data'] .= "Content-Disposition: form-data; name=\"xml\"\r\n";
+			$request['data'] .= "\r\n{$xml_payload}\r\n";
+			$request['data'] .= "--{$boundary}\r\n";
+			$request['data'] .= "Content-Disposition: form-data; name=\"file\"; filename=\"{$file_name}\"\r\n";
+			$request['data'] .= "Content-Type: image/jpg\r\n";
+			$request['data'] .= "\r\n" . file_get_contents( $file_path ) . "\r\n";
+			$request['data'] .= "--{$boundary}--";
 
-		return $_FILES;
-		// return $request_args;
+			$multi_request_params['requests'][] = $request;
+		}
+		
+		add_action( 'n2_multi_url_request_api_set_headers', fn( $headers )=> array( ...$headers, ...static::$data['header'] ) );
+		add_action( 'n2_multi_url_request_api_set_params', fn( $params )=> array( ...$params, ...$multi_request_params ) );
+
+		return $multi_request_params;
+		return N2_Multi_URL_Request_API::ajax();
 	}
 
 }

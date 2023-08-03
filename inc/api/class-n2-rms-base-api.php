@@ -321,6 +321,7 @@ abstract class N2_RMS_Base_API {
 			move_uploaded_file( $file, "{$tmp}/{$name[$k]}" );
 			$local_file = "{$tmp}/{$name[$k]}";
 			exec( "mogrify -quality {$quality} {$local_file}" );
+			// pathを修正
 			static::$data['files']['tmp_name'][ $k ] = $local_file; 
 		}
 	}
