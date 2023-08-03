@@ -26,21 +26,51 @@ class N2_Postlist {
 	public function __construct() {
 		$this->cls  = get_class( $this );
 		$this->page = 'edit.php';
-		add_action( 'admin_footer-edit.php', array( $this, 'save_post_ids_ui' ) );
+		add_filter( 'bulk_actions-edit-post', '__return_false' );// デフォルトのツール削除
+		add_filter( 'disable_months_dropdown', '__return_true' );// 月のドロップダウンリスト削除
+		add_filter( 'post_row_actions', '__return_empty_array' );// 投稿の削除とかのリンクを削除
+		add_action( 'init', array( $this, 'change_postlabel' ) );// 投稿のラベル変更
+		add_action( 'pre_get_posts', array( $this, 'pre_get_author_posts' ) );// 事業者権限だと自分の投稿のみに
+		add_filter( 'wp_count_posts', array( $this, 'adjust_count_post' ), 10, 3 );// 事業者アカウントの投稿数の調整
+		add_action( 'admin_footer-edit.php', array( $this, 'save_post_ids_ui' ) );// 投稿ID保持＆一括ツールUI
 		add_filter( 'manage_posts_columns', array( $this, 'add_posts_columns' ), 10, 2 );
-		add_action( 'init', array( $this, 'change_postlabel' ) );
 		add_filter( 'manage_posts_custom_column', array( $this, 'add_posts_columns_row' ), 10, 2 );
-		add_action( 'pre_get_posts', array( $this, 'pre_get_author_posts' ) );
 		add_filter( 'gettext', array( $this, 'change_status' ) );
 		add_filter( 'ngettext', array( $this, 'change_status' ) );
-		add_filter( 'post_row_actions', array( $this, 'hide_editbtn' ) );
-		add_filter( 'bulk_actions-edit-post', '__return_false' );
-		add_filter( 'disable_months_dropdown', '__return_true' );
-		add_filter( 'wp_count_posts', array( $this, 'adjust_count_post' ), 10, 3 );
 		add_action( "wp_ajax_{$this->cls}", array( $this, 'ajax' ) );
 		add_action( "wp_ajax_{$this->cls}_deletepost", array( $this, 'delete_post' ) );
 		add_action( "wp_ajax_{$this->cls}_recoverypost", array( $this, 'recovery_post' ) );
-		add_action( "wp_ajax_{$this->cls}_ban_portal_list", array( $this, 'ban_portal_list' ) );
+	}
+
+	/**
+	 * 投稿のラベル変更
+	 */
+	public function change_postlabel() {
+		global $wp_post_types;
+		$labels = &$wp_post_types['post']->labels;
+		$labels = wp_json_encode( $labels, JSON_UNESCAPED_UNICODE );
+		$labels = str_replace( '投稿', '返礼品', $labels );
+		$labels = json_decode( $labels );
+	}
+
+	/**
+	 * 事業者権限だと自分の投稿のみに
+	 *
+	 * @param object $query WP_Query
+	 * @return void
+	 */
+	public function pre_get_author_posts( $query ) {
+		global $n2;
+		if (
+				is_admin() &&
+				in_array( 'jigyousya', $n2->current_user->roles ?? array(), true ) &&
+				// ! current_user_can( 'ss_crew' ) &&
+				$query->is_main_query() &&
+				( ! isset( $_GET['author'] ) || intval( $_GET['author'] ) === get_current_user_id() )
+		) {
+			$query->set( 'author', get_current_user_id() );
+			unset( $_GET['author'] );
+		}
 	}
 
 	/**
@@ -146,24 +176,6 @@ class N2_Postlist {
 		}
 
 		return $columns;
-	}
-
-	/**
-	 * change_postlabel
-	 */
-	public function change_postlabel() {
-		global $wp_post_types;
-		$name                       = '返礼品';
-		$labels                     = &$wp_post_types['post']->labels;
-		$labels->name               = $name;
-		$labels->singular_name      = $name;
-		$labels->add_new_item       = $name . 'の新規追加';
-		$labels->edit_item          = $name . 'の編集';
-		$labels->new_item           = '新規' . $name;
-		$labels->view_item          = $name . 'を表示';
-		$labels->search_items       = $name . 'を検索';
-		$labels->not_found          = $name . 'が見つかりませんでした';
-		$labels->not_found_in_trash = 'ゴミ箱に' . $name . 'は見つかりませんでした';
 	}
 
 	/**
@@ -305,26 +317,7 @@ class N2_Postlist {
 		}
 	}
 
-	/**
-	 * pre_get_author_posts
-	 * 事業者権限だと自分の投稿のみに
-	 *
-	 * @param object $query WP_Query
-	 * @return void
-	 */
-	public function pre_get_author_posts( $query ) {
-		global $n2;
-		if (
-				is_admin() &&
-				in_array( 'jigyousya', $n2->current_user->roles ?? array(), true ) &&
-				// ! current_user_can( 'ss_crew' ) &&
-				$query->is_main_query() &&
-				( ! isset( $_GET['author'] ) || intval( $_GET['author'] ) === get_current_user_id() )
-		) {
-			$query->set( 'author', get_current_user_id() );
-			unset( $_GET['author'] );
-		}
-	}
+
 
 	/**
 	 * change_status
@@ -339,21 +332,6 @@ class N2_Postlist {
 		$status = str_ireplace( 'レビュー待ち', 'スチームシップ確認待ち', $status );
 		$status = str_ireplace( '公開済み', 'ポータル登録準備中', $status );
 		return $status;
-	}
-
-	/**
-	 * hide_editbtn
-	 * タイトル下の編集リンクなどを削除
-	 *
-	 * @param object $actions a
-	 * @return object @actions
-	 */
-	public function hide_editbtn( $actions ) {
-		unset( $actions['edit'] );
-		unset( $actions['inline hide-if-no-js'] );
-		unset( $actions['view'] );
-		unset( $actions['trash'] );
-		return $actions;
 	}
 
 	/**
@@ -434,31 +412,6 @@ class N2_Postlist {
 			echo '復元に失敗しました';
 		}
 
-		die();
-	}
-
-	/**
-	 * 出品禁止ポータル一覧取得
-	 */
-	public function ban_portal_list() {
-		global $n2;
-		$export_portals = array_keys( $n2->export );
-		$ban_list       = array_fill_keys( $export_portals, array() );
-		$func           = __FUNCTION__;
-		$ids            = explode( ',', filter_input( INPUT_POST, 'ids', FILTER_SANITIZE_SPECIAL_CHARS ) );
-		foreach ( $ids as $id ) {
-			$ban_portal = get_post_meta( $id, '出品禁止ポータル', 'true' );
-			if ( ! $ban_portal ) {
-				continue;
-			}
-			$item_code = get_post_meta( $id, '返礼品コード', 'true' ) ?: $id;
-			// 空の要素を削除
-			$ban_portals = array_values( array_filter( $ban_portal ) );
-			foreach ( $ban_portals as $portal ) {
-				$ban_list[ $portal ] = array( ...$ban_list[ $portal ], $item_code );
-			}
-		}
-		echo wp_json_encode( $ban_list );
 		die();
 	}
 }
