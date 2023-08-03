@@ -48,16 +48,16 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 
 		static::check_fatal_error( static::$data['params']['folderId'] !== null, 'フォルダーIDの取得に失敗しました。' );
 
-		$params = array(
+		$files_get_params = array(
 			'folderId' => static::$data['params']['folderId'],
 			'limit'    => 100,
 			'offset'   => 1,
 		);
 
-		$url      = static::$settings['endpoint'] . '/1.0/cabinet/folder/files/get?' . http_build_query( $params );
+		$url      = static::$settings['endpoint'] . '/1.0/cabinet/folder/files/get?' . http_build_query( $files_get_params );
 		
 		$files = array();
-		$urls  = array();
+		$requests  = array();
 
 		$response = wp_remote_get( $url, array('headers'=> static::$data['header']) );
 
@@ -69,25 +69,30 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			true => $res_files,
 			default => array( $res_files ),
 		};
-
+		// 開発途中、１ページ目だけ返す
 		return $files;
 
-		for ($i=1; $i < $file_count % $params['limit']; $i++) { 
+		for ($i=1; $i < $file_count % $files_get_params['limit']; $i++) { 
 			$params['offset'] += 1;
-			$urls[] = static::$settings['endpoint'] . '/1.0/cabinet/folder/files/get?' . http_build_query( $params );
+			$requests[] = array(
+				'url' => static::$settings['endpoint'] . '/1.0/cabinet/folder/files/get?' . http_build_query( $params )
+			);
 		}
-		if ( empty( $urls ) ) {
+		if ( empty( $requests ) ) {
 			return $files;
 		}
 		
-		$response = N2_Multi_URL_Request_API::ajax(
-			array(
-				'urls'    => $urls,
-				'header'  => static::$data['header'],
-				'request' => 'request_multiple',
-				'mode'    => 'func',
-			),
+		$multi_request_params = array(
+			'requests' => $requests,
+			'call' => 'request_multiple',
+			'mode'    => 'func',
 		);
+		
+		add_action( 'n2_multi_url_request_api_set_headers', fn( $headers )=> array( ...$headers, ...static::$data['header'] ) );
+		add_action( 'n2_multi_url_request_api_set_params', fn( $params )=> array( ...$params, ...$multi_request_params ) );
+
+
+		$response = N2_Multi_URL_Request_API::ajax();
 
 		foreach ( $response as $res ) {
 			$result     = simplexml_load_string( $res->body )->cabinetFolderFilesGetResult;
@@ -109,25 +114,29 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 
 		$keywords = static::$data['params']['keywords'];
 
-		$urls = array_map(
+		$requests = array_map(
 			function ( $keyword ) {
 				$params = array(
 					'fileName' => $keyword,
 					'limit'    => 100,
 				);
-				return static::$settings['endpoint'] . '/1.0/cabinet/files/search?' . http_build_query( $params );
+				return array(
+					'url' => static::$settings['endpoint'] . '/1.0/cabinet/files/search?' . http_build_query( $params ),
+				);
 			},
 			$keywords,
 		);
 
-		$response = N2_Multi_URL_Request_API::ajax(
-			array(
-				'urls'    => $urls,
-				'header'  => static::$data['header'],
-				'request' => 'request_multiple',
-				'mode'    => 'func',
-			),
-		);
+		$multi_request_params = array(
+			'requests'    => $requests,
+			'call' => 'request_multiple',
+			'mode'    => 'func',
+		),
+
+		add_action( 'n2_multi_url_request_api_set_headers', fn( $headers )=> array( ...$headers, ...static::$data['header'] ) );
+		add_action( 'n2_multi_url_request_api_set_params', fn( $params )=> array( ...$params, ...$multi_request_params ) );
+
+		$response = N2_Multi_URL_Request_API::ajax();
 
 		foreach ( $response as $res ) {
 			$keyword       = $res->headers->getValues( 'filename' )[0];
