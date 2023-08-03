@@ -50,13 +50,13 @@ class N2_Multi_URL_Request_API {
 	 */
 	private static function set_headers() {
 		if ( empty( self::$data['headers'] ) ) {
-			$header = array(
+			$headers = array(
 				'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0',
 			);
 			/**
 			 * [hook] n2_multi_url_request_api_set_header
 			 */
-			static::$data['headers'] = apply_filters( mb_strtolower( get_called_class() ) . '_set_headers', $header );
+			static::$data['headers'] = apply_filters( mb_strtolower( get_called_class() ) . '_set_headers', $headers );
 
 			foreach( static::$data['params']['requests'] ?? array() as $index => $request ) {
 				static::$data['params']['requests'][ $index ] = array( ...static::$data['headers'], ...$request['headers'] );
