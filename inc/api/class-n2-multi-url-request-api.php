@@ -34,33 +34,42 @@ class N2_Multi_URL_Request_API {
 		'response' => array(),
 		'error'    => array(),
 	);
-	/**
-	 * ヘッダー配列の作成
-	 */
-	private static function set_header( $args = array() ) {
-		if ( empty( self::$data['header'] ) ) {
 
+	/**
+	 * APIで実行可能な関数リスト
+	 *
+	 * @var array
+	 */
+	protected static $white_list = array(
+		'request_multiple',
+		'verify_images',
+	);
+
+	/**
+	 * リクエスト毎へ共通ヘッダーを付与
+	 */
+	private static function set_header() {
+		if ( empty( self::$data['header'] ) ) {
 			$header = array(
 				'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0',
-				...$args,
 			);
-
 			/**
 			 * [hook] n2_multi_url_request_api_set_header
 			 */
-			static::$data['header'] = apply_filters( mb_strtolower( get_called_class() ) . '_set_header', $header );
+			static::$data['headers'] = apply_filters( mb_strtolower( get_called_class() ) . '_set_header', $header );
+
+			foreach( static::$data['params']['requests'] ?? array() as $index => $request ) {
+				static::$data['params']['requests'][ $index ] = array( ...static::$data['headers'], ...$request['headers'] );
+			}
 		}
 	}
 
 	/**
 	 * 各パラメータ配列の作成
-	 * $args > $_GET > $_POST > $default
-	 *
-	 * @param array $args args
+	 * $_GET > $_POST > $default
 	 */
-	private static function set_params( $args ) {
-		// $_GETを引数で上書き
-		$params = wp_parse_args( $args, $_GET );
+	private static function set_params() {
+		$params = $_GET;
 		// $_POSTを$paramsで上書き
 		if ( wp_verify_nonce( $_POST['n2nonce'] ?? '', 'n2nonce' ) ) {
 			$params = wp_parse_args( $params, $_POST );
@@ -68,7 +77,7 @@ class N2_Multi_URL_Request_API {
 		$default = array(
 			'mode'    => 'func',
 			'action'  => false,
-			'request' => 'request_multiple',
+			'call' => 'request_multiple',
 		);
 		// デフォルト値を$paramsで上書き
 		$params = wp_parse_args( $params, $default );
@@ -82,8 +91,16 @@ class N2_Multi_URL_Request_API {
 	/**
 	 * APIを実行するサムシング
 	 */
-	private static function request() {
-		return static::{ static::$data['params']['request'] }();
+	private static function call() {
+		static::check_fatal_error(
+			in_array(
+				static::$data['params']['call'],
+				static::$white_list,
+				true,
+			),
+			'未定義です',
+		);
+		return static::{ static::$data['params']['call'] }();
 	}
 
 	/**
@@ -120,15 +137,14 @@ class N2_Multi_URL_Request_API {
 	/**
 	 * 実行
 	 *
-	 * @param array|void $args args
 	 * @return array|void
 	 */
-	public static function ajax( $args ) {
+	public static function ajax() {
 
-		static::set_header( $args['header'] ?? array() );
-		static::set_params( $args );
+		static::set_header();
+		static::set_params();
 
-		static::$data['response'] = static::request();
+		static::$data['response'] = static::call();
 
 		// 出力時はここで終了
 		static::export();
@@ -143,23 +159,8 @@ class N2_Multi_URL_Request_API {
 	 * @return array|void
 	 */
 	public static function request_multiple() {
-		$requests = array();
-
-		$urls = static::$data['params']['urls'] ?? array();
-		static::check_fatal_error( $urls, 'urlsが設定されていません' );
-
-		foreach ( $urls as $index => $url ) {
-			$request = array(
-				'url'     => $url,
-				'headers' => static::$data['header'],
-				'type'    => static::$data['params']['type'] ?? Requests::GET,
-			);
-			if ( static::$data['params']['data'] ?? false ) {
-				$request['data'] = static::$data['params']['data'][ $index ];
-			}
-			$requests[] = $request;
-		}
-		return Requests::request_multiple( $requests, array( 'timeout' => 60 ) );
+		static::check_fatal_error( static::$data['params']['requests'] ?? array(), 'リクエストがありまえん' );
+		return Requests::request_multiple( static::$data['params']['requests'], array( 'timeout' => 60 ) );
 	}
 
 	/**
