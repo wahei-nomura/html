@@ -751,7 +751,9 @@ class N2_Sync {
 					// $vの再生成
 					$v = array_combine( $keys, $values );
 					// 表示名自動生成
-					$v['display_name'] = "{$v['last_name']} {$v['first_name']}";
+					if ( ! empty( $v['last_name'] ) && ! empty( $v['first_name'] ) ) {
+						$v['display_name'] = "{$v['last_name']} {$v['first_name']}";
+					}
 					// from 付与
 					$v[ $from ] = 1;
 					return $v;
@@ -783,19 +785,25 @@ class N2_Sync {
 				}
 			}
 
-			// 既存ユーザーは更新するのでIDを突っ込む
-			$user = get_user_by( 'login', $userdata['user_login'] );
+			// user_login_beforeでuser_loginを変更可能にする（要 N2_Setusers->change_user_login）
+			$user = get_user_by( 'login', $userdata['user_login_before'] ?? $userdata['user_login'] );
+			unset( $userdata['user_login_before'] );
+			// 既存ユーザーの場合
 			if ( $user ) {
-				$userdata['ID'] = $user->ID;
+				$userdata['ID'] = $user->ID;// 既存ユーザーは更新するのでIDを突っ込む
+				$from_id        = wp_update_user( $userdata );
+				if ( ! is_wp_error( $from_id ) ) {
+					$from_ids[] = $from_id;
+				}
+			} else {
+				// パスワードの適切な加工
+				add_filter( 'wp_pre_insert_user_data', array( $this, 'insert_user_pass' ), 10, 4 );
+				$from_id = wp_insert_user( $userdata );
+				if ( ! is_wp_error( $from_id ) ) {
+					$from_ids[] = $from_id;
+				}
+				remove_filter( 'wp_pre_insert_user_data', array( $this, 'insert_user_pass' ) );
 			}
-
-			// パスワードの適切な加工
-			add_filter( 'wp_pre_insert_user_data', array( $this, 'insert_user_pass' ), 10, 4 );
-			$from_id = wp_insert_user( $userdata );
-			if ( ! is_wp_error( $from_id ) ) {
-				$from_ids[] = $from_id;
-			}
-			remove_filter( 'wp_pre_insert_user_data', array( $this, 'insert_user_pass' ) );
 		}
 
 		// NENGから削除されているものを削除（refreshパラメータで完全同期 or $from以外で追加したものに関してはスルー）

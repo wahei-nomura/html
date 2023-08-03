@@ -26,6 +26,36 @@ class N2_Setusers {
 		add_action( 'wp_login', array( $this, 'crew_join_allsite' ), 10, 2 );
 		// アバター付ける
 		add_filter( 'get_avatar_data', array( $this, 'change_avatar' ), 10, 2 );
+		// ユーザーログインID変更可能に
+		add_filter( 'wp_pre_insert_user_data', array( $this, 'change_user_login' ), 9999, 4 );
+	}
+
+	/**
+	 * ユーザーログインID変更可能にする
+	 *
+	 * @param array    $data {
+	 *     Values and keys for the user.
+	 *
+	 *     @type string $user_login      The user's login. Only included if $update == false
+	 *     @type string $user_pass       The user's password.
+	 *     @type string $user_email      The user's email.
+	 *     @type string $user_url        The user's url.
+	 *     @type string $user_nicename   The user's nice name. Defaults to a URL-safe version of user's login
+	 *     @type string $display_name    The user's display name.
+	 *     @type string $user_registered MySQL timestamp describing the moment when the user registered. Defaults to
+	 *                                   the current UTC timestamp.
+	 * }
+	 * @param bool     $update   Whether the user is being updated rather than created.
+	 * @param int|null $user_id  ID of the user to be updated, or NULL if the user is being created.
+	 * @param array    $userdata The raw array of data passed to wp_insert_user().
+	 */
+	public function change_user_login( $data, $update, $user_id, $userdata ) {
+		$user_login = ( filter_input( INPUT_POST, 'user_login' ) ?? $userdata['user_login'] ) ?? '';
+		if ( empty( $user_login ) || username_exists( $user_login ) || mb_strlen( $user_login ) > 60 ) {
+			return $data;
+		}
+		$data['user_login'] = $user_login;
+		return $data;
 	}
 
 	/**
