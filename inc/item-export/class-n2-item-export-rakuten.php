@@ -366,13 +366,14 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 
 		if ( ! $result ) { // 直接存在チェック
 			$result   = array();
-			$response = N2_Multi_URL_Request_API::ajax(
-				array(
-					'urls'    => $requests,
-					'mode'    => 'func',
-					'request' => 'verify_images',
-				)
+
+			$multi_request_params = array(
+				'requests'    => array_map( fn( $req ) => array( 'url' => $req ), $requests ),
+				'mode'    => 'func',
+				'call' => 'verify_images',
 			);
+			add_action( 'n2_multi_url_request_api_set_params', fn( $params )=> array( ...$params, ...$multi_request_params ) );
+			$response = N2_Multi_URL_Request_API::ajax();
 			$result   = array_map(
 				function( $req ) use ( $response ) {
 					return $response[ $req ] ? $req : '';
