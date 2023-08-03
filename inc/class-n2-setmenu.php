@@ -67,7 +67,7 @@ class N2_Setmenu {
 		$submenus = array();
 		global $n2;
 
-		$img_dir = rtrim( $n2->portal_setting['楽天']['img_dir'], '/' ) . '/';
+		$img_dir = rtrim( $n2->settings['楽天']['商品画像ディレクトリ'], '/' ) . '/';
 
 		switch ( preg_match( '/ne\.jp/', $img_dir ) ) {
 			case 1:// GOLDの場合はFTP
