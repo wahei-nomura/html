@@ -116,7 +116,11 @@ $prefix: "n2-postlist";
 		color: $danger;
 	}
 }
-
+.tablenav.bottom{
+	.tablenav-pages{
+		float: none;
+	}
+}
 #n2-copypost-modal,
 #n2-update-status-modal,
 #n2-change-author-modal {
@@ -307,7 +311,7 @@ $prefix: "n2-postlist";
 #n2-checked-posts{
 	$header-bg: rgb(0, 88, 22);
 	position: fixed;
-	bottom:50px;
+	bottom: 50px;
 	right: 10px;
 	background: white;
 	transition: all .3s;
