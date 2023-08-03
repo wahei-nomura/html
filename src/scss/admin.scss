@@ -93,6 +93,8 @@
 				letter-spacing: .1em;
 				color: black !important;
 				background: none !important;
+				text-indent: 0 !important;
+				width: 100% !important;
 				&::before{
 					display: none !important;
 				}

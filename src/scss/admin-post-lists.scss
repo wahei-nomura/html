@@ -107,16 +107,11 @@ $prefix: "n2-postlist";
 	}
 }
 
-tbody#the-list>tr>td {
-	padding: 4px;
-	border-bottom: solid 1px #0d6dfd40;
-	background-color: #fff;
-}
-
-tbody#the-list>tr>th {
-	background-color: #fff;
-}
-tbody#the-list{
+#the-list {
+	td,th {
+		padding: 4px;
+		vertical-align: middle;
+	}
 	.no-code{
 		color: $danger;
 	}
@@ -308,13 +303,7 @@ tbody#the-list{
 	}
 }
 
-@media screen and (min-width: 769px) {
-	tbody#the-list>tr>td:hover {
-		background-color: rgba(0, 0, 0, .075);
-		transition: .2s;
-	}
-}
-
+// 投稿IDの保存UI
 #n2-checked-posts{
 	$header-bg: rgb(0, 88, 22);
 	position: fixed;
