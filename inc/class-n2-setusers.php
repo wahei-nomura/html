@@ -50,8 +50,10 @@ class N2_Setusers {
 	 * @param array    $userdata The raw array of data passed to wp_insert_user().
 	 */
 	public function change_user_login( $data, $update, $user_id, $userdata ) {
-		$user_login = ( filter_input( INPUT_POST, 'user_login' ) ?? $userdata['user_login'] ) ?? '';
-		if ( ! current_user_can( 'administrator' ) || empty( $user_login ) || username_exists( $user_login ) || mb_strlen( $user_login ) > 60 ) {
+		$user_login     = $userdata['user_login'] ?? '';
+		$from_user_edit = wp_verify_nonce( $_POST['_wpnonce'] ?? '', "update-user_{$user_id}" );// user-edit.phpからかどうか
+		$user_login     = $from_user_edit ? ( $_POST['user_login'] ?? '' ) : $user_login;
+		if ( ( ! current_user_can( 'administrator' ) && ! $from_user_edit ) || empty( $user_login ) || username_exists( $user_login ) || mb_strlen( $user_login ) > 60 ) {
 			return $data;
 		}
 		$data['user_login'] = $user_login;
