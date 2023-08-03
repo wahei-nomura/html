@@ -30,7 +30,7 @@ class N2_Multi_URL_Request_API {
 	 */
 	protected static $data = array(
 		'params'   => array(),
-		'header'   => array(),
+		'headers'   => array(),
 		'response' => array(),
 		'error'    => array(),
 	);
@@ -48,15 +48,15 @@ class N2_Multi_URL_Request_API {
 	/**
 	 * リクエスト毎へ共通ヘッダーを付与
 	 */
-	private static function set_header() {
-		if ( empty( self::$data['header'] ) ) {
+	private static function set_headers() {
+		if ( empty( self::$data['headers'] ) ) {
 			$header = array(
 				'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0',
 			);
 			/**
 			 * [hook] n2_multi_url_request_api_set_header
 			 */
-			static::$data['headers'] = apply_filters( mb_strtolower( get_called_class() ) . '_set_header', $header );
+			static::$data['headers'] = apply_filters( mb_strtolower( get_called_class() ) . '_set_headers', $header );
 
 			foreach( static::$data['params']['requests'] ?? array() as $index => $request ) {
 				static::$data['params']['requests'][ $index ] = array( ...static::$data['headers'], ...$request['headers'] );
