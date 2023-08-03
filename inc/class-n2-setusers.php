@@ -27,7 +27,7 @@ class N2_Setusers {
 		// アバター付ける
 		add_filter( 'get_avatar_data', array( $this, 'change_avatar' ), 10, 2 );
 		// ユーザーログインID変更可能に
-		add_filter( 'wp_pre_insert_user_data', array( $this, 'change_user_login' ), 9999, 4 );
+		add_filter( 'wp_pre_insert_user_data', array( $this, 'change_user_login' ), 10, 4 );
 	}
 
 	/**
@@ -51,7 +51,7 @@ class N2_Setusers {
 	 */
 	public function change_user_login( $data, $update, $user_id, $userdata ) {
 		$user_login = ( filter_input( INPUT_POST, 'user_login' ) ?? $userdata['user_login'] ) ?? '';
-		if ( empty( $user_login ) || username_exists( $user_login ) || mb_strlen( $user_login ) > 60 ) {
+		if ( ! current_user_can( 'administrator' ) || empty( $user_login ) || username_exists( $user_login ) || mb_strlen( $user_login ) > 60 ) {
 			return $data;
 		}
 		$data['user_login'] = $user_login;
