@@ -58,6 +58,7 @@ class N2_Enqueuescript {
 	/**
 	 * フロントのjs,cssの読み込み
 	 *
+	 * @param string $hook_suffix ページ名
 	 * @return void
 	 */
 	public function enqueue_front_script( $hook_suffix ) {
