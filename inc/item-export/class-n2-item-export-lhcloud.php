@@ -137,7 +137,7 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 				'自由入力欄1' => $is_e_ticket ? '' : wp_date( 'Y/m/d' ) . "：{$n2->current_user->data->display_name}",
 				'自由入力欄2' => $is_e_ticket ? wp_date( 'Y/m/d' ) . "：{$n2->current_user->data->display_name}" : '',
 				'配送サイズコード' => $is_yamato ? $n2values['発送サイズ'] : '',
-				'地場産品類型' => implode( 'ー', mb_str_split( mb_convert_kana( $n2values['地場産品類型'], 'KA' ) ) ),// 全角（「８ーイ」形式）
+				'地場産品類型' => str_replace( 'イ', '', $n2values['地場産品類型'] ),
 				'類型該当理由' => $n2values['類型該当理由'],
 				'自動出荷依頼予約（種別）' => $lh_setting['自動出荷依頼予約日'] ? 'する（月指定）' : 'しない',
 				'自動出荷依頼予約（値）' => $lh_setting['自動出荷依頼予約日'] ? 1 : '',
