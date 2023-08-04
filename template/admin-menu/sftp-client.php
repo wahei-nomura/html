@@ -129,7 +129,7 @@ global $n2;
 	<form action="<?php echo esc_url( $n2->ajaxurl ); ?>" method="POST" enctype="multipart/form-data" style="display:none;">
 		<input type="hidden" name="n2nonce" value="<?php echo esc_attr( wp_create_nonce( 'n2nonce' ) ); ?>">
 		<input type="hidden" name="action" value="n2_rms_cabinet_api_ajax">
-		<input type="hidden" name="mode" value="debug">
+		<input type="hidden" name="mode" value="json">
 		<input type="hidden" name="call" value="file_insert">
 		<input type="hidden" name="folderId" value="">
 		<input type="file" multiple="multiple" name="cabinet_file[]">
