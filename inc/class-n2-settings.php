@@ -70,7 +70,7 @@ class N2_Settings {
 			return;
 		}
 		global $wp_filesystem;
-		add_menu_page( 'N2設定', 'N2設定', 'ss_crew', 'n2_settings', array( $this, 'ui' ), 'dashicons-admin-settings', 80 );
+		add_menu_page( 'N2設定', 'N2設定', 'ss_crew', 'n2_settings', array( $this, 'ui' ), 'dashicons-admin-tools', 80 );
 		foreach ( $this->settings as $page => $name ) {
 			// 設定テンプレートの存在を確認して、ない場合は破棄してスキップする
 			if ( ! $wp_filesystem->exists( get_theme_file_path( "template/settings/{$page}.php" ) ) ) {
