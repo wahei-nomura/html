@@ -132,16 +132,16 @@ class N2_Postlist {
 	public function manage_posts_columns( $columns, $post_type ) {
 		if ( 'post' === $post_type ) {
 			unset( $columns['title'], $columns['author'], $columns['date'] );
+			$columns['tools']           = '';
 			$columns['modified']        = '更新日';
 			$columns['code']            = '返礼品コード';
+			$columns['thumbnail']       = '画像';
 			$columns['title']           = '返礼品名';
 			$columns['author']          = '事業者名';
 			$columns['subscription']    = '定期便';
 			$columns['price']           = '価格';
 			$columns['donation-amount'] = '寄附金額';
 			$columns['rate']            = '返礼率';
-			$columns['thumbnail']       = '画像';
-			$columns['tools']           = 'ツール';
 		}
 		return $columns;
 	}
@@ -155,7 +155,7 @@ class N2_Postlist {
 	public function manage_posts_sortable_columns( $sortable_columns ) {
 		$sortable_columns['modified']        = 'modified';
 		$sortable_columns['code']            = '返礼品コード';
-		$sortable_columns['author']          = '事業者名';
+		$sortable_columns['author']          = 'author';
 		$sortable_columns['subscription']    = '定期便';
 		$sortable_columns['price']           = '価格';
 		$sortable_columns['donation-amount'] = '寄附金額';
@@ -170,7 +170,8 @@ class N2_Postlist {
 	 * @param int    $post_id 投稿ID
 	 */
 	public function manage_posts_custom_column( $column_name, $post_id ) {
-		$meta = json_decode( get_the_content(), true );
+		$meta          = json_decode( get_the_content(), true );
+		$meta['id']    = $post_id;
 		// サムネイル
 		$thumbnail = $meta['商品画像']
 			? ( $meta['商品画像'][0]['sizes']['thumbnail']['url'] ?? $meta['商品画像'][0]['sizes']['thumbnail'] )
@@ -178,13 +179,13 @@ class N2_Postlist {
 		// html生成
 		$html = match ( $column_name ) {
 			'modified' => get_the_modified_date( 'y年 m/d' ) . '<br>' . get_the_modified_date( 'H:i:s' ),
-			'code' => $meta['返礼品コード'],
-			'subscription' => $meta['定期便'] > 1 ? $meta['定期便'] : '-',
+			'code' => $meta['返礼品コード'] ?: "<div onclick='navigator.clipboard.writeText({$post_id});' title='{$post_id}'>-</div>",
+			'subscription' => $meta['定期便'] > 1 ? "{$meta['定期便']}<small>回</small>" : '-',
 			'price' => number_format( $meta['価格'] ?? 0 ) . '<small>円</small>',
 			'donation-amount' => number_format( $meta['寄附金額'] ?? 0 ) . '<small>円</small>',
-			// 'rate' => $meta['返礼率'],
-			'thumbnail' => $thumbnail ? "<img src='{$thumbnail}' width='50'>" : '-',
-			'tools' => 'template<br>呼び出し',
+			'rate' => '30<small>%</small>',
+			'thumbnail' => $thumbnail ? "<img src='{$thumbnail}'>" : '-',
+			'tools' => get_template_part( 'template/admin-postlist/tools', null, $meta ),
 			default => '',
 		};
 		echo $html;

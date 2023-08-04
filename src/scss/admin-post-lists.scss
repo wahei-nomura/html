@@ -11,111 +11,130 @@
 @import "bootstrap/scss/badge";
 @import "bootstrap/scss/close";
 
-$prefix: "n2-postlist";
-
-.n2-code-selectbox {
-	float: left;
-	position: relative;
-	width: 100px;
-	height: 26px;
-	margin-right: 6px;
-
-	select[name="返礼品コード[]"] {
-		position: absolute;
-		top:0;
-		left:0;
-		z-index: 999;
-		cursor: pointer;
-		display: none;
-		width:100%;
+.subsubsub{
+	.draft *{
+		color: $secondary !important;
+	}
+	.pending *{
+		color: $danger !important;
+	}
+	.publish *{
+		color: $primary !important;
+	}
+	.registered *{
+		color: $success !important;
+	}
+	.private *{
+		color: $dark !important;
 	}
 }
-
-.n2-jigyousya-selectbox {
-	float: left;
-	position: relative;
-	width: 200px;
-	height: 26px;
-	margin-right: 6px;
-
-	select[name="事業者[]"] {
-		position: absolute;
-		top:0;
-		left:0;
-		z-index: 999;
-		cursor: pointer;
-		width:100%;
-	}
-}
-
-.#{$prefix} {
-	&-imgicon {
-		width: 25px;
-		height: 25px;
-		object-fit: cover;
-		cursor: pointer;
-		transition: 0.2s;
-
-		&:hover {
-			transform: scale(5, 5);
+#posts-filter{
+	.wp-list-table{
+		width: 100%;
+		table-layout: auto;
+		thead{
+			position: sticky;
+			top: 32px;
+			background-color: white;
+			z-index: 1;
 		}
-	}
-
-	&-ssmemo {
-		position: relative;
-
-		&::after {
-			font-family: "dashicons";
-			content: "\f473";
-			position: absolute;
-			top: 50%;
-			left: 50%;
-			transform: translate(-50%, 0);
-			cursor: pointer;
-			color: #1a4899;
-			font-size: 24px;
-			line-height: 100%;
-		}
-
-		&:hover {
-			&>p {
-				display: block;
+		tr.hentry{
+			position: relative;
+			background: white;
+			$transparent: 0.1;
+			&.status-draft{
+				background: linear-gradient(to right, $secondary 7px, rgba($secondary, $transparent) 7px, rgba($secondary, $transparent) 25%, white 25%);
+			}
+			&.status-pending{
+				background: linear-gradient(to right, $danger 7px, rgba($danger, $transparent) 7px, rgba($danger, $transparent) 50%, white 50%);
+			}
+			&.status-publish{
+				background: linear-gradient(to right, $primary 7px, rgba($primary, $transparent) 7px, rgba($primary, $transparent) 75%, white 75%);
+			}
+			&.status-registered{
+				background: linear-gradient(to right, $success 7px, rgba($success, $transparent) 7px, rgba($success, $transparent) 100%);
+			}
+			&.status-private{
+				background: linear-gradient(to right, $dark 7px, rgba($dark, 0.4) 7px, rgba($dark, 0.4) 100%);
 			}
 		}
-
-		p {
-			display: none;
-			position: absolute;
-			top: 20px;
-			left: -40px;
-			z-index: 100;
-			padding: 8px;
-			font-size: 20px;
-			background-color: #fff;
-			border: solid 1px #1a4899;
-
-			&:hover {
-				display: block;
+		td,th {
+			padding: 4px;
+			vertical-align: middle;
+			background-color: transparent;
+			border-bottom: 1px solid #c3c4c7;
+		}
+		th{
+			white-space: nowrap;
+			text-align: center;
+			font-weight: bold;
+			a{
+				display: flex;
+				justify-content: center;
+			}
+		}
+		td{
+			text-align: center;
+			a{
+				outline: none;
+				box-shadow: none;
+			}
+			&.tools{
+				.dashicons{
+					color: #ccc;
+					cursor: pointer;
+					&:hover{
+						color: $dark;
+					}
+				}
+			}
+			&.modified{
+				line-height: 1.2;
+			}
+			&.code{
+				// font-size: 1.2em;
+				// letter-spacing: .03em;
+			}
+			&.thumbnail{
+				img{
+					width: 50px;
+					display: block;
+					border-radius: .5em;
+				}
+			}
+			&.title{
+				text-align: left;
+				strong{
+					font-size: 0;
+					line-height: 0;
+					.row-title{
+						line-height: 1.5;
+						font-size: .85rem !important;
+						font-weight: normal;
+						overflow: hidden;
+						display: -webkit-box;
+						-webkit-box-orient: vertical;
+						-webkit-line-clamp: 2;
+					}
+				}
+			}
+			&.author{
+				a{
+					text-align: left;
+					overflow: hidden;
+					display: -webkit-box;
+					-webkit-box-orient: vertical;
+					-webkit-line-clamp: 2;
+				}
+			}
+			&.price,&.donation-amount{
+				text-align: right;
+				white-space: nowrap;
 			}
 		}
 	}
 }
 
-.wp-list-table>thead {
-	tr>th {
-		text-align: center;
-	}
-}
-
-#the-list {
-	td,th {
-		padding: 4px;
-		vertical-align: middle;
-	}
-	.no-code{
-		color: $danger;
-	}
-}
 .tablenav.bottom{
 	.tablenav-pages{
 		float: none;
