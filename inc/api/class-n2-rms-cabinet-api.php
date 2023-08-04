@@ -46,7 +46,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	public static function files_get() {
 
 
-		static::check_fatal_error( static::$data['params']['folderId'] !== null, 'フォルダーIDの取得に失敗しました。' );
+		static::check_fatal_error( isset( static::$data['params']['folderId'] ), 'フォルダーIDの取得に失敗しました。' );
 
 		$files_get_params = array(
 			'folderId' => static::$data['params']['folderId'],
@@ -81,18 +81,15 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 		if ( empty( $requests ) ) {
 			return $files;
 		}
-		
-		$multi_request_params = array(
-			'requests' => $requests,
-			'call' => 'request_multiple',
-			'mode'    => 'func',
+
+		$response = N2_Multi_URL_Request_API::ajax(
+			array(
+				'requests' => $requests,
+				'call' => 'request_multiple',
+				'mode'    => 'func',
+				'headers' => static::$data['header'],
+			),
 		);
-		
-		add_action( 'n2_multi_url_request_api_set_headers', fn( $headers )=> array( ...$headers, ...static::$data['header'] ) );
-		add_action( 'n2_multi_url_request_api_set_params', fn( $params )=> array( ...$params, ...$multi_request_params ) );
-
-
-		$response = N2_Multi_URL_Request_API::ajax();
 
 		foreach ( $response as $res ) {
 			$result     = simplexml_load_string( $res->body )->cabinetFolderFilesGetResult;
@@ -127,16 +124,14 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			$keywords,
 		);
 
-		$multi_request_params = array(
-			'requests'    => $requests,
-			'call' => 'request_multiple',
-			'mode'    => 'func',
+		$response = N2_Multi_URL_Request_API::ajax(
+			array(
+				'requests' => $requests,
+				'call' => 'request_multiple',
+				'mode'    => 'func',
+				'headers' => static::$data['header'],
+			),
 		);
-
-		add_action( 'n2_multi_url_request_api_set_headers', fn( $headers )=> array( ...$headers, ...static::$data['header'] ) );
-		add_action( 'n2_multi_url_request_api_set_params', fn( $params )=> array( ...$params, ...$multi_request_params ) );
-
-		$response = N2_Multi_URL_Request_API::ajax();
 
 		foreach ( $response as $res ) {
 			$keyword       = $res->headers->getValues( 'filename' )[0];
@@ -199,19 +194,15 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 		$url = static::$settings['endpoint'] . '/1.0/cabinet/file/insert';
 		static::set_files();
 
-		$multi_request_params = array(
-			'requests' => array(),
-			'call' => 'request_multiple',
-			'mode'    => 'func',
-		);
+		$requests = array();
 
 		foreach( static::$data['files']['tmp_name'] as $index => $tmp_name ) {
 			$file_name = static::$data['files']['name'][$index];
-			$file_path = $tmp_name . '/' . $file_name;
 			$request = array(
 				'url' => $url,
-				'type'    => Request::POST,
+				'type'    => Requests::POST,
 				'headers' => array(
+					'Content-Type' => 'multipart/form-data;',
 				),
 				'data'    => null,
 			);
@@ -245,17 +236,27 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			$request['data'] .= "--{$boundary}\r\n";
 			$request['data'] .= "Content-Disposition: form-data; name=\"file\"; filename=\"{$file_name}\"\r\n";
 			$request['data'] .= "Content-Type: image/jpg\r\n";
-			$request['data'] .= "\r\n" . file_get_contents( $file_path ) . "\r\n";
+			$request['data'] .= "\r\n" . file_get_contents( $tmp_name ) . "\r\n";
 			$request['data'] .= "--{$boundary}--";
 
-			$multi_request_params['requests'][] = $request;
-		}
-		
-		add_action( 'n2_multi_url_request_api_set_headers', fn( $headers )=> array( ...$headers, ...static::$data['header'] ) );
-		add_action( 'n2_multi_url_request_api_set_params', fn( $params )=> array( ...$params, ...$multi_request_params ) );
+			/**
+			 * add header
+			 */
+			$request['headers']['Content-Type'] .= 'boundary=' . $boundary;
+			$request['headers']['Content-Length'] = strlen( $request['data'] );
 
-		return $multi_request_params;
-		return N2_Multi_URL_Request_API::ajax();
+			$requests[] = $request;
+		}
+
+		
+		return N2_Multi_URL_Request_API::ajax(
+			array(
+				'requests' => $requests,
+				'call' => 'request_multiple',
+				'mode'    => 'func',
+				'headers' => static::$data['header'],
+			),
+		);
 	}
 
 }

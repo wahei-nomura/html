@@ -8,7 +8,7 @@ jQuery( function($){
 			type : 'GET',
 			data : {
 				action : 'n2_rms_cabinet_api_ajax',
-				request : 'files_get',
+				call : 'files_get',
 				mode : 'json',
 				folderId : id,
 			},

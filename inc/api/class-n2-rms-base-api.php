@@ -18,7 +18,7 @@ abstract class N2_RMS_Base_API {
 	protected static $settings = array(
 		'sheetId'   => '1FrFJ7zog1WUCsiREFOQ2pGAdhDYveDgBmGdaITrWeCo', // RMSのキー取得の為のスプレットシートID
 		'range'     => 'RMS_API', // RMSのキー取得の為のスプレットシート範囲
-		'endpoint'  => 'https://api.rms.rakuten.co.jp/es/',
+		'endpoint'  => 'https://api.rms.rakuten.co.jp/es',
 		'transient' => array(
 			'key'  => null,
 			'salt' => SECURE_AUTH_SALT,
@@ -99,7 +99,7 @@ abstract class N2_RMS_Base_API {
 			/**
 			 * [hook] n2_rms_base_api_set_header
 			 */
-			static::$data['header'] = apply_filters( mb_strtolower( get_called_class() ) . '_set_header', self::set_api_keys() );;
+			static::$data['header'] = apply_filters( mb_strtolower( get_called_class() ) . '_set_header', self::set_api_keys() );
 		}
 	}
 
@@ -117,7 +117,7 @@ abstract class N2_RMS_Base_API {
 		}
 		$default = array(
 			'mode'    => 'func',
-			'request' => 'anonymous',
+			'call' => 'anonymous',
 			'action'  => false,
 		);
 		// デフォルト値を$paramsで上書き
@@ -132,10 +132,10 @@ abstract class N2_RMS_Base_API {
 	/**
 	 * APIを実行するサムシング
 	 */
-	private static function request() {
-		$is_callable = is_callable( array( 'static', static::$data['params']['request'] ?? '' ) );
+	private static function call() {
+		$is_callable = is_callable( array( 'static', static::$data['params']['call'] ?? '' ) );
 		static::check_fatal_error( $is_callable, '未定義のmethodです' );
-		return static::{ static::$data['params']['request'] }();
+		return static::{ static::$data['params']['call'] }();
 	}
 
 	/**
@@ -168,7 +168,7 @@ abstract class N2_RMS_Base_API {
 		static::set_header();
 		static::check_fatal_error( static::connect(), '無効なAPIキーです。更新してください。');
 
-		static::$data['response'] = static::request();
+		static::$data['response'] = static::call();
 
 		static::remove_tmp_files();
 

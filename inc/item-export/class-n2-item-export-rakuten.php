@@ -267,7 +267,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		if ( null === $this->rms['use_api'] ) {
 			$this->rms['use_api'] = N2_RMS_Cabinet_API::ajax(
 				array(
-					'request' => 'connect',
+					'call' => 'connect',
 					'mode'    => 'func',
 				),
 			);
@@ -284,11 +284,12 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		if ( ! $this->can_use_api() ) {
 			return;
 		}
+
 		// 検索ワードでハッシュ化
 		$cabinet              = N2_RMS_Cabinet_API::ajax(
 			array(
 				'keywords' => $keywords,
-				'request'  => 'files_search',
+				'call'  => 'files_search',
 				'mode'     => 'func',
 			),
 		);
@@ -366,14 +367,13 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 
 		if ( ! $result ) { // 直接存在チェック
 			$result   = array();
-
-			$multi_request_params = array(
-				'requests'    => array_map( fn( $req ) => array( 'url' => $req ), $requests ),
-				'mode'    => 'func',
-				'call' => 'verify_images',
+			$response = N2_Multi_URL_Request_API::ajax(
+				array(
+					'requests'    => array_map( fn( $req ) => array( 'url' => $req ), $requests ),
+					'mode'    => 'func',
+					'call' => 'verify_images',
+				),
 			);
-			add_action( 'n2_multi_url_request_api_set_params', fn( $params )=> array( ...$params, ...$multi_request_params ) );
-			$response = N2_Multi_URL_Request_API::ajax();
 			$result   = array_map(
 				function( $req ) use ( $response ) {
 					return $response[ $req ] ? $req : '';

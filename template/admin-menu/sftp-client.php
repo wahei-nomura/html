@@ -7,7 +7,7 @@
 
 $folders = N2_RMS_Cabinet_API::ajax(
 	array(
-		'request' => 'folders_get',
+		'call' => 'folders_get',
 		'mode'    => 'func',
 	),
 );
@@ -130,7 +130,7 @@ global $n2;
 		<input type="hidden" name="n2nonce" value="<?php echo esc_attr( wp_create_nonce( 'n2nonce' ) ); ?>">
 		<input type="hidden" name="action" value="n2_rms_cabinet_api_ajax">
 		<input type="hidden" name="mode" value="debug">
-		<input type="hidden" name="request" value="file_insert">
+		<input type="hidden" name="call" value="file_insert">
 		<input type="hidden" name="folderId" value="">
 		<input type="file" multiple="multiple" name="cabinet_file[]">
 		<input type="submit" value="リクエストを送信">
