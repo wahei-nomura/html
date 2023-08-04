@@ -214,10 +214,10 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			$xml_array = array(
 				'fileInsertRequest' => array(
 					'file' => array(
-						'fileName' => $file_name,
 						'filePath' => $file_name,
+						'fileName' => str_replace( '.jpg', '', $file_name ),
 						'folderId' => static::$data['params']['folderId'],
-						'overWrite' => static::$data['params']['overWrite'] ?? false,
+						'overWrite' => 'true',
 					),
 				),
 			);
@@ -248,7 +248,6 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			$requests[] = $request;
 		}
 
-		
 		return N2_Multi_URL_Request_API::ajax(
 			array(
 				'requests' => $requests,
