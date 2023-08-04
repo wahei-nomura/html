@@ -187,8 +187,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	 * ファイル追加
 	 */
 	public static function file_insert() {
-		// static::check_fatal_error( static::$data['params']['fileName'] ?? false, 'フォルダ名が設定されていません。' );
-		// static::check_fatal_error( static::$data['params']['folderId'] ?? false, 'directory名が設定されていません。' );
+		static::check_fatal_error( static::$data['params']['folderId'] ?? false, 'folderIdが設定されていません。' );
 
 		$url = static::$settings['endpoint'] . '/1.0/cabinet/file/insert';
 		static::set_files();
