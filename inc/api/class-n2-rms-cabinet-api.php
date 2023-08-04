@@ -234,7 +234,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			$request['data'] .= "--{$boundary}\r\n";
 			$request['data'] .= "Content-Disposition: form-data; name=\"file\"; filename=\"{$file_name}\"\r\n";
 			$request['data'] .= "Content-Type: image/jpg\r\n";
-			$request['data'] .= "\r\n" . wp_remote_get( $tmp_name ) . "\r\n";
+			$request['data'] .= "\r\n" . file_get_contents( $tmp_name ) . "\r\n";
 			$request['data'] .= "--{$boundary}--";
 
 			/**
