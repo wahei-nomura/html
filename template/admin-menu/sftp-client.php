@@ -8,7 +8,7 @@
 $folders = N2_RMS_Cabinet_API::ajax(
 	array(
 		'call' => 'folders_get',
-		'mode'    => 'func',
+		'mode' => 'func',
 	),
 );
 

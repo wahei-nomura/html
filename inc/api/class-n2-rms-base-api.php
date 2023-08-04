@@ -116,9 +116,9 @@ abstract class N2_RMS_Base_API {
 			$params = wp_parse_args( $params, $_POST );
 		}
 		$default = array(
-			'mode'    => 'func',
-			'call' => 'anonymous',
-			'action'  => false,
+			'mode'   => 'func',
+			'call'   => 'anonymous',
+			'action' => false,
 		);
 		// デフォルト値を$paramsで上書き
 		$params = wp_parse_args( $params, $default );
@@ -166,7 +166,7 @@ abstract class N2_RMS_Base_API {
 
 		static::set_params( $args );
 		static::set_header();
-		static::check_fatal_error( static::connect(), '無効なAPIキーです。更新してください。');
+		static::check_fatal_error( static::connect(), '無効なAPIキーです。更新してください。' );
 
 		static::$data['response'] = static::call();
 
@@ -264,18 +264,21 @@ abstract class N2_RMS_Base_API {
 
 	/**
 	 * 連想配列をXMLに変換する
+	 *
+	 * @param array  $array array
+	 * @param object $xml SimpleXMLElement
 	 */
-	protected static function array_to_xml ( $array, &$xml ) {
-		foreach( $array as $key => $value ) {
-			if( is_array( $value )) {
-				if( ! is_numeric( $key )){
-					$subnode = $xml->addChild("$key");
-					self::array_to_xml($value, $subnode);
+	protected static function array_to_xml( $array, &$xml ) {
+		foreach ( $array as $key => $value ) {
+			if ( is_array( $value ) ) {
+				if ( ! is_numeric( $key ) ) {
+					$subnode = $xml->addChild( "$key" );
+					self::array_to_xml( $value, $subnode );
 				} else {
-					self::array_to_xml($value, $xml);
+					self::array_to_xml( $value, $xml );
 				}
 			} else {
-				$xml->addChild("$key","$value");
+				$xml->addChild( "$key", "$value" );
 			}
 		}
 	}
@@ -285,7 +288,7 @@ abstract class N2_RMS_Base_API {
 	 */
 	protected static function set_files() {
 		setlocale( LC_ALL, 'ja_JP.UTF-8' );
-		static::$data['files'] = $_FILES[ 'cabinet_file' ];
+		static::$data['files'] = $_FILES['cabinet_file'];
 		static::check_fatal_error( static::$data['files']['tmp_name'][0], 'ファイルをセットしてください。' );
 		static::image_compressor();
 	}
@@ -300,18 +303,18 @@ abstract class N2_RMS_Base_API {
 		$tmp = static::$data['tmp'];
 		exec( "rm -Rf {$tmp}" );
 	}
-	
+
 	/**
 	 * 画像圧縮
 	 */
 	private static function image_compressor() {
-		$name = static::$data['files']['name'];
-		$type = static::$data['files']['type'];
+		$name     = static::$data['files']['name'];
+		$type     = static::$data['files']['type'];
 		$tmp_name = static::$data['files']['tmp_name'];
 
 		// 一時ディレクトリ作成
 		static::$data['tmp'] = wp_tempnam( __CLASS__, get_theme_file_path() . '/' );
-		$tmp = static::$data['tmp'];
+		$tmp                 = static::$data['tmp'];
 
 		unlink( $tmp );
 		mkdir( $tmp );
@@ -322,7 +325,7 @@ abstract class N2_RMS_Base_API {
 			$local_file = "{$tmp}/{$name[$k]}";
 			exec( "mogrify -quality {$quality} {$local_file}" );
 			// pathを修正
-			static::$data['files']['tmp_name'][ $k ] = $local_file; 
+			static::$data['files']['tmp_name'][ $k ] = $local_file;
 		}
 	}
 }
