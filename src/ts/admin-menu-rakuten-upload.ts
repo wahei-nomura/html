@@ -112,7 +112,7 @@ jQuery( function($){
 		$(document).on('dragleave','.dragable-area', function(e) {
 			e.preventDefault();
 			$(this).removeClass('dragover');
-		  });
+		});
 		  // ドラッグ＆ドロップエリアにファイルがドロップされたときのイベントを追加
 		  $(document).on('drop','.dragable-area', function(e) {
 			e.preventDefault();
@@ -123,8 +123,8 @@ jQuery( function($){
 			const $form = $('#ss-cabinet form');
 			$form.find('input[type="file"]').prop('files',files);
 			const formData = new FormData( $form[0] as HTMLFormElement );
-			console.log(formData);
 			
+			// アップロード
 			$.ajax({
 				url : window['n2']['ajaxurl'],
 				type : 'POST',
@@ -143,7 +143,12 @@ jQuery( function($){
 						console.log(message);
 					}
 				})
-				console.log(faildCount);
+				if ( faildCount ) {
+					const alertMessage = [
+						faildCount + '件のアップロードに失敗しました。',
+					];
+					alert(alertMessage.join('\n'));
+				}
 				await initCardGroup( $('#ss-cabinet-images'), $('#ss-cabinet .active'))
 			});
 		  });
