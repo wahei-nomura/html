@@ -68,18 +68,19 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			true => $res_files,
 			default => array( $res_files ),
 		};
-		// 開発途中、１ページ目だけ返す
-		return $files;
-
-		for ( $i = 1; $i < ( $file_count % $files_get_params['limit'] ); $i++ ) {
-			$params['offset'] += 1;
-			$requests[]        = array(
-				'url' => static::$settings['endpoint'] . '/1.0/cabinet/folder/files/get?' . http_build_query( $params ),
-			);
-		}
-		if ( empty( $requests ) ) {
+		if ( $file_count <= $files_get_params['limit'] ) {
 			return $files;
 		}
+		// 開発途中
+		$requests = array_map(
+			function( $offset ) use ( $files_get_params ) {
+				$files_get_params['offset'] = $offset;
+				return array(
+					'url' => static::$settings['endpoint'] . '/1.0/cabinet/folder/files/get?' . http_build_query( $files_get_params ),
+				);
+			},
+			range( 2, floor( $file_count / $files_get_params['limit'] ) + 1 )
+		);
 
 		$response = N2_Multi_URL_Request_API::ajax(
 			array(
