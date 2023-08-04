@@ -33,8 +33,10 @@ class N2_Postlist {
 		add_action( 'pre_get_posts', array( $this, 'pre_get_author_posts' ) );// 事業者権限だと自分の投稿のみに
 		add_filter( 'wp_count_posts', array( $this, 'adjust_count_post' ), 10, 3 );// 事業者アカウントの投稿数の調整
 		add_action( 'admin_footer-edit.php', array( $this, 'save_post_ids_ui' ) );// 投稿ID保持＆一括ツールUI
-		add_filter( 'manage_posts_columns', array( $this, 'add_posts_columns' ), 10, 2 );
-		add_filter( 'manage_posts_custom_column', array( $this, 'add_posts_columns_row' ), 10, 2 );
+		add_filter( 'manage_posts_columns', array( $this, 'manage_posts_columns' ), 10, 2 );// カラム調整
+		add_filter( 'manage_edit-post_sortable_columns', array( $this, 'manage_posts_sortable_columns' ) );// ソート可能なカラムの調整
+		add_filter( 'manage_posts_custom_column', array( $this, 'manage_posts_custom_column' ), 10, 2 );
+		add_filter( 'request', array( $this, 'posts_columns_sort_param' ) );
 		add_filter( 'gettext', array( $this, 'change_status' ) );
 		add_filter( 'ngettext', array( $this, 'change_status' ) );
 		add_action( "wp_ajax_{$this->cls}", array( $this, 'ajax' ) );
@@ -121,203 +123,93 @@ class N2_Postlist {
 	}
 
 	/**
-	 * add_posts_columns
+	 * カラム調整
 	 *
-	 * @param array $columns カラム名の配列
-	 * @return array $columns 一覧に追加するカラム
+	 * @param array  $columns カラム名の配列
+	 * @param string $post_type 投稿タイプ
+	 * @return array $columns
 	 */
-	public function add_posts_columns( $columns ) {
-		global $n2;
-		$get_param_array = array();
-		foreach ( $_GET as $key => $value ) {
-			if ( is_array( $value ) ) {
-				$get_param_array[ $key ] = "{$key}[]=" . implode( "&{$key}[]=", $value );
-				continue;
-			}
-			if ( $value ) {
-				$get_param_array[ $key ] = "{$key}={$value}";
-			}
+	public function manage_posts_columns( $columns, $post_type ) {
+		if ( 'post' === $post_type ) {
+			unset( $columns['title'], $columns['author'], $columns['date'] );
+			$columns['modified']        = '更新日';
+			$columns['code']            = '返礼品コード';
+			$columns['title']           = '返礼品名';
+			$columns['author']          = '事業者名';
+			$columns['subscription']    = '定期便';
+			$columns['price']           = '価格';
+			$columns['donation-amount'] = '寄附金額';
+			$columns['rate']            = '返礼率';
+			$columns['thumbnail']       = '画像';
+			$columns['tools']           = 'ツール';
 		}
-
-		$sort_base_url = admin_url() . 'edit.php?' . implode( '&', $get_param_array );
-		$asc_or_desc   = empty( $_GET['order'] ) || 'asc' === $_GET['order'] ? 'desc' : 'asc';
-		$include_fee   = $n2->settings['寄附金額・送料']['送料乗数'];
-		$rr_header     = '(返礼率)';
-
-		$columns = array(
-			'cb'              => '<input type="checkbox" />',
-			'item-title'      => '返礼品名',
-			'poster'          => '事業者名',
-			'code'            => "<div class='text-center'><a href='{$sort_base_url}&orderby=返礼品コード&order={$asc_or_desc}'>返礼品<br>コード{$this->judging_icons_order('返礼品コード')}</a></div>",
-			'goods_price'     => "<div class='text-center'><a href='{$sort_base_url}&orderby=価格&order={$asc_or_desc}'>価格{$this->judging_icons_order('価格')}</a></div>",
-			'donation_amount' => "<a href='{$sort_base_url}&orderby=寄附金額&order={$asc_or_desc}'>寄附金額{$this->judging_icons_order('寄附金額')}</a><br>{$rr_header}",
-			'teiki'           => "<a href='{$sort_base_url}&orderby=定期便&order={$asc_or_desc}'>定期便{$this->judging_icons_order('定期便')}</a>",
-			'thumbnail'       => '<div class="text-center">画像</div>',
-			'modified-last'   => "<div class='text-center'><a href='{$sort_base_url}&orderby=date&order={$asc_or_desc}'>最終<br>更新日{$this->judging_icons_order('date')}</a></div>",
-		);
-		if ( $n2->settings['N2']['自治体確認'] ) {
-			$columns['yakuba'] = '自治体確認';
-		}
-		if ( 'local-government' !== wp_get_current_user()->roles[0] ) {
-			$columns = array(
-				...$columns,
-				...array(
-					'tools' => '<div class="text-center">ツール</div>',
-				),
-			);
-		}
-		if ( 'jigyousya' !== wp_get_current_user()->roles[0] ) {
-			$columns = array_merge(
-				$columns,
-				array(
-					'ssmemo' => 'SSメモ',
-				)
-			);
-		}
-
 		return $columns;
+	}
+
+	/**
+	 * ソート可能なカラムの調整
+	 *
+	 * @param array $sortable_columns ソート可能なカラム
+	 * @return array $sortable_columns
+	 */
+	public function manage_posts_sortable_columns( $sortable_columns ) {
+		$sortable_columns['modified']        = 'modified';
+		$sortable_columns['code']            = '返礼品コード';
+		$sortable_columns['author']          = '事業者名';
+		$sortable_columns['subscription']    = '定期便';
+		$sortable_columns['price']           = '価格';
+		$sortable_columns['donation-amount'] = '寄附金額';
+		$sortable_columns['rate']            = '返礼率';
+		return $sortable_columns;
 	}
 
 	/**
 	 * add_posts_columns_row
 	 *
 	 * @param string $column_name 追加されているカラム名
-	 * @return void
+	 * @param int    $post_id 投稿ID
 	 */
-	public function add_posts_columns_row( $column_name ) {
-		global $post;
-		global $n2;
-
-		$post_data = N2_Functions::get_all_meta( $post );
-
-		$title = get_the_title();
-
-		if ( isset( $post_data['商品画像'][0] ) ) {
-			$thumbnail_url = $post_data['商品画像'][0]['sizes']['thumbnail']['url'] ?? $post_data['商品画像'][0]['sizes']['thumbnail'];
-		}
-
-		$post_edit_url   = get_edit_post_link();
-		$image           = isset( $post_data['商品画像'][0] ) ? "<img class='n2-postlist-imgicon' src='{$thumbnail_url}' />" : '-';
-		$goods_price     = ! empty( $post_data['価格'] ) && 0 !== $post_data['価格'] ? number_format( $post_data['価格'] ) : '-';
-		$donation_amount = ! empty( $post_data['寄附金額'] ) && 0 !== $post_data['寄附金額'] ? number_format( $post_data['寄附金額'] ) : '-';
-		$teiki           = ! empty( $post_data['定期便'] ) && 1 !== (int) $post_data['定期便'] ? $post_data['定期便'] : '-';
-		$poster          = ! empty( get_userdata( $post->post_author ) ) ? get_userdata( $post->post_author )->display_name : '-';
-		$code            = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '未(id:' . $post->ID . ')';
-		$yakuba          = $post_data['自治体確認'] ?? '';
-		$code_no_class   = empty( $post_data['返礼品コード'] ) ? ' no-code' : '';
-		$ssmemo          = ! empty( $post_data['社内共有事項'] ) ? nl2br( $post_data['社内共有事項'] ) : '';
-		$ssmemo_isset    = $ssmemo ? 'n2-postlist-ssmemo' : '';
-		$modified_last   = get_the_modified_date( 'Y/m/d' );
-		$return_rate     = N2_Donation_Amount_API::calc_return_rate( $post_data ); // 返礼率計算
-		$include_fee     = $n2->settings['寄附金額・送料']['送料乗数'];
-		$rr_threshold    = N2_Donation_Amount_API::calc_return_rate( $post_data, true ); // 返礼率がしきい値(0.3 or 0.35)を超えてるかチェック
-		$rr_caution      = false === $rr_threshold ?: '; color:red; font-weight:bold'; // 返礼率がしきい値を超えてたら装飾
-
-		$status       = '';
-		$status_bar   = 0;
-		$status_color = '';
-		if ( 'draft' === get_post_status() || 'inherit' === get_post_status() ) {
-			$status       = '入力中';
-			$status_bar   = 30;
-			$status_color = 'secondary';
-
-		}
-		if ( 'pending' === get_post_status() ) {
-			$status       = 'スチームシップ確認中';
-			$status_bar   = 60;
-			$status_color = 'danger';
-		}
-		if ( 'publish' === get_post_status() ) {
-			$status       = 'ポータル登録準備中';
-			$status_bar   = 80;
-			$status_color = 'primary';
-		}
-		if ( 'registered' === get_post_status() ) {
-			$status       = 'ポータル登録済';
-			$status_bar   = 100;
-			$status_color = 'success';
-		}
-
-		$tools_setting = array(
-			array(
-				'text'      => '複製',
-				'add_class' => 'neo-neng-copypost-btn',
-				'is_show'   => ! isset( $_GET['post_status'] ) || 'trash' !== $_GET['post_status'],
-			),
-			array(
-				'text'      => 'ゴミ箱へ移動',
-				'add_class' => 'neo-neng-deletepost-btn',
-				'is_show'   => ( ! isset( $_GET['post_status'] ) || 'trash' !== $_GET['post_status'] ) // ゴミ箱ページじゃない
-								// かつ事業者以外または、事業者でステータスが下書き
-								&& ( 'jigyousya' !== $n2->current_user->roles[0] || ( '入力中' === $status && 'jigyousya' === $n2->current_user->roles[0] ) ),
-			),
-			array(
-				'text'      => '事業者変更',
-				'add_class' => 'neo-neng-change-author-btn',
-				'is_show'   => ( ! isset( $_GET['post_status'] ) || 'trash' !== $_GET['post_status'] ) && ( 'jigyousya' !== $n2->current_user->roles[0] ),
-			),
-			array(
-				'text'      => '復元',
-				'add_class' => 'neo-neng-recoverypost-btn',
-				'is_show'   => isset( $_GET['post_status'] ) && 'trash' === $_GET['post_status'],
-			),
-		);
-
-		switch ( $column_name ) {
-			case 'item-title':
-				echo "
-						<div class='text-truncate' data-bs-toggle='tooltip' data-bs-placement='bottom' title='{$title}'><a href='{$post_edit_url}'>{$title}</a></div>
-						<div class='progress mt-1' style='height: 10px; font-size:8px;'>
-							<div class='progress-bar bg-{$status_color}' role='progressbar' style='width: {$status_bar}%;' aria-valuenow='{$status_bar}' aria-valuemin='0' aria-valuemax='100'>{$status}</div>
-			  			</div>
-						<button type='button' class='toggle-row'></button>
-					";
-				break;
-			case 'poster':
-				echo "<div>{$poster}</div>";
-				break;
-			case 'goods_price':
-				echo "<div class='text-center'>{$goods_price}</div>";
-				break;
-			case 'donation_amount':
-				echo "<div class='text-center'>{$donation_amount}<br><span style='font-size:.7rem{$rr_caution};'>({$return_rate})</span></div>";
-				break;
-			case 'teiki':
-				echo "<div class='text-center'>{$teiki}</div>";
-				break;
-			case 'code':
-				echo "<div class='text-center{$code_no_class}'>{$code}</div>";
-				break;
-			case 'yakuba':
-				echo "<div class='text-center'>{$yakuba}</div>";
-				break;
-			case 'thumbnail':
-				echo "<div class='text-center'>{$image}</div>";
-				break;
-			case 'modified-last':
-				echo "<div class='text-center'>{$modified_last}</div>";
-				break;
-			case 'ssmemo':
-				echo "<div class='{$ssmemo_isset}'><p>{$ssmemo}</p></div>";
-				break;
-			case 'tools':
-				?>
-					<div class="dropdown text-center n2-list-tooles">
-						<span class="dashicons dashicons-admin-tools dropdown-toggle" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false"></span>
-						<ul class="dropdown-menu border" aria-labelledby="dropdownMenuLink">
-							<?php foreach ( $tools_setting as $setting ) : ?>
-								<?php if ( $setting['is_show'] ) : ?>
-									<li><button type="button" class="dropdown-item <?php echo $setting['add_class']; ?>"><?php echo $setting['text']; ?></button></li>
-								<?php endif; ?>
-							<?php endforeach; ?>
-						</ul>
-					</div>
-				<?php
-				break;
-		}
+	public function manage_posts_custom_column( $column_name, $post_id ) {
+		$meta = json_decode( get_the_content(), true );
+		// サムネイル
+		$thumbnail = $meta['商品画像']
+			? ( $meta['商品画像'][0]['sizes']['thumbnail']['url'] ?? $meta['商品画像'][0]['sizes']['thumbnail'] )
+			: false;
+		// html生成
+		$html = match ( $column_name ) {
+			'modified' => get_the_modified_date( 'y年 m/d' ) . '<br>' . get_the_modified_date( 'H:i:s' ),
+			'code' => $meta['返礼品コード'],
+			'subscription' => $meta['定期便'] > 1 ? $meta['定期便'] : '-',
+			'price' => number_format( $meta['価格'] ?? 0 ) . '<small>円</small>',
+			'donation-amount' => number_format( $meta['寄附金額'] ?? 0 ) . '<small>円</small>',
+			// 'rate' => $meta['返礼率'],
+			'thumbnail' => $thumbnail ? "<img src='{$thumbnail}' width='50'>" : '-',
+			'tools' => 'template<br>呼び出し',
+			default => '',
+		};
+		echo $html;
 	}
 
-
+	/**
+	 * ソートを有効に
+	 *
+	 * @param array $query_vars The array of requested query variables.
+	 * @return $query_vars
+	 */
+	public function posts_columns_sort_param( $query_vars ) {
+		$sorts = array(
+			'返礼品コード' => 'meta_value',
+			'定期便'    => 'meta_value_num',
+			'価格'     => 'meta_value_num',
+			'寄附金額'   => 'meta_value_num',
+			'返礼率'    => 'meta_value_num',
+		);
+		if ( array_key_exists( $query_vars['orderby'] ?? '', $sorts ) ) {
+			$query_vars['meta_key'] = $query_vars['orderby'];
+			$query_vars['orderby']  = $sorts[ $query_vars['orderby'] ];
+		}
+		return $query_vars;
+	}
 
 	/**
 	 * change_status
@@ -327,10 +219,13 @@ class N2_Postlist {
 	 * @return string $status ステータス
 	 */
 	public function change_status( $status ) {
-		$status = str_ireplace( '非公開', '非公開', $status );
-		$status = str_ireplace( '下書き', '入力中', $status );
-		$status = str_ireplace( 'レビュー待ち', 'スチームシップ確認待ち', $status );
-		$status = str_ireplace( '公開済み', 'ポータル登録準備中', $status );
+		$re = array(
+			'下書き'    => '入力中',
+			'レビュー待ち' => 'スチームシップ確認待ち',
+			'公開済み'   => 'ポータル登録準備中',
+		);
+		// 変換
+		$status = str_replace( array_keys( $re ), $re, $status );
 		return $status;
 	}
 
