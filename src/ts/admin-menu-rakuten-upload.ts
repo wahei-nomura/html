@@ -1,156 +1,175 @@
-import '../../node_modules/bootstrap/dist/js/bootstrap';
+import "../../node_modules/bootstrap/dist/js/bootstrap";
 
-jQuery( function($){
-
-	const getFiles = async (id:string ) => {
+jQuery(function ($) {
+	const getFiles = async (id: string) => {
 		return await $.ajax({
-			url : window['n2']['ajaxurl'],
-			type : 'GET',
-			data : {
-				action : 'n2_rms_cabinet_api_ajax',
-				call : 'files_get',
-				mode : 'json',
-				folderId : id,
+			url: window["n2"]["ajaxurl"],
+			type: "GET",
+			data: {
+				action: "n2_rms_cabinet_api_ajax",
+				call: "files_get",
+				mode: "json",
+				folderId: id,
 			},
 		});
-	}
+	};
 
-	const addFiles2CardGroup = async ( $cardGroup, $active ) => {
-		const res = await getFiles($active.data('id'));
+	const addFiles2CardGroup = async ($cardGroup, $active) => {
+		const res = await getFiles($active.data("id"));
 		$cardGroup.empty();
-		res.forEach( async file => {
-			const $card = $('#card-template .card').clone(false);
-			const url = file['FileUrl'];
-			if ( ! url ) {
-				$card.addClass('flex-fill');
-				$card.find('img').remove();
-				$card.css('max-width','100%');
-				$cardGroup.append( $card );
+		res.forEach(async (file) => {
+			const $card = $("#card-template .card").clone(false);
+			const url = file["FileUrl"];
+			if (!url) {
+				$card.addClass("flex-fill");
+				$card.find("img").remove();
+				$card.css("max-width", "100%");
+				$cardGroup.append($card);
 				return;
 			}
-			let thumbnailUrl = url.replace('image.rakuten.co.jp','thumbnail.image.rakuten.co.jp/@0_mall');
-			thumbnailUrl += '?_ex=137x137';
-			$card.find('img').attr({
+			let thumbnailUrl = url.replace(
+				"image.rakuten.co.jp",
+				"thumbnail.image.rakuten.co.jp/@0_mall"
+			);
+			thumbnailUrl += "?_ex=137x137";
+			$card.find("img").attr({
 				src: thumbnailUrl,
-				alt: file['FileName'],
-				'data-url': url,
+				alt: file["FileName"],
+				"data-url": url,
 			});
-			$card.find('.card-title').text(file['FileName']);
-			$card.find('.card-text').text(file['FilePath']);
-			$cardGroup.append( $card );
+			$card.find(".card-title").text(file["FileName"]);
+			$card.find(".card-text").text(file["FilePath"]);
+			$cardGroup.append($card);
 		});
-	}
+	};
 
-	const initCardGroup = async ( $cardGroup, $active ) => {
+	const initCardGroup = async ($cardGroup, $active) => {
 		// files
 		await addFiles2CardGroup($cardGroup, $active);
 		// dragarea
-		const $dragArea = $('#dragable-area-template .dragable-area').clone(false);
+		const $dragArea = $("#dragable-area-template .dragable-area").clone(
+			false
+		);
 		$cardGroup.append($dragArea);
 		//form
-		$('#ss-cabinet form').find('input').each((_,input)=>{
-			switch ($('#ss-cabinet form').find('input').eq(_).attr('name')) {
-				case 'filePath':
-					$('#ss-cabinet form').find('input').eq(_).val( $active.data('path') );
-					break;
-				case 'folderId':
-					$('#ss-cabinet form').find('input').eq(_).val( $active.data('id') );
-					break;
-			}
-		})
-	}
+		$("#ss-cabinet form")
+			.find("input")
+			.each((_, input) => {
+				switch (
+					$("#ss-cabinet form").find("input").eq(_).attr("name")
+				) {
+					case "filePath":
+						$("#ss-cabinet form")
+							.find("input")
+							.eq(_)
+							.val($active.data("path"));
+						break;
+					case "folderId":
+						$("#ss-cabinet form")
+							.find("input")
+							.eq(_)
+							.val($active.data("id"));
+						break;
+				}
+			});
+	};
 
-	// 
-	const top = $('#ss-cabinet .row').offset().top;
-	const $tree = $('.tree')
+	//
+	const top = $("#ss-cabinet .row").offset().top;
+	const $tree = $(".tree");
 
 	// フォルダツリー制御
-	$tree.on('click','li > span', async function(event){
-		const icons = ['spinner-border spinner-border-sm','bi bi-folder2-open'];
+	$tree.on("click", "li > span", async function (event) {
+		const icons = [
+			"spinner-border spinner-border-sm",
+			"bi bi-folder2-open",
+		];
 		if (event.target === this) {
-			$(this).toggleClass('close').siblings('ul').toggleClass('d-none');
+			$(this).toggleClass("close").siblings("ul").toggleClass("d-none");
 
-			const $cardGroup = $('#ss-cabinet-images');
+			const $cardGroup = $("#ss-cabinet-images");
 			$cardGroup.css({
 				height: `calc(100vh - ${top}px )`,
-			})
-			$('.tree').css({
+			});
+			$(".tree").css({
 				height: `calc(100vh - ${top}px )`,
-			})
-			if( $(this).hasClass('active') ) {
+			});
+			if ($(this).hasClass("active")) {
 				return true;
 			} else {
-				$('span.active').removeClass('active');
-				$(this).children('i').attr('class', icons[0] );
-				$cardGroup.addClass('loading');
+				$("span.active").removeClass("active");
+				$(this).children("i").attr("class", icons[0]);
+				$cardGroup.addClass("loading");
 			}
-			
-			$(this).addClass('active');
+
+			$(this).addClass("active");
 			const $active = $(this);
-			await initCardGroup( $cardGroup, $active );
-			$cardGroup.removeClass('loading');
-			$(this).children('i').attr('class', icons[1] );
+			await initCardGroup($cardGroup, $active);
+			$cardGroup.removeClass("loading");
+			$(this).children("i").attr("class", icons[1]);
 		}
-	})
-	$tree.find('li > span').eq(0).trigger('click');
+	});
+	$tree.find("li > span").eq(0).trigger("click");
 
 	// モーダル制御
-	$(document).on('click','.card-img-top',function(){
-		$('#CabinetModalImage').attr({
-			src: $(this).data('url')
+	$(document).on("click", ".card-img-top", function () {
+		$("#CabinetModalImage").attr({
+			src: $(this).data("url"),
 		});
 	});
 
 	// drag&drop制御
 	{
-
-		$(document).on('dragover','.dragable-area',function(e){
+		$(document).on("dragover", ".dragable-area", function (e) {
 			e.preventDefault();
-			$(this).addClass('dragover');
-		})
-		// ドラッグ＆ドロップエリアからドラッグが外れたときのイベントを追加
-		$(document).on('dragleave','.dragable-area', function(e) {
-			e.preventDefault();
-			$(this).removeClass('dragover');
+			$(this).addClass("dragover");
 		});
-		  // ドラッグ＆ドロップエリアにファイルがドロップされたときのイベントを追加
-		  $(document).on('drop','.dragable-area', function(e) {
+		// ドラッグ＆ドロップエリアからドラッグが外れたときのイベントを追加
+		$(document).on("dragleave", ".dragable-area", function (e) {
 			e.preventDefault();
-			$(this).removeClass('dragover');
-	  
+			$(this).removeClass("dragover");
+		});
+		// ドラッグ＆ドロップエリアにファイルがドロップされたときのイベントを追加
+		$(document).on("drop", ".dragable-area", function (e) {
+			e.preventDefault();
+			$(this).removeClass("dragover");
+
 			// ドロップされたファイルを取得
 			const files = e.originalEvent.dataTransfer.files;
-			const $form = $('#ss-cabinet form');
-			$form.find('input[type="file"]').prop('files',files);
-			const formData = new FormData( $form[0] as HTMLFormElement );
-			
+			const $form = $("#ss-cabinet form");
+			$form.find('input[type="file"]').prop("files", files);
+			const formData = new FormData($form[0] as HTMLFormElement);
+
 			// アップロード
 			$.ajax({
-				url : window['n2']['ajaxurl'],
-				type : 'POST',
-				data : formData,
+				url: window["n2"]["ajaxurl"],
+				type: "POST",
+				data: formData,
 				processData: false, // FormDataを処理しないように設定
 				contentType: false, // コンテンツタイプを設定しないように設定
-			}).then(async (response)=>{
+			}).then(async (response) => {
 				console.log(response);
 				let faildCount = 0;
-				Object.keys(response).forEach( index => {
-					const res = response[ index ];
-					if ( ! res.success ) {
+				Object.keys(response).forEach((index) => {
+					const res = response[index];
+					if (!res.success) {
 						++faildCount;
 						const xmlDoc = $.parseXML(res.body);
-						const message = $(xmlDoc).find('message').text();
+						const message = $(xmlDoc).find("message").text();
 						console.log(message);
 					}
-				})
-				if ( faildCount ) {
+				});
+				if (faildCount) {
 					const alertMessage = [
-						faildCount + '件のアップロードに失敗しました。',
+						faildCount + "件のアップロードに失敗しました。",
 					];
-					alert(alertMessage.join('\n'));
+					alert(alertMessage.join("\n"));
 				}
-				await initCardGroup( $('#ss-cabinet-images'), $('#ss-cabinet .active'))
+				await initCardGroup(
+					$("#ss-cabinet-images"),
+					$("#ss-cabinet .active")
+				);
 			});
-		  });
+		});
 	}
-})
+});
