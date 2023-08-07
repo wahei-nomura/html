@@ -345,7 +345,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 	 */
 	protected function get_relative_img_path( $n2values, $index ) {
 		global $n2;
-		$img_dir = $n2->settings['楽天']['品画像ディレクトリ'];
+		$img_dir = $n2->settings['楽天']['商品画像ディレクトリ'];
 		$img_dir = preg_replace( '/\/item.*$/', '', $img_dir );
 		$imgs    = array_filter( explode( ' ', $this->get_img_urls( $n2values ) ) );
 		$img     = $imgs[ $index ] ?? '';
