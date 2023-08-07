@@ -42,24 +42,27 @@
 				& .bi {
 					padding-right: 5px;
 				}
+				& .folder-open {
+					position: absolute;
+					& > input {
+						display: none;
+					}
+				}
 				&.hasChirdlen{
-					> span{
-						&:before {
-							content: '';
-							position: absolute;
-							width: 5px;
-							height: 5px;
-							border: 1px solid #000;
-							border-left: none;
-							border-top: none;
-							top: 15px;
-							left: 0px;
-							transform: translate(-50%,-50%) rotate(-45deg);
-						}
-						&.close {
-							&:before {
-								transform: translate(-50%,-50%) rotate(45deg);
-							}
+					& > label {
+						content: '';
+						position: absolute;
+						width: 8px;
+						height: 8px;
+						border: 2px solid #000;
+						border-left: none;
+						border-top: none;
+						top: 15px;
+						left: 0px;
+						transform: translate(-50%,-50%) rotate(-45deg);
+						transition: .2s;					
+						&:has( :checked) {
+							transform: translate(-50%,-50%) rotate(45deg);
 						}
 					}
 				}

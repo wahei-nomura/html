@@ -78,37 +78,40 @@ jQuery(function ($) {
 	const top = $("#ss-cabinet .row").offset().top;
 	const $tree = $(".tree");
 
+	// フォルダーオープン
+	$tree.on("change", ".folder-open > input", function () {
+		$(this).parent().siblings("ul").toggleClass("d-none");
+	});
+
 	// フォルダツリー制御
 	$tree.on("click", "li > span", async function (event) {
 		const icons = [
 			"spinner-border spinner-border-sm",
 			"bi bi-folder2-open",
 		];
-		if (event.target === this) {
-			$(this).toggleClass("close").siblings("ul").toggleClass("d-none");
-
-			const $cardGroup = $("#ss-cabinet-images");
-			$cardGroup.css({
-				height: `calc(100vh - ${top}px )`,
-			});
-			$(".tree").css({
-				height: `calc(100vh - ${top}px )`,
-			});
-			if ($(this).hasClass("active")) {
-				return true;
-			} else {
-				$("span.active").removeClass("active");
-				$(this).children("i").attr("class", icons[0]);
-				$cardGroup.addClass("loading");
-			}
-
-			$(this).addClass("active");
-			const $active = $(this);
-			await initCardGroup($cardGroup, $active);
-			$cardGroup.removeClass("loading");
-			$(this).children("i").attr("class", icons[1]);
+		if (event.target !== this) {
+			return;
 		}
+		const $cardGroup = $("#ss-cabinet-images");
+
+		$cardGroup.css({
+			height: `calc(100vh - ${top}px )`,
+		});
+		$(".tree").css({
+			height: `calc(100vh - ${top}px )`,
+		});
+
+		$("span.active").removeClass("active");
+		$(this).children("i").attr("class", icons[0]);
+		$cardGroup.addClass("loading");
+
+		$(this).addClass("active");
+		const $active = $(this);
+		await initCardGroup($cardGroup, $active);
+		$cardGroup.removeClass("loading");
+		$(this).children("i").attr("class", icons[1]);
 	});
+	$tree.find("li > .folder-open").eq(0).trigger("click");
 	$tree.find("li > span").eq(0).trigger("click");
 
 	// モーダル制御

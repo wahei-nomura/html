@@ -78,6 +78,10 @@ $tree_list = function ( $parent, $path = null ) use ( &$tree_list, $folders ) {
 		<?php else : ?>
 		<li>
 		<?php endif; ?>
+			<label class='folder-open'>
+				<input name='folder-open' type="checkbox">
+			</label>
+			
 			<span data-path="<?php echo esc_attr( $dir ?: '/' ); ?>" data-id="<?php echo esc_attr( $folder['FolderId'] ); ?>">
 				<i class="bi bi-folder2-open close"></i><?php echo esc_html( $folder['FolderName'] ); ?>
 			</span>
