@@ -43,25 +43,26 @@
 					padding-right: 5px;
 				}
 				& .folder-open {
-					position: absolute;
 					& > input {
 						display: none;
 					}
 				}
 				&.hasChirdlen{
 					& > label {
-						content: '';
-						position: absolute;
-						width: 8px;
-						height: 8px;
-						border: 2px solid #000;
-						border-left: none;
-						border-top: none;
-						top: 15px;
-						left: 0px;
-						transform: translate(-50%,-50%) rotate(-45deg);
-						transition: .2s;					
-						&:has( :checked) {
+						&:before{
+							content: '';
+							position: absolute;
+							width: 8px;
+							height: 8px;
+							border: 2px solid #000;
+							border-left: none;
+							border-top: none;
+							top: 15px;
+							left: -3px;
+							transform: translate(-50%,-50%) rotate(-45deg);
+							transition: .2s;					
+						}
+						&:has( input:checked ):before {
 							transform: translate(-50%,-50%) rotate(45deg);
 						}
 					}
@@ -69,7 +70,6 @@
 				&:last-child:after {/*これ以下は別フォルダになる事を明示する為、少しだけ離す*/
 					height: 15px;
 				}
-				
 			}
 		}
 		& span {/*ファイル名部分*/
