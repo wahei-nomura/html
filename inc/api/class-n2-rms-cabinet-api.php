@@ -1,7 +1,7 @@
 <?php
 /**
  * RMS CABINET API
- * /wp-admin/admin-ajax.php?action=n2_rms_cabinet_api_ajax&mode=debug&request=
+ * /wp-admin/admin-ajax.php?action=n2_rms_cabinet_api_ajax&mode=debug&call=
  *
  * @package neoneng
  */
@@ -254,6 +254,71 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 				'headers'  => static::$data['header'],
 			),
 		);
+	}
+
+	/**
+	 * ファイル削除
+	 */
+	public static function trashbox_files_get() {
+		$files_get_params = array(
+			'limit'  => 100,
+			'offset' => 1,
+		);
+		$url              = static::$settings['endpoint'] . '/1.0/cabinet/trashbox/files/get?';
+
+		$files    = array();
+		$requests = array();
+
+		$response = wp_remote_get( $url . http_build_query( $files_get_params ), array( 'headers' => static::$data['header'] ) );
+
+		$result     = simplexml_load_string( $response['body'] )->cabinetTrashboxFilesGetResult;
+		$file_count = $result->fileAllCount;
+		$res_files  = $result->files;
+		$res_files  = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
+		$files      = match ( $file_count > 1 ) {
+			true => $res_files,
+			default => array( $res_files ),
+		};
+		if ( $file_count <= $files_get_params['limit'] ) {
+			return $files;
+		}
+		// 開発途中
+		$requests = array_map(
+			function( $offset ) use ( $files_get_params ) {
+				$files_get_params['offset'] = $offset;
+				return array(
+					'url' => $url . http_build_query( $files_get_params ),
+				);
+			},
+			range( 2, floor( $file_count / $files_get_params['limit'] ) + 1 )
+		);
+
+		$response = N2_Multi_URL_Request_API::ajax(
+			array(
+				'requests' => $requests,
+				'call'     => 'request_multiple',
+				'mode'     => 'func',
+				'headers'  => static::$data['header'],
+			),
+		);
+
+		foreach ( $response as $res ) {
+			$result    = simplexml_load_string( $res->body )->cabinetTrashboxFilesGetResult;
+			$res_files = $result->files;
+			$res_files = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
+			$files     = array( ...$files, ...$res_files );
+		}
+		return $files;
+	}
+
+	public static function usage_get() {
+		$url = static::$settings['endpoint'] . '/1.0/cabinet/usage/get';
+
+		$data = wp_remote_get( $url, array( 'headers' => static::$data['header'] ) );
+		$body = wp_remote_retrieve_body( $data );
+		$body = simplexml_load_string( $body );
+
+		return $body;
 	}
 
 }
