@@ -180,6 +180,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 		$response     = wp_remote_request( $url, $request_args );
 
 		$response_body = wp_remote_retrieve_body( $response );
+		$response_body = simplexml_load_string( $response_body );
 
 		return $response_body;
 	}

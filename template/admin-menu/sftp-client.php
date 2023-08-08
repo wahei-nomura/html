@@ -74,7 +74,7 @@ $tree_list = function ( $parent, $path = null ) use ( &$tree_list, $folders ) {
 			$folder = $folders[ $index ];
 		?>
 		<?php if ( $child ) : ?>
-		<li class="hasChirdlen">
+		<li class="hasChildren">
 		<?php else : ?>
 		<li>
 		<?php endif; ?>
@@ -104,7 +104,7 @@ global $n2;
 	<div class="row row-cols-1 row-cols-md-2  border-top border-dark">
 		<aside class='cabinet-aside overflow-auto col-3'>
 			<nav class="d-flex justify-content-around">
-				<button class="btn btn-outline-secondary btn-sm" type="button" name="folder_insert">新規作成</button>
+				<button class="btn btn-outline-secondary btn-sm" type="button" name="folder_insert" data-bs-toggle="modal" data-bs-target="#folderInsertModal">新規作成</button>
 				<button class="btn btn-outline-warning btn-sm" type="button" name="trashbox_files_get">削除フォルダを確認</button>
 			</nav>
 			<div class="tree overflow-auto">
@@ -127,10 +127,29 @@ global $n2;
 		</div>
 	</div>
 	<div class="modal fade" id="CabinetModal" tabindex="-1" aria-labelledby="CabinetModalLabel" aria-hidden="true">
-		<div class="modal-dialog modal-fullscreen">
+		<div class="modal-dialog modal-dialog-centered">
 			<div class="modal-content" data-bs-dismiss="modal">
-				<div class="modal-body  d-flex align-items-center justify-content-center">
+				<div class="modal-body">
 					<img src="" class="img-fluid" id="CabinetModalImage" data-bs-dismiss="modal" aria-label="Close" />
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="folderInsertModal" tabindex="-1" aria-labelledby="folderInsertModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-body">
+					<div class="input-group pb-2">
+						<span class="input-group-text">フォルダ名</span>
+						<input type="text" class="form-control" placehodler="folderName">
+					</div>
+					<div class="input-group pb-2">
+						<span class="input-group-text">表示名</span>
+						<input type="text" class="form-control" placehodler="directoryName">
+					</div>
+					<div class="d-flex pb-2">
+						<button class="btn btn-secondary flex-fill" type="submit" data-bs-dismiss="modal">submit</button>
+					</div>
 				</div>
 			</div>
 		</div>

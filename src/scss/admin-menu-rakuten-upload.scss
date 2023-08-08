@@ -65,7 +65,7 @@
 						display: none;
 					}
 				}
-				&.hasChirdlen{
+				&.hasChildren{
 					& > label {
 						&:before{
 							content: '';
@@ -98,11 +98,19 @@
 			
 		}
 	}
-	.modal-content {background-color:#8888;}
+	@media (min-width: 576px){
+		.modal-dialog {
+			max-width: 700px;
+		}
+	}
+	.modal-body {
+		margin: auto;
+	}
 	.dragable-area {
 		border-style: dashed!important;
 	}
 }
+
 @keyframes loading {
 	0%, 100% {
 		background-color: #fff;

@@ -21,7 +21,12 @@ jQuery(function ($) {
 			const url = file["FileUrl"];
 			if (!url) {
 				$card.addClass("flex-fill");
+				$card.find(".card-header").remove();
 				$card.find("img").remove();
+				$card
+					.find(".card-img-overlay")
+					.removeClass("card-img-overlay")
+					.addClass("card-body");
 				$card.css("max-width", "100%");
 				$cardGroup.append($card);
 				return;
@@ -188,6 +193,9 @@ jQuery(function ($) {
 		const name = $(elem.target).attr("name");
 		const data = new FormData();
 		const n2nonce = $('[name="n2nonce"]').val();
+		// inputやモーダルで設定したい
+		const folderName = "test3";
+		const directoryName = "test3";
 
 		data.append("action", "n2_rms_cabinet_api_ajax");
 		data.append("n2nonce", String(n2nonce));
@@ -195,33 +203,54 @@ jQuery(function ($) {
 		switch (name) {
 			case "folder_insert":
 				data.append("call", name);
-				data.append("folderName", "test2");
-				data.append("directoryName", "test2");
+				data.append("folderName", folderName);
+				data.append("directoryName", directoryName);
 				data.append("upperFolderId", $(".tree .active").data("id"));
 				break;
 			case "trashbox_files_get":
 				data.append("call", name);
 		}
 
-		const res = await $.ajax({
-			url: window["n2"].ajaxurl,
-			type: "POST",
-			data: data,
-			processData: false,
-			contentType: false,
-		});
+		// const res = await $.ajax({
+		// 	url: window["n2"].ajaxurl,
+		// 	type: "POST",
+		// 	data: data,
+		// 	processData: false,
+		// 	contentType: false,
+		// });
 
-		switch (name) {
-			case "trashbox_files_get":
-				// ボタンをアクティブに。
-				$(this).addClass("active");
-				// フォルダツリーのアクティブ解除
-				$(".tree").find(".active").removeClass("active");
-				const $cardGroup = $("#ss-cabinet-images");
-				addFiles2CardGroup($cardGroup, res);
-				break;
-			default:
-				break;
-		}
+		// switch (name) {
+		// 	case "trashbox_files_get":
+		// 		// ボタンをアクティブに。
+		// 		$(this).addClass("active");
+		// 		// フォルダツリーのアクティブ解除
+		// 		$(".tree").find(".active").removeClass("active");
+		// 		const $cardGroup = $("#ss-cabinet-images");
+		// 		addFiles2CardGroup($cardGroup, res);
+		// 		break;
+		// 	case "folder_insert":
+		// 		if ("OK" === res.status.systemStatus) {
+		// 			const folderId = res.cabinetFolderInsertResult.FolderId;
+		// 			console.log(folderId);
+		// 			const $active = $(".tree").find(".active");
+		// 			$active.parent("li").addClass("hasChildren");
+		// 			$active.after(`
+		// 				<ul class="d-none">
+		// 					<li>
+		// 						<label class="folder-open">
+		// 							<input name="folder-open" type="checkbox">
+		// 						</label>
+		// 						<span data-path="${$active.data("path")}/${folderName}" data-id="${folderId}">
+		// 							<i class="bi bi-folder2-open close"></i>${directoryName}
+		// 						</span>
+		// 					</li>
+		// 				</ul>
+		// 			`);
+		// 		} else {
+		// 			alert(res.status.message);
+		// 		}
+
+		// 		break;
+		// }
 	});
 });
