@@ -102,15 +102,25 @@ global $n2;
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 	<h2>CABINET</h2>
 	<div class="row row-cols-1 row-cols-md-2  border-top border-dark">
-		<div class="tree overflow-auto col-3">
-			<?php $tree_list( $tree ); ?>
-		</div>
-		<div id="ss-cabinet-images" class="position-relative overflow-auto border-start border-dark col-9 d-flex align-content-between justify-content-start align-items-start flex-wrap"></div>
+		<aside class='cabinet-aside overflow-auto col-3'>
+			<nav class="d-flex justify-content-around">
+				<button class="btn btn-outline-secondary btn-sm" type="button" name="folder_insert">新規作成</button>
+				<button class="btn btn-outline-warning btn-sm" type="button" name="trashbox_files_get">削除フォルダを確認</button>
+			</nav>
+			<div class="tree overflow-auto">
+				<?php $tree_list( $tree ); ?>
+			</div>
+		</aside>
+		<div id="ss-cabinet-images" class="position-relative overflow-auto border-start border-dark col-9 d-flex align-content-start justify-content-start align-items-start flex-wrap"></div>
 	</div>
 	<div id="card-template" style="display:none;">
-		<div class="card shadow text-center me-2">
+		<div class="card shadow me-2">
+			<div class="card-header d-flex align-items-center justify-content-between">
+				<input type="checkbox" name="selected">
+				<span class="card-text"></span>
+			</div>
 			<img src="" class="card-img-top" alt="" data-bs-toggle="modal" data-bs-target="#CabinetModal" role="button" decoding=“async”>
-			<div class="card-body">
+			<div class="card-img-overlay text-center">
 				<h6 class="card-title text-truncate"></h6>
 				<p class="card-text">フォルダは空です。</p>
 			</div>

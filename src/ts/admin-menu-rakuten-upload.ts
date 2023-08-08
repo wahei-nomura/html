@@ -14,10 +14,9 @@ jQuery(function ($) {
 		});
 	};
 
-	const addFiles2CardGroup = async ($cardGroup, $active) => {
-		const res = await getFiles($active.data("id"));
+	const addFiles2CardGroup = async ($cardGroup, files) => {
 		$cardGroup.empty();
-		res.forEach(async (file) => {
+		files.forEach(async (file) => {
 			const $card = $("#card-template .card").clone(false);
 			const url = file["FileUrl"];
 			if (!url) {
@@ -36,16 +35,22 @@ jQuery(function ($) {
 				src: thumbnailUrl,
 				alt: file["FileName"],
 				"data-url": url,
+				"data-file-id": file["FileId"],
+				"data-file-size": file["FileSize"],
 			});
-			$card.find(".card-title").text(file["FileName"]);
-			$card.find(".card-text").text(file["FilePath"]);
+			$card.find(".card-header .card-text").text(file["FileSize"]);
+			$card.find(".card-img-overlay .card-title").text(file["FileName"]);
+			$card.find(".card-img-overlay .card-text").text(file["FilePath"]);
 			$cardGroup.append($card);
 		});
 	};
 
 	const initCardGroup = async ($cardGroup, $active) => {
 		// files
-		await addFiles2CardGroup($cardGroup, $active);
+		await addFiles2CardGroup(
+			$cardGroup,
+			await getFiles($active.data("id"))
+		);
 		// dragarea
 		const $dragArea = $("#dragable-area-template .dragable-area").clone(
 			false
@@ -74,8 +79,14 @@ jQuery(function ($) {
 			});
 	};
 
-	//
+	// heightを制御
 	const top = $("#ss-cabinet .row").offset().top;
+	$("#ss-cabinet-images").css({
+		height: `calc(100vh - ${top}px )`,
+	});
+	$(".cabinet-aside").css({
+		height: `calc(100vh - ${top}px )`,
+	});
 	const $tree = $(".tree");
 
 	// フォルダーオープン
@@ -92,16 +103,10 @@ jQuery(function ($) {
 		if (event.target !== this) {
 			return;
 		}
+
 		const $cardGroup = $("#ss-cabinet-images");
-
-		$cardGroup.css({
-			height: `calc(100vh - ${top}px )`,
-		});
-		$(".tree").css({
-			height: `calc(100vh - ${top}px )`,
-		});
-
 		$("span.active").removeClass("active");
+		$(".cabinet-aside button").removeClass("active");
 		$(this).children("i").attr("class", icons[0]);
 		$cardGroup.addClass("loading");
 
@@ -111,7 +116,9 @@ jQuery(function ($) {
 		$cardGroup.removeClass("loading");
 		$(this).children("i").attr("class", icons[1]);
 	});
+	// 基本フォルダー開
 	$tree.find("li > .folder-open").eq(0).trigger("click");
+	// 基本フォルダーのファイルロード
 	$tree.find("li > span").eq(0).trigger("click");
 
 	// モーダル制御
@@ -175,4 +182,46 @@ jQuery(function ($) {
 			});
 		});
 	}
+
+	// フォルダ削除・作成ボタン
+	$(".cabinet-aside button").on("click", async function (elem) {
+		const name = $(elem.target).attr("name");
+		const data = new FormData();
+		const n2nonce = $('[name="n2nonce"]').val();
+
+		data.append("action", "n2_rms_cabinet_api_ajax");
+		data.append("n2nonce", String(n2nonce));
+		data.append("mode", "json");
+		switch (name) {
+			case "folder_insert":
+				data.append("call", name);
+				data.append("folderName", "test2");
+				data.append("directoryName", "test2");
+				data.append("upperFolderId", $(".tree .active").data("id"));
+				break;
+			case "trashbox_files_get":
+				data.append("call", name);
+		}
+
+		const res = await $.ajax({
+			url: window["n2"].ajaxurl,
+			type: "POST",
+			data: data,
+			processData: false,
+			contentType: false,
+		});
+
+		switch (name) {
+			case "trashbox_files_get":
+				// ボタンをアクティブに。
+				$(this).addClass("active");
+				// フォルダツリーのアクティブ解除
+				$(".tree").find(".active").removeClass("active");
+				const $cardGroup = $("#ss-cabinet-images");
+				addFiles2CardGroup($cardGroup, res);
+				break;
+			default:
+				break;
+		}
+	});
 });
