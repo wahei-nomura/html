@@ -1,19 +1,19 @@
 <?php
 /**
- * class-n2-postlist.php
+ * class-n2-admin-post-list.php
  *
  * @package neoneng
  */
 
-if ( class_exists( 'N2_Postlist' ) ) {
-	new N2_Postlist();
+if ( class_exists( 'N2_Admin_Post_List' ) ) {
+	new N2_Admin_Post_List();
 	return;
 }
 
 /**
- * Postlist
+ * 管理画面の投稿一覧
  */
-class N2_Postlist {
+class N2_Admin_Post_List {
 	/**
 	 * クラス名
 	 *
@@ -104,7 +104,8 @@ class N2_Postlist {
 	 */
 	public function save_post_ids_ui() {
 		if ( current_user_can( 'ss-crew' ) || current_user_can( 'local-government' ) ) {
-			get_template_part( 'template/admin-postlist/save-post-ids' );
+			get_template_part( 'template/admin-post-list/save-post-ids' );
+			get_template_part( 'template/admin-post-list/tool' );
 		}
 	}
 
@@ -170,8 +171,8 @@ class N2_Postlist {
 	 * @param int    $post_id 投稿ID
 	 */
 	public function manage_posts_custom_column( $column_name, $post_id ) {
-		$meta          = json_decode( get_the_content(), true );
-		$meta['id']    = $post_id;
+		$meta       = json_decode( get_the_content(), true );
+		$meta['id'] = $post_id;
 		// サムネイル
 		$thumbnail = $meta['商品画像']
 			? ( $meta['商品画像'][0]['sizes']['thumbnail']['url'] ?? $meta['商品画像'][0]['sizes']['thumbnail'] )
@@ -185,7 +186,7 @@ class N2_Postlist {
 			'donation-amount' => number_format( $meta['寄附金額'] ?? 0 ) . '<small>円</small>',
 			'rate' => '30<small>%</small>',
 			'thumbnail' => $thumbnail ? "<img src='{$thumbnail}'>" : '-',
-			'tools' => get_template_part( 'template/admin-postlist/tools', null, $meta ),
+			'tools' => "<span class='dashicons dashicons-admin-tools n2-admin-post-list-tool-open' data-id='{$post_id}'></span>",
 			default => '',
 		};
 		echo $html;
@@ -283,14 +284,7 @@ class N2_Postlist {
 	public function delete_post() {
 		$post_id      = filter_input( INPUT_GET, 'id', FILTER_VALIDATE_INT );
 		$trash_result = wp_trash_post( $post_id );
-
-		if ( $trash_result ) {
-			echo 'ゴミ箱へ移動しました';
-		} else {
-			echo 'ゴミ箱への移動に失敗しました';
-		}
-
-		die();
+		exit;
 	}
 
 	/**
@@ -301,13 +295,6 @@ class N2_Postlist {
 	public function recovery_post() {
 		$post_id        = filter_input( INPUT_GET, 'id', FILTER_VALIDATE_INT );
 		$untrash_result = wp_untrash_post( $post_id );
-
-		if ( $untrash_result ) {
-			echo '復元';
-		} else {
-			echo '復元に失敗しました';
-		}
-
-		die();
+		exit;
 	}
 }

@@ -80,7 +80,7 @@
 				box-shadow: none;
 			}
 			&.tools{
-				.dashicons{
+				.n2-admin-post-list-tool-open{
 					color: #ccc;
 					cursor: pointer;
 					&:hover{
@@ -134,6 +134,7 @@
 		}
 	}
 }
+
 
 .tablenav.bottom{
 	.tablenav-pages{
@@ -191,18 +192,6 @@
 				animation: bg 1s linear infinite;
 			}
 		}
-	}
-}
-
-.wp-list-table {
-	.column-item-title {
-		width: 22%;
-		min-width: 200px;
-	}
-
-	.column-poster {
-		width: 15%;
-		min-width: 100px;
 	}
 }
 
@@ -300,7 +289,7 @@
 		display: none !important;
 	}
 
-	.n2-postlist {
+	.n2-admin-post-list {
 		&-imgicon {
 			width: 25px;
 			height: 25px;
@@ -492,6 +481,90 @@
 				position: fixed;
 				background: rgba(0,0,0,.5);
 			}
+		}
+	}
+}
+
+#n2-admin-post-list-tool{
+	border: 0;
+	padding: 0;
+	overflow-y: scroll;
+	height: 80vh;
+	width: 60vw;
+	text-align: left;
+	box-shadow: 0 10px 50px -10px;
+	&.draft{
+		border-left: 7px solid $secondary;
+		#n2-admin-post-list-tool-header{
+			background-color: $secondary;
+		}
+	}
+	&.pending{
+		border-left: 7px solid $danger;
+		#n2-admin-post-list-tool-header{
+			background-color: $danger;
+		}
+	}
+	&.publish{
+		border-left: 7px solid $primary;
+		#n2-admin-post-list-tool-header{
+			background-color: $primary;
+		}
+	}
+	&.registered{
+		border-left: 7px solid $success;
+		#n2-admin-post-list-tool-header{
+			background-color: $success;
+		}
+	}
+	&.private{
+		border-left: 7px solid $dark;
+		#n2-admin-post-list-tool-header{
+			background-color: $dark;
+		}
+	}
+	&.trash{
+		#n2-admin-post-list-tool-header{
+			background-color: black;
+		}
+	}
+	&-header{
+		position: sticky;
+		top: 0;
+		display: flex;
+		justify-content: space-between;
+		ul{
+			margin: 0;
+			color: white;
+			li{
+				display: inline-block;
+				padding: 0 1em;
+				line-height: 3rem;
+				margin: 0;
+				.dashicons{
+					line-height: 3rem;
+				}
+			}
+		}
+	}
+	&-content{
+		table th{
+			white-space: nowrap;
+		}
+	}
+	&-close{
+		color: #fff !important;
+		cursor: pointer;
+		display: block;
+		height: 3rem;
+		line-height: 3rem;
+		position: absolute;
+		right: 0;
+		top: 0;
+		transition: all .3s;
+		width: 3rem;
+		&:hover{
+			background: rgba(0,0,0,0.2);
 		}
 	}
 }

@@ -28,7 +28,7 @@ $incs = array(
 	'class-n2-rakuten-sftp',
 	'class-n2-setmenu',
 	'class-n2-admin-post-editor',
-	'class-n2-postlist',
+	'class-n2-admin-post-list',
 	'class-n2-setusers',
 	'class-n2-dashboard',
 	'class-n2-enqueuescript',

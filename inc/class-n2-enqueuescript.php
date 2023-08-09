@@ -41,7 +41,7 @@ class N2_Enqueuescript {
 		wp_localize_script( 'n2-admin', 'tmp_path', $this->get_tmp_path() );
 		$name = match ( $hook_suffix ) {
 			'post.php', 'post-new.php' => 'admin-post-editor',
-			'edit.php' => 'admin-post-lists',
+			'edit.php' => 'admin-post-list',
 			'toplevel_page_n2_crew_setup_menu' => 'admin-setup',
 			'profile.php', 'user-edit.php' => 'admin-user-profile',
 			'user-new.php' => 'admin-user-new',

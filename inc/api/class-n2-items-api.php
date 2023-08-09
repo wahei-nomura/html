@@ -135,6 +135,22 @@ class N2_Items_API {
 			wp_safe_redirect( $_SERVER['HTTP_REFERER'] );
 		}
 	}
+
+	/**
+	 * 削除
+	 */
+	public function delete() {
+		if ( ! is_user_logged_in() ) {
+			echo '不正アクセス';
+			exit;
+		}
+		$params = self::$data['params'];
+		wp_trash_post( $params['id'] );
+		if ( isset( $_SERVER['HTTP_REFERER'] ) ) {
+			wp_safe_redirect( $_SERVER['HTTP_REFERER'] );
+		}
+	}
+
 	/**
 	 * 投稿保存時にpost_contentにAPIデータを全部ぶち込む
 	 *
