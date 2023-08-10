@@ -105,8 +105,8 @@ class N2_Admin_Post_List {
 	public function save_post_ids_ui() {
 		if ( current_user_can( 'ss-crew' ) || current_user_can( 'local-government' ) ) {
 			get_template_part( 'template/admin-post-list/save-post-ids' );
-			get_template_part( 'template/admin-post-list/tool' );
 		}
+		get_template_part( 'template/admin-post-list/tool' );
 	}
 
 	/**
@@ -160,7 +160,7 @@ class N2_Admin_Post_List {
 		$sortable_columns['subscription']    = '定期便';
 		$sortable_columns['price']           = '価格';
 		$sortable_columns['donation-amount'] = '寄附金額';
-		$sortable_columns['rate']            = '返礼率';
+		// $sortable_columns['rate']            = '返礼率';
 		return $sortable_columns;
 	}
 
@@ -177,14 +177,16 @@ class N2_Admin_Post_List {
 		$thumbnail = $meta['商品画像']
 			? ( $meta['商品画像'][0]['sizes']['thumbnail']['url'] ?? $meta['商品画像'][0]['sizes']['thumbnail'] )
 			: false;
+		// 返礼率
+		$rate = N2_Donation_Amount_API::calc_return_rate( $meta );
 		// html生成
 		$html = match ( $column_name ) {
 			'modified' => get_the_modified_date( 'y年 m/d' ) . '<br>' . get_the_modified_date( 'H:i:s' ),
 			'code' => $meta['返礼品コード'] ?: "<div onclick='navigator.clipboard.writeText({$post_id});' title='{$post_id}'>-</div>",
 			'subscription' => $meta['定期便'] > 1 ? "{$meta['定期便']}<small>回</small>" : '-',
-			'price' => number_format( $meta['価格'] ?? 0 ) . '<small>円</small>',
+			'price' => number_format( $meta['価格'] ?: 0 ) . '<small>円</small>',
 			'donation-amount' => number_format( $meta['寄附金額'] ?? 0 ) . '<small>円</small>',
-			'rate' => '30<small>%</small>',
+			'rate' => sprintf( $rate > 30 ? '<span style="color:red;">%s<small>%s</small></span>' : '%s<small>%s</small>', $rate, '%' ),
 			'thumbnail' => $thumbnail ? "<img src='{$thumbnail}'>" : '-',
 			'tools' => "<span class='dashicons dashicons-admin-tools n2-admin-post-list-tool-open' data-id='{$post_id}'></span>",
 			default => '',
@@ -204,7 +206,6 @@ class N2_Admin_Post_List {
 			'定期便'    => 'meta_value_num',
 			'価格'     => 'meta_value_num',
 			'寄附金額'   => 'meta_value_num',
-			'返礼率'    => 'meta_value_num',
 		);
 		if ( array_key_exists( $query_vars['orderby'] ?? '', $sorts ) ) {
 			$query_vars['meta_key'] = $query_vars['orderby'];

@@ -33,7 +33,6 @@ $incs = array(
 	'class-n2-dashboard',
 	'class-n2-enqueuescript',
 	'class-n2-sync',
-	'class-n2-copypost',
 	'class-n2-front',
 	'class-n2-img-download',
 	'class-n2-all-town',
@@ -42,7 +41,6 @@ $incs = array(
 	'class-n2-semi-auto-data-importer',
 	'class-n2-chonbo',
 	'class-n2-rakuten-ftp',
-	
 	'api/class-n2-donation-amount-api',
 	'api/class-n2-rms-base-api',
 	'api/class-n2-rms-cabinet-api',

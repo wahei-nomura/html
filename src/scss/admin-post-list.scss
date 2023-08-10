@@ -3,14 +3,6 @@
 @import "bootstrap/scss/variables"; // Required
 @import "bootstrap/scss/mixins"; // Required
 
-@import "bootstrap/scss/bootstrap-utilities";
-@import "bootstrap/scss/buttons";
-@import "bootstrap/scss/dropdown";
-@import "bootstrap/scss/progress";
-@import "bootstrap/scss/list-group";
-@import "bootstrap/scss/badge";
-@import "bootstrap/scss/close";
-
 .subsubsub{
 	.draft *{
 		color: $secondary !important;
@@ -28,6 +20,12 @@
 		color: $dark !important;
 	}
 }
+.tablenav.bottom{
+	.tablenav-pages{
+		float: none;
+	}
+}
+
 #posts-filter{
 	.wp-list-table{
 		width: 100%;
@@ -36,7 +34,7 @@
 			position: sticky;
 			top: 32px;
 			background-color: white;
-			z-index: 1;
+			z-index: 100;
 		}
 		tr.hentry{
 			position: relative;
@@ -107,7 +105,7 @@
 				strong{
 					font-size: 0;
 					line-height: 0;
-					.row-title{
+					.row-title,span:not([class]){
 						line-height: 1.5;
 						font-size: .85rem !important;
 						font-weight: normal;
@@ -131,186 +129,6 @@
 				text-align: right;
 				white-space: nowrap;
 			}
-		}
-	}
-}
-
-
-.tablenav.bottom{
-	.tablenav-pages{
-		float: none;
-	}
-}
-#n2-copypost-modal,
-#n2-update-status-modal,
-#n2-change-author-modal {
-	position: fixed;
-	top: 50%;
-	left: 50%;
-	z-index: 10000;
-	transform: translate(-50%, -50%);
-	width: 80%;
-	height: 80%;
-	background-color: #fff;
-
-	&-wrapper {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		z-index: 100000;
-		background-color: rgba(0, 0, 0, 0.7);
-	}
-}
-#n2-copypost-modal {
-	height: 30%;
-	.copypost-caution{
-		color: #930000;
-	}
-}
-.wp-core-ui {
-	.button {
-		&.not-click {
-			pointer-events: none;
-			user-select: none;
-			background-color: rgba(34, 113, 177, 0.5);
-
-			&::after {
-				content: "";
-				position: fixed;
-				bottom: 0;
-				left: 0;
-				right: 0;
-				height: 1em;
-				background-color: #c80000;
-				background-image: -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, #930000), color-stop(.25, transparent), color-stop(.5, transparent), color-stop(.5, #930000), color-stop(.75, #930000), color-stop(.75, transparent), to(transparent));
-				background-size: 70px 70px;
-				color: #fff;
-				text-align: center;
-				font-size: 15px;
-				animation: bg 1s linear infinite;
-			}
-		}
-	}
-}
-
-@keyframes bg {
-	0% {
-		background-position: 0 0;
-	}
-
-	100% {
-		background-position: 0 70px;
-	}
-}
-
-@keyframes huwahuwa {
-	0% {
-		color: white;
-	}
-
-	50% {
-		color: rgba(255, 255, 255, .5);
-	}
-
-	100% {
-		color: white;
-	}
-}
-
-.loading_background {
-	position: fixed;
-	width: 100%;
-	height: 100%;
-	background: rgba(255, 255, 255, .5);
-	top: 0;
-	left: 0;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	flex-direction: column;
-	align-items: center;
-	display: none;
-	z-index: 9999;
-
-	&.active {
-		display: flex;
-	}
-
-	#text_loading {
-		font-size: 2em;
-		color: #000;
-		width: 100%;
-		text-align: center;
-	}
-
-	.progressbar {
-		display: block;
-		width: 0%;
-		position: fixed;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		font-size: 2em;
-		height: 2em;
-		background-color: #c80000;
-		background-image: -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, #930000), color-stop(.25, transparent), color-stop(.5, transparent), color-stop(.5, #930000), color-stop(.75, #930000), color-stop(.75, transparent), to(transparent));
-		background-size: 70px 70px;
-		text-align: center;
-		animation: bg 1s linear infinite;
-	}
-}
-
-@media screen and (max-width: 768px) {
-
-	// tableのレスポンシブ対応
-	tbody#the-list>tr.is-expanded>td:not(.hidden) {
-		border-bottom: solid 1px lightgray;
-		overflow: visible !important;
-		display: flex !important;
-		justify-content: end;
-
-		div {
-			width: 50%;
-		}
-
-		.n2-list-tooles ul {
-			display: block;
-			position: relative;
-		}
-
-		.n2-list-tooles .dropdown-toggle {
-			display: none;
-		}
-	}
-
-	tbody#the-list>tr.is-expanded>td.ssmemo {
-		display: none !important;
-	}
-
-	.n2-admin-post-list {
-		&-imgicon {
-			width: 25px;
-			height: 25px;
-			object-fit: cover;
-			cursor: pointer;
-			transition: 0.2s;
-
-			&:hover {
-				transform: none;
-			}
-		}
-	}
-
-	#wpbody .subsubsub {
-		text-align: left;
-
-		.all,
-		.publish,
-		.draft,
-		.pending {
-			display: none;
 		}
 	}
 }
@@ -485,6 +303,7 @@
 	}
 }
 
+// 投稿一覧のツール
 #n2-admin-post-list-tool{
 	border: 0;
 	padding: 0;
@@ -541,6 +360,10 @@
 				padding: 0 1em;
 				line-height: 3rem;
 				margin: 0;
+				cursor: pointer;
+				&:hover{
+					background-color: rgba(0,0,0,.3);
+				}
 				.dashicons{
 					line-height: 3rem;
 				}
@@ -548,6 +371,12 @@
 		}
 	}
 	&-content{
+		word-break: break-all;
+		&-imgs{
+			display: flex;
+			flex-wrap: nowrap;
+			overflow-x: scroll;
+		}
 		table th{
 			white-space: nowrap;
 		}

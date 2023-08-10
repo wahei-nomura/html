@@ -20,7 +20,8 @@ export default ($: any) => {
 				...Object.keys(n2.custom_field['自治体用']),
 				...Object.keys(n2.custom_field['スチームシップ用']),
 				...Object.keys(n2.custom_field['事業者用']),
-			].filter(v=>v!='N1zip');
+			]
+			this.custom_field = this.custom_field.filter(v => ! ['N1zip','商品画像'].includes(v));
 			$('.n2-admin-post-list-tool-open').on('click', async e => {
 				this.id = $(e.target).data('id');
 				await this.set_item_data();
