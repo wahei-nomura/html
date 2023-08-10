@@ -13,14 +13,19 @@ export default ($: any) => {
 		data: {
 			id: false,
 			item: false,
-			custom_field: false
+			custom_field: []
 		},
 		created() {
+			if ( 'jigyousya' !== n2.current_user.roles[0] ) {
+				this.custom_field = [
+					...Object.keys(n2.custom_field['自治体用']),
+					...Object.keys(n2.custom_field['スチームシップ用']),
+				];
+			}
 			this.custom_field = [
-				...Object.keys(n2.custom_field['自治体用']),
-				...Object.keys(n2.custom_field['スチームシップ用']),
+				...this.custom_field,
 				...Object.keys(n2.custom_field['事業者用']),
-			]
+			];
 			this.custom_field = this.custom_field.filter(v => ! ['N1zip','商品画像'].includes(v));
 			$('.n2-admin-post-list-tool-open').on('click', async e => {
 				this.id = $(e.target).data('id');
