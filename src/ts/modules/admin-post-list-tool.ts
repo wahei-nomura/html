@@ -16,8 +16,9 @@ export default ($: any) => {
 			custom_field: []
 		},
 		created() {
+			const role = n2.current_user.roles[0];
 			// カスタムフィールドを整頓
-			this.custom_field = 'jigyousya' !== n2.current_user.roles[0]
+			this.custom_field = 'jigyousya' !== role
 				? [
 					...Object.keys(n2.custom_field['自治体用']),
 					...Object.keys(n2.custom_field['スチームシップ用']),
@@ -28,7 +29,9 @@ export default ($: any) => {
 				...this.custom_field,
 				...Object.keys(n2.custom_field['事業者用']),
 			];
-			this.custom_field = this.custom_field.filter(v => ! ['N1zip','商品画像'].includes(v));
+			let hides = ['N1zip','商品画像'];
+			if ( 'jigyousya' == role ) hides.push('送料');
+			this.custom_field = this.custom_field.filter(v => ! hides.includes(v));
 			// ツールボックスを挿入
 			$('#the-list .hentry').each(function(){
 				const id = $(this).attr('id').split('-')[1];
