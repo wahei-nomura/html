@@ -260,6 +260,58 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	/**
 	 * ファイル削除
 	 */
+	public static function file_delete() {
+		static::check_fatal_error( ! empty( static::$data['params']['fileId'] ?? array() ), 'フォルダ名が設定されていません。' );
+
+		$url              = static::$settings['endpoint'] . '/1.0/cabinet/file/delete';
+		$xml_request_body = new SimpleXMLElement( '<?xml version="1.0" encoding="UTF-8"?><request></request>' );
+
+		$request = array(
+			'fileDeleteRequest' => array(
+				'file' => array(
+					'fileId' => static::$data['params']['fileId'],
+				),
+			),
+		);
+		static::array_to_xml( $request, $xml_request_body );
+		// SimpleXMLElementオブジェクトを文字列に変換
+		$xml_data = $xml_request_body->asXML();
+		$requests = array_map(
+			function ( $file_id ) use ( $url ) {
+				$xml_request_body = new SimpleXMLElement( '<?xml version="1.0" encoding="UTF-8"?><request></request>' );
+				$request          = array(
+					'fileDeleteRequest' => array(
+						'file' => array(
+							'fileId' => $file_id,
+						),
+					),
+				);
+				static::array_to_xml( $request, $xml_request_body );
+				$xml_data = $xml_request_body->asXML();
+				return array(
+					'url'  => $url,
+					'type' => Requests::POST,
+					'data' => $xml_data,
+				);
+			},
+			static::$data['params']['fileId'],
+		);
+
+		$response = N2_Multi_URL_Request_API::ajax(
+			array(
+				'requests' => $requests,
+				'call'     => 'request_multiple',
+				'mode'     => 'func',
+				'headers'  => static::$data['header'],
+			),
+		);
+
+		return $response;
+	}
+
+	/**
+	 * 削除したファイル一覧
+	 */
 	public static function trashbox_files_get() {
 		$files_get_params = array(
 			'limit'  => 100,
@@ -312,6 +364,65 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 		return $files;
 	}
 
+	/**
+	 * 削除したファイルを元に戻す
+	 */
+	public static function trashbox_files_revert() {
+		static::check_fatal_error( ! empty( static::$data['params']['fileId'] ?? array() ), 'フォルダ名が設定されていません。' );
+		$url            = static::$settings['endpoint'] . '/1.0/cabinet/trashbox/file/revert';
+		$file_ids       = static::$data['params']['fileId'];
+		$trashbox_files = static::trashbox_files_get();
+		$target_files   = array_filter(
+			$trashbox_files,
+			function ( $file ) use ( $file_ids ) {
+				return in_array( $file['FileId'], static::$data['params']['fileId'], true );
+			},
+		);
+		$folders        = static::folders_get();
+		$requests       = array_map(
+			function ( $file ) use ( $folders, $url ) {
+				$xml_request_body = new SimpleXMLElement( '<?xml version="1.0" encoding="UTF-8"?><request></request>' );
+				$foleder_index    = array_search(
+					$file['FolderPath'],
+					array_column( $folders, 'FolderPath' ),
+					true,
+				);
+				$xml_array        = array(
+					'fileRevertRequest' => array(
+						'file' => array(
+							'fileId'   => $file['FileId'],
+							'folderId' => $folders[ $foleder_index ]['FolderId'],
+						),
+					),
+				);
+				// SimpleXMLElementオブジェクトを文字列に変換
+				static::array_to_xml( $xml_array, $xml_request_body );
+				$xml_data = $xml_request_body->asXML();
+
+				return array(
+					'url'  => $url,
+					'type' => Requests::POST,
+					'data' => $xml_data,
+				);
+
+			},
+			$target_files
+		);
+
+		$response = N2_Multi_URL_Request_API::ajax(
+			array(
+				'requests' => $requests,
+				'call'     => 'request_multiple',
+				'mode'     => 'func',
+				'headers'  => static::$data['header'],
+			),
+		);
+		return $response;
+	}
+
+	/**
+	 * Cabinetの利用状況
+	 */
 	public static function usage_get() {
 		$url = static::$settings['endpoint'] . '/1.0/cabinet/usage/get';
 
@@ -321,5 +432,6 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 
 		return $body;
 	}
+
 
 }

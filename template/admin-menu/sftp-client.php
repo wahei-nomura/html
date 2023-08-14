@@ -105,13 +105,51 @@ global $n2;
 		<aside class='cabinet-aside overflow-auto col-3'>
 			<nav class="d-flex justify-content-around">
 				<button class="btn btn-outline-secondary btn-sm" type="button" name="folder_insert" data-bs-toggle="modal" data-bs-target="#folderInsertModal">新規作成</button>
-				<button class="btn btn-outline-warning btn-sm" type="button" name="trashbox_files_get">削除フォルダを確認</button>
+				<button id="show-trashbox" class="btn btn-outline-warning btn-sm" type="button" name="trashbox_files_get">削除フォルダを確認</button>
 			</nav>
 			<div class="tree overflow-auto">
 				<?php $tree_list( $tree ); ?>
 			</div>
 		</aside>
-		<div id="ss-cabinet-images" class="position-relative overflow-auto border-start border-dark col-9 d-flex align-content-start justify-content-start align-items-start flex-wrap"></div>
+		<main class="col-9 border-start border-dark overflow-auto">
+			<nav class="navbar navbar-light bg-light position-sticky top-0 start-0 flex-nowrap align-items-strech">
+				<div class="navbar-brand me-0" id="currnet-direcotry">基本フォルダ</div>
+				<div class="container-fluid">
+					<div>
+						選択した画像を
+						<button id="cabinet-navbar-btn" class="btn btn-warning rounded-pill ps-5 pe-5 pt-1 pb-1" name="file_delete">削除</button>
+					</div>
+					<div>
+						<label>
+							<input class="grid-radio view-radio" type="radio" name="view-mode" value="1" hidden checked>
+							<i class="radio-icon bi bi-grid-3x2-gap-fill"></i>
+						</label>
+						<label>
+							<input class="list-radio view-radio" type="radio" name="view-mode" value="2" hidden>
+							<i class="radio-icon bi bi-list-task"></i>
+						</label>
+					</div>
+				</div>
+			</nav>
+			<div id="ss-cabinet-images" class="pb-3 position-relative d-flex align-content-start justify-content-start align-items-start flex-wrap"></div>
+			<div id="ss-cabinet-lists" class="d-none">
+				<table class="table">
+					<thead>
+						<tr>
+							<th scope="col"><input type="checkbox" name="selectedAll"></th>
+							<th scope="col">画像</th>
+							<th scope="col">ファイル名</th>
+							<th scope="col">サイズ</th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+			<div class="dragable-area p-5 mt-3 border border-5 text-center w-100 position-sticky bottom-0 end-0 bg-light">
+				ファイルをドラッグ&ドロップしてください
+			</div>
+		</main>
 	</div>
 	<div id="card-template" style="display:none;">
 		<div class="card shadow me-2">
@@ -141,22 +179,17 @@ global $n2;
 				<div class="modal-body">
 					<div class="input-group pb-2">
 						<span class="input-group-text">フォルダ名</span>
-						<input type="text" class="form-control" placehodler="folderName">
+						<input type="text" class="form-control" placehodler="directoryName" name="directoryName">
 					</div>
 					<div class="input-group pb-2">
 						<span class="input-group-text">表示名</span>
-						<input type="text" class="form-control" placehodler="directoryName">
+						<input type="text" class="form-control" placehodler="folderName" name="folderName">
 					</div>
 					<div class="d-flex pb-2">
-						<button class="btn btn-secondary flex-fill" type="submit" data-bs-dismiss="modal">submit</button>
+						<button class="btn btn-secondary flex-fill" type="submit" data-bs-dismiss="modal">フォルダを作成</button>
 					</div>
 				</div>
 			</div>
-		</div>
-	</div>
-	<div id="dragable-area-template" style="display:none;">
-		<div class="dragable-area p-5 mt-3 border border-5 text-center w-100 position-sticky bottom-0 end-0 bg-light">
-			ファイルをドラッグ&ドロップしてください
 		</div>
 	</div>
 	<form action="<?php echo esc_url( $n2->ajaxurl ); ?>" method="POST" enctype="multipart/form-data" style="display:none;">

@@ -36,31 +36,68 @@ jQuery(function ($) {
 				"thumbnail.image.rakuten.co.jp/@0_mall"
 			);
 			thumbnailUrl += "?_ex=137x137";
-			$card.find("img").attr({
-				src: thumbnailUrl,
-				alt: file["FileName"],
-				"data-url": url,
-				"data-file-id": file["FileId"],
-				"data-file-size": file["FileSize"],
-			});
+			$card
+				.find("img")
+				.attr({
+					src: thumbnailUrl,
+					alt: file["FileName"],
+					"data-url": url,
+					"data-file-id": file["FileId"],
+					"data-file-size": file["FileSize"],
+					"data-folder-path": file["FolderPath"],
+				})
+				.addClass("cabinet-img");
 			$card.find(".card-header .card-text").text(file["FileSize"]);
 			$card.find(".card-img-overlay .card-title").text(file["FileName"]);
 			$card.find(".card-img-overlay .card-text").text(file["FilePath"]);
 			$cardGroup.append($card);
 		});
 	};
+	const addFiles2ListTable = async ($listTable, files) => {
+		const $table = $listTable.find("table");
+		$table.find("tbody").empty();
+
+		files.forEach((file) => {
+			if (!file["FileUrl"]) {
+				return;
+			}
+			let thumbnailUrl = file["FileUrl"].replace(
+				"image.rakuten.co.jp",
+				"thumbnail.image.rakuten.co.jp/@0_mall"
+			);
+			const $tr = $(`
+				<tr>
+					<td><input type="checkbox" name="selected"></td>
+					<td><img class="cabinet-img" src="${thumbnailUrl}?_ex=50x28"></td>
+					<td>${file["FileName"]}</td>
+					<td>${file["FileSize"]}</td>
+				</tr>
+			`);
+			$tr.find("img").attr({
+				alt: file["FileName"],
+				"data-url": file["FileUrl"],
+				"data-file-id": file["FileId"],
+				"data-file-size": file["FileSize"],
+				"data-folder-path": file["FolderPath"],
+				"data-bs-toggle": "modal",
+				"data-bs-target": "#CabinetModal",
+				role: "button",
+				decoding: "async",
+			});
+			$table.find("tbody").append($tr);
+		});
+	};
 
 	const initCardGroup = async ($cardGroup, $active) => {
 		// files
-		await addFiles2CardGroup(
-			$cardGroup,
-			await getFiles($active.data("id"))
+		const files = await getFiles($active.data("id"));
+		await addFiles2CardGroup($cardGroup, files);
+		$cardGroup.hide();
+		await addFiles2ListTable(
+			$cardGroup.siblings("#ss-cabinet-lists"),
+			files
 		);
-		// dragarea
-		const $dragArea = $("#dragable-area-template .dragable-area").clone(
-			false
-		);
-		$cardGroup.append($dragArea);
+		$("#cabinet-navbar-btn").attr("name", "file_delete").text("削除");
 		//form
 		$("#ss-cabinet form")
 			.find("input")
@@ -86,7 +123,7 @@ jQuery(function ($) {
 
 	// heightを制御
 	const top = $("#ss-cabinet .row").offset().top;
-	$("#ss-cabinet-images").css({
+	$("main:has(#ss-cabinet-images)").css({
 		height: `calc(100vh - ${top}px )`,
 	});
 	$(".cabinet-aside").css({
@@ -117,6 +154,7 @@ jQuery(function ($) {
 
 		$(this).addClass("active");
 		const $active = $(this);
+		$("#currnet-direcotry").text($active.text());
 		await initCardGroup($cardGroup, $active);
 		$cardGroup.removeClass("loading");
 		$(this).children("i").attr("class", icons[1]);
@@ -127,7 +165,7 @@ jQuery(function ($) {
 	$tree.find("li > span").eq(0).trigger("click");
 
 	// モーダル制御
-	$(document).on("click", ".card-img-top", function () {
+	$(document).on("click", ".cabinet-img", function () {
 		$("#CabinetModalImage").attr({
 			src: $(this).data("url"),
 		});
@@ -188,69 +226,206 @@ jQuery(function ($) {
 		});
 	}
 
-	// フォルダ削除・作成ボタン
+	// フォルダ新規作成
+	$("#folderInsertModal button").on("click", async function (btn) {
+		const $input = $("#folderInsertModal").find("input");
+		// inputやモーダルで設定したい
+		const folderName = $input
+			.filter((_, input) => {
+				return $(input).attr("name") === "folderName";
+			})
+			.val() as string;
+		const directoryName = $input
+			.filter((_, input) => {
+				return $(input).attr("name") === "directoryName";
+			})
+			.val() as string;
+		const data = new FormData();
+		const n2nonce = $('[name="n2nonce"]').val();
+		data.append("action", "n2_rms_cabinet_api_ajax");
+		data.append("n2nonce", String(n2nonce));
+		data.append("mode", "json");
+		data.append("call", "folder_insert");
+		data.append("folderName", folderName);
+		data.append("directoryName", directoryName);
+		data.append("upperFolderId", $(".tree .active").data("id"));
+
+		const res = await $.ajax({
+			url: window["n2"].ajaxurl,
+			type: "POST",
+			data: data,
+			processData: false,
+			contentType: false,
+		});
+
+		if ("OK" === res.status.systemStatus) {
+			const folderId = res.cabinetFolderInsertResult.FolderId;
+			console.log(folderId);
+			const $active = $(".tree").find(".active");
+			$active.parent("li").addClass("hasChildren");
+			$active.after(`
+				<ul class="d-none">
+					<li>
+						<label class="folder-open">
+							<input name="folder-open" type="checkbox">
+						</label>
+						<span data-path="${$active.data(
+							"path"
+						)}/${directoryName}" data-id="${folderId}">
+							<i class="bi bi-folder2-open close"></i>${folderName}
+						</span>
+					</li>
+				</ul>
+			`);
+		} else {
+			alert(res.status.message);
+		}
+	});
+
+	// 削除済みファイルを表示
 	$(".cabinet-aside button").on("click", async function (elem) {
 		const name = $(elem.target).attr("name");
+
+		if (name !== "trashbox_files_get") {
+			return false;
+		}
+		$("#currnet-direcotry").text("削除フォルダ");
 		const data = new FormData();
 		const n2nonce = $('[name="n2nonce"]').val();
 		// inputやモーダルで設定したい
-		const folderName = "test3";
-		const directoryName = "test3";
 
 		data.append("action", "n2_rms_cabinet_api_ajax");
 		data.append("n2nonce", String(n2nonce));
 		data.append("mode", "json");
-		switch (name) {
-			case "folder_insert":
-				data.append("call", name);
-				data.append("folderName", folderName);
-				data.append("directoryName", directoryName);
-				data.append("upperFolderId", $(".tree .active").data("id"));
-				break;
-			case "trashbox_files_get":
-				data.append("call", name);
+		data.append("call", name);
+
+		const res = await $.ajax({
+			url: window["n2"].ajaxurl,
+			type: "POST",
+			data: data,
+			processData: false,
+			contentType: false,
+		});
+
+		// ボタンをアクティブに。
+		$(this).addClass("active");
+		// フォルダツリーのアクティブ解除
+		$(".tree").find(".active").removeClass("active");
+		const $cardGroup = $("#ss-cabinet-images");
+		addFiles2CardGroup($cardGroup, res);
+		addFiles2ListTable($cardGroup.siblings("#ss-cabinet-lists"), res);
+		$("#cabinet-navbar-btn")
+			.attr("name", "trashbox_files_revert")
+			.text("元に戻す");
+	});
+
+	//  リストビュー全選択・解除
+	$(document).on(
+		"click",
+		'#ss-cabinet-lists thead tr th:nth-of-type(1) [name="selectedAll"]',
+		function () {
+			const checked = $(this).prop("checked");
+			$('#ss-cabinet-lists tbody [name="selected"]').each((_, input) => {
+				$(input)
+					.attr("checked", checked)
+					.prop("checked", checked)
+					.trigger("change");
+			});
 		}
+	);
 
-		// const res = await $.ajax({
-		// 	url: window["n2"].ajaxurl,
-		// 	type: "POST",
-		// 	data: data,
-		// 	processData: false,
-		// 	contentType: false,
-		// });
+	// 削除ボタンの挙動
+	$(document).on(
+		"change",
+		"#ss-cabinet-lists tbody tr :nth-of-type(1) input",
+		function () {
+			const hasChecked = $(
+				"#ss-cabinet-lists tbody tr :nth-of-type(1) input"
+			).filter((_, input) => {
+				return $(input).prop("checked");
+			}).length;
+			if (hasChecked) {
+				$("#cabinet-navbar-btn").removeClass("disabled");
+			} else {
+				$("#cabinet-navbar-btn").addClass("disabled");
+			}
+		}
+	);
 
-		// switch (name) {
-		// 	case "trashbox_files_get":
-		// 		// ボタンをアクティブに。
-		// 		$(this).addClass("active");
-		// 		// フォルダツリーのアクティブ解除
-		// 		$(".tree").find(".active").removeClass("active");
-		// 		const $cardGroup = $("#ss-cabinet-images");
-		// 		addFiles2CardGroup($cardGroup, res);
-		// 		break;
-		// 	case "folder_insert":
-		// 		if ("OK" === res.status.systemStatus) {
-		// 			const folderId = res.cabinetFolderInsertResult.FolderId;
-		// 			console.log(folderId);
-		// 			const $active = $(".tree").find(".active");
-		// 			$active.parent("li").addClass("hasChildren");
-		// 			$active.after(`
-		// 				<ul class="d-none">
-		// 					<li>
-		// 						<label class="folder-open">
-		// 							<input name="folder-open" type="checkbox">
-		// 						</label>
-		// 						<span data-path="${$active.data("path")}/${folderName}" data-id="${folderId}">
-		// 							<i class="bi bi-folder2-open close"></i>${directoryName}
-		// 						</span>
-		// 					</li>
-		// 				</ul>
-		// 			`);
-		// 		} else {
-		// 			alert(res.status.message);
-		// 		}
+	//　navbar-btn ファイル削除/ゴミ箱から元に戻す
+	$("#cabinet-navbar-btn").on("click", function () {
+		const isGrid = $(".view-radio:checked").hasClass("grid-radio");
+		let $selected_images;
+		switch (isGrid) {
+			case true:
+				$selected_images = $("#ss-cabinet-images")
+					.find('[name="selected"]:checked')
+					.parents(".card")
+					.find("img");
+				break;
+			default:
+				$selected_images = $("#ss-cabinet-lists")
+					.find('[name="selected"]:checked')
+					.parents("tr")
+					.find("td:nth-of-type(2) img");
+				break;
+		}
+		const data = new FormData();
+		const n2nonce = $('[name="n2nonce"]').val();
+		// inputやモーダルで設定したい
 
-		// 		break;
-		// }
+		data.append("action", "n2_rms_cabinet_api_ajax");
+		data.append("n2nonce", String(n2nonce));
+		data.append("mode", "json");
+		data.append("call", $(this).attr("name"));
+
+		$selected_images.each((_, img) => {
+			data.append(`fileId[${_}]`, $(img).data("file-id"));
+		});
+
+		$.ajax({
+			url: window["n2"].ajaxurl,
+			type: "POST",
+			data: data,
+			processData: false,
+			contentType: false,
+		})
+			.then((response) => {
+				console.log(response);
+
+				Object.values(response).forEach((res: any) => {
+					if (!res.success) {
+						const xmlDoc = $.parseXML(res.body);
+						const message = $(xmlDoc).find("message").text();
+						alert(message);
+					}
+				});
+			})
+			.then(() => {
+				if ($(".tree .active").length) {
+					$(".tree .active").trigger("click");
+				} else if ($("#show-trashbox").hasClass("active")) {
+					$("#show-trashbox").trigger("click");
+				}
+			});
+	});
+
+	$(".view-radio").on("change", function () {
+		// チェックボックスは保持しない
+		$("#ss-cabinet-images")
+			.find('[name="selected"]')
+			.prop("checked", false);
+		$("#ss-cabinet-lists").find('[name="selected"]').prop("checked", false);
+		// ビューモードを入れ替える
+		switch ($(this).hasClass("grid-radio")) {
+			case true:
+				$("#ss-cabinet-images").removeClass("d-none");
+				$("#ss-cabinet-lists").addClass("d-none");
+				break;
+			default:
+				$("#ss-cabinet-images").addClass("d-none");
+				$("#ss-cabinet-lists").removeClass("d-none");
+				break;
+		}
 	});
 });
