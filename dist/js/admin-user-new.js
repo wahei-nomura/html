@@ -15,7 +15,7 @@
   \**********************************/
 /***/ (() => {
 
-eval("jQuery(function ($) {\n    // 管理者以外のユーザーは管理者を追加できない\n    if (!window['n2'].current_user.roles.includes('administrator')) {\n        $(\"option[value='administrator'\").remove(); // 管理者\n    }\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/admin-user-new.ts?");
+eval("jQuery(function ($) {\n    // 管理者以外のユーザーは管理者を追加できない\n    if (!window['n2'].current_user.roles.includes('administrator')) {\n        $(\"option[value='administrator'\").remove(); // 管理者\n    }\n    $('#noconfirmation,#adduser-noconfirmation').prop('checked', true);\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/admin-user-new.ts?");
 
 /***/ })
 

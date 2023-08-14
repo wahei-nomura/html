@@ -28,6 +28,7 @@ class N2_Setusers {
 		add_filter( 'get_avatar_data', array( $this, 'change_avatar' ), 10, 2 );
 		// ユーザーログインID変更可能に
 		add_filter( 'wp_pre_insert_user_data', array( $this, 'change_user_login' ), 10, 4 );
+		add_filter( 'wpmu_signup_user_notification', '__return_false');
 	}
 
 	/**

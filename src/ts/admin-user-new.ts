@@ -3,4 +3,5 @@ jQuery(function($){
 	if ( ! window['n2'].current_user.roles.includes('administrator') ) {
 		$("option[value='administrator'").remove();      // 管理者
 	}
-})
+	$('#noconfirmation,#adduser-noconfirmation').prop('checked', true)
+});
