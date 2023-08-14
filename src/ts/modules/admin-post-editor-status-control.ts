@@ -69,20 +69,17 @@ export default ($:any = jQuery) => {
 			}
 		}
 		else {
-			// 自治体以外でステータス変更
-			if ( !n2.current_user.roles.includes('local-government') ) {
-				$('#n2-progress')
-					.css({cursor: 'pointer',height: '2.5em'})
-					.on('mousemove', e => {
-						const level = Math.ceil( e.clientX*4 /$('#n2-progress').width() );
-						$('#n2-progress').attr('title', `「${statuses[level].label}」に変更`)
-					})
-					.on('click', e => {
-						const level = Math.ceil( e.offsetX*4 /$('#n2-progress').width() );
-						wp.data.dispatch('core/editor').editPost({ status: statuses[level].status });
-					});
-			}
-		}
+			$('#n2-progress')
+				.css({cursor: 'pointer',height: '2.5em'})
+				.on('mousemove', e => {
+					const level = Math.ceil( e.clientX*4 /$('#n2-progress').width() );
+					$('#n2-progress').attr('title', `「${statuses[level].label}」に変更`)
+				})
+				.on('click', e => {
+					const level = Math.ceil( e.offsetX*4 /$('#n2-progress').width() );
+					wp.data.dispatch('core/editor').editPost({ status: statuses[level].status });
+				});
+	}
 
 		// ステータスの更新
 		wp.data.subscribe(()=>{
