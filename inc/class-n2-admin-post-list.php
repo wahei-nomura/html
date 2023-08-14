@@ -39,9 +39,6 @@ class N2_Admin_Post_List {
 		add_filter( 'request', array( $this, 'posts_columns_sort_param' ) );
 		add_filter( 'gettext', array( $this, 'change_status' ) );
 		add_filter( 'ngettext', array( $this, 'change_status' ) );
-		add_action( "wp_ajax_{$this->cls}", array( $this, 'ajax' ) );
-		add_action( "wp_ajax_{$this->cls}_deletepost", array( $this, 'delete_post' ) );
-		add_action( "wp_ajax_{$this->cls}_recoverypost", array( $this, 'recovery_post' ) );
 	}
 
 	/**
@@ -228,72 +225,5 @@ class N2_Admin_Post_List {
 		// 変換
 		$status = str_replace( array_keys( $re ), $re, $status );
 		return $status;
-	}
-
-	/**
-	 * JSに返礼品コード一覧を渡す
-	 *
-	 * @return void
-	 */
-	public function ajax() {
-		$jigyousya = filter_input( INPUT_GET, '事業者' );
-
-		if ( empty( $jigyousya ) ) {
-			echo wp_json_encode( array() );
-			die();
-		}
-
-		$posts = get_posts( "author={$jigyousya}&post_status=any&posts_per_page=-1" );
-		$arr   = array();
-		foreach ( $posts as $post ) {
-			if ( ! empty( get_post_meta( $post->ID, '返礼品コード', 'true' ) ) ) {
-
-				array_push(
-					$arr,
-					array(
-						'id'   => $post->ID,
-						'code' => get_post_meta(
-							$post->ID,
-							'返礼品コード',
-							'true'
-						),
-					),
-				);
-
-			}
-		}
-
-		usort(
-			$arr,
-			function( $a, $b ) {
-				return strcmp( $a['code'], $b['code'] );
-			}
-		);
-
-		echo wp_json_encode( $arr );
-
-		die();
-	}
-
-	/**
-	 * 返礼品を削除
-	 *
-	 * @return void
-	 */
-	public function delete_post() {
-		$post_id      = filter_input( INPUT_GET, 'id', FILTER_VALIDATE_INT );
-		$trash_result = wp_trash_post( $post_id );
-		exit;
-	}
-
-	/**
-	 * 返礼品を復元
-	 *
-	 * @return void
-	 */
-	public function recovery_post() {
-		$post_id        = filter_input( INPUT_GET, 'id', FILTER_VALIDATE_INT );
-		$untrash_result = wp_untrash_post( $post_id );
-		exit;
 	}
 }
