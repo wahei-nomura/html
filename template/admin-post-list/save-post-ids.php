@@ -74,7 +74,7 @@ global $n2;
 					<button>画像ダウンロード</button>
 				</form>
 			</li>
-			<?php if ( current_user_can( 'ss_crew' ) ) : ?>
+			<?php if ( current_user_can( 'ss_crew' ) || current_user_can( 'local-government' ) ) : ?>
 			<li>
 				情報変更
 				<div class="childs">
