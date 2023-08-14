@@ -40,6 +40,13 @@
 		}
 	}
 	#ss-cabinet-lists{
+		thead {
+			th {
+				&:has( > i) {
+					cursor: pointer;
+				}
+			}
+		}
 		td {
 			font-size: 0.8rem;
 		}

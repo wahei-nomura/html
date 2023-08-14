@@ -428,4 +428,51 @@ jQuery(function ($) {
 				break;
 		}
 	});
+
+	$("#ss-cabinet-lists thead th").on("click", function () {
+		const index = $(this).index();
+		const hasASC = $(this).hasClass("asc");
+		if (index < 2) {
+			return;
+		}
+		const icon = ["bi bi-caret-down-fill", "bi bi-caret-up-fill"];
+		$("#ss-cabinet-lists thead th")
+			.filter((i) => {
+				return i !== index;
+			})
+			.find("i")
+			.attr({
+				class: "bi bi-caret-down",
+			});
+		if (hasASC) {
+			$(this).removeClass("asc").addClass("desc");
+		} else {
+			$(this).removeClass("desc").addClass("asc");
+		}
+		$(this)
+			.find("i")
+			.attr({
+				class: icon[Number(hasASC)],
+			});
+
+		const $sorted_tr = $("#ss-cabinet-lists tbody tr").sort(function (
+			a,
+			b
+		) {
+			const a_val = $(a).find("td").eq(index).text();
+			const b_val = $(b).find("td").eq(index).text();
+			let sort: number;
+			if (index === 3) {
+				const a_float = parseFloat(a_val);
+				const b_float = parseFloat(b_val);
+				sort = a_float > b_float ? 1 : -1;
+			} else {
+				sort = a_val > b_val ? 1 : -1;
+			}
+			return hasASC ? -sort : sort;
+		});
+		$("#ss-cabinet-lists tbody").html($sorted_tr);
+	});
+
+	// 検索ビュー
 });

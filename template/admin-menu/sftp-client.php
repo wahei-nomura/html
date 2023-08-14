@@ -133,13 +133,13 @@ global $n2;
 			</nav>
 			<div id="ss-cabinet-images" class="pb-3 position-relative d-flex align-content-start justify-content-start align-items-start flex-wrap"></div>
 			<div id="ss-cabinet-lists" class="d-none">
-				<table class="table">
+				<table class="table align-middle lh-1">
 					<thead>
 						<tr>
 							<th scope="col"><input type="checkbox" name="selectedAll"></th>
 							<th scope="col">画像</th>
-							<th scope="col">ファイル名</th>
-							<th scope="col">サイズ</th>
+							<th scope="col">ファイル名<i class="bi bi-caret-down"></i></th>
+							<th scope="col">サイズ<i class="bi bi-caret-down"></i></th>
 						</tr>
 					</thead>
 					<tbody>
