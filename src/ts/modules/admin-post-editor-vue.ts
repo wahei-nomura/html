@@ -81,6 +81,9 @@ export default ($: any = jQuery) => {
 		n2.saved_post = JSON.stringify($('form').serializeArray());
 		// ローディング削除
 		loading_view.show('#wpwrap', 500);
+		// 「進む」「戻る」の制御をデフォルトに戻す
+		wp.data.dispatch( 'core/keyboard-shortcuts' ).unregisterShortcut('core/editor/undo');
+		wp.data.dispatch( 'core/keyboard-shortcuts' ).unregisterShortcut('core/editor/redo');
 	};
 	const methods = {
 		// 説明文・テキストカウンター

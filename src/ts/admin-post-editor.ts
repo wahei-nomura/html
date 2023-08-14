@@ -11,7 +11,6 @@ import download_zip from "./modules/admin-post-editor-download-zip";
 import mokuji_generator from "./modules/admin-post-editor-mokuji-generator";
 import editor_vue from "./modules/admin-post-editor-vue";
 import status_control from "./modules/admin-post-editor-status-control";
-import shortcut_control from "./modules/admin-post-editor-shortcut-control";
 jQuery( $ => {
 	const n2 = window['n2'];
 	i18n();// 翻訳
@@ -27,6 +26,5 @@ jQuery( $ => {
 		mokuji_generator();// 目次生成
 		editor_vue();// カスタムフィールドをVueで制御
 		status_control();// ステータスコントロール
-		shortcut_control();// ショートカットコントロール
 	}, 1);
 });
