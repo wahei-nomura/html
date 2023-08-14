@@ -105,7 +105,7 @@ global $n2;
 		<aside class='cabinet-aside overflow-auto col-3'>
 			<nav class="d-flex justify-content-around">
 				<button class="btn btn-outline-secondary btn-sm" type="button" name="folder_insert" data-bs-toggle="modal" data-bs-target="#folderInsertModal">新規作成</button>
-				<button id="show-trashbox" class="btn btn-outline-warning btn-sm" type="button" name="trashbox_files_get">削除フォルダを確認</button>
+				<button id="show-trashbox" class="btn btn-outline-warning btn-sm" type="button" name="trashbox_files_get">ゴミ箱を確認</button>
 			</nav>
 			<div class="tree overflow-auto">
 				<?php $tree_list( $tree ); ?>

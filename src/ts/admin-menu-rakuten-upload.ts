@@ -289,7 +289,7 @@ jQuery(function ($) {
 		if (name !== "trashbox_files_get") {
 			return false;
 		}
-		$("#currnet-direcotry").text("削除フォルダ");
+		$("#currnet-direcotry").text("ゴミ箱");
 		const data = new FormData();
 		const n2nonce = $('[name="n2nonce"]').val();
 		// inputやモーダルで設定したい
