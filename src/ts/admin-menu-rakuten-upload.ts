@@ -89,6 +89,7 @@ jQuery(function ($) {
 	};
 
 	const initCardGroup = async ($cardGroup, $active) => {
+		$(".dragable-area").show();
 		// files
 		const files = await getFiles($active.data("id"));
 		await addFiles2CardGroup($cardGroup, files);
@@ -311,6 +312,7 @@ jQuery(function ($) {
 		$(this).addClass("active");
 		// フォルダツリーのアクティブ解除
 		$(".tree").find(".active").removeClass("active");
+		$(".dragable-area").hide();
 		const $cardGroup = $("#ss-cabinet-images");
 		addFiles2CardGroup($cardGroup, res);
 		addFiles2ListTable($cardGroup.siblings("#ss-cabinet-lists"), res);
