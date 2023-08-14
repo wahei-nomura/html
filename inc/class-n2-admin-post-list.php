@@ -133,16 +133,15 @@ class N2_Admin_Post_List {
 	public function manage_posts_columns( $columns, $post_type ) {
 		if ( 'post' === $post_type ) {
 			unset( $columns['title'], $columns['author'], $columns['date'] );
-			$columns['tools']           = '';
-			$columns['modified']        = '更新日';
-			$columns['code']            = '返礼品コード';
-			$columns['thumbnail']       = '画像';
 			$columns['title']           = '返礼品名';
+			$columns['code']            = 'コード';
 			$columns['author']          = '事業者名';
-			$columns['subscription']    = '定期便';
+			$columns['thumbnail']       = '画像';
 			$columns['price']           = '価格';
 			$columns['donation-amount'] = '寄附金額';
 			$columns['rate']            = '返礼率';
+			$columns['subscription']    = '定期便';
+			$columns['modified']        = '更新日';
 		}
 		return $columns;
 	}
@@ -155,7 +154,7 @@ class N2_Admin_Post_List {
 	 */
 	public function manage_posts_sortable_columns( $sortable_columns ) {
 		$sortable_columns['modified']        = 'modified';
-		$sortable_columns['code']            = '返礼品コード';
+		$sortable_columns['code']            = 'コード';
 		$sortable_columns['author']          = 'author';
 		$sortable_columns['subscription']    = '定期便';
 		$sortable_columns['price']           = '価格';
@@ -188,7 +187,6 @@ class N2_Admin_Post_List {
 			'donation-amount' => number_format( $meta['寄附金額'] ?? 0 ) . '<small>円</small>',
 			'rate' => sprintf( $rate > 30 ? '<span style="color:red;">%s<small>%s</small></span>' : '%s<small>%s</small>', $rate, '%' ),
 			'thumbnail' => $thumbnail ? "<img src='{$thumbnail}'>" : '-',
-			'tools' => "<span class='dashicons dashicons-admin-tools n2-admin-post-list-tool-open' data-id='{$post_id}'></span>",
 			default => '',
 		};
 		echo $html;

@@ -2,7 +2,13 @@
 @import "bootstrap/scss/functions"; // Required
 @import "bootstrap/scss/variables"; // Required
 @import "bootstrap/scss/mixins"; // Required
-
+$bp: 782px;
+.page-title-action{
+	@media screen and (max-width: $bp) {
+		display: block;
+		text-align: center;
+	}
+}
 .subsubsub{
 	.draft *{
 		color: $secondary !important;
@@ -19,14 +25,37 @@
 	.private *{
 		color: $dark !important;
 	}
+	@media screen and (max-width: $bp) {
+		width: 100%;
+		overflow-x: scroll;
+		white-space: nowrap;
+		font-size: .8rem;
+	}
 }
-.tablenav.bottom{
-	.tablenav-pages{
-		float: none;
+.tablenav{
+	&.top{
+		@media screen and (max-width: $bp) {
+			display: none;
+		}
+	}
+	&.bottom{
+		.tablenav-pages{
+			float: none;
+		}
+		@media screen and (max-width: $bp) {
+			margin: 0;
+		}
 	}
 }
 
 #posts-filter{
+	.search-box{
+		@media screen and (max-width: $bp) {
+			#search-submit{
+				display: none;
+			}
+		}
+	}
 	.wp-list-table{
 		width: 100%;
 		table-layout: auto;
@@ -35,6 +64,9 @@
 			top: 32px;
 			background-color: white;
 			z-index: 100;
+			@media screen and (max-width: $bp) {
+				top: 0;
+			}
 		}
 		tr.hentry{
 			position: relative;
@@ -56,6 +88,13 @@
 				background: linear-gradient(to right, $dark 7px, rgba($dark, 0.4) 7px, rgba($dark, 0.4) 100%);
 			}
 		}
+		.check-column{
+			@media screen and (max-width: $bp) {
+				input{
+					margin: 0 0 0 .75em;
+				}
+			}
+		}
 		td,th {
 			padding: 4px;
 			vertical-align: middle;
@@ -65,10 +104,16 @@
 		th{
 			white-space: nowrap;
 			text-align: center;
-			font-weight: bold;
+			font-weight: normal;
 			a{
 				display: flex;
 				justify-content: center;
+				padding: .5em 0;
+			}
+			&.column-code{
+				@media screen and (max-width: $bp) {
+					display: table-cell;
+				}
 			}
 		}
 		td{
@@ -77,31 +122,13 @@
 				outline: none;
 				box-shadow: none;
 			}
-			&.tools{
-				.n2-admin-post-list-tool-open{
-					color: #ccc;
-					cursor: pointer;
-					&:hover{
-						color: $dark;
-					}
-				}
-			}
-			&.modified{
-				line-height: 1.2;
-			}
-			&.code{
-				// font-size: 1.2em;
-				// letter-spacing: .03em;
-			}
-			&.thumbnail{
-				img{
-					width: 50px;
-					display: block;
-					border-radius: .5em;
-				}
+			&::before{
+				display: none;
 			}
 			&.title{
 				text-align: left;
+				padding-left: 2rem;
+				position: relative;
 				strong{
 					font-size: 0;
 					line-height: 0;
@@ -113,10 +140,69 @@
 						display: -webkit-box;
 						-webkit-box-orient: vertical;
 						-webkit-line-clamp: 2;
+						@media screen and (max-width: $bp) {
+							display: block;
+						}
+					}
+				}
+				.locked-info{
+					img{
+						border-radius: 1em;
+					}
+				}
+				.n2-admin-post-list-tool-open{
+					color: #ccc;
+					&::before{
+						bottom: 0;
+						content: "\f107";
+						font-family: dashicons;
+						font-size: 1.3rem;
+						left: 0;
+						position: absolute;
+						top: 0;
+						width: 2rem;
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						cursor: pointer;
+						animation: zoomIn .3s;
+						@keyframes zoomIn{
+							0%{
+								transform: scale(0);
+							}
+							80%{
+								transform: scale(1.3);
+							}
+							100%{
+								transform: scale(1);
+							}
+						}
+					}
+					&:hover{
+						color: $dark;
 					}
 				}
 			}
+			&.modified{
+				line-height: 1.2;
+				white-space: nowrap;
+			}
+			&.code{
+				white-space: nowrap;
+				@media screen and (max-width: $bp) {
+					display: table-cell;
+				}
+			}
+			&.thumbnail{
+				img{
+					width: 50px;
+					display: block;
+					border-radius: .5em;
+				}
+			}
+
 			&.author{
+				white-space: nowrap;
 				a{
 					text-align: left;
 					overflow: hidden;
@@ -346,6 +432,10 @@
 		#n2-admin-post-list-tool-header{
 			background-color: black;
 		}
+	}
+	@media screen and (max-width: $bp) {
+		width: 90vw;
+		height: 90vh;
 	}
 	&-header{
 		position: sticky;

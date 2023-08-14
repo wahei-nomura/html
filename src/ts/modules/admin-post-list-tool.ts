@@ -16,17 +16,25 @@ export default ($: any) => {
 			custom_field: []
 		},
 		created() {
-			if ( 'jigyousya' !== n2.current_user.roles[0] ) {
-				this.custom_field = [
+			// カスタムフィールドを整頓
+			this.custom_field = 'jigyousya' !== n2.current_user.roles[0]
+				? [
 					...Object.keys(n2.custom_field['自治体用']),
 					...Object.keys(n2.custom_field['スチームシップ用']),
-				];
-			}
+				]
+				: ['返礼品コード'];
+
 			this.custom_field = [
 				...this.custom_field,
 				...Object.keys(n2.custom_field['事業者用']),
 			];
 			this.custom_field = this.custom_field.filter(v => ! ['N1zip','商品画像'].includes(v));
+			// ツールボックスを挿入
+			$('#the-list .hentry').each(function(){
+				const id = $(this).attr('id').split('-')[1];
+				$(this).find('td.title').prepend(`<div class="n2-admin-post-list-tool-open" data-id="${id}">`);
+			});
+			// ポップオーバー
 			$('.n2-admin-post-list-tool-open').on('click', async e => {
 				this.id = $(e.target).data('id');
 				await this.set_item_data();
