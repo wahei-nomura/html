@@ -132,6 +132,9 @@
 	.dragable-area {
 		border-style: dashed!important;
 	}
+	.navbar {
+		z-index: 20;
+	}
 
 	input:not(:checked) + .radio-icon {
 		display: inline-block;
