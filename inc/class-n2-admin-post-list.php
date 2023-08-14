@@ -186,7 +186,7 @@ class N2_Admin_Post_List {
 			'price' => number_format( $meta['価格'] ?: 0 ) . '<small>円</small>',
 			'donation-amount' => number_format( (int) $meta['寄附金額'] ?? 0 ) . '<small>円</small>',
 			'rate' => sprintf( $rate > 30 ? '<span style="color:red;">%s<small>%s</small></span>' : '%s<small>%s</small>', $rate, '%' ),
-			'thumbnail' => $thumbnail ? "<img src='{$thumbnail}'>" : '-',
+			'thumbnail' => $thumbnail ? "<img src='{$thumbnail}'>" : '<div class="empty-thumbnail">-</div>',
 			default => '',
 		};
 		echo $html;
