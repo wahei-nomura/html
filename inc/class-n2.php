@@ -159,7 +159,7 @@ class N2 {
 					if ( empty( $value ) ) {
 						$user_meta = $this->current_user->data->meta;
 						$value     = match ( $name ) {
-							'商品タイプ' => array_keys( array_filter( $user_meta['商品タイプ'] ?? array(), fn( $v ) => 'true' === $v ) ),
+							'商品タイプ' => array( array_search( max( $user_meta['商品タイプ'] ), $user_meta['商品タイプ'], true ) ),
 							'寄附金額固定', '商品画像' => array(),
 							default => 'checkbox' === ( $v['type'] ?? false ) ? array() : '',
 						};

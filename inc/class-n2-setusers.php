@@ -28,7 +28,8 @@ class N2_Setusers {
 		add_filter( 'get_avatar_data', array( $this, 'change_avatar' ), 10, 2 );
 		// ユーザーログインID変更可能に
 		add_filter( 'wp_pre_insert_user_data', array( $this, 'change_user_login' ), 10, 4 );
-		add_filter( 'wpmu_signup_user_notification', '__return_false');
+		// ユーザーメタに商品タイプを保存
+		add_action( 'n2_items_api_after_insert_post_data', array( $this, 'update_user_meta_item_type' ), 10, 2 );
 	}
 
 	/**
@@ -155,5 +156,21 @@ class N2_Setusers {
 				'href'   => '#' . wp_create_nonce( 'n2nonce' ),
 			),
 		);
+	}
+
+	/**
+	 * 投稿保存時にuser_metaの商品タイプ更新
+	 *
+	 * @param array $data 投稿配列
+	 * @param array $meta_input メタデータ
+	 */
+	public function update_user_meta_item_type( $data, $meta_input ) {
+		global $n2;
+		$user_item_types = $n2->current_user->data->meta['商品タイプ'] ?? array();
+		$item_types      = array_filter( $meta_input['商品タイプ'] ) ?: array( '' );
+		foreach ( $item_types as $type ) {
+			$user_item_types[ $type ] = ( (int) $user_item_types[ $type ] ?? 0 ) + 1;
+		}
+		update_user_meta( $n2->current_user->ID, '商品タイプ', $user_item_types );
 	}
 }

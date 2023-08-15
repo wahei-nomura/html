@@ -241,6 +241,7 @@ class N2_Items_API {
 			$post_content[ $key ] = $meta;
 		}
 		$data['post_content'] = addslashes( wp_json_encode( $post_content, JSON_UNESCAPED_UNICODE ) );
+		do_action( 'n2_items_api_after_insert_post_data', $data, $meta_input );
 		return $data;
 	}
 
