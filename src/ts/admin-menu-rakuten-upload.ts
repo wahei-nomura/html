@@ -202,7 +202,6 @@ jQuery(function ($) {
 				processData: false, // FormDataを処理しないように設定
 				contentType: false, // コンテンツタイプを設定しないように設定
 			}).then(async (response) => {
-				console.log(response);
 				let faildCount = 0;
 				Object.keys(response).forEach((index) => {
 					const res = response[index];
@@ -210,7 +209,7 @@ jQuery(function ($) {
 						++faildCount;
 						const xmlDoc = $.parseXML(res.body);
 						const message = $(xmlDoc).find("message").text();
-						console.log(message);
+						alert(message);
 					}
 				});
 				if (faildCount) {
