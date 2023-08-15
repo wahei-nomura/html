@@ -37,19 +37,6 @@ class N2_Setmenu {
 		$name                      = '返礼品';
 		$menu[5][0]                = $name;
 		$submenu['edit.php'][5][0] = $name . '一覧';
-
-		foreach ( $menu as $index => $m ) {
-			if ( 'n2_rakuten_sftp' === $m[0] ) {
-				$menu[ $index ][0] = '楽天SFTP';
-			}
-		}
-
-		foreach ( $submenu as $index => $s ) {
-			if ( isset( $s[0][0] ) && 'n2_rakuten_sftp' === $s[0][0] ) {
-				$submenu[ $index ][0][0] = '楽天SFTP';
-				$submenu[ $index ][0][1] = '楽天エラーログ';
-			}
-		}
 	}
 
 	/**

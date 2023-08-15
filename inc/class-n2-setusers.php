@@ -21,6 +21,9 @@ class N2_Setusers {
 		add_action( 'init', array( $this, 'remove_usertype' ) );
 		add_action( 'init', array( $this, 'add_usertype' ) );
 		add_action( 'admin_init', array( $this, 'crew_in_allsite' ) );
+		add_action( 'add_user_role', array( $this, 'crew_in_allsite' ) );
+		add_action( 'admin_bar_menu', array( $this, 'destruct_button' ), 150 );
+		add_action( 'wp_admin_ajax_n2_setusers_destruct', array( $this, 'destruct_self_accout' ) );
 	}
 
 	/**
@@ -97,18 +100,51 @@ class N2_Setusers {
 
 	/**
 	 * ss-crewは全自治体へ追加
+	 *
+	 * @param int $user_id user_id
 	 */
-	public function crew_in_allsite() {
+	public function crew_in_allsite( $user_id = null ) {
+
 		global $n2;
-		$user = $n2->current_user;
-		if ( 'ss-crew' !== $user->roles[0] ) {
+		// 設定されてなければ上書き
+		$user = $user_id ? get_userdata( $user_id ) : $n2->current_user;
+
+		if ( ! ( in_array( 'ss-crew', $user->roles, true ) || in_array( 'administrator', $user->roles, true ) ) ) {
 			return;
+		}
+		// 特権管理者付与
+		if ( in_array( 'administrator', $user->roles, true ) ) {
+			grant_super_admin( $user->ID );
 		}
 		$sites = get_sites();
 
 		foreach ( $sites as $site ) {
 			$blog_id = $site->blog_id;
-			add_user_to_blog( $blog_id, $user->ID, 'ss-crew' );
+			add_user_to_blog( $blog_id, $user->ID, $user->roles[0] );
 		}
+	}
+
+	/**
+	 * ss-crewに自爆ボタン設置
+	 *
+	 * @param object $wp_admin_bar WP_Admin_Bar
+	 */
+	public function destruct_button( $wp_admin_bar ) {
+		global $n2;
+		$user = $n2->current_user;
+
+		if ( ! ( in_array( 'ss-crew', $user->roles, true ) || in_array( 'administrator', $user->roles, true ) ) ) {
+			return;
+		}
+
+		$href = get_theme_file_path( 'template/admin-bar-menu/destruct-self-account.php' );
+		$wp_admin_bar->add_menu(
+			array(
+				'id'     => 'destruct-self',
+				'title'  => '自爆ボタン',
+				'parent' => 'user-actions',
+				'href'   => '#' . wp_create_nonce( 'n2nonce' ),
+			),
+		);
 	}
 }

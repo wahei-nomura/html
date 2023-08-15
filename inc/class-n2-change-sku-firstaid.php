@@ -84,10 +84,11 @@ class N2_Change_Sku_Firstaid {
 						$csv_select_array = array();
 						$csv_select_count = 0;
 						for ( $j = 1; $j < $countloop; ++$j ) {
-							if ( ${'csv_array_' . $j}[3] !== $csv_select_array[ $csv_select_count ][1] ) {
+							if ( ${'csv_array_' . $j}[3] !== $csv_select_array[ $csv_select_count ][2] ) {
 								$csv_select_count++;
-								$csv_select_array[ $csv_select_count ][0] = 's';
-								$csv_select_array[ $csv_select_count ][1] = ${'csv_array_' . $j}[3];
+								$csv_select_array[ $csv_select_count ][0] = ${'csv_array_' . $j}[1];
+								$csv_select_array[ $csv_select_count ][1] = 's';
+								$csv_select_array[ $csv_select_count ][2] = ${'csv_array_' . $j}[3];
 							}
 							$csv_select_array[ $csv_select_count ][] = ${'csv_array_' . $j}[4];
 						}
@@ -131,22 +132,20 @@ class N2_Change_Sku_Firstaid {
 					$select_array[ $i ] = '';
 				}
 			}
-			$select_array[0] = '商品管理番号(仮)';
+			$select_array[0] = $csv_select[0]; // 一番最初に返礼品コードセット
 			foreach ( $csv_select as $select_key => $value ) {
-				$select_array[ $select_no + $select_key ] = $value;
+				if ( 0 !== $select_key ) { // 返礼品コードは1列目にセットしたのでそれ以外を入れていく
+					$select_array[ $select_no + $select_key - 1 ] = $value;
+				}
 			}
 			foreach ( $select_array as $select_value_key => $select_value ) {
 				if ( $select_value_key !== 0 ) {
 					$new_select_value_column .= ',';
 				}
-				if ( '' !== $select_value ) {
-					$new_select_value_column .= '"' . $select_value . '"';
-				} else {
-					$new_select_value_column .= $select_value;
-				}
+				$new_select_value_column .= $select_value;
 			}
-			$output_select_array[] = $new_select_value_column;
-			$output_select        .= $new_select_value_column . "\n";
+			$output_select_array[ $csv_select[0] ][] = $new_select_value_column;
+			$output_select                          .= $new_select_value_column . "\n";
 		}
 		// itemの出力データを作る
 		$picture_no = array_search( '商品画像URL', $csv_item_array[0] );
@@ -179,6 +178,18 @@ class N2_Change_Sku_Firstaid {
 							$new_zaiko_no                    = $new_item_key;
 							$zaiko_value                     = $csv_item[ $zaiko_no ];
 							$new_item_array[ $new_item_key ] = '';
+						} elseif ( $item_val === 'PC用商品説明文' ) {
+							$pc_item_no                      = array_search( $item_val, $csv_item_array[0] );
+							$new_pc_item_no                  = $new_item_key;
+							$new_item_array[ $new_item_key ] = $csv_item[ $pc_item_no ];
+						} elseif ( $item_val === 'スマートフォン用商品説明文' ) {
+							$sp_item_no                      = array_search( $item_val, $csv_item_array[0] );
+							$new_sp_item_no                  = $new_item_key;
+							$new_item_array[ $new_item_key ] = $csv_item[ $sp_item_no ];
+						} elseif ( $item_val === 'PC用販売説明文' ) {
+							$pc_sale_no                      = array_search( $item_val, $csv_item_array[0] );
+							$new_pc_sale_no                  = $new_item_key;
+							$new_item_array[ $new_item_key ] = $csv_item[ $pc_sale_no ];
 						} elseif ( $item_val === '送料' ) {
 							$postage_no                      = array_search( $item_val, $csv_item_array[0] );
 							$new_postage_no                  = $new_item_key;
@@ -215,9 +226,6 @@ class N2_Change_Sku_Firstaid {
 						$new_item_array[ $new_item_key ] = $csv_item[ $catchcopy_no ];
 					} elseif ( $item_val === '倉庫指定' ) {
 						$new_item_array[ $new_item_key ] = 0;
-					} elseif ( $item_val === 'システム連携用SKU番号' ) {
-						$new_system_sku_no = $new_item_key;
-						$new_item_array[ $new_item_key ] = '';
 					} else {
 						$new_item_array[ $new_item_key ] = '';
 					}
@@ -235,7 +243,7 @@ class N2_Change_Sku_Firstaid {
 						$output_data          .= ',';
 						$output_new_item_data .= ',';
 					}
-					if ( '' !== $new_item ) {
+					if ( '' !== $new_item && ( $new_pc_sale_no === $new_item_key || $new_pc_item_no === $new_item_key || $new_sp_item_no === $new_item_key ) ) {
 						$output_data          .= '"' . $new_item . '"';
 						$output_new_item_data .= '"' . $new_item . '"';
 					} else {
@@ -243,33 +251,35 @@ class N2_Change_Sku_Firstaid {
 						$output_new_item_data .= $new_item;
 					}
 				}
-				$output_array[]    = $output_new_item_data;
-				$output_data      .= "\n";
-				$new_output_select = str_replace( '商品管理番号(仮)', $code_value, $output_select );
+				$output_array[] = $output_new_item_data;
+				$output_data   .= "\n";
+				// select出力
+				$new_output_select = $output_select;
 				$output_data      .= $new_output_select;
-				foreach ( $output_select_array as $output_select_val ) {
-					$output_array[] = str_replace( '商品管理番号(仮)', $code_value, $output_select_val );
+				foreach ( $output_select_array[ $code_value ] as $output_select_val ) {
+					$output_array[] = $output_select_val;
 				}
 				// SKU出力
 				$sku_data = '';
 				for ( $k = 0; $k < $new_item_count;$k++ ) {
 					if ( $k === 0 ) {
-						$sku_data .= $code_value . ',';
+						$sku_data .= $code_value;
 					} elseif ( $k === $sku_key ) {
-						$sku_data .= $code_value . ',';
+						$sku_data .= $code_value;
 					} elseif ( $k === $new_price_no ) {
-						$sku_data .= $price_value . ',';
+						$sku_data .= $price_value;
 					} elseif ( $k === $new_noshi_no ) {
-						$sku_data .= $noshi_value . ',';
+						$sku_data .= $noshi_value;
 					} elseif ( $k === $new_zaiko_no ) {
-						$sku_data .= $zaiko_value . ',';
+						$sku_data .= $zaiko_value;
 					} elseif ( $k === $new_postage_no ) {
-						$sku_data .= $postage_value . ',';
+						$sku_data .= $postage_value;
 					} elseif ( $k === $new_system_sku_no ) {
-						$sku_data .= $large_code_value . ',';
+						$sku_data .= $large_code_value;
 					} elseif ( $k === $new_catalog_no ) {
-						$sku_data .= $catalog_value . ',';
-					} else {
+						$sku_data .= $catalog_value;
+					}
+					if ( $k < $new_item_count - 1 ) {
 						$sku_data .= ',';
 					}
 				}
@@ -279,7 +289,7 @@ class N2_Change_Sku_Firstaid {
 			}
 		}
 		// CSVファイルでダウンロード
-		$csvfilename = 'normal-item.csv';
+		$csvfilename    = 'normal-item.csv';
 		$csvfilepathdir = sys_get_temp_dir();
 		// CSVファイルを作成する一時ファイルのパス
 		$csvfilepath = $csvfilepathdir . '/normal-item.csv';
@@ -299,7 +309,6 @@ class N2_Change_Sku_Firstaid {
 		readfile( $csvfilepath );
 		// 一時ファイルを削除
 		unlink( $csvfilepath );
-		// print_r( $output_data ); // ブラウザで見る時はこちら
 		exit();
 		die();
 	}

@@ -36,7 +36,7 @@ export default $ => {
 		this.$watch(
 			() => {
 				return {
-					全商品ディレクトリID: this.$data.全商品ディレクトリID.text,
+					全商品ディレクトリID: this.$data.全商品ディレクトリID ? this.$data.全商品ディレクトリID.text : false,
 					価格: this.$data.価格,
 					発送方法: this.$data.発送方法,
 					発送サイズ: this.$data.発送サイズ,
