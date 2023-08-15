@@ -167,7 +167,7 @@ class N2_Setusers {
 	public function update_user_meta_item_type( $data, $meta_input ) {
 		global $n2;
 		$user_item_types = $n2->current_user->data->meta['商品タイプ'] ?? array();
-		$item_types      = array_filter( $meta_input['商品タイプ'] ) ?: array( '' );
+		$item_types      = array_filter( (array) $meta_input['商品タイプ'] ) ?: array( '' );
 		foreach ( $item_types as $type ) {
 			$user_item_types[ $type ] = ( (int) $user_item_types[ $type ] ?? 0 ) + 1;
 		}
