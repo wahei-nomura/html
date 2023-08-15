@@ -151,7 +151,7 @@ class N2_Admin_Post_List {
 	 */
 	public function manage_posts_sortable_columns( $sortable_columns ) {
 		$sortable_columns['modified']        = 'modified';
-		$sortable_columns['code']            = 'コード';
+		$sortable_columns['code']            = '返礼品コード';
 		$sortable_columns['author']          = 'author';
 		$sortable_columns['subscription']    = '定期便';
 		$sortable_columns['price']           = '価格';
