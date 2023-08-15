@@ -178,7 +178,7 @@ class N2_Admin_Post_List {
 		// html生成
 		$html = match ( $column_name ) {
 			'modified' => get_the_modified_date( 'y年 m/d' ) . '<br>' . get_the_modified_date( 'H:i:s' ),
-			'code' => $meta['返礼品コード'] ?: "<div onclick='navigator.clipboard.writeText({$post_id});' title='{$post_id}'>-</div>",
+			'code' => $meta['返礼品コード'] ?? "<div onclick='navigator.clipboard.writeText({$post_id});' title='{$post_id}'>-</div>",
 			'subscription' => $meta['定期便'] > 1 ? "{$meta['定期便']}<small>回</small>" : '-',
 			'price' => number_format( $meta['価格'] ?: 0 ) . '<small>円</small>',
 			'donation-amount' => number_format( (int) $meta['寄附金額'] ?? 0 ) . '<small>円</small>',
