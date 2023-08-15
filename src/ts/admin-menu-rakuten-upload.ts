@@ -52,6 +52,7 @@ jQuery(function ($) {
 			$card.find(".card-img-overlay .card-text").text(file["FilePath"]);
 			$cardGroup.append($card);
 		});
+		$("#file-count").text($cardGroup.find(".card").length);
 	};
 	const addFiles2ListTable = async ($listTable, files) => {
 		const $table = $listTable.find("table");
@@ -482,6 +483,8 @@ jQuery(function ($) {
 			);
 			$("#cabinet-navbar-btn").attr("name", "file_delete").text("削除");
 			$("#current-direcotry").text("検索結果");
+			$(".tree .active").removeClass("active");
+			$("#show-trashbox-btn").removeClass("active");
 		});
 	});
 });

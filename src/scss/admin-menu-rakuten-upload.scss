@@ -142,6 +142,20 @@
 	.radio-icon{
 		display: none;
 	}
+	#current-direcotry {
+		&::after {
+			content: ':';
+		}
+	}
+	#file-count {
+		text-wrap : nowrap;
+		&::before {
+			content: "全";
+		}
+		&::after {
+			content: "件";
+		}
+	}
 }
 
 @keyframes loading {

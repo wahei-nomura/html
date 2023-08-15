@@ -129,7 +129,8 @@ global $n2;
 		</aside>
 		<main class="col-9 border-start border-dark overflow-auto">
 			<nav class="navbar navbar-light bg-light position-sticky top-0 start-0 flex-nowrap align-items-strech">
-				<div class="navbar-brand me-0" id="current-direcotry">基本フォルダ</div>
+				<div class="navbar-brand" id="current-direcotry">基本フォルダ</div>
+				<div class="navbar-text me-0" id="file-count"></div>
 				<div class="container-fluid">
 					<form>
 						<input type="hidden" name="action" value="n2_rms_cabinet_api_ajax">
