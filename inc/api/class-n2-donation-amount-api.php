@@ -86,7 +86,7 @@ class N2_Donation_Amount_API {
 	 */
 	public static function calc_return_rate( $meta, $threshold_flg = false ) {
 		global $n2;
-		if ( 0 === (int) $meta['定期便'] * (int) $meta['寄附金額'] * (int) $meta['価格'] ) {
+		if ( 0 === (int) $meta['定期便'] * (int) ( $meta['寄附金額'] ?? 0 ) * (int) $meta['価格'] ) {
 			return '-';
 		}
 		return ceil( $meta['価格'] * $meta['定期便'] / $meta['寄附金額'] * 1000 ) / 10;
