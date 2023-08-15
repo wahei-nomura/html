@@ -1,4 +1,4 @@
-import "../../node_modules/bootstrap/dist/js/bootstrap";
+import "bootstrap";
 
 jQuery(function ($) {
 	const getFiles = async (id: string) => {
@@ -52,7 +52,13 @@ jQuery(function ($) {
 			$card.find(".card-img-overlay .card-text").text(file["FilePath"]);
 			$cardGroup.append($card);
 		});
-		$("#file-count").text($cardGroup.find(".card").length);
+		$("#file-count").text(
+			$cardGroup.find(".card").filter((i, card) => {
+				return (
+					$(card).find(".card-text").text() !== "フォルダは空です。"
+				);
+			}).length
+		);
 	};
 	const addFiles2ListTable = async ($listTable, files) => {
 		const $table = $listTable.find("table");
