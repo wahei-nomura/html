@@ -127,10 +127,16 @@ global $n2;
 			<nav class="navbar navbar-light bg-light position-sticky top-0 start-0 flex-nowrap align-items-strech">
 				<div class="navbar-brand me-0" id="currnet-direcotry">基本フォルダ</div>
 				<div class="container-fluid">
-					<div>
-						選択した画像を
-						<button id="cabinet-navbar-btn" class="btn btn-warning rounded-pill ps-5 pe-5 pt-1 pb-1" name="file_delete">削除</button>
-					</div>
+					<form>
+						<input type="hidden" name="action" value="n2_rms_cabinet_api_ajax">
+						<input type="hidden" name="n2nonce" value="<?php echo esc_attr( wp_create_nonce( 'n2nonce' ) ); ?>">
+						<input type="hidden" name="mode" value="json">
+						<input type="hidden" name="call" value="">
+						<div>
+							選択した画像を
+							<button id="cabinet-navbar-btn" class="btn btn-warning rounded-pill ps-5 pe-5 pt-1 pb-1" name="file_delete">削除</button>
+						</div>
+					</form>
 					<div>
 						<label>
 							<input class="grid-radio view-radio" type="radio" name="view-mode" value="1" hidden checked>

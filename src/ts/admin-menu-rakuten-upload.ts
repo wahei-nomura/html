@@ -331,9 +331,10 @@ jQuery(function ($) {
 	);
 
 	//　navbar-btn ファイル削除/ゴミ箱から元に戻す
-	$("#cabinet-navbar-btn").on("click", async function () {
+	$("#cabinet-navbar-btn").on("click", async function (e) {
+		e.preventDefault();
 		const isGrid = $(".view-radio:checked").hasClass("grid-radio");
-		let $selected_images;
+		let $selected_images: JQuery<HTMLImageElement>;
 		switch (isGrid) {
 			case true:
 				$selected_images = $("#ss-cabinet-images")
@@ -345,20 +346,17 @@ jQuery(function ($) {
 				$selected_images = $("#ss-cabinet-lists")
 					.find('[name="selected"]:checked')
 					.parents("tr")
-					.find("td:nth-of-type(2) img");
+					.find("td:nth-of-type(2)")
+					.find("img");
 				break;
 		}
-		const data = new FormData();
-		const n2nonce = $('[name="n2nonce"]').val();
-		// inputやモーダルで設定したい
+		const form = $(this).parents("form")[0];
+		$(form).find('[name="call"]').val($(this).attr("name"));
+		const data = new FormData(form);
 
-		data.append("action", "n2_rms_cabinet_api_ajax");
-		data.append("n2nonce", String(n2nonce));
-		data.append("mode", "json");
-		data.append("call", $(this).attr("name"));
-
-		$selected_images.each((_, img) => {
-			data.append(`fileId[${_}]`, $(img).data("file-id"));
+		// 選択したファイルをFormDataに追加
+		$selected_images.each((i, img) => {
+			data.append(`fileId[${i}]`, $(img).data("file-id"));
 		});
 
 		await $.ajax({
@@ -369,9 +367,7 @@ jQuery(function ($) {
 			contentType: false,
 		})
 			.then((response) => {
-				console.log(response);
 				let count = 0;
-
 				Object.values(response).forEach((res: any) => {
 					if (!res.success) {
 						const xmlDoc = $.parseXML(res.body);
