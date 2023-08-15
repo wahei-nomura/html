@@ -103,8 +103,12 @@ global $n2;
 	<div class="d-flex justify-content-between pb-1">
 		<h2>CABINET</h2>
 		<form id="cabinet-search" class="d-flex col-5 p-1">
-			<input class="form-control me-2" type="search" placeholder="キーワード" aria-label="キーワード">
-			<button class="btn btn-outline-success" style="text-wrap:nowrap;">検索</button>
+			<input type="hidden" name="action" value="n2_rms_cabinet_api_ajax">
+			<input type="hidden" name="n2nonce" value="<?php echo esc_attr( wp_create_nonce( 'n2nonce' ) ); ?>">
+			<input type="hidden" name="mode" value="json">
+			<input type="hidden" name="call" value="files_search">
+			<input class="form-control me-2" type="search" name="keywords" placeholder="キーワード" aria-label="キーワード">
+			<button id="cabinet-search-btn" class="btn btn-outline-success" style="text-wrap:nowrap;">検索</button>
 		</form>
 	</div>
 	<div class="row row-cols-1 row-cols-md-2  border-top border-dark">
@@ -125,7 +129,7 @@ global $n2;
 		</aside>
 		<main class="col-9 border-start border-dark overflow-auto">
 			<nav class="navbar navbar-light bg-light position-sticky top-0 start-0 flex-nowrap align-items-strech">
-				<div class="navbar-brand me-0" id="currnet-direcotry">基本フォルダ</div>
+				<div class="navbar-brand me-0" id="current-direcotry">基本フォルダ</div>
 				<div class="container-fluid">
 					<form>
 						<input type="hidden" name="action" value="n2_rms_cabinet_api_ajax">

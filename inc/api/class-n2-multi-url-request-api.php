@@ -51,19 +51,17 @@ class N2_Multi_URL_Request_API {
 	 * @param array|void $arg_header header
 	 */
 	private static function set_headers( $arg_header ) {
-		if ( empty( self::$data['headers'] ) ) {
-			$headers = array(
-				'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0',
-				...$arg_header,
-			);
-			/**
-			 * [hook] n2_multi_url_request_api_set_header
-			 */
-			static::$data['headers'] = apply_filters( mb_strtolower( get_called_class() ) . '_set_headers', $headers );
+		$headers = array(
+			'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0',
+			...$arg_header,
+		);
+		/**
+		 * [hook] n2_multi_url_request_api_set_header
+		 */
+		static::$data['headers'] = apply_filters( mb_strtolower( get_called_class() ) . '_set_headers', $headers );
 
-			foreach( static::$data['params']['requests'] ?? array() as $index => $request ) {
-				static::$data['params']['requests'][ $index ]['headers'] = array( ...static::$data['headers'], ...$request['headers'] ?? array() );
-			}
+		foreach ( static::$data['params']['requests'] ?? array() as $index => $request ) {
+			static::$data['params']['requests'][ $index ]['headers'] = array( ...static::$data['headers'], ...$request['headers'] ?? array() );
 		}
 	}
 

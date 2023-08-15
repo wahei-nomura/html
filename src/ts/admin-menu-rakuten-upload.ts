@@ -155,7 +155,7 @@ jQuery(function ($) {
 
 		$(this).addClass("active");
 		const $active = $(this);
-		$("#currnet-direcotry").text($active.text());
+		$("#current-direcotry").text($active.text());
 		await initCardGroup($cardGroup, $active);
 		$cardGroup.removeClass("loading");
 		$(this).children("i").attr("class", icons[1]);
@@ -271,7 +271,7 @@ jQuery(function ($) {
 	// ゴミ箱内のファイルを表示
 	$("#show-trashbox-btn").on("click", async function (e) {
 		e.preventDefault();
-		$("#currnet-direcotry").text("ゴミ箱");
+		$("#current-direcotry").text("ゴミ箱");
 		const form = $(this).parents("form")[0];
 		const data = new FormData(form);
 
@@ -455,5 +455,33 @@ jQuery(function ($) {
 		$("#ss-cabinet-lists tbody").html($sorted_tr);
 	});
 
-	// 検索ビュー
+	// 検索
+	$("#cabinet-search-btn").on("click", async function (e) {
+		e.preventDefault();
+		const form = $(this).parents("form")[0];
+		const data = new FormData(form);
+		const keywords = data.get("keywords") as string;
+		data.delete("keywords");
+		const splitKeywords = keywords.split(/\s/g).filter((x) => x);
+		splitKeywords.forEach((keyword, i) => {
+			data.append(`keywords[${i}]`, keyword);
+		});
+		await $.ajax({
+			url: window["n2"].ajaxurl,
+			type: "POST",
+			data: data,
+			processData: false,
+			contentType: false,
+		}).then(async (response) => {
+			const files = Object.values(response).flat();
+			const $cardGroup = $("#ss-cabinet-images");
+			await addFiles2CardGroup($cardGroup, files);
+			await addFiles2ListTable(
+				$cardGroup.siblings("#ss-cabinet-lists"),
+				files
+			);
+			$("#cabinet-navbar-btn").attr("name", "file_delete").text("削除");
+			$("#current-direcotry").text("検索結果");
+		});
+	});
 });

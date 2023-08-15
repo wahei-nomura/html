@@ -110,12 +110,13 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 		static::check_fatal_error( static::$data['params']['keywords'] ?? false, '検索ワードが設定されていません。' );
 
 		$keywords = static::$data['params']['keywords'];
+		$limit    = 100;
 
 		$requests = array_map(
-			function ( $keyword ) {
+			function ( $keyword ) use ( $limit )  {
 				$params = array(
 					'fileName' => $keyword,
-					'limit'    => 100,
+					'limit'    => $limit,
 				);
 				return array(
 					'url' => static::$settings['endpoint'] . '/1.0/cabinet/files/search?' . http_build_query( $params ),
@@ -132,11 +133,12 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 				'headers'  => static::$data['header'],
 			),
 		);
-
+		
 		foreach ( $response as $res ) {
-			$keyword       = $res->headers->getValues( 'filename' )[0];
+			$keyword       = urldecode($res->headers->getValues( 'filename' )[0]);
 			$search_result = simplexml_load_string( $res->body )->cabinetFilesSearchResult;
 			$res_files     = $search_result->files;
+			$file_all_count = $search_result->fileAllCount;
 			$file_count    = (int) $search_result->fileCount->__toString();
 			$res_files     = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
 
@@ -144,6 +146,44 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 				true => $res_files,
 				default => array( $res_files ),
 			};
+
+			if ( $file_all_count < $limit ) {
+				continue;
+			}
+			// limit以上なら追加でAPIを叩く
+			$additional_requests = array_map(
+				function ( $offset ) use ( $keyword, $limit ) {
+					$params = array(
+						'fileName' => $keyword,
+						'limit'    => $limit,
+						'offset'   => $offset,
+					);
+					return array(
+						'url' => static::$settings['endpoint'] . '/1.0/cabinet/files/search?' . http_build_query( $params ),
+					);
+				},
+				range( 2, floor( $file_all_count / $limit ) + 1 ),
+			);
+
+			$additional_response = N2_Multi_URL_Request_API::ajax(
+				array(
+					'requests' => $additional_requests,
+					'call'     => 'request_multiple',
+					'mode'     => 'func',
+					'headers'  => static::$data['header'],
+				),
+			);
+			
+			foreach ($additional_response as $additional_res ) {
+				$search_result = simplexml_load_string( $additional_res->body )->cabinetFilesSearchResult;
+				$res_files     = $search_result->files;
+				$file_count    = (int) $search_result->fileCount->__toString();
+				$res_files     = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
+				$files[ $keyword ] = match ( $file_count > 1 ) {
+					true => array( ...$files[ $keyword ], ...$res_files),
+					default => array( ...$files[ $keyword ], array( $res_files ) ),
+				};
+			}
 		}
 		return $files;
 	}
