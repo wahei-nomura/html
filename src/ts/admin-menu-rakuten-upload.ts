@@ -269,22 +269,12 @@ jQuery(function ($) {
 		}
 	});
 
-	// 削除済みファイルを表示
-	$(".cabinet-aside button").on("click", async function (elem) {
-		const name = $(elem.target).attr("name");
-
-		if (name !== "trashbox_files_get") {
-			return false;
-		}
+	// ゴミ箱内のファイルを表示
+	$("#show-trashbox-btn").on("click", async function (e) {
+		e.preventDefault();
 		$("#currnet-direcotry").text("ゴミ箱");
-		const data = new FormData();
-		const n2nonce = $('[name="n2nonce"]').val();
-		// inputやモーダルで設定したい
-
-		data.append("action", "n2_rms_cabinet_api_ajax");
-		data.append("n2nonce", String(n2nonce));
-		data.append("mode", "json");
-		data.append("call", name);
+		const form = $(this).parents("form")[0];
+		const data = new FormData(form);
 
 		const res = await $.ajax({
 			url: window["n2"].ajaxurl,

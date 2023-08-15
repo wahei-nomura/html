@@ -111,7 +111,13 @@ global $n2;
 		<aside class='cabinet-aside overflow-auto col-3'>
 			<nav class="d-flex justify-content-around">
 				<button class="btn btn-outline-secondary btn-sm" type="button" name="folder_insert" data-bs-toggle="modal" data-bs-target="#folderInsertModal">新規作成</button>
-				<button id="show-trashbox" class="btn btn-outline-warning btn-sm" type="button" name="trashbox_files_get">ゴミ箱を確認</button>
+				<form>
+					<input type="hidden" name="action" value="n2_rms_cabinet_api_ajax">
+					<input type="hidden" name="n2nonce" value="<?php echo esc_attr( wp_create_nonce( 'n2nonce' ) ); ?>">
+					<input type="hidden" name="mode" value="json">
+					<input type="hidden" name="call" value="trashbox_files_get">
+					<button id="show-trashbox-btn" class="btn btn-outline-warning btn-sm" type="button" name="trashbox_files_get">ゴミ箱を確認</button>
+				</form>
 			</nav>
 			<div class="tree overflow-auto">
 				<?php $tree_list( $tree ); ?>
