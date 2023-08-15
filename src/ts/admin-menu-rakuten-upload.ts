@@ -392,6 +392,7 @@ jQuery(function ($) {
 			});
 	});
 
+	// ビューモードを変更(カードビュー <=> リストビュー)
 	$(".view-radio").on("change", function () {
 		// チェックボックスは保持しない
 		$("#ss-cabinet-images")
@@ -411,12 +412,14 @@ jQuery(function ($) {
 		}
 	});
 
+	// リストビューのソート
 	$("#ss-cabinet-lists thead th").on("click", function () {
 		const index = $(this).index();
 		const hasASC = $(this).hasClass("asc");
 		if (index < 2) {
 			return;
 		}
+		const defaultIcon = "bi bi-caret-down";
 		const icon = ["bi bi-caret-down-fill", "bi bi-caret-up-fill"];
 		$("#ss-cabinet-lists thead th")
 			.filter((i) => {
@@ -424,7 +427,7 @@ jQuery(function ($) {
 			})
 			.find("i")
 			.attr({
-				class: "bi bi-caret-down",
+				class: defaultIcon,
 			});
 		if (hasASC) {
 			$(this).removeClass("asc").addClass("desc");
@@ -437,10 +440,7 @@ jQuery(function ($) {
 				class: icon[Number(hasASC)],
 			});
 
-		const $sorted_tr = $("#ss-cabinet-lists tbody tr").sort(function (
-			a,
-			b
-		) {
+		const $sorted_tr = $("#ss-cabinet-lists tbody tr").sort((a, b) => {
 			const a_val = $(a).find("td").eq(index).text();
 			const b_val = $(b).find("td").eq(index).text();
 			let sort: number;
