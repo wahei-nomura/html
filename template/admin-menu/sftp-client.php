@@ -183,17 +183,26 @@ global $n2;
 		<div class="modal-dialog modal-dialog-centered">
 			<div class="modal-content">
 				<div class="modal-body">
-					<div class="input-group pb-2">
-						<span class="input-group-text">フォルダ名</span>
-						<input type="text" class="form-control" placehodler="directoryName" name="directoryName">
-					</div>
-					<div class="input-group pb-2">
-						<span class="input-group-text">表示名</span>
-						<input type="text" class="form-control" placehodler="folderName" name="folderName">
-					</div>
-					<div class="d-flex pb-2">
-						<button class="btn btn-secondary flex-fill" type="submit" data-bs-dismiss="modal">フォルダを作成</button>
-					</div>
+					<form>
+						<div class="d-none">
+							<input type="hidden" name="action" value="n2_rms_cabinet_api_ajax">
+							<input type="hidden" name="n2nonce" value="<?php echo esc_attr( wp_create_nonce( 'n2nonce' ) ); ?>">
+							<input type="hidden" name="mode" value="json">
+							<input type="hidden" name="call" value="folder_insert">
+							<input type="hidden" name="upperFolderId" value="">
+						</div>
+						<div class="input-group pb-2">
+							<span class="input-group-text">フォルダ名</span>
+							<input type="text" class="form-control" placehodler="directoryName" name="directoryName">
+						</div>
+						<div class="input-group pb-2">
+							<span class="input-group-text">表示名</span>
+							<input type="text" class="form-control" placehodler="folderName" name="folderName">
+						</div>
+						<div class="d-flex pb-2">
+							<button class="btn btn-secondary flex-fill" type="submit" data-bs-dismiss="modal">フォルダを作成</button>
+						</div>
+					</form>
 				</div>
 			</div>
 		</div>

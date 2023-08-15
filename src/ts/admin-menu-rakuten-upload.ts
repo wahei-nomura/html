@@ -216,6 +216,7 @@ jQuery(function ($) {
 				if (faildCount) {
 					const alertMessage = [
 						faildCount + "件のアップロードに失敗しました。",
+						"画像の登録、更新、削除後の情報が反映されるまでの時間は最短10秒です。",
 					];
 					alert(alertMessage.join("\n"));
 				}
@@ -228,28 +229,13 @@ jQuery(function ($) {
 	}
 
 	// フォルダ新規作成
-	$("#folderInsertModal button").on("click", async function (btn) {
-		const $input = $("#folderInsertModal").find("input");
-		// inputやモーダルで設定したい
-		const folderName = $input
-			.filter((_, input) => {
-				return $(input).attr("name") === "folderName";
-			})
-			.val() as string;
-		const directoryName = $input
-			.filter((_, input) => {
-				return $(input).attr("name") === "directoryName";
-			})
-			.val() as string;
-		const data = new FormData();
-		const n2nonce = $('[name="n2nonce"]').val();
-		data.append("action", "n2_rms_cabinet_api_ajax");
-		data.append("n2nonce", String(n2nonce));
-		data.append("mode", "json");
-		data.append("call", "folder_insert");
-		data.append("folderName", folderName);
-		data.append("directoryName", directoryName);
-		data.append("upperFolderId", $(".tree .active").data("id"));
+	$("#folderInsertModal button").on("click", async function (e) {
+		e.preventDefault();
+		const form = $("#folderInsertModal").find("form")[0];
+		$(form)
+			.find('[name="upperFolderId"]')
+			.val($(".tree .active").data("id"));
+		const data = new FormData(form);
 
 		const res = await $.ajax({
 			url: window["n2"].ajaxurl,
@@ -260,9 +246,11 @@ jQuery(function ($) {
 		});
 
 		if ("OK" === res.status.systemStatus) {
-			const folderId = res.cabinetFolderInsertResult.FolderId;
-			console.log(folderId);
 			const $active = $(".tree").find(".active");
+			const folderId = res.cabinetFolderInsertResult.FolderId;
+			const directoryName = data.get("directoryName");
+			const folderName = data.get("folderName");
+			const folderPath = $active.data("path");
 			$active.parent("li").addClass("hasChildren");
 			$active.after(`
 				<ul class="d-none">
@@ -270,9 +258,7 @@ jQuery(function ($) {
 						<label class="folder-open">
 							<input name="folder-open" type="checkbox">
 						</label>
-						<span data-path="${$active.data(
-							"path"
-						)}/${directoryName}" data-id="${folderId}">
+						<span data-path="${folderPath}/${directoryName}" data-id="${folderId}">
 							<i class="bi bi-folder2-open close"></i>${folderName}
 						</span>
 					</li>
@@ -314,8 +300,8 @@ jQuery(function ($) {
 		$(".tree").find(".active").removeClass("active");
 		$(".dragable-area").hide();
 		const $cardGroup = $("#ss-cabinet-images");
-		addFiles2CardGroup($cardGroup, res);
-		addFiles2ListTable($cardGroup.siblings("#ss-cabinet-lists"), res);
+		await addFiles2CardGroup($cardGroup, res);
+		await addFiles2ListTable($cardGroup.siblings("#ss-cabinet-lists"), res);
 		$("#cabinet-navbar-btn")
 			.attr("name", "trashbox_files_revert")
 			.text("元に戻す");
@@ -355,7 +341,7 @@ jQuery(function ($) {
 	);
 
 	//　navbar-btn ファイル削除/ゴミ箱から元に戻す
-	$("#cabinet-navbar-btn").on("click", function () {
+	$("#cabinet-navbar-btn").on("click", async function () {
 		const isGrid = $(".view-radio:checked").hasClass("grid-radio");
 		let $selected_images;
 		switch (isGrid) {
@@ -385,7 +371,7 @@ jQuery(function ($) {
 			data.append(`fileId[${_}]`, $(img).data("file-id"));
 		});
 
-		$.ajax({
+		await $.ajax({
 			url: window["n2"].ajaxurl,
 			type: "POST",
 			data: data,
@@ -394,14 +380,22 @@ jQuery(function ($) {
 		})
 			.then((response) => {
 				console.log(response);
+				let count = 0;
 
 				Object.values(response).forEach((res: any) => {
 					if (!res.success) {
 						const xmlDoc = $.parseXML(res.body);
 						const message = $(xmlDoc).find("message").text();
 						alert(message);
+					} else {
+						++count;
 					}
 				});
+				const alertMessage = [
+					count + "件の処理が完了しました。",
+					"画像の登録、更新、削除後の情報が反映されるまでの時間は最短10秒です。",
+				];
+				alert(alertMessage.join("\n"));
 			})
 			.then(() => {
 				if ($(".tree .active").length) {
