@@ -258,18 +258,25 @@ jQuery(function ($) {
 			const folderName = data.get("folderName");
 			const folderPath = $active.data("path");
 			$active.parent("li").addClass("hasChildren");
-			$active.after(`
-				<ul class="d-none">
-					<li>
-						<label class="folder-open">
-							<input name="folder-open" type="checkbox">
-						</label>
-						<span data-path="${folderPath}/${directoryName}" data-id="${folderId}">
-							<i class="bi bi-folder2-open close"></i>${folderName}
-						</span>
-					</li>
-				</ul>
-			`);
+			const addNewFolder = `
+				<li>
+					<label class="folder-open">
+						<input name="folder-open" type="checkbox">
+					</label>
+					<span data-path="${folderPath}/${directoryName}" data-id="${folderId}">
+						<i class="bi bi-folder2-open close"></i>${folderName}
+					</span>
+				</li>
+			`;
+			if ($active.siblings("ul").length) {
+				$active.siblings("ul").append(addNewFolder);
+			} else {
+				$active.after(`
+					<ul class="d-none">
+						${addNewFolder}
+					</ul>
+				`);
+			}
 		} else {
 			alert(res.status.message);
 		}
