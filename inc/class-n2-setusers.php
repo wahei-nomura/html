@@ -20,7 +20,7 @@ class N2_Setusers {
 	public function __construct() {
 		// テーマ有効化時にユーザー設定
 		// add_action( 'after_switch_theme', array( $this, 'update_user_roles' ) );
-		add_action( 'admin_init', array( $this, 'update_user_roles' ) );
+		add_action( 'admin_init', array( $this, 'update_user_roles' ) );// 全自治体書き換わったらafter_switch_themeに変える
 		// ユーザーロール全更新API
 		add_action( 'wp_ajax_n2_update_all_site_user_roles', array( $this, 'update_all_site_user_roles' ) );
 		// クルーは全サイトに参加
