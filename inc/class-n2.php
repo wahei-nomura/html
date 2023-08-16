@@ -158,6 +158,9 @@ class N2 {
 					// ====== 新規登録時の初期化 ======
 					if ( empty( $value ) ) {
 						$user_meta = $this->current_user->data->meta;
+						// 商品タイプの初期化
+						$user_meta['商品タイプ'] = (array) $user_meta['商品タイプ'];
+						// $valueに応じて変更
 						$value     = match ( $name ) {
 							'商品タイプ' => array( array_search( max( $user_meta['商品タイプ'] ), $user_meta['商品タイプ'], true ) ),
 							'寄附金額固定', '商品画像' => array(),
