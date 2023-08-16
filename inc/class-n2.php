@@ -159,7 +159,7 @@ class N2 {
 					if ( empty( $value ) ) {
 						$user_meta = $this->current_user->data->meta;
 						// 商品タイプの初期化
-						$user_meta['商品タイプ'] = (array) $user_meta['商品タイプ'];
+						$user_meta['商品タイプ'] = $user_meta['商品タイプ'] ?? array( '' => 1 );
 						// $valueに応じて変更
 						$value     = match ( $name ) {
 							'商品タイプ' => array( array_search( max( $user_meta['商品タイプ'] ), $user_meta['商品タイプ'], true ) ),
