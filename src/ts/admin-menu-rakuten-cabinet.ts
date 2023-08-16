@@ -44,7 +44,9 @@ jQuery(function ($) {
 					"data-url": url,
 					"data-file-id": file["FileId"],
 					"data-file-size": file["FileSize"],
+					"data-file-path": file["FilePath"],
 					"data-folder-path": file["FolderPath"],
+					"data-time-stamp": file["TimeStamp"],
 				})
 				.addClass("cabinet-img");
 			$card.find(".card-header .card-text").text(file["FileSize"]);
@@ -85,7 +87,9 @@ jQuery(function ($) {
 				"data-url": file["FileUrl"],
 				"data-file-id": file["FileId"],
 				"data-file-size": file["FileSize"],
+				"data-file-path": file["FilePath"],
 				"data-folder-path": file["FolderPath"],
+				"data-time-stamp": file["TimeStamp"],
 				"data-bs-toggle": "modal",
 				"data-bs-target": "#CabinetModal",
 				role: "button",
@@ -453,20 +457,24 @@ jQuery(function ($) {
 				class: icon[Number(hasASC)],
 			});
 
-		const $sorted_tr = $("#ss-cabinet-lists tbody tr").sort((a, b) => {
-			const a_val = $(a).find("td").eq(index).text();
-			const b_val = $(b).find("td").eq(index).text();
-			let sort: number;
-			if (index === 3) {
-				const a_float = parseFloat(a_val);
-				const b_float = parseFloat(b_val);
-				sort = a_float > b_float ? 1 : -1;
-			} else {
-				sort = a_val > b_val ? 1 : -1;
-			}
-			return hasASC ? -sort : sort;
-		});
-		$("#ss-cabinet-lists tbody").html($sorted_tr);
+		const sorted_tr = $("#ss-cabinet-lists tbody tr")
+			.toArray()
+			.sort((a, b) => {
+				const a_val = $(a).find("td").eq(index).text();
+				const b_val = $(b).find("td").eq(index).text();
+				let sort: number;
+				if (index === 3) {
+					const a_float = parseFloat(a_val);
+					const b_float = parseFloat(b_val);
+					sort = a_float > b_float ? 1 : -1;
+				} else {
+					sort = a_val > b_val ? 1 : -1;
+				}
+				return hasASC ? -sort : sort;
+			})
+			.map((element) => element.outerHTML)
+			.join("");
+		$("#ss-cabinet-lists tbody").html(sorted_tr);
 	});
 
 	// 検索
@@ -499,5 +507,55 @@ jQuery(function ($) {
 			$(".tree .active").removeClass("active");
 			$("#show-trashbox-btn").removeClass("active");
 		});
+	});
+
+	// 右側の詳細情報
+	$(document).on(
+		"click",
+		"#ss-cabinet-images .card, #ss-cabinet-lists tbody tr",
+		function () {
+			$("#right-aside").show();
+			$("#ss-cabinet main").removeClass("col-9").addClass("col-6");
+			const $img = $(this).find("img");
+			$("#right-aside-list")
+				.find("li")
+				.each((index, elem) => {
+					const key = $(elem).data("key");
+					switch (key) {
+						case "FileName":
+							$(elem).text($img.attr("alt"));
+							break;
+						case "FilePath":
+							$(elem).text($img.data("file-path"));
+							break;
+						case "TimeStamp":
+							$(elem).text(
+								$img
+									.data("time-stamp")
+									.split(/\s/)[0]
+									.replace(/-/g, "/")
+							);
+							break;
+						case "FileSize":
+							$(elem).text($img.data("file-size"));
+							break;
+						case "FileUrl":
+							$(elem)
+								.find(" > .bi-clipboard ")
+								.attr("value", $img.data("url"));
+							break;
+						default:
+							break;
+					}
+				});
+			$("#right-aside-list-img").attr({
+				src: $img.attr("src").split("_ex")[0] + "_ex=200x200",
+				alt: $img.attr("alt"),
+			});
+		}
+	);
+	// クリップボードにコピペ
+	$(".bi-clipboard").on("click", function () {
+		navigator.clipboard.writeText($(this).attr("value"));
 	});
 });

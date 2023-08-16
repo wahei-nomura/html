@@ -126,7 +126,7 @@ global $n2;
 				<?php $tree_list( $tree ); ?>
 			</div>
 		</aside>
-		<main class="col-9 border-start border-dark overflow-auto">
+		<main class="border-start border-dark overflow-auto col-9">
 			<nav class="navbar navbar-light bg-light position-sticky top-0 start-0 flex-nowrap align-items-strech">
 				<div class="navbar-brand" id="current-direcotry">基本フォルダ</div>
 				<div class="navbar-text me-0" id="file-count"></div>
@@ -172,6 +172,30 @@ global $n2;
 				ファイルをドラッグ&ドロップしてください
 			</div>
 		</main>
+		<aside id="right-aside" class="col-3" style="display:none;">
+			<div class="card p-0">
+				<img id="right-aside-list-img" src="" class="card-img-top" alt="" data-bs-toggle="modal" data-bs-target="#CabinetModal" role="button" decoding=“async”>
+				<div class="card-body p-0">
+					<ul id="right-aside-list" class="list-group list-group-flush">
+						<li class="list-group-item" data-label="画像名" data-key="FileName">
+							画像作成テンプレ
+						</li>
+						<li class="list-group-item" data-label="ファイル名" data-key="FilePath">
+							imgrc0081597574.jpg
+						</li>
+						<li class="list-group-item" data-label="登録/変更日" data-key="TimeStamp">
+							2023/08/10
+						</li>
+						<li class="list-group-item" data-label="サイズ" data-key="FileSize">
+							700x700 / 304KB
+						</li>
+						<li class="list-group-item d-flex" data-label="画像保存先" data-key="FileUrl">
+							<i class="bi bi-clipboard ms-2"></i>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</aside>
 	</div>
 	<div id="card-template" style="display:none;">
 		<div class="card shadow me-2">

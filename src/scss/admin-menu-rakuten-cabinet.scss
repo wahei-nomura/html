@@ -156,6 +156,32 @@
 			content: "件";
 		}
 	}
+	#right-aside{
+		&-list {
+			li {
+				&:before {
+					content: attr(data-label);
+					display: block;
+				}
+				&[data-label="サイズ"] {
+					&:after {
+						content: "KB";
+					}
+				}
+				&[data-label="画像保存先"] {
+					i {
+						cursor: pointer;
+					}
+				}
+			}
+		}
+		&-list-img {
+			margin: auto;
+			width: 200px;
+			height: 200px;
+			object-fit: contain;
+		}
+	}
 }
 
 @keyframes loading {
