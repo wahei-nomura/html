@@ -31,6 +31,7 @@ global $n2;
 								<label><input type="radio" name="action" value="n2_item_export_rakuten"> 楽天 [ item.csv ]</label>
 								<label><input type="radio" name="action" value="n2_item_export_rakuten_select"> 楽天 [ select.csv ]</label>
 								<label><input type="radio" name="action" value="n2_item_export_rakuten_sku"> 楽天SKU [ normal-item.csv ]</label>
+								<label><input type="radio" name="action" value="n2_item_export_rakuten_cat"> 楽天 [ item-cat.csv ]</label>
 							<?php endif; ?>
 						</div>
 						<div style="margin-bottom: 1em;">
