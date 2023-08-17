@@ -94,10 +94,22 @@ $tree_list = function ( $parent, $path = null ) use ( &$tree_list, $folders ) {
 	<?php
 };
 
+$cabinet_usage = N2_RMS_Cabinet_API::ajax(
+	array(
+		'call' => 'usage_get',
+		'mode' => 'func',
+	),
+)->cabinetUsageGetResult;
+
+$cabinet_max_space = round( floatval($cabinet_usage->MaxSpace) / 1000, 1 );
+$cabinet_avail_space = round( floatval($cabinet_usage->AvailSpace) / 1000 / 1000, 1 );
+
+$use_sapace_rate =  ( 1 - $cabinet_avail_space / $cabinet_max_space ) * 100;
+
 global $n2;
 
 ?>
-<div id="ss-cabinet" class="container">
+<div id="ss-cabinet" class="container-fluid">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
 	<div class="d-flex justify-content-between pb-1">
 		<h2>CABINET</h2>
@@ -128,7 +140,7 @@ global $n2;
 		</aside>
 		<main class="border-start border-dark overflow-auto col-9">
 			<nav class="navbar navbar-light bg-light position-sticky top-0 start-0 flex-nowrap align-items-strech">
-				<div class="navbar-brand" id="current-direcotry">基本フォルダ</div>
+				<div class="navbar-brand text-truncate" id="current-direcotry" style="max-width: 150px;">基本フォルダ</div>
 				<div class="navbar-text me-0" id="file-count"></div>
 				<div class="container-fluid">
 					<form>
@@ -182,7 +194,13 @@ global $n2;
 				</form>
 			</div>
 		</main>
-		<aside id="right-aside" class="col-3" style="display:none;">
+		<aside id="right-aside" class="col-3 pt-3" style="display:none;">
+			<div>
+				<div class="progress">
+					<div class="progress-bar" role="progressbar" style="width: <?php echo $use_sapace_rate; ?>%" aria-valuenow="<?php echo $use_sapace_rate; ?>" aria-valuemin="0" aria-valuemax="100"><?php echo $use_sapace_rate; ?>%</div>
+				</div>
+				<div class="text-end" style="font-size: .8rem;">空き容量 : <?php echo $cabinet_avail_space; ?>GB / <?php echo $cabinet_max_space; ?>GB</div>
+			</div>
 			<div class="card p-0">
 				<img id="right-aside-list-img" src="" class="card-img-top" alt="" data-bs-toggle="modal" data-bs-target="#CabinetModal" role="button" decoding=“async”>
 				<div class="card-body p-0">
@@ -199,8 +217,10 @@ global $n2;
 						<li class="list-group-item" data-label="サイズ" data-key="FileSize">
 							700x700 / 304KB
 						</li>
-						<li class="list-group-item d-flex" data-label="画像保存先" data-key="FileUrl">
-							<i class="bi bi-clipboard ms-2"></i>
+						<li class="list-group-item d-flex align-items-center justify-content-between" data-label="画像保存先" data-key="FileUrl">
+							<button type="button" class="url-clipboard btn btn-secondary ms-2">
+								<i class="bi bi-clipboard"></i>
+							</button>
 						</li>
 					</ul>
 				</div>

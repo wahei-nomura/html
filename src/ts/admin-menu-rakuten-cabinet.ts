@@ -532,7 +532,7 @@ jQuery(function ($) {
 							break;
 						case "FileUrl":
 							$(elem)
-								.find(" > .bi-clipboard ")
+								.find(" > .url-clipboard")
 								.attr("value", $img.data("url"));
 							break;
 						default:
@@ -564,7 +564,7 @@ jQuery(function ($) {
 		}
 	);
 	// クリップボードにコピペ
-	$(".bi-clipboard").on("click", function () {
+	$(".url-clipboard").on("click", function () {
 		navigator.clipboard.writeText($(this).attr("value"));
 	});
 });

@@ -236,8 +236,9 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 		$requests = array();
 
 		foreach ( static::$data['files']['tmp_name'] as $index => $tmp_name ) {
-			$file_name = static::$data['files']['name'][ $index ];
-			$request   = array(
+			$file_content_type = mime_content_type($tmp_name);
+			$file_name         = static::$data['files']['name'][ $index ];
+			$request           = array(
 				'url'     => $url,
 				'type'    => Requests::POST,
 				'headers' => array(
@@ -254,7 +255,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 				'fileInsertRequest' => array(
 					'file' => array(
 						'filePath'  => $file_name,
-						'fileName'  => str_replace( '.jpg', '', $file_name ),
+						'fileName'  => preg_replace('/\.[^.]+$/', '', $file_name ),
 						'folderId'  => static::$data['params']['folderId'],
 						'overWrite' => 'true',
 					),
@@ -274,7 +275,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			$request['data'] .= "\r\n{$xml_payload}\r\n";
 			$request['data'] .= "--{$boundary}\r\n";
 			$request['data'] .= "Content-Disposition: form-data; name=\"file\"; filename=\"{$file_name}\"\r\n";
-			$request['data'] .= "Content-Type: image/jpg\r\n";
+			$request['data'] .= "Content-Type: {$file_content_type}\r\n";
 			$request['data'] .= "\r\n" . file_get_contents( $tmp_name ) . "\r\n";
 			$request['data'] .= "--{$boundary}--";
 
