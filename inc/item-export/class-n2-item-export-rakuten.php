@@ -93,8 +93,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			$values['アレルゲン'] = preg_replace( '/（.*?）/', '', $values['アレルゲン'] );// 不純物（カッコの部分）を削除
 
 			// 自治体と返礼品のタグIDをいい感じに結合する
-			$values['タグID'] = $n2->portal_setting['楽天']['tag_id'] . '/' . $values['タグID'];
-			$values['タグID'] = implode( '/', array_filter( explode( '/', $values['タグID'] ) ) );
+			$values['タグID'] = implode( '/', array( $n2->settings['楽天']['共通タグID'], $values['タグID'] ) );
 			// ヘッダーをセット
 			$data[ $id ] = $this->data['header'];
 			array_walk( $data[ $id ], array( $this, 'walk_values' ), $values );
