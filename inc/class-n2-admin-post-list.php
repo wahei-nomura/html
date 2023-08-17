@@ -196,23 +196,23 @@ class N2_Admin_Post_List {
 	 * @return $query_vars
 	 */
 	public function posts_columns_sort_param( $query_vars ) {
-		$orderby = $query_vars['orderby'];
+		$orderby = $query_vars['orderby'] ?? '';
 		$sorts   = array(
 			'返礼品コード' => 'meta_value',
 			'定期便'    => 'meta_value_num',
 			'価格'     => 'meta_value_num',
 			'寄附金額'   => 'meta_value_num',
 		);
-		if ( array_key_exists( $orderby ?? '', $sorts ) ) {
+		if ( array_key_exists( $orderby, $sorts ) ) {
 			// meta_queryでフィールドが存在しなくても対象とする
 			$query_vars['meta_query'] = array(
 				'relation' => 'OR',
 				array(
-					'key'     => $query_vars['orderby'],
+					'key'     => $orderby,
 					'compare' => 'EXISTS', // フィールドが存在する
 				),
 				array(
-					'key'     => $query_vars['orderby'],
+					'key'     => $orderby,
 					'compare' => 'NOT EXISTS', // フィールドが存在しない
 				),
 			);
