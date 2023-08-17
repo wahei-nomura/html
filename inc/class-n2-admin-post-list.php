@@ -5,7 +5,7 @@
  * @package neoneng
  */
 
-if ( class_exists( 'N2_Admin_Post_List' ) ) {
+if ( class_exists( 'N2_Admin_Post_List' ) && is_admin() ) {
 	new N2_Admin_Post_List();
 	return;
 }
@@ -196,15 +196,28 @@ class N2_Admin_Post_List {
 	 * @return $query_vars
 	 */
 	public function posts_columns_sort_param( $query_vars ) {
-		$sorts = array(
+		$orderby = $query_vars['orderby'];
+		$sorts   = array(
 			'返礼品コード' => 'meta_value',
 			'定期便'    => 'meta_value_num',
 			'価格'     => 'meta_value_num',
 			'寄附金額'   => 'meta_value_num',
 		);
-		if ( array_key_exists( $query_vars['orderby'] ?? '', $sorts ) ) {
-			$query_vars['meta_key'] = $query_vars['orderby'];
-			$query_vars['orderby']  = $sorts[ $query_vars['orderby'] ];
+		if ( array_key_exists( $orderby ?? '', $sorts ) ) {
+			// meta_queryでフィールドが存在しなくても対象とする
+			$query_vars['meta_query'] = array(
+				'relation' => 'OR',
+				array(
+					'key'     => $query_vars['orderby'],
+					'compare' => 'EXISTS', // フィールドが存在する
+				),
+				array(
+					'key'     => $query_vars['orderby'],
+					'compare' => 'NOT EXISTS', // フィールドが存在しない
+				),
+			);
+			// orderby
+			$query_vars['orderby'] = $sorts[ $orderby ];
 		}
 		return $query_vars;
 	}
