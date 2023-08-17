@@ -170,7 +170,7 @@ global $n2;
 				</table>
 			</div>
 			<div class="dragable-area p-5 mt-3 border border-5 text-center w-100 position-sticky bottom-0 end-0 bg-light">
-				ファイルをドラッグ&ドロップしてください
+				ファイルをドラッグ&ドロップで転送する
 			</div>
 		</main>
 		<aside id="right-aside" class="col-3" style="display:none;">
