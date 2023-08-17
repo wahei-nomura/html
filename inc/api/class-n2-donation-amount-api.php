@@ -147,7 +147,8 @@ class N2_Donation_Amount_API {
 		// 送料の更新
 		update_post_meta( $post_id, '送料', $calc_delivery_fee );
 		$title = get_the_title( $post_id );
-		echo "「{$title}」の送料を「{$delivery_fee} → {$calc_delivery_fee}」に更新。\n";
+		$code  = get_post_meta( $post_id, '返礼品コード', true );
+		echo "「{$code} - {$title}」の送料を「{$delivery_fee} → {$calc_delivery_fee}」に更新。\n";
 	}
 
 	/**
