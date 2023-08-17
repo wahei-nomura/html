@@ -8,6 +8,10 @@
 			width: 18rem;
 			max-width: 160px;
 			padding: 0.5rem 0.7rem 1rem;
+			transition: box-shadow .3s;
+			&.active {
+				box-shadow: 0 .1rem .5rem rgba(0,0,255,.5)!important
+			}
 			.card-img-top {
 				height: 136px;
 				width: 136px;

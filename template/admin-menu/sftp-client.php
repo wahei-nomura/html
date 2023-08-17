@@ -162,6 +162,7 @@ global $n2;
 							<th scope="col">画像</th>
 							<th scope="col">ファイル名<i class="bi bi-caret-down"></i></th>
 							<th scope="col">サイズ<i class="bi bi-caret-down"></i></th>
+							<th scope="col">登録/変更日<i class="bi bi-caret-down"></i></th>
 						</tr>
 					</thead>
 					<tbody>

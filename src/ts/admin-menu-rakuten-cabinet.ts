@@ -80,6 +80,7 @@ jQuery(function ($) {
 					<td><img class="cabinet-img" src="${thumbnailUrl}?_ex=50x28"></td>
 					<td>${file["FileName"]}</td>
 					<td>${file["FileSize"]}</td>
+					<td>${file["TimeStamp"].split(/\s/)[0].replace(/-/g, "/")}</td>
 				</tr>
 			`);
 			$tr.find("img").attr({
@@ -517,6 +518,7 @@ jQuery(function ($) {
 			$("#right-aside").show();
 			$("#ss-cabinet main").removeClass("col-9").addClass("col-6");
 			const $img = $(this).find("img");
+			const fileName = $img.attr("alt");
 			$("#right-aside-list")
 				.find("li")
 				.each((index, elem) => {
@@ -551,6 +553,25 @@ jQuery(function ($) {
 			$("#right-aside-list-img").attr({
 				src: $img.attr("src").split("_ex")[0] + "_ex=200x200",
 				alt: $img.attr("alt"),
+			});
+
+			const $active = $(
+				"#ss-cabinet-images .card, #ss-cabinet-lists tbody tr"
+			)
+				.removeClass("active table-active")
+				.filter((index, elem) => {
+					return $(elem).find("img").attr("alt") === fileName;
+				});
+			$active.each((_, active) => {
+				const tag = $(active).prop("tagName");
+				switch (tag) {
+					case "TR":
+						$(active).addClass("table-active");
+						break;
+					default:
+						$(active).addClass("active");
+				}
+				console.log(tag);
 			});
 		}
 	);
