@@ -529,7 +529,7 @@ class N2_Sync {
 
 			// アレルギー関連
 			if ( isset( $postarr['meta_input']['アレルゲン'] ) ) {
-				$allergen = array_column( (array) $postarr['meta_input']['アレルゲン'], 'value' );
+				$allergen = array_column( $postarr['meta_input']['アレルゲン'], 'value' );
 				if ( $allergen ) {
 					if ( in_array( '食品ではない', $allergen, true ) ) {
 						unset( $postarr['meta_input']['アレルゲン'] );
@@ -541,7 +541,7 @@ class N2_Sync {
 						} else {
 							$postarr['meta_input']['アレルギー有無確認'] = array( 'アレルギー品目あり' );
 							// アレルゲンをラベルだけに変更
-							$postarr['meta_input']['アレルゲン'] = array_column( (array) $postarr['meta_input']['アレルゲン'], 'label' );
+							$postarr['meta_input']['アレルゲン'] = array_column( $postarr['meta_input']['アレルゲン'], 'label' );
 							// アレルゲンをいい感じにN2に存在するものに変換する
 							$postarr['meta_input']['アレルゲン'] = $this->change_n2_allergen( $postarr['meta_input']['アレルゲン'] );
 
