@@ -171,6 +171,15 @@ global $n2;
 			</div>
 			<div class="dragable-area p-5 mt-3 border border-5 text-center w-100 position-sticky bottom-0 end-0 bg-light">
 				ファイルをドラッグ&ドロップで転送する
+				<form action="<?php echo esc_url( $n2->ajaxurl ); ?>" method="POST" enctype="multipart/form-data" style="display:none;">
+					<input type="hidden" name="n2nonce" value="<?php echo esc_attr( wp_create_nonce( 'n2nonce' ) ); ?>">
+					<input type="hidden" name="action" value="n2_rms_cabinet_api_ajax">
+					<input type="hidden" name="mode" value="json">
+					<input type="hidden" name="call" value="file_insert">
+					<input type="hidden" name="folderId" value="">
+					<input type="file" multiple="multiple" name="cabinet_file[]">
+					<input type="submit" value="リクエストを送信">
+				</form>
 			</div>
 		</main>
 		<aside id="right-aside" class="col-3" style="display:none;">
@@ -248,13 +257,4 @@ global $n2;
 			</div>
 		</div>
 	</div>
-	<form action="<?php echo esc_url( $n2->ajaxurl ); ?>" method="POST" enctype="multipart/form-data" style="display:none;">
-		<input type="hidden" name="n2nonce" value="<?php echo esc_attr( wp_create_nonce( 'n2nonce' ) ); ?>">
-		<input type="hidden" name="action" value="n2_rms_cabinet_api_ajax">
-		<input type="hidden" name="mode" value="json">
-		<input type="hidden" name="call" value="file_insert">
-		<input type="hidden" name="folderId" value="">
-		<input type="file" multiple="multiple" name="cabinet_file[]">
-		<input type="submit" value="リクエストを送信">
-	</form>
 </div>

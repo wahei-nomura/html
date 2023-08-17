@@ -112,23 +112,12 @@ jQuery(function ($) {
 		);
 		$("#cabinet-navbar-btn").attr("name", "file_delete").text("削除");
 		//form
-		$("#ss-cabinet form")
+		$(".dragable-area form")
 			.find("input")
 			.each((_, input) => {
-				switch (
-					$("#ss-cabinet form").find("input").eq(_).attr("name")
-				) {
-					case "filePath":
-						$("#ss-cabinet form")
-							.find("input")
-							.eq(_)
-							.val($active.data("path"));
-						break;
+				switch ($(input).attr("name")) {
 					case "folderId":
-						$("#ss-cabinet form")
-							.find("input")
-							.eq(_)
-							.val($active.data("id"));
+						$(input).val($active.data("id"));
 						break;
 				}
 			});
@@ -202,7 +191,7 @@ jQuery(function ($) {
 
 			// ドロップされたファイルを取得
 			const files = e.originalEvent.dataTransfer.files;
-			const $form = $("#ss-cabinet form");
+			const $form = $(this).find("form");
 			$form.find('input[type="file"]').prop("files", files);
 			const formData = new FormData($form[0] as HTMLFormElement);
 
@@ -224,13 +213,13 @@ jQuery(function ($) {
 						alert(message);
 					}
 				});
-				if (faildCount) {
-					const alertMessage = [
-						faildCount + "件のアップロードに失敗しました。",
-						"画像の登録、更新、削除後の情報が反映されるまでの時間は最短10秒です。",
-					];
-					alert(alertMessage.join("\n"));
-				}
+				const alertMessage = [
+					Object.keys(response).length -
+						faildCount +
+						"件アップロードが完了しました。",
+					"画像の登録、更新、削除後の情報が反映されるまでの時間は最短10秒です。",
+				];
+				alert(alertMessage.join("\n"));
 				await initCardGroup(
 					$("#ss-cabinet-images"),
 					$("#ss-cabinet .active")
@@ -571,7 +560,6 @@ jQuery(function ($) {
 					default:
 						$(active).addClass("active");
 				}
-				console.log(tag);
 			});
 		}
 	);
