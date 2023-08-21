@@ -173,6 +173,7 @@ jQuery(function ($) {
 		$("span.active").removeClass("active");
 		$(".cabinet-aside button").removeClass("active");
 		$(this).children("i").attr("class", icons[0]);
+		$("#cabinet-navbar-btn-dl").parent('form').removeClass('d-none');
 		$cardGroup.addClass("loading");
 
 		$(this).addClass("active");
@@ -317,6 +318,8 @@ jQuery(function ($) {
 		// フォルダツリーのアクティブ解除
 		$(".tree").find(".active").removeClass("active");
 		$(".dragable-area").hide();
+		$("#cabinet-navbar-btn-dl").parent('form').addClass('d-none');
+
 		const $cardGroup = $("#ss-cabinet-images");
 		await addFiles2CardGroup($cardGroup, res);
 		await addFiles2ListTable($cardGroup.siblings("#ss-cabinet-lists"), res);
