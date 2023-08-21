@@ -268,6 +268,9 @@ global $n2;
 							<input type="hidden" name="call" value="folder_insert">
 							<input type="hidden" name="upperFolderId" value="">
 						</div>
+						<div>
+							<h3>新規作成</h3>
+						</div>
 						<div class="input-group pb-2">
 							<span class="input-group-text">フォルダ名</span>
 							<input type="text" class="form-control" placehodler="directoryName" name="directoryName">
