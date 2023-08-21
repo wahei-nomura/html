@@ -92,18 +92,8 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			// アレルゲン
 			$values['アレルゲン'] = preg_replace( '/（.*?）/', '', $values['アレルゲン'] );// 不純物（カッコの部分）を削除
 
-			// 自治体と返礼品のタグIDを"/"で結合する
-			$common_tags = explode( '/', $n2->settings['楽天']['共通タグID'] );
-			$gift_tags   = explode( '/', $values['タグID'] );
-
-			// 上記二つの配列をマージ
-			$merged_tags = array_merge( $common_tags, $gift_tags );
-
-			// 空の要素と重複を取り除く
-			$unique_tags = array_unique( array_filter( $merged_tags ) );
-
-			// 最終的な配列を"/"で結合
-			$values['タグID'] = implode( '/', $unique_tags );
+			// 自治体ごとの共通タグIDと返礼品ごとのタグIDを結合、その際に空文字と重複を削除
+			$values['タグID'] = implode( '/', array_unique( array_filter( explode( '/', "{$n2->settings['楽天']['共通タグID']}/{$values['タグID']}" ) ) ) );
 
 			// ヘッダーをセット
 			$data[ $id ] = $this->data['header'];
