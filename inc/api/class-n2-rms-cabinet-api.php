@@ -302,21 +302,9 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	 * ファイル削除
 	 */
 	public static function file_delete() {
-		static::check_fatal_error( ! empty( static::$data['params']['fileId'] ?? array() ), 'フォルダ名が設定されていません。' );
+		static::check_fatal_error( ! empty( static::$data['params']['fileId'] ?? array() ), 'ファイルIdが設定されていません。' );
 
 		$url              = static::$settings['endpoint'] . '/1.0/cabinet/file/delete';
-		$xml_request_body = new SimpleXMLElement( '<?xml version="1.0" encoding="UTF-8"?><request></request>' );
-
-		$request = array(
-			'fileDeleteRequest' => array(
-				'file' => array(
-					'fileId' => static::$data['params']['fileId'],
-				),
-			),
-		);
-		static::array_to_xml( $request, $xml_request_body );
-		// SimpleXMLElementオブジェクトを文字列に変換
-		$xml_data = $xml_request_body->asXML();
 		$requests = array_map(
 			function ( $file_id ) use ( $url ) {
 				$xml_request_body = new SimpleXMLElement( '<?xml version="1.0" encoding="UTF-8"?><request></request>' );
@@ -327,6 +315,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 						),
 					),
 				);
+				// SimpleXMLElementオブジェクトを文字列に変換
 				static::array_to_xml( $request, $xml_request_body );
 				$xml_data = $xml_request_body->asXML();
 				return array(
