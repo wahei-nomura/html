@@ -166,6 +166,8 @@ abstract class N2_RMS_Base_API {
 
 		static::set_params( $args );
 		static::set_header();
+		static::set_files();
+
 		static::check_fatal_error( static::connect(), '無効なAPIキーです。更新してください。' );
 
 		static::$data['response'] = static::call();
@@ -288,9 +290,7 @@ abstract class N2_RMS_Base_API {
 	 */
 	protected static function set_files() {
 		setlocale( LC_ALL, 'ja_JP.UTF-8' );
-		static::$data['files'] = $_FILES['cabinet_file'];
-		static::check_fatal_error( static::$data['files']['tmp_name'][0], 'ファイルをセットしてください。' );
-		static::image_compressor();
+		static::$data['files'] = $_FILES['cabinet_file'] ?? null;
 	}
 
 	/**
