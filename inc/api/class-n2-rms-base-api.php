@@ -291,6 +291,7 @@ abstract class N2_RMS_Base_API {
 	protected static function set_files() {
 		setlocale( LC_ALL, 'ja_JP.UTF-8' );
 		static::$data['files'] = $_FILES['cabinet_file'] ?? null;
+		static::image_compressor();
 	}
 
 	/**
@@ -308,6 +309,13 @@ abstract class N2_RMS_Base_API {
 	 * 画像圧縮
 	 */
 	private static function image_compressor() {
+		// ファイルがなければ何もしない
+		if (
+			! isset( static::$data['files']['tmp_name'] ) ||
+			empty( static::$data['files']['tmp_name'] )
+		) {
+			return;
+		}
 		$name     = static::$data['files']['name'];
 		$type     = static::$data['files']['type'];
 		$tmp_name = static::$data['files']['tmp_name'];
