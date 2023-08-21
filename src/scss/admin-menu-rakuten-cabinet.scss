@@ -185,6 +185,12 @@
 			height: 200px;
 			object-fit: contain;
 		}
+		.url-clipboard.active{
+			&:after {
+				transition: .3s;
+				content: 'copied!';
+			}
+		}
 	}
 }
 

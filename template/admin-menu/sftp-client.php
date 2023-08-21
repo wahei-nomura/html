@@ -139,28 +139,35 @@ global $n2;
 			</div>
 		</aside>
 		<main class="border-start border-dark overflow-auto col-9">
-			<nav class="navbar navbar-light bg-light position-sticky top-0 start-0 flex-nowrap align-items-strech">
-				<div class="navbar-brand text-truncate" id="current-direcotry" style="max-width: 150px;">基本フォルダ</div>
-				<div class="navbar-text me-0" id="file-count"></div>
-				<div class="container-fluid">
-					<form>
-						<input type="hidden" name="action" value="n2_rms_cabinet_api_ajax">
-						<input type="hidden" name="n2nonce" value="<?php echo esc_attr( wp_create_nonce( 'n2nonce' ) ); ?>">
-						<input type="hidden" name="mode" value="json">
-						<input type="hidden" name="call" value="">
-						<div>
-							選択した画像を
-							<button id="cabinet-navbar-btn" class="btn btn-warning rounded-pill ps-5 pe-5 pt-1 pb-1" name="file_delete">削除</button>
+			<nav class="navbar navbar-light bg-light position-sticky top-0 start-0 align-items-strech">
+				<div class="navbar-brand" id="current-direcotry">基本フォルダ</div>
+				<div class="navbar-text me-auto" id="file-count"></div>
+				<div class="d-flex ms-auto">
+					<div class="d-flex align-items-center">
+						選択した画像を
+						<div class="btn-group" role="group">
+							<form>
+								<input type="hidden" name="action" value="n2_rms_cabinet_api_ajax">
+								<input type="hidden" name="n2nonce" value="<?php echo esc_attr( wp_create_nonce( 'n2nonce' ) ); ?>">
+								<input type="hidden" name="mode" value="json">
+								<input type="hidden" name="call" value="">
+								<button id="cabinet-navbar-btn" class="btn btn-outline-warning rounded-pill px-4 py-0" name="file_delete">削除</button>
+							</form>
+							<form action="<?php echo esc_url( $n2->ajaxurl ); ?>" method="POST" enctype="multipart/form-data">
+								<input type="hidden" name="action" value="n2_download_multiple_image_by_url">
+								<input type="hidden" name="n2nonce" value="<?php echo esc_attr( wp_create_nonce( 'n2nonce' ) ); ?>">
+								<button id="cabinet-navbar-btn-dl" class="btn btn-outline-secondary rounded-pill px-4 py-0" name="file_download">DL</button>
+							</form>
+							</div>
 						</div>
-					</form>
-					<div>
+					<div class="px-3">
 						<label>
 							<input class="grid-radio view-radio" type="radio" name="view-mode" value="1" hidden checked>
-							<i class="radio-icon bi bi-grid-3x2-gap-fill"></i>
+							<i class="radio-icon bi bi-grid-3x2-gap-fill fs-4" style="transform: translateX(5px);"></i>
 						</label>
 						<label>
 							<input class="list-radio view-radio" type="radio" name="view-mode" value="2" hidden>
-							<i class="radio-icon bi bi-list-task"></i>
+							<i class="radio-icon bi bi-list-task fs-4"></i>
 						</label>
 					</div>
 				</div>
@@ -218,7 +225,7 @@ global $n2;
 							700x700 / 304KB
 						</li>
 						<li class="list-group-item d-flex align-items-center justify-content-between" data-label="画像保存先" data-key="FileUrl">
-							<button type="button" class="url-clipboard btn btn-secondary ms-2">
+							<button type="button" class="url-clipboard btn btn-secondary">
 								<i class="bi bi-clipboard"></i>
 							</button>
 						</li>

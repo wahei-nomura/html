@@ -123,6 +123,27 @@ jQuery(function ($) {
 			});
 	};
 
+	const getSelectedImages = (): JQuery<HTMLImageElement> => {
+		const isGrid = $(".view-radio:checked").hasClass("grid-radio");
+		let $selected_images: JQuery<HTMLImageElement>;
+		switch (isGrid) {
+			case true:
+				$selected_images = $("#ss-cabinet-images")
+					.find('[name="selected"]:checked')
+					.parents(".card")
+					.find("img");
+				break;
+			default:
+				$selected_images = $("#ss-cabinet-lists")
+					.find('[name="selected"]:checked')
+					.parents("tr")
+					.find("td:nth-of-type(2)")
+					.find("img");
+				break;
+		}
+		return $selected_images;
+	};
+
 	// heightを制御
 	const top = $("#ss-cabinet .row").offset().top;
 	$("main:has(#ss-cabinet-images)").css({
@@ -340,28 +361,13 @@ jQuery(function ($) {
 	//　navbar-btn ファイル削除/ゴミ箱から元に戻す
 	$("#cabinet-navbar-btn").on("click", async function (e) {
 		e.preventDefault();
-		const isGrid = $(".view-radio:checked").hasClass("grid-radio");
-		let $selected_images: JQuery<HTMLImageElement>;
-		switch (isGrid) {
-			case true:
-				$selected_images = $("#ss-cabinet-images")
-					.find('[name="selected"]:checked')
-					.parents(".card")
-					.find("img");
-				break;
-			default:
-				$selected_images = $("#ss-cabinet-lists")
-					.find('[name="selected"]:checked')
-					.parents("tr")
-					.find("td:nth-of-type(2)")
-					.find("img");
-				break;
-		}
+
 		const form = $(this).parents("form")[0];
 		$(form).find('[name="call"]').val($(this).attr("name"));
 		const data = new FormData(form);
 
 		// 選択したファイルをFormDataに追加
+		const $selected_images = getSelectedImages();
 		$selected_images.each((i, img) => {
 			data.append(`fileId[${i}]`, $(img).data("file-id"));
 		});
@@ -565,6 +571,68 @@ jQuery(function ($) {
 	);
 	// クリップボードにコピペ
 	$(".url-clipboard").on("click", function () {
+		const $this = $(this);
+		$this
+			.addClass("active")
+			.delay(1000)
+			.queue(() => {
+				$this.removeClass("active").dequeue();
+			});
 		navigator.clipboard.writeText($(this).attr("value"));
+	});
+
+	// 画像DL
+	$("#cabinet-navbar-btn-dl").on("click", async function (e) {
+		e.preventDefault();
+		// 選択したファイルをFormDataに追加
+		const $selected_images = getSelectedImages();
+
+		if( ! $selected_images.length ) {
+			alert('画像が選択されていません')
+			return;
+		}
+
+		const form = $(this).parents("form");
+		const formData = new FormData(form[0]);
+		$selected_images.each((i, img) => {
+			formData.append(`url[${i}][url]`, $(img).data("url").replace('https://image.rakuten.co.jp','https://cabinet.rms.rakuten.co.jp/shops'));
+			formData.append(`url[${i}][fileName]`, $(img).attr("alt"));
+			formData.append(`url[${i}][filePath]`, $(img).data("file-path"));
+			formData.append(`url[${i}][folderName]`, $('.tree .active').text().trim());
+		});
+		const getFormattedDate = ():string => {
+			const now = new Date();
+			const [year, month, day, hours, minutes] = [
+				now.getFullYear(),
+				(now.getMonth() + 1).toString().padStart(2, '0'),
+				now.getDate().toString().padStart(2, '0'),
+				now.getHours().toString().padStart(2, '0'),
+				now.getMinutes().toString().padStart(2, '0'),
+			];
+			return `${year}-${month}-${day}-${hours}-${minutes}`;
+		};
+
+		const zipName = `【${window['n2'].town}】楽天Cabinet_${getFormattedDate()}`;
+		formData.append('zipName',zipName);
+
+		await $.ajax({
+			url: window["n2"].ajaxurl,
+			type: "POST",
+			data: formData,
+			xhrFields: {
+				responseType: 'blob'  // レスポンスタイプとしてblobを指定します。
+			},
+			processData: false,
+			contentType: false,
+		}).then(async (data) => {
+			var url = window.URL.createObjectURL(data);
+			// `<a>`タグを作成し、ダウンロードリンクとして使用します。
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = zipName + '.zip';  // ダウンロードされるファイル名を指定します。
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+		});
 	});
 });
