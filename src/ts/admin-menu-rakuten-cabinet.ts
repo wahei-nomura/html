@@ -639,8 +639,14 @@ jQuery(function ($) {
 		});
 	});
 
-	// ファイル移動
-	$("#cabinet-navbar-btn-move").on('click', async function(e){
+	// ファイル移動(nav-btn)
+	$('#cabinet-navbar-btn-move').on('click',function(){
+		const form = $("#fileMoveModal form");
+		form.find('input[name="currentFolderName"]').attr('value',$('.tree .active').text().trim())
+		form.find('input[name="currentFolderId"]').attr('value',$('.tree .active').data('id'))
+	});
+	// ファイル移動(modal)
+	$("#fileMoveModal button").on('click', async function(e){
 		e.preventDefault();
 
 		// 選択したファイルをFormDataに追加
@@ -649,13 +655,22 @@ jQuery(function ($) {
 			alert('画像が選択されていません')
 			return;
 		}
-
 		const form = $(this).parents("form");
 		const formData = new FormData(form[0]);
+		const targetFolderName = formData.get('targetFolderName')
+		const $target = $('.tree span').filter((index,elem)=> {
+			return $(elem).text().trim() === targetFolderName;
+		});
+		console.log($target.length);
+		if( $target.length !== 1 ) {
+			alert('移動先が不明な値です')
+			return;
+		}
+		formData.set('targetFolderId', $target.data('id'))
+
 		$selected_images.each((i, img) => {
 			formData.append(`fileId[]`, $(img).data("file-id"));
 		});
-		formData.set('currentFolderId',$('.tree .active').data('id'));
 
 		await $.ajax({
 			url: window["n2"].ajaxurl,
