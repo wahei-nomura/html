@@ -238,7 +238,7 @@ class N2 {
 		$this->cash_buster = time();
 
 		// N2稼働状況
-		$this->n2_active_flag = $n2_settings['n2']['active'];
+		$this->n2_active_flag = $n2_settings['n2']['active'] ?? false;
 
 		// サイト基本情報
 

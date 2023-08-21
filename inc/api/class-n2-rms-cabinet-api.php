@@ -229,12 +229,10 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	 */
 	public static function file_insert() {
 		static::check_fatal_error( static::$data['params']['folderId'] ?? false, 'folderIdが設定されていません。' );
-
+		static::check_fatal_error( static::$data['files']['tmp_name'][0], 'ファイルをセットしてください。' );
 		$url = static::$settings['endpoint'] . '/1.0/cabinet/file/insert';
-		static::set_files();
 
 		$requests = array();
-
 		foreach ( static::$data['files']['tmp_name'] as $index => $tmp_name ) {
 			$file_content_type = mime_content_type($tmp_name);
 			$file_name         = static::$data['files']['name'][ $index ];
@@ -296,6 +294,95 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 				'headers'  => static::$data['header'],
 			),
 		);
+	}
+
+	/**
+	 * ファイル移動
+	 * 公式には存在しないのでfile_insertとfile_deleteを組み合わせる
+	 */
+	public static function file_move() {
+
+		//　必須項目を確認
+		static::check_fatal_error( static::$data['params']['currentFolderId'] ?? false, '移動前のfolderIdが設定されていません。' );
+		static::check_fatal_error( static::$data['params']['targetFolderId'] ?? false, '移動先のfolderIdが設定されていません。' );
+		static::check_fatal_error( ! empty( static::$data['params']['fileId'] ?? array() ), 'フォルダ名が設定されていません。' );
+		
+		// 移動前のfloderIdをセット
+		static::$data['params']['folderId'] = static::$data['params']['currentFolderId'];
+		$files = static::files_get();
+		// 必要なfileのみに絞る
+		$files = array_filter(
+			$files,
+			function( $file ) {
+				return in_array( $file['FileId'], static::$data['params']['fileId'] );
+			},
+		);
+		// indexを振り直す
+		$files = array_values( $files );
+
+		// 移動後のfolderIdをセット
+		static::$data['params']['folderId'] = static::$data['params']['targetFolderId'];
+		$requests = array_map(
+			function( $file ){
+				return array(
+					'url' => $file['FileUrl'],
+				);
+			},
+			$files,
+		);
+
+		$response = N2_Multi_URL_Request_API::ajax(
+			array(
+				'requests' => $requests,
+				'call'     => 'request_multiple',
+				'mode'     => 'func',
+			),
+		);
+
+		// 一時ディレクトリ作成
+		$tmp = wp_tempnam( __CLASS__, get_theme_file_path() . '/' );
+		unlink( $tmp );
+		mkdir( $tmp );
+
+		// insertするfileをstatic::$data['file']に設定する
+		foreach ( $response as $index => $res ) {
+			$tmp_file_path = $tmp . '/tempfile_' . wp_generate_uuid4();
+			file_put_contents( $tmp_file_path, $res->body );
+			$file = array_filter(
+				$files,
+				function( $file ) use ( $res ) {
+					return $file['FileUrl'] === $res->url;
+				},
+			);
+			$file = array_values($file)[0];
+
+			static::$data['files']['name'][$index] = $file['FilePath'];
+			static::$data['files']['type'][$index] = $res->headers['content-type'];
+			static::$data['files']['tmp_name'][$index] = $tmp_file_path;
+			static::$data['files']['error'][$index] = 0;
+			static::$data['files']['size'][$index] = filesize( $tmp_file_path );
+		}
+		$insert_response = static::file_insert();
+
+		$insert_error_response = array_filter(
+			$insert_response,
+			function( $res ) {
+				return $res->status_code !== 200;
+			},
+		);
+
+		// 一時ディレクトリを削除
+		exec( "rm -Rf {$tmp}" );
+
+		// 失敗した場合は移動前のファイルを残す
+		static::$data['params']['fileId'] = array_filter(
+			static::$data['params']['fileId'],
+			function ( $key ) use ( $insert_error_response ) {
+				return ! in_array( $key, array_keys( $insert_error_response ) );
+			},
+			ARRAY_FILTER_USE_KEY
+		);
+		return static::file_delete();
 	}
 
 	/**

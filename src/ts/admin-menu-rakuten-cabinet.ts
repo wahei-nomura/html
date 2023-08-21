@@ -638,4 +638,54 @@ jQuery(function ($) {
 			document.body.removeChild(a);
 		});
 	});
+
+	// ファイル移動
+	$("#cabinet-navbar-btn-move").on('click', async function(e){
+		e.preventDefault();
+
+		// 選択したファイルをFormDataに追加
+		const $selected_images = getSelectedImages();
+		if( ! $selected_images.length ) {
+			alert('画像が選択されていません')
+			return;
+		}
+
+		const form = $(this).parents("form");
+		const formData = new FormData(form[0]);
+		$selected_images.each((i, img) => {
+			formData.append(`fileId[]`, $(img).data("file-id"));
+		});
+		formData.set('currentFolderId',$('.tree .active').data('id'));
+
+		await $.ajax({
+			url: window["n2"].ajaxurl,
+			type: "POST",
+			data: formData,
+			processData: false,
+			contentType: false,
+		}).then((response) => {
+			let count = 0;
+			Object.values(response).forEach((res: any) => {
+				if (!res.success) {
+					const xmlDoc = $.parseXML(res.body);
+					const message = $(xmlDoc).find("message").text();
+					alert(message);
+				} else {
+					++count;
+				}
+			});
+			const alertMessage = [
+				count + "件の処理が完了しました。",
+				"画像の登録、更新、削除後の情報が反映されるまでの時間は最短10秒です。",
+			];
+			alert(alertMessage.join("\n"));
+		})
+		.then(() => {
+			if ($(".tree .active").length) {
+				$(".tree .active").trigger("click");
+			} else if ($("#show-trashbox").hasClass("active")) {
+				$("#show-trashbox").trigger("click");
+			}
+		});
+	})
 });

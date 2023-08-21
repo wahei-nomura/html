@@ -146,6 +146,15 @@ global $n2;
 					<div class="d-flex align-items-center">
 						選択した画像を
 						<div class="btn-group" role="group">
+							<form action="<?php echo esc_url( $n2->ajaxurl ); ?>" method="POST" enctype="multipart/form-data">
+								<input type="hidden" name="action" value="n2_rms_cabinet_api_ajax">
+								<input type="hidden" name="n2nonce" value="<?php echo esc_attr( wp_create_nonce( 'n2nonce' ) ); ?>">
+								<input type="hidden" name="mode" value="json">
+								<input type="hidden" name="call" value="file_move">
+								<input type="hidden" name="currentFolderId" value="">
+								<input type="hidden" name="targetFolderId" value="9982302">
+								<button id="cabinet-navbar-btn-move" class="btn btn-outline-secondary rounded-pill px-4 py-0" name="file_move">移動</button>
+							</form>
 							<form>
 								<input type="hidden" name="action" value="n2_rms_cabinet_api_ajax">
 								<input type="hidden" name="n2nonce" value="<?php echo esc_attr( wp_create_nonce( 'n2nonce' ) ); ?>">
@@ -269,7 +278,7 @@ global $n2;
 							<input type="hidden" name="upperFolderId" value="">
 						</div>
 						<div>
-							<h3>新規作成</h3>
+							<h4>新規作成</h4>
 						</div>
 						<div class="input-group pb-2">
 							<span class="input-group-text">フォルダ名</span>
