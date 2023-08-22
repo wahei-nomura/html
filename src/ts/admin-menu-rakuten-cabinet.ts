@@ -189,7 +189,7 @@ jQuery(function ($) {
 	$tree.find("li > span").eq(0).trigger("click");
 
 	// モーダル制御
-	$(document).on("click", ".cabinet-img", function () {
+	$(document).on("click", ".cabinet-img, #right-aside-list-img", function () {
 		$("#CabinetModalImage").attr({
 			src: $(this).data("url"),
 		});
@@ -551,7 +551,7 @@ jQuery(function ($) {
 			$("#right-aside-list-img").attr({
 				src: $img.attr("src").split("_ex")[0] + "_ex=200x200",
 				alt: $img.attr("alt"),
-			});
+			}).data('url',$img.data("url"));
 
 			const $active = $(
 				"#ss-cabinet-images .card, #ss-cabinet-lists tbody tr"
