@@ -101,10 +101,10 @@ $cabinet_usage = N2_RMS_Cabinet_API::ajax(
 	),
 )->cabinetUsageGetResult;
 
-$cabinet_max_space = round( floatval($cabinet_usage->MaxSpace) / 1000, 1 );
-$cabinet_avail_space = round( floatval($cabinet_usage->AvailSpace) / 1000 / 1000, 1 );
+$cabinet_max_space   = round( floatval( $cabinet_usage->MaxSpace ) / 1000, 1 );
+$cabinet_avail_space = round( floatval( $cabinet_usage->AvailSpace ) / 1000 / 1000, 1 );
 
-$use_sapace_rate =  ( 1 - $cabinet_avail_space / $cabinet_max_space ) * 100;
+$use_sapace_rate = ( 1 - $cabinet_avail_space / $cabinet_max_space ) * 100;
 
 global $n2;
 
@@ -312,7 +312,7 @@ global $n2;
 							<input type="hidden" name="targetFolderId" value="">
 							<datalist id='folders' >
 								<?php foreach ( $folders as $folder ) : ?>
-									<option value="<?php echo $folder['FolderName'];?>"></option>
+									<option value="<?php echo $folder['FolderName']; ?>"></option>
 								<?php endforeach; ?>
 							</datalist>
 							<input type="text" name="targetFolderName" list="folders">

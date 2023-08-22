@@ -113,7 +113,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 		$limit    = 100;
 
 		$requests = array_map(
-			function ( $keyword ) use ( $limit )  {
+			function ( $keyword ) use ( $limit ) {
 				$params = array(
 					'fileName' => $keyword,
 					'limit'    => $limit,
@@ -133,14 +133,14 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 				'headers'  => static::$data['header'],
 			),
 		);
-		
+
 		foreach ( $response as $res ) {
-			$keyword       = urldecode($res->headers->getValues( 'filename' )[0]);
-			$search_result = simplexml_load_string( $res->body )->cabinetFilesSearchResult;
-			$res_files     = $search_result->files;
+			$keyword        = urldecode( $res->headers->getValues( 'filename' )[0] );
+			$search_result  = simplexml_load_string( $res->body )->cabinetFilesSearchResult;
+			$res_files      = $search_result->files;
 			$file_all_count = $search_result->fileAllCount;
-			$file_count    = (int) $search_result->fileCount->__toString();
-			$res_files     = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
+			$file_count     = (int) $search_result->fileCount->__toString();
+			$res_files      = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
 
 			$files[ $keyword ] = match ( $file_count > 1 ) {
 				true => $res_files,
@@ -173,14 +173,14 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 					'headers'  => static::$data['header'],
 				),
 			);
-			
-			foreach ($additional_response as $additional_res ) {
-				$search_result = simplexml_load_string( $additional_res->body )->cabinetFilesSearchResult;
-				$res_files     = $search_result->files;
-				$file_count    = (int) $search_result->fileCount->__toString();
-				$res_files     = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
+
+			foreach ( $additional_response as $additional_res ) {
+				$search_result     = simplexml_load_string( $additional_res->body )->cabinetFilesSearchResult;
+				$res_files         = $search_result->files;
+				$file_count        = (int) $search_result->fileCount->__toString();
+				$res_files         = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
 				$files[ $keyword ] = match ( $file_count > 1 ) {
-					true => array( ...$files[ $keyword ], ...$res_files),
+					true => array( ...$files[ $keyword ], ...$res_files ),
 					default => array( ...$files[ $keyword ], array( $res_files ) ),
 				};
 			}
@@ -234,7 +234,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 
 		$requests = array();
 		foreach ( static::$data['files']['tmp_name'] as $index => $tmp_name ) {
-			$file_content_type = mime_content_type($tmp_name);
+			$file_content_type = mime_content_type( $tmp_name );
 			$file_name         = static::$data['files']['name'][ $index ];
 			$request           = array(
 				'url'     => $url,
@@ -253,7 +253,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 				'fileInsertRequest' => array(
 					'file' => array(
 						'filePath'  => $file_name,
-						'fileName'  => preg_replace('/\.[^.]+$/', '', $file_name ),
+						'fileName'  => preg_replace( '/\.[^.]+$/', '', $file_name ),
 						'folderId'  => static::$data['params']['folderId'],
 						'overWrite' => 'true',
 					),
@@ -302,14 +302,14 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	 */
 	public static function files_move() {
 
-		//　必須項目を確認
+		// 　必須項目を確認
 		static::check_fatal_error( static::$data['params']['currentFolderId'] ?? false, '移動前のfolderIdが設定されていません。' );
 		static::check_fatal_error( static::$data['params']['targetFolderId'] ?? false, '移動先のfolderIdが設定されていません。' );
 		static::check_fatal_error( ! empty( static::$data['params']['fileId'] ?? array() ), 'フォルダ名が設定されていません。' );
-		
+
 		// 移動前のfloderIdをセット
 		static::$data['params']['folderId'] = static::$data['params']['currentFolderId'];
-		$files = static::files_get();
+		$files                              = static::files_get();
 		// 必要なfileのみに絞る
 		$files = array_filter(
 			$files,
@@ -328,10 +328,10 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 		unlink( $tmp );
 		mkdir( $tmp );
 
-		$requests = array_map(
+		$requests  = array_map(
 			function( $file ) use ( $tmp ) {
 				return array(
-					'url' => $file['FileUrl'],
+					'url'     => $file['FileUrl'],
 					'options' => array(
 						'filename' => $tmp . '/' . basename( $file['FileUrl'] ),
 					),
@@ -355,15 +355,15 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			if ( ! is_a( $response, 'WpOrg\Requests\Response' ) || $response->status_code !== 200 ) {
 				continue;
 			}
-			$filename = $requests[ $index ]['options']['filename'];
-			static::$data['files']['name'][$index] = basename( $filename );
-			static::$data['files']['type'][$index] = mime_content_type( $filename );
-			static::$data['files']['tmp_name'][$index] = $filename;
-			static::$data['files']['error'][$index] = 0;
-			static::$data['files']['size'][$index] = filesize( $filename );
+			$filename                                    = $requests[ $index ]['options']['filename'];
+			static::$data['files']['name'][ $index ]     = basename( $filename );
+			static::$data['files']['type'][ $index ]     = mime_content_type( $filename );
+			static::$data['files']['tmp_name'][ $index ] = $filename;
+			static::$data['files']['error'][ $index ]    = 0;
+			static::$data['files']['size'][ $index ]     = filesize( $filename );
 		}
 
-		$insert_response = static::file_insert();
+		$insert_response       = static::file_insert();
 		$insert_error_response = array_filter(
 			$insert_response,
 			function( $res ) {
@@ -391,7 +391,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	public static function file_delete() {
 		static::check_fatal_error( ! empty( static::$data['params']['fileId'] ?? array() ), 'ファイルIdが設定されていません。' );
 
-		$url              = static::$settings['endpoint'] . '/1.0/cabinet/file/delete';
+		$url      = static::$settings['endpoint'] . '/1.0/cabinet/file/delete';
 		$requests = array_map(
 			function ( $file_id ) use ( $url ) {
 				$xml_request_body = new SimpleXMLElement( '<?xml version="1.0" encoding="UTF-8"?><request></request>' );

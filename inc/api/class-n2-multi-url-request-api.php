@@ -30,9 +30,9 @@ class N2_Multi_URL_Request_API {
 	 */
 	protected static $data = array(
 		'params'   => array(),
-		'headers'   => array(),
+		'headers'  => array(),
 		'response' => array(),
-		'options' => array(),
+		'options'  => array(),
 		'error'    => array(),
 	);
 
@@ -68,7 +68,7 @@ class N2_Multi_URL_Request_API {
 
 	/**
 	 * options配列の作成
-	 * 
+	 *
 	 * @param array|void $arg_options options
 	 */
 	private static function set_options( $arg_options ) {
@@ -95,7 +95,7 @@ class N2_Multi_URL_Request_API {
 	/**
 	 * 各パラメータ配列の作成
 	 * $args > $_GET > $_POST > $default
-	 * 
+	 *
 	 * @param array|void $args args
 	 */
 	private static function set_params( $args ) {
@@ -109,9 +109,9 @@ class N2_Multi_URL_Request_API {
 			$params = wp_parse_args( $params, $_POST );
 		}
 		$default = array(
-			'mode'    => 'func',
-			'action'  => false,
-			'call' => 'request_multiple',
+			'mode'   => 'func',
+			'action' => false,
+			'call'   => 'request_multiple',
 		);
 		// デフォルト値を$paramsで上書き
 		$params = wp_parse_args( $params, $default );
