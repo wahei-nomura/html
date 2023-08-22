@@ -31,13 +31,15 @@ global $n2;
 				<th>返礼品名</th>
 				<td>{{item.タイトル}}</td>
 			</tr>
-			<tr v-for="name in custom_field" v-if="item[name]">
-				<th style="text-align: left;">{{name}}</th>
-				<td style="text-align: left;">
-					<div v-if="Array.isArray(item[name])">{{item[name].join(', ')}}</div>
-					<div v-else v-html="item[name].replace(/\r\n|\r|\n/g,'<br>')"></div>
-				</td>
-			</tr>
+			<template v-for="name in custom_field">
+				<tr v-if="item[name]">
+					<th style="text-align: left;">{{name}}</th>
+					<td style="text-align: left;">
+						<div v-if="Array.isArray(item[name])">{{item[name].join(', ')}}</div>
+						<div v-else v-html="item[name].replace(/\r\n|\r|\n/g,'<br>')"></div>
+					</td>
+				</tr>
+			</template>
 		</table>
 		<div v-if="(item.商品画像 || []).length" id="n2-admin-post-list-tool-content-imgs">
 			<img :src="img.sizes.thumbnail.url || img.sizes.thumbnail" v-for="img in item.商品画像" >
