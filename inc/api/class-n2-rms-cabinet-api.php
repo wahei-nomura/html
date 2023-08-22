@@ -252,7 +252,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			$xml_array        = array(
 				'fileInsertRequest' => array(
 					'file' => array(
-						'filePath'  => $file_name,
+						'filePath'  => preg_replace( '/\.[^.]+$/', '.jpg', $file_name ),
 						'fileName'  => preg_replace( '/\.[^.]+$/', '', $file_name ),
 						'folderId'  => static::$data['params']['folderId'],
 						'overWrite' => 'true',
