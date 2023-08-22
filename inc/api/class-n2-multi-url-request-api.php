@@ -56,12 +56,38 @@ class N2_Multi_URL_Request_API {
 			...$arg_header,
 		);
 		/**
-		 * [hook] n2_multi_url_request_api_set_header
+		 * [hook] n2_multi_url_request_api_set_headers
 		 */
 		static::$data['headers'] = apply_filters( mb_strtolower( get_called_class() ) . '_set_headers', $headers );
 
 		foreach ( static::$data['params']['requests'] ?? array() as $index => $request ) {
 			static::$data['params']['requests'][ $index ]['headers'] = array( ...static::$data['headers'], ...$request['headers'] ?? array() );
+		}
+	}
+
+	/**
+	 * options配列の作成
+	 * 
+	 * @param array|void $arg_options options
+	 */
+	private static function set_options( $arg_options ) {
+		$default = array(
+			'timeout' => 60,
+		);
+		/**
+		 * [hook] n2_multi_url_request_api_set_options
+		 */
+		$options = apply_filters( mb_strtolower( get_called_class() ) . '_set_options', $default );
+
+		// 共通ならそのまま
+		if ( empty( $arg_options ) ) {
+			static::$data['options'] = $options;
+			return;
+		}
+
+		// request毎にoptionを設定
+		foreach ( static::$data['params']['requests'] ?? array() as $index => $request ) {
+			static::$data['params']['requests'][ $index ]['options'] = array( ...$options, ...$arg_options['options'][ $index ] ?? array() );
 		}
 	}
 
@@ -151,6 +177,7 @@ class N2_Multi_URL_Request_API {
 
 		static::set_params( $args );
 		static::set_headers( $args['headers'] ?? array() );
+		static::set_options( $args['options'] ?? array() );
 
 		static::$data['response'] = static::call();
 
@@ -168,7 +195,7 @@ class N2_Multi_URL_Request_API {
 	 */
 	public static function request_multiple() {
 		static::check_fatal_error( static::$data['params']['requests'] ?? array(), 'リクエストが未設定です' );
-		return Requests::request_multiple( static::$data['params']['requests'], array( 'timeout' => 60 ) );
+		return Requests::request_multiple( static::$data['params']['requests'], static::$data['options'] );
 	}
 
 	/**

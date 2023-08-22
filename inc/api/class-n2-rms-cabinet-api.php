@@ -300,7 +300,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	 * ファイル移動
 	 * 公式には存在しないのでfile_insertとfile_deleteを組み合わせる
 	 */
-	public static function file_move() {
+	public static function files_move() {
 
 		//　必須項目を確認
 		static::check_fatal_error( static::$data['params']['currentFolderId'] ?? false, '移動前のfolderIdが設定されていません。' );
@@ -322,16 +322,24 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 
 		// 移動後のfolderIdをセット
 		static::$data['params']['folderId'] = static::$data['params']['targetFolderId'];
+
+		// 一時ディレクトリ作成
+		$tmp = wp_tempnam( __CLASS__, get_theme_file_path() . '/' );
+		unlink( $tmp );
+		mkdir( $tmp );
+
 		$requests = array_map(
-			function( $file ){
+			function( $file ) use ( $tmp ) {
 				return array(
 					'url' => $file['FileUrl'],
+					'options' => array(
+						'filename' => $tmp . '/' . basename( $file['FileUrl'] ),
+					),
 				);
 			},
 			$files,
 		);
-
-		$response = N2_Multi_URL_Request_API::ajax(
+		$responses = N2_Multi_URL_Request_API::ajax(
 			array(
 				'requests' => $requests,
 				'call'     => 'request_multiple',
@@ -339,31 +347,24 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			),
 		);
 
-		// 一時ディレクトリ作成
-		$tmp = wp_tempnam( __CLASS__, get_theme_file_path() . '/' );
-		unlink( $tmp );
-		mkdir( $tmp );
+		// 初期化
+		static::$data['files'] = array();
 
 		// insertするfileをstatic::$data['file']に設定する
-		foreach ( $response as $index => $res ) {
-			$tmp_file_path = $tmp . '/tempfile_' . wp_generate_uuid4();
-			file_put_contents( $tmp_file_path, $res->body );
-			$file = array_filter(
-				$files,
-				function( $file ) use ( $res ) {
-					return $file['FileUrl'] === $res->url;
-				},
-			);
-			$file = array_values($file)[0];
-
-			static::$data['files']['name'][$index] = $file['FilePath'];
-			static::$data['files']['type'][$index] = $res->headers['content-type'];
-			static::$data['files']['tmp_name'][$index] = $tmp_file_path;
+		foreach ( $responses as $index => $response ) {
+			$url = $requests[ $index ]['url'];
+			if ( ! is_a( $response, 'WpOrg\Requests\Response' ) || $response->status_code !== 200 ) {
+				continue;
+			}
+			$filename = $requests[ $index ]['options']['filename'];
+			static::$data['files']['name'][$index] = basename( $filename );
+			static::$data['files']['type'][$index] = mime_content_type( $filename );
+			static::$data['files']['tmp_name'][$index] = $filename;
 			static::$data['files']['error'][$index] = 0;
-			static::$data['files']['size'][$index] = filesize( $tmp_file_path );
+			static::$data['files']['size'][$index] = filesize( $filename );
 		}
-		$insert_response = static::file_insert();
 
+		$insert_response = static::file_insert();
 		$insert_error_response = array_filter(
 			$insert_response,
 			function( $res ) {

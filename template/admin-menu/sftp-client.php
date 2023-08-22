@@ -146,7 +146,7 @@ global $n2;
 					<div class="d-flex align-items-center">
 						選択した画像を
 						<div class="btn-group" role="group">
-							<button id="cabinet-navbar-btn-move" class="btn btn-outline-secondary rounded-pill px-4 py-0" type="button" name="file_move" data-bs-toggle="modal" data-bs-target="#fileMoveModal">移動</button>
+							<button id="cabinet-navbar-btn-move" class="btn btn-outline-secondary rounded-pill px-4 py-0" type="button" name="files_move" data-bs-toggle="modal" data-bs-target="#filesMoveModal">移動</button>
 							<form>
 								<input type="hidden" name="action" value="n2_rms_cabinet_api_ajax">
 								<input type="hidden" name="n2nonce" value="<?php echo esc_attr( wp_create_nonce( 'n2nonce' ) ); ?>">
@@ -288,7 +288,7 @@ global $n2;
 			</div>
 		</div>
 	</div>
-	<div class="modal fade" id="fileMoveModal" tabindex="-1" aria-labelledby="fileMoveModalLabel" aria-hidden="true">
+	<div class="modal fade" id="filesMoveModal" tabindex="-1" aria-labelledby="filesMoveModalLabel" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered">
 			<div class="modal-content">
 				<div class="modal-body">
@@ -297,7 +297,7 @@ global $n2;
 							<input type="hidden" name="action" value="n2_rms_cabinet_api_ajax">
 							<input type="hidden" name="n2nonce" value="<?php echo esc_attr( wp_create_nonce( 'n2nonce' ) ); ?>">
 							<input type="hidden" name="mode" value="json">
-							<input type="hidden" name="call" value="file_move">
+							<input type="hidden" name="call" value="files_move">
 						</div>
 						<div>
 							<h4>フォルダ移動</h4>
