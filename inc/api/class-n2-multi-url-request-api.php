@@ -32,6 +32,7 @@ class N2_Multi_URL_Request_API {
 		'params'   => array(),
 		'headers'   => array(),
 		'response' => array(),
+		'options' => array(),
 		'error'    => array(),
 	);
 
