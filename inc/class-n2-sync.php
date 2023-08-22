@@ -439,7 +439,7 @@ class N2_Sync {
 
 			// 返礼品情報を生成
 			$postarr = array(
-				'post_status'       => $v['post_status'],
+				'post_status'       => 'publish' === $v['post_status'] ? 'registered' : $v['post_status'],
 				'post_date'         => $v['post_date'],
 				'post_date_gmt'     => $v['post_date_gmt'],
 				'post_modified'     => $v['post_modified'],
@@ -723,7 +723,7 @@ class N2_Sync {
 					$role = array(
 						'administrator' => match ( 1 ) {
 							preg_match( '/市役所$/', $v['data']['first_name'] ) => 'local-government',
-							default => 'ss-crew',
+						default => 'ss-crew',
 						},
 						'contributor'   => 'jigyousya',
 					);
