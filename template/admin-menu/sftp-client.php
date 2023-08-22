@@ -124,7 +124,7 @@ global $n2;
 	</div>
 	<div class="row row-cols-1 row-cols-md-2  border-top border-dark">
 		<aside class='cabinet-aside overflow-auto col-3'>
-			<nav class="d-flex justify-content-around">
+			<nav class="d-flex justify-content-around pt-3">
 				<button class="btn btn-outline-secondary btn-sm" type="button" name="folder_insert" data-bs-toggle="modal" data-bs-target="#folderInsertModal">新規作成</button>
 				<form>
 					<input type="hidden" name="action" value="n2_rms_cabinet_api_ajax">
