@@ -325,4 +325,7 @@ global $n2;
 			</div>
 		</div>
 	</div>
+	<div class="d-none position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center" id="loadingModal" style="display:none;">
+		<span class="spinner-grow text-primary" role="status"></span>
+	</div>
 </div>

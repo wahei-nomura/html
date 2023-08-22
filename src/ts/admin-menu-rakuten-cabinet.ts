@@ -209,7 +209,6 @@ jQuery(function ($) {
 		// ドラッグ＆ドロップエリアにファイルがドロップされたときのイベントを追加
 		$(document).on("drop", ".dragable-area", function (e) {
 			e.preventDefault();
-			$(this).removeClass("dragover");
 
 			// ドロップされたファイルを取得
 			const files = e.originalEvent.dataTransfer.files;
@@ -241,6 +240,7 @@ jQuery(function ($) {
 						"件アップロードが完了しました。",
 					"画像の登録、更新、削除後の情報が反映されるまでの時間は最短10秒です。",
 				];
+				$(this).removeClass("dragover")
 				alert(alertMessage.join("\n"));
 				await initCardGroup(
 					$("#ss-cabinet-images"),
@@ -252,6 +252,7 @@ jQuery(function ($) {
 
 	// フォルダ新規作成
 	$("#folderInsertModal button").on("click", async function (e) {
+		$("#loadingModal").removeClass('d-none');
 		e.preventDefault();
 		const form = $("#folderInsertModal").find("form")[0];
 		$(form)
@@ -296,6 +297,7 @@ jQuery(function ($) {
 		} else {
 			alert(res.status.message);
 		}
+		$("#loadingModal").addClass('d-none');
 	});
 
 	// ゴミ箱内のファイルを表示

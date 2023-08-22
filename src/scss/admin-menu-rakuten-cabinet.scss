@@ -192,6 +192,14 @@
 			}
 		}
 	}
+	#loadingModal {
+		background: #0008;
+		z-index: 99999;
+		span {
+			width: 50px;
+			height: 50px;
+		}
+	}
 }
 
 @keyframes loading {
