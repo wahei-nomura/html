@@ -32,7 +32,7 @@ class N2_Output_Gift_API {
 		// 自治体コードを取得
 		$site_id = $n2->site_id;
 		// N2稼働中か判定するフラグを取得
-		$n2_active_flag = $n2->n2_active_flag;
+		$n2_active_flag = $n2->settings['N2']['稼働中'];
 
 		// N2が稼働していない or そもそも稼働状態が登録されていなかったらJSONでfalseを返す
 		if ( ! $n2_active_flag ) {
@@ -187,7 +187,7 @@ class N2_Output_Gift_API {
 		// 自治体コードを取得
 		$site_id = $n2->site_id;
 		// N2稼働中か判定するフラグを取得
-		$n2_active_flag = $n2->n2_active_flag;
+		$n2_active_flag = $n2->settings['N2']['稼働中'];
 
 		// N2が稼働していない or そもそも稼働状態が登録されていなかったらJSONでfalseを返す
 		if ( ! $n2_active_flag ) {

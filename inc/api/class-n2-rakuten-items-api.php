@@ -70,6 +70,12 @@ class N2_Rakuten_Items_API {
 	 * APIデータのアップデート
 	 */
 	public function update() {
+		// すでに本日分がアップデートされていたら中止
+		$data = get_option( $this->option_name );
+		if ( $data['update'] > wp_date( 'Y-m-d' ) ) {
+			echo '既に本日分をアップデート済のため処理を中止します。';
+			exit;
+		}
 		$before = microtime( true );
 		$header = $this->set_api_keys();
 		// 店舗URL取得

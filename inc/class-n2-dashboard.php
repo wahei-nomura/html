@@ -85,8 +85,7 @@ class N2_Dashboard {
 			$donation_amount = ! empty( $post_data['寄附金額'] ) && 0 !== $post_data['寄附金額'] ? number_format( $post_data['寄附金額'] ) : '-';
 			$code            = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '未(id:' . $post->ID . ')';
 			$return_rate     = N2_Donation_Amount_API::calc_return_rate( $post_data ); // 返礼率計算
-			$rr_threshold    = N2_Donation_Amount_API::calc_return_rate( $post_data, true ); // 返礼率がしきい値(0.3 or 0.35)を超えてるかチェック
-			if ( $rr_threshold ) {
+			if ( $return_rate > 30 ) {
 				$return_rate_list_text .= '<li style="border-bottom:1px solid #ccc;padding:5px 0;"><a href="' . $post_edit_url . '" style="display:flex;"><span style="display:inline-block; width:60px;flex-shrink: 0;text-align:center;">' . $return_rate . '</span><span style="display:inline-block; width:100px;flex-shrink: 0;text-align:center;">' . $code . '</span><span style="display:inline-block;">' . get_the_title() . '</span></a></li>';
 			}
 		}

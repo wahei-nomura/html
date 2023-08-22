@@ -35,7 +35,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 	 */
 	protected function set_header() {
 		global $n2;
-		$auth = $n2->portal_setting['ふるさとチョイス']['tsv_header'];
+		$auth = $n2->settings['ふるさとチョイス']['tsv_header'];
 		$args = array(
 			'headers' => array(
 				'Authorization' => 'Basic ' . base64_encode( "{$auth['user']}:{$auth['pass']}" ),
@@ -63,29 +63,65 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 	 */
 	protected function walk_values( &$val, $index, $n2values ) {
 		global $n2;
+		$choice_settings = $n2->settings['ふるさとチョイス'];
 
+		// 注意書き
+		{
+			$warning = array();
+			// やきものの対応機器
+			if ( in_array( 'やきもの', $n2values['商品タイプ'], true ) ) {
+				$warning['やきもの対応機器'] = array( '電子レンジ対応', 'オーブン対応', '食洗機対応' );
+				foreach ( $warning['やきもの対応機器'] as $key => $value ) {
+					$warning['やきもの対応機器'][ $key ] = $value . $n2values[ $value ];
+				}
+				$warning['やきもの対応機器']  = implode( ' / ', $warning['やきもの対応機器'] );
+				$warning['やきもの対応機器'] .= "\n{$n2values['対応機器備考']}";
+			}
+			// 商品タイプごとの注意書きを追加
+			foreach ( array_filter( $n2values['商品タイプ'] ) as $type ) {
+				$warning[ $type ] = wp_strip_all_tags( $n2->settings['注意書き'][ $type ] ?? '' );
+			}
+			$warning['共通'] = wp_strip_all_tags( $n2->settings['注意書き']['共通'] );
+			// 浄化
+			$warning = array_filter( array_values( $warning ) );
+		}
 		// 説明文
-		$n2values['説明文'] .= $n2->portal_common_description ? "\n\n{$n2->portal_common_description}" : '';
-		$n2values['説明文'] .= $n2values['検索キーワード'] ? "\n\n{$n2values['検索キーワード']}" : '';
+		{
+			$n2values['説明文'] = array(
+				$n2values['説明文'],
+				$n2values['検索キーワード'] ?? '',
+			);
+			// 空要素削除して連結
+			$n2values['説明文'] = implode( "\n\n", array_filter( $n2values['説明文'] ) );
+		}
 
-		// 内容量
-		$n2values['内容量・規格等'] = array(
-			$n2values['内容量・規格等'],
-			$n2values['原料原産地'] ? "【原料原産地】\n{$n2values['原料原産地']}" : '',
-			$n2values['加工地'] ? "【加工地】\n{$n2values['加工地']}" : '',
-		);// implode用の配列作成
-		$n2values['内容量・規格等'] = implode( "\n\n", array_filter( $n2values['内容量・規格等'] ) );// 空要素削除して連結
+		// 内容量・規格等
+		{
+			$n2values['内容量・規格等'] = array(
+				$n2values['内容量・規格等'],
+				$n2values['原料原産地'] ? "【原料原産地】\n{$n2values['原料原産地']}" : '',
+				$n2values['加工地'] ? "【加工地】\n{$n2values['加工地']}" : '',
+				...$warning,
+			);
+			// 空要素削除して連結
+			$n2values['内容量・規格等'] = implode( "\n\n", array_filter( $n2values['内容量・規格等'] ) );
+		}
 
 		// アレルゲン
-		$n2values['アレルゲン'] = (array) $n2values['アレルゲン'];
-		$n2values['アレルゲン'] = preg_replace( '/（.*?）/', '', $n2values['アレルゲン'] );// 不純物（カッコの部分）を削除
+		{
+			$n2values['アレルゲン'] = (array) $n2values['アレルゲン'];
+			$n2values['アレルゲン'] = preg_replace( '/（.*?）/', '', $n2values['アレルゲン'] );// 不純物（カッコの部分）を削除
+		}
 
 		// 賞味期限・消費期限
-		$n2values['消費期限'] = array(
-			$n2values['賞味期限'] ? "【賞味期限】\n{$n2values['賞味期限']}" : '',
-			$n2values['消費期限'],
-		);// implode用の配列作成
-		$n2values['消費期限'] = implode( "\n\n【消費期限】\n", array_filter( $n2values['消費期限'] ) );// 空要素削除して連結
+		{
+			$n2values['消費期限'] = array(
+				$n2values['賞味期限'] ? "【賞味期限】\n{$n2values['賞味期限']}" : '',
+				$n2values['消費期限'],
+			);
+			// 空要素削除して連結
+			$n2values['消費期限'] = implode( "\n\n【消費期限】\n", array_filter( $n2values['消費期限'] ) );
+		};
 
 		// preg_matchで判定
 		$data = match ( 1 ) {
@@ -93,6 +129,10 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 			preg_match( '/^（必須）お礼の品名$/', $val ) => "{$n2values['タイトル']} [{$n2values['返礼品コード']}]",// * 200文字以内
 			preg_match( '/^サイト表示事業者名$/', $val )  => $this->get_author_name( $n2values ),// 64文字以内
 			preg_match( '/必要寄付金額$/', $val )  => $n2values['寄附金額'],// * 半角数字
+			preg_match( '/（条件付き必須）ポイント$/', $val ) => match ( $choice_settings['ポイント導入'] ?? false ) {
+				'導入する' => $n2values['価格'] * $n2values['定期便'],// 必要ポイントを半角数字で入力してください。
+				default => '',
+			},
 			preg_match( '/^説明$/', $val )  => $n2values['説明文'],// 1,000文字以内
 			preg_match( '/^キャッチコピー$/', $val )  => $n2values['キャッチコピー'],// 40文字以内
 			preg_match( '/^容量$/', $val )  => $n2values['内容量・規格等'],// お礼の品の容量情報を1,000文字以内で入力
@@ -107,7 +147,8 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 			preg_match( '/^（必須）.+?配送$/', $val ) => false !== strpos( $val, $n2values['発送方法'] ) ? 1 : 0,// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
 			preg_match( '/^（必須）((包装|のし)対応)$/', $val, $m ) => false !== strpos( '有り', $n2values[ $m[1] ] ) ? 1 : 0,// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
 			preg_match( '/^（必須）定期配送対応$/', $val ) => $n2values['定期便'] > 1 ? 1 : 0,// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
-			preg_match( '/^（必須）.+?限定$/', $val ) => 0,// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
+			preg_match( '/^（必須）(会員|チョイス)限定$/', $val ) => 0,// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
+			preg_match( '/^（必須）オンライン決済限定$/', $val ) => (int) in_array( '限定', $n2values['オンライン決済限定'] ?? array(), true ),// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
 			preg_match( '/^（必須）(発送|配達|配送).+$/', $val ) => 0,// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
 			preg_match( '/^（必須）容量単位$/', $val ) => 0,// * グラムは半角数字の0、キログラムは半角数字の1、ミリリットルは半角数字の2、リットルは半角数字の3
 			preg_match( '/^（必須）地域の生産者応援の品/', $val ) => 0,// * 適用する場合は半角数字の1、適用しない場合は半角数字の0

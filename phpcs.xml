@@ -52,6 +52,7 @@
 		<exclude name="WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet" />
 		<exclude name="WordPress.WP.EnqueuedResources.NonEnqueuedScript" />
 		<exclude name="WordPress.Security.NonceVerification.Recommended" />
+		<exclude name="WordPress.DB.PreparedSQL.NotPrepared" />
 
 		<!-- コメント系 -->
 		<exclude name="Generic.Commenting.DocComment.ShortNotCapital" />

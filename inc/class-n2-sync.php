@@ -69,21 +69,60 @@ class N2_Sync {
 		add_action( 'wp_ajax_n2_sync_users_from_n1', array( $this, 'sync_users' ) );
 		add_action( 'wp_ajax_n2_sync_users_from_spreadsheet', array( $this, 'sync_users' ) );
 		add_action( 'wp_ajax_n2_sync_posts', array( $this, 'sync_posts' ) );
+		add_action( 'wp_ajax_nopriv_n2_sync_posts', array( $this, 'sync_posts' ) );
 		add_action( 'wp_ajax_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
 		add_action( 'wp_ajax_n2_sync_posts_from_spreadsheet', array( $this, 'sync_posts_from_spreadsheet' ) );
 		add_action( 'wp_ajax_n2_insert_posts', array( $this, 'insert_posts' ) );
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
+		add_action( 'init', array( $this, 'cron' ) );
+	}
+
+	/**
+	 * クーロン
+	 */
+	public function cron() {
+		global $n2;
+		$default  = array(
+			'auto_sync_users' => 1,
+			'auto_sync_posts' => 1,
+		);
+		$settings = get_option( 'n2_sync_settings_n1', $default );
+		// N2稼働中はN1同期不要
+		if ( $n2->settings['N2']['稼働中'] ) {
+			$settings = array_map( fn( $v ) => 0 * $v, $settings );
+		}
+		add_filter( 'cron_schedules', array( $this, 'intervals' ) );
+		if ( $settings['auto_sync_users'] ) {
+			if ( ! wp_next_scheduled( 'wp_ajax_n2_sync_users_from_n1' ) ) {
+				wp_schedule_event( time(), 'daily', 'wp_ajax_n2_sync_users_from_n1' );
+			}
+		} else {
+			wp_clear_scheduled_hook( 'wp_ajax_n2_sync_users_from_n1' );
+		}
+		if ( $settings['auto_sync_posts'] ) {
+			if ( ! wp_next_scheduled( 'wp_ajax_n2_multi_sync_posts' ) ) {
+				wp_schedule_event( time() + 100, 'daily', 'wp_ajax_n2_multi_sync_posts' );
+			}
+		} else {
+			wp_clear_scheduled_hook( 'wp_ajax_n2_multi_sync_posts' );
+		}
 	}
 
 	/**
 	 * N2 SYNC　メニューの追加
 	 */
 	public function add_menu() {
-		add_menu_page( 'N2 SYNC', 'N2 SYNC', 'ss_crew', 'sync_ui_n1', array( $this, 'sync_ui' ), 'dashicons-update' );
-		add_submenu_page( 'sync_ui_n1', 'N1（旧NENG）', 'N1（旧NENG）', 'ss_crew', 'sync_ui_n1', array( $this, 'sync_ui' ), 1 );
-		register_setting( 'n2_sync_settings_n1', 'n2_sync_settings_n1' );
-		add_submenu_page( 'sync_ui_n1', 'Google スプレットシート', 'G スプレットシート', 'ss_crew', 'sync_ui_spreadsheet', array( $this, 'sync_ui' ), 2 );
-		register_setting( 'n2_sync_settings_spreadsheet', 'n2_sync_settings_spreadsheet' );
+		global $n2;
+		if ( $n2->settings['N2']['稼働中'] ) {
+			add_menu_page( 'N2 SYNC', 'N2 SYNC', 'ss_crew', 'sync_ui_spreadsheet', array( $this, 'sync_ui' ), 'dashicons-update' );
+			register_setting( 'n2_sync_settings_spreadsheet', 'n2_sync_settings_spreadsheet' );
+		} else {
+			add_menu_page( 'N2 SYNC', 'N2 SYNC', 'ss_crew', 'sync_ui_n1', array( $this, 'sync_ui' ), 'dashicons-update' );
+			add_submenu_page( 'sync_ui_n1', 'N1（旧NENG）', 'N1（旧NENG）', 'ss_crew', 'sync_ui_n1', array( $this, 'sync_ui' ), 1 );
+			register_setting( 'n2_sync_settings_n1', 'n2_sync_settings_n1' );
+			add_submenu_page( 'sync_ui_n1', 'Google スプレットシート', 'G スプレットシート', 'ss_crew', 'sync_ui_spreadsheet', array( $this, 'sync_ui' ), 2 );
+			register_setting( 'n2_sync_settings_spreadsheet', 'n2_sync_settings_spreadsheet' );
+		}
 	}
 
 	/**
@@ -99,6 +138,7 @@ class N2_Sync {
 		?>
 		<div class="wrap">
 			<h1>N2 SYNC</h1>
+			<?php if ( ! $n2->settings['N2']['稼働中'] ) : ?>
 			<div id="crontrol-header">
 				<nav class="nav-tab-wrapper">
 					<?php
@@ -108,6 +148,7 @@ class N2_Sync {
 					?>
 				</nav>
 			</div>
+			<?php endif; ?>
 			<?php echo $this->$template(); ?>
 		</div>
 		<?php
@@ -168,7 +209,7 @@ class N2_Sync {
 	 */
 	public function sync_ui_spreadsheet() {
 		global $n2;
-		if ( ! $n2->delivery_fee ) {
+		if ( ! $n2->settings['寄附金額・送料']['送料'] ) {
 			?>
 			<br><p>Googleスプレットシート同期を使うには「<a href="?page=n2_settings_formula-delivery">N2設定 > 寄附金額・送料</a>」の値を適切に入力して下さい。</p>
 			<?php
@@ -243,7 +284,8 @@ class N2_Sync {
 	 * posts_per_page=10 が最速なのかはまだ未検証
 	 */
 	public function multi_sync_posts() {
-		if ( is_main_site() ) {
+		global $n2;
+		if ( is_main_site() || $n2->settings['N2']['稼働中'] ) {
 			exit;
 		}
 
@@ -253,18 +295,22 @@ class N2_Sync {
 		$params = array(
 			'action'         => 'postsdata',
 			'post_type'      => 'post',
+			'post_status'    => 'any',
 			'posts_per_page' => $_GET['posts_per_page'] ?? 100,
 			'paged'          => 1,
 		);
 		$json   = wp_remote_get( "{$this->n1_ajax_url}?" . http_build_query( $params ) )['body'];
 		$data   = json_decode( $json, true );
+		// ページ数取得
+		$max_num_pages = $data['max_num_pages'];
+		$found_posts   = $data['found_posts'];
 
 		// ログテキスト
 		$logs   = array();
 		$logs[] = __METHOD__;
 
 		// IP制限等で終了のケース
-		if ( ! $data ) {
+		if ( ! $data || ! $found_posts ) {
 			$logs[] = $json;
 			$this->log( $logs );
 			echo $json;
@@ -277,12 +323,10 @@ class N2_Sync {
 			$wpdb->query( "DELETE FROM {$wpdb->posts}" );
 			$wpdb->query( "DELETE FROM {$wpdb->postmeta};" );
 		}
-		// ページ数取得
-		$max_num_pages = $data['max_num_pages'];
-		$found_posts   = $data['found_posts'];
 
 		// $params変更
-		$params['action'] = 'n2_sync_posts';
+		$params['action']  = 'n2_sync_posts';
+		$params['n2nonce'] = wp_create_nonce( 'n2nonce' );
 
 		// n2_sync_posts に Multi cURL
 		$mh       = curl_multi_init();
@@ -365,6 +409,14 @@ class N2_Sync {
 		$params['action']  = 'postsdata';
 		$params['orderby'] = 'ID';
 
+		if ( ! wp_verify_nonce( $params['n2nonce'] ?? '', 'n2nonce' ) ) {
+			$msg    = '不正アクセス';
+			$logs[] = $msg;
+			$this->log( $logs );
+			echo $msg;
+			exit;
+		}
+
 		// Syncフラグを記録
 		update_option( "n2syncing-{$params['paged']}", strtotime( 'now' ) );
 
@@ -387,7 +439,7 @@ class N2_Sync {
 
 			// 返礼品情報を生成
 			$postarr = array(
-				'post_status'       => $v['post_status'],
+				'post_status'       => 'publish' === $v['post_status'] ? 'registered' : $v['post_status'],
 				'post_date'         => $v['post_date'],
 				'post_date_gmt'     => $v['post_date_gmt'],
 				'post_modified'     => $v['post_modified'],
@@ -423,13 +475,23 @@ class N2_Sync {
 			// 値の浄化
 			$postarr['meta_input']['商品画像'] = array_filter( array_values( $images ), fn( $v ) => $v );
 			foreach ( $postarr['meta_input']['商品画像'] as $index => $value ) {
+				// 商品画像説明の場合
 				if ( ! is_array( $value ) ) {
+					if ( isset( $postarr['meta_input']['商品画像'][ $index - 1 ] ) ) {
+						$postarr['meta_input']['商品画像'][ $index - 1 ]['description'] = $value;
+					}
+					unset( $postarr['meta_input']['商品画像'][ $index ] );
 					continue;
 				}
 				if ( ! isset( $value['sizes'] ) ) {
-					$postarr['meta_input']['商品画像'][ $index ]['sizes']['thumbnail'] = preg_replace( '/\.(\w+)$/', '-$1.jpg', $value['url'] );
+					// pdfの場合jpgを入れる
+					$postarr['meta_input']['商品画像'][ $index ]['url'] = preg_replace( '/\.(\w+)$/', '-$1.jpg', $value['url'] );
+					// サムネイルにurlを入れる
+					$postarr['meta_input']['商品画像'][ $index ]['sizes']['thumbnail'] = $postarr['meta_input']['商品画像'][ $index ]['url'];
 				}
 			}
+			$postarr['meta_input']['商品画像'] = array_values( $postarr['meta_input']['商品画像'] );
+
 			// URLの置換のためにjson化
 			$str = wp_json_encode( $postarr['meta_input']['商品画像'], JSON_UNESCAPED_SLASHES );
 			if ( $str ) {
@@ -449,9 +511,21 @@ class N2_Sync {
 
 			// 商品タイプ
 			$postarr['meta_input']['商品タイプ'] = array();
+			// やきもの
 			if ( 'やきもの' === ( $postarr['meta_input']['やきもの'] ?? '' ) ) {
 				$postarr['meta_input']['商品タイプ'][] = 'やきもの';
 			}
+			// eチケット
+			if ( '該当する' === ( $postarr['meta_input']['eチケット'] ?? '' ) ) {
+				$postarr['meta_input']['商品タイプ'][] = 'eチケット';
+			}
+			unset( $postarr['meta_input']['やきもの'], $postarr['meta_input']['eチケット'] );
+
+			// クレジット決済限定
+			if ( 'クレジット決済限定' === ( $postarr['meta_input']['クレジット決済限定'] ?? '' ) ) {
+				$postarr['meta_input']['オンライン決済限定'][] = '限定';
+			}
+			unset( $postarr['meta_input']['クレジット決済限定'] );
 
 			// アレルギー関連
 			if ( isset( $postarr['meta_input']['アレルゲン'] ) ) {
@@ -497,7 +571,27 @@ class N2_Sync {
 			if ( 'その他（ヤマト以外）' === $postarr['meta_input']['発送サイズ'] ) {
 				$postarr['meta_input']['発送サイズ'] = 'その他';
 			}
-
+			// 自治体確認
+			if ( isset( $postarr['meta_input']['市役所確認'] ) ) {
+				$postarr['meta_input']['自治体確認'] = match ( $postarr['meta_input']['市役所確認'] ) {
+					'不要', '要', '済' => '承諾',
+					default => '未',
+				};
+				unset( $postarr['meta_input']['市役所確認'] );
+			}
+			// オリジナル商品変換
+			if ( isset( $postarr['meta_input']['オリジナル商品'] ) ) {
+				$postarr['meta_input']['オリジナル商品'] = match ( $postarr['meta_input']['オリジナル商品'] ) {
+					'適' => array( 'オリジナル商品である' ),
+					default => array(),
+				};
+				unset( $postarr['meta_input']['市役所確認'] );
+			}
+			// 旧コードを社内共有事項に付ける
+			if ( ! empty( $postarr['meta_input']['旧コード'] ) ) {
+				$postarr['meta_input']['社内共有事項'] .= "\n旧コード：{$postarr['meta_input']['旧コード']}";
+				unset( $postarr['meta_input']['旧コード'] );
+			}
 			// 事業者確認を強制執行
 			if ( strtotime( '-1 week' ) > strtotime( $v['post_modified'] ) ) {
 				$postarr['meta_input']['事業者確認'] = array( '確認済', '2022-10-30 00:00:00', 'ssofice' );
@@ -576,6 +670,9 @@ class N2_Sync {
 
 		switch ( $from ) {
 			case 'from_n1':
+				if ( $n2->settings['N2']['稼働中'] ) {
+					exit;
+				}
 				$json = wp_remote_get( "{$this->n1_ajax_url}?action=userdata" )['body'];
 				$data = json_decode( $json, true );
 				break;
@@ -624,7 +721,10 @@ class N2_Sync {
 					unset( $v['data']['ID'] );
 					// 権限変換用配列
 					$role = array(
-						'administrator' => 'ss-crew',
+						'administrator' => match ( 1 ) {
+							preg_match( '/市役所$/', $v['data']['first_name'] ) => 'local-government',
+						default => 'ss-crew',
+						},
 						'contributor'   => 'jigyousya',
 					);
 					// dataの変換・追加
@@ -651,7 +751,9 @@ class N2_Sync {
 					// $vの再生成
 					$v = array_combine( $keys, $values );
 					// 表示名自動生成
-					$v['display_name'] = "{$v['last_name']} {$v['first_name']}";
+					if ( ! empty( $v['last_name'] ) && ! empty( $v['first_name'] ) ) {
+						$v['display_name'] = "{$v['last_name']} {$v['first_name']}";
+					}
 					// from 付与
 					$v[ $from ] = 1;
 					return $v;
@@ -683,19 +785,25 @@ class N2_Sync {
 				}
 			}
 
-			// 既存ユーザーは更新するのでIDを突っ込む
-			$user = get_user_by( 'login', $userdata['user_login'] );
+			// user_login_beforeでuser_loginを変更可能にする（要 N2_Setusers->change_user_login）
+			$user = get_user_by( 'login', $userdata['user_login_before'] ?? $userdata['user_login'] );
+			unset( $userdata['user_login_before'] );
+			// 既存ユーザーの場合
 			if ( $user ) {
-				$userdata['ID'] = $user->ID;
+				$userdata['ID'] = $user->ID;// 既存ユーザーは更新するのでIDを突っ込む
+				$from_id        = wp_update_user( $userdata );
+				if ( ! is_wp_error( $from_id ) ) {
+					$from_ids[] = $from_id;
+				}
+			} else {
+				// パスワードの適切な加工
+				add_filter( 'wp_pre_insert_user_data', array( $this, 'insert_user_pass' ), 10, 4 );
+				$from_id = wp_insert_user( $userdata );
+				if ( ! is_wp_error( $from_id ) ) {
+					$from_ids[] = $from_id;
+				}
+				remove_filter( 'wp_pre_insert_user_data', array( $this, 'insert_user_pass' ) );
 			}
-
-			// パスワードの適切な加工
-			add_filter( 'wp_pre_insert_user_data', array( $this, 'insert_user_pass' ), 10, 4 );
-			$from_id = wp_insert_user( $userdata );
-			if ( ! is_wp_error( $from_id ) ) {
-				$from_ids[] = $from_id;
-			}
-			remove_filter( 'wp_pre_insert_user_data', array( $this, 'insert_user_pass' ) );
 		}
 
 		// NENGから削除されているものを削除（refreshパラメータで完全同期 or $from以外で追加したものに関してはスルー）
@@ -769,11 +877,21 @@ class N2_Sync {
 			}
 			// 寄附金額を半角数字のみに
 			if ( isset( $d['寄附金額'] ) ) {
-				$d['寄附金額'] = mb_convert_kana( preg_replace( '/[^0-9]/', '', $d['寄附金額'] ), 'n' );
+				$d['寄附金額'] = preg_replace( '/[^0-9]/', '', mb_convert_kana( $d['寄附金額'], 'n' ) );
+			}
+			if ( isset( $d['定期便'] ) ) {
+				$d['定期便'] = preg_replace( '/[^0-9]/', '', mb_convert_kana( $d['定期便'], 'n' ) ) ?: 1;
 			}
 			// 価格を半角数字のみに
 			if ( isset( $d['価格'] ) ) {
-				$d['価格'] = mb_convert_kana( preg_replace( '/[^0-9]/', '', $d['価格'] ), 'n' );
+				$d['価格'] = preg_replace( '/[^0-9]/', '', mb_convert_kana( $d['価格'], 'n' ) );
+				// 自動価格調整
+				$d['価格'] = N2_Donation_Amount_API::adjust_price(
+					array(
+						'price'        => (int) $d['価格'],
+						'subscription' => (int) $d['定期便'],
+					)
+				);
 			}
 			// 商品タイプ（入力値をそのまま出力）
 			if ( isset( $d['商品タイプ'] ) ) {
@@ -796,21 +914,17 @@ class N2_Sync {
 			}
 			// 発送サイズの想定入力ミスに対応
 			if ( isset( $d['発送サイズ'] ) ) {
-				if ( preg_match( '/[1１][0０][1-8１-８]/u', $d['発送サイズ'], $m ) ) {
-					// 0が抜けた発送サイズコードの場合
-					$d['発送サイズ'] = '0' . mb_convert_kana( $m[0], 'n' );
-				} else {
-					preg_match( '/[1-9１-９]{1,2}[0０]/u', $d['発送サイズ'], $m );
-					if ( $m ) {
-						// 発送サイズ名で入れたの場合（全角にも対応）
-						$d['発送サイズ'] = '010' . ( mb_convert_kana( $m[0], 'n' ) - 40 ) / 20;
-					}
-				}
+				$d['発送サイズ'] = match ( 1 ) {
+					preg_match( '/[1１][0０][0-8０-８]/u', $d['発送サイズ'], $m ) => '0' . mb_convert_kana( $m[0], 'n' ),// 0が抜けた発送サイズコードの場合
+					preg_match( '/[1-9１-９]{1,2}[0０]/u', $d['発送サイズ'], $m ) => '010' . ( mb_convert_kana( $m[0], 'n' ) - 40 ) / 20,// 発送サイズ名で入れたの場合（全角にも対応）
+					preg_match( '/コンパクト/u', $d['発送サイズ'] ) => '0100',
+					default => $d['発送サイズ'],
+				};
 			}
 			if ( empty( $d['送料'] ) && ! empty( $d['発送サイズ'] ) && ! empty( $d['発送方法'] ) ) {
 				$delivery_code = N2_Donation_Amount_API::create_delivery_code( $d['発送サイズ'], $d['発送方法'] );
 				// 送料計算
-				$d['送料'] = $n2->delivery_fee[ $delivery_code ] ?? '';
+				$d['送料'] = $n2->settings['寄附金額・送料']['送料'][ $delivery_code ] ?? '';
 			}
 			// $postarrにセット
 			$postarr[ $k ]['meta_input'] = $d;

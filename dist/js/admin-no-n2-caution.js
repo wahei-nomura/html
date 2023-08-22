@@ -15,7 +15,7 @@
   \***************************************/
 /***/ (() => {
 
-eval("jQuery(function ($) {\n    /**\n     * n2_active_flagがfalseの時に注意文を出す\n     */\n    var n2 = window['n2'];\n    var cautionBox = $('<a class=\"no_active_caution\" onclick=\"this.remove()\">N2未稼働 更新作業はN1で行って下さい</a>');\n    if (!n2.n2_active_flag) {\n        $('#wpwrap').append(cautionBox);\n    }\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/admin-no-n2-caution.ts?");
+eval("jQuery(function ($) {\n    /**\n     * n2_active_flagがfalseの時に注意文を出す\n     */\n    var n2 = window['n2'];\n    var cautionBox = $('<a class=\"no_active_caution\" onclick=\"this.remove()\">N2未稼働 更新作業はN1で行って下さい</a>');\n    if (!n2.settings['N2']['稼働中']) {\n        $('#wpwrap').append(cautionBox);\n    }\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/admin-no-n2-caution.ts?");
 
 /***/ })
 

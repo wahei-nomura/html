@@ -26,7 +26,9 @@ class N2_Settings {
 		'n2'               => 'N2',
 		'formula-delivery' => '寄附金額・送料',
 		'ledghome'         => 'LedgHOME',
-		'rakuten'          => '楽天ふるさと納税',
+		'warning'          => '注意書き',
+		'furusato-choice'  => 'ふるさとチョイス',
+		'rakuten'          => '楽天',
 		'furunavi'         => 'ふるなび',
 		'ana'              => 'ANA',
 	);
@@ -38,9 +40,18 @@ class N2_Settings {
 	 */
 	public $portal_sites = array(
 		'ふるさとチョイス',
-		'楽天ふるさと納税',
+		'楽天',
 		'ふるなび',
 		'ANA',
+	);
+
+	/**
+	 * その他データ
+	 *
+	 * @var array
+	 */
+	public $data = array(
+		'商品タイプ' => array( '食品', '酒', 'やきもの', 'eチケット' ),
 	);
 
 	/**
@@ -59,7 +70,7 @@ class N2_Settings {
 			return;
 		}
 		global $wp_filesystem;
-		add_menu_page( 'N2設定', 'N2設定', 'ss_crew', 'n2_settings', array( $this, 'ui' ), 'dashicons-admin-settings', 80 );
+		add_menu_page( 'N2設定', 'N2設定', 'ss_crew', 'n2_settings', array( $this, 'ui' ), 'dashicons-admin-tools', 80 );
 		foreach ( $this->settings as $page => $name ) {
 			// 設定テンプレートの存在を確認して、ない場合は破棄してスキップする
 			if ( ! $wp_filesystem->exists( get_theme_file_path( "template/settings/{$page}.php" ) ) ) {
@@ -67,7 +78,7 @@ class N2_Settings {
 				continue;
 			}
 			// 出品しないポータルの場合はスキップする
-			if ( $this->is_hide_portal( $name ) ) {
+			if ( $this->is_hide_menu( $name ) ) {
 				continue;
 			}
 			$menu_slug = $this->create_menu_slug( $page );
@@ -88,15 +99,14 @@ class N2_Settings {
 		// n2_settings
 		foreach ( $this->settings as $page => $name ) {
 			$menu_slug = $this->create_menu_slug( $page );
+			if ( ! $this->is_hide_menu( $name ) ) {
+				// ナビゲーション
+				$html['nav'] .= sprintf( '<a href="?page=%s" class="nav-tab%s">%s</a>', $menu_slug, $menu_slug === $template ? ' nav-tab-active' : '', $name );
+			}
 			// フォームコンテンツ
 			ob_start();
 			get_template_part( "template/settings/{$page}", null, $this );
 			$html['contents'] .= sprintf( '<div style="display: %s;padding: 3em 0;">%s</div>', $menu_slug === $template ? 'block' : 'none', ob_get_clean() );
-			// ナビゲーション
-			if ( $this->is_hide_portal( $name ) ) {
-				continue;
-			}
-			$html['nav'] .= sprintf( '<a href="?page=%s" class="nav-tab%s">%s</a>', $menu_slug, $menu_slug === $template ? ' nav-tab-active' : '', $name );
 		}
 		?>
 		<div class="wrap">
@@ -124,14 +134,14 @@ class N2_Settings {
 	}
 
 	/**
-	 * 出品しないポータルか
+	 * 表示しないメニュー判定
 	 * ?page=n2_settings_xxxx
 	 *
-	 * @param string $name ポータル名
+	 * @param string $name メニュー名
 	 */
-	private function is_hide_portal( $name ) {
+	private function is_hide_menu( $name ) {
 		global $n2;
-		$hide = array_diff( $this->portal_sites, $n2->portal_sites );
+		$hide = array_diff( $this->portal_sites, $n2->settings['N2']['出品ポータル'] );
 		return in_array( $name, $hide, true );
 	}
 }
