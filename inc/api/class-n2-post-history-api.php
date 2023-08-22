@@ -92,6 +92,9 @@ class N2_Post_History_API {
 					</table>
 					<?php
 					break;
+				case 'view':
+					get_template_part( 'template/admin-ajax/view-post-history', null, $result );
+					break;
 				default:
 					header( 'Content-Type: application/json; charset=utf-8' );
 					echo wp_json_encode( $result );
