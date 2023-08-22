@@ -352,7 +352,6 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 
 		// insertするfileをstatic::$data['file']に設定する
 		foreach ( $responses as $index => $response ) {
-			$url = $requests[ $index ]['url'];
 			if ( ! is_a( $response, 'WpOrg\Requests\Response' ) || $response->status_code !== 200 ) {
 				continue;
 			}
