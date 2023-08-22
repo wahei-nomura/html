@@ -30,6 +30,8 @@ class N2_Setusers {
 		add_filter( 'wp_pre_insert_user_data', array( $this, 'change_user_login' ), 10, 4 );
 		// ユーザーメタに商品タイプを保存
 		add_action( 'n2_items_api_after_insert_post_data', array( $this, 'update_user_meta_item_type' ), 10, 2 );
+		// 自爆ボタン
+		add_action( 'admin_bar_menu', array( $this, 'destruct_button' ), 150 );
 	}
 
 	/**
@@ -147,7 +149,6 @@ class N2_Setusers {
 			return;
 		}
 
-		$href = get_theme_file_path( 'template/admin-bar-menu/destruct-self-account.php' );
 		$wp_admin_bar->add_menu(
 			array(
 				'id'     => 'destruct-self',
