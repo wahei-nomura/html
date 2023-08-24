@@ -80,7 +80,7 @@ class N2_Post_History_API {
 			// beforeとafterの差分チェック
 			foreach ( $data['after'] as $k => $v ) {
 				// アンダースコアで始まるフィールドと変更無いフィールドは破棄
-				if ( preg_match( '/^_/', $k ) || $data['before'][ $k ] == $data['after'][ $k ] ) {
+				if ( preg_match( '/^_/', $k ) || ( $data['before'][ $k ] ?? '' ) == $data['after'][ $k ] ) {
 					unset( $data['before'][ $k ], $data['after'][ $k ] );
 				}
 			}
