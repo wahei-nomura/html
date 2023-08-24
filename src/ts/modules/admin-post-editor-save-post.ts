@@ -6,7 +6,7 @@ import get_meta from "./admin-post-editor-get-meta";
  * @param $ jQuery
  * @param string target 返礼品の保存を追加する要素のセレクタ名
  */
-export default ($: any, target: string) => {
+export default (target: string, $: any = jQuery) => {
 	const n2 = window['n2'];
 	const wp = window['wp'];
 	const btn_class = {
@@ -35,9 +35,7 @@ export default ($: any, target: string) => {
 	$(target).ready(() => {
 		const editor = wp.data.select('core/editor');
 		const status = editor.getEditedPostAttribute("status");
-		if ( ( n2.current_user.roles.includes('jigyousya') && ! status.match(/draft/) )
-		|| n2.current_user.roles.includes('municipal-office')
-		) return
+		if ( n2.current_user.roles.includes('jigyousya') && ! status.match(/draft/) ) return
 		// 保存ボタン配置
 		const button = 'auto-draft' == status
 			? `<div id="n2-save-post" class="${btn_class.save}" title="保存"><span></span>保存</div>`
@@ -51,7 +49,7 @@ export default ($: any, target: string) => {
 			$('#n2-save-post span').attr('class', 'spinner-border spinner-border-sm me-2');
 
 			// カスタムフィールドの保存
-			const meta = get_meta($);
+			const meta = get_meta();
 			wp.data.dispatch( 'core/editor' ).editPost({ meta });
 
 			// 保存時の挙動

@@ -13,10 +13,14 @@ $name    = $args['name'];
 	<input type="hidden" name="<?php echo $name; ?>" :value="JSON.stringify(商品画像)">
 	<draggable v-model="商品画像" class="">
 		<div v-for="(attr, index) in 商品画像" class="d-inline-block position-relative details attachment" style="width: auto;max-width: 25%;">
-			<!-- リンク -->
-			<a :href="attr.url" class="d-block" target="_blank">
-				<img :src="attr.sizes.thumbnail.url || attr.sizes.thumbnail" style="cursor: move;">
-			</a>
+			<span v-if="attr.description.length" :title="attr.description" class="position-absolute bottom-0 start-0 badge rounded-pill bg-danger text-white text-decoration-none">i</span>
+			
+			<!-- ポップオーバー -->
+			<img :src="attr.sizes.thumbnail.url || attr.sizes.thumbnail" style="cursor: move;" :title="attr.description || ''" @click="document.getElementById(`image-popover-${index}`).showPopover()">
+			<div popover :id="`image-popover-${index}`" style="max-width: 80%; max-height: 90%; border: 0; box-shadow: 0 0 0 100vw rgba(0,0,0,.5); padding: 0;">
+				<div v-if="attr.description.length" v-text="attr.description" class="p-2 bg-dark text-white position-sticky top-0" @click="navigator.clipboard.writeText(attr.description).then(()=>{alert(`テキスト（${attr.description}）をコピーしました`);document.getElementById(`image-popover-${index}`).hidePopover();});"></div>
+				<img :src="attr.url">
+			</div>
 			<!-- 削除 -->
 			<div role="button" @click="商品画像.splice(index, 1)" class="check rounded-circle d-flex justify-content-center align-items-center">
 				<span class="dashicons dashicons-no-alt text-white"></span>

@@ -58,7 +58,7 @@ class N2_Rakuten_SFTP {
 	 */
 	public function add_menu() {
 		global $n2;
-		if ( isset( $n2->portal_setting['楽天'] ) ) {
+		if ( isset( $n2->settings['楽天'] ) ) {
 			add_menu_page( '楽天SFTP', '楽天SFTP', 'ss_crew', 'n2_rakuten_sftp_upload', array( $this, 'display_ui' ), 'dashicons-admin-site-alt3' );
 			add_submenu_page( 'n2_rakuten_sftp_upload', '楽天エラーログ', '楽天エラーログ', 'ss_crew', 'n2_rakuten_sftp_error_log', array( $this, 'display_ui' ) );
 		}
@@ -68,8 +68,8 @@ class N2_Rakuten_SFTP {
 	 * SFTP UI
 	 */
 	public function display_ui() {
-		$template = str_replace( array('n2_rakuten_sftp_','_'),	array('','-'), $_GET['page'] );
-		$args = match ( $template ) {
+		$template = str_replace( array( 'n2_rakuten_sftp_', '_' ), array( '', '-' ), $_GET['page'] );
+		$args     = match ( $template ) {
 			'error-log' => $this->rakuten_error_log_args(),
 			'upload'    => $this->rakuten_upload_args(),
 			default     => null,
@@ -92,15 +92,15 @@ class N2_Rakuten_SFTP {
 		}
 		global $n2;
 
-		$user = $args['user'] ?? $n2->portal_setting['楽天']['ftp_user'] ?? '';
-		$pass = $args['pass'] ?? $n2->portal_setting['楽天']['ftp_pass'] ?? '';
+		$user = $args['user'] ?? $n2->settings['楽天']['FTP']['user'] ?? '';
+		$pass = $args['pass'] ?? $n2->settings['楽天']['FTP']['pass'] ?? '';
 		$this->check_fatal_error( $user && $pass, '楽天セットアップが完了していません。' );
 
 		WP_Filesystem();
 		require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-ssh2.php';
 
 		$opt        = array(
-			'hostname' => $args['hostname'] ?? $n2->portal_setting['楽天']['upload_server'],
+			'hostname' => $args['hostname'] ?? $n2->settings['楽天']['FTP']['upload_server'],
 			'username' => $user,
 			'password' => $pass,
 		);
@@ -124,29 +124,32 @@ class N2_Rakuten_SFTP {
 		if ( ! $args['connect'] ) {
 			return $args;
 		}
-		$args['dir'] = 'ritem/logs';
+		$args['dir']  = 'ritem/logs';
 		$args['logs'] = $this->sftp->dirlist( $args['dir'] );
 		$args['logs'] = array_reverse( $args['logs'] );
-		$args['logs'] = array_map(function( $log ) use( $args ) {
+		$args['logs'] = array_map(
+			function( $log ) use ( $args ) {
 			$contents = $this->sftp->get_contents( "{$args['dir']}/{$log['name']}" );
 			$contents = htmlspecialchars( mb_convert_encoding( $contents, 'utf-8', 'sjis' ) );
 			return array(
-				'name' => $log['name'],
-				'time' => date('Y M d', $log['lastmodunix'] ),
+				'name'     => $log['name'],
+				'time'     => date( 'Y M d', $log['lastmodunix'] ),
 				'contents' => $contents,
 			);
-		},$args['logs']);
+			},
+			$args['logs']
+		);
 		return $args;
 	}
 
 	public function rakuten_upload_args() {
 		return array(
 			'action' => 'n2_upload_to_rakuten_sftp',
-			'radio' => array(
+			'radio'  => array(
 				'img_upload' => '商品画像',
 				'csv_upload' => '商品CSV',
 			),
-			'file' => 'sftp_file[]',
+			'file'   => 'sftp_file[]',
 		);
 	}
 
@@ -162,14 +165,14 @@ class N2_Rakuten_SFTP {
 		$this->{$this->data['params']['judge']}();
 		$this->log_output();
 	}
-	
-	public function img_upload () {
+
+	public function img_upload() {
 		global $n2;
-		$name = $this->data['files']['name'];
-		$type = $this->data['files']['type'];
+		$name     = $this->data['files']['name'];
+		$type     = $this->data['files']['type'];
 		$tmp_name = $this->data['files']['tmp_name'];
-	
-		$img_dir = rtrim( $n2->portal_setting['楽天']['img_dir'], '/' ) . '/';
+
+		$img_dir = rtrim( $n2->settings['楽天']['商品画像ディレクトリ'], '/' ) . '/';
 
 		// テンポラリディレクトリ作成
 		$tmp = wp_tempnam( __CLASS__, dirname( __DIR__ ) . '/' );
@@ -183,18 +186,18 @@ class N2_Rakuten_SFTP {
 			exec( "mogrify -quality {$quality} {$tmp}/{$name[$k]}" );
 
 			// jpg以外はエラー
-			if ( strpos( $name[$k], '.jpg' ) === false ) {
+			if ( strpos( $name[ $k ], '.jpg' ) === false ) {
 				$this->data['log'][] = 'ファイル形式(jpeg)が違います :' . $name[ $k ];
 				continue;
 			}
 			// $img_dir からキャビネットのディレクトリ構造を作成
 			$remote_dir = preg_replace( '/^.*cabinet/', 'cabinet/images', $img_dir );
-			preg_match( '/^([a-z0-9]{0,2})([a-z]{2})[0-9]{2,3}[-]*[0-9]*\.jpg/', $name[$k], $m );
+			preg_match( '/^([a-z0-9]{0,2})([a-z]{2})[0-9]{2,3}[-]*[0-9]*\.jpg/', $name[ $k ], $m );
 			if ( ! ( $m[1] || $m[2] ) ) {
 				$this->data['log'][] = 'ファイル名が違います :' . $name[ $k ];
 				continue;
 			}
-			
+
 			// 商品画像の場合
 			if ( $this->sftp->mkdir( $remote_dir ) ) {
 				$this->data['log'][] = "{$remote_dir}を作成\n";
@@ -203,8 +206,8 @@ class N2_Rakuten_SFTP {
 			if ( $this->sftp->mkdir( $remote_dir ) ) {
 				$this->data['log'][] = "{$remote_dir}を作成\n";
 			};
-			$remote_file = "{$remote_dir}/{$name[$k]}";
-			$image_data  = file_get_contents("{$tmp}/{$name[$k]}");
+			$remote_file         = "{$remote_dir}/{$name[$k]}";
+			$image_data          = file_get_contents( "{$tmp}/{$name[$k]}" );
 			$this->data['log'][] = match ( $this->sftp->put_contents( $remote_file, $image_data ) ) {
 				true => "転送成功 $name[$k]\n",
 				default => "転送失敗 $name[$k]\n",
@@ -213,18 +216,18 @@ class N2_Rakuten_SFTP {
 		exec( "rm -Rf {$tmp}" );
 	}
 
-	public function csv_upload () {
-		$name = $this->data['files']['name'];
-		$type = $this->data['files']['type'];
+	public function csv_upload() {
+		$name     = $this->data['files']['name'];
+		$type     = $this->data['files']['type'];
 		$tmp_name = $this->data['files']['tmp_name'];
 
 		foreach ( $tmp_name as $k => $file ) {
-			if ( strpos( $name[$k], '.csv' ) === false ) {
+			if ( strpos( $name[ $k ], '.csv' ) === false ) {
 				$this->data['log'][] = 'ファイル形式(csv)が違います :' . $name[ $k ];
 				continue;
 			}
-			$remote_file = 'ritem/batch/' . $name[$k];
-			$file_data   = file_get_contents( $file );
+			$remote_file         = 'ritem/batch/' . $name[ $k ];
+			$file_data           = file_get_contents( $file );
 			$this->data['log'][] = match ( $this->sftp->put_contents( $remote_file, $file_data ) ) {
 				true => "転送成功 $name[$k]\n",
 				default => "転送失敗 $name[$k]\n",
@@ -263,12 +266,11 @@ class N2_Rakuten_SFTP {
 	}
 	/**
 	 * ファイル配列の作成
-	 *
 	 */
 	private function set_files() {
 		setlocale( LC_ALL, 'ja_JP.UTF-8' );
 		$this->check_fatal_error( $this->data['params']['judge'], '転送モードが設定されていません' );
-		$this->data['files'] = $_FILES[ 'sftp_file' ];
+		$this->data['files'] = $_FILES['sftp_file'];
 		$this->check_fatal_error( $this->data['files']['tmp_name'][0], 'ファイルをセットしてください。' );
 	}
 

@@ -35,7 +35,7 @@ class N2_Item_Export_Rakuten_Select extends N2_Item_Export_Base {
 	 */
 	protected function set_header() {
 		global $n2;
-		$this->data['header'] = $n2->portal_setting['楽天']['csv_header']['select'];
+		$this->data['header'] = $n2->settings['楽天']['csv_header']['select'];
 		/**
 		 * [hook] n2_item_export_rakuten_select_set_header
 		 */
@@ -52,7 +52,7 @@ class N2_Item_Export_Rakuten_Select extends N2_Item_Export_Base {
 	 */
 	protected function walk_values( &$val, $index, $n2values ) {
 		global $n2;
-		$selects = $n2->portal_setting['楽天']['select'];
+		$selects = $n2->settings['楽天']['項目選択肢'];
 		$selects = str_replace( array( "\r\n", "\r" ), "\n", $selects );// 改行コード統一
 		$selects = preg_split( '/\n{2,}/', $selects );// 連続改行で分ける
 		foreach ( $selects as $select ) {

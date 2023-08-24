@@ -39,19 +39,17 @@ class N2_Enqueuescript {
 		$n2->hook_suffix = $hook_suffix;
 		wp_localize_script( 'n2-admin', 'n2', $n2 );
 		wp_localize_script( 'n2-admin', 'tmp_path', $this->get_tmp_path() );
-		$names = array(
-			'post.php'                    => 'admin-post-editor',
-			'post-new.php'                => 'admin-post-editor',
-			'edit.php'                    => 'admin-post-lists',
+		$name = match ( $hook_suffix ) {
+			'post.php', 'post-new.php' => 'admin-post-editor',
+			'edit.php' => 'admin-post-list',
 			'toplevel_page_n2_crew_setup_menu' => 'admin-setup',
-			'profile.php'                 => 'admin-user-profile',
-			'user-edit.php'               => 'admin-user-profile',
-			'user-new.php'                => 'admin-user-new',
-			'users.php'                   => 'admin-users',
-			'n2-sync_page_sync_ui_spreadsheet' => 'admin-n2-sync',
-		);
-		if ( isset( $names[ $hook_suffix ] ) ) {
-			$name = $names[ $hook_suffix ];
+			'profile.php', 'user-edit.php' => 'admin-user-profile',
+			'user-new.php' => 'admin-user-new',
+			'users.php' => 'admin-users',
+			'n2-sync_page_sync_ui_spreadsheet', 'toplevel_page_sync_ui_spreadsheet' => 'admin-n2-sync',
+			default => false,
+		};
+		if ( $name ) {
 			wp_enqueue_script( $name, get_theme_file_uri( "dist/js/{$name}.js" ), array( 'jquery' ), $n2->cash_buster, false );
 			wp_enqueue_style( $name, get_theme_file_uri( "dist/css/{$name}.css" ), array(), $n2->cash_buster );
 		}
@@ -60,6 +58,7 @@ class N2_Enqueuescript {
 	/**
 	 * フロントのjs,cssの読み込み
 	 *
+	 * @param string $hook_suffix ページ名
 	 * @return void
 	 */
 	public function enqueue_front_script( $hook_suffix ) {

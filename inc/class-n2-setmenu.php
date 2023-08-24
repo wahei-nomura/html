@@ -18,6 +18,7 @@ class N2_Setmenu {
 	 * コンストラクタ
 	 */
 	public function __construct() {
+		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
 		add_action( 'admin_menu', array( $this, 'change_menulabel' ) );
 		add_action( 'admin_menu', array( $this, 'remove_menulabel' ), 999 );
 		add_action( 'admin_init', array( $this, 'not_edit_user' ) );
@@ -26,6 +27,19 @@ class N2_Setmenu {
 		add_action( 'admin_bar_menu', array( $this, 'remove_admin_bar_menus' ), 999 );
 		add_action( 'admin_head', array( $this, 'remove_help_tabs' ) );// ヘルプ削除
 		add_filter( 'admin_footer_text', '__return_false' );// 「WordPress のご利用ありがとうございます。」を削除
+	}
+
+	/**
+	 * 管理画面のbodyにクラス付与
+	 *
+	 * @param string $classes クラス文字列
+	 */
+	public function admin_body_class( $classes ) {
+		global $n2;
+		$classes   = explode( ' ', $classes );
+		$classes[] = $n2->current_user->roles[0];
+		$classes   = implode( ' ', $classes );
+		return $classes;
 	}
 
 	/**
@@ -53,7 +67,7 @@ class N2_Setmenu {
 		$submenus = array();
 		global $n2;
 
-		$img_dir = rtrim( $n2->portal_setting['楽天']['img_dir'], '/' ) . '/';
+		$img_dir = rtrim( $n2->settings['楽天']['商品画像ディレクトリ'], '/' ) . '/';
 
 		switch ( preg_match( '/ne\.jp/', $img_dir ) ) {
 			case 1:// GOLDの場合はFTP
@@ -77,7 +91,7 @@ class N2_Setmenu {
 				$menus[] = 'edit-comments.php';
 				$menus[] = 'aiowpsec'; // All In One WP Security
 				break;
-			case 'municipal-office':
+			case 'local-government':
 				$menus[]  = 'index.php';
 				$menus[]  = 'edit-comments.php';
 				$menus[]  = 'aiowpsec'; // All In One WP Security
@@ -102,7 +116,14 @@ class N2_Setmenu {
 	 * not_edit_user
 	 */
 	public function not_edit_user() {
-		global $pagenow;
+		global $pagenow, $n2;
+		// if ( 'edit.php' === $pagenow && ( empty( $n2->settings['寄附金額・送料']['除数'] ) || empty( $n2->settings['寄附金額・送料']['送料']['0101'] ) ) ) {
+		// 	echo '送料の設定は必須です。';
+		// 	<script>alertsetTimeout(function(){}, 2000);</script>
+		// 	wp_safe_redirect( admin_url( 'admin.php?page=n2_settings_formula-delivery' ) );
+		// 	exit;
+		// }
+		// echo '<pre>';print_r($n2);echo '</pre>';exit;
 		if ( current_user_can( 'ss_crew' ) ) {
 			return;
 		}
@@ -122,23 +143,13 @@ class N2_Setmenu {
 
 	/**
 	 * faviconを変更する
+	 *
+	 * @param string $url デフォルトURL
 	 */
-	public function change_site_icon() {
-		$now_blog_id = get_current_blog_id();
-		$my_blogs    = get_sites();
-		foreach ( $my_blogs as $my_blog ) {
-			$int_blog_id = intval( $my_blog->blog_id );
-			switch_to_blog( $int_blog_id );
-			$options = get_blog_option( $int_blog_id, 'n2_settings' );
-			if ( ! empty( $options['n2']['active'] ) ) {
-				if ( $now_blog_id === $int_blog_id && '1' === $options['n2']['active'] ) {
-					restore_current_blog();
-					return get_theme_file_uri( 'neo_neng_logo.svg' );
-				}
-			}
-			restore_current_blog();
-		}
-		return get_theme_file_uri( 'no_neo_neng_logo.svg' );
+	public function change_site_icon( $url ) {
+		$name = end( explode( '/', get_home_url() ) );
+		$n2_active = get_option( 'n2_settings' )['N2']['稼働中'] ?? 0;
+		return $n2_active ? "https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_{$name}.png" : $url;
 	}
 	/**
 	 * 管理画面左上のロゴ変更
@@ -154,15 +165,21 @@ class N2_Setmenu {
 	 * @param array $wp_admin_bar 管理バーの項目を格納
 	 */
 	public function remove_admin_bar_menus( $wp_admin_bar ) {
+		global $n2;
 		$wp_admin_bar->remove_menu( 'wp-logo' ); // WordPressロゴ.
 		$wp_admin_bar->remove_menu( 'comments' );     // コメント
 		$wp_admin_bar->remove_menu( 'new-content' );  // 新規
 		$wp_admin_bar->remove_menu( 'view-site' );    // サイト名 → サイトを表示
-		$dashboard_url = admin_url();
+		$wp_admin_bar->remove_menu( 'edit-site' );    // サイト名 → サイトを表示
+		$wp_admin_bar->remove_menu( 'wp-mail-smtp-menu' ); // WP Mail SMTP
 		$wp_admin_bar->add_node(
 			array(
 				'id'   => 'site-name',
-				'href' => $dashboard_url,
+				'href' => admin_url(),
+				'meta' => array(
+					'class' => $n2->settings['N2']['稼働中'] ? 'n2-active' : '',
+					'html'  => $n2->settings['N2']['稼働中'] ? "<style>#wp-admin-bar-site-name{background-image: url({$n2->logo}) !important;}</style>" : '',
+				),
 			),
 		);
 		$wp_admin_bar->add_node(

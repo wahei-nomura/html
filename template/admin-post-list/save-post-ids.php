@@ -22,23 +22,30 @@ global $n2;
 						<input type="hidden" name="include[]" v-for="id in ids" :value="id">
 						<div style="margin-bottom: 1em;">
 							<span>フォーマット選択 ：　</span>
-							<label><input type="radio" name="action" value="n2_item_export_base" checked> N2</label>
-							<label><input type="radio" name="action" value="n2_item_export_ledghome"> LedgHOME</label>
-							<?php if ( in_array( 'ふるさとチョイス', $n2->portal_sites, true ) ) : ?>
-								<label><input type="radio" name="action" value="n2_item_export_furusato_choice"> ふるさとチョイス</label>
-							<?php endif; ?>
-							<?php if ( in_array( '楽天ふるさと納税', $n2->portal_sites, true ) ) : ?>
-								<label><input type="radio" name="action" value="n2_item_export_rakuten"> 楽天 [ item.csv ]</label>
-								<label><input type="radio" name="action" value="n2_item_export_rakuten_select"> 楽天 [ select.csv ]</label>
-								<label><input type="radio" name="action" value="n2_item_export_rakuten_sku"> 楽天SKU [ normal-item.csv ]</label>
-								<label><input type="radio" name="action" value="n2_item_export_rakuten_cat"> 楽天 [ item-cat.csv ]</label>
-							<?php endif; ?>
+							<label><input type="radio" name="action" value="n2_item_export_base" v-model="fd.action"> N2</label>
+							<label><input type="radio" name="action" :value="`n2_item_export_${n2.settings.N2.LedgHOME}`" v-model="fd.action"> LedgHOME</label>
+							<label v-if="n2.settings.N2.出品ポータル.includes('ふるさとチョイス')"><input type="radio" name="action" value="n2_item_export_furusato_choice" v-model="fd.action"> ふるさとチョイス</label>
+							<template v-if="n2.settings.N2.出品ポータル.includes('楽天')">
+								<template v-if="n2.settings.楽天.SKU">
+									<label><input type="radio" name="action" value="n2_item_export_rakuten_sku" v-model="fd.action"> 楽天</label>
+								</template>
+								<template v-else>
+									<label><input type="radio" name="action" value="n2_item_export_rakuten" v-model="fd.action"> 楽天 [ item.csv ]</label>
+									<label><input type="radio" name="action" value="n2_item_export_rakuten_select" v-model="fd.action"> 楽天 [ select.csv ]</label>
+								</template>
+							</template>
 						</div>
 						<div style="margin-bottom: 1em;">
 							<span>モード選択 ：　</span>
-							<label><input type="radio" name="mode" value="download" checked> CSV・TSVダウンロード</label>
-							<label><input type="radio" name="mode" value="spreadsheet"> スプレットシート貼付</label>
-							<label><input type="radio" name="mode" value="debug"> デバッグモード</label>
+							<label><input type="radio" name="mode" value="download" v-model="fd.mode"> CSV・TSVダウンロード</label>
+							<label><input type="radio" name="mode" value="spreadsheet" v-model="fd.mode"> スプレットシート貼付</label>
+							<label><input type="radio" name="mode" value="debug" v-model="fd.mode"> デバッグモード</label>
+						</div>
+						<div style="margin-bottom: 1em;" v-if="fd.action.match(/lhcloud|ledghome/)">
+							<?php foreach ( (array) array_keys( $n2->settings['LedgHOME']['csv_header'] ) as $i => $v ) : ?>
+								<label><input type="radio" name="type" value="<?php echo $v; ?>" <?php echo ! $i ? 'checked' : ''; ?>> <?php echo $v; ?></label>
+							<?php endforeach; ?>
+							<!-- <label v-if="'download' === fd.mode"><input type="radio" name="type" value="3"> 3ファイル一括ダウンロード</label> -->
 						</div>
 						<button>エクスポート実行</button>
 						<div style="margin-top: 1em;">
@@ -67,7 +74,7 @@ global $n2;
 					<button>画像ダウンロード</button>
 				</form>
 			</li>
-			<?php if ( current_user_can( 'ss_crew' ) ) : ?>
+			<?php if ( current_user_can( 'ss_crew' ) || current_user_can( 'local-government' ) ) : ?>
 			<li>
 				情報変更
 				<div class="childs">
@@ -84,6 +91,7 @@ global $n2;
 								<option value="pending">スチームシップ確認中</option>
 								<option value="publish">ポータル登録準備中</option>
 								<option value="registered">ポータル登録済</option>
+								<option value="private">非公開</option>
 								<option value="trash">ゴミ箱</option>
 							</select>
 						</div>

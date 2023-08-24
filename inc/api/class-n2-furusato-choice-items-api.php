@@ -57,6 +57,12 @@ class N2_Furusato_Choice_Items_API {
 	 * APIデータのアップデート
 	 */
 	public function update() {
+		// すでに本日分がアップデートされていたら中止
+		$data = get_option( $this->option_name );
+		if ( $data['update'] > wp_date( 'Y-m-d' ) ) {
+			echo '既に本日分をアップデート済のため処理を中止します。';
+			exit;
+		}
 		$before = microtime( true );
 		// 自治体コードを自動取得
 		$this->set_town_code();

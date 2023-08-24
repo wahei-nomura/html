@@ -65,7 +65,7 @@ class N2_Items_API {
 			'post_status'    => 'any',
 			'numberposts'    => -1,
 			'mode'           => 'json',
-			'n2_active_flag' => $n2->n2_active_flag,
+			'n2_active_flag' => $n2->settings['N2']['稼働中'],
 		);
 		// デフォルト値を$paramsで上書き
 		self::$data['params'] = wp_parse_args( $params, $defaults );
@@ -135,6 +135,72 @@ class N2_Items_API {
 			wp_safe_redirect( $_SERVER['HTTP_REFERER'] );
 		}
 	}
+
+	/**
+	 * 削除
+	 */
+	public function delete() {
+		if ( ! is_user_logged_in() ) {
+			echo '不正アクセス';
+			exit;
+		}
+		$params = self::$data['params'];
+		wp_trash_post( $params['id'] );
+		if ( isset( $_SERVER['HTTP_REFERER'] ) ) {
+			wp_safe_redirect( $_SERVER['HTTP_REFERER'] );
+		}
+	}
+
+	/**
+	 * ゴミ箱から復元
+	 */
+	public function untrash() {
+		if ( ! is_user_logged_in() ) {
+			echo '不正アクセス';
+			exit;
+		}
+		$params = self::$data['params'];
+		wp_untrash_post( $params['id'] );
+		if ( isset( $_SERVER['HTTP_REFERER'] ) ) {
+			wp_safe_redirect( $_SERVER['HTTP_REFERER'] );
+		}
+	}
+
+	/**
+	 * 複製
+	 */
+	public function copy() {
+		if ( ! is_user_logged_in() ) {
+			echo '不正アクセス';
+			exit;
+		}
+		$params = self::$data['params'];
+		$post   = get_post( $params['id'] );
+		$meta   = json_decode( $post->post_content, true );
+		unset(
+			$meta['タイトル'],
+			$meta['事業者コード'],
+			$meta['事業者名'],
+			$meta['ステータス'],
+			$meta['返礼品コード'],
+			$meta['寄附金額'],
+			$meta['LH表示名'],
+			$meta['社内共有事項'],
+			$meta['配送伝票表示名'],
+			$meta['寄附金額固定'],
+			$meta['_neng_id'],
+			$meta['_edit_lock']
+		);
+		$postarr = array(
+			'post_title'  => "（コピー） {$post->post_title}",
+			'post_status' => 'draft',
+			'post_author' => $post->post_author,
+			'meta_input'  => $meta,
+		);
+		$id      = wp_insert_post( $postarr );
+		wp_safe_redirect( admin_url( "post.php?post={$id}&action=edit" ) );
+	}
+
 	/**
 	 * 投稿保存時にpost_contentにAPIデータを全部ぶち込む
 	 *
@@ -175,6 +241,7 @@ class N2_Items_API {
 			$post_content[ $key ] = $meta;
 		}
 		$data['post_content'] = addslashes( wp_json_encode( $post_content, JSON_UNESCAPED_UNICODE ) );
+		do_action( 'n2_items_api_after_insert_post_data', $data, $meta_input );
 		return $data;
 	}
 

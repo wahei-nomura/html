@@ -173,7 +173,10 @@ class N2_Item_Export_Base {
 			// ヘッダーをセット
 			$data[ $id ] = $this->data['header'];
 			array_walk( $data[ $id ], array( $this, 'walk_values' ), $values );
-			$data[ $id ] = array_combine( $this->data['header'], $data[ $id ] );
+			$data[ $id ] = array_filter( $data[ $id ], fn( $v ) => ! is_array( $v ) || ! empty( $v ) );
+			if ( ! empty( $data[ $id ] ) ) {
+				$data[ $id ] = array_combine( $this->data['header'], $data[ $id ] );
+			}
 		}
 		/**
 		 * [hook] n2_item_export_base_set_data
@@ -183,7 +186,7 @@ class N2_Item_Export_Base {
 		$data = array_diff_key( $data, $this->data['error'] );
 		$data = array_values( $data );
 		// dataをセット
-		$this->data['data'] = $data;
+		$this->data['data'] = array_filter( $data );// 空は削除
 	}
 
 	/**

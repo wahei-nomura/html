@@ -3,10 +3,10 @@
  * 投稿idの破棄（全部・１つ１つ）
  * 投稿idを元に商品APIを使ってリスト表示
  * 
- * @param $ jQuery
+ * @param any $ jQuery
  */
 import Vue from 'vue/dist/vue.min'
-export default ($: any) => {
+export default ($: any = jQuery) => {
 	const n2 = window['n2'];
 	const save_name = `n2_checked_post_ids_${n2.site_id}`;
 	new Vue({
@@ -16,6 +16,13 @@ export default ($: any) => {
 			ids: [],
 			thead: ['', '返礼品コード', 'タイトル', '価格', '寄附金額', '事業者名'],
 			items: [],
+			// フォームデータ
+			fd: {
+				action: 'n2_item_export_base',
+				mode: 'download',
+				type: 2,// 主に通常レジの定期便の出し分け
+			},
+			n2,
 		},
 		async created(){
 			this.ids = (sessionStorage.getItem(save_name) || '').split(',').filter(v=>v);

@@ -1,11 +1,15 @@
 import Vue from 'vue/dist/vue.min'
 import draggable from 'vuedraggable'
+import loading_view from "./loading-view";
+import save_as_pending from "./admin-post-editor-save-as-pending-post"
+
 /**
  * カスタムフィールドをVueで制御
- *
- * @param $ jQuery
- */
-export default $ => {
+*
+* @param $ jQuery
+*/
+export default ($: any = jQuery) => {
+	loading_view.add('#wpwrap');// ローディング
 	const n2 = window['n2'];
 	const wp = window['wp'];
 	const data = {};
@@ -16,10 +20,13 @@ export default $ => {
 	}
 	// current_user追加
 	data['current_user'] = n2.current_user.roles[0];
-	data['楽天SPA'] = n2.portal_setting.楽天.spa || '';
+	data['楽天SPA'] = n2.settings.楽天.楽天SPA || '';
 	data['寄附金額チェッカー'] = '';
 	data['寄附金額自動計算値'] = '';
+	data['media'] = false;
+	data['number_format'] = true;// ３桁区切りカンマ用
 	const created = async function() {
+		save_as_pending.append_button("#n2-save-post");// スチームシップへ送信
 		this.全商品ディレクトリID = {
 			text: this.全商品ディレクトリID,
 			list: [],
@@ -31,21 +38,23 @@ export default $ => {
 		};
 		
 		this.寄附金額 = await this.calc_donation(this.価格,this.送料,this.定期便);
-		this.show_submit();
+		this.control_submit();
 		// 発送サイズ・発送方法をダブル監視
 		this.$watch(
 			() => {
-				return {
-					全商品ディレクトリID: this.$data.全商品ディレクトリID.text,
-					価格: this.$data.価格,
-					発送方法: this.$data.発送方法,
-					発送サイズ: this.$data.発送サイズ,
-					送料: this.$data.送料,
-					その他送料: this.$data.その他送料,
-					定期便: this.$data.定期便,
+				// dataを全部監視する準備
+				const data = {};
+				for ( const name in this.$data ) {
+					data[name] = this.$data[name];
+					if ( '全商品ディレクトリID' === name ) {
+						data[name] = data[name].text;
+					}
 				}
+				return data;
 			},
 			async function(newVal, oldVal) {
+				// 保存ボタン
+				this.control_submit();
 				// タグIDのリセット
 				if ( newVal.全商品ディレクトリID != oldVal.全商品ディレクトリID && this.タグID.text.length ) {
 					if ( confirm('全商品ディレクトリIDが変更されます。\nそれに伴い入力済みのタグIDをリセットしなければ楽天で地味にエラーがでます。\n\nタグIDをリセットしてよろしいでしょうか？') ) {
@@ -60,10 +69,8 @@ export default $ => {
 				].filter(v=>v);
 				this.送料 = 'その他' == this.発送サイズ
 					? newVal.その他送料
-					: n2.delivery_fee[size.join('_')] || '';
+					: n2.settings['寄附金額・送料']['送料'][size.join('_')] || '';
 				this.寄附金額 = await this.calc_donation(newVal.価格,this.送料,newVal.定期便);
-				// 保存ボタン
-				this.show_submit();
 			},
 		);
 		// テキストエリア調整
@@ -72,6 +79,11 @@ export default $ => {
 		});
 		// 投稿のメタ情報を全保存
 		n2.saved_post = JSON.stringify($('form').serializeArray());
+		// ローディング削除
+		loading_view.show('#wpwrap', 500);
+		// 「進む」「戻る」の制御をデフォルトに戻す
+		wp.data.dispatch( 'core/keyboard-shortcuts' ).unregisterShortcut('core/editor/undo');
+		wp.data.dispatch( 'core/keyboard-shortcuts' ).unregisterShortcut('core/editor/redo');
 	};
 	const methods = {
 		// 説明文・テキストカウンター
@@ -115,30 +127,50 @@ export default $ => {
 			if ( ! target ) {
 				return text;
 			}
-			$event.target.value = text;
-			this[target] = text;
+			$event.target.value = this[target] = text;
+		},
+		// 価格の端数の自動調整
+		async auto_adjust_price() {
+			if ( n2.settings['寄附金額・送料']['自動価格調整'] == '調整しない' ) {
+				this.価格 = Math.ceil(this.価格);
+				return;
+			}
+			const opt = {
+				url: n2.ajaxurl,
+				data: {
+					action: 'n2_adjust_price_api',
+					price: this.価格,
+					subscription: this.定期便,
+				}
+			}
+			this.価格 = await $.ajax(opt);
 		},
 		// メディアアップローダー関連
 		add_media(){
+			if ( this.media ) {
+				this.media.open();
+				return;
+			}
 			// N1の画像データにはnoncesが無い
-			const images = wp.media({
+			this.media = wp.media({
 				title: "商品画像", 
 				multiple: "add",
-				library: {type: "image"}
+				library: {type: "image"},
 			});
-			images.on( 'open', () => {
+			this.media.on( 'open', () => {
 				// N2のものだけに
+				console.log(this.media)
 				const add =  n2.vue.商品画像.filter( v => v.nonces );
-				images.state().get('selection').add( add.map( v => wp.media.attachment(v.id) ) );
+				this.media.state().get('selection').add( add.map( v => wp.media.attachment(v.id) ) );
 			});
-			images.on( 'select close', () => {
-				images.state().get('selection').forEach( img => {
+			this.media.on( 'select close', () => {
+				this.media.state().get('selection').forEach( img => {
 					if ( ! n2.vue.商品画像.find( v => v.id == img.attributes.id ) ) {
 						n2.vue.商品画像.push( img.attributes );
 					}
 				})
 			});
-			images.open();
+			this.media.open();
 		},
 		// 楽天の全商品ディレクトリID取得（タグIDでも利用）
 		async get_genreid(){
@@ -202,8 +234,25 @@ export default $ => {
 				this.寄附金額チェッカー = check[ Math.sign( this.寄附金額 - this.寄附金額自動計算値 ) + 1 ];
 			}
 		},
+		// 取り扱い方法自動設定
+		check_handling_method() {
+			// 既に登録されている or 発送サイズがヤマト以外は何もしない
+			if ( this.取り扱い方法.length || ! this.発送サイズ.match(/010[1-8]+/) ) return;
+			// やきものにチェックしたら自動で「ビン・ワレモノ」「下積み禁止」
+			if ( this.商品タイプ.includes('やきもの') ) {
+				if ( confirm( '取り扱い方法を「ビン・ワレモノ」「下積み禁止」に設定しますか？') ) {
+					this.取り扱い方法 =  ['ビン・ワレモノ', '下積み禁止'];
+				}
+			}
+		},
 		// スチームシップへ送信ボタンの制御
-		show_submit() {
+		control_submit() {
+			// 必須漏れがあれば、「スチームシップへ送信」できなくする
+			if ( save_as_pending.rejection().length > 0 ) {
+				$('#n2-save-as-pending').addClass('opacity-50');
+			} else {
+				$('#n2-save-as-pending').removeClass('opacity-50');
+			}
 			if ( this.価格 > 0 && this.送料 > 0  ) {
 				wp.data.dispatch( 'core/editor' ).unlockPostSaving( 'n2-lock' );
 			} else {
@@ -258,6 +307,7 @@ export default $ => {
 	const components = {
 		draggable,
 	};
+
 	// メタボックスが生成されてから
 	$('.edit-post-layout__metaboxes').ready(()=>{
 		n2.vue = new Vue({

@@ -50,6 +50,12 @@ class N2_Furunavi_Items_API {
 	 * APIデータのアップデート
 	 */
 	public function update() {
+		// すでに本日分がアップデートされていたら中止
+		$data = get_option( $this->option_name );
+		if ( $data['update'] > wp_date( 'Y-m-d' ) ) {
+			echo '既に本日分をアップデート済のため処理を中止します。';
+			exit;
+		}
 		$before = microtime( true );
 		global $n2;
 		$url    = 'https://furunavi.jp/get_product_list.ashx?';

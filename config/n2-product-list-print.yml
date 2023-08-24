@@ -37,6 +37,10 @@
       attr:
         td:
           style: "text-align: left;"
+    対応機器:
+      attr:
+        td:
+          style: "text-align: left;"
     地場産品類型:
       attr:
         td:
