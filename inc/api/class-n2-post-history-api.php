@@ -50,6 +50,23 @@ class N2_Post_History_API {
 		$result = $wpdb->get_results( $wpdb->prepare( $query, $args['post_id'], $n2->site_id ), ARRAY_A );
 		$result = $this->data_shaping( $result );
 		$result = 'desc' === $order ? array_reverse( $result ) : $result;
+
+		// リビジョンを整形
+		$revisions = array_values( wp_get_post_revisions( $args['post_id'] ) );
+		$revisions = array_map(
+			function( $k, $v ) use ( $revisions ) {
+				$v->post_content = json_decode( $v->post_content, true );
+				$before = $revisions[ $k + 1 ] ?? false;
+				if ( $before ) {
+					$v->post_content = array_diff_assoc( $v->post_content, json_decode( $before->post_content, true ) );
+					$v->post_content = array_filter( $v->post_content, fn( $key ) => ! preg_match( '/^_/', $key ), ARRAY_FILTER_USE_KEY );
+				}
+				return $v;
+			},
+			array_keys( $revisions ),
+			$revisions
+		);
+		$revisions = array_values( array_filter( $revisions, fn( $v ) => $v->post_content ) );
 		// admin-ajax.phpアクセス時
 		if ( $action ) {
 			switch ( $type ) {
@@ -93,7 +110,7 @@ class N2_Post_History_API {
 					<?php
 					break;
 				case 'view':
-					get_template_part( 'template/admin-ajax/view-post-history', null, $result );
+					get_template_part( 'template/admin-ajax/view-post-history', null, $revisions );
 					break;
 				default:
 					header( 'Content-Type: application/json; charset=utf-8' );
