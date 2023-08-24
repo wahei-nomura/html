@@ -9,3 +9,11 @@
 // @use "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 $steamship: #1a4899;
 @import "bootstrap/scss/bootstrap.scss";
+#n2-history{
+	.table{
+		// table-layout: fixed;
+		th{
+			white-space: nowrap;
+		}
+	}
+}

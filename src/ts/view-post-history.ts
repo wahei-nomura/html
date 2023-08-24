@@ -1,18 +1,19 @@
 import Vue from 'vue/dist/vue.min';
 jQuery( $ => {
+	const n2 = window['n2'];
 	const data = {
-		unko: 'うんこ',
+		history: false,
 	};
 	const created = function() {
-		console.log(this.unko);
+		this.history = n2.history;
 	};
 	const methods = {
-		say_unko(){
-			alert(this.unko);
+		data_shaping( data ) {
+			return data;
 		},
 	};
 	$('#n2-history').ready(()=>{
-		new Vue({
+		n2.vue = new Vue({
 			el: '#n2-history',
 			data,
 			created,
