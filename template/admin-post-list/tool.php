@@ -39,7 +39,7 @@ global $n2;
 					<th style="text-align: left;">{{name}}</th>
 					<td style="text-align: left;">
 						<div v-if="Array.isArray(item[name])">{{item[name].join(', ')}}</div>
-						<div v-else v-html="item[name].replace(/\r\n|\r|\n/g,'<br>')"></div>
+						<div v-else v-html="item[name].toString().replace(/\r\n|\r|\n/g,'<br>')"></div>
 					</td>
 				</tr>
 			</template>

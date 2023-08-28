@@ -217,10 +217,14 @@ class N2_Items_API {
 		$post_content = array();
 		// タイトル追加
 		$post_content['タイトル'] = $data['post_title'];
-		// 特定のカスタムフィールド値のみ更新することがあるので既存の値とマージしないといけない
+
+		// 特定のカスタムフィールド値のみ更新することがあるので既存の値とマージしないといけない（が、無くなったフィールドは消したい）
 		$meta_input = array();
-		foreach ( array_keys( (array) get_post_meta( $postarr['ID'] ) ) as $key ) {
-			$meta_input[ $key ] = get_post_meta( $postarr['ID'], $key, true );
+		$meta       = get_post_meta( $postarr['ID'] );
+		if ( ! empty( $meta ) ) {
+			foreach ( array_keys( $meta ) as $key ) {
+				$meta_input[ $key ] = get_post_meta( $postarr['ID'], $key, true );
+			}
 		}
 		$meta_input = wp_parse_args( $postarr['meta_input'] ?? array(), $meta_input );
 
