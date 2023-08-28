@@ -55,6 +55,7 @@ class N2_Output_Gift_API {
 		$gift_query = <<<SELECT_SQL
 		SELECT
 			posts.post_title as title,
+			posts.post_parent,
 			postmeta.meta_key,
 			postmeta.meta_value
 		FROM
@@ -64,6 +65,7 @@ class N2_Output_Gift_API {
 		ON
 			posts.id = postmeta.post_id
 		WHERE
+			posts.post_parent = '0' AND
 			posts.id in (
 				SELECT
 					post_id
@@ -203,6 +205,7 @@ class N2_Output_Gift_API {
 		$gift_query = <<<SELECT_SQL
 		SELECT
 			posts.post_title as title,
+			posts.post_parent,
 			postmeta.meta_key,
 			postmeta.meta_value
 		FROM
@@ -212,6 +215,7 @@ class N2_Output_Gift_API {
 		ON
 			posts.id = postmeta.post_id
 		WHERE
+			post.post_parent = 0 AND
 			postmeta.meta_key in (
 				'寄附金額',
 				'返礼品コード',
