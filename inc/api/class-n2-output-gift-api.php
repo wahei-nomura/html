@@ -151,27 +151,20 @@ class N2_Output_Gift_API {
 		}
 
 		// 空の配列を作って取得したデータを整える
-		$formatted_results = array();
+		$results = array(
+			'N2'   => true,
+			'data' => array(),
+		);
 		foreach ( $data as $datum ) {
 			$title      = $datum['title'];
 			$meta_key   = $datum['meta_key'];
 			$meta_value = $datum['meta_value'];
 
-			if ( ! isset( $formatted_results[ $title ] ) ) {
-				$formatted_results[ $title ] = array( 'title' => $title );
+			if ( ! isset( $results['data']['title'] ) ) {
+				$results['data']['title'] = $datum['title'];
 			}
-			$formatted_results[ $title ][ $meta_key ] = $meta_value;
+			$results['data'][ $meta_key ] = $meta_value;
 		}
-
-		// N2稼働フラグを追加する階層を作るためにarrayに格納
-		$wrapped_results = array_values( $formatted_results );
-
-		// N2稼働フラグを追加
-		$result_with_added_flags = array_merge( $wrapped_results, array( array( 'N2' => 'true' ) ) );
-
-		// インデックス番号を取って必要なデータを取り出す & 順番を入れ替える
-		$results         = $result_with_added_flags[1];
-		$results['data'] = $result_with_added_flags[0];
 
 		// 結果をJSON形式に変換して出力
 		header( 'Content-Type: application/json' );
@@ -298,27 +291,20 @@ class N2_Output_Gift_API {
 		}
 
 		// 空の配列を作って取得したデータを整える
-		$formatted_results = array();
+		$results = array(
+			'N2'   => true,
+			'data' => array(),
+		);
 		foreach ( $data as $datum ) {
 			$title      = $datum['title'];
 			$meta_key   = $datum['meta_key'];
 			$meta_value = $datum['meta_value'];
 
-			if ( ! isset( $formatted_results[ $title ] ) ) {
-				$formatted_results[ $title ] = array( 'title' => $title );
+			if ( ! isset( $results['data']['title'] ) ) {
+				$results['data']['title'] = $datum['title'];
 			}
-			$formatted_results[ $title ][ $meta_key ] = $meta_value;
+			$results['data'][ $meta_key ] = $meta_value;
 		}
-
-		// N2稼働フラグを追加する階層を作るためにarrayに格納
-		$wrapped_results = array_values( $formatted_results );
-
-		// N2稼働フラグを追加
-		$result_with_added_flags = array_merge( $wrapped_results, array( array( 'N2' => 'true' ) ) );
-
-		// インデックス番号を取って必要なデータを取り出す & 順番を入れ替える
-		$results         = $result_with_added_flags[1];
-		$results['data'] = $result_with_added_flags[0];
 
 		// 結果をJSON形式に変換して出力
 		header( 'Content-Type: application/json' );
