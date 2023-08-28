@@ -218,7 +218,7 @@ class N2_Output_Gift_API {
 		ON
 			posts.id = postmeta.post_id
 		WHERE
-			post.post_type = 'post' AND
+			posts.post_type = 'post' AND
 			posts.post_status != 'trash' AND
 			postmeta.meta_key in (
 				'寄附金額',
