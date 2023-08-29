@@ -55,7 +55,6 @@ class N2_Product_List_Print {
 		$confirm_table_th_list = apply_filters( 'n2_product_list_print_add_confirm_table_th_list', $confirm_table_th_list );
 		$product_table_tr_list = apply_filters( 'n2_product_list_print_add_product_table_tr_list', $product_table_tr_list );
 		?>
-
 		<!DOCTYPE html>
 		<html lang="ja">
 			<head>
