@@ -159,12 +159,10 @@ class N2_Product_List_Print {
 											? $this->attr_array2str( $val['attr']['td'] )
 											: '';
 									?>
-								<?php if ( ! empty( $td ) ) : ?>
 								<tr>
 									<th<?php echo $th_attr; ?>><?php echo $th; ?></th>
 									<td colspan="2"<?php echo $td_attr; ?>><?php echo $td; ?></td>
 								</tr>
-								<?php endif; ?>
 								<?php endforeach; ?>
 								<tr style="border: 3px solid #000;">
 									<th class="bg">寄附金額</th>
