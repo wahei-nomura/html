@@ -51,67 +51,131 @@ class N2_Product_List_Print {
 		$print_css             = get_theme_file_uri( 'dist/css/admin-print.css' );
 		$confirm_table_th_list = $n2->product_list_print['確認用テーブル']['th'];
 		$product_table_tr_list = $n2->product_list_print['返礼品テーブル']['tr'];
+		// プラグイン側で追加
 		$confirm_table_th_list = apply_filters( 'n2_product_list_print_add_confirm_table_th_list', $confirm_table_th_list );
 		$product_table_tr_list = apply_filters( 'n2_product_list_print_add_product_table_tr_list', $product_table_tr_list );
 		?>
 
-		<!-- 補助コメントは後で整理するべし -->
 		<!DOCTYPE html>
 		<html lang="ja">
 			<head>
 				<meta charset="UTF-8">
 				<title>返礼品シート印刷</title>
 				<link rel="stylesheet" href="<?php echo $print_css; ?>">
-				<link href="//cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-				<!-- Vue読み込み -->
-				<script src="https://cdn.jsdelivr.net/npm/vue@2.x"></script>
 			</head>
 			<body>
-				<!-- VueApp作成 -->
-				<div id="app">
-					<div class="form-check form-switch">
-						<input class="form-check-input" type="checkbox" id="switch_1" name="switch_1" v-model="bool">
-						<label class="form-check-label" for="switch_1">つけたり消したり</label>
-					</div>
-					<!-- itemsを一個一個回す -->
-					<div v-for="p in items" :key="p['返礼品コード']">
-						<h1 v-if="!p['寄附金額']">{{ p['返礼品コード'] }}：寄附金額が入力されていません。</h1>
-						<!-- col -->
-						<div v-else>
-							<table v-if="bool">
-								<tr v-for="(value, key) in filteredData(p)">
-									<th>{{ key }}</th>
-									<td colspan="2">{{ value }}</td>
+				<?php foreach ( N2_Items_API::get_items() as $p ) : ?>
+					<?php if ( ! isset( $p['寄附金額'] ) || '' === $p['寄附金額'] ) : ?>
+						<h1><?php echo $p['返礼品コード']; ?>：寄附金額が入力されていません。</h1>
+					<?php else : ?>
+
+					<?php $confirm_table_th_list['コード'] = $p['返礼品コード'] . '&nbsp;'; ?>
+					<div class="page-break">
+						<table>
+							<tbody>
+								<tr>
+									<th class="none" colspan="2" rowspan="2">
+										<h1><?php echo $p['タイトル']; ?></h1>
+									</th>
+									<?php foreach ( $confirm_table_th_list as $th => $_ ) : ?>
+										<th class="bg"><?php echo $th; ?></th>
+									<?php endforeach; ?>
 								</tr>
-							</table>
-						</div>
+								<tr>
+									<?php foreach ( $confirm_table_th_list as $_ => $td ) : ?>
+										<td><?php echo $td; ?></td>
+									<?php endforeach; ?>
+								</tr>
+							</tbody>
+						</table>
+						<table>
+							<tbody>
+								<tr>
+									<td class="none" colspan="3">&nbsp;</td>
+								</tr>
+								<tr>
+									<th class="bg">項目</th>
+									<th class="bg" colspan="2">内容</th>
+								</tr>
+								<?php foreach ( $product_table_tr_list as $th => $val ) : ?>
+									<?php
+										$td = $p[ $val['meta_key'] ] ?? $p[ $th ];
+										$td = nl2br( $td );
+										$td = preg_replace( '@\t|\r|\n|@', '', $td );
+										$td = preg_replace( '@(<br />)+@', '<br />', $td );
+										// thで分岐
+										switch ( $th ) {
+											case '事業者名':
+												$td = $p['事業者名'];
+												break;
+											case '価格':
+												$td = $p['価格'];
+												$td = number_format( $td );
+												break;
+											case '送料':
+												if ( ! $td || is_numeric( $p['発送サイズ'] ) ) {
+													continue 2;
+												}
+												$td = number_format( $td );
+												break;
+											case '定期便回数':
+												$td  = $td > 1
+													? $td . '回定期便'
+													: '定期便ではない';
+												$td .= '&nbsp';
+												break;
+											case 'キャッチコピー':
+												$td .= '&nbsp';
+												break;
+											case '地場産品類型':
+												if ( $td ) {
+													$td .= '<br>';
+												}
+												$td .= '類型該当理由：' . $p['類型該当理由'];
+												break;
+											case 'アレルギー':
+												$td  = empty( $p['アレルゲン'] ) ? '' : '含んでいる品目：' . implode( ',', $p['アレルゲン'] );
+												$td .= $p['アレルゲン注釈'] ? "<br>※ {$p['アレルゲン注釈']}" : '';
+												break;
+											case '発送サイズ':
+												$td = ( is_numeric( $td ) )
+													? ( ( mb_substr( $td, -1 ) * 20 ) + 40 ) . 'サイズ'
+													: $td;
+												break;
+											case '対応機器':
+												if ( in_array( 'やきもの', $p['商品タイプ'], true ) ) {
+													$td = array( '電子レンジ対応', 'オーブン対応', '食洗機対応' );
+													foreach ( $td as $key => $value ) {
+														$td[ $key ] = "{$value}：{$p[ $value ]}";
+													}
+													$td = implode( '　', $td );
+													$td .= "<br>{$p['対応機器備考']}";
+												}
+												break;
+										}
+										$th_attr = isset( $val['attr']['th'] )
+											? $this->attr_array2str( $val['attr']['th'] )
+											: '';
+										$td_attr = isset( $val['attr']['td'] )
+											? $this->attr_array2str( $val['attr']['td'] )
+											: '';
+									?>
+								<?php if ( ! empty( $td ) ) : ?>
+								<tr>
+									<th<?php echo $th_attr; ?>><?php echo $th; ?></th>
+									<td colspan="2"<?php echo $td_attr; ?>><?php echo $td; ?></td>
+								</tr>
+								<?php endif; ?>
+								<?php endforeach; ?>
+								<tr style="border: 3px solid #000;">
+									<th class="bg">寄附金額</th>
+									<td colspan="2" style="font-size: 18px;font-weight: bold;"><?php echo number_format( $p['寄附金額'] ); ?></td>
+								</tr>
+							</tbody>
+						</table>
 					</div>
-				</div>
-				<script>
-					// App
-					new Vue({
-						el: '#app',
-						data: {
-							items: <?php echo json_encode( N2_Items_API::get_items() ); ?>,
-							bool: true,
-						},
-						methods: {
-							filteredData: function(p) {
-								const keys_to_extract = [ '返礼品コード', 'タイトル' ];
-								let data = {};
-
-								keys_to_extract.forEach(key => {
-									if (p[key]) data[key] = p[key];
-								});
-
-								return data;
-							},
-							toggle: function(prop) {
-								this[prop] = !this[prop];
-							}
-						}
-					});
-				</script>
+					<?php endif; ?>
+				<?php endforeach; ?>
 			</body>
 		</html>
 	<?php
