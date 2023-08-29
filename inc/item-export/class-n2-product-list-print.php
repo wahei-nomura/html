@@ -54,6 +54,10 @@ class N2_Product_List_Print {
 		// プラグイン側で追加
 		$confirm_table_th_list = apply_filters( 'n2_product_list_print_add_confirm_table_th_list', $confirm_table_th_list );
 		$product_table_tr_list = apply_filters( 'n2_product_list_print_add_product_table_tr_list', $product_table_tr_list );
+		// 出力お試しゾーン
+		// print_r( $confirm_table_th_list );
+		// print_r( wp_json_encode( $confirm_table_th_list ) );
+		// print_r( wp_json_encode( $product_table_tr_list ) );
 		?>
 		<!DOCTYPE html>
 		<html lang="ja">
@@ -65,18 +69,26 @@ class N2_Product_List_Print {
 			</head>
 			<body>
 				<!-- VueApp -->
-				<div id="app">
-					<!-- CSS class命名規則参照の必要あり -->
-					<div class="checkbox-wrapper">
+				<div id="app" class="page-break">
+					<!-- CSS class命名規則 吟味 -->
+					<span class="checkbox-wrapper">
 						<input type="checkbox" v-model="deliveryFee">
 						<label>送料</label>
-					</div>
+					</span>
+					<span class="checkbox-wrapper">
+						<input type="checkbox" v-model="supportDevice">
+						<label>対応機器</label>
+					</span>
+					<span class="checkbox-wrapper">
+						<input type="checkbox" v-model="empty">
+						<label>入力なし</label>
+					</span>
 					<?php foreach ( N2_Items_API::get_items() as $p ) : ?>
 						<?php if ( ! isset( $p['寄附金額'] ) || '' === $p['寄附金額'] ) : ?>
 							<h1><?php echo $p['返礼品コード']; ?>：寄附金額が入力されていません。</h1>
 						<?php else : ?>
 						<?php $confirm_table_th_list['コード'] = $p['返礼品コード'] . '&nbsp;'; ?>
-						<div class="page-break">
+						<div>
 							<table>
 								<tbody>
 									<tr>
@@ -105,10 +117,10 @@ class N2_Product_List_Print {
 									</tr>
 									<?php foreach ( $product_table_tr_list as $th => $val ) : ?>
 										<?php
-											$td = $p[ $val['meta_key'] ] ?? $p[ $th ];
-											$td = nl2br( $td );
-											$td = preg_replace( '@\t|\r|\n|@', '', $td );
-											$td = preg_replace( '@(<br />)+@', '<br />', $td );
+											$td = $p[ $val['meta_key'] ] ?? $p[ $th ];           // meta_keyがnullだったら$thを適用
+											$td = nl2br( $td );                                  // \nを<br />に
+											$td = preg_replace( '@\t|\r|\n|@', '', $td );        // \t,\r,\nを''に
+											$td = preg_replace( '@(<br />)+@', '<br />', $td );  // 連続する<br />を単一の<br />に
 											// thで分岐
 											switch ( $th ) {
 												case '事業者名':
@@ -171,6 +183,16 @@ class N2_Product_List_Print {
 										<th<?php echo $th_attr; ?>><?php echo $th; ?></th>
 										<td colspan="2"<?php echo $td_attr; ?>><?php echo $td; ?></td>
 									</tr>
+									<?php elseif ( '対応機器' === $th ) : ?>
+									<tr v-if="supportDevice">
+										<th<?php echo $th_attr; ?>><?php echo $th; ?></th>
+										<td colspan="2"<?php echo $td_attr; ?>><?php echo $td; ?></td>
+									</tr>
+									<?php elseif ( '' === $td || '無し' === $td || '限定なし' === $td ) : // ここもっといい感じに ?>
+									<tr v-if="empty">
+										<th<?php echo $th_attr; ?>><?php echo $th; ?></th>
+										<td colspan="2"<?php echo $td_attr; ?>><?php echo $td; ?></td>
+									</tr>
 									<?php else : ?>
 									<?php // if ( ! empty( $td ) ) : ?>
 									<tr>
@@ -195,6 +217,8 @@ class N2_Product_List_Print {
 						el: '#app',
 						data: {
 							deliveryFee: true,
+							supportDevice: false,
+							empty: false,
 						},
 					});
 				</script>

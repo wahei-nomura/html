@@ -42,3 +42,8 @@ th,td{
 .none{
 	border: none;
 }
+@media print {
+	.checkbox-wrapper {
+		display: none;
+	}
+}
