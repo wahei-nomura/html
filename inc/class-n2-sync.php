@@ -327,6 +327,7 @@ class N2_Sync {
 		// $params変更
 		$params['action']  = 'n2_sync_posts';
 		$params['n2nonce'] = wp_create_nonce( 'n2nonce' );
+		$params['force']   = $_GET['force'] ?? false;
 
 		// n2_sync_posts に Multi cURL
 		$mh       = curl_multi_init();
@@ -620,9 +621,16 @@ class N2_Sync {
 					update_post_meta( $p->ID, '事業者確認', $confirm );
 				}
 				$neng_ids[] = $p->ID;
-				// 更新されてない場合はスキップ
-				if ( $p->post_modified >= $postarr['post_modified'] ) {
-					continue;
+				if ( $params['force'] ) {
+					// forceパラメータの日時以降はスキップ
+					if ( $p->post_modified > $params['force'] ) {
+						continue;
+					}
+				} else {
+					// 更新されてない場合はスキップ
+					if ( $p->post_modified >= $postarr['post_modified'] ) {
+						continue;
+					}
 				}
 				$postarr['ID'] = $p->ID;
 				// ログ生成
