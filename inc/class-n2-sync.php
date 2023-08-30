@@ -563,15 +563,15 @@ class N2_Sync {
 			unset( $postarr['meta_input']['キャッチコピー１'], $postarr['meta_input']['楽天カテゴリー'] );
 
 			// 発送サイズ関連
-			$postarr['meta_input']['発送サイズ'] = $postarr['meta_input']['発送サイズ'] ?? '';
-			// 発送サイズの「レターパック」互換
-			if ( 'レターパック' === $postarr['meta_input']['発送サイズ'] ) {
-				$postarr['meta_input']['発送サイズ'] = 'レターパックプラス';
-			}
-			// 発送サイズの「その他」の統一
-			if ( 'その他（ヤマト以外）' === $postarr['meta_input']['発送サイズ'] ) {
-				$postarr['meta_input']['発送サイズ'] = 'その他';
-			}
+			$postarr['meta_input']['発送サイズ'] = match ( $postarr['meta_input']['発送サイズ'] ?? '' ) {
+				'レターパック' => 'レターパックプラス',
+				'ゆうパケット1cm' => 'ゆうパケット厚さ1cm',
+				'ゆうパケット2cm' => 'ゆうパケット厚さ2cm',
+				'ゆうパケット3cm' => 'ゆうパケット厚さ3cm',
+				'その他（ヤマト以外）' => 'その他',
+				default => $postarr['meta_input']['発送サイズ'] ?? '',
+			};
+
 			// 自治体確認
 			if ( isset( $postarr['meta_input']['市役所確認'] ) ) {
 				$postarr['meta_input']['自治体確認'] = match ( $postarr['meta_input']['市役所確認'] ) {
