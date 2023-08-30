@@ -26,7 +26,8 @@ class N2_RMS_Shop_API extends N2_RMS_Base_API {
 	public static function delvdate_master_get() {
 		$url = static::$settings['endpoint'] . '/1.0/shop/delvdateMaster';
 		$data    = wp_remote_get( $url, array( 'headers' => static::$data['header'] ) );
-		$result = simplexml_load_string( $data['body'] )->result->delvdateMasterList;
-		return $result;
+		$result = (array) simplexml_load_string( $data['body'] )->result->delvdateMasterList;
+		$master = $result['delvdateMaster'];
+		return $master;
 	}
 }
