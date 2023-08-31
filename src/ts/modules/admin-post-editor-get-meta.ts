@@ -17,9 +17,9 @@ export default ($: any = jQuery) => {
 		try { meta[ name[1] ] = JSON.parse(meta[ name[1] ]); } catch {}
 	}
 	// 見えないデータは空で取得しておく
-	for ( let d of Object.keys(n2.vue.$data) ) {
-		if ( ! meta[d] ) meta[d] = '';
-	}
+	// for ( let d of Object.keys(n2.vue.$data) ) {
+	// 	if ( ! meta[d] ) meta[d] = '';
+	// }
 	console.log('meta', meta);
 	return meta;
 }
