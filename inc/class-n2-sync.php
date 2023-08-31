@@ -633,8 +633,8 @@ class N2_Sync {
 					$postarr['meta_input'] = array_filter(
 						$postarr['meta_input'],
 						function ( $v, $k ) use ( $meta ) {
-							// N2のカスタムフィールドに値が無い
-							return ! in_array( $k, $meta, true );
+							// N2のカスタムフィールドに値が無い　かつ　N1も空じゃない
+							return ! in_array( $k, $meta, true ) && ! empty( array_filter( (array) $v ) );
 						},
 						ARRAY_FILTER_USE_BOTH
 					);
