@@ -641,10 +641,10 @@ class N2_Sync {
 					if ( empty( $postarr['meta_input'] ) ) {
 						continue;
 					}
-					// 更新日を破棄（今になる）
-					unset( $postarr['post_modified'] );
-					// 更新日時は保持する
-					// $postarr['post_modified'] = $p->post_modified;
+					$postarr = array_filter( $postarr, fn( $k ) => 'meta_input' === $k, ARRAY_FILTER_USE_KEY );// メタデータのみに
+					$postarr = wp_parse_args( $postarr, wp_parse_args( $p ) );// 既存の返礼品データにメタデータのみをマージ
+					// 更新日時とpost_contentは破棄
+					unset( $postarr['post_modified'], $postarr['post_modified_gmt'], $postarr['post_content'] );
 				} else {
 					// 更新されてない場合はスキップ
 					if ( $p->post_modified >= $postarr['post_modified'] ) {
