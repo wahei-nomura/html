@@ -651,7 +651,7 @@ class N2_Sync {
 				}
 				$postarr['ID'] = $p->ID;
 				// ログ生成
-				// $this->log( array( ...$logs, "「{$p->post_title}」を更新しました。{$p->post_modified}  {$v['post_modified']}" ) );
+				$this->log( array( ...$logs, "「{$p->post_title}」を更新しました。{$p->post_modified}  {$v['post_modified']}" ) );
 			}
 			add_filter( 'wp_insert_post_data', array( $this, 'alter_post_modification_time' ), 99, 2 );
 			$neng_ids[] = wp_insert_post( $postarr );
