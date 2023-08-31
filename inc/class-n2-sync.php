@@ -632,11 +632,17 @@ class N2_Sync {
 					// N2に値が入っているものを排除
 					$postarr['meta_input'] = array_filter(
 						$postarr['meta_input'],
-						function ( $k ) use ( $meta ) {
-							return ! in_array( $k, $meta, true );
+						function ( $v, $k ) use ( $meta ) {
+							// N2のカスタムフィールドに値が無い　かつ　N1も空じゃない
+							return ! in_array( $k, $meta, true ) && ! empty( array_filter( (array) $v ) );
 						},
-						ARRAY_FILTER_USE_KEY
+						ARRAY_FILTER_USE_BOTH
 					);
+					if ( empty( $postarr['meta_input'] ) ) {
+						continue;
+					}
+					// 更新日時は保持する
+					$postarr['post_modified'] = $p->post_modified;
 				} else {
 					// 更新されてない場合はスキップ
 					if ( $p->post_modified >= $postarr['post_modified'] ) {
@@ -645,7 +651,7 @@ class N2_Sync {
 				}
 				$postarr['ID'] = $p->ID;
 				// ログ生成
-				$this->log( array( ...$logs, "「{$p->post_title}」を更新しました。{$p->post_modified}  {$v['post_modified']}" ) );
+				// $this->log( array( ...$logs, "「{$p->post_title}」を更新しました。{$p->post_modified}  {$v['post_modified']}" ) );
 			}
 			add_filter( 'wp_insert_post_data', array( $this, 'alter_post_modification_time' ), 99, 2 );
 			$neng_ids[] = wp_insert_post( $postarr );
