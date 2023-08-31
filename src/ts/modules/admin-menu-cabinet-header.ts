@@ -34,7 +34,7 @@ export default Vue.extend({
 			this.$store.dispatch('updateFileSet',{
 				isTrashBox: false,
 				isLoading: true,
-				selectedFile: null,
+				focusFile: null,
 				selectedFolder: {FolderName:'検索結果'},
 			});
 			await axios.post(

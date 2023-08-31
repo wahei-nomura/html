@@ -19,20 +19,20 @@ export default Vue.extend({
 			return Math.round( ( 1 - this.availSpace / this.maxSpace ) * 100 * 10 ) / 10 || 0;
 		},
 		...mapState([
-			'selectedFile',
+			'focusFile',
 			'n2nonce',
 		]),
 		thumbnailUrl(){
-			if (this.selectedFile) {
-				return this.selectedFile?.FileUrl.replace(
+			if (this.focusFile) {
+				return this.focusFile?.FileUrl.replace(
 					"image.rakuten.co.jp",
 					"thumbnail.image.rakuten.co.jp/@0_mall"
 				) + "?_ex=200x200";
 			}
 		},
 		formatTimeStamp(){
-			if(this.selectedFile) {
-				return this.selectedFile.TimeStamp.split(/\s/)[0].replace(/-/g, "/");
+			if(this.focusFile) {
+				return this.focusFile.TimeStamp.split(/\s/)[0].replace(/-/g, "/");
 			}
 		},
 	},
@@ -66,7 +66,7 @@ export default Vue.extend({
 			if( this.activeTimer ) {
 				clearTimeout(this.activeTimer);
 			}
-			navigator.clipboard.writeText(this.selectedFile.FileUrl);
+			navigator.clipboard.writeText(this.focusFile.FileUrl);
 			this.activeTimer = setTimeout(()=>{
 				this.isActive = false;
 				this.activeTimer = null;
@@ -74,7 +74,7 @@ export default Vue.extend({
 		}
     },
 	template:`
-		<aside id="right-aside" class="col-3 pt-3" :class="{'d-none': !selectedFile}">
+		<aside id="right-aside" class="col-3 pt-3" :class="{'d-none': !focusFile}">
 			<div>
 				<div class="progress">
 					<div class="progress-bar" role="progressbar" :style="'width:' + useSpaceRate + '%'" :aria-valuenow="useSpaceRate" aria-valuemin="0" aria-valuemax="100">{{useSpaceRate}}%</div>
@@ -84,21 +84,21 @@ export default Vue.extend({
 			<div class="card p-0">
 				<img @click="showModal('image')" id="right-aside-list-img" class="card-img-top"
 					data-bs-toggle="modal" data-bs-target="#CabinetModal" role="button" decoding=“async”
-					:src="thumbnailUrl" :alt="selectedFile?.FileName"
+					:src="thumbnailUrl" :alt="focusFile?.FileName"
 				>
 				<div class="card-body p-0">
 					<ul id="right-aside-list" class="list-group list-group-flush">
 						<li class="list-group-item" data-label="画像名" data-key="FileName">
-							{{selectedFile?.FileName}}
+							{{focusFile?.FileName}}
 						</li>
 						<li class="list-group-item" data-label="ファイル名" data-key="FilePath">
-							{{selectedFile?.FilePath}}
+							{{focusFile?.FilePath}}
 						</li>
 						<li class="list-group-item" data-label="登録/変更日" data-key="TimeStamp">
 							{{formatTimeStamp}}
 						</li>
 						<li class="list-group-item" data-label="サイズ" data-key="FileSize">
-							{{selectedFile?.FileSize}}
+							{{focusFile?.FileSize}}
 						</li>
 						<li class="list-group-item d-flex align-items-center justify-content-between" data-label="画像保存先" data-key="FileUrl">
 							<button type="button" @click="copiedLink" class="url-clipboard btn btn-secondary" :class="{active: isActive}" >

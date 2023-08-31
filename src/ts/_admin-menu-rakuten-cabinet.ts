@@ -211,7 +211,7 @@ jQuery(function ($) {
 			e.preventDefault();
 
 			// ドロップされたファイルを取得
-			const files = e.originalEvent.dataTransfer.files;
+			const files = e.dataTransfer.files;
 			const $form = $(this).find("form");
 			$form.find('input[type="file"]').prop("files", files);
 			const formData = new FormData($form[0] as HTMLFormElement);

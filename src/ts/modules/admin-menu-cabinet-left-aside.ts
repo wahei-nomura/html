@@ -27,7 +27,7 @@ export default Vue.extend({
 			this.$store.commit('SET_TREE',this.folders);
 		},
 		updateTrahBoxFiles(){
-			this.commit('SET_FORMDATA',{
+			this.$store.commit('SET_FORMDATA',{
 				call: 'trashbox_files_get',
 			})
 			this.$store.dispatch('updateTrahBoxFiles');
@@ -50,7 +50,6 @@ export default Vue.extend({
 		this.buildTree();
 		this.updateFiles( this.rootFolder );
 		console.log('create');
-		this.formData.n2nonce = this.n2nonce;
 	},
 	template:`
 		<aside id="left-aside" ref="left-aside" class='overflow-auto col-3'>

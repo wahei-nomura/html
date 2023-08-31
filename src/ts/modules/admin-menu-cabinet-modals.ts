@@ -11,7 +11,7 @@ export default Vue.extend({
 		...mapState([
 			'isLoading',
 			'modal',
-			'selectedFile',
+			'focusFile',
 		]),
 	},
 	methods:{
@@ -25,7 +25,7 @@ export default Vue.extend({
 	template:`
 	<div>
 		<div @click="hideModeal" :class="{'d-none': modal !== 'move' }" class="cabinet-modal position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center">
-			<form>
+			<form @click.stop class="bg-light px-3 py-2 rounded">
 				<div class="d-none">
 					<input type="hidden" name="action" value="n2_rms_cabinet_api_ajax">
 					<input type="hidden" name="n2nonce" value="<?php echo esc_attr( wp_create_nonce( 'n2nonce' ) ); ?>">
@@ -51,12 +51,12 @@ export default Vue.extend({
 					<input type="text" name="targetFolderName" list="folders">
 				</div>
 				<div class="d-flex pb-2">
-					<button class="btn btn-secondary flex-fill" type="submit" data-bs-dismiss="modal">移動する</button>
+					<button @click.prevent="move" class="btn btn-secondary flex-fill" type="submit" data-bs-dismiss="modal">移動する</button>
 				</div>
 			</form>
 		</div>
 		<div @click="hideModeal" :class="{'d-none': modal !== 'create' }" class="cabinet-modal position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center">
-			<form @click.stop class="bg-light p-3 rounded">
+			<form @click.stop class="bg-light px-3 py-2 rounded">
 				<div class="d-none">
 					<input type="hidden" name="call" value="folder_insert">
 					<input type="hidden" name="upperFolderId" value="">
@@ -78,7 +78,7 @@ export default Vue.extend({
 			</form>
 		</div>
 		<div @click="hideModeal" :class="{'d-none': modal !== 'image' }" class="cabinet-modal position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center">
-			<img @click.stop :src="selectedFile?.FileUrl" :alt="selectedFile?.FileName" class="img-fluid" style="max-width:75vw;">
+			<img @click.stop :src="focusFile?.FileUrl" :alt="focusFile?.FileName" class="img-fluid" style="max-width:75vw;">
 		</div>
 		<div id="loadingModal" :class="{'d-none':!isLoading }" class="cabinet-modal position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center">
 			<span class="spinner-grow text-primary" role="status"></span>

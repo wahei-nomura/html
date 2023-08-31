@@ -11,7 +11,8 @@ export default new Vuex.Store({
   // state, mutations, actions, getters などを定義します
 	state: {
 		files: [],
-		selectedFile: null,
+		focusFile: null,
+		selectedFiles: [],
 		folders: [],
 		rootFolder: null,
 		selectedFolder: null,
@@ -35,8 +36,14 @@ export default new Vuex.Store({
 			state.files = files;
 			state.isLoading = false;
 		},
-		SET_SELECTED_FILE ( state, file:cabinetImage ) {
-			state.selectedFile = file;
+		SET_FOCUS_FILE ( state, file:cabinetImage ) {
+			state.focusFile = file;
+		},
+		ADD_SELECTED_FILE_ID(state, fileId:string) {
+			state.selectedFiles = [...state.selectedFiles, fileId];
+		},
+		REMOVE_SELECTED_FILE_ID(state, fileId:string) {
+			state.selectedFiles = state.selectedFiles.filter(id=>id !== fileId);
 		},
 		SET_FOLDERS (state, folders:cabinetFolder[]) {
 			state.folders = folders;
@@ -107,8 +114,8 @@ export default new Vuex.Store({
 					case 'isLoading':
 						commit("IS_LOADING",update[key]);
 						break;
-					case 'selectedFile':
-						commit("SET_SELECTED_FILE",update[key]);
+					case 'focusFile':
+						commit("SET_FOCUS_FILE",update[key]);
 						break;
 					case 'selectedFolder':
 						commit("SET_SELECTED_FOLDER",update[key]);
@@ -124,7 +131,7 @@ export default new Vuex.Store({
 				{
 					isTrashBox: false,
 					isLoading: true,
-					selectedFile: null,
+					focusFile: null,
 					selectedFolder: folder,
 				}
 			)
@@ -148,7 +155,7 @@ export default new Vuex.Store({
 				{
 					isTrashBox: true,
 					isLoading: true,
-					selectedFile: null,
+					focusFile: null,
 					selectedFolder: {FolderName:'ゴミ箱'},
 				}
 			)
@@ -195,6 +202,14 @@ export default new Vuex.Store({
 			// 追加分をリセット
 			commit('SET_FORMDATA',{});
 			return data;
+		},
+		toggleFileSelection({commit,state},fileId:string){
+			if (state.selectedFiles.includes(fileId)) {
+				commit('REMOVE_SELECTED_FILE_ID', fileId);
+			} else {
+				commit('ADD_SELECTED_FILE_ID', fileId);
+			}
+			console.log(state.selectedFiles);
 		},
 	},
 	getters: {

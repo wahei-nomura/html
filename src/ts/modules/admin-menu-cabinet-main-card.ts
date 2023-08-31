@@ -21,7 +21,7 @@ export default Vue.extend({
 	},
 	computed: {
 		...mapState([
-			'selectedFile',
+			'focusFile',
 			'modal',
 		]),
 		...mapGetters([
@@ -33,24 +33,30 @@ export default Vue.extend({
 				"thumbnail.image.rakuten.co.jp/@0_mall"
 			) + "?_ex=137x137";
 		},
+		isSelected(){
+			return this.$store.state.selectedFiles.includes(this.image.FileId)
+		}
 	},
 	methods: {
 		...mapActions([
 			'showModal',
 		]),
 		checkSelected(){
-			return this.filterFiles.length && this.image.FileId === this.selectedFile?.FileId;
+			return this.filterFiles.length && this.image.FileId === this.focusFile?.FileId;
 		},
-		selected(){
+		focus(){
 			if(this.filterFiles.length) {
-				this.$store.commit('SET_SELECTED_FILE',this.image);
+				this.$store.commit('SET_FOCUS_FILE',this.image);
 			}
 		},
+		toggleSelection(){
+			this.$store.dispatch('toggleFileSelection',this.image.FileId);
+		}
 	},
 	template:`
-		<div @click="selected" class="card shadow me-2" :class="{'flex-fill':!url, active:checkSelected() }" :style="!url&&maxWidth">
+		<div @click="focus" class="card shadow me-2" :class="{'flex-fill':!url, active:checkSelected() }" :style="!url&&maxWidth">
 			<div v-if="url" class="card-header d-flex align-items-center justify-content-between">
-				<input type="checkbox" name="selected">
+				<input type="checkbox" name="selected" :checked="isSelected" @click.stop @change="toggleSelection">
 				<span class="card-text">{{image.FileSize}}</span>
 			</div>
 			<img @click="showModal('image')" v-if="url" :src="thumbnailUrl" class="card-img-top cabinet-img" :alt="image.FileName"
