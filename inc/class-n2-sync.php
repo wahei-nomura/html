@@ -641,8 +641,10 @@ class N2_Sync {
 					if ( empty( $postarr['meta_input'] ) ) {
 						continue;
 					}
+					// 更新日を破棄（今になる）
+					unset( $postarr['post_modified'] );
 					// 更新日時は保持する
-					$postarr['post_modified'] = $p->post_modified;
+					// $postarr['post_modified'] = $p->post_modified;
 				} else {
 					// 更新されてない場合はスキップ
 					if ( $p->post_modified >= $postarr['post_modified'] ) {
