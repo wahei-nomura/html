@@ -20,10 +20,10 @@ export default Vue.extend({
 		},
 		...mapState([
 			'focusFile',
-			'n2nonce',
+			'isTrashBox',
 		]),
 		thumbnailUrl(){
-			if (this.focusFile) {
+			if (this.focusFile?.FileUrl) {
 				return this.focusFile?.FileUrl.replace(
 					"image.rakuten.co.jp",
 					"thumbnail.image.rakuten.co.jp/@0_mall"
@@ -48,14 +48,12 @@ export default Vue.extend({
             this.selectedFolder = folder;
         },
 		async updateUsage(){
-			this.$store.commit('SET_FORMDATA',{
-				call: "usage_get",
+			await this.$store.dispatch('ajaxPost',{
+				formData:{
+					call: "usage_get",
+				},
 			})
-			const formData = await this.$store.dispatch('makeFormData');
-			return await axios.post(
-				window['n2'].ajaxurl,
-				formData,
-			).then(resp=>resp.data.cabinetUsageGetResult)
+			.then(resp=>resp.data.cabinetUsageGetResult)
 			.then(result=>{
 				this.maxSpace = ( result.MaxSpace / 1000 );
 				this.availSpace = Math.round( result.AvailSpace / 1000 / 1000 * 10 ) / 10;
@@ -74,7 +72,7 @@ export default Vue.extend({
 		}
     },
 	template:`
-		<aside id="right-aside" class="col-3 pt-3" :class="{'d-none': !focusFile}">
+		<aside v-if="!isTrashBox" id="right-aside" class="col-3 pt-3" :class="{'d-none': !focusFile || isTrashBox}">
 			<div>
 				<div class="progress">
 					<div class="progress-bar" role="progressbar" :style="'width:' + useSpaceRate + '%'" :aria-valuenow="useSpaceRate" aria-valuemin="0" aria-valuemax="100">{{useSpaceRate}}%</div>

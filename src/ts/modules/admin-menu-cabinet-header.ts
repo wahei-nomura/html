@@ -29,18 +29,16 @@ export default Vue.extend({
 			keywords.forEach((keyword:string, i:number) => {
 				formData[`keywords[${i}]`] = keyword;
 			});
-			await this.$store.commit('SET_FORMDATA',formData);
-			const data = await this.$store.dispatch('makeFormData');
-			this.$store.dispatch('updateFileSet',{
+			this.$store.dispatch('commitStates',{
 				isTrashBox: false,
 				isLoading: true,
 				focusFile: null,
 				selectedFolder: {FolderName:'検索結果'},
 			});
-			await axios.post(
-				window["n2"]["ajaxurl"],
-				data,
-			).then(resp=>{
+			await this.$store.dispatch('ajaxPost',{
+				formData:formData,
+			})
+			.then(resp=>{
 				let files = Object.values(resp.data).flat() as cabinetImage[];
 				files = files.filter(file=>{
 					return file.hasOwnProperty('FileId');

@@ -11,27 +11,19 @@ export default Vue.extend({
     },
 	computed:{
 		...mapState([
-			'n2nonce',
 			'isTrashBox',
 			'folders',
 			'rootFolder',
 			'tree',
+			'offsetHeight',
 		]),
 	},
     methods: {
 		...mapActions([
 			'updateFiles',
 			'updateFolders',
+			'updateTrahBoxFiles'
 		]),
-		buildTree(){
-			this.$store.commit('SET_TREE',this.folders);
-		},
-		updateTrahBoxFiles(){
-			this.$store.commit('SET_FORMDATA',{
-				call: 'trashbox_files_get',
-			})
-			this.$store.dispatch('updateTrahBoxFiles');
-		},
 		createFolder(){
 			console.log('create?');
 			this.showInputModal();
@@ -47,12 +39,11 @@ export default Vue.extend({
 	},
 	async mounted(){
 		await this.updateFolders();
-		this.buildTree();
 		this.updateFiles( this.rootFolder );
 		console.log('create');
 	},
 	template:`
-		<aside id="left-aside" ref="left-aside" class='overflow-auto col-3'>
+		<aside id="left-aside" ref="left-aside" class='overflow-auto col-3' :style="offsetHeight">
 			<nav class="d-flex justify-content-around pt-3 pb-1">
 				<button @click.prevent="showModal('create')" class="btn btn-outline-secondary btn-sm" type="button" name="folder_insert"
 				>

@@ -25,10 +25,11 @@ export default Vue.extend({
 			'folders',
 			'selectedFolder',
 			'isTrashBox',
+			'isLoading',
 		]),
 		check(){
 			return this.shouldCheck();
-		}
+		},
 	},
 	methods: {
 		...mapActions([
@@ -60,8 +61,8 @@ export default Vue.extend({
 		getIconClass(li) {
 			const folderId = this.getFolderId(li);
 			return {
-				'spinner-border spinner-border-sm': this.isLoading && folderId === this.selectedFolderId,
-				'bi bi-folder2-open': !(this.isLoading && folderId === this.selectedFolderId)
+				'spinner-border spinner-border-sm': this.isLoading && folderId === this.selectedFolder?.FolderId,
+				'bi bi-folder2-open': !(this.isLoading && folderId === this.selectedFolder?.FolderId)
 			};
 		},
 		shouldCheck(){
@@ -86,7 +87,7 @@ export default Vue.extend({
 			<label class='folder-open'>
 				<input name='folder-open' type="checkbox" :checked="check">
 			</label>
-			<span :data-path="getDataPath(li)" :data-id="getFolderId(li)" @click="updateFiles(getFolder(li))" :class="getSpanClass(li)">
+			<span :data-path="getDataPath(li)" :data-id="getFolderId(li)"  @click="updateFiles(getFolder(li))" :class="getSpanClass(li)">
 				<i :class="getIconClass(li)"></i> {{ getFolderName(li) }}
 			</span>
 			<FolderTree v-if="child" :parent="child" :path="getPath(li)" :folder="getFolder(li)" />

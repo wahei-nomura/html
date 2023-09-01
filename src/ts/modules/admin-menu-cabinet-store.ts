@@ -2,7 +2,7 @@ import Vue from 'vue/dist/vue.min';
 import Vuex from 'vuex/dist/vuex.min';
 import axios,{ AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import { cabinetFolder,cabinetImage } from './admin-menu-cabinet-interface';
-
+import $ from 'jquery';
 
 
 Vue.use(Vuex);
@@ -42,8 +42,14 @@ export default new Vuex.Store({
 		ADD_SELECTED_FILE_ID(state, fileId:string) {
 			state.selectedFiles = [...state.selectedFiles, fileId];
 		},
+		ADD_ALL_SELECTED_FILE_ID(state, fileIds:string[]) {
+			state.selectedFiles = fileIds;
+		},
 		REMOVE_SELECTED_FILE_ID(state, fileId:string) {
 			state.selectedFiles = state.selectedFiles.filter(id=>id !== fileId);
+		},
+		REMOVE_ALL_SELECTED_FILE_ID(state) {
+			state.selectedFiles = [];
 		},
 		SET_FOLDERS (state, folders:cabinetFolder[]) {
 			state.folders = folders;
@@ -83,9 +89,9 @@ export default new Vuex.Store({
 		SET_N2NONCE(state, n2nonce:string){
 			state.n2nonce = n2nonce;
 		},
-		SET_TREE(state, folders:cabinetFolder[]){
+		SET_TREE(state){
 			const tree = {};
-			const root = folders[0];
+			const root = state.folders[0];
 			// Recursive function to build the tree
 			const buildTreeRecursive = (parent, path:string[]) => {
 				const p = path.shift();
@@ -95,7 +101,7 @@ export default new Vuex.Store({
 				}
 			};
 			// Build the tree structure for each folder
-			folders.filter((_,i)=>i).map(f => {
+			state.folders.filter((_,i)=>i).map(f => {
 				buildTreeRecursive(tree, [...f.ParseFolderPath]); // Using a spread operator to avoid modifying the original array
 				return f;
 			});
@@ -105,7 +111,7 @@ export default new Vuex.Store({
 		},
 	},
 	actions: {
-		async updateFileSet({state, commit, getters},update){
+		async commitStates({commit},update){
 			for ( const key in update ) {
 				switch (key) {
 					case 'isTrashBox':
@@ -120,6 +126,9 @@ export default new Vuex.Store({
 					case 'selectedFolder':
 						commit("SET_SELECTED_FOLDER",update[key]);
 						break;
+					case 'viewMode':
+						commit("SET_VIEW_MODE",update[key]);
+						break;
 					default:
 						break;
 				}
@@ -127,7 +136,7 @@ export default new Vuex.Store({
 		},
 		async updateFiles ({state, commit, getters, dispatch},folder: cabinetFolder) {
 			dispatch(
-				'updateFileSet',
+				'commitStates',
 				{
 					isTrashBox: false,
 					isLoading: true,
@@ -135,15 +144,11 @@ export default new Vuex.Store({
 					selectedFolder: folder,
 				}
 			)
-			await commit('SET_FORMDATA',{
+			await dispatch('ajaxPost',{formData:{
 				call: "files_get",
 				folderId: folder.FolderId,
-			});
-			const data = await dispatch('makeFormData')
-			await axios.post(
-				window["n2"]["ajaxurl"],
-				data,
-			).then(resp => {
+			}})
+			.then(resp => {
 				commit('SET_FILES',resp.data);
 				commit('IS_LOADING',false);
 			});
@@ -151,33 +156,27 @@ export default new Vuex.Store({
 		},
 		async updateTrahBoxFiles ({state, commit, getters,dispatch}) {
 			dispatch(
-				'updateFileSet',
+				'commitStates',
 				{
+					viewMode: 'list',
 					isTrashBox: true,
 					isLoading: true,
 					focusFile: null,
 					selectedFolder: {FolderName:'ゴミ箱'},
 				}
 			)
-			const data = await dispatch('makeFormData')
-			await axios.post(
-				window["n2"].ajaxurl,
-				data
-			).then(resp=>{
+			await dispatch('ajaxPost',{formData:{call:'trashbox_files_get'}})
+			.then(resp=>{
 				commit('SET_FILES',resp.data);
 				commit('IS_LOADING',false);
 			});
 			return getters.filterFiles ?? state.files;
 		},
 		async updateFolders( { commit,dispatch } ) {
-			await commit('SET_FORMDATA',{
+			await dispatch('ajaxPost',{formData:{
 				call: "folders_get",
-			});
-			const data = await dispatch('makeFormData')
-			await axios.post(
-				window["n2"]["ajaxurl"],
-				data,
-			).then((resp:AxiosResponse<cabinetFolder[]>)=>{
+			}})
+			.then((resp:AxiosResponse<cabinetFolder[]>)=>{
 				return resp.data.map(folder=>{
 					resp.data.sort((a, b) => a.FolderPath.localeCompare(b.FolderPath));
 					folder.ParseFolderPath = folder.FolderPath.split('/').filter(f=>f);
@@ -188,6 +187,7 @@ export default new Vuex.Store({
 				commit('SET_ROOT_FOLDER',root)
 				commit('SET_FOLDERS',folders)
 				commit('IS_LOADING',false);
+				commit('SET_TREE');
 			});
 		},
 		showModal({ commit },type:string){
@@ -209,7 +209,70 @@ export default new Vuex.Store({
 			} else {
 				commit('ADD_SELECTED_FILE_ID', fileId);
 			}
-			console.log(state.selectedFiles);
+		},
+		async ajaxPost(
+			{commit,dispatch},
+			data={
+				formData:{},
+				config: {},
+			},
+		){
+			commit('IS_LOADING',true)
+			commit('SET_FORMDATA',data.formData);
+			const formData =  await dispatch('makeFormData');
+			return axios.post(
+				window['n2'].ajaxurl,
+				formData,
+				data.config,
+			).then(resp=>
+				{
+					commit('IS_LOADING',false)
+					return resp;
+				});
+		},
+		ajaxPostMulti(
+			{dispatch},
+			data={
+				formData:{},
+				config: {},
+			},
+		){
+			return dispatch('ajaxPost',data).then(resp=>{
+				let count = 0;
+				Object.values(resp.data).forEach((res: any) => {
+					if (!res.success) {
+						const xmlDoc = $.parseXML(res.body);
+						const message = $(xmlDoc).find("message").text();
+						alert(message);
+					} else {
+						++count;
+					}
+				});
+				const alertMessage = [
+					count + "件の処理が完了しました。",
+					"画像の登録、更新、削除後の情報が反映されるまでの時間は最短10秒です。",
+				];
+				alert(alertMessage.join("\n"));
+			});
+		},
+		ajaxPostSelectedFileIds(
+			{state,dispatch},
+			data={
+				formData:{},
+				config: {},
+			},
+		){
+			state.selectedFiles.forEach((fileId:string, i:number) => {
+				data.formData[`fileId[${i}]`] = fileId;
+			});
+			return dispatch('ajaxPostMulti',data).then((resp)=>{
+				dispatch('updateFiles', state.selectedFolder);
+				return resp;
+			});
+		},
+		selectionAllFiles({commit,getters}){
+			const fileIds = getters.filterFiles.map(file=> file.FileId); 
+			commit('ADD_ALL_SELECTED_FILE_ID',fileIds);
 		},
 	},
 	getters: {
@@ -220,6 +283,6 @@ export default new Vuex.Store({
 		},
 		mergeForm: state => {
 			return { ...state.defaultFormData, ...state.addFormData, n2nonce:state.n2nonce };
-		}
+		},
 	}
 });
