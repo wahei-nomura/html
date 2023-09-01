@@ -1,9 +1,7 @@
 import Vue from 'vue/dist/vue.min';
-import Vuex from 'vuex/dist/vuex.min';
 import Modals from './modules/admin-menu-cabinet-modals';
 import store from './modules/admin-menu-cabinet-store'
 import App from './modules/admin-menu-cabinet-app'
-import { mapState,mapActions,mapGetters } from 'vuex/dist/vuex.min';
 
 jQuery(function($){
 

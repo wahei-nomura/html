@@ -1,7 +1,6 @@
 import Vue from 'vue/dist/vue.min';
-import Vuex,{mapState,mapActions} from 'vuex/dist/vuex.min';
+import {mapState,mapActions} from 'vuex/dist/vuex.min';
 import FolderTree from './admin-menu-cabinet-folder-tree';
-import { cabinetFolder } from './admin-menu-cabinet-interface';
 
 export default Vue.extend({
     name: 'LeftAside',

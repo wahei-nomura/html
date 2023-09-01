@@ -1,7 +1,6 @@
 import Vue from 'vue/dist/vue.min';
 import Vuex from 'vuex/dist/vuex.min';
 import { mapState,mapActions,mapGetters } from 'vuex/dist/vuex.min';
-import axios,{ AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import { cabinetFolder,cabinetImage } from './admin-menu-cabinet-interface';
 
 Vue.use(Vuex);

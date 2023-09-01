@@ -1,7 +1,5 @@
-import axios from 'axios';
 import Vue from 'vue/dist/vue.min';
-import Vuex,{mapState,mapActions} from 'vuex/dist/vuex.min';
-import $ from 'jquery';
+import {mapState,mapActions} from 'vuex/dist/vuex.min';
 
 export default Vue.extend({
 	name: 'Modals',

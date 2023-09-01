@@ -1,7 +1,5 @@
 import Vue from 'vue/dist/vue.min';
-import Vuex,{mapState,mapGetters,mapActions} from 'vuex/dist/vuex.min';
-import FolderTree from './admin-menu-cabinet-folder-tree';
-import { cabinetFolder,cabinetImage } from './admin-menu-cabinet-interface';
+import {mapState,mapGetters,mapActions} from 'vuex/dist/vuex.min';
 
 export default Vue.extend({
 	name: 'ImageCard',

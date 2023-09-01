@@ -1,6 +1,5 @@
 import Vue from 'vue/dist/vue.min';
 import Vuex ,{mapState,mapActions} from 'vuex/dist/vuex.min';
-import axios from 'axios';
 
 Vue.use(Vuex);
 
