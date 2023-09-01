@@ -7,7 +7,7 @@ export default Vue.extend({
 		return {
 			folderName: null,
 			directoryName: null,
-			targetFolderName: this.rootFolder?.FolderName,
+			targetFolderPath: null,
 		};
 	},
 	computed:{
@@ -28,7 +28,7 @@ export default Vue.extend({
 			return this.selectedFolder?.FolderName
 		},
 		targetFolderId(){
-			return this.folders.filter(folder=>folder.FolderName === this.targetFolderName)[0]?.FolderId;
+			return this.folders.filter(folder=>folder.FolderNamePath === this.targetFolderPath)[0]?.FolderId;
 		},
 	},
 	methods:{
@@ -94,9 +94,9 @@ export default Vue.extend({
 					<span class="input-group-text">移動先</span>
 					<input type="hidden" :value="targetFolderId">
 					<datalist id="folders">
-						<option v-for="(folder, index) in folders" :value="folder.FolderName"></option>
+						<option v-for="(folder, index) in folders" :value="folder.FolderNamePath"></option>
 					</datalist>
-					<input type="text" v-model="targetFolderName" list="folders">
+					<input type="text" v-model="targetFolderPath" list="folders">
 				</div>
 				<div class="d-flex pb-2">
 					<button @click.prevent="move" class="btn btn-secondary flex-fill" type="submit" data-bs-dismiss="modal">移動する</button>

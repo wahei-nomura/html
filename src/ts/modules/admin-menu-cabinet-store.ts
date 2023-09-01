@@ -179,10 +179,17 @@ export default new Vuex.Store({
 				return resp.data.map(folder=>{
 					resp.data.sort((a, b) => a.FolderPath.localeCompare(b.FolderPath));
 					folder.ParseFolderPath = folder.FolderPath.split('/').filter(f=>f);
+					let path = '';
+					folder.FolderNamePath = '';
+					folder.ParseFolderPath.map(p=>{
+						path += '/' + p;
+						folder.FolderNamePath += '/' + resp.data.filter(f=>f.FolderPath === path )[0]?.FolderName;
+					});
 					return folder;
 				});
-			}).then(folders => {
+			}).then( folders => {
 				const root = folders.filter(folder=> folder.FolderPath === '/' )[0];
+				root.FolderNamePath = root.FolderName;
 				commit('SET_ROOT_FOLDER',root)
 				commit('SET_FOLDERS',folders)
 				commit('IS_LOADING',false);

@@ -10,6 +10,7 @@ export interface cabinetFolder{
 	FileSize: string,
 	TimeStamp: string,
 	ParseFolderPath: string[],
+	FolderNamePath: string,
 }
 export interface cabinetImage{
 	FileAccessDate:string,
