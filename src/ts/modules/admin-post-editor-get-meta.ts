@@ -16,9 +16,12 @@ export default ($: any = jQuery) => {
 		// json型はパースしてから渡す
 		try { meta[ name[1] ] = JSON.parse(meta[ name[1] ]); } catch {}
 	}
-	// 出力されている全フォームを対象とする（出力されていないものは非対象）
+	/**
+	 * Vueで非表示になったフォームデータは空で取得（見えないのに値が残るバグが起こるため）
+	 * 出力されている全フォームを対象とする（出力されていないものは非対象）
+	 * この副作用に注意：https://github.com/steamships/neo-neng/issues/626
+	**/
 	$('#事業者用').parent().children().each( (i,e) => {
-		// Vueで非表示になったフォームデータは空で取得しておく
 		for ( let d of Object.keys(n2.custom_field[e.id]) ) {
 			if ( ! meta[d] ) meta[d] = '';
 		}
