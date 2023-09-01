@@ -169,7 +169,6 @@ class N2_Item_Export_Rakuten_Cat extends N2_Item_Export_Base {
 		$category_hierarchy   = '';
 		$category_breadcrumbs = $category_info['breadcrumbs']['breadcrumbList'];
 		if ( empty( $category_breadcrumbs ) ) {
-			$category_hierarchy = 'nodata';
 			return $category_hierarchy;
 		}
 		foreach ( $category_breadcrumbs as $key => $cat_bc ) {
