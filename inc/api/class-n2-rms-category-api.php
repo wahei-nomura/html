@@ -1,44 +1,48 @@
 <?php
 /**
- * RMS CATEGORY API
+ * RMS CABINET API
  *
  * @package neoneng
  */
 
- if ( class_exists( 'N2_RMS_Category_API' ) ) {
+if ( class_exists( 'N2_RMS_Category_API' ) ) {
 	new N2_RMS_Category_API();
 	return;
 }
 
-
 /**
- * CATEGORY情報を取得するAPI
+ * N2からCABINETへ送信したりするAPI
  */
 class N2_RMS_Category_API extends N2_RMS_Base_API {
 	/**
-	 * カテゴリ一覧
+	 * フォルダ一覧
 	 *
 	 * @var array
 	 */
-	protected $categories = array();
+	protected $folders = array();
 
 	/**
-	 * フォルダ一覧取得
+	 * カテゴリ一覧取得
 	 *
-	 * @return array フォルダ一覧
+	 * @param string $control_number 商品管理番号
+	 *
+	 * @return array カテゴリ一覧
 	 */
-	public static function categories_get() {
-		// $url     = static::$settings['endpoint'] . '/1.0/cabinet/folders/get?' . http_build_query( $params );
-		// $url     = static::$settings['endpoint'] . '/2.0/categories/item-mappings/manage-numbers/eag031';
-		// print_r($url);
-		// $data    = wp_remote_get( $url, array( 'headers' => static::$data['header'] ) );
-		// print_r($data);
-		// $categories = simplexml_load_string( $data['body'] )->categories;
-		// $categories = json_decode( wp_json_encode( $categories ), true )['folder'];
+	public static function categories_get( $control_number ) {
+		$params = array(
+			'breadcrumb'        => 'true',
+			'categorysetfields' => 'TITLE',
+			'categoryfields'    => 'TITLE',
+		);
+		$url    = static::$settings['endpoint'] . '/2.0/categories/item-mappings/manage-numbers/' . $control_number . '?' . http_build_query( $params );
+		$data   = wp_remote_get( $url, array( 'headers' => static::$data['header'] ) );
 
-		// return $categories;
-		$url = 'test';
-		return $url;
+		if ( is_wp_error( $data ) ) {
+			return array();
+		}
+
+		$categories = json_decode( $data['body'], true );
+
+		return $categories;
 	}
-
 }
