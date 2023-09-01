@@ -16,10 +16,13 @@ export default ($: any = jQuery) => {
 		// json型はパースしてから渡す
 		try { meta[ name[1] ] = JSON.parse(meta[ name[1] ]); } catch {}
 	}
-	// 見えないデータは空で取得しておく
-	// for ( let d of Object.keys(n2.vue.$data) ) {
-	// 	if ( ! meta[d] ) meta[d] = '';
-	// }
+	// 出力されている全フォームを対象とする（出力されていないものは非対象）
+	$('#事業者用').parent().children().each( (i,e) => {
+		// Vueで非表示になったフォームデータは空で取得しておく
+		for ( let d of Object.keys(n2.custom_field[e.id]) ) {
+			if ( ! meta[d] ) meta[d] = '';
+		}
+	});
 	console.log('meta', meta);
 	return meta;
 }
