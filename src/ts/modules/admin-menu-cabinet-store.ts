@@ -4,7 +4,6 @@ import axios,{ AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import { cabinetFolder,cabinetImage } from './admin-menu-cabinet-interface';
 import $ from 'jquery';
 
-
 Vue.use(Vuex);
 
 export default new Vuex.Store({
