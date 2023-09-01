@@ -53,10 +53,7 @@ export default Vue.extend({
 			const viewMode = $(e.target).data('view-mode')
 			this.$store.commit('SET_VIEW_MODE',viewMode)
 		},
-		async handleDrop(e){
-			e.preventDefault();
-			// ドロップされたファイルを取得
-			const files = e.dataTransfer.files;
+		async upload(files){
 			const formData = {
 				call:'file_insert',
 				folderId: this.selectedFolder.FolderId,
@@ -73,6 +70,21 @@ export default Vue.extend({
 				formData:formData,
 				config:config,
 			});
+		},
+		async handleDrop(e){
+			// ドロップされたファイルを取得
+			const files = e.dataTransfer.files;
+			this.upload(files);
+		},
+		handleChange(){
+			const files = this.$refs.file.files
+			if ( ! files.length ) {
+				return;
+			}
+			this.upload(files);
+		},
+		handleClick(){
+			$(this.$refs.file).trigger('click');
 		},
 		async handleFiles(type:string){
 			const formData = {};
@@ -216,11 +228,10 @@ export default Vue.extend({
 				</tbody>
 			</table>
 		</div>
-		<div @drop="handleDrop" @dragover.prevent :class="{'d-none':isTrashBox}" class="dragable-area p-5 mt-3 border border-5 text-center w-100 position-sticky bottom-0 end-0 bg-light">
+		<div @click="handleClick" @drop.prevent="handleDrop" @dragover.prevent :class="{'d-none':isTrashBox}" class="dragable-area p-5 mt-3 border border-5 text-center w-100 position-sticky bottom-0 end-0 bg-light">
 			ファイルをドラッグ&ドロップで転送する
-			<form :action="window.n2.ajaxurl" method="POST" enctype="multipart/form-data" style="display:none;">
-				<input type="file" multiple="multiple" name="cabinet_file[]">
-				<input type="submit" value="リクエストを送信">
+			<form style="display:none;">
+				<input ref=file @change="handleChange" type="file" multiple="multiple" class="d-none">
 			</form>
 		</div>
 	</main>
