@@ -21,6 +21,9 @@ global $n2;
 				<li v-if="!('draft' !== item.ステータス && 'jigyousya' === n2.current_user.roles[0])" @click="confirm('ゴミ箱に入れます。よろしいですか？') ? location.href=`admin-ajax.php?action=n2_items_api&mode=delete&id=${id}` : 0">
 					<span class="dashicons dashicons-trash"></span> 削除
 				</li>
+				<li v-if="'jigyousya' !== n2.current_user.roles[0]" @click="window.open(`admin-ajax.php?action=n2_post_history_api&post_id=${id}&type=table`, '_blank')">
+				<span class="dashicons dashicons-clipboard"></span> 履歴
+				</li>
 			</template>
 		</ul>
 		<span id="n2-admin-post-list-tool-close" class="dashicons dashicons-no-alt" @click="document.getElementById('n2-admin-post-list-tool').hidePopover()"></span>
@@ -36,7 +39,7 @@ global $n2;
 					<th style="text-align: left;">{{name}}</th>
 					<td style="text-align: left;">
 						<div v-if="Array.isArray(item[name])">{{item[name].join(', ')}}</div>
-						<div v-else v-html="item[name].replace(/\r\n|\r|\n/g,'<br>')"></div>
+						<div v-else v-html="item[name].toString().replace(/\r\n|\r|\n/g,'<br>')"></div>
 					</td>
 				</tr>
 			</template>

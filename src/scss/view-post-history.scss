@@ -1,0 +1,19 @@
+/* Bootstrap
+	変数をいじりたい場合はこんな感じ
+	=====
+	$primary: #ccc;
+	@use "bootstrap/scss/bootstrap.scss";
+	=====
+	cssで@useした方がコンパイルが爆速
+*/
+// @use "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
+$steamship: #1a4899;
+@import "bootstrap/scss/bootstrap.scss";
+#n2-history{
+	.table{
+		// table-layout: fixed;
+		th{
+			white-space: nowrap;
+		}
+	}
+}
