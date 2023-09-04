@@ -28,6 +28,7 @@ global $n2;
 							<template v-if="n2.settings.N2.出品ポータル.includes('楽天')">
 								<template v-if="n2.settings.楽天.SKU">
 									<label><input type="radio" name="action" value="n2_item_export_rakuten_sku" v-model="fd.action"> 楽天</label>
+									<label><input type="radio" name="action" value="n2_item_export_rakuten_cat" v-model="fd.action"> 楽天 [ item-cat.csv ]</label>
 								</template>
 								<template v-else>
 									<label><input type="radio" name="action" value="n2_item_export_rakuten" v-model="fd.action"> 楽天 [ item.csv ]</label>

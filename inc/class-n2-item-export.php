@@ -32,6 +32,7 @@ class N2_Item_Export {
 			'class-n2-item-export-rakuten.php',
 			'class-n2-item-export-rakuten-select.php',
 			'class-n2-item-export-rakuten-sku.php',
+			'class-n2-item-export-rakuten-cat.php',
 			'class-n2-product-list-print.php',
 		);
 		foreach ( $exports as $export ) {
