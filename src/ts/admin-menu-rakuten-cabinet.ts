@@ -16,7 +16,7 @@ jQuery( async function($){
 			},
 		},
 	)
-	if ( ! connect.data ) {
+	if ( connect.data !== true ) {
 		document.getElementById('ss-cabinet').innerText = 'RMS CABINETに接続できませんでした。';
 		return;
 	}
