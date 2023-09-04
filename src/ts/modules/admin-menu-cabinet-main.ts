@@ -1,6 +1,5 @@
 import Vue from 'vue/dist/vue.min';
 import {mapState,mapGetters,mapActions} from 'vuex/dist/vuex.min';
-import $ from 'jquery';
 import ImageCard from './admin-menu-cabinet-main-card';
 import TableRow from './admin-menu-cabinet-main-tr';
 import { cabinetImage } from './admin-menu-cabinet-interface';
@@ -50,7 +49,7 @@ export default Vue.extend({
 			'selectionAllFiles',
 		]),
 		handleToggleViewMode(e){
-			const viewMode = $(e.target).data('view-mode')
+			const viewMode = e.target.getAttribute('data-view-mode')
 			this.$store.commit('SET_VIEW_MODE',viewMode)
 		},
 		async upload(files){
@@ -84,7 +83,7 @@ export default Vue.extend({
 			this.upload(files);
 		},
 		handleClick(){
-			$(this.$refs.file).trigger('click');
+			this.$refs.file.click();
 		},
 		async handleFiles(type:string){
 			const formData = {};

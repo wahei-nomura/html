@@ -2,7 +2,6 @@ import Vue from 'vue/dist/vue.min';
 import Vuex from 'vuex/dist/vuex.min';
 import axios,{ AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import { cabinetFolder,cabinetImage } from './admin-menu-cabinet-interface';
-import $ from 'jquery';
 
 Vue.use(Vuex);
 
@@ -247,8 +246,9 @@ export default new Vuex.Store({
 				let count = 0;
 				Object.values(resp.data).forEach((res: any) => {
 					if (!res.success) {
-						const xmlDoc = $.parseXML(res.body);
-						const message = $(xmlDoc).find("message").text();
+						const parser = new DOMParser();
+						const xmlDoc = parser.parseFromString(res.body, "text/xml");
+						const message = xmlDoc.querySelector("message").textContent;
 						alert(message);
 					} else {
 						++count;

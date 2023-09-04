@@ -4,7 +4,6 @@ import Main from './admin-menu-cabinet-main'
 import Header from './admin-menu-cabinet-header'
 import LeftAside from './admin-menu-cabinet-left-aside'
 import RightAside from './admin-menu-cabinet-right-aside'
-import $ from 'jquery';
 
 Vue.use(Vuex);
 	
@@ -14,10 +13,18 @@ export default Vue.extend({
 		},
 		methods:{
 			updateOffsetTop(){
-				const top = $(this.$refs.body).offset().top;
+				const top = this.getOffsetTop(this.$refs.body);
 				const paddingBottom = window.getComputedStyle(document.getElementById("wpbody-content")).paddingBottom;
 				const offset = top + Number(paddingBottom.replace(/[^0-9]/g,""));
-				this.$store.commit('SET_OFFSET_HEIGHT',Math.ceil(offset) + 1);
+				this.$store.commit('SET_OFFSET_HEIGHT',Math.ceil(offset) + 5);
+			},
+			getOffsetTop(element) {
+				let offsetTop = 0;
+				while(element) {
+					offsetTop += element.offsetTop;
+					element = element.offsetParent;
+				}
+				return offsetTop;
 			},
 		},
 		mounted(){
