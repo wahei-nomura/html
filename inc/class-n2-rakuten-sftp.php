@@ -61,6 +61,7 @@ class N2_Rakuten_SFTP {
 		if ( isset( $n2->settings['楽天'] ) ) {
 			add_menu_page( '楽天SFTP', '楽天SFTP', 'ss_crew', 'n2_rakuten_sftp_upload', array( $this, 'display_ui' ), 'dashicons-admin-site-alt3' );
 			add_submenu_page( 'n2_rakuten_sftp_upload', '楽天エラーログ', '楽天エラーログ', 'ss_crew', 'n2_rakuten_sftp_error_log', array( $this, 'display_ui' ) );
+			add_submenu_page( 'n2_rakuten_sftp_upload', '楽天Cabinet', '楽天Cabinet', 'ss_crew', 'n2_rakuten_sftp_client', array( $this, 'display_ui' ) );
 		}
 	}
 
@@ -75,6 +76,7 @@ class N2_Rakuten_SFTP {
 			default     => null,
 		}
 		?>
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 		<div class="wrap">
 			<h1>楽天SFTP</h1>
 			<?php get_template_part( 'template/admin-menu/sftp', $template, $args ); ?>

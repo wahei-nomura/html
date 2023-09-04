@@ -267,7 +267,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		if ( null === $this->rms['use_api'] ) {
 			$this->rms['use_api'] = N2_RMS_Cabinet_API::ajax(
 				array(
-					'request' => 'connect',
+					'call' => 'connect',
 					'mode'    => 'func',
 				),
 			);
@@ -284,11 +284,12 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		if ( ! $this->can_use_api() ) {
 			return;
 		}
+
 		// 検索ワードでハッシュ化
 		$cabinet              = N2_RMS_Cabinet_API::ajax(
 			array(
 				'keywords' => $keywords,
-				'request'  => 'files_search',
+				'call'  => 'files_search',
 				'mode'     => 'func',
 			),
 		);
@@ -369,10 +370,10 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			$result   = array();
 			$response = N2_Multi_URL_Request_API::ajax(
 				array(
-					'urls'    => $requests,
+					'requests'    => array_map( fn( $req ) => array( 'url' => $req ), $requests ),
 					'mode'    => 'func',
-					'request' => 'verify_images',
-				)
+					'call' => 'verify_images',
+				),
 			);
 			$result   = array_map(
 				function( $req ) use ( $response ) {

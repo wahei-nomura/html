@@ -21,6 +21,7 @@ class N2_Img_Download {
 	public function __construct() {
 		add_action( 'wp_ajax_n2_download_images_by_id', array( $this, 'download_images_by_id' ) );
 		add_action( 'wp_ajax_n2_download_image_by_url', array( $this, 'download_image_by_url' ) );
+		add_action( 'wp_ajax_n2_download_multiple_image_by_url', array( $this, 'download_multiple_image_by_url' ) );
 	}
 
 	/**
@@ -38,6 +39,70 @@ class N2_Img_Download {
 		header( "Content-Disposition:attachment; filename = {$name}" );
 		header( "Content-Length: {$headers['content-length']}" );
 		echo $content['body'];
+		exit;
+	}
+
+	/**
+	 * URLからダウンロード(複数)
+	 */
+	public function download_multiple_image_by_url() {
+		$params = $_GET;
+		// $_POSTを$paramsで上書き
+		if ( wp_verify_nonce( $_POST['n2nonce'] ?? '', 'n2nonce' ) ) {
+			$params = wp_parse_args( $params, $_POST );
+		}
+		if ( ! isset( $params['url'] ) || empty( $params['url'] ) ) {
+			echo 'urlがセットされていません';
+			exit;
+		}
+
+		WP_Filesystem();
+		global $wp_filesystem;
+
+		$requests = array_map(
+			function( $file ) {
+				return array(
+					'url' => $file['url'],
+				);
+			},
+			$params['url']
+		);
+
+		$response = N2_Multi_URL_Request_API::ajax(
+			array(
+				'requests' => $requests,
+				'call'     => 'request_multiple',
+				'mode'     => 'func',
+			),
+		);
+
+		$tmp_uri = stream_get_meta_data( tmpfile() )['uri'];
+		$zip     = new ZipArchive();
+		$zip->open( $tmp_uri, ZipArchive::CREATE );
+		$zip_name = $params['zipName'];
+
+		array_map(
+			function( $res ) use ( $params, $zip, $zip_name ) {
+				global $n2;
+				$file = array_filter(
+					$params['url'],
+					function( $file ) use ( $res ) {
+						return $res->url === $file['url'];
+					},
+				);
+				// indexを振り直す
+				$file = array_values( $file )[0];
+				$zip->addFromString( "{$zip_name}/{$file['folderName']}/{$file['filePath']}", $res->body );
+			},
+			$response,
+		);
+		$zip->close();
+
+		header( 'Content-Type: application/zip' );
+		header( 'Content-Transfer-Encoding: Binary' );
+		header( 'Content-Length: ' . filesize( $tmp_uri ) );
+		header( "Content-Disposition:attachment; filename = {$zip_name}" );
+		echo $wp_filesystem->get_contents( $tmp_uri );
 		exit;
 	}
 

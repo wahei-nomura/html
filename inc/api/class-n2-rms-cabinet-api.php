@@ -1,6 +1,7 @@
 <?php
 /**
  * RMS CABINET API
+ * /wp-admin/admin-ajax.php?action=n2_rms_cabinet_api_ajax&mode=debug&call=
  *
  * @package neoneng
  */
@@ -44,54 +45,57 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	 */
 	public static function files_get() {
 
-		$keywords                          = static::$data['params']['keywords'];
-		static::$data['params']['cabinet'] = self::folders_get();
+		static::check_fatal_error( isset( static::$data['params']['folderId'] ), 'フォルダーIDの取得に失敗しました。' );
 
-		static::check_fatal_error( static::$data['params']['cabinet'], 'フォルダーIDの取得に失敗しました。' );
+		$files_get_params = array(
+			'folderId' => static::$data['params']['folderId'],
+			'limit'    => 100,
+			'offset'   => 1,
+		);
 
-		$folder_name_list = array_column( static::$data['params']['cabinet'], 'FolderName' );
+		$url = static::$settings['endpoint'] . '/1.0/cabinet/folder/files/get?' . http_build_query( $files_get_params );
 
-		foreach ( $keywords as $keyword ) {
-			$forder_name = array_search( $keyword, $folder_name_list, true );
+		$files    = array();
+		$requests = array();
 
-			if ( false !== $forder_name ) {
-				$exist_forder[] = $forder_name;
-			}
+		$response = wp_remote_get( $url, array( 'headers' => static::$data['header'] ) );
+
+		$result     = simplexml_load_string( $response['body'] )->cabinetFolderFilesGetResult;
+		$file_count = $result->fileAllCount;
+		$res_files  = $result->files;
+		$res_files  = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
+		$files      = match ( $file_count > 1 ) {
+			true => $res_files,
+			default => array( $res_files ),
+		};
+		if ( $file_count <= $files_get_params['limit'] ) {
+			return $files;
 		}
-		$folder_ids = array_map(
-			function ( $folder ) {
-				$dict[ $folder ] = static::$data['params']['cabinet'][ $folder ]['FolderId'];
-				return static::$data['params']['cabinet'][ $folder ]['FolderId'];
-			},
-			$exist_forder
-		);
-
-		$urls  = array_map(
-			function ( $id ) {
-				$params = array(
-					'folderId' => $id,
-					'limit'    => 100,
+		// 開発途中
+		$requests = array_map(
+			function( $offset ) use ( $files_get_params ) {
+				$files_get_params['offset'] = $offset;
+				return array(
+					'url' => static::$settings['endpoint'] . '/1.0/cabinet/folder/files/get?' . http_build_query( $files_get_params ),
 				);
-				return self::$settings['endpoint'] . '/1.0/cabinet/folder/files/get?' . http_build_query( $params );
 			},
-			$folder_ids,
+			range( 2, floor( $file_count / $files_get_params['limit'] ) + 1 )
 		);
-		$files = array();
 
 		$response = N2_Multi_URL_Request_API::ajax(
 			array(
-				'urls'    => $urls,
-				'header'  => static::$data['header'],
-				'request' => 'request_multiple',
-				'mode'    => 'func',
+				'requests' => $requests,
+				'call'     => 'request_multiple',
+				'mode'     => 'func',
+				'headers'  => static::$data['header'],
 			),
 		);
+
 		foreach ( $response as $res ) {
-			$keyword           = $res->headers->getValues( 'folderid' )[0];
-			$keyword           = array_search( $keyword, $dict, true );
-			$res_files         = simplexml_load_string( $res->body )->cabinetFolderFilesGetResult->files;
-			$res_files         = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
-			$files[ $keyword ] = $res_files;
+			$result    = simplexml_load_string( $res->body )->cabinetFolderFilesGetResult;
+			$res_files = $result->files;
+			$res_files = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
+			$files     = array( ...$files, ...$res_files );
 		}
 		return $files;
 	}
@@ -106,40 +110,445 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 		static::check_fatal_error( static::$data['params']['keywords'] ?? false, '検索ワードが設定されていません。' );
 
 		$keywords = static::$data['params']['keywords'];
+		$limit    = 100;
 
-		$urls = array_map(
-			function ( $keyword ) {
+		$requests = array_map(
+			function ( $keyword ) use ( $limit ) {
 				$params = array(
 					'fileName' => $keyword,
-					'limit'    => 100,
+					'limit'    => $limit,
 				);
-				return static::$settings['endpoint'] . '/1.0/cabinet/files/search?' . http_build_query( $params );
+				return array(
+					'url' => static::$settings['endpoint'] . '/1.0/cabinet/files/search?' . http_build_query( $params ),
+				);
 			},
 			$keywords,
 		);
 
 		$response = N2_Multi_URL_Request_API::ajax(
 			array(
-				'urls'    => $urls,
-				'header'  => static::$data['header'],
-				'request' => 'request_multiple',
-				'mode'    => 'func',
+				'requests' => $requests,
+				'call'     => 'request_multiple',
+				'mode'     => 'func',
+				'headers'  => static::$data['header'],
 			),
 		);
 
 		foreach ( $response as $res ) {
-			$keyword       = $res->headers->getValues( 'filename' )[0];
-			$search_result = simplexml_load_string( $res->body )->cabinetFilesSearchResult;
-			$res_files     = $search_result->files;
-			$file_count    = (int) $search_result->fileCount->__toString();
-			$res_files     = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
+			$keyword        = urldecode( $res->headers->getValues( 'filename' )[0] );
+			$search_result  = simplexml_load_string( $res->body )->cabinetFilesSearchResult;
+			$res_files      = $search_result->files;
+			$file_all_count = $search_result->fileAllCount;
+			$file_count     = (int) $search_result->fileCount->__toString();
+			$res_files      = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
 
 			$files[ $keyword ] = match ( $file_count > 1 ) {
 				true => $res_files,
 				default => array( $res_files ),
 			};
+
+			if ( $file_all_count < $limit ) {
+				continue;
+			}
+			// limit以上なら追加でAPIを叩く
+			$additional_requests = array_map(
+				function ( $offset ) use ( $keyword, $limit ) {
+					$params = array(
+						'fileName' => $keyword,
+						'limit'    => $limit,
+						'offset'   => $offset,
+					);
+					return array(
+						'url' => static::$settings['endpoint'] . '/1.0/cabinet/files/search?' . http_build_query( $params ),
+					);
+				},
+				range( 2, floor( $file_all_count / $limit ) + 1 ),
+			);
+
+			$additional_response = N2_Multi_URL_Request_API::ajax(
+				array(
+					'requests' => $additional_requests,
+					'call'     => 'request_multiple',
+					'mode'     => 'func',
+					'headers'  => static::$data['header'],
+				),
+			);
+
+			foreach ( $additional_response as $additional_res ) {
+				$search_result     = simplexml_load_string( $additional_res->body )->cabinetFilesSearchResult;
+				$res_files         = $search_result->files;
+				$file_count        = (int) $search_result->fileCount->__toString();
+				$res_files         = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
+				$files[ $keyword ] = match ( $file_count > 1 ) {
+					true => array( ...$files[ $keyword ], ...$res_files ),
+					default => array( ...$files[ $keyword ], array( $res_files ) ),
+				};
+			}
 		}
 		return $files;
 	}
+
+	/**
+	 * フォルダ追加
+	 */
+	public static function folder_insert() {
+		static::check_fatal_error( static::$data['params']['folderName'] ?? false, 'フォルダ名が設定されていません。' );
+
+		$url              = static::$settings['endpoint'] . '/1.0/cabinet/folder/insert';
+		$xml_request_body = new SimpleXMLElement( '<?xml version="1.0" encoding="UTF-8"?><request></request>' );
+
+		$request = array(
+			'folderInsertRequest' => array(
+				'folder' => array(
+					'folderName'    => static::$data['params']['folderName'],
+					'directoryName' => static::$data['params']['directoryName'] ?? '',
+					'upperFolderId' => static::$data['params']['upperFolderId'] ?? '',
+				),
+			),
+		);
+		static::array_to_xml( $request, $xml_request_body );
+		// SimpleXMLElementオブジェクトを文字列に変換
+		$xml_data = $xml_request_body->asXML();
+
+		$request_args = array(
+			'method'  => 'POST',
+			'headers' => array(
+				...static::$data['header'],
+			),
+			'body'    => $xml_data, // XMLデータをリクエストボディに設定
+		);
+		$response     = wp_remote_request( $url, $request_args );
+
+		$response_body = wp_remote_retrieve_body( $response );
+		$response_body = simplexml_load_string( $response_body );
+
+		return $response_body;
+	}
+	/**
+	 * ファイル追加
+	 */
+	public static function file_insert() {
+		static::check_fatal_error( static::$data['params']['folderId'] ?? false, 'folderIdが設定されていません。' );
+		static::check_fatal_error( static::$data['files']['tmp_name'][0], 'ファイルをセットしてください。' );
+		$url = static::$settings['endpoint'] . '/1.0/cabinet/file/insert';
+
+		$requests = array();
+		foreach ( static::$data['files']['tmp_name'] as $index => $tmp_name ) {
+			$file_content_type = mime_content_type( $tmp_name );
+			$file_name         = static::$data['files']['name'][ $index ];
+			$request           = array(
+				'url'     => $url,
+				'type'    => Requests::POST,
+				'headers' => array(
+					'Content-Type' => 'multipart/form-data;',
+				),
+				'data'    => null,
+			);
+
+			/**
+			 * XML
+			 */
+			$xml_request_body = new SimpleXMLElement( '<?xml version="1.0" encoding="UTF-8"?><request></request>' );
+			$xml_array        = array(
+				'fileInsertRequest' => array(
+					'file' => array(
+						'filePath'  => preg_replace( '/\.[^.]+$/', '.jpg', $file_name ),
+						'fileName'  => preg_replace( '/\.[^.]+$/', '', $file_name ),
+						'folderId'  => static::$data['params']['folderId'],
+						'overWrite' => 'true',
+					),
+				),
+			);
+			static::array_to_xml( $xml_array, $xml_request_body );
+			// SimpleXMLElementオブジェクトを文字列に変換
+			$xml_payload = $xml_request_body->asXML();
+
+			/**
+			 * request body
+			 */
+			// Define boundary
+			$boundary         = wp_generate_uuid4();
+			$request['data']  = "--{$boundary}\r\n";
+			$request['data'] .= "Content-Disposition: form-data; name=\"xml\"\r\n";
+			$request['data'] .= "\r\n{$xml_payload}\r\n";
+			$request['data'] .= "--{$boundary}\r\n";
+			$request['data'] .= "Content-Disposition: form-data; name=\"file\"; filename=\"{$file_name}\"\r\n";
+			$request['data'] .= "Content-Type: {$file_content_type}\r\n";
+			$request['data'] .= "\r\n" . file_get_contents( $tmp_name ) . "\r\n";
+			$request['data'] .= "--{$boundary}--";
+
+			/**
+			 * add header
+			 */
+			$request['headers']['Content-Type']  .= 'boundary=' . $boundary;
+			$request['headers']['Content-Length'] = strlen( $request['data'] );
+
+			$requests[] = $request;
+		}
+
+		return N2_Multi_URL_Request_API::ajax(
+			array(
+				'requests' => $requests,
+				'call'     => 'request_multiple',
+				'mode'     => 'func',
+				'headers'  => static::$data['header'],
+			),
+		);
+	}
+
+	/**
+	 * ファイル移動
+	 * 公式には存在しないのでfile_insertとfile_deleteを組み合わせる
+	 */
+	public static function files_move() {
+
+		// 　必須項目を確認
+		static::check_fatal_error( static::$data['params']['currentFolderId'] ?? false, '移動前のfolderIdが設定されていません。' );
+		static::check_fatal_error( static::$data['params']['targetFolderId'] ?? false, '移動先のfolderIdが設定されていません。' );
+		static::check_fatal_error( ! empty( static::$data['params']['fileId'] ?? array() ), 'フォルダ名が設定されていません。' );
+
+		// 移動前のfloderIdをセット
+		static::$data['params']['folderId'] = static::$data['params']['currentFolderId'];
+		$files                              = static::files_get();
+		// 必要なfileのみに絞る
+		$files = array_filter(
+			$files,
+			function( $file ) {
+				return in_array( $file['FileId'], static::$data['params']['fileId'] );
+			},
+		);
+		// indexを振り直す
+		$files = array_values( $files );
+
+		// 移動後のfolderIdをセット
+		static::$data['params']['folderId'] = static::$data['params']['targetFolderId'];
+
+		// 一時ディレクトリ作成
+		$tmp = wp_tempnam( __CLASS__, get_theme_file_path() . '/' );
+		unlink( $tmp );
+		mkdir( $tmp );
+
+		$requests  = array_map(
+			function( $file ) use ( $tmp ) {
+				return array(
+					'url'     => $file['FileUrl'],
+					'options' => array(
+						'filename' => $tmp . '/' . basename( $file['FileUrl'] ),
+					),
+				);
+			},
+			$files,
+		);
+		$responses = N2_Multi_URL_Request_API::ajax(
+			array(
+				'requests' => $requests,
+				'call'     => 'request_multiple',
+				'mode'     => 'func',
+			),
+		);
+
+		// 初期化
+		static::$data['files'] = array();
+
+		// insertするfileをstatic::$data['file']に設定する
+		foreach ( $responses as $index => $response ) {
+			if ( ! is_a( $response, 'WpOrg\Requests\Response' ) || $response->status_code !== 200 ) {
+				continue;
+			}
+			$filename                                    = $requests[ $index ]['options']['filename'];
+			static::$data['files']['name'][ $index ]     = basename( $filename );
+			static::$data['files']['type'][ $index ]     = mime_content_type( $filename );
+			static::$data['files']['tmp_name'][ $index ] = $filename;
+			static::$data['files']['error'][ $index ]    = 0;
+			static::$data['files']['size'][ $index ]     = filesize( $filename );
+		}
+
+		$insert_response       = static::file_insert();
+		$insert_error_response = array_filter(
+			$insert_response,
+			function( $res ) {
+				return $res->status_code !== 200;
+			},
+		);
+
+		// 一時ディレクトリを削除
+		exec( "rm -Rf {$tmp}" );
+
+		// 失敗した場合は移動前のファイルを残す
+		static::$data['params']['fileId'] = array_filter(
+			static::$data['params']['fileId'],
+			function ( $key ) use ( $insert_error_response ) {
+				return ! in_array( $key, array_keys( $insert_error_response ) );
+			},
+			ARRAY_FILTER_USE_KEY
+		);
+		return static::file_delete();
+	}
+
+	/**
+	 * ファイル削除
+	 */
+	public static function file_delete() {
+		static::check_fatal_error( ! empty( static::$data['params']['fileId'] ?? array() ), 'ファイルIdが設定されていません。' );
+
+		$url      = static::$settings['endpoint'] . '/1.0/cabinet/file/delete';
+		$requests = array_map(
+			function ( $file_id ) use ( $url ) {
+				$xml_request_body = new SimpleXMLElement( '<?xml version="1.0" encoding="UTF-8"?><request></request>' );
+				$request          = array(
+					'fileDeleteRequest' => array(
+						'file' => array(
+							'fileId' => $file_id,
+						),
+					),
+				);
+				// SimpleXMLElementオブジェクトを文字列に変換
+				static::array_to_xml( $request, $xml_request_body );
+				$xml_data = $xml_request_body->asXML();
+				return array(
+					'url'  => $url,
+					'type' => Requests::POST,
+					'data' => $xml_data,
+				);
+			},
+			static::$data['params']['fileId'],
+		);
+
+		$response = N2_Multi_URL_Request_API::ajax(
+			array(
+				'requests' => $requests,
+				'call'     => 'request_multiple',
+				'mode'     => 'func',
+				'headers'  => static::$data['header'],
+			),
+		);
+
+		return $response;
+	}
+
+	/**
+	 * 削除したファイル一覧
+	 */
+	public static function trashbox_files_get() {
+		$files_get_params = array(
+			'limit'  => 100,
+			'offset' => 1,
+		);
+		$url              = static::$settings['endpoint'] . '/1.0/cabinet/trashbox/files/get?';
+
+		$files    = array();
+		$requests = array();
+
+		$response = wp_remote_get( $url . http_build_query( $files_get_params ), array( 'headers' => static::$data['header'] ) );
+
+		$result     = simplexml_load_string( $response['body'] )->cabinetTrashboxFilesGetResult;
+		$file_count = $result->fileAllCount;
+		$res_files  = $result->files;
+		$res_files  = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
+		$files      = match ( $file_count > 1 ) {
+			true => $res_files,
+			default => array( $res_files ),
+		};
+		if ( $file_count <= $files_get_params['limit'] ) {
+			return $files;
+		}
+		// 開発途中
+		$requests = array_map(
+			function( $offset ) use ( $files_get_params ) {
+				$files_get_params['offset'] = $offset;
+				return array(
+					'url' => $url . http_build_query( $files_get_params ),
+				);
+			},
+			range( 2, floor( $file_count / $files_get_params['limit'] ) + 1 )
+		);
+
+		$response = N2_Multi_URL_Request_API::ajax(
+			array(
+				'requests' => $requests,
+				'call'     => 'request_multiple',
+				'mode'     => 'func',
+				'headers'  => static::$data['header'],
+			),
+		);
+
+		foreach ( $response as $res ) {
+			$result    = simplexml_load_string( $res->body )->cabinetTrashboxFilesGetResult;
+			$res_files = $result->files;
+			$res_files = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
+			$files     = array( ...$files, ...$res_files );
+		}
+		return $files;
+	}
+
+	/**
+	 * 削除したファイルを元に戻す
+	 */
+	public static function trashbox_files_revert() {
+		static::check_fatal_error( ! empty( static::$data['params']['fileId'] ?? array() ), 'フォルダ名が設定されていません。' );
+		$url            = static::$settings['endpoint'] . '/1.0/cabinet/trashbox/file/revert';
+		$file_ids       = static::$data['params']['fileId'];
+		$trashbox_files = static::trashbox_files_get();
+		$target_files   = array_filter(
+			$trashbox_files,
+			function ( $file ) use ( $file_ids ) {
+				return in_array( $file['FileId'], static::$data['params']['fileId'], true );
+			},
+		);
+		$folders        = static::folders_get();
+		$requests       = array_map(
+			function ( $file ) use ( $folders, $url ) {
+				$xml_request_body = new SimpleXMLElement( '<?xml version="1.0" encoding="UTF-8"?><request></request>' );
+				$foleder_index    = array_search(
+					$file['FolderPath'],
+					array_column( $folders, 'FolderPath' ),
+					true,
+				);
+				$xml_array        = array(
+					'fileRevertRequest' => array(
+						'file' => array(
+							'fileId'   => $file['FileId'],
+							'folderId' => $folders[ $foleder_index ]['FolderId'],
+						),
+					),
+				);
+				// SimpleXMLElementオブジェクトを文字列に変換
+				static::array_to_xml( $xml_array, $xml_request_body );
+				$xml_data = $xml_request_body->asXML();
+
+				return array(
+					'url'  => $url,
+					'type' => Requests::POST,
+					'data' => $xml_data,
+				);
+
+			},
+			$target_files
+		);
+
+		$response = N2_Multi_URL_Request_API::ajax(
+			array(
+				'requests' => $requests,
+				'call'     => 'request_multiple',
+				'mode'     => 'func',
+				'headers'  => static::$data['header'],
+			),
+		);
+		return $response;
+	}
+
+	/**
+	 * Cabinetの利用状況
+	 */
+	public static function usage_get() {
+		$url = static::$settings['endpoint'] . '/1.0/cabinet/usage/get';
+
+		$data = wp_remote_get( $url, array( 'headers' => static::$data['header'] ) );
+		$body = wp_remote_retrieve_body( $data );
+		$body = simplexml_load_string( $body );
+
+		return $body;
+	}
+
 
 }
