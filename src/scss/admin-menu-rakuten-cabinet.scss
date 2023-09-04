@@ -53,9 +53,7 @@
 		}
 		td {
 			font-size: 0.8rem;
-		}
-		tr td:nth-of-type(4) {
-			&:after {
+			&[data-label="サイズ"]:after {
 				content: "KB";
 			}
 		}
@@ -127,22 +125,9 @@
 			
 		}
 	}
-	@media (min-width: 576px){
-		.modal-dialog {
-			max-width: 700px;
-			width: fit-content;
-		}
-	}
-	.modal-body {
-		margin: auto;
-	}
 	.dragable-area {
 		border-style: dashed!important;
 	}
-	.navbar {
-		z-index: 20;
-	}
-
 	input:not(:checked) + .radio-icon {
 		display: inline-block;
 	}

@@ -62,7 +62,7 @@ export default Vue.extend({
 			<img @click="showModal('image')" class="cabinet-img" :src="thumbnailUrl" :alt="image.FileName">
 		</td>
 		<td>{{image.FileName}}</td>
-		<td>{{image.FileSize}}</td>
+		<td data-label="サイズ">{{image.FileSize}}</td>
 		<td>{{formatTimeStamp}}</td>
 	</tr>
 	`
