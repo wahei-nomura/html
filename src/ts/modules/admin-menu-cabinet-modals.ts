@@ -24,12 +24,15 @@ export default Vue.extend({
 		currentFolderId(){
 			return this.selectedFolder?.FolderId
 		},
-		currentFolderName(){
-			return this.selectedFolder?.FolderName
+		currentFolderNamePath(){
+			return this.selectedFolder?.FolderNamePath
 		},
 		targetFolderId(){
 			return this.folders.filter(folder=>folder.FolderNamePath === this.targetFolderPath)[0]?.FolderId;
 		},
+		filtedFolder(){
+			return this.folders.filter(folder=>folder.FolderId !== this.selectedFolder?.FolderId);
+		}
 	},
 	methods:{
 		...mapActions([
@@ -66,6 +69,10 @@ export default Vue.extend({
 			});
 		},
 		async move(){
+			if ( undefined === this.targetFolderId) {
+				alert('移動先が存在しません。再選択してください。')
+				return;
+			}
 			const formData = {
 				call: 'files_move',
 				currentFolderId: this.currentFolderId,
@@ -88,13 +95,13 @@ export default Vue.extend({
 				<div class="input-group pb-2">
 					<span class="input-group-text">移動元</span>
 					<input type="hidden" :value="currentFolderId">
-					<input type="text" :value="currentFolderName" disabled>
+					<input type="text" :value="currentFolderNamePath" disabled>
 				</div>
 				<div class="input-group pb-2">
 					<span class="input-group-text">移動先</span>
 					<input type="hidden" :value="targetFolderId">
 					<datalist id="folders">
-						<option v-for="(folder, index) in folders" :value="folder.FolderNamePath"></option>
+						<option v-for="(folder, index) in filtedFolder" :value="folder.FolderNamePath"></option>
 					</datalist>
 					<input type="text" v-model="targetFolderPath" list="folders">
 				</div>

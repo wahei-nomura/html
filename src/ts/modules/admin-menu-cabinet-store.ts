@@ -112,7 +112,7 @@ export default new Vuex.Store({
 		async commitStates({commit},update){
 			for ( const key in update ) {
 				switch (key) {
-					case 'resetFiles': 
+					case 'resetFiles':
 						commit("SET_FILES",[]);
 						break;
 					case 'isTrashBox':
@@ -191,6 +191,7 @@ export default new Vuex.Store({
 						path += '/' + p;
 						folder.FolderNamePath += '/' + resp.data.filter(f=>f.FolderPath === path )[0]?.FolderName;
 					});
+					folder.FolderNamePath = folder.FolderNamePath.replace(/^\//,'')
 					return folder;
 				});
 			}).then( folders => {
