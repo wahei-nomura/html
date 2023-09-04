@@ -169,25 +169,35 @@ export default Vue.extend({
 				<div class="d-flex align-items-center">
 					選択した画像を
 					<div class="btn-group" role="group">
-						<button @click.prevent="showModal('move')" id="cabinet-navbar-btn-move"
-							:class="{ 'd-none' : isTrashBox }" class="btn btn-outline-secondary rounded-pill px-4 py-0"
-							type="button" name="files_move"
-						>
-							移動
-						</button>
-						<button @click.prevent="handleFiles('undo')" v-if="isTrashBox" class="btn btn-outline-warning rounded-pill px-4 py-0">
-							元に戻す
-						</button>
-						<button @click.prevent="handleFiles('delete')" v-if="!isTrashBox" class="btn btn-outline-warning rounded-pill px-4 py-0">
-							削除
-						</button>
-						<button @click.prevent="handleFiles('download')" id="cabinet-navbar-btn-dl"
-							class="btn btn-outline-secondary rounded-pill px-4 py-0" name="file_download"
-						>
-							DL
-						</button>
-						<form :class="{ 'd-none' : isTrashBox }" :action="window.n2.ajaxurl" method="POST" enctype="multipart/form-data">
-						</form>
+						<template v-if="isTrashBox">
+							<button @click.prevent="handleFiles('undo')" v-if="isTrashBox"
+								class="btn btn-outline-warning rounded-pill px-4 py-0"
+								:disabled="!selectedFiles.length"
+							>
+								元に戻す
+							</button>
+						</template>
+						<template v-else>
+							<button @click.prevent="showModal('move')" id="cabinet-navbar-btn-move"
+								class="btn btn-outline-secondary rounded-pill px-4 py-0"
+								type="button" name="files_move"
+								:disabled="!selectedFiles.length"
+							>
+								移動
+							</button>
+							<button @click.prevent="handleFiles('delete')"
+								class="btn btn-outline-warning rounded-pill px-4 py-0"
+								:disabled="!selectedFiles.length"
+							>
+								削除
+							</button>
+							<button @click.prevent="handleFiles('download')" id="cabinet-navbar-btn-dl"
+								class="btn btn-outline-secondary rounded-pill px-4 py-0" name="file_download"
+								:disabled="!selectedFiles.length"
+							>
+								DL
+							</button>
+						<template>
 						</div>
 					</div>
 				<div class="px-3" :class="{'d-none':isTrashBox}">
