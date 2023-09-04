@@ -59,6 +59,14 @@ global $n2;
 		</td>
 	</tr>
 	<tr>
+		<th>ゆうパケット</th>
+		<td>
+			<?php for ( $i = 1; $i <= 3; $i++ ) : ?>
+			<p><span style="display:inline-block; width: 9em;">厚さ<?php echo $i; ?>cm : </span><input type="number" name="n2_settings[寄附金額・送料][送料][ゆうパケット厚さ<?php echo $i; ?>cm]" value="<?php echo esc_attr( $n2->settings['寄附金額・送料']['送料'][ "ゆうパケット厚さ{$i}cm" ] ?? '' ); ?>" style="width: 7em;"></p>
+			<?php endfor; ?>
+		</td>
+	</tr>
+	<tr>
 		<th>レターパック</th>
 		<td>
 			<label style="margin: 0 2em 0 0;">

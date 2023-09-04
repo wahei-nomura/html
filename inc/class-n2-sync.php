@@ -327,6 +327,7 @@ class N2_Sync {
 		// $params変更
 		$params['action']  = 'n2_sync_posts';
 		$params['n2nonce'] = wp_create_nonce( 'n2nonce' );
+		$params['before']  = $_GET['before'] ?? false;
 
 		// n2_sync_posts に Multi cURL
 		$mh       = curl_multi_init();
@@ -562,15 +563,15 @@ class N2_Sync {
 			unset( $postarr['meta_input']['キャッチコピー１'], $postarr['meta_input']['楽天カテゴリー'] );
 
 			// 発送サイズ関連
-			$postarr['meta_input']['発送サイズ'] = $postarr['meta_input']['発送サイズ'] ?? '';
-			// 発送サイズの「レターパック」互換
-			if ( 'レターパック' === $postarr['meta_input']['発送サイズ'] ) {
-				$postarr['meta_input']['発送サイズ'] = 'レターパックプラス';
-			}
-			// 発送サイズの「その他」の統一
-			if ( 'その他（ヤマト以外）' === $postarr['meta_input']['発送サイズ'] ) {
-				$postarr['meta_input']['発送サイズ'] = 'その他';
-			}
+			$postarr['meta_input']['発送サイズ'] = match ( $postarr['meta_input']['発送サイズ'] ?? '' ) {
+				'レターパック' => 'レターパックプラス',
+				'ゆうパケット1cm' => 'ゆうパケット厚さ1cm',
+				'ゆうパケット2cm' => 'ゆうパケット厚さ2cm',
+				'ゆうパケット3cm' => 'ゆうパケット厚さ3cm',
+				'その他（ヤマト以外）' => 'その他',
+				default => $postarr['meta_input']['発送サイズ'] ?? '',
+			};
+
 			// 自治体確認
 			if ( isset( $postarr['meta_input']['市役所確認'] ) ) {
 				$postarr['meta_input']['自治体確認'] = match ( $postarr['meta_input']['市役所確認'] ) {
@@ -620,9 +621,35 @@ class N2_Sync {
 					update_post_meta( $p->ID, '事業者確認', $confirm );
 				}
 				$neng_ids[] = $p->ID;
-				// 更新されてない場合はスキップ
-				if ( $p->post_modified >= $postarr['post_modified'] ) {
-					continue;
+
+				if ( $params['before'] ) {
+					// beforeパラメータの日時以降はスキップ
+					if ( $p->post_modified > $params['before'] ) {
+						continue;
+					}
+					// N2のカスタムフィールド（空は削除）
+					$meta = array_keys( array_filter( (array) json_decode( $p->post_content, true ) ) );
+					// N2に値が入っているものを排除
+					$postarr['meta_input'] = array_filter(
+						$postarr['meta_input'],
+						function ( $v, $k ) use ( $meta ) {
+							// N2のカスタムフィールドに値が無い　かつ　N1も空じゃない
+							return ! in_array( $k, $meta, true ) && ! empty( array_filter( (array) $v ) );
+						},
+						ARRAY_FILTER_USE_BOTH
+					);
+					if ( empty( $postarr['meta_input'] ) ) {
+						continue;
+					}
+					$postarr = array_filter( $postarr, fn( $k ) => 'meta_input' === $k, ARRAY_FILTER_USE_KEY );// メタデータのみに
+					$postarr = wp_parse_args( $postarr, wp_parse_args( $p ) );// 既存の返礼品データにメタデータのみをマージ
+					// 更新日時とpost_contentは破棄
+					unset( $postarr['post_modified'], $postarr['post_modified_gmt'], $postarr['post_content'] );
+				} else {
+					// 更新されてない場合はスキップ
+					if ( $p->post_modified >= $postarr['post_modified'] ) {
+						continue;
+					}
 				}
 				$postarr['ID'] = $p->ID;
 				// ログ生成

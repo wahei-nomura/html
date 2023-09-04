@@ -446,6 +446,15 @@
             レターパックライト: 
                 label: レターパックライト
                 v-if: 発送方法=='常温'&&n2.settings['寄附金額・送料'].送料.レターパックライト
+            ゆうパケット厚さ1cm:
+                label: ゆうパケット厚さ1cm
+                v-if: 発送方法=='常温'&&n2.settings['寄附金額・送料'].送料.ゆうパケット厚さ1cm
+            ゆうパケット厚さ2cm:
+                label: ゆうパケット厚さ2cm
+                v-if: 発送方法=='常温'&&n2.settings['寄附金額・送料'].送料.ゆうパケット厚さ2cm
+            ゆうパケット厚さ3cm:
+                label: ゆうパケット厚さ3cm
+                v-if: 発送方法=='常温'&&n2.settings['寄附金額・送料'].送料.ゆうパケット厚さ3cm
             その他: その他
         v-model: 発送サイズ
         "@change": check_handling_method
@@ -472,7 +481,7 @@
             - なまもの
             - 精密機器
             - 水濡厳禁
-        v-if: "!['','その他', 'レターパックプラス', 'レターパックライト'].includes(発送サイズ)"
+        v-if: "!isNaN(発送サイズ||'未選択')"
         v-model: 取り扱い方法
         '@click': 'if (取り扱い方法.filter(v=>v).length == 2 ) { $event.target.checked = false; set_info($event.target) }'
     配送伝票表示名:
