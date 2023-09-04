@@ -138,7 +138,8 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 			preg_match( '/^容量$/', $val )  => $n2values['内容量・規格等'],// お礼の品の容量情報を1,000文字以内で入力
 			preg_match( '/(お礼の品|スライド)画像[1]*$/', $val ) => mb_strtolower( $n2values['返礼品コード'] ) . '.jpg',// お礼の品画像のファイル名
 			preg_match( '/スライド画像([2-8]{1})$/u', $val, $m ) => mb_strtolower( $n2values['返礼品コード'] ) . '-' . ( $m[1] - 1 ) . '.jpg',// スライド画像のファイル名を指定
-			preg_match( '/^申込期日$/', $val ) => $n2values['申込期間'],// お礼の品の申込期日情報を1,000文字以内で入力
+			preg_match( '/品梱包画像$/u', $val ) => $n2->town . '-注意書き.jpg',// 〇〇(市|町|県)-注意書き.jpg
+			preg_match( '/^申込期日$/', $val ) => $n2values['申込期間'],// お礼の品の申込期日情報を1,000文字以内で入力　〇〇(市|町|県)-注意書き.jpg
 			preg_match( '/^発送期日$/', $val ) => $n2values['配送期間'],// 発送期日種別が任意入力の場合はお礼の品の発送期日情報を1,000文字以内で入力
 			preg_match( '/アレルギー：([^（]*)/u', $val, $m ) => in_array( $m[1], $n2values['アレルゲン'], true ) ? 1 : 2,// アレルギー品目がありの場合は半角数字の1、なしの場合は半角数字の2、未確認の場合は半角数字の3
 			preg_match( '/アレルギー特記事項/', $val ) => $n2values['アレルゲン注釈'],// アレルギーに関する注意情報を1,000文字以内で入力
