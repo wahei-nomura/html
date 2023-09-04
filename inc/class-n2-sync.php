@@ -462,7 +462,7 @@ class N2_Sync {
 			$postarr['meta_input']['_neng_id'] = $v['ID'];
 
 			// 寄附金額をロックする
-			$postarr['meta_input']['寄附金額固定'] = array( '固定する' );
+			$postarr['meta_input']['寄附金額固定'] = 'draft' !== $postarr['post_status'] ? array( '固定する' ) : array();
 
 			// 「取り扱い方法1〜2」を「取り扱い方法」に変換
 			$handling                        = array_filter( $postarr['meta_input'], fn( $k ) => preg_match( '/取り扱い方法[0-9]/u', $k ), ARRAY_FILTER_USE_KEY );
