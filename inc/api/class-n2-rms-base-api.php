@@ -168,8 +168,6 @@ abstract class N2_RMS_Base_API {
 		static::set_header();
 		static::set_files();
 
-		static::check_fatal_error( static::connect(), '無効なAPIキーです。更新してください。' );
-
 		static::$data['response'] = static::call();
 
 		static::remove_tmp_files();
