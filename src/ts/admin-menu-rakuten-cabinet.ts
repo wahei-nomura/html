@@ -4,7 +4,6 @@ import store from './modules/admin-menu-cabinet-store'
 import App from './modules/admin-menu-cabinet-app'
 import axios from 'axios';
 
-Vue.config.devtools = true;
 jQuery( async function($){
 	// 接続確認
 	const connect = await axios.get(

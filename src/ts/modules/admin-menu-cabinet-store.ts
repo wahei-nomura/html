@@ -112,6 +112,9 @@ export default new Vuex.Store({
 		async commitStates({commit},update){
 			for ( const key in update ) {
 				switch (key) {
+					case 'resetFiles': 
+						commit("SET_FILES",[]);
+						break;
 					case 'isTrashBox':
 						commit("IS_TRASHBOX",update[key]);
 						break;
@@ -133,14 +136,18 @@ export default new Vuex.Store({
 			}
 		},
 		async updateFiles ({state, commit, getters, dispatch},folder: cabinetFolder) {
-			dispatch(
-				'commitStates',
-				{
+			const updateStates = {
 					isTrashBox: false,
 					isLoading: true,
 					focusFile: null,
 					selectedFolder: folder,
-				}
+			};
+			if (this.state.isTrashBox ) {
+				updateStates['resetFiles'] = true;
+			}
+			dispatch(
+				'commitStates',
+				updateStates,
 			)
 			await dispatch('ajaxPost',{formData:{
 				call: "files_get",
