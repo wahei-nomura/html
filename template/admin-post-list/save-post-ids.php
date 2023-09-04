@@ -33,7 +33,6 @@ global $n2;
 								<template v-else>
 									<label><input type="radio" name="action" value="n2_item_export_rakuten" v-model="fd.action"> 楽天 [ item.csv ]</label>
 									<label><input type="radio" name="action" value="n2_item_export_rakuten_select" v-model="fd.action"> 楽天 [ select.csv ]</label>
-									<label><input type="radio" name="action" value="n2_item_export_rakuten_cat" v-model="fd.action"> 楽天 [ item-cat.csv ]</label>
 								</template>
 							</template>
 						</div>
