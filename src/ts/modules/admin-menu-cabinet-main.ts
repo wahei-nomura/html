@@ -35,9 +35,7 @@ export default Vue.extend({
 		]),
 		sotredFiles() {
 			return this.filterFiles.slice().sort((a:cabinetImage,b:cabinetImage)=>{
-				if ( a[this.sortKey] < b[this.sortKey] ) return this.sortOrder;
-				if ( a[this.sortKey] > b[this.sortKey] ) return -1 * this.sortOrder;
-				return 0;
+				return  ( a[this.sortKey] - b[this.sortKey] ) * this.sortOrder ;
 			});
 		},
 	},
