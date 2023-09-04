@@ -30,6 +30,7 @@ export default Vue.extend({
 			});
 			this.$store.dispatch('commitStates',{
 				isTrashBox: false,
+				isSearchResult: true,
 				isLoading: true,
 				focusFile: null,
 				selectedFolder: {FolderName:'検索結果'},
@@ -44,6 +45,7 @@ export default Vue.extend({
 				})
 				this.$store.commit('SET_FILES',files);
 				this.$store.commit('IS_LOADING',false);
+				this.$sotre.commit('REMOVE_ALL_SELECTED_FILE_ID')
 			});
 		},
     },
