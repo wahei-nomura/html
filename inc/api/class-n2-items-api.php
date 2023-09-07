@@ -91,7 +91,7 @@ class N2_Items_API {
 		/**
 		 * [hook] n2_items_api_get_items
 		 */
-		return apply_filters( 'n2_items_api_set_items', $posts );
+		return apply_filters( 'n2_items_api_get_items', $posts );
 	}
 
 	/**

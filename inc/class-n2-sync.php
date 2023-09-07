@@ -327,6 +327,7 @@ class N2_Sync {
 		// $params変更
 		$params['action']  = 'n2_sync_posts';
 		$params['n2nonce'] = wp_create_nonce( 'n2nonce' );
+		$params['before']  = $_GET['before'] ?? false;
 
 		// n2_sync_posts に Multi cURL
 		$mh       = curl_multi_init();
@@ -465,7 +466,7 @@ class N2_Sync {
 
 			// 「取り扱い方法1〜2」を「取り扱い方法」に変換
 			$handling                        = array_filter( $postarr['meta_input'], fn( $k ) => preg_match( '/取り扱い方法[0-9]/u', $k ), ARRAY_FILTER_USE_KEY );
-			$postarr['meta_input']['取り扱い方法'] = array_filter( array_values( $handling ), fn( $v ) => $v );
+			$postarr['meta_input']['取り扱い方法'] = array_values( array_filter( array_values( $handling ), fn( $v ) => $v ) );
 			foreach ( array_keys( $handling ) as $k ) {
 				unset( $postarr['meta_input'][ $k ] );
 			}
@@ -562,15 +563,15 @@ class N2_Sync {
 			unset( $postarr['meta_input']['キャッチコピー１'], $postarr['meta_input']['楽天カテゴリー'] );
 
 			// 発送サイズ関連
-			$postarr['meta_input']['発送サイズ'] = $postarr['meta_input']['発送サイズ'] ?? '';
-			// 発送サイズの「レターパック」互換
-			if ( 'レターパック' === $postarr['meta_input']['発送サイズ'] ) {
-				$postarr['meta_input']['発送サイズ'] = 'レターパックプラス';
-			}
-			// 発送サイズの「その他」の統一
-			if ( 'その他（ヤマト以外）' === $postarr['meta_input']['発送サイズ'] ) {
-				$postarr['meta_input']['発送サイズ'] = 'その他';
-			}
+			$postarr['meta_input']['発送サイズ'] = match ( $postarr['meta_input']['発送サイズ'] ?? '' ) {
+				'レターパック' => 'レターパックプラス',
+				'ゆうパケット1cm' => 'ゆうパケット厚さ1cm',
+				'ゆうパケット2cm' => 'ゆうパケット厚さ2cm',
+				'ゆうパケット3cm' => 'ゆうパケット厚さ3cm',
+				'その他（ヤマト以外）' => 'その他',
+				default => $postarr['meta_input']['発送サイズ'] ?? '',
+			};
+
 			// 自治体確認
 			if ( isset( $postarr['meta_input']['市役所確認'] ) ) {
 				$postarr['meta_input']['自治体確認'] = match ( $postarr['meta_input']['市役所確認'] ) {
@@ -620,9 +621,33 @@ class N2_Sync {
 					update_post_meta( $p->ID, '事業者確認', $confirm );
 				}
 				$neng_ids[] = $p->ID;
-				// 更新されてない場合はスキップ
-				if ( $p->post_modified >= $postarr['post_modified'] ) {
-					continue;
+
+				if ( $params['before'] ) {
+					// beforeパラメータの日時以降はスキップ
+					if ( $p->post_modified > $params['before'] ) {
+						continue;
+					}
+					// N2のカスタムフィールド（空は削除）
+					$meta = array_keys( array_filter( (array) json_decode( $p->post_content, true ) ) );
+					// N2に値が入っているものを排除
+					$postarr['meta_input'] = array_filter(
+						$postarr['meta_input'],
+						function ( $v, $k ) use ( $meta ) {
+							// N2のカスタムフィールドに値が無い
+							return ! in_array( $k, $meta, true );
+						},
+						ARRAY_FILTER_USE_BOTH
+					);
+					if ( empty( $postarr['meta_input'] ) ) {
+						continue;
+					}
+					// 更新日時は保持する
+					$postarr['post_modified'] = $p->post_modified;
+				} else {
+					// 更新されてない場合はスキップ
+					if ( $p->post_modified >= $postarr['post_modified'] ) {
+						continue;
+					}
 				}
 				$postarr['ID'] = $p->ID;
 				// ログ生成
