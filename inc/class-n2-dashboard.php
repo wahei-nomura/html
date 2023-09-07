@@ -100,7 +100,25 @@ class N2_Dashboard {
 
 		wp_reset_postdata();
 	}
-	public function dashboard_jichitai_check_list () {
+	/**
+	 * add_jichitai_widgets
+	 * ダッシュボードに項目追加
+	 *
+	 * @return void
+	 */
+	public function add_jichitai_widgets() {
+		global $n2;
+		if ( '1' === $n2->settings['N2']['自治体確認'] ) {
+			wp_add_dashboard_widget( 'jichitai_widget', '自治体チェック未リスト', array( $this, 'dashboard_jichitai_check_list' ) );
+		}
+	}
+	/**
+	 * dashboard_jichitai_check_list
+	 * ダッシュボードウィジェットに追加する自治体チェック未リスト
+	 *
+	 * @return void
+	 */
+	public function dashboard_jichitai_check_list() {
 		$args = array(
 			'post_type'      => 'post',
 			'posts_per_page' => -1,
@@ -114,7 +132,7 @@ class N2_Dashboard {
 		$return_rate_list_text = '';
 		if ( $wp_query->have_posts() ) {
 			$return_rate_list_text .= '<ul>';
-			$return_rate_list_text .= '<li style="border-bottom:1px solid #bbb; background:#ccc;display:flex;padding:10px 0;"><span style="display:inline-block; width:60px;flex-shrink: 0;text-align:center;">チェック</span><span style="display:inline-block; width:100px;flex-shrink: 0;text-align:center;">返礼品コード</span><span style="display:inline-block;width:100%;text-align:center;">返礼品名</span></li>';
+			$return_rate_list_text .= '<li style="border-bottom:1px solid #bbb; background:#ccc;display:flex;padding:10px 0;"><span style="display:inline-block; width:100px;flex-shrink: 0;text-align:center;">ステータス</span><span style="display:inline-block; width:100px;flex-shrink: 0;text-align:center;">返礼品コード</span><span style="display:inline-block;width:100%;text-align:center;">返礼品名</span></li>';
 			while ( $wp_query->have_posts() ) {
 				$wp_query->the_post();
 				$post            = get_post( get_the_ID() );
@@ -124,9 +142,21 @@ class N2_Dashboard {
 				$donation_amount = ! empty( $post_data['寄附金額'] ) && 0 !== $post_data['寄附金額'] ? number_format( $post_data['寄附金額'] ) : '-';
 				$code            = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '未(id:' . $post->ID . ')';
 				$jichitai_check  = ! empty( $post_data['自治体確認'] ) ? $post_data['自治体確認'] : '-';
+				$post_status     = $post->post_status;
 				$return_rate     = N2_Donation_Amount_API::calc_return_rate( $post_data ); // 返礼率計算
-				if ( $jichitai_check !== '承諾') {
-					$return_rate_list_text .= '<li style="border-bottom:1px solid #ccc;padding:5px 0;"><a href="' . $post_edit_url . '" style="display:flex;"><span style="display:inline-block; width:60px;flex-shrink: 0;text-align:center;">' . $jichitai_check . '</span><span style="display:inline-block; width:100px;flex-shrink: 0;text-align:center;">' . $code . '</span><span style="display:inline-block;">' . get_the_title() . '</span></a></li>';
+				if ( 'draft' === $post_status ) {
+					$post_status_name = '入力中';
+				} elseif ( 'pending' === $post_status ) {
+					$post_status_name = 'SS確認待ち';
+				} elseif ( 'publish' === $post_status ) {
+					$post_status_name = '登録準備中';
+				} elseif ( 'registered' === $post_status ) {
+					$post_status_name = '登録済';
+				}else{
+					$post_status_name = '未登録';
+				}
+				if ( '承諾' !== $jichitai_check && 'publish' === $post_status ) {
+					$return_rate_list_text .= '<li style="border-bottom:1px solid #ccc;padding:5px 0;"><a href="' . $post_edit_url . '" style="display:flex;"><span style="display:inline-block; width:100px;flex-shrink: 0;text-align:center;">' . $post_status_name . '</span><span style="display:inline-block; width:100px;flex-shrink: 0;text-align:center;">' . $code . '</span><span style="display:inline-block;">' . get_the_title() . '</span></a></li>';
 				}
 			}
 			$return_rate_list_text .= '</ul>';
@@ -138,14 +168,5 @@ class N2_Dashboard {
 		}
 
 		wp_reset_postdata();
-	}
-	/**
-	 * add_jichitai_widgets
-	 * ダッシュボードに項目追加
-	 *
-	 * @return void
-	 */
-	public function add_jichitai_widgets() {
-		wp_add_dashboard_widget( 'jichitai_widget', '自治体チェック未リスト', array( $this, 'dashboard_jichitai_check_list' ) );
 	}
 }
