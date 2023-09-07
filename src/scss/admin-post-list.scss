@@ -230,19 +230,19 @@ body.is_safari{
 		$transparent: 0.1;
 		&.hentry.status-draft{
 			border-left: 7px solid $secondary;
-			background-color: rgba($secondary, $transparent);
+			background: rgba($secondary, $transparent);
 		}
 		&.status-pending{
 			border-left: 7px solid $danger;
-			background-color: rgba($danger, $transparent);
+			background: rgba($danger, $transparent);
 		}
 		&.status-publish{
 			border-left: 7px solid $primary;
-			background-color: rgba($primary, $transparent);
+			background: rgba($primary, $transparent);
 		}
 		&.status-registered{
 			border-left: 7px solid $success;
-			background-color: rgba($success, $transparent);
+			background: rgba($success, $transparent);
 		}
 		&.status-private{
 			border-left: 7px solid $dark;
