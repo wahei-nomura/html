@@ -17,7 +17,7 @@ $name    = $args['name'];
 			
 			<!-- ポップオーバー -->
 			<img :src="attr.sizes.thumbnail.url || attr.sizes.thumbnail" style="cursor: move;" :title="attr.description || ''" @click="document.getElementById(`image-popover-${index}`).showPopover()">
-			<div popover :id="`image-popover-${index}`" style="max-width: 80%; max-height: 90%; border: 0; box-shadow: 0 0 0 100vw rgba(0,0,0,.5); padding: 0;">
+			<div popover :id="`image-popover-${index}`" style="max-width: 80%; max-height: 90%; border: 0; box-shadow: 0 0 0 100vw rgba(0,0,0,.5); padding: 0;"  v-if="HTMLElement.prototype.hasOwnProperty('popover')">
 				<div v-if="attr.description.length" v-text="attr.description" class="p-2 bg-dark text-white position-sticky top-0" @click="navigator.clipboard.writeText(attr.description).then(()=>{alert(`テキスト（${attr.description}）をコピーしました`);document.getElementById(`image-popover-${index}`).hidePopover();});"></div>
 				<img :src="attr.url">
 			</div>
