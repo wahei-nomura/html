@@ -26,5 +26,5 @@ jQuery( $ => {
 		mokuji_generator();// 目次生成
 		editor_vue();// カスタムフィールドをVueで制御
 		status_control();// ステータスコントロール
-	}, 1);
+	}, 500);
 });
