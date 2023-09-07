@@ -107,7 +107,7 @@ class N2_Product_List_Print {
 											case '事業者名':
 												$td = $p['事業者名'];
 												break;
-											case '価格':
+											case '価格（税込）':
 												$td = $p['価格'];
 												$td = number_format( $td );
 												break;
