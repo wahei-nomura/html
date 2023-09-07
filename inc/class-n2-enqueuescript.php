@@ -94,8 +94,10 @@ class N2_Enqueuescript {
 	 * @return $classes
 	 */
 	public function add_admin_body_class( $classes ) {
-		global $n2;
+		global $n2, $is_chrome, $is_safari;
 		$classes .= isset( $_COOKIE['n2-darkmode'] ) ? ' n2-darkmode' : '';
+		$classes .= $is_chrome ? ' is_chrome' : '';
+		$classes .= $is_safari ? ' is_safari' : '';
 		return $classes;
 	}
 
