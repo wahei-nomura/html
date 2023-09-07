@@ -70,33 +70,21 @@ $bp: 782px;
 		}
 		tr.hentry{
 			position: relative;
-			background-color: white;
+			background: white;
 			$transparent: 0.1;
-			th{
-				position: static;
-				&::before{
-					content: "";
-					position: absolute;
-					top: 0;
-					bottom: 0;
-					left: 0;
-					right: 0;
-					border-top: 1px solid #c3c4c7;
-				}
-			}
-			&.status-draft th::before{
+			&.status-draft{
 				background: linear-gradient(to right, $secondary 7px, rgba($secondary, $transparent) 7px, rgba($secondary, $transparent) 25%, white 25%);
 			}
-			&.status-pending th::before{
+			&.status-pending{
 				background: linear-gradient(to right, $danger 7px, rgba($danger, $transparent) 7px, rgba($danger, $transparent) 50%, white 50%);
 			}
-			&.status-publish th::before{
+			&.status-publish{
 				background: linear-gradient(to right, $primary 7px, rgba($primary, $transparent) 7px, rgba($primary, $transparent) 75%, white 75%);
 			}
-			&.status-registered th::before{
+			&.status-registered{
 				background: linear-gradient(to right, $success 7px, rgba($success, $transparent) 7px, rgba($success, $transparent) 100%);
 			}
-			&.status-private th::before{
+			&.status-private{
 				background: linear-gradient(to right, $dark 7px, rgba($dark, 0.4) 7px, rgba($dark, 0.4) 100%);
 			}
 		}
@@ -111,13 +99,12 @@ $bp: 782px;
 			padding: 4px;
 			vertical-align: middle;
 			background-color: transparent;
-			border-bottom: 0;
+			border-bottom: 1px solid #c3c4c7;
 		}
 		th{
 			white-space: nowrap;
 			text-align: center;
 			font-weight: normal;
-			position: static;
 			a{
 				display: flex;
 				justify-content: center;
@@ -131,7 +118,6 @@ $bp: 782px;
 		}
 		td{
 			text-align: center;
-			position: relative;
 			a{
 				outline: none;
 				box-shadow: none;
