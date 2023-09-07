@@ -170,7 +170,7 @@ class N2_Admin_Post_List {
 		$meta       = json_decode( get_the_content(), true );
 		$meta['id'] = $post_id;
 		// サムネイル
-		$thumbnail = $meta['商品画像']
+		$thumbnail = ! empty( $meta['商品画像'] )
 			? ( $meta['商品画像'][0]['sizes']['thumbnail']['url'] ?? $meta['商品画像'][0]['sizes']['thumbnail'] )
 			: false;
 		// 返礼率

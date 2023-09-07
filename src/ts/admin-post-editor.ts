@@ -1,4 +1,5 @@
 // 必要なモジュールの読み込み
+import loading_view from "./modules/loading-view";
 import i18n from "./modules/admin-post-editor-i18n";
 import title_counter from "./modules/admin-post-editor-title-counter";
 import delete_post_button from "./modules/admin-post-editor-delete-post";
@@ -12,6 +13,7 @@ import mokuji_generator from "./modules/admin-post-editor-mokuji-generator";
 import editor_vue from "./modules/admin-post-editor-vue";
 import status_control from "./modules/admin-post-editor-status-control";
 jQuery( $ => {
+	loading_view.add('#wpwrap');// ローディング
 	const n2 = window['n2'];
 	i18n();// 翻訳
 	setTimeout(()=>{
@@ -26,5 +28,5 @@ jQuery( $ => {
 		mokuji_generator();// 目次生成
 		editor_vue();// カスタムフィールドをVueで制御
 		status_control();// ステータスコントロール
-	}, 1);
+	}, 100);
 });

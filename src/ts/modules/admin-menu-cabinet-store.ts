@@ -16,6 +16,7 @@ export default new Vuex.Store({
 		viewMode : 'grid',
 		isClick : true,
 		isTrashBox: false,
+		isSearchResult: false,
 		isLoading: false,
 		offsetHeight: {},
 		modalUrl: "",
@@ -59,6 +60,9 @@ export default new Vuex.Store({
 		},
 		IS_TRASHBOX( state, bool:boolean) {
 			state.isTrashBox = bool;
+		},
+		IS_SEARCH_RESULT( state, bool:boolean) {
+			state.isSearchResult = bool;
 		},
 		IS_LOADING( state, bool:boolean) {
 			state.isLoading = bool;
@@ -117,6 +121,9 @@ export default new Vuex.Store({
 					case 'isTrashBox':
 						commit("IS_TRASHBOX",update[key]);
 						break;
+					case 'isSearchResult':
+						commit("IS_SEARCH_RESULT",update[key]);
+						break;
 					case 'isLoading':
 						commit("IS_LOADING",update[key]);
 						break;
@@ -138,6 +145,7 @@ export default new Vuex.Store({
 			const updateStates = {
 					isTrashBox: false,
 					isLoading: true,
+					isSearchResult: false,
 					focusFile: null,
 					selectedFolder: folder,
 			};
@@ -165,6 +173,7 @@ export default new Vuex.Store({
 				{
 					viewMode: 'list',
 					isTrashBox: true,
+					isSearchResult: false,
 					isLoading: true,
 					focusFile: null,
 					selectedFolder: {FolderName:'ゴミ箱'},

@@ -8,7 +8,7 @@
 
 global $n2;
 ?>
-<div popover id="n2-admin-post-list-tool" :class="`n2-admin-post-list-tool ${item.ステータス}`">
+<div popover id="n2-admin-post-list-tool" :class="`n2-admin-post-list-tool ${item.ステータス}`" v-if="HTMLElement.prototype.hasOwnProperty('popover')" >
 	<div id="n2-admin-post-list-tool-header">
 		<ul>
 			<li v-if="'trash' === item.ステータス" @click="confirm('ゴミ箱から復元します。よろしいですか？') ? location.href=`admin-ajax.php?action=n2_items_api&mode=untrash&id=${id}` : 0">ゴミ箱から復元</li>

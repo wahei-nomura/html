@@ -22,6 +22,7 @@ export default Vue.extend({
 		...mapState([
 			'n2nonce',
 			'isTrashBox',
+			'isSearchResult',
 			'viewMode',
 			'files',
 			'selectedFiles',
@@ -34,9 +35,7 @@ export default Vue.extend({
 		]),
 		sotredFiles() {
 			return this.filterFiles.slice().sort((a:cabinetImage,b:cabinetImage)=>{
-				if ( a[this.sortKey] < b[this.sortKey] ) return this.sortOrder;
-				if ( a[this.sortKey] > b[this.sortKey] ) return -1 * this.sortOrder;
-				return 0;
+				return  ( a[this.sortKey] - b[this.sortKey] ) * this.sortOrder ;
 			});
 		},
 	},
@@ -96,6 +95,9 @@ export default Vue.extend({
 					});
 					break;
 				case 'delete':
+					if ( ! confirm('選択した画像を削除しますか？') ) {
+						return;
+					}
 					formData['call'] = 'file_delete';
 					await this.ajaxPostSelectedFileIds({formData}).then(()=>{
 						this.$store.commit("REMOVE_ALL_SELECTED_FILE_ID");
@@ -169,6 +171,15 @@ export default Vue.extend({
 				<div class="d-flex align-items-center">
 					選択した画像を
 					<div class="btn-group" role="group">
+						<template v-if=" ! ( isSearchResult || isTrashBox )">
+							<button @click.prevent="showModal('move')" id="cabinet-navbar-btn-move"
+								class="btn btn-outline-secondary rounded-pill px-4 py-0"
+								type="button" name="files_move"
+								:disabled="!selectedFiles.length"
+							>
+								移動
+							</button>
+						</template>
 						<template v-if="isTrashBox">
 							<button @click.prevent="handleFiles('undo')" v-if="isTrashBox"
 								class="btn btn-outline-warning rounded-pill px-4 py-0"
@@ -178,13 +189,6 @@ export default Vue.extend({
 							</button>
 						</template>
 						<template v-else>
-							<button @click.prevent="showModal('move')" id="cabinet-navbar-btn-move"
-								class="btn btn-outline-secondary rounded-pill px-4 py-0"
-								type="button" name="files_move"
-								:disabled="!selectedFiles.length"
-							>
-								移動
-							</button>
 							<button @click.prevent="handleFiles('delete')"
 								class="btn btn-outline-warning rounded-pill px-4 py-0"
 								:disabled="!selectedFiles.length"

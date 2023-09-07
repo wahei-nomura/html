@@ -9,7 +9,6 @@ import save_as_pending from "./admin-post-editor-save-as-pending-post"
 * @param $ jQuery
 */
 export default ($: any = jQuery) => {
-	loading_view.add('#wpwrap');// ローディング
 	const n2 = window['n2'];
 	const wp = window['wp'];
 	const data = {};
