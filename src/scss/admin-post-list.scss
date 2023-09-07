@@ -229,23 +229,33 @@ body.is_safari{
 	#posts-filter .wp-list-table tr{
 		$transparent: 0.1;
 		&.hentry.status-draft{
-			border-left: 7px solid $secondary;
+			th {
+				border-left: 7px solid $secondary;
+			}
 			background: rgba($secondary, $transparent);
 		}
 		&.status-pending{
-			border-left: 7px solid $danger;
+			th{
+				border-left: 7px solid $danger;
+			}
 			background: rgba($danger, $transparent);
 		}
 		&.status-publish{
-			border-left: 7px solid $primary;
+			th{
+				border-left: 7px solid $primary;
+			}
 			background: rgba($primary, $transparent);
 		}
 		&.status-registered{
-			border-left: 7px solid $success;
+			th{
+				border-left: 7px solid $success;
+			}
 			background: rgba($success, $transparent);
 		}
 		&.status-private{
-			border-left: 7px solid $dark;
+			th{
+				border-left: 7px solid $dark;
+			}
 			background-color: rgba($dark, $transparent);
 		}
 	}
