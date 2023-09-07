@@ -54,7 +54,9 @@ class N2_Dashboard {
 	 * @return void
 	 */
 	public function add_widgets() {
-		wp_add_dashboard_widget( 'custom_help_widget', '返礼率規定オーバーリスト', array( $this, 'dashboard_text' ) );
+		if ( current_user_can( 'ss_crew' ) ) {
+			wp_add_dashboard_widget( 'custom_help_widget', '返礼率規定オーバーリスト', array( $this, 'dashboard_text' ) );
+		}
 	}
 	/**
 	 * dashboard_text
@@ -152,10 +154,10 @@ class N2_Dashboard {
 					$post_status_name = '登録準備中';
 				} elseif ( 'registered' === $post_status ) {
 					$post_status_name = '登録済';
-				}else{
+				} else {
 					$post_status_name = '未登録';
 				}
-				if ( '承諾' !== $jichitai_check && 'publish' === $post_status ) {
+				if ( '承諾' !== $jichitai_check && ('publish' === $post_status || 'registered' === $post_status) ) {
 					$return_rate_list_text .= '<li style="border-bottom:1px solid #ccc;padding:5px 0;"><a href="' . $post_edit_url . '" style="display:flex;"><span style="display:inline-block; width:100px;flex-shrink: 0;text-align:center;">' . $post_status_name . '</span><span style="display:inline-block; width:100px;flex-shrink: 0;text-align:center;">' . $code . '</span><span style="display:inline-block;">' . get_the_title() . '</span></a></li>';
 				}
 			}
