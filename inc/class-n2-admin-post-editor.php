@@ -56,6 +56,9 @@ class N2_Admin_Post_Editor {
 		$persisted_preferences['_modified']      = gmdate( 'c' );
 		update_user_meta( $n2->current_user->ID, "{$n2->blog_prefix}persisted_preferences", $persisted_preferences );
 
+		// カスタムフィールドの表示をOFFに
+		update_user_meta( $n2->current_user->ID, 'enable_custom_fields', '' );
+
 		$supports = array(
 			'thumbnail',
 			'excerpt',
