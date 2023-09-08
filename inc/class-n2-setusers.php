@@ -129,6 +129,8 @@ class N2_Setusers {
 				}
 			}
 			restore_current_blog();
+		} else if ( 'ss-crew' === $user->roles[0] ) {
+			$has_ss_crew = true;
 		}
 
 		if ( $has_ss_crew ) {
