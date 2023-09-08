@@ -112,14 +112,13 @@ class N2_Setusers {
 		);
 		$diff  = array_diff( ...$sites );
 		if ( empty( $diff ) ||
-			! ( empty( $user->roles) || 'ss-crew' === $user->roles[0] ) )
-		{
+			! ( empty( $user->roles ) || 'ss-crew' === $user->roles[0] ) ) {
 			return;
 		}
 
 		$has_ss_crew = false;
 		// 初回ログイン時はロールが設定されていないことがある
-		if( empty( $user->roles ) ) {
+		if ( empty( $user->roles ) ) {
 			foreach ( $sites[1] as $site ) {
 				switch_to_blog( $site );
 				// ユーザーを更新
