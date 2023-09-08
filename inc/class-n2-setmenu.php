@@ -93,6 +93,7 @@ class N2_Setmenu {
 				break;
 			case 'local-government':
 				// $menus[]  = 'index.php';
+				$menus[]  = 'my-sites.php';
 				$menus[]  = 'edit-comments.php';
 				$menus[]  = 'aiowpsec'; // All In One WP Security
 				$submenus = array(
