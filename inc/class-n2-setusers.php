@@ -127,8 +127,8 @@ class N2_Setusers {
 					$has_ss_crew = true;
 					break;
 				}
-				restore_current_blog();
 			}
+			restore_current_blog();
 		}
 
 		if ( $has_ss_crew ) {
