@@ -42,13 +42,18 @@ const append_button = (target: string, $: any = jQuery) => {
 			}
 			if ( ! confirm('スチームシップへ送信後の編集はできません。本当に送信しますか？') ) return;
 			$('#n2-save-as-pending span').attr('class', 'spinner-border spinner-border-sm me-2');
-			// カスタムフィールドの保存
-			const meta = get_meta();
-			wp.data.dispatch( 'core/editor' ).editPost({ meta, status: 'pending' });
-			wp.data.dispatch('core/editor').savePost().then(()=>{
-				$('#n2-save-as-pending span').attr('class', 'dashicons dashicons-saved me-2');
-				$(window).off('beforeunload');
-				location.reload();
+			// フォーカス外さずそのまま保存した場合にVueのwatchが発火しないのでresolveを待つ
+			new Promise( resolve => {
+				n2.save_post_promise_resolve = resolve;
+			}).then(()=>{
+				// カスタムフィールドの保存
+				const meta = get_meta();
+				wp.data.dispatch( 'core/editor' ).editPost({ meta, status: 'pending' });
+				wp.data.dispatch('core/editor').savePost().then(()=>{
+					$('#n2-save-as-pending span').attr('class', 'dashicons dashicons-saved me-2');
+					$(window).off('beforeunload');
+					location.reload();
+				});
 			});
 		});
 	});
