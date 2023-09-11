@@ -47,13 +47,14 @@ export default (target: string, $: any = jQuery) => {
 				return;
 			}
 			$('#n2-save-post span').attr('class', 'spinner-border spinner-border-sm me-2');
-			// フォーカス外さずそのまま保存した場合にVueのwatchが発火しないのでresolveを待つ
-			new Promise( resolve => {
+			// フォーカス外して保存した場合にVueの$watchが発火しないので強制$watch
+			n2.vue.$data._force_watch++;
+			// フォーカス外さずそのまま保存した場合にVueの$watchの発火が間に合わないのでresolveを待つ
+			n2.save_post_promise = new Promise( resolve => {
 				n2.save_post_promise_resolve = resolve;
-				setTimeout(()=>{
-					n2.save_post_promise_resolve();
-				},1000)
-			}).then(()=>{
+			});
+			// watchが発火済なら、速攻でresolve
+			n2.save_post_promise.then(()=>{
 				// カスタムフィールドの保存
 				const meta = get_meta();
 				wp.data.dispatch( 'core/editor' ).editPost({ meta });

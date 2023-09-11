@@ -17,8 +17,8 @@ export default ($: any = jQuery) => {
 			data[name] = n2.custom_field[id][name].value;
 		}
 	}
-	// current_user追加
-	data['current_user'] = n2.current_user.roles[0];
+	data['_force_watch'] = 1;// 外部から変更して強制でwatchをFire
+	data['current_user'] = n2.current_user.roles[0];// current_user追加
 	data['楽天SPA'] = n2.settings.楽天.楽天SPA || '';
 	data['寄附金額チェッカー'] = '';
 	data['寄附金額自動計算値'] = '';
@@ -49,6 +49,7 @@ export default ($: any = jQuery) => {
 						data[name] = data[name].text;
 					}
 				}
+				console.log('watching')
 				return data;
 			},
 			async function(newVal, oldVal) {
