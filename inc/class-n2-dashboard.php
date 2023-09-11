@@ -84,8 +84,8 @@ class N2_Dashboard {
 				$post            = get_post( get_the_ID() );
 				$post_data       = N2_Functions::get_all_meta( $post );
 				$post_edit_url   = get_edit_post_link();
-				$goods_price     = ! empty( $post_data['価格'] ) && 0 !== $post_data['価格'] ? number_format( $post_data['価格'] ) : '-';
-				$donation_amount = ! empty( $post_data['寄附金額'] ) && 0 !== $post_data['寄附金額'] ? number_format( $post_data['寄附金額'] ) : '-';
+				$goods_price     = ! empty( $post_data['価格'] ) && is_numeric( $post_data['価格'] ) && 0 !== $post_data['価格'] ? number_format( $post_data['価格'] ) : '-';
+				$donation_amount = ! empty( $post_data['寄附金額'] ) && is_numeric( $post_data['寄附金額'] ) && 0 !== $post_data['寄附金額'] ? number_format( $post_data['寄附金額'] ) : '-';
 				$code            = ! empty( $post_data['返礼品コード'] ) ? $post_data['返礼品コード'] : '未(id:' . $post->ID . ')';
 				$return_rate     = N2_Donation_Amount_API::calc_return_rate( $post_data ); // 返礼率計算
 				if ( $return_rate > 30 ) {
