@@ -47,9 +47,6 @@ const append_button = (target: string, $: any = jQuery) => {
 			// フォーカス外さずそのまま保存した場合にVueのwatchが発火しないのでresolveを待つ
 			new Promise( resolve => {
 				n2.save_post_promise_resolve = resolve;
-				setTimeout(()=>{
-					n2.save_post_promise_resolve();
-				},1000)
 			}).then(()=>{
 				// カスタムフィールドの保存
 				const meta = get_meta();
