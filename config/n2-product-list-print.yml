@@ -7,7 +7,7 @@
   tr:
     事業者名:
       meta_key: first_name
-    価格:
+    価格（税込）:
     送料:
     定期便回数:
       meta_key: 定期便

@@ -34,6 +34,8 @@ th,td{
 	border: 1px solid #000;
 	padding: 5px;
 	text-align: center;
+	// text-align: left !important;
+	// text-align: center !important;
 }
 .bg{
 	background: #eee !important;
@@ -46,4 +48,15 @@ th,td{
 	.checkbox-wrapper {
 		display: none;
 	}
+}
+.longtxt{
+	display: inline-block;
+	text-align: left;
+}
+// dev用
+// .test{
+// 	background-color: darkgray;
+// }
+.button-wrapper{
+	padding-top: 4px;
 }

@@ -54,10 +54,6 @@ class N2_Product_List_Print {
 		// プラグイン側で追加
 		$confirm_table_th_list = apply_filters( 'n2_product_list_print_add_confirm_table_th_list', $confirm_table_th_list );
 		$product_table_tr_list = apply_filters( 'n2_product_list_print_add_product_table_tr_list', $product_table_tr_list );
-		// 出力お試しゾーン
-		// print_r( $confirm_table_th_list );
-		// print_r( wp_json_encode( $confirm_table_th_list ) );
-		// print_r( wp_json_encode( $product_table_tr_list ) );
 		?>
 		<!DOCTYPE html>
 		<html lang="ja">
@@ -70,25 +66,15 @@ class N2_Product_List_Print {
 			<body>
 				<!-- VueApp -->
 				<div id="app" class="page-break">
-					<!-- CSS class命名規則 吟味 -->
-					<span class="checkbox-wrapper">
-						<input type="checkbox" v-model="deliveryFee">
-						<label>送料</label>
-					</span>
-					<span class="checkbox-wrapper">
-						<input type="checkbox" v-model="supportDevice">
-						<label>対応機器</label>
-					</span>
-					<span class="checkbox-wrapper">
-						<input type="checkbox" v-model="empty">
-						<label>入力なし</label>
-					</span>
 					<?php foreach ( N2_Items_API::get_items() as $p ) : ?>
 						<?php if ( ! isset( $p['寄附金額'] ) || '' === $p['寄附金額'] ) : ?>
 							<h1><?php echo $p['返礼品コード']; ?>：寄附金額が入力されていません。</h1>
 						<?php else : ?>
 						<?php $confirm_table_th_list['コード'] = $p['返礼品コード'] . '&nbsp;'; ?>
-						<div>
+						<div class="button-wrapper">
+							<button @click="toggleLabel">{{ buttonLabel }}</button>	
+						</div>
+						<div class="page-break">
 							<table>
 								<tbody>
 									<tr>
@@ -126,7 +112,7 @@ class N2_Product_List_Print {
 												case '事業者名':
 													$td = $p['事業者名'];
 													break;
-												case '価格':
+												case '価格（税込）':
 													$td = $p['価格'];
 													$td = number_format( $td );
 													break;
@@ -171,6 +157,7 @@ class N2_Product_List_Print {
 													}
 													break;
 											}
+											// styleあててる
 											$th_attr = isset( $val['attr']['th'] )
 												? $this->attr_array2str( $val['attr']['th'] )
 												: '';
@@ -179,23 +166,12 @@ class N2_Product_List_Print {
 												: '';
 										?>
 									<?php if ( '送料' === $th ) : ?>
-									<tr v-if="deliveryFee">
-										<th<?php echo $th_attr; ?>><?php echo $th; ?></th>
-										<td colspan="2"<?php echo $td_attr; ?>><?php echo $td; ?></td>
-									</tr>
-									<?php elseif ( '対応機器' === $th ) : ?>
-									<tr v-if="supportDevice">
-										<th<?php echo $th_attr; ?>><?php echo $th; ?></th>
-										<td colspan="2"<?php echo $td_attr; ?>><?php echo $td; ?></td>
-									</tr>
-									<?php elseif ( '' === $td || '無し' === $td || '限定なし' === $td ) : // ここもっといい感じに ?>
-									<tr v-if="empty">
+									<tr v-if="isYes">
 										<th<?php echo $th_attr; ?>><?php echo $th; ?></th>
 										<td colspan="2"<?php echo $td_attr; ?>><?php echo $td; ?></td>
 									</tr>
 									<?php else : ?>
-									<?php // if ( ! empty( $td ) ) : ?>
-									<tr>
+									<tr class="test"> <!-- dev用class-->
 										<th<?php echo $th_attr; ?>><?php echo $th; ?></th>
 										<td colspan="2"<?php echo $td_attr; ?>><?php echo $td; ?></td>
 									</tr>
@@ -216,10 +192,18 @@ class N2_Product_List_Print {
 					new Vue({
 						el: '#app',
 						data: {
-							deliveryFee: true,
-							supportDevice: false,
-							empty: false,
+							isYes: true
 						},
+						computed: {
+							buttonLabel() {
+							return this.isYes ? '役場用' : '事業者用';
+							}
+						},
+						methods: {
+							toggleLabel() {
+							this.isYes = !this.isYes;
+							}
+						}
 					});
 				</script>
 			</body>
