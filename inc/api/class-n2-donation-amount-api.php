@@ -62,8 +62,12 @@ class N2_Donation_Amount_API {
 			'下限寄附金額' => $args['min_donation'],
 			'予定寄附金額' => ceil( ( $args['price'] + $args['delivery_fee'] * $args['delivery_multiplier'] ) * $args['subscription'] / ( $args['divisor'] * 1000 ) ) * 1000,
 		);
-		// 経費を踏まえた寄附金額
-		$donation_amount['経費を踏まえた寄附金額'] = ceil( ( $args['price'] + $args['delivery_fee'] + $donation_amount['予定寄附金額'] * 0.088 ) / 0.5 / 1000 ) * 1000;
+		/**
+		 * [hook] n2_donation_amount_api_new_price_calc
+		 *
+		 * @param array $donation_amount 寄附金額計算方法
+		*/
+		$donation_amount = apply_filters( 'n2_donation_amount_api_new_price_calc', $donation_amount );
 		// 最大値を選択
 		$donation_amount = max( ...array_values( $donation_amount ) );
 
