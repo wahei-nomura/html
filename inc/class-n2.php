@@ -159,7 +159,7 @@ class N2 {
 					if ( empty( $value ) ) {
 						$user_meta = $this->current_user->data->meta;
 						$value     = match ( $name ) {
-							'商品タイプ' => $user_meta['商品タイプ']
+							'商品タイプ' => $user_meta['商品タイプ'] && 'post-new.php' === $pagenow
 								? array( array_search( max( $user_meta['商品タイプ'] ), $user_meta['商品タイプ'], true ) )
 								: array(),
 							'寄附金額固定', '商品画像' => array(),
