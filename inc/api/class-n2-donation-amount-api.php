@@ -47,6 +47,8 @@ class N2_Donation_Amount_API {
 		);
 		$args    = wp_parse_args( array_filter( $args ), $default );
 
+		// 送料確保
+		$delivery_fee = $args['delivery_fee'];
 		// ○○円未満は加算
 		$args['delivery_multiplier'] = (int) ( $args['price'] < $args['delivery_add_point'] || 0 === $args['delivery_add_point'] ) * $args['delivery_multiplier'];
 		$args['delivery_fee']        = $args['delivery_fee'] * $args['delivery_multiplier'];
@@ -58,6 +60,8 @@ class N2_Donation_Amount_API {
 		*/
 		$args = apply_filters( 'n2_donation_amount_api_args', $args );
 
+		$kifugaku = ceil( ( $args['price'] + $args['delivery_fee'] ) * $args['subscription'] / ( $args['divisor'] * 1000 ) ) * 1000;
+		$keihi    = $args['price'] + $delivery_fee + $kifugaku * 0.088;
 		// 最大値を選択
 		$donation_amount = max(
 			// 下限寄附金額（3割ルール）
@@ -65,7 +69,9 @@ class N2_Donation_Amount_API {
 			// 下限寄附金額（N2設定値）
 			$args['min_donation'],
 			// 寄附金額
-			ceil( ( $args['price'] + $args['delivery_fee'] ) * $args['subscription'] / ( $args['divisor'] * 1000 ) ) * 1000
+			$kifugaku,
+			// 経費を踏まえた寄附金額
+			ceil( $keihi / 0.5 / 1000 ) * 1000,
 		);
 
 		// admin-ajax.phpアクセス時
@@ -86,7 +92,14 @@ class N2_Donation_Amount_API {
 	 */
 	public static function calc_return_rate( $meta, $threshold_flg = false ) {
 		global $n2;
-		$meta = wp_parse_args( $meta, array( '価格' => 0, '寄附金額' => 0, '定期便' => 1 ) );
+		$meta = wp_parse_args(
+			$meta,
+			array(
+				'価格'   => 0,
+				'寄附金額' => 0,
+				'定期便'  => 1,
+			)
+		);
 		if ( 0 === (int) $meta['定期便'] * (int) $meta['寄附金額'] * (int) $meta['価格'] ) {
 			return '-';
 		}
