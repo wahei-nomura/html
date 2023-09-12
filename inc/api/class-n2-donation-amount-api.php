@@ -47,11 +47,8 @@ class N2_Donation_Amount_API {
 		);
 		$args    = wp_parse_args( array_filter( $args ), $default );
 
-		// 送料確保
-		$delivery_fee = $args['delivery_fee'];
 		// ○○円未満は加算
 		$args['delivery_multiplier'] = (int) ( $args['price'] < $args['delivery_add_point'] || 0 === $args['delivery_add_point'] ) * $args['delivery_multiplier'];
-		$args['delivery_fee']        = $args['delivery_fee'] * $args['delivery_multiplier'];
 
 		/**
 		 * [hook] n2_donation_amount_api_args
@@ -60,19 +57,15 @@ class N2_Donation_Amount_API {
 		*/
 		$args = apply_filters( 'n2_donation_amount_api_args', $args );
 
-		$kifugaku = ceil( ( $args['price'] + $args['delivery_fee'] ) * $args['subscription'] / ( $args['divisor'] * 1000 ) ) * 1000;
-		$keihi    = $args['price'] + $delivery_fee + $kifugaku * 0.088;
-		// 最大値を選択
-		$donation_amount = max(
-			// 下限寄附金額（3割ルール）
-			ceil( $args['price'] * $args['subscription'] / 300 ) * 1000,
-			// 下限寄附金額（N2設定値）
-			$args['min_donation'],
-			// 寄附金額
-			$kifugaku,
-			// 経費を踏まえた寄附金額
-			ceil( $keihi / 0.5 / 1000 ) * 1000,
+		$donation_amount = array(
+			'3割ルール'  => ceil( $args['price'] * $args['subscription'] / 300 ) * 1000,
+			'下限寄附金額' => $args['min_donation'],
+			'予定寄附金額' => ceil( ( $args['price'] + $args['delivery_fee'] * $args['delivery_multiplier'] ) * $args['subscription'] / ( $args['divisor'] * 1000 ) ) * 1000,
 		);
+		// 経費を踏まえた寄附金額
+		$donation_amount['経費を踏まえた寄附金額'] = ceil( ( $args['price'] + $args['delivery_fee'] + $donation_amount['予定寄附金額'] * 0.088 ) / 0.5 / 1000 ) * 1000;
+		// 最大値を選択
+		$donation_amount = max( ...array_values( $donation_amount ) );
 
 		// admin-ajax.phpアクセス時
 		if ( $args['action'] ) {
