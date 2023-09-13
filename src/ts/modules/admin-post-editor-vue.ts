@@ -67,9 +67,8 @@ export default ($: any = jQuery) => {
 					newVal.発送サイズ,
 					newVal.発送方法 != '常温' ? 'cool' : ''
 				].filter(v=>v);
-				this.送料 = 'その他' == this.発送サイズ
-					? newVal.その他送料
-					: n2.settings['寄附金額・送料']['送料'][size.join('_')] || '';
+				this.送料 = newVal.発送サイズ != oldVal.発送サイズ ? '' : this.送料 ;
+				this.送料 = n2.settings['寄附金額・送料']['送料'][size.join('_')] || this.送料;
 				this.寄附金額 = await this.calc_donation(newVal.価格,this.送料,newVal.定期便);
 				if ( n2.save_post_promise_resolve ) {
 					n2.save_post_promise_resolve('resolve');
