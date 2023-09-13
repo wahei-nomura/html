@@ -55,7 +55,7 @@ class N2_Donation_Amount_API {
 		 *
 		 * @param array $args 寄附金額計算素材
 		*/
-		$args = apply_filters( 'n2_donation_amount_api_args', $args );
+		$args = apply_filters( 'n2_donation_amount_api_calc_args', $args );
 
 		$donation_amount = array(
 			'3割ルール'  => ceil( $args['price'] * $args['subscription'] / 300 ) * 1000,
@@ -67,7 +67,7 @@ class N2_Donation_Amount_API {
 		 *
 		 * @param array $donation_amount 寄附金額計算方法
 		*/
-		$donation_amount = apply_filters( 'n2_donation_amount_api_new_price_calc', $donation_amount, $args );
+		$donation_amount = apply_filters( 'n2_donation_amount_api_calc_donation_amount', $donation_amount, $args );
 		// 最大値を選択
 		$donation_amount = max( ...array_values( $donation_amount ) );
 
