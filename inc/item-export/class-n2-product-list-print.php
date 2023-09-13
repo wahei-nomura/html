@@ -98,7 +98,7 @@ class N2_Product_List_Print {
 								</tr>
 								<?php foreach ( $product_table_tr_list as $th => $val ) : ?>
 									<?php
-										$td = $p[ (string) $val['meta_key'] ] ?? $p[ (string) $th ];
+										$td = $p[ $val['meta_key'] ?? $th ];
 										$td = nl2br( $td );
 										$td = preg_replace( '@\t|\r|\n|@', '', $td );
 										$td = preg_replace( '@(<br />)+@', '<br />', $td );
