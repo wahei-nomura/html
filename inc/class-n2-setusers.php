@@ -111,7 +111,29 @@ class N2_Setusers {
 			array_values( array_map( fn( $v ) => $v->userblog_id, get_blogs_of_user( $user->ID ) ) ),
 		);
 		$diff  = array_diff( ...$sites );
-		if ( ! empty( $diff ) && 'ss-crew' === $user->roles[0] ) {
+		if ( empty( $diff ) ||
+			! ( empty( $user->roles ) || 'ss-crew' === $user->roles[0] ) ) {
+			return;
+		}
+
+		$has_ss_crew = false;
+		// 初回ログイン時はロールが設定されていないことがある
+		if ( empty( $user->roles ) ) {
+			foreach ( $sites[1] as $site ) {
+				switch_to_blog( $site );
+				// ユーザーを更新
+				$user = get_userdata( $user->ID );
+				if ( 'ss-crew' === $user->roles[0] ) {
+					$has_ss_crew = true;
+					break;
+				}
+			}
+			restore_current_blog();
+		} else if ( 'ss-crew' === $user->roles[0] ) {
+			$has_ss_crew = true;
+		}
+
+		if ( $has_ss_crew ) {
 			foreach ( $diff as $blog_id ) {
 				add_user_to_blog( $blog_id, $user->ID, 'ss-crew' );
 			}

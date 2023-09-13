@@ -31,7 +31,7 @@ foreach ( $args as $k => $v ) {
 			<input v-if="number_format" type="text" :value="Number(寄附金額).toLocaleString()" :class="`position-absolute start-0 end-0 pe-none rounded-0 rounded-end ${寄附金額チェッカー}`">
 		</template>
 		<template v-else>
-			<input type="text" :value="Number(寄附金額).toLocaleString()" class="position-absolute start-0 end-0 rounded-0 bg-white text-dark" @mouseover="set_info($event.target)" @focus="$event.target.blur()" readonly>
+			<input type="text" :value="Number(寄附金額).toLocaleString()" class="position-absolute top-0 start-0 end-0 rounded-0 bg-white text-dark" @mouseover="set_info($event.target)" @focus="$event.target.blur()" readonly>
 		</template>
 	</span>
 

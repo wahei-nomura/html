@@ -138,3 +138,10 @@
 		background: #8b0000;
 	}
 }
+.local-government{
+	#adminmenu{
+		.wp-submenu{
+			display: none;
+		}
+	}
+}

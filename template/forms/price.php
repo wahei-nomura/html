@@ -16,7 +16,7 @@ foreach ( $args as $k => $v ) {
 <div>
 	<span class="d-inline-block position-relative">
 		<input type="text"<?php echo $attr; ?>>
-		<input v-if="number_format" type="text" :value="Number(価格).toLocaleString()" class="position-absolute start-0 end-0 pe-none">
+		<input v-if="number_format" type="text" :value="Number(価格).toLocaleString()" class="position-absolute top-0 start-0 end-0 pe-none">
 	</span>
 	<template v-if="定期便 > 1">
 		円 × {{定期便}}回 = 

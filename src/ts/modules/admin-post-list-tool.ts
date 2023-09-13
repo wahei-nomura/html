@@ -33,10 +33,12 @@ export default ($: any) => {
 			if ( 'jigyousya' == role ) hides.push('送料');
 			this.custom_field = this.custom_field.filter(v => ! hides.includes(v));
 			// ツールボックスを挿入
-			$('#the-list .hentry').each(function(){
-				const id = $(this).attr('id').split('-')[1];
-				$(this).find('td.title').prepend(`<div class="n2-admin-post-list-tool-open" data-id="${id}">`);
-			});
+			if ( HTMLElement.prototype.hasOwnProperty('popover') ) {
+				$('#the-list .hentry').each(function(){
+					const id = $(this).attr('id').split('-')[1];
+					$(this).find('td.title').prepend(`<div class="n2-admin-post-list-tool-open" data-id="${id}">`);
+				});
+			}
 			// ポップオーバー
 			$('.n2-admin-post-list-tool-open').on('click', async e => {
 				this.id = $(e.target).data('id');

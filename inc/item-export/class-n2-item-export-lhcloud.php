@@ -131,7 +131,7 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 					'レターパックプラス', 'レターパックライト' => in_array( 'レターパック', $lh_setting['送料反映'], true ) ? '反映する' : '反映しない',
 					default => '反映しない',
 				},
-				'発送方法' => $n2values['発送方法'],
+				'発送方法' => $is_e_ticket ? '常温' : $n2values['発送方法'],
 				'取り扱い方法' => implode( ',', (array) $n2values['取り扱い方法'] ),
 				'申込可能期間' => '通年',
 				'自由入力欄1' => $is_e_ticket ? '' : wp_date( 'Y/m/d' ) . "：{$n2->current_user->data->display_name}",
