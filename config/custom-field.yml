@@ -458,18 +458,21 @@
             その他: その他
         v-model: 発送サイズ
         "@change": check_handling_method
-    送料:
+    _送料: # 隠し送料
         type: hidden
+        name: 送料
         :value: "!商品タイプ.includes('eチケット') ? 送料 : 0"
         required: required
-    その他送料:
+    送料: # 実質その他用送料
         type : text
+        name: 送料
         label: 送料
         description: 発送サイズ「その他」を選択の場合は必須項目です
         style: 'width: 6em'
         v-if: 発送サイズ=='その他'
-        :value: その他送料
-        "@change": "force_half_size_text($event, 'number', 'その他送料')"
+        :value: 送料
+        "@focus": set_info($event.target)
+        "@change": "force_half_size_text($event, 'number', '送料')"
     取り扱い方法:
         type : checkbox
         value: []
