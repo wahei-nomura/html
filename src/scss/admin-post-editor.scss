@@ -64,6 +64,12 @@ body.n2-darkmode{
 					button{
 						display: none;
 					}
+					#n2-save-post {
+						margin-right: 1em;
+					}
+					#n2-delete-post	{
+						display: none!important;
+					}
 				}
 				&-toolbar__left{
 					gap: .5em;
