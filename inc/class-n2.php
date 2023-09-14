@@ -355,17 +355,18 @@ class N2 {
 		{
 			$this->custom_field = yaml_parse_file( get_theme_file_path( 'config/custom-field.yml' ) );
 			// 楽天納期(楽天APIから取得)
-			$delvdate_data_api                      = N2_RMS_Shop_API::ajax(
+			$delvdate_data_api = N2_RMS_Shop_API::ajax(
 				array(
 					'call' => 'delvdate_master_get',
 					'mode' => 'func',
 				),
 			);
-			$delvdate_array                         = array();
-			foreach ( $delvdate_data_api as $key => $delvdate_data ) {
-				$delv_no = (int)$delvdate_data->delvdateNumber;
-				$delvdate_array[ $delv_no ] = $delvdate_data->delvdateCaption;
-			}
+			$delvdate_array    = array();
+		foreach ( $delvdate_data_api as $key => $delvdate_data ) {
+			$delv_no                    = (int) $delvdate_data->delvdateNumber;
+			$delv_caption               = $delvdate_data->delvdateCaption;
+			$delvdate_array[ $delv_no ] = $delv_no . ':' . $delv_caption;
+		}
 			$this->custom_field['スチームシップ用']['楽天納期情報']['option'] = $delvdate_array;
 			// 出品しないポータルの場合はカスタムフィールドを削除
 		foreach ( $this->custom_field as $key => $custom_field ) {
