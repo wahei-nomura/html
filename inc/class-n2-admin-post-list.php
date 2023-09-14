@@ -26,7 +26,7 @@ class N2_Admin_Post_List {
 	public function __construct() {
 		$this->cls  = get_class( $this );
 		$this->page = 'edit.php';
-		add_filter( 'bulk_actions-edit-post', '__return_false' );// デフォルトのツール削除
+		add_filter( 'bulk_actions-edit-post', '__return_empty_array' );// デフォルトのツール削除
 		add_filter( 'disable_months_dropdown', '__return_true' );// 月のドロップダウンリスト削除
 		add_filter( 'post_row_actions', '__return_empty_array' );// 投稿の削除とかのリンクを削除
 		add_action( 'init', array( $this, 'change_postlabel' ) );// 投稿のラベル変更
