@@ -66,14 +66,14 @@ class N2_Product_List_Print {
 			<body>
 				<!-- VueApp -->
 				<div id="app" class="page-break">
+					<div class="button-wrapper">
+							<button @click="toggleLabel">{{ buttonLabel }}</button>	
+						</div>
 					<?php foreach ( N2_Items_API::get_items() as $p ) : ?>
 						<?php if ( ! isset( $p['寄附金額'] ) || '' === $p['寄附金額'] ) : ?>
 							<h1><?php echo $p['返礼品コード']; ?>：寄附金額が入力されていません。</h1>
 						<?php else : ?>
 						<?php $confirm_table_th_list['コード'] = $p['返礼品コード'] . '&nbsp;'; ?>
-						<div class="button-wrapper">
-							<button @click="toggleLabel">{{ buttonLabel }}</button>	
-						</div>
 						<div class="page-break">
 							<table>
 								<tbody>
@@ -117,9 +117,6 @@ class N2_Product_List_Print {
 													$td = number_format( $td );
 													break;
 												case '送料':
-													if ( ! $td || is_numeric( $p['発送サイズ'] ) ) {
-														continue 2;
-													}
 													$td = number_format( $td );
 													break;
 												case '定期便回数':
@@ -192,11 +189,11 @@ class N2_Product_List_Print {
 					new Vue({
 						el: '#app',
 						data: {
-							isYes: true
+							isYes: false
 						},
 						computed: {
 							buttonLabel() {
-							return this.isYes ? '役場用' : '事業者用';
+							return this.isYes ? '自治体用' : '事業者用';
 							}
 						},
 						methods: {

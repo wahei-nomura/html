@@ -45,7 +45,7 @@ th,td{
 	border: none;
 }
 @media print {
-	.checkbox-wrapper {
+	button {
 		display: none;
 	}
 }
@@ -53,10 +53,6 @@ th,td{
 	display: inline-block;
 	text-align: left;
 }
-// dev用
-// .test{
-// 	background-color: darkgray;
-// }
 .button-wrapper{
 	padding-top: 4px;
 }
