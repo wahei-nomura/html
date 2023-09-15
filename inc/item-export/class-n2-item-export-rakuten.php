@@ -484,6 +484,11 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			<?php if ( $n2values['楽天SPAカテゴリー'] ) : ?>
 				<br><br><?php echo nl2br( $n2values['楽天SPAカテゴリー'] ); ?><br>
 			<?php endif; ?>
+			<?php if ( $n2values['類型該当理由'] ) : ?>
+				<table style="background-color:#B71C1C; width:100%; border:2px;">
+				<tbody><tr><td style="background-color:#B71C1C;color:#fff;">地場産品に該当する理由</td></tr><tr><td>
+				<?php echo nl2br( $n2values['類型該当理由'] ); ?></td></tr></tbody></table>
+			<?php endif; ?>
 			<?php
 		};
 
@@ -635,6 +640,9 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			),
 			'配送期日'    => array(
 				'td' => nl2br( $n2values['配送期間'] ),
+			),
+			'地場産品に該当する理由'    => array(
+				'td' => nl2br( $n2values['類型該当理由'] ),
 			),
 			'提供事業者'   => array(
 				'td' => $this->get_author_name( $n2values ),
