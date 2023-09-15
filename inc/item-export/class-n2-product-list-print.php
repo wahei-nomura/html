@@ -117,8 +117,8 @@ class N2_Product_List_Print {
 													$td = number_format( $td );
 													break;
 												case '送料':
-													if ( ! $td  ) {
-														$td = '送料が空欄です';
+													if ( ! $td ) {
+														$td = '';
 													} else {
 														$td = number_format( $td );
 													}
