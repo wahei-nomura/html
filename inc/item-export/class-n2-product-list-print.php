@@ -143,7 +143,6 @@ class N2_Product_List_Print {
 													$td .= $p['アレルゲン注釈'] ? "<br>※ {$p['アレルゲン注釈']}" : '';
 													break;
 												case '発送サイズ':
-													print_r( $td );
 													if ( '0100' === $td ) {
 														$td = '宅急便コンパクト';
 													} else {
