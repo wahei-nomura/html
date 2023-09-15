@@ -210,7 +210,7 @@ class N2 {
 			// N2　＝＝＝＝＝＝＝＝＝＝＝＝＝＝
 			{
 				$this->settings['N2'] = $default['N2'];
-				$pair = array(
+				$pair                 = array(
 					'active'       => '稼働中',
 					'portal_sites' => '出品ポータル',
 				);
@@ -226,13 +226,13 @@ class N2 {
 			// 寄附金額・送料　＝＝＝＝＝＝＝＝＝＝＝＝＝＝
 			{
 				$this->settings['寄附金額・送料']['送料'] = $this->settings['delivery_fee'];
-				$this->settings['寄附金額・送料'] = array(
+				$this->settings['寄附金額・送料']       = array(
 					...$this->settings['寄附金額・送料'],
 					...$this->settings['formula'],
 				);
-			}
-			// LedgHOME　＝＝＝＝＝＝＝＝＝＝＝＝＝＝
-			{
+				}
+				// LedgHOME　＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+				{
 				$this->settings['LedgHOME'] = $default['LedgHOME'];
 				// LedgHOMEカテゴリー
 				$this->settings['LedgHOME']['カテゴリー'] = $this->settings['portal_setting']['LedgHOME']['カテゴリー'];
@@ -245,15 +245,15 @@ class N2 {
 						)
 					);
 				}
-			}
-			// 注意書き　＝＝＝＝＝＝＝＝＝＝＝＝＝＝
-			{
+				}
+				// 注意書き　＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+				{
 				$this->settings['注意書き']['共通'] = $this->settings['n2']['portal_common_description'];
-			}
-			// 楽天　＝＝＝＝＝＝＝＝＝＝＝＝＝＝
-			{
+				}
+				// 楽天　＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+				{
 				$this->settings['楽天'] = $default['楽天'];
-				$pair = array(
+				$pair                 = array(
 					'html'    => '説明文追加html',
 					'img_dir' => '商品画像ディレクトリ',
 					'select'  => '項目選択肢',
@@ -265,13 +265,13 @@ class N2 {
 				}
 				$this->settings['楽天']['FTP']['user'] = $this->settings['portal_setting']['楽天']['ftp_user'];
 				$this->settings['楽天']['FTP']['pass'] = $this->settings['portal_setting']['楽天']['ftp_pass'];
-			}
-			// ふるさとチョイス　＝＝＝＝＝＝＝＝＝＝＝＝＝＝
-			{
+				}
+				// ふるさとチョイス　＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+				{
 				$this->settings['ふるさとチョイス'] = $default['ふるさとチョイス'];
-			}
-			// 旧設定の破棄
-			unset( $this->settings['n2'], $this->settings['delivery_fee'], $this->settings['formula'], $this->settings['portal_setting'] );
+				}
+				// 旧設定の破棄
+				unset( $this->settings['n2'], $this->settings['delivery_fee'], $this->settings['formula'], $this->settings['portal_setting'] );
 		}
 	}
 
@@ -314,8 +314,11 @@ class N2 {
 		$this->site_id     = get_current_blog_id();
 		$this->town        = get_bloginfo( 'name' );
 		$this->logo        = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_' . end( explode( '/', get_home_url() ) ) . '.png';
-		$this->ajaxurl     = admin_url( 'admin-ajax.php' );
-		$this->cookie      = $_COOKIE;
+		if ( ! file_exists( $this->logo ) ) {
+			$this->logo = get_theme_file_uri( 'neo_neng_logo.svg' );
+		}
+		$this->ajaxurl = admin_url( 'admin-ajax.php' );
+		$this->cookie  = $_COOKIE;
 
 		// ログインユーザーデータ
 		$this->current_user = wp_get_current_user();
@@ -342,7 +345,7 @@ class N2 {
 		if ( ! empty( $delivery_fee ) ) {
 			// クールの自動加算
 			foreach ( array( 200, 200, 300, 600 ) as $i => $cool ) {
-				$i++;
+				++$i;
 				// 消費税
 				$tax_rate = $this->settings['寄附金額・送料']['税込送料'] ? 1.1 : 1;// 設定できるようにする
 				// クール加算
@@ -355,28 +358,28 @@ class N2 {
 		{
 			$this->custom_field = yaml_parse_file( get_theme_file_path( 'config/custom-field.yml' ) );
 			// 出品しないポータルの場合はカスタムフィールドを削除
-			foreach ( $this->custom_field as $key => $custom_field ) {
-				foreach ( $custom_field as $name => $value ) {
-					if ( isset( $value['portal'] ) && ! in_array( $value['portal'], $this->settings['N2']['出品ポータル'], true ) ) {
-						unset( $this->custom_field[ $key ][ $name ] );
-					}
+		foreach ( $this->custom_field as $key => $custom_field ) {
+			foreach ( $custom_field as $name => $value ) {
+				if ( isset( $value['portal'] ) && ! in_array( $value['portal'], $this->settings['N2']['出品ポータル'], true ) ) {
+					unset( $this->custom_field[ $key ][ $name ] );
 				}
 			}
+		}
 			// 出品禁止ポータルから削除
-			foreach ( $this->custom_field['スチームシップ用']['出品禁止ポータル']['option'] as $index => $option ) {
-				if ( ! in_array( $option, $this->settings['N2']['出品ポータル'], true ) ) {
-					unset( $this->custom_field['スチームシップ用']['出品禁止ポータル']['option'][ $index ] );
-				}
+		foreach ( $this->custom_field['スチームシップ用']['出品禁止ポータル']['option'] as $index => $option ) {
+			if ( ! in_array( $option, $this->settings['N2']['出品ポータル'], true ) ) {
+				unset( $this->custom_field['スチームシップ用']['出品禁止ポータル']['option'][ $index ] );
 			}
+		}
 			// 商品タイプの選択肢制御
 			$this->custom_field['事業者用']['商品タイプ']['option'] = array_filter( $this->settings['N2']['商品タイプ'] );
-			if ( empty( $this->custom_field['事業者用']['商品タイプ']['option'] ) ) {
-				$this->custom_field['事業者用']['商品タイプ']['type'] = 'hidden';
-			}
+		if ( empty( $this->custom_field['事業者用']['商品タイプ']['option'] ) ) {
+			$this->custom_field['事業者用']['商品タイプ']['type'] = 'hidden';
+		}
 			// オンライン決済限定の制御
-			if ( empty( $this->settings['ふるさとチョイス']['オンライン決済限定'] ) ) {
-				unset( $this->custom_field['スチームシップ用']['オンライン決済限定'] );
-			}
+		if ( empty( $this->settings['ふるさとチョイス']['オンライン決済限定'] ) ) {
+			unset( $this->custom_field['スチームシップ用']['オンライン決済限定'] );
+		}
 			// LHカテゴリーの設定値を配列化
 			$lh_category = $this->settings['LedgHOME']['カテゴリー'];
 			$lh_category = preg_split( '/\r\n|\r|\n/', trim( $lh_category ) );
@@ -393,5 +396,4 @@ class N2 {
 			$this->$key = apply_filters( "n2_vars_{$key}", $value );
 		}
 	}
-
 }
