@@ -117,6 +117,10 @@ class N2_Product_List_Print {
 													$td = number_format( $td );
 													break;
 												case '送料':
+													if ( ! is_numeric( $p['発送サイズ'] ) ) {
+														$td = '';
+														continue 2;
+													}
 													$td = number_format( $td );
 													break;
 												case '定期便回数':
