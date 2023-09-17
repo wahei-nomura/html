@@ -98,21 +98,14 @@ abstract class N2_RMS_Base_API {
 
 	/**
 	 * 各パラメータ配列の作成
-	 *
-	 * @param array $args args
 	 */
-	private static function set_params( $args ) {
-		// $_GETを引数で上書き
-		$params = wp_parse_args( $args, $_GET );
+	private static function set_params() {
+		$params = $_GET;
 		// $_POSTを$paramsで上書き
 		if ( wp_verify_nonce( $_POST['n2nonce'] ?? '', 'n2nonce' ) ) {
 			$params = wp_parse_args( $params, $_POST );
 		}
-		$default = array(
-			'mode'   => 'func',
-			'call'   => 'anonymous',
-			'action' => false,
-		);
+		$default = array();
 		// デフォルト値を$paramsで上書き
 		$params = wp_parse_args( $params, $default );
 
@@ -126,9 +119,18 @@ abstract class N2_RMS_Base_API {
 	 * APIを実行するサムシング
 	 */
 	private static function call() {
-		$is_callable = is_callable( array( 'static', static::$data['params']['call'] ?? '' ) );
-		static::check_fatal_error( $is_callable, '未定義のmethodです' );
-		return static::{ static::$data['params']['call'] }();
+		$method = static::$data['params']['call'] ?? '';
+		$is_callable = is_callable( array( 'static', $method ) );
+		static::check_fatal_error( $is_callable, "未定義のmethodです: {$method}" );
+		$arguments = static::$data['params'];
+		// 不要なプロパティを削除
+		unset(
+			$arguments['call'],
+			$arguments['n2nonce'],
+			$arguments['action'],
+			$arguments['mode'],
+		);
+		return call_user_func_array( array( 'static', $method ), $arguments );
 	}
 
 	/**
@@ -152,12 +154,11 @@ abstract class N2_RMS_Base_API {
 	/**
 	 * 実行
 	 *
-	 * @param array|void $args args
 	 * @return array|void
 	 */
-	public static function ajax( $args ) {
+	public static function ajax() {
 
-		static::set_params( $args );
+		static::set_params();
 		static::set_header();
 		static::set_files();
 
@@ -165,11 +166,7 @@ abstract class N2_RMS_Base_API {
 
 		static::remove_tmp_files();
 
-		// 出力時はここで終了
 		static::export();
-
-		// エクスポートしない場合
-		return static::$data['response'];
 	}
 
 	/**
