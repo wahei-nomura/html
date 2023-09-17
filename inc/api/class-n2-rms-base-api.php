@@ -35,8 +35,6 @@ abstract class N2_RMS_Base_API {
 		'params'   => array(),
 		'header'   => array(),
 		'response' => array(),
-		'files'    => null,
-		'tmp'      => null,
 	);
 
 	/**
@@ -160,11 +158,7 @@ abstract class N2_RMS_Base_API {
 		static::set_params();
 		static::set_header();
 		static::set_files();
-
 		static::$data['response'] = static::call();
-
-		static::remove_tmp_files();
-
 		static::export();
 	}
 
@@ -276,41 +270,31 @@ abstract class N2_RMS_Base_API {
 	 * ファイル配列の作成
 	 */
 	protected static function set_files() {
-		setlocale( LC_ALL, 'ja_JP.UTF-8' );
-		static::$data['files'] = $_FILES['cabinet_file'] ?? null;
-		static::image_compressor();
-	}
-
-	/**
-	 * テンプファイルを削除
-	 */
-	private static function remove_tmp_files() {
-		if ( ! static::$data['tmp'] ) {
-			return;
+		if ( isset( $_FILES['cabinet_file'] ) ) {
+			setlocale( LC_ALL, 'ja_JP.UTF-8' );
+			static::$data['params'] = array(
+				...static::$data['params'],
+				...static::image_compressor( $_FILES['cabinet_file'] ),
+			);
 		}
-		$tmp = static::$data['tmp'];
-		exec( "rm -Rf {$tmp}" );
 	}
 
 	/**
 	 * 画像圧縮
+	 *
+	 * @var array $files files
 	 */
-	private static function image_compressor() {
+	protected static function image_compressor( $files ) {
 		// ファイルがなければ何もしない
-		if (
-			! isset( static::$data['files']['tmp_name'] ) ||
-			empty( static::$data['files']['tmp_name'] )
-		) {
-			return;
+		if ( empty( $files['tmp_name'] ) ) {
+			return $files;
 		}
-		$name     = static::$data['files']['name'];
-		$type     = static::$data['files']['type'];
-		$tmp_name = static::$data['files']['tmp_name'];
+		$name     = $files['name'];
+		$type     = $files['type'];
+		$tmp_name = $files['tmp_name'];
 
 		// 一時ディレクトリ作成
-		static::$data['tmp'] = wp_tempnam( __CLASS__, get_theme_file_path() . '/' );
-		$tmp                 = static::$data['tmp'];
-
+		$tmp  = wp_tempnam( __CLASS__, get_theme_file_path() . '/' );
 		unlink( $tmp );
 		mkdir( $tmp );
 		foreach ( $tmp_name as $k => $file ) {
@@ -320,7 +304,11 @@ abstract class N2_RMS_Base_API {
 			$local_file = "{$tmp}/{$name[$k]}";
 			exec( "mogrify -quality {$quality} {$local_file}" );
 			// pathを修正
-			static::$data['files']['tmp_name'][ $k ] = $local_file;
+			$files['tmp_name'][ $k ] = $local_file;
 		}
+		return array(
+			'files' => $files,
+			'tmp_path' => $tmp,
+		);
 	}
 }

@@ -222,16 +222,17 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	/**
 	 * ファイル追加
 	 *
+	 * @var array  $files    files
 	 * @var string $folderId folderId
 	 */
-	public static function file_insert( $folderId ) {
-		static::check_fatal_error( static::$data['files']['tmp_name'][0], 'ファイルをセットしてください。' );
+	public static function file_insert( $files, $folderId, $tmp_path = null ) {
+		static::check_fatal_error( $files['tmp_name'][0], 'ファイルをセットしてください。' );
 		$url = static::$settings['endpoint'] . '/1.0/cabinet/file/insert';
 
 		$requests = array();
-		foreach ( static::$data['files']['tmp_name'] as $index => $tmp_name ) {
+		foreach ( $files['tmp_name'] as $index => $tmp_name ) {
 			$file_content_type = mime_content_type( $tmp_name );
-			$file_name         = static::$data['files']['name'][ $index ];
+			$file_name         = $files['name'][ $index ];
 			$request           = array(
 				'url'     => $url,
 				'type'    => Requests::POST,
@@ -281,8 +282,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 
 			$requests[] = $request;
 		}
-
-		return N2_Multi_URL_Request_API::ajax(
+		$response = N2_Multi_URL_Request_API::ajax(
 			array(
 				'requests' => $requests,
 				'call'     => 'request_multiple',
@@ -290,6 +290,10 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 				'headers'  => static::$data['header'],
 			),
 		);
+		if ( isset( $tmp_path ) ) {
+			exec( "rm -Rf {$tmp_path}" );
+		}
+		return $response;
 	}
 
 	/**
@@ -341,7 +345,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 		);
 
 		// 初期化
-		static::$data['files'] = array();
+		$files = array();
 
 		// insertするfileをstatic::$data['file']に設定する
 		foreach ( $responses as $index => $response ) {
@@ -349,24 +353,20 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 				continue;
 			}
 			$filename                                    = $requests[ $index ]['options']['filename'];
-			static::$data['files']['name'][ $index ]     = basename( $filename );
-			static::$data['files']['type'][ $index ]     = mime_content_type( $filename );
-			static::$data['files']['tmp_name'][ $index ] = $filename;
-			static::$data['files']['error'][ $index ]    = 0;
-			static::$data['files']['size'][ $index ]     = filesize( $filename );
+			$files['name'][ $index ]     = basename( $filename );
+			$files['type'][ $index ]     = mime_content_type( $filename );
+			$files['tmp_name'][ $index ] = $filename;
+			$files['error'][ $index ]    = 0;
+			$files['size'][ $index ]     = filesize( $filename );
 		}
 
-		$insert_response       = static::file_insert( $targetFolderId );
+		$insert_response       = static::file_insert( $files, $targetFolderId, $tmp );
 		$insert_error_response = array_filter(
 			$insert_response,
 			function( $res ) {
 				return $res->status_code !== 200;
 			},
 		);
-
-		// 一時ディレクトリを削除
-		exec( "rm -Rf {$tmp}" );
-
 		// 失敗した場合は移動前のファイルを残す
 		$fileId = array_filter(
 			$fileId,
