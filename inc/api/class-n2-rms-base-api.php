@@ -43,6 +43,7 @@ abstract class N2_RMS_Base_API {
 	 * コンストラクタ
 	 */
 	public function __construct() {
+		static::set_header();
 		add_action( 'wp_ajax_' . mb_strtolower( get_class( $this ) ) . '_ajax', array( $this, 'ajax' ) );
 		add_filter( mb_strtolower( get_class( $this ) ) . '_request', array( $this, 'check_error' ) );
 	}
