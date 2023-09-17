@@ -38,20 +38,13 @@ abstract class N2_RMS_Base_API {
 		'files'    => null,
 		'tmp'      => null,
 	);
-	/**
-	 * option_name
-	 *
-	 * @var string
-	 */
-	protected $option_name;
 
 	/**
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		$this->option_name = mb_strtolower( get_class( $this ) );
-		add_action( 'wp_ajax_' . $this->option_name . '_ajax', array( $this, 'ajax' ) );
-		add_filter( $this->option_name . '_request', array( $this, 'check_error' ) );
+		add_action( 'wp_ajax_' . mb_strtolower( get_class( $this ) ) . '_ajax', array( $this, 'ajax' ) );
+		add_filter( mb_strtolower( get_class( $this ) ) . '_request', array( $this, 'check_error' ) );
 	}
 
 	/**
