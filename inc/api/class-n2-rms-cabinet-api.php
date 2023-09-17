@@ -41,14 +41,12 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	/**
 	 * ファイル一覧取得
 	 *
+	 * @var    string $folderId forlder id
 	 * @return array ファイル一覧
 	 */
-	public static function files_get() {
-
-		static::check_fatal_error( isset( static::$data['params']['folderId'] ), 'フォルダーIDの取得に失敗しました。' );
-
+	public static function files_get( $folderId ) {
 		$files_get_params = array(
-			'folderId' => static::$data['params']['folderId'],
+			'folderId' => $folderId,
 			'limit'    => 100,
 			'offset'   => 1,
 		);
@@ -71,7 +69,6 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 		if ( $file_count <= $files_get_params['limit'] ) {
 			return $files;
 		}
-		// 開発途中
 		$requests = array_map(
 			function( $offset ) use ( $files_get_params ) {
 				$files_get_params['offset'] = $offset;
@@ -102,14 +99,11 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	/**
 	 * ファイル一覧(検索)
 	 *
+	 * @var    string $keywords keywords
 	 * @return array 検索結果
 	 */
-	public static function files_search() {
+	public static function files_search( $keywords ) {
 		$files = array();
-
-		static::check_fatal_error( static::$data['params']['keywords'] ?? false, '検索ワードが設定されていません。' );
-
-		$keywords = static::$data['params']['keywords'];
 		$limit    = 100;
 
 		$requests = array_map(
@@ -190,19 +184,21 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 
 	/**
 	 * フォルダ追加
+	 *
+	 * @var string $folderName folderName
+	 * @var string $directoryName directoryName
+	 * @var string $upperFolderId upperFolderId
+	 * @return array
 	 */
-	public static function folder_insert() {
-		static::check_fatal_error( static::$data['params']['folderName'] ?? false, 'フォルダ名が設定されていません。' );
-
+	public static function folder_insert( $folderName, $directoryName = '', $upperFolderId = '', ) {
 		$url              = static::$settings['endpoint'] . '/1.0/cabinet/folder/insert';
 		$xml_request_body = new SimpleXMLElement( '<?xml version="1.0" encoding="UTF-8"?><request></request>' );
-
 		$request = array(
 			'folderInsertRequest' => array(
 				'folder' => array(
-					'folderName'    => static::$data['params']['folderName'],
-					'directoryName' => static::$data['params']['directoryName'] ?? '',
-					'upperFolderId' => static::$data['params']['upperFolderId'] ?? '',
+					'folderName'    => $folderName,
+					'directoryName' => $directoryName,
+					'upperFolderId' => $upperFolderId,
 				),
 			),
 		);
@@ -218,7 +214,6 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			'body'    => $xml_data, // XMLデータをリクエストボディに設定
 		);
 		$response     = wp_remote_request( $url, $request_args );
-
 		$response_body = wp_remote_retrieve_body( $response );
 		$response_body = simplexml_load_string( $response_body );
 
@@ -226,9 +221,10 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	}
 	/**
 	 * ファイル追加
+	 *
+	 * @var string $folderId folderId
 	 */
-	public static function file_insert() {
-		static::check_fatal_error( static::$data['params']['folderId'] ?? false, 'folderIdが設定されていません。' );
+	public static function file_insert( $folderId ) {
 		static::check_fatal_error( static::$data['files']['tmp_name'][0], 'ファイルをセットしてください。' );
 		$url = static::$settings['endpoint'] . '/1.0/cabinet/file/insert';
 
@@ -254,7 +250,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 					'file' => array(
 						'filePath'  => preg_replace( '/\.[^.]+$/', '.jpg', $file_name ),
 						'fileName'  => preg_replace( '/\.[^.]+$/', '', $file_name ),
-						'folderId'  => static::$data['params']['folderId'],
+						'folderId'  => $folderId,
 						'overWrite' => 'true',
 					),
 				),
@@ -299,29 +295,26 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	/**
 	 * ファイル移動
 	 * 公式には存在しないのでfile_insertとfile_deleteを組み合わせる
+	 *
+	 * @var array  $fileId          fileId
+	 * @var string $currentFolderId currentFolderId
+	 * @var string $targetFolderId  targetFolderId
 	 */
-	public static function files_move() {
+	public static function files_move( $fileId, $currentFolderId, $targetFolderId) {
 
 		// 　必須項目を確認
-		static::check_fatal_error( static::$data['params']['currentFolderId'] ?? false, '移動前のfolderIdが設定されていません。' );
-		static::check_fatal_error( static::$data['params']['targetFolderId'] ?? false, '移動先のfolderIdが設定されていません。' );
-		static::check_fatal_error( ! empty( static::$data['params']['fileId'] ?? array() ), 'フォルダ名が設定されていません。' );
+		static::check_fatal_error( ! empty( $fileId ?? array() ), 'ファイルIdが設定されていません。' );
 
-		// 移動前のfloderIdをセット
-		static::$data['params']['folderId'] = static::$data['params']['currentFolderId'];
-		$files                              = static::files_get();
+		$files = static::files_get( $currentFolderId );
 		// 必要なfileのみに絞る
 		$files = array_filter(
 			$files,
-			function( $file ) {
-				return in_array( $file['FileId'], static::$data['params']['fileId'] );
+			function( $file ) use ($fileId ) {
+				return in_array( $file['FileId'], $fileId );
 			},
 		);
 		// indexを振り直す
 		$files = array_values( $files );
-
-		// 移動後のfolderIdをセット
-		static::$data['params']['folderId'] = static::$data['params']['targetFolderId'];
 
 		// 一時ディレクトリ作成
 		$tmp = wp_tempnam( __CLASS__, get_theme_file_path() . '/' );
@@ -363,7 +356,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			static::$data['files']['size'][ $index ]     = filesize( $filename );
 		}
 
-		$insert_response       = static::file_insert();
+		$insert_response       = static::file_insert( $targetFolderId );
 		$insert_error_response = array_filter(
 			$insert_response,
 			function( $res ) {
@@ -375,21 +368,23 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 		exec( "rm -Rf {$tmp}" );
 
 		// 失敗した場合は移動前のファイルを残す
-		static::$data['params']['fileId'] = array_filter(
-			static::$data['params']['fileId'],
+		$fileId = array_filter(
+			$fileId,
 			function ( $key ) use ( $insert_error_response ) {
 				return ! in_array( $key, array_keys( $insert_error_response ) );
 			},
 			ARRAY_FILTER_USE_KEY
 		);
-		return static::file_delete();
+		return static::file_delete( $fileId );
 	}
 
 	/**
 	 * ファイル削除
+	 *
+	 * @var array $fileId fileId
 	 */
-	public static function file_delete() {
-		static::check_fatal_error( ! empty( static::$data['params']['fileId'] ?? array() ), 'ファイルIdが設定されていません。' );
+	public static function file_delete( $fileId ) {
+		static::check_fatal_error( ! empty( $fileId ?? array() ), 'ファイルIdが設定されていません。' );
 
 		$url      = static::$settings['endpoint'] . '/1.0/cabinet/file/delete';
 		$requests = array_map(
@@ -411,7 +406,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 					'data' => $xml_data,
 				);
 			},
-			static::$data['params']['fileId'],
+			$fileId,
 		);
 
 		$response = N2_Multi_URL_Request_API::ajax(
@@ -452,7 +447,6 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 		if ( $file_count <= $files_get_params['limit'] ) {
 			return $files;
 		}
-		// 開発途中
 		$requests = array_map(
 			function( $offset ) use ( $files_get_params ) {
 				$files_get_params['offset'] = $offset;
@@ -483,16 +477,17 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 
 	/**
 	 * 削除したファイルを元に戻す
+	 *
+	 * @var array $fileId fileId
 	 */
-	public static function trashbox_files_revert() {
-		static::check_fatal_error( ! empty( static::$data['params']['fileId'] ?? array() ), 'フォルダ名が設定されていません。' );
+	public static function trashbox_files_revert( $fileId ) {
+		static::check_fatal_error( ! empty( $fileId ?? array() ), 'フォルダ名が設定されていません。' );
 		$url            = static::$settings['endpoint'] . '/1.0/cabinet/trashbox/file/revert';
-		$file_ids       = static::$data['params']['fileId'];
 		$trashbox_files = static::trashbox_files_get();
 		$target_files   = array_filter(
 			$trashbox_files,
-			function ( $file ) use ( $file_ids ) {
-				return in_array( $file['FileId'], static::$data['params']['fileId'], true );
+			function ( $file ) use ( $fileId ) {
+				return in_array( $file['FileId'], $fileId, true );
 			},
 		);
 		$folders        = static::folders_get();

@@ -45,13 +45,12 @@ abstract class N2_RMS_Base_API {
 	public function __construct() {
 		static::set_header();
 		add_action( 'wp_ajax_' . mb_strtolower( get_class( $this ) ) . '_ajax', array( $this, 'ajax' ) );
-		add_filter( mb_strtolower( get_class( $this ) ) . '_request', array( $this, 'check_error' ) );
 	}
 
 	/**
 	 * 接続確認用API
 	 */
-	protected static function connect() {
+	public static function connect() {
 		$path                  = '/1.0/shop/shopMaster';
 		$data                  = wp_remote_get( static::$settings['endpoint'] . $path, array( 'headers' => static::$data['header'] ) );
 		$code                  = $data['response']['code'];

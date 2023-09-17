@@ -264,15 +264,13 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 * RMS APIが使えるか判定
 	 */
 	protected function can_use_api() {
-		if ( null === $this->rms['use_api'] ) {
-			$this->rms['use_api'] = N2_RMS_Cabinet_API::ajax(
-				array(
-					'call' => 'connect',
-					'mode'    => 'func',
-				),
-			);
-		}
-		return $this->rms['use_api'];
+		return match( $this->rms['use_api'] ) {
+			null => ( function() {
+				$rms = new N2_RMS_Cabinet_API();
+				return $rms->connect();
+			})(),
+			default => $this->rms['use_api'],
+		};
 	}
 
 	/**
@@ -286,16 +284,10 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		}
 
 		// 検索ワードでハッシュ化
-		$cabinet              = N2_RMS_Cabinet_API::ajax(
-			array(
-				'keywords' => $keywords,
-				'call'  => 'files_search',
-				'mode'     => 'func',
-			),
-		);
+		$cabinet = new N2_RMS_Cabinet_API();
 		$this->rms['cabinet'] = array(
 			...$this->rms['cabinet'],
-			...$cabinet,
+			...$cabinet->files_search( $keywords ),
 		);
 	}
 
