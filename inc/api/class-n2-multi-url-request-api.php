@@ -24,16 +24,21 @@ class N2_Multi_URL_Request_API {
 	}
 
 	/**
+	 * params
+	 *
+	 * @var array
+	 */
+	protected static $params = array(
+		'requests'   => array(),
+		'options'  => array(),
+	);
+	/**
 	 * データ
 	 *
 	 * @var array
 	 */
 	protected static $data = array(
-		'params'   => array(),
-		'headers'  => array(),
 		'response' => array(),
-		'options'  => array(),
-		'error'    => array(),
 	);
 
 	/**
@@ -47,49 +52,20 @@ class N2_Multi_URL_Request_API {
 	);
 
 	/**
-	 * リクエスト毎へ共通ヘッダーを付与
-	 *
-	 * @param array|void $arg_header header
-	 */
-	private static function set_headers( $arg_header ) {
-		$headers = array(
-			'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0',
-			...$arg_header,
-		);
-		/**
-		 * [hook] n2_multi_url_request_api_set_headers
-		 */
-		static::$data['headers'] = apply_filters( mb_strtolower( get_called_class() ) . '_set_headers', $headers );
-
-		foreach ( static::$data['params']['requests'] ?? array() as $index => $request ) {
-			static::$data['params']['requests'][ $index ]['headers'] = array( ...static::$data['headers'], ...$request['headers'] ?? array() );
-		}
-	}
-
-	/**
 	 * options配列の作成
 	 *
 	 * @param array|void $arg_options options
 	 */
-	private static function set_options( $arg_options ) {
+	private static function set_options() {
 		$default = array(
 			'timeout' => 60,
 		);
+		// defaultをstatic::$params['options']で上書き
+		$options = wp_parse_args( static::$params['options'], $default );
 		/**
 		 * [hook] n2_multi_url_request_api_set_options
 		 */
-		$options = apply_filters( mb_strtolower( get_called_class() ) . '_set_options', $default );
-
-		// 共通ならそのまま
-		if ( empty( $arg_options ) ) {
-			static::$data['options'] = $options;
-			return;
-		}
-
-		// request毎にoptionを設定
-		foreach ( static::$data['params']['requests'] ?? array() as $index => $request ) {
-			static::$data['params']['requests'][ $index ]['options'] = array( ...$options, ...$arg_options['options'][ $index ] ?? array() );
-		}
+		static::$params['options'] = apply_filters( mb_strtolower( get_called_class() ) . '_set_options', $options );
 	}
 
 	/**
@@ -98,21 +74,13 @@ class N2_Multi_URL_Request_API {
 	 *
 	 * @param array|void $args args
 	 */
-	private static function set_params( $args ) {
-		$params = $args;
-		// headerは除外
-		unset( $params['headers'] );
-		// $_GETを引数で上書き
-		$params = wp_parse_args( $params, $_GET );
+	private static function set_params() {
+		$params = $_GET;
 		// $_POSTを$paramsで上書き
 		if ( wp_verify_nonce( $_POST['n2nonce'] ?? '', 'n2nonce' ) ) {
 			$params = wp_parse_args( $params, $_POST );
 		}
-		$default = array(
-			'mode'   => 'func',
-			'action' => false,
-			'call'   => 'request_multiple',
-		);
+		$default = array();
 		// デフォルト値を$paramsで上書き
 		$params = wp_parse_args( $params, $default );
 
@@ -134,14 +102,22 @@ class N2_Multi_URL_Request_API {
 			),
 			'未定義です',
 		);
-		return static::{ static::$data['params']['call'] }();
+		$arguments = static::$params;
+		// 不要な項目は削除
+		unshift(
+			$arguments['call'],
+			$arguments['n2nonce'],
+			$arguments['action'],
+			$arguments['mode'],
+		);
+		return call_user_func_array( array( 'static', 'call' ), $arguments );
 	}
 
 	/**
 	 * 出力用
 	 */
 	private static function export() {
-		switch ( static::$data['params']['mode'] ) {
+		switch ( static::$params['mode'] ) {
 			case 'debug': // デバッグモード
 				header( 'Content-Type: application/json; charset=utf-8' );
 				print_r( static::$data['response'] );
@@ -170,44 +146,36 @@ class N2_Multi_URL_Request_API {
 
 	/**
 	 * 実行
-	 *
-	 * @param array|void $args args
-	 * @return array|void
 	 */
-	public static function ajax( $args ) {
-
-		static::set_params( $args );
-		static::set_headers( $args['headers'] ?? array() );
-		static::set_options( $args['options'] ?? array() );
-
+	public static function ajax() {
+		static::set_params();
+		static::set_options();
 		static::$data['response'] = static::call();
-
 		// 出力時はここで終了
 		static::export();
-
-		// エクスポートしない場合
-		return static::$data['response'];
 	}
 
 	/**
 	 * URLを並列化でリクエストするAPI
 	 *
+	 * @var    array $requests requests
+	 * @var    array $options  options 
 	 * @return array|void
 	 */
-	public static function request_multiple() {
-		static::check_fatal_error( static::$data['params']['requests'] ?? array(), 'リクエストが未設定です' );
-		return Requests::request_multiple( static::$data['params']['requests'], static::$data['options'] );
+	public static function request_multiple( $requests, $options = array() ) {
+		return Requests::request_multiple( $requests, $options );
 	}
 
 	/**
 	 * 画像が存在するかチェックするAPI
 	 *
+	 * @var    array $requests requests
+	 * @var    array $options  options 
 	 * @return array
 	 */
-	public static function verify_images() {
-		$response = self::request_multiple();
+	public static function verify_images( $requests, $options = array() ) {
+		$response = self::request_multiple( $requests, $options );
 		$result   = array();
-
 		foreach ( $response as $res ) {
 			$result[ $res->url ] = 200 === $res->status_code;
 		}
