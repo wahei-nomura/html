@@ -20,7 +20,7 @@ abstract class N2_RMS_Base_API {
 		'range'     => 'RMS_API', // RMSのキー取得の為のスプレットシート範囲
 		'endpoint'  => 'https://api.rms.rakuten.co.jp/es',
 		'transient' => array(
-			'key'  => null,
+			'key'  => 'rms_api_auth_key',
 			'salt' => SECURE_AUTH_SALT,
 		),
 	);
@@ -69,8 +69,7 @@ abstract class N2_RMS_Base_API {
 	 * RMSのAPIキーをスプシから取得してセット
 	 */
 	private static function set_api_keys() {
-		$transient = 'rms_api_auth_key';
-		$authkey   = static::get_decrypted_data_from_transient( $transient );
+		$authkey   = static::get_decrypted_data_from_transient( static::$settings['transient']['key'] );
 		if ( ! $authkey || ( static::$data['params']['apiUpdate'] ?? false ) ) {
 			global $n2, $n2_sync;
 			$keys           = $n2_sync->get_spreadsheet_data( static::$settings['sheetId'], static::$settings['range'] );
@@ -82,7 +81,7 @@ abstract class N2_RMS_Base_API {
 				return array();
 			}
 			$authkey = "{$service_secret}:{$license_key}";
-			$save    = static::save_encrypted_data_to_transient( $transient, $authkey );
+			$save    = static::save_encrypted_data_to_transient( static::$settings['transient']['key'], $authkey );
 		}
 		// base64_encode
 		$authkey = base64_encode( $authkey );
