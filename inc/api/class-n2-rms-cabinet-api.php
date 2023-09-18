@@ -25,11 +25,13 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	/**
 	 * レスポンスからファイルをサルベージ
 	 *
-	 * @var string $result_key     result_key
-	 * @var int    $file_all_count file_all_count
+	 * @var int          $file_all_count file_all_count
+	 * @var string       $result_key     result_key
+	 * @var array|object $response       response
+	 * @return array     files
 	 */
-	private static function response_files( $result_key, &$file_all_count = 0 ) {
-		return function ( $response ) use ( $result_key, &$file_all_count ) {
+	private static function response_files( &$file_all_count = 0 ) {
+		return fn( $result_key ) => function ( $response ) use ( $result_key, &$file_all_count ) {
 			$response = (array) $response; // WpOrg\Requests\Response Objectを変換
 			$result = simplexml_load_string( $response['body'] )->{$result_key};
 			$files = (array) $result->files;
@@ -71,10 +73,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 				'offset'   => $offset,
 			)
 		);
-		$response_files = static::response_files(
-			'cabinetFolderFilesGetResult',
-			$file_all_count,
-		);
+		$response_files = static::response_files( $file_all_count )('cabinetFolderFilesGetResult');
 		$response = wp_remote_get( $url(), array( 'headers' => static::$data['header'] ) );
 		$files = $response_files( $response );
 		if ( $file_all_count <= $limit ) {
@@ -121,10 +120,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 
 		foreach ( N2_Multi_URL_Request_API::request_multiple( $requests ) as $res ) {
 			$keyword        = urldecode( $res->headers->getValues( 'filename' )[0] );
-			$response_files = static::response_files(
-				'cabinetFilesSearchResult',
-				$file_all_count,
-			);
+			$response_files = static::response_files( $file_all_count )('cabinetFilesSearchResult');
 
 			$files[ $keyword ] = $response_files( $res );
 			if ( $file_all_count < $limit ) {
@@ -360,11 +356,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			)
 		);
 
-		$response_files = static::response_files(
-			'cabinetTrashboxFilesGetResult',
-			$file_all_count,
-
-		);
+		$response_files = static::response_files( $file_all_count )('cabinetTrashboxFilesGetResult');
 
 		$response   = wp_remote_get( $url(), array( 'headers' => static::$data['header'] ) );
 		$files      = $response_files( $response );
