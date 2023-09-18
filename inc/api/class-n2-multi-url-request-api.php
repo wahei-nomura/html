@@ -52,27 +52,49 @@ class N2_Multi_URL_Request_API {
 	);
 
 	/**
-	 * options配列の作成
+	 * 共通のoptions配列の作成
 	 *
-	 * @param array|void $arg_options options
+	 * @param array $options options
 	 */
-	private static function set_options() {
+	private static function set_options( &$options ) {
 		$default = array(
 			'timeout' => 60,
 		);
-		// defaultをstatic::$params['options']で上書き
-		$options = wp_parse_args( static::$params['options'], $default );
+		// defaultを$optionsで上書き
+		$options = wp_parse_args( $options, $default );
 		/**
 		 * [hook] n2_multi_url_request_api_set_options
 		 */
-		static::$params['options'] = apply_filters( mb_strtolower( get_called_class() ) . '_set_options', $options );
+		$options =  apply_filters( mb_strtolower( get_called_class() ) . '_set_options', $options );
+	}
+
+	/**
+	 * 共通のheadersを設定
+	 *
+	 * @param array $requests requests
+	 */
+	private static function set_headers( &$requests ) {
+		$default = array(
+			'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0',
+		);
+		/**
+		 * [hook] n2_multi_url_request_api_set_headers
+		 */
+		$headers = apply_filters( mb_strtolower( get_called_class() ) . '_set_headers', $default );
+
+		$requests = array_map(
+			function( $req ) use ( $headers ) {
+				// defaultを$reqで上書き
+				$req['headers'] = array( ...$headers, ...$req['headers'] ?? array() );
+				return $req;
+			},
+			$requests,
+		);
 	}
 
 	/**
 	 * 各パラメータ配列の作成
 	 * $args > $_GET > $_POST > $default
-	 *
-	 * @param array|void $args args
 	 */
 	private static function set_params() {
 		$params = $_GET;
@@ -149,7 +171,6 @@ class N2_Multi_URL_Request_API {
 	 */
 	public static function ajax() {
 		static::set_params();
-		static::set_options();
 		static::$data['response'] = static::call();
 		// 出力時はここで終了
 		static::export();
@@ -163,6 +184,9 @@ class N2_Multi_URL_Request_API {
 	 * @return array|void
 	 */
 	public static function request_multiple( $requests, $options = array() ) {
+		// 共通のheadersとoptionsを設定
+		static::set_options( $options );
+		static::set_headers( $requests );
 		return Requests::request_multiple( $requests, $options );
 	}
 
