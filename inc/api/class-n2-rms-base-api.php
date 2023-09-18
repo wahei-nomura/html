@@ -20,7 +20,7 @@ abstract class N2_RMS_Base_API {
 		'range'     => 'RMS_API', // RMSのキー取得の為のスプレットシート範囲
 		'endpoint'  => 'https://api.rms.rakuten.co.jp/es',
 		'transient' => array(
-			'key'  => null,
+			'key'  => 'rms_api_auth_key',
 			'salt' => SECURE_AUTH_SALT,
 		),
 	);
@@ -35,29 +35,20 @@ abstract class N2_RMS_Base_API {
 		'params'   => array(),
 		'header'   => array(),
 		'response' => array(),
-		'files'    => null,
-		'tmp'      => null,
 	);
-	/**
-	 * option_name
-	 *
-	 * @var string
-	 */
-	protected $option_name;
 
 	/**
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		$this->option_name = mb_strtolower( get_class( $this ) );
-		add_action( 'wp_ajax_' . $this->option_name . '_ajax', array( $this, 'ajax' ) );
-		add_filter( $this->option_name . '_request', array( $this, 'check_error' ) );
+		static::set_header();
+		add_action( 'wp_ajax_' . mb_strtolower( get_class( $this ) ) . '_ajax', array( $this, 'ajax' ) );
 	}
 
 	/**
 	 * 接続確認用API
 	 */
-	protected static function connect() {
+	public static function connect() {
 		$path                  = '/1.0/shop/shopMaster';
 		$data                  = wp_remote_get( static::$settings['endpoint'] . $path, array( 'headers' => static::$data['header'] ) );
 		$code                  = $data['response']['code'];
@@ -69,8 +60,7 @@ abstract class N2_RMS_Base_API {
 	 * RMSのAPIキーをスプシから取得してセット
 	 */
 	private static function set_api_keys() {
-		$transient = 'rms_api_auth_key';
-		$authkey   = static::get_decrypted_data_from_transient( $transient );
+		$authkey   = static::get_decrypted_data_from_transient( static::$settings['transient']['key'] );
 		if ( ! $authkey || ( static::$data['params']['apiUpdate'] ?? false ) ) {
 			global $n2, $n2_sync;
 			$keys           = $n2_sync->get_spreadsheet_data( static::$settings['sheetId'], static::$settings['range'] );
@@ -82,7 +72,7 @@ abstract class N2_RMS_Base_API {
 				return array();
 			}
 			$authkey = "{$service_secret}:{$license_key}";
-			$save    = static::save_encrypted_data_to_transient( $transient, $authkey );
+			$save    = static::save_encrypted_data_to_transient( static::$settings['transient']['key'], $authkey );
 		}
 		// base64_encode
 		$authkey = base64_encode( $authkey );
@@ -105,21 +95,14 @@ abstract class N2_RMS_Base_API {
 
 	/**
 	 * 各パラメータ配列の作成
-	 *
-	 * @param array $args args
 	 */
-	private static function set_params( $args ) {
-		// $_GETを引数で上書き
-		$params = wp_parse_args( $args, $_GET );
+	private static function set_params() {
+		$params = $_GET;
 		// $_POSTを$paramsで上書き
 		if ( wp_verify_nonce( $_POST['n2nonce'] ?? '', 'n2nonce' ) ) {
 			$params = wp_parse_args( $params, $_POST );
 		}
-		$default = array(
-			'mode'   => 'func',
-			'call'   => 'anonymous',
-			'action' => false,
-		);
+		$default = array();
 		// デフォルト値を$paramsで上書き
 		$params = wp_parse_args( $params, $default );
 
@@ -133,9 +116,46 @@ abstract class N2_RMS_Base_API {
 	 * APIを実行するサムシング
 	 */
 	private static function call() {
-		$is_callable = is_callable( array( 'static', static::$data['params']['call'] ?? '' ) );
-		static::check_fatal_error( $is_callable, '未定義のmethodです' );
-		return static::{ static::$data['params']['call'] }();
+		$method = static::$data['params']['call'] ?? '';
+		$is_callable = is_callable( array( 'static', $method ) );
+		static::check_fatal_error( $is_callable, "未定義のmethodです: {$method}" );
+		$arguments = static::$data['params'];
+		// 不要なプロパティを削除
+		unset(
+			$arguments['call'],
+			$arguments['n2nonce'],
+			$arguments['action'],
+			$arguments['mode'],
+		);
+		return call_user_func_array( array( 'static', $method ), $arguments );
+	}
+
+	/**
+	 * wp_remote_requestのラッパー
+	 */
+	public static function request( $url, $args = array() ) {
+		$args['headers'] = array(
+			...$args['headers'] ?? array(),
+			...static::$data['header'],
+		);
+		return wp_remote_request( $url, $args );
+	}
+
+	/**
+	 * N2_Multi_URL_Request_API::request_multipleのラッパー
+	 */
+	public static function request_multiple( $requests, $options = array() ) {
+		$requests = array_map(
+			function( $request ) {
+				$request['headers'] = array(
+					...$request['headers'] ?? array(),
+					...static::$data['header'],
+				);
+				return $request;
+			},
+			$requests,
+		);
+		return N2_Multi_URL_Request_API::request_multiple( $requests, $options );
 	}
 
 	/**
@@ -159,24 +179,15 @@ abstract class N2_RMS_Base_API {
 	/**
 	 * 実行
 	 *
-	 * @param array|void $args args
 	 * @return array|void
 	 */
-	public static function ajax( $args ) {
+	public static function ajax() {
 
-		static::set_params( $args );
+		static::set_params();
 		static::set_header();
 		static::set_files();
-
 		static::$data['response'] = static::call();
-
-		static::remove_tmp_files();
-
-		// 出力時はここで終了
 		static::export();
-
-		// エクスポートしない場合
-		return static::$data['response'];
 	}
 
 	/**
@@ -287,41 +298,31 @@ abstract class N2_RMS_Base_API {
 	 * ファイル配列の作成
 	 */
 	protected static function set_files() {
-		setlocale( LC_ALL, 'ja_JP.UTF-8' );
-		static::$data['files'] = $_FILES['cabinet_file'] ?? null;
-		static::image_compressor();
-	}
-
-	/**
-	 * テンプファイルを削除
-	 */
-	private static function remove_tmp_files() {
-		if ( ! static::$data['tmp'] ) {
-			return;
+		if ( isset( $_FILES['cabinet_file'] ) ) {
+			setlocale( LC_ALL, 'ja_JP.UTF-8' );
+			static::$data['params'] = array(
+				...static::$data['params'],
+				...static::image_compressor( $_FILES['cabinet_file'] ),
+			);
 		}
-		$tmp = static::$data['tmp'];
-		exec( "rm -Rf {$tmp}" );
 	}
 
 	/**
 	 * 画像圧縮
+	 *
+	 * @var array $files files
 	 */
-	private static function image_compressor() {
+	protected static function image_compressor( $files ) {
 		// ファイルがなければ何もしない
-		if (
-			! isset( static::$data['files']['tmp_name'] ) ||
-			empty( static::$data['files']['tmp_name'] )
-		) {
-			return;
+		if ( empty( $files['tmp_name'] ) ) {
+			return $files;
 		}
-		$name     = static::$data['files']['name'];
-		$type     = static::$data['files']['type'];
-		$tmp_name = static::$data['files']['tmp_name'];
+		$name     = $files['name'];
+		$type     = $files['type'];
+		$tmp_name = $files['tmp_name'];
 
 		// 一時ディレクトリ作成
-		static::$data['tmp'] = wp_tempnam( __CLASS__, get_theme_file_path() . '/' );
-		$tmp                 = static::$data['tmp'];
-
+		$tmp  = wp_tempnam( __CLASS__, get_theme_file_path() . '/' );
 		unlink( $tmp );
 		mkdir( $tmp );
 		foreach ( $tmp_name as $k => $file ) {
@@ -331,7 +332,11 @@ abstract class N2_RMS_Base_API {
 			$local_file = "{$tmp}/{$name[$k]}";
 			exec( "mogrify -quality {$quality} {$local_file}" );
 			// pathを修正
-			static::$data['files']['tmp_name'][ $k ] = $local_file;
+			$files['tmp_name'][ $k ] = $local_file;
 		}
+		return array(
+			'files' => $files,
+			'tmp_path' => $tmp,
+		);
 	}
 }

@@ -67,14 +67,7 @@ class N2_Img_Download {
 			},
 			$params['url']
 		);
-
-		$response = N2_Multi_URL_Request_API::ajax(
-			array(
-				'requests' => $requests,
-				'call'     => 'request_multiple',
-				'mode'     => 'func',
-			),
-		);
+		$response = N2_Multi_URL_Request_API::request_multiple( $requests );
 
 		$tmp_uri = stream_get_meta_data( tmpfile() )['uri'];
 		$zip     = new ZipArchive();
