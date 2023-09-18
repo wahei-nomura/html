@@ -28,7 +28,7 @@ class N2_RMS_Navigation_API extends N2_RMS_Base_API {
 		// 商品属性IDがあれば追加する
 		$url .= $attributeId ?? '';
 
-		$response = wp_remote_get( $url, array( 'headers' => static::$data['header'] ) );
+		$response = static::get( $url );
 		return $response;
 	}
 }

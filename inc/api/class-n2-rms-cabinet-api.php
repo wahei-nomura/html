@@ -76,7 +76,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			)
 		);
 		$response_files = static::response_files( $file_all_count )('cabinetFolderFilesGetResult');
-		$response = wp_remote_get( $url(), array( 'headers' => static::$data['header'] ) );
+		$response = static::get( $url() );
 		$files = $response_files( $response );
 
 		if ( $file_all_count <= $limit ) {
@@ -169,13 +169,9 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 		$xml_data = $xml_request_body->asXML();
 
 		$request_args  = array(
-			'method'  => 'POST',
-			'headers' => array(
-				...static::$data['header'],
-			),
 			'body'    => $xml_data, // XMLデータをリクエストボディに設定
 		);
-		$response      = wp_remote_request( $url, $request_args );
+		$response      = static::post( $url, $request_args );
 		$response_body = wp_remote_retrieve_body( $response );
 		return simplexml_load_string( $response_body );
 	}
@@ -359,7 +355,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 
 		$response_files = static::response_files( $file_all_count )('cabinetTrashboxFilesGetResult');
 
-		$response   = wp_remote_get( $url(), array( 'headers' => static::$data['header'] ) );
+		$response   = static::get( $url() );
 		$files      = $response_files( $response );
 		if ( $file_all_count <= $limit ) {
 			return $files;
@@ -428,7 +424,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	 */
 	public static function usage_get() {
 		$url = static::$settings['endpoint'] . '/1.0/cabinet/usage/get';
-		$data = wp_remote_get( $url, array( 'headers' => static::$data['header'] ) );
+		$data = static::get( $url );
 		$body = wp_remote_retrieve_body( $data );
 		return simplexml_load_string( $body );
 	}

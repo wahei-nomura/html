@@ -131,6 +131,24 @@ abstract class N2_RMS_Base_API {
 	}
 
 	/**
+	 * wp_remote_requestのラッパー
+	 */
+	public static function get( $url, $args = array() ) {
+		$args['headers'] = array(
+			...$args['headers'] ?? array(),
+			...static::$data['header'],
+		);
+		return wp_remote_request( $url, $args );
+	}
+	/**
+	 * wp_remote_requestのラッパー
+	 */
+	public static function post( $url, $args = array() ) {
+		$args['method'] = 'POST';
+		return static::get( $url, $args );
+	}
+
+	/**
 	 * 出力用
 	 */
 	private static function export() {
