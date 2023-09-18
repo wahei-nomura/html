@@ -30,16 +30,18 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	 * @var array|object $response       response
 	 * @return array     files
 	 */
-	private static function response_files( &$file_all_count = 0 ) {
-		return fn( $result_key ) => function ( $response ) use ( $result_key, &$file_all_count ) {
-			$response = (array) $response; // WpOrg\Requests\Response Objectを変換
-			$result = simplexml_load_string( $response['body'] )->{$result_key};
-			$files = (array) $result->files;
-			$files = $files['file'] ?? array();
-			$file_all_count = (int) $result->fileAllCount;
-			return match ( (int) $result->fileCount > 1 ) {
-				true => $files,
-				default => array( $files),
+	private static function response_files( &$file_all_count ) {
+		return function( $result_key ) use ( &$file_all_count ) {
+			return function ( $response ) use ( $result_key, &$file_all_count ) {
+				$response = (array) $response; // WpOrg\Requests\Response Objectを変換
+				$result = simplexml_load_string( $response['body'] )->{$result_key};
+				$files = (array) $result->files;
+				$files = $files['file'] ?? array();
+				$file_all_count = (int) $result->fileAllCount;
+				return match ( (int) $result->fileCount > 1 ) {
+					true => $files,
+					default => array( $files),
+				};
 			};
 		};
 	}
@@ -76,6 +78,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 		$response_files = static::response_files( $file_all_count )('cabinetFolderFilesGetResult');
 		$response = wp_remote_get( $url(), array( 'headers' => static::$data['header'] ) );
 		$files = $response_files( $response );
+
 		if ( $file_all_count <= $limit ) {
 			return $files;
 		}
@@ -117,11 +120,9 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			),
 			$keywords,
 		);
-
+		$response_files = static::response_files( $file_all_count )('cabinetFilesSearchResult');
 		foreach ( N2_Multi_URL_Request_API::request_multiple( $requests ) as $res ) {
 			$keyword        = urldecode( $res->headers->getValues( 'filename' )[0] );
-			$response_files = static::response_files( $file_all_count )('cabinetFilesSearchResult');
-
 			$files[ $keyword ] = $response_files( $res );
 			if ( $file_all_count < $limit ) {
 				continue;
