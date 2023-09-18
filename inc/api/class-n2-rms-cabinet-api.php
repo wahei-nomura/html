@@ -43,7 +43,6 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	 * @return array ファイル一覧
 	 */
 	public static function files_get( $folderId ) {
-		$files    = array();
 		$limit    = 100;
 		$url      = fn( $offset = 1 ) => static::$settings['endpoint'] . '/1.0/cabinet/folder/files/get?' . http_build_query(
 			array(
@@ -52,17 +51,20 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 				'offset'   => $offset,
 			)
 		);
-		$response = wp_remote_get( $url(), array( 'headers' => static::$data['header'] ) );
-
-		$result     = simplexml_load_string( $response['body'] )->cabinetFolderFilesGetResult;
-		$file_count = $result->fileAllCount;
-		$res_files  = $result->files;
-		$res_files  = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
-		$files      = match ( $file_count > 1 ) {
-			true => $res_files,
-			default => array( $res_files ),
+		$file_all_count = 0;
+		$res_files  = function ( $data ) use ( &$file_all_count ) {
+			$result = simplexml_load_string( $data['body'] )->cabinetFolderFilesGetResult;
+			$files = (array) $result->files;
+			$files = $files['file'] ?? array();
+			$file_all_count = (int) $result->fileAllCount;
+			return match ( (int) $result->fileCount > 1 ) {
+				true => $files,
+				default => array( $files),
+			};
 		};
-		if ( $file_count <= $limit ) {
+		$response = wp_remote_get( $url(), array( 'headers' => static::$data['header'] ) );
+		$files = $res_files( $response );
+		if ( $file_all_count <= $limit ) {
 			return $files;
 		}
 		$requests = array_map(
@@ -70,14 +72,11 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 				'url' => $url( $offset ),
 				'headers'  => static::$data['header'],
 			),
-			range( 2, floor( $file_count / $limit ) + 1 )
+			range( 2, floor( $file_all_count / $limit ) + 1 )
 		);
 
 		foreach ( N2_Multi_URL_Request_API::request_multiple( $requests ) as $res ) {
-			$result    = simplexml_load_string( $res->body )->cabinetFolderFilesGetResult;
-			$res_files = $result->files;
-			$res_files = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
-			$files     = array( ...$files, ...$res_files );
+			$files = array( ...$files, ...$res_files( $res ) );
 		}
 		return $files;
 	}
@@ -88,9 +87,11 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	 * @return array 検索結果
 	 */
 	public static function files_search( $keywords ) {
+		// 重複削除
+		$keywords = array_unique( $keywords );
 		$files    = array();
 		$limit    = 100;
-		$url      = fn ( $keyword ) => fn ( $offset = 1 ) => static::$settings['endpoint'] . '/1.0/cabinet/folder/insert' . http_build_query(
+		$url      = fn ( $keyword ) => fn ( $offset = 1 ) => static::$settings['endpoint'] . '/1.0/cabinet/files/search?' . http_build_query(
 			array(
 				'fileName' => $keyword,
 				'limit'    => $limit,
@@ -99,7 +100,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 		);
 		$requests = array_map(
 			fn ( $keyword ) => array(
-				'url' => $url( $keyword ),
+				'url' => $url( $keyword )(),
 				'headers'  => static::$data['header'],
 			),
 			$keywords,
@@ -107,17 +108,19 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 
 		foreach ( N2_Multi_URL_Request_API::request_multiple( $requests ) as $res ) {
 			$keyword        = urldecode( $res->headers->getValues( 'filename' )[0] );
-			$search_result  = simplexml_load_string( $res->body )->cabinetFilesSearchResult;
-			$res_files      = $search_result->files;
-			$file_all_count = $search_result->fileAllCount;
-			$file_count     = (int) $search_result->fileCount->__toString();
-			$res_files      = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
-
-			$files[ $keyword ] = match ( $file_count > 1 ) {
-				true => $res_files,
-				default => array( $res_files ),
+			$file_all_count = 0;
+			$res_files      = function( $data ) use ( &$file_all_count ) {
+				$search_result  = simplexml_load_string( $data->body )->cabinetFilesSearchResult;
+				$search_files   = (array) $search_result->files;
+				$search_files   = $search_files['file'] ?? array();
+				$file_all_count = (int) $search_result->fileAllCount;
+				return match ( (int) $search_result->fileCount > 1 ) {
+					true => $search_files,
+					default => array( $search_files ),
+				};
 			};
 
+			$files[ $keyword ] = $res_files( $res );
 			if ( $file_all_count < $limit ) {
 				continue;
 			}
@@ -132,14 +135,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			);
 
 			foreach ( N2_Multi_URL_Request_API::request_multiple( $additional_requests ) as $res ) {
-				$search_result     = simplexml_load_string( $res->body )->cabinetFilesSearchResult;
-				$res_files         = $search_result->files;
-				$file_count        = (int) $search_result->fileCount->__toString();
-				$res_files         = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
-				$files[ $keyword ] = match ( $file_count > 1 ) {
-					true => array( ...$files[ $keyword ], ...$res_files ),
-					default => array( ...$files[ $keyword ], array( $res_files ) ),
-				};
+				$files[ $keyword ] = array( ...$files[ $keyword ], ...$res_files( $res ) );
 			}
 		}
 		return $files;
@@ -187,7 +183,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	 * @var string $folderId folderId
 	 */
 	public static function file_insert( $files, $folderId, $tmp_path = null ) {
-		static::check_fatal_error( $files['tmp_name'][0], 'ファイルをセットしてください。' );
+		static::check_fatal_error( ! empty( $files['tmp_name'] ), 'ファイルをセットしてください。' );
 
 		$requests = array();
 		foreach ( $files['tmp_name'] as $index => $tmp_name ) {
@@ -260,7 +256,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	public static function files_move( $fileId, $currentFolderId, $targetFolderId) {
 
 		// 　必須項目を確認
-		static::check_fatal_error( ! empty( $fileId ?? array() ), 'ファイルIdが設定されていません。' );
+		static::check_fatal_error( ! empty( $fileId ), 'ファイルIdが設定されていません。' );
 
 		// 必要なfileのみに絞る
 		$files = array_filter(
@@ -320,7 +316,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	 * @var array $fileId fileId
 	 */
 	public static function file_delete( $fileId ) {
-		static::check_fatal_error( ! empty( $fileId ?? array() ), 'ファイルIdが設定されていません。' );
+		static::check_fatal_error( ! empty( $fileId ), 'ファイルIdが設定されていません。' );
 		$requests = array_map(
 			function ( $file_id ) use ( $url ) {
 				$xml_request_body = new SimpleXMLElement( '<?xml version="1.0" encoding="UTF-8"?><request></request>' );
@@ -350,7 +346,6 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	 * 削除したファイル一覧
 	 */
 	public static function trashbox_files_get() {
-		$files = array();
 		$limit = 100;
 		$url   = fn( $offset = 1 ) => static::$settings['endpoint'] . '/1.0/cabinet/trashbox/files/get?' . http_build_query(
 			array(
@@ -359,16 +354,21 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			)
 		);
 
-		$response   = wp_remote_get( $url(), array( 'headers' => static::$data['header'] ) );
-		$result     = simplexml_load_string( $response['body'] )->cabinetTrashboxFilesGetResult;
-		$file_count = $result->fileAllCount;
-		$res_files  = $result->files;
-		$res_files  = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
-		$files      = match ( $file_count > 1 ) {
-			true => $res_files,
-			default => array( $res_files ),
+		$file_all_count = 0;
+		$res_files  = function( $res ) use ( &$file_all_count ) {
+			$result     = simplexml_load_string( $response['body'] )->cabinetTrashboxFilesGetResult;
+			$files  = (array) $result->files;
+			$files  = $files['file'] ?? array();
+			$file_all_count = (int) $result->fileAllCount;
+			return match ( (int) $result->fileCount > 1 ) {
+				true => $files,
+				default => array( $files ),
+			};
 		};
-		if ( $file_count <= $limit ) {
+
+		$response   = wp_remote_get( $url(), array( 'headers' => static::$data['header'] ) );
+		$files      = $res_files( $response );
+		if ( $file_all_count <= $limit ) {
 			return $files;
 		}
 		$requests = array_map(
@@ -376,14 +376,11 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 				'url' => $url( $offset ),
 				'headers'  => static::$data['header'],
 			),
-			range( 2, floor( $file_count / $limit ) + 1 )
+			range( 2, floor( $file_all_count / $limit ) + 1 )
 		);
 
 		foreach ( N2_Multi_URL_Request_API::request_multiple( $requests ) as $res ) {
-			$result    = simplexml_load_string( $res->body )->cabinetTrashboxFilesGetResult;
-			$res_files = $result->files;
-			$res_files = json_decode( wp_json_encode( $res_files ), true )['file'] ?? array();
-			$files     = array( ...$files, ...$res_files );
+			$files = array( ...$files, ...$res_files( $res ) );
 		}
 		return $files;
 	}
@@ -394,10 +391,9 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	 * @var array $fileId fileId
 	 */
 	public static function trashbox_files_revert( $fileId ) {
-		static::check_fatal_error( ! empty( $fileId ?? array() ), 'フォルダ名が設定されていません。' );
-		$trashbox_files = static::trashbox_files_get();
+		static::check_fatal_error( ! empty( $fileId ), 'ファイルIdが設定されていません。' );
 		$target_files   = array_filter(
-			$trashbox_files,
+			static::trashbox_files_get(),
 			fn ( $file ) => in_array( $file['FileId'], $fileId, true ),
 		);
 		$folders        = static::folders_get();
