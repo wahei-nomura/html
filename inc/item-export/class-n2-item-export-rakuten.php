@@ -360,12 +360,8 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 
 		if ( ! $result ) { // 直接存在チェック
 			$result   = array();
-			$response = N2_Multi_URL_Request_API::ajax(
-				array(
-					'requests'    => array_map( fn( $req ) => array( 'url' => $req ), $requests ),
-					'mode'    => 'func',
-					'call' => 'verify_images',
-				),
+			$response = N2_Multi_URL_Request_API::verify_images(
+				array_map( fn( $req ) => array( 'url' => $req ), $requests ),
 			);
 			$result   = array_map(
 				function( $req ) use ( $response ) {
