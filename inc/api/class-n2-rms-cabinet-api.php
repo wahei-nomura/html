@@ -23,6 +23,26 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	protected $folders = array();
 
 	/**
+	 * レスポンスからファイルをサルベージ
+	 *
+	 * @var string $result_key     result_key
+	 * @var int    $file_all_count file_all_count
+	 */
+	private static function response_files( $result_key, &$file_all_count = 0 ) {
+		return function ( $response ) use ( $result_key, &$file_all_count ) {
+			$response = (array) $response; // WpOrg\Requests\Response Objectを変換
+			$result = simplexml_load_string( $response['body'] )->{$result_key};
+			$files = (array) $result->files;
+			$files = $files['file'] ?? array();
+			$file_all_count = (int) $result->fileAllCount;
+			return match ( (int) $result->fileCount > 1 ) {
+				true => $files,
+				default => array( $files),
+			};
+		};
+	}
+
+	/**
 	 * フォルダ一覧取得
 	 *
 	 * @return array フォルダ一覧
@@ -51,19 +71,12 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 				'offset'   => $offset,
 			)
 		);
-		$file_all_count = 0;
-		$res_files  = function ( $data ) use ( &$file_all_count ) {
-			$result = simplexml_load_string( $data['body'] )->cabinetFolderFilesGetResult;
-			$files = (array) $result->files;
-			$files = $files['file'] ?? array();
-			$file_all_count = (int) $result->fileAllCount;
-			return match ( (int) $result->fileCount > 1 ) {
-				true => $files,
-				default => array( $files),
-			};
-		};
+		$response_files = static::response_files(
+			'cabinetFolderFilesGetResult',
+			$file_all_count,
+		);
 		$response = wp_remote_get( $url(), array( 'headers' => static::$data['header'] ) );
-		$files = $res_files( $response );
+		$files = $response_files( $response );
 		if ( $file_all_count <= $limit ) {
 			return $files;
 		}
@@ -76,7 +89,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 		);
 
 		foreach ( N2_Multi_URL_Request_API::request_multiple( $requests ) as $res ) {
-			$files = array( ...$files, ...$res_files( $res ) );
+			$files = array( ...$files, ...$response_files( $res ) );
 		}
 		return $files;
 	}
@@ -108,19 +121,12 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 
 		foreach ( N2_Multi_URL_Request_API::request_multiple( $requests ) as $res ) {
 			$keyword        = urldecode( $res->headers->getValues( 'filename' )[0] );
-			$file_all_count = 0;
-			$res_files      = function( $data ) use ( &$file_all_count ) {
-				$search_result  = simplexml_load_string( $data->body )->cabinetFilesSearchResult;
-				$search_files   = (array) $search_result->files;
-				$search_files   = $search_files['file'] ?? array();
-				$file_all_count = (int) $search_result->fileAllCount;
-				return match ( (int) $search_result->fileCount > 1 ) {
-					true => $search_files,
-					default => array( $search_files ),
-				};
-			};
+			$response_files = static::response_files(
+				'cabinetFilesSearchResult',
+				$file_all_count,
+			);
 
-			$files[ $keyword ] = $res_files( $res );
+			$files[ $keyword ] = $response_files( $res );
 			if ( $file_all_count < $limit ) {
 				continue;
 			}
@@ -135,7 +141,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			);
 
 			foreach ( N2_Multi_URL_Request_API::request_multiple( $additional_requests ) as $res ) {
-				$files[ $keyword ] = array( ...$files[ $keyword ], ...$res_files( $res ) );
+				$files[ $keyword ] = array( ...$files[ $keyword ], ...$response_files( $res ) );
 			}
 		}
 		return $files;
@@ -354,20 +360,14 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			)
 		);
 
-		$file_all_count = 0;
-		$res_files  = function( $res ) use ( &$file_all_count ) {
-			$result     = simplexml_load_string( $response['body'] )->cabinetTrashboxFilesGetResult;
-			$files  = (array) $result->files;
-			$files  = $files['file'] ?? array();
-			$file_all_count = (int) $result->fileAllCount;
-			return match ( (int) $result->fileCount > 1 ) {
-				true => $files,
-				default => array( $files ),
-			};
-		};
+		$response_files = static::response_files(
+			'cabinetTrashboxFilesGetResult',
+			$file_all_count,
+
+		);
 
 		$response   = wp_remote_get( $url(), array( 'headers' => static::$data['header'] ) );
-		$files      = $res_files( $response );
+		$files      = $response_files( $response );
 		if ( $file_all_count <= $limit ) {
 			return $files;
 		}
@@ -380,7 +380,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 		);
 
 		foreach ( N2_Multi_URL_Request_API::request_multiple( $requests ) as $res ) {
-			$files = array( ...$files, ...$res_files( $res ) );
+			$files = array( ...$files, ...$response_files( $res ) );
 		}
 		return $files;
 	}
