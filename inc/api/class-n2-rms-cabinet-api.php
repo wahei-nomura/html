@@ -56,7 +56,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			'limit' => 100,
 		);
 		$url     = static::$settings['endpoint'] . '/1.0/cabinet/folders/get?' . http_build_query( $params );
-		$data    = wp_remote_get( $url, array( 'headers' => static::$data['header'] ) );
+		$data    = static::request( $url );
 		$folders = simplexml_load_string( $data['body'] )->cabinetFoldersGetResult->folders;
 		return json_decode( wp_json_encode( $folders ), true )['folder'];
 	}
@@ -76,7 +76,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			)
 		);
 		$response_files = static::response_files( $file_all_count )('cabinetFolderFilesGetResult');
-		$response = static::get( $url() );
+		$response = static::request( $url() );
 		$files = $response_files( $response );
 
 		if ( $file_all_count <= $limit ) {
@@ -85,12 +85,11 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 		$requests = array_map(
 			fn ( $offset ) => array(
 				'url' => $url( $offset ),
-				'headers'  => static::$data['header'],
 			),
 			range( 2, floor( $file_all_count / $limit ) + 1 )
 		);
 
-		foreach ( N2_Multi_URL_Request_API::request_multiple( $requests ) as $res ) {
+		foreach ( static::request_multiple( $requests ) as $res ) {
 			$files = array( ...$files, ...$response_files( $res ) );
 		}
 		return $files;
@@ -116,12 +115,11 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 		$requests = array_map(
 			fn ( $keyword ) => array(
 				'url' => $url( $keyword )(),
-				'headers'  => static::$data['header'],
 			),
 			$keywords,
 		);
 		$response_files = static::response_files( $file_all_count )('cabinetFilesSearchResult');
-		foreach ( N2_Multi_URL_Request_API::request_multiple( $requests ) as $res ) {
+		foreach ( static::request_multiple( $requests ) as $res ) {
 			$keyword        = urldecode( $res->headers->getValues( 'filename' )[0] );
 			$files[ $keyword ] = $response_files( $res );
 			if ( $file_all_count < $limit ) {
@@ -132,12 +130,11 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			$additional_requests = array_map(
 				fn ( $offset ) => array(
 					'url' => $url( $keyword )( $offset ),
-					'headers'  => static::$data['header'],
 				),
 				range( 2, floor( $file_all_count / $limit ) + 1 ),
 			);
 
-			foreach ( N2_Multi_URL_Request_API::request_multiple( $additional_requests ) as $res ) {
+			foreach ( static::request_multiple( $additional_requests ) as $res ) {
 				$files[ $keyword ] = array( ...$files[ $keyword ], ...$response_files( $res ) );
 			}
 		}
@@ -170,8 +167,9 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 
 		$request_args  = array(
 			'body'    => $xml_data, // XMLデータをリクエストボディに設定
+			'method'  => 'POST',
 		);
-		$response      = static::post( $url, $request_args );
+		$response      = static::request( $url, $request_args );
 		$response_body = wp_remote_retrieve_body( $response );
 		return simplexml_load_string( $response_body );
 	}
@@ -193,7 +191,6 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 				'type'    => Requests::POST,
 				'headers' => array(
 					'Content-Type' => 'multipart/form-data;',
-					...static::$data['header'],
 				),
 				'data'    => null,
 			);
@@ -237,7 +234,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			$request['headers']['Content-Length'] = strlen( $request['data'] );
 			$requests[] = $request;
 		}
-		$response = N2_Multi_URL_Request_API::request_multiple( $requests );
+		$response = static::request_multiple( $requests );
 		if ( isset( $tmp_path ) ) {
 			exec( "rm -Rf {$tmp_path}" );
 		}
@@ -333,12 +330,11 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 					'url'  => static::$settings['endpoint'] . '/1.0/cabinet/file/delete',
 					'type' => Requests::POST,
 					'data' => $xml_data,
-					'headers'  => static::$data['header'],
 				);
 			},
 			$fileId,
 		);
-		return N2_Multi_URL_Request_API::request_multiple( $requests );
+		return static::request_multiple( $requests );
 	}
 
 	/**
@@ -355,7 +351,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 
 		$response_files = static::response_files( $file_all_count )('cabinetTrashboxFilesGetResult');
 
-		$response   = static::get( $url() );
+		$response   = static::request( $url() );
 		$files      = $response_files( $response );
 		if ( $file_all_count <= $limit ) {
 			return $files;
@@ -363,12 +359,11 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 		$requests = array_map(
 			fn ( $offset ) => array(
 				'url' => $url( $offset ),
-				'headers'  => static::$data['header'],
 			),
 			range( 2, floor( $file_all_count / $limit ) + 1 )
 		);
 
-		foreach ( N2_Multi_URL_Request_API::request_multiple( $requests ) as $res ) {
+		foreach ( static::request_multiple( $requests ) as $res ) {
 			$files = array( ...$files, ...$response_files( $res ) );
 		}
 		return $files;
@@ -410,13 +405,12 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 					'url'  => static::$settings['endpoint'] . '/1.0/cabinet/trashbox/file/revert',
 					'type' => Requests::POST,
 					'data' => $xml_data,
-					'headers'  => static::$data['header'],
 				);
 
 			},
 			$target_files
 		);
-		return N2_Multi_URL_Request_API::request_multiple( $requests );
+		return static::request_multiple( $requests );
 	}
 
 	/**
@@ -424,7 +418,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	 */
 	public static function usage_get() {
 		$url = static::$settings['endpoint'] . '/1.0/cabinet/usage/get';
-		$data = static::get( $url );
+		$data = static::request( $url );
 		$body = wp_remote_retrieve_body( $data );
 		return simplexml_load_string( $body );
 	}
