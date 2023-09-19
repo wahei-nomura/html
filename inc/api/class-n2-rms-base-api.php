@@ -62,9 +62,9 @@ abstract class N2_RMS_Base_API {
 	private static function set_api_keys() {
 		$authkey = static::get_decrypted_data_from_transient( static::$settings['transient']['key'] );
 		if ( ! $authkey || ( static::$data['params']['apiUpdate'] ?? false ) ) {
-			global $n2, $n2_sync;
+			global $n2_sync;
 			$keys           = $n2_sync->get_spreadsheet_data( static::$settings['sheetId'], static::$settings['range'] );
-			$keys           = array_filter( $keys, fn( $v ) => $v['town'] === $n2->town );
+			$keys           = array_filter( $keys ?: array(), fn( $v ) => get_bloginfo( 'name' ) === $v['town'] );
 			$keys           = call_user_func_array( 'array_merge', $keys );
 			$service_secret = $keys['serviceSecret'] ?? '';
 			$license_key    = $keys['licenseKey'] ?? '';
