@@ -64,7 +64,7 @@ abstract class N2_RMS_Base_API {
 		if ( ! $authkey || ( static::$data['params']['apiUpdate'] ?? false ) ) {
 			global $n2, $n2_sync;
 			$keys           = $n2_sync->get_spreadsheet_data( static::$settings['sheetId'], static::$settings['range'] );
-			$keys           = array_filter( $keys, fn( $v ) => $v['town'] === $n2->town );
+			$keys           = array_filter( (array) $keys, fn( $v ) => $v['town'] ?? '' === $n2->town );
 			$keys           = call_user_func_array( 'array_merge', $keys );
 			$service_secret = $keys['serviceSecret'] ?? '';
 			$license_key    = $keys['licenseKey'] ?? '';
