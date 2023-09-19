@@ -107,59 +107,72 @@ class N2_Donation_Amount_API {
 	 * 寄附金額一括自動計算
 	 */
 	public function update_all_donation_amount() {
-		echo '<pre>';
-		ob_start();
-		foreach ( get_posts( 'post_status=any&numberposts=-1' ) as $post ) {
-			// 送料をアップデート
-			$this->update_dellivery_fee( $post->ID );
-			// 寄附金額固定の場合はここでループ抜ける
-			$fixed = array_filter( get_post_meta( $post->ID, '寄附金額固定', true ) ?: array() );
-			if ( ! empty( $fixed ) ) {
+		global $n2;
+		$log     = array();
+		$args    = $_GET;
+		$default = array(
+			'post_status' => 'any',
+			'numberposts' => -1,
+		);
+		$args    = wp_parse_args( $args, $default );
+		header( 'Content-Type: application/json; charset=utf-8' );
+		foreach ( get_posts( $args ) as $post ) {
+			$post->meta_input = array();// meta_input初期化
+			$meta             = json_decode( $post->post_content, true );// カスタムフィールド
+			$delivery_fee     = $this->get_dellivery_fee( $meta );// 送料
+			// 送料が違う場合アップデート
+			if ( (int) ( $meta['送料'] ?? '' ) !== (int) $delivery_fee ) {
+				$post->meta_input['送料'] = $delivery_fee;
+			}
+			// 寄附金額のアップデート
+			if ( empty( array_filter( $meta['寄附金額固定'] ?? array() ) ) ) {
+				// 寄附金額計算の素材集め
+				$price        = $meta['価格'] ?? '';
+				$subscription = $meta['定期便'] ?? '';
+				// 自動計算
+				$calc_donation_amount = $this->calc( compact( 'price', 'delivery_fee', 'subscription' ) );
+				// 新旧違う場合にアップデート
+				if ( (int) ( $meta['寄附金額'] ?? '' ) !== (int) $calc_donation_amount ) {
+					$post->meta_input['寄附金額'] = $calc_donation_amount;
+				}
+			}
+			// meta_inputに値があるかでアップデート判定
+			if ( empty( $post->meta_input ) ) {
 				continue;
 			}
-			// 寄附金額計算の素材集め
-			$price           = get_post_meta( $post->ID, '価格', true );
-			$delivery_fee    = get_post_meta( $post->ID, '送料', true );
-			$subscription    = get_post_meta( $post->ID, '定期便', true );
-			$donation_amount = get_post_meta( $post->ID, '寄附金額', true );
-			// 自動計算
-			$calc_donation_amount = $this->calc( compact( 'price', 'delivery_fee', 'subscription' ) );
-			// 新旧一致の場合は何もしない
-			if ( (int) $donation_amount === (int) $calc_donation_amount ) {
-				continue;
+			wp_insert_post( $post );
+			$code = $meta['返礼品コード'] ?? '';
+			foreach ( $post->meta_input as $key => $value ) {
+				$log[] = "{$key}\t{$code}\t{$post->post_title}\t{$meta[$key]}\t{$value}";
 			}
-			update_post_meta( $post->ID, '寄附金額', $calc_donation_amount );
-			echo "「{$post->post_title}」の寄附金額を「{$donation_amount} → {$calc_donation_amount}」に更新。\n";
 		}
-		echo ob_get_clean() ?: '更新する項目がありませんでした。';
+		$header = empty( $log ) ? '更新する項目がありませんでした。' : "項目\t返礼品コード\tタイトル\tBefore\tAfter";
+		array_unshift( $log, $header );
+		echo implode( "\n", $log );
 		exit;
 	}
 
 	/**
-	 * 送料未設定の場合の送料を設定
+	 * 送料を取得
 	 *
-	 * @param int $post_id 投稿ID
+	 * @param array $meta メタデータ
 	 */
-	private function update_dellivery_fee( $post_id ) {
+	private function get_dellivery_fee( $meta ) {
 		global $n2;
-		// 送料のキーを生成
 		$delivery_code = $this->create_delivery_code(
-			get_post_meta( $post_id, '発送サイズ', true ),
-			get_post_meta( $post_id, '発送方法', true )
+			$meta['発送サイズ'] ?? '',
+			$meta['発送方法'] ?? '',
 		);
+		// 送料
+		$delivery_fee = $meta['送料'] ?? '';
 		// 新送料
 		$calc_delivery_fee = $n2->settings['寄附金額・送料']['送料'][ $delivery_code ] ?? false;
-		// 旧送料
-		$delivery_fee = get_post_meta( $post_id, '送料', true );
-		// 新旧一致、または不明の場合は何もしない
-		if ( (int) $delivery_fee === (int) $calc_delivery_fee || ! $calc_delivery_fee ) {
-			return;
+		// 変わる場合のみ設定
+		if ( $calc_delivery_fee && (int) $delivery_fee !== (int) $calc_delivery_fee ) {
+			$delivery_fee = $calc_delivery_fee;
 		}
-		// 送料の更新
-		update_post_meta( $post_id, '送料', $calc_delivery_fee );
-		$title = get_the_title( $post_id );
-		$code  = get_post_meta( $post_id, '返礼品コード', true );
-		echo "「{$code} - {$title}」の送料を「{$delivery_fee} → {$calc_delivery_fee}」に更新。\n";
+		return $delivery_fee;
+
 	}
 
 	/**
