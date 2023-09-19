@@ -5,6 +5,9 @@ const n2 = window['n2'];
 jQuery( $ => {
 	// 検索フィールドにプレースホルダー
 	$('#post-search-input').attr('placeholder','キーワード検索');
+	$('#search-submit').on('click', () => {
+		$('#current-page-selector').val(1);
+	});
 	save_post_ids($);
 	post_list_tool($);
 	if ( ! n2.settings['寄附金額・送料']['除数'] || ! n2.settings['寄附金額・送料']['送料']['0101'] ) {

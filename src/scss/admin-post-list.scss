@@ -224,6 +224,42 @@ $bp: 782px;
 		}
 	}
 }
+// unko Safari Hack
+body.is_safari{
+	#posts-filter .wp-list-table tr{
+		$transparent: 0.1;
+		&.hentry.status-draft{
+			th {
+				border-left: 7px solid $secondary;
+			}
+			background: rgba($secondary, $transparent);
+		}
+		&.status-pending{
+			th{
+				border-left: 7px solid $danger;
+			}
+			background: rgba($danger, $transparent);
+		}
+		&.status-publish{
+			th{
+				border-left: 7px solid $primary;
+			}
+			background: rgba($primary, $transparent);
+		}
+		&.status-registered{
+			th{
+				border-left: 7px solid $success;
+			}
+			background: rgba($success, $transparent);
+		}
+		&.status-private{
+			th{
+				border-left: 7px solid $dark;
+			}
+			background-color: rgba($dark, $transparent);
+		}
+	}
+}
 
 // 投稿IDの保存UI
 #n2-checked-posts{

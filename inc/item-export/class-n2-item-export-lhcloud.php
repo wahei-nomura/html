@@ -114,7 +114,7 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 				'寄附設定金額' => $i > 1 ? 0 : $n2values['寄附金額'],// 定期便の場合は１回目のみ
 				'価格（税込み）' => match ( $lh_setting['価格'] ) {
 					'定期便初回に全額をまとめて登録' => $i > 1 ? '' : (int) $n2values['価格'] * (int) $n2values['定期便'],
-					default => $n2values['価格'],
+					default => $n2values['価格'] ?: 0,
 				},
 				'その他経費' => match ( $lh_setting['その他経費'] ) {
 					'ヤマト以外の送料を登録' => $is_yamato ? '' : $n2values['送料'],
@@ -131,7 +131,7 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 					'レターパックプラス', 'レターパックライト' => in_array( 'レターパック', $lh_setting['送料反映'], true ) ? '反映する' : '反映しない',
 					default => '反映しない',
 				},
-				'発送方法' => $n2values['発送方法'],
+				'発送方法' => $is_e_ticket ? '常温' : $n2values['発送方法'],
 				'取り扱い方法' => implode( ',', (array) $n2values['取り扱い方法'] ),
 				'申込可能期間' => '通年',
 				'自由入力欄1' => $is_e_ticket ? '' : wp_date( 'Y/m/d' ) . "：{$n2->current_user->data->display_name}",
@@ -190,7 +190,7 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 				continue;
 			}
 			// SS的必須漏れエラー
-			if ( preg_match( '/謝礼品番号|事業者|価格（税込み）|寄附設定金額/', $name ) && empty( $val ) ) {
+			if ( preg_match( '/謝礼品番号|事業者|価格（税込み）|寄附設定金額/', $name ) && '' === trim( $val ) ) {
 				$this->add_error( $n2values['id'], "「{$name}」がありません。" );
 			}
 		}

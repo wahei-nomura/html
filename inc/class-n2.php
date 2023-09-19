@@ -159,7 +159,7 @@ class N2 {
 					if ( empty( $value ) ) {
 						$user_meta = $this->current_user->data->meta;
 						$value     = match ( $name ) {
-							'商品タイプ' => $user_meta['商品タイプ']
+							'商品タイプ' => $user_meta['商品タイプ'] && 'post-new.php' === $pagenow
 								? array( array_search( max( $user_meta['商品タイプ'] ), $user_meta['商品タイプ'], true ) )
 								: array(),
 							'寄附金額固定', '商品画像' => array(),
@@ -313,9 +313,16 @@ class N2 {
 		$this->blog_prefix = $wpdb->get_blog_prefix();
 		$this->site_id     = get_current_blog_id();
 		$this->town        = get_bloginfo( 'name' );
-		$this->logo        = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_' . end( explode( '/', get_home_url() ) ) . '.png';
-		$this->ajaxurl     = admin_url( 'admin-ajax.php' );
-		$this->cookie      = $_COOKIE;
+		$jichitai_name     = end( explode( '/', get_home_url() ) );
+		if ( 'f424111-shinkamigoto' === $jichitai_name ) {
+			$this->logo = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_' . end( explode( '/', get_home_url() ) ) . '.jpg';
+		} elseif ( 'f422142-minamishimabara' === $jichitai_name ) {
+			$this->logo = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_f422142-minamisimabara.png';
+		} else {
+			$this->logo = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_' . end( explode( '/', get_home_url() ) ) . '.png';
+		}
+		$this->ajaxurl = admin_url( 'admin-ajax.php' );
+		$this->cookie  = $_COOKIE;
 
 		// ログインユーザーデータ
 		$this->current_user = wp_get_current_user();

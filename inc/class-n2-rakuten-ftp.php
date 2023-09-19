@@ -149,7 +149,7 @@ class N2_Rakuten_FTP {
 							else {
 								// $img_dir からキャビネットのディレクトリ構造を作成
 								$remote_dir = preg_replace( '/^.*cabinet/', 'cabinet/images', $img_dir );
-								preg_match( '/^([a-z0-9]{0,2})([a-z]{2})[0-9]{2,3}[-]*[0-9]*\.jpg/', $name[$k], $m );
+								preg_match( '/^([0-9]{0,2})([a-z]{2,4})[0-9]{2,3}[-]*[0-9]*\.jpg/', $name[$k], $m );
 								if ( $m[1] || $m[2] ) { // 商品画像の場合
 									if ( ftp_mkdir( $conn_id, $remote_dir ) ) {
 										echo "{$remote_dir}を作成\n";

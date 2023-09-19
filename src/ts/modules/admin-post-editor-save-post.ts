@@ -47,36 +47,42 @@ export default (target: string, $: any = jQuery) => {
 				return;
 			}
 			$('#n2-save-post span').attr('class', 'spinner-border spinner-border-sm me-2');
-
-			// カスタムフィールドの保存
-			const meta = get_meta();
-			wp.data.dispatch( 'core/editor' ).editPost({ meta });
-
-			// 保存時の挙動
-			wp.data.dispatch('core/editor').savePost().then(
-				() => {
-					$(window).off('beforeunload');
-					$('#n2-save-post').attr('class', btn_class.saved).find('span').attr('class', 'dashicons dashicons-saved me-2');
-					// 現状のカスタム投稿データを保持
-					n2.saved_post = JSON.stringify($('form').serializeArray());
-				},
-				reason => {
-					console.log( '保存失敗', reason );
-					/**
-					 * ローカルストレージにエラーログを１件だけ保存
-					 * 見方：ブラウザのコンソールにJSON.parse(localStorage.n2log)
-					 */
-					const n2log = JSON.parse( localStorage.n2log || '{}' );
-					n2log.admin_post_editor_save_post_error = {
-						date: new Date().toLocaleString( 'ja-JP', { timeZone: 'Asia/Tokyo' }),
-						log: reason
-					};
-					localStorage.n2log = JSON.stringify( n2log );
-					if ( confirm( '何らかの理由で保存に失敗しました。\nもう一度保存を試みますか？' ) ) {
-						$('#n2-save-post').click();
+			// フォーカス外して保存した場合にVueの$watchが発火しないので強制$watch
+			n2.vue.$data._force_watch++;
+			// フォーカス外さずそのまま保存した場合にVueの$watchの発火が間に合わないのでresolveを待つ
+			new Promise( resolve => {
+				n2.save_post_promise_resolve = resolve;
+			}).then(()=>{
+				// カスタムフィールドの保存
+				const meta = get_meta();
+				wp.data.dispatch( 'core/editor' ).editPost({ meta });
+	
+				// 保存時の挙動
+				wp.data.dispatch('core/editor').savePost().then(
+					() => {
+						$(window).off('beforeunload');
+						$('#n2-save-post').attr('class', btn_class.saved).find('span').attr('class', 'dashicons dashicons-saved me-2');
+						// 現状のカスタム投稿データを保持
+						n2.saved_post = JSON.stringify($('form').serializeArray());
+					},
+					reason => {
+						console.log( '保存失敗', reason );
+						/**
+						 * ローカルストレージにエラーログを１件だけ保存
+						 * 見方：ブラウザのコンソールにJSON.parse(localStorage.n2log)
+						 */
+						const n2log = JSON.parse( localStorage.n2log || '{}' );
+						n2log.admin_post_editor_save_post_error = {
+							date: new Date().toLocaleString( 'ja-JP', { timeZone: 'Asia/Tokyo' }),
+							log: reason
+						};
+						localStorage.n2log = JSON.stringify( n2log );
+						if ( confirm( '何らかの理由で保存に失敗しました。\nもう一度保存を試みますか？' ) ) {
+							$('#n2-save-post').click();
+						}
 					}
-				}
-			);
+				);
+			});
 		});
 	})
 }
