@@ -140,12 +140,12 @@ class N2_Img_Download {
 				);
 				// 配列生成
 				$requests[] = array(
-					'url' => $img['url'],
+					'url'     => "{$img['url']}?id={$id}",
 					'options' => array(
 						'hooks' => $hooks,
 					),
 				);
-				$info[ $img['url'] ] = array(
+				$info[ "{$img['url']}?id={$id}" ] = array(
 					'dirname'     => $dirname,
 					'filename'    => "{$filename}-{$index}.{$extension}",
 					'description' => $img['description'] ?? '',
