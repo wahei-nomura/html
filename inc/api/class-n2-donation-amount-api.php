@@ -115,7 +115,7 @@ class N2_Donation_Amount_API {
 			'numberposts' => -1,
 		);
 		$args    = wp_parse_args( $args, $default );
-		header( 'Content-Type: application/json; charset=utf-8' );
+		header( 'Content-Type: tsv' );
 		foreach ( get_posts( $args ) as $post ) {
 			$post->meta_input = array();// meta_input初期化
 			$meta             = json_decode( $post->post_content, true );// カスタムフィールド
