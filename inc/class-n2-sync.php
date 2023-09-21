@@ -898,8 +898,8 @@ class N2_Sync {
 			// カスタムフィールド以外
 			{
 				// ID
-				if ( ! empty( $d['ID'] ) ) {
-					$postarr[ $k ]['ID'] = $d['ID'];
+				if ( ! empty( $d['id'] ) ) {
+					$postarr[ $k ]['ID'] = $d['id'];
 				}
 				// post_title
 				if ( ! empty( $d['タイトル'] ) ) {

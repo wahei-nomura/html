@@ -154,12 +154,13 @@ class N2_Item_Export_Base {
 	protected function set_header() {
 		// n2dataをもとに配列を作成
 		$header = reset( $this->data['n2data'] );
-		unset( $header['id'], $header['ステータス'] );
-		$this->data['header'] = array_keys( $header );
+		$header = array_keys( $header );
+		// アンダースコアで始まるものを排除
+		$header = array_filter( $header, fn( $v ) => ! preg_match( '/^_/', $v ) );
 		/**
 		 * [hook] n2_item_export_base_set_header
 		 */
-		$this->data['header'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_header', $this->data['header'] );
+		$this->data['header'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_header', $header );
 	}
 
 	/**
