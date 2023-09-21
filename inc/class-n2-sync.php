@@ -1121,8 +1121,8 @@ class N2_Sync {
 					$post['post_title']  = $post['post_title'] ?: $p[0]->post_title;
 					$post['post_author'] = $post['post_author'] ?: $p[0]->post_author;
 				}
+				wp_insert_post( $post );
 			}
-			wp_insert_post( $post );
 		}
 		exit;
 	}
