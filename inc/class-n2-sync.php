@@ -70,6 +70,9 @@ class N2_Sync {
 		global $current_blog, $wp_filesystem;
 		$n1_path           = preg_replace( '/f[0-9]{6}-/', '', $current_blog->path );
 		$this->n1_ajax_url = "https://steamship.co.jp{$n1_path}wp-admin/admin-ajax.php";
+		if ( ! current_user_can( 'administrator' ) ) {
+			return;
+		}
 		add_action( 'wp_ajax_n2_sync_users_from_n1', array( $this, 'sync_users' ) );
 		add_action( 'wp_ajax_n2_sync_users_from_spreadsheet', array( $this, 'sync_users' ) );
 		add_action( 'wp_ajax_n2_sync_posts', array( $this, 'sync_posts' ) );
