@@ -1113,7 +1113,10 @@ class N2_Sync {
 		}
 		foreach ( $posts as $post ) {
 			// 「updateモード」かつ「登録済み」
-			if ( isset( $_POST['update'] ) && ! empty( $post['meta_input']['返礼品コード'] ) ) {
+			if ( isset( $_POST['update'] ) ) {
+				if ( empty( $post['meta_input']['返礼品コード'] ) ) {
+					continue;
+				}
 				$p = get_posts( "meta_key=返礼品コード&meta_value={$post['meta_input']['返礼品コード']}&post_status=any" );
 				if ( ! empty( $p ) ) {
 					$post['ID']          = $p[0]->ID;
@@ -1121,8 +1124,8 @@ class N2_Sync {
 					$post['post_title']  = $post['post_title'] ?: $p[0]->post_title;
 					$post['post_author'] = $post['post_author'] ?: $p[0]->post_author;
 				}
-				wp_insert_post( $post );
 			}
+			wp_insert_post( $post );
 		}
 		exit;
 	}
