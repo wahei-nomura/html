@@ -410,6 +410,11 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			?>
 			<?php $this->get_img_urls( $n2values, 'html' ); ?>
 			<?php echo nl2br( $n2values['説明文'] ); ?><br><br>
+			<?php // 商品タイプごとの注意書きを追加
+			foreach ( array_filter( $n2values['商品タイプ'] ) as $type ) {
+				echo $n2->settings['注意書き'][ $type ];
+			}
+			?>
 			<?php $this->make_itemtable( $n2values, false ); ?><br><br>
 			<?php
 				echo $n2->settings['N2']['ポータル共通説明文']
@@ -434,11 +439,16 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 * @return string|void 楽天のPC用商品説明文を(文字列|HTML出力)する
 	 */
 	public function pc_item_description( $n2values, $return_string = true ) {
-		global $n2;
 		// ========[html]PC用商品説明文========
 		$html = function() use ( $n2values ) {
+			global $n2;
 			?>
 			<?php echo nl2br( $n2values['説明文'] ); ?><br><br>
+			<?php // 商品タイプごとの注意書きを追加
+			foreach ( array_filter( $n2values['商品タイプ'] ) as $type ) {
+				echo $n2->settings['注意書き'][ $type ];
+			}
+			?>
 			<?php echo nl2br( $n2values['内容量・規格等'] ); ?><br>
 			<?php if ( $n2values['賞味期限'] ) : ?>
 				<br>【賞味期限】<br><?php echo nl2br( $n2values['賞味期限'] ); ?><br>
@@ -497,6 +507,11 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			?>
 			<?php $this->get_img_urls( $n2values, 'html' ); ?>
 			<?php echo nl2br( $n2values['説明文'] ); ?><br><br>
+			<?php // 商品タイプごとの注意書きを追加
+			foreach ( array_filter( $n2values['商品タイプ'] ) as $type ) {
+				echo $n2->settings['注意書き'][ $type ];
+			}
+			?>
 			<?php $this->make_itemtable( $n2values, false ); ?>
 			<?php if ( $n2values['検索キーワード'] ) : ?>
 				<br><br><?php echo nl2br( $n2values['検索キーワード'] ); ?>
