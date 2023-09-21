@@ -93,6 +93,12 @@
         label: 楽天納期
         v-model: 楽天納期情報
         option: []
+    楽天カテゴリ:
+        portal: 楽天
+        type: select-multiple
+        v-model: 楽天カテゴリ
+        option: []
+        maxoption: 5
 # ▲ =========== 楽天専用のフィールド ==========
 
     検索キーワード:
