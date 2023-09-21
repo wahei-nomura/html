@@ -452,7 +452,7 @@ class N2_Sync {
 				'post_modified_gmt' => $v['post_modified_gmt'],
 				'post_type'         => $v['post_type'],
 				'post_title'        => $v['post_title'],
-				'post_author'       => $this->get_userid_by_last_name( $v['post_author_last_name'] ),
+				'post_author'       => $this->get_userid_by_usermeta( 'last_name', $v['post_author_last_name'] ),
 				'meta_input'        => (array) $v['acf'],
 				'comment_status'    => 'open',
 			);
@@ -898,11 +898,34 @@ class N2_Sync {
 		// 投稿配列
 		$postarr = array();
 		foreach ( $data as $k => $d ) {
-			$author_code = $d['事業者コード'] ?? preg_replace( '/[0-9]*/', '', $d['返礼品コード'] );
-			// 投稿配列作成
-			$postarr[ $k ]['post_title']  = $d['タイトル'] ?? '';
-			$postarr[ $k ]['post_author'] = $this->get_userid_by_last_name( $author_code );
-			unset( $d['タイトル'], $d['事業者コード'], $d['事業者名'] );
+			// カスタムフィールド以外
+			{
+				// ID
+				if ( ! empty( $d['ID'] ) ) {
+					$postarr[ $k ]['ID'] = $d['ID'];
+				}
+				// post_title
+				if ( ! empty( $d['タイトル'] ) ) {
+					$postarr[ $k ]['post_title'] = $d['タイトル'];
+				}
+				// post_status
+				if ( ! empty( $d['ステータス'] ) ) {
+					$postarr[ $k ]['post_status'] = $d['ステータス'];
+				}
+				// 事業者コードからuserid取得
+				if ( ! empty( $d['事業者コード'] ) ) {
+					$userid = $this->get_userid_by_usermeta( 'last_name', $d['事業者コード'] );
+				}
+				// 事業者名からuserid取得
+				if ( ! empty( $d['事業者名'] ) && empty( $userid ) ) {
+					$userid = $this->get_userid_by_usermeta( 'first_name', $d['事業者名'] );
+				}
+				// post_author
+				if ( ! empty( $userid ) ) {
+					$postarr[ $k ]['post_author'] = $userid;
+				}
+				unset( $d['ID'], $d['タイトル'], $d['ステータス'], $d['事業者コード'], $d['事業者名'] );// 破棄
+			}
 			// 寄附金額固定（入力あれば固定）
 			if ( isset( $d['寄附金額固定'] ) ) {
 				$d['寄附金額固定'] = array( $d['寄附金額固定'] ? '固定する' : '' );
@@ -925,9 +948,9 @@ class N2_Sync {
 					)
 				);
 			}
-			// 商品タイプ（入力値をそのまま出力）
+			// 商品タイプ（区切り文字列でいい感じに配列化）
 			if ( isset( $d['商品タイプ'] ) ) {
-				$d['商品タイプ'] = array( $d['商品タイプ'] );
+				$d['商品タイプ'] = array_values( array_filter( preg_split( $sep, $d['商品タイプ'] ) ) );
 			}
 			// アレルギーの有無確認（入力あればアレルギー品目あり）
 			if ( isset( $d['アレルギー有無確認'] ) ) {
@@ -1117,20 +1140,14 @@ class N2_Sync {
 			exit;
 		}
 		foreach ( $posts as $post ) {
-			// 「updateモード」かつ「登録済み」
-			if ( isset( $_POST['update'] ) ) {
-				if ( empty( $post['meta_input']['返礼品コード'] ) ) {
-					continue;
+			if ( empty( $post['ID'] ) ) {
+				$id = wp_insert_post( $post );
+				if ( ! is_wp_error( $id ) ) {
+					wp_save_post_revision( $id );// 初回リビジョンの登録
 				}
-				$p = get_posts( "meta_key=返礼品コード&meta_value={$post['meta_input']['返礼品コード']}&post_status=any" );
-				if ( ! empty( $p ) ) {
-					$post['ID']          = $p[0]->ID;
-					$post['post_status'] = $post['post_status'] ?? $p[0]->post_status;
-					$post['post_title']  = $post['post_title'] ?: $p[0]->post_title;
-					$post['post_author'] = $post['post_author'] ?: $p[0]->post_author;
-				}
+			} else {
+				wp_update_post( $post );
 			}
-			wp_insert_post( $post );
 		}
 		exit;
 	}
@@ -1193,17 +1210,18 @@ class N2_Sync {
 	}
 
 	/**
-	 * last_nameからユーザーIDゲットだぜ
+	 * usermetaからユーザーIDゲットだぜ
 	 *
-	 * @param string $last_name 名
+	 * @param string $field 名
+	 * @param string $value 名
 	 */
-	public function get_userid_by_last_name( $last_name ) {
+	public function get_userid_by_usermeta( $field, $value ) {
 		global $wpdb;
 		$id = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT user_id FROM $wpdb->usermeta WHERE meta_key = %s AND meta_value = %s LIMIT 1",
-				'last_name',
-				$last_name
+				$field,
+				$value
 			)
 		);
 		return $id;
