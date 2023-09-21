@@ -153,7 +153,7 @@ class N2_Item_Export_Rakuten_Cat extends N2_Item_Export_Base {
 	 */
 	public static function get_category_info( $control_number ) {
 		$category_api   = new N2_RMS_Category_API();
-		$category_all   = $category_api->categories_get( $control_number );
+		$category_all   = $category_api->category_trees_get();
 		$category_array = $category_all['categories'];
 		// print_r($category_array);
 		return $category_array;

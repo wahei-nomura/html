@@ -24,17 +24,16 @@ class N2_RMS_Category_API extends N2_RMS_Base_API {
 	/**
 	 * カテゴリ一覧取得
 	 *
-	 * @param string $control_number 商品管理番号
+	 * @param int $categorySetId カテゴリセットID
 	 *
 	 * @return array カテゴリ一覧
 	 */
-	public static function categories_get( $control_number ) {
+	public static function category_trees_get( $categorySetId = 0, $categorysetfields = 'TITLE', $categoryfields = 'TITLE' ) {
 		$params = array(
-			'breadcrumb'        => 'true',
-			'categorysetfields' => 'TITLE',
-			'categoryfields'    => 'TITLE',
+			'categorysetfields' => $categorysetfields,
+			'categoryfields'    => $categoryfields,
 		);
-		$url    = static::$settings['endpoint'] . '/2.0/categories/item-mappings/manage-numbers/' . $control_number . '?' . http_build_query( $params );
+		$url    = static::$settings['endpoint'] . '/2.0/categories/shop-category-trees/category-set-ids/' . $categorySetId . '?' . http_build_query( $params );
 		$data   = wp_remote_get( $url, array( 'headers' => static::$data['header'] ) );
 
 		if ( is_wp_error( $data ) ) {
