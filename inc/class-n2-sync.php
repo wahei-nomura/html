@@ -5,10 +5,6 @@
  * @package neoneng
  */
 
-// 一旦フルフロンタル以外できなくする
-// if ( ! current_user_can( 'administrator' ) ) {
-// 	return;
-// }
 if ( class_exists( 'N2_Sync' ) ) {
 	$GLOBALS['n2_sync'] = new N2_Sync();
 	return;
@@ -70,6 +66,8 @@ class N2_Sync {
 		global $current_blog, $wp_filesystem;
 		$n1_path           = preg_replace( '/f[0-9]{6}-/', '', $current_blog->path );
 		$this->n1_ajax_url = "https://steamship.co.jp{$n1_path}wp-admin/admin-ajax.php";
+
+		// 一旦フルフロンタル以外できなくする
 		if ( ! current_user_can( 'administrator' ) ) {
 			return;
 		}
