@@ -857,12 +857,6 @@ class N2_Sync {
 	 */
 	public function sync_posts_from_spreadsheet() {
 		global $n2;
-		$before = microtime( true );
-
-		// ログテキスト
-		$logs   = array();
-		$logs[] = __METHOD__;
-
 		$default  = array(
 			'spreadsheet' => array(
 				'id'         => '',
@@ -885,8 +879,6 @@ class N2_Sync {
 		// IP制限等で終了のケース
 		if ( ! $data ) {
 			$text   = '認証情報が間違っている、またはデータが存在しないので終了します。';
-			$logs[] = $text;
-			$this->log( $logs );
 			echo $text;
 			exit;
 		}
@@ -981,7 +973,7 @@ class N2_Sync {
 			// $postarrにセット
 			$postarr[ $k ]['meta_input'] = $d;
 		}
-		$this->multi_insert_posts( $postarr, 100 );
+		$logs = $this->multi_insert_posts( $postarr, 50 );
 		// GETパラメータで受け取ったidとitem_rangeも保存
 		update_option(
 			'n2_sync_settings_spreadsheet',
@@ -991,10 +983,17 @@ class N2_Sync {
 				'item_range' => $item_range,
 			)
 		);
-
-		echo "N2-Insert-Posts-From-Spreadsheet「{$n2->town}の返礼品」スプレットシートからの追加完了！" . number_format( microtime( true ) - $before, 2 ) . ' sec';
-		$logs[] = '返礼品の追加完了 ' . number_format( microtime( true ) - $before, 2 ) . ' sec';
-		$this->log( $logs );
+		echo '<style>body{margin:0;background: black;color: white;}</style><pre style="min-height: 100%;margin: 0;padding: 1em;">';
+		printf(
+			"追加: %d件\n更新: %d件\n-----------\n合計: %d件\n\n\n",
+			count( array_filter( $logs, fn( $v ) => 'insert' === $v['mode'] ) ),
+			count( array_filter( $logs, fn( $v ) => 'update' === $v['mode'] ) ),
+			count( $logs )
+		);
+		echo "id\tmode\tcode\ttitle\n";
+		foreach ( $logs as $id => $v ) {
+			echo "{$id}\t{$v['mode']}\t{$v['code']}\t{$v['title']}\n";
+		}
 		exit;
 	}
 
@@ -1076,6 +1075,7 @@ class N2_Sync {
 	 *
 	 * @param array $postarr 投稿の多次元配列
 	 * @param int   $multi_insert_num 1スレットあたりのinsert数
+	 * @return array $logs ログ
 	 */
 	public function multi_insert_posts( $postarr, $multi_insert_num = 50 ) {
 		$mh       = curl_multi_init();
@@ -1098,14 +1098,13 @@ class N2_Sync {
 				CURLOPT_HEADER         => false,
 				CURLOPT_RETURNTRANSFER => true,
 				CURLOPT_SSL_VERIFYPEER => false,
-				CURLOPT_TIMEOUT        => 30,
+				CURLOPT_TIMEOUT        => 300,
 				CURLOPT_USERPWD        => 'ss:ss',
 				// ログインセッションを渡してajax
 				CURLOPT_HTTPHEADER     => array(
 					'Cookie: ' . urldecode( http_build_query( $_COOKIE, '', '; ' ) ),
 				),
 			);
-
 			curl_setopt_array( $ch, $options );
 			curl_multi_add_handle( $mh, $ch );
 		}
@@ -1113,12 +1112,17 @@ class N2_Sync {
 			curl_multi_exec( $mh, $running );
 			curl_multi_select( $mh );
 		} while ( $running > 0 );
-
+		$logs = array();
 		foreach ( $ch_array as $ch ) {
+			$res = json_decode( curl_multi_getcontent( $ch ), true );
+			if ( $res ) {
+				$logs = $logs + $res;
+			}
 			curl_multi_remove_handle( $mh, $ch );
 			curl_close( $ch );
 		}
 		curl_multi_close( $mh );
+		return $logs;
 	}
 
 	/**
@@ -1132,16 +1136,28 @@ class N2_Sync {
 		if ( empty( $posts ) ) {
 			exit;
 		}
+		$logs = array();
 		foreach ( $posts as $post ) {
 			if ( empty( $post['ID'] ) ) {
 				$id = wp_insert_post( $post );
+				// ログ追加
 				if ( ! is_wp_error( $id ) ) {
 					wp_save_post_revision( $id );// 初回リビジョンの登録
 				}
 			} else {
-				wp_update_post( $post );
+				$id = wp_update_post( $post );
+			}
+			// ログ追加
+			if ( $id ) {
+				$logs[ $id ] = array(
+					'mode'  => empty( $post['ID'] ) ? 'insert' : 'update',
+					'code'  => get_post_meta( $id, '返礼品コード', true ),
+					'title' => get_the_title( $id ),
+				);
 			}
 		}
+		header( 'Content-Type: application/json; charset=utf-8' );
+		echo wp_json_encode( $logs );
 		exit;
 	}
 
