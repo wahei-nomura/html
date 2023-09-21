@@ -230,7 +230,7 @@ class N2_Sync {
 		<h2>Googleスプレットシートからの追加・上書き</h2>
 		<ul style="padding: 1em; background: white; margin: 2em 0; border: 1px solid;">
 			<li>※ ユーザーの更新はスプレットシートにある情報を追加、既に存在する場合は上書きします。</li>
-			<li>※ 返礼品の更新モードは、返礼品コードで照合して返礼品があれば更新、無ければ追加します。</li>
+			<li>※ 返礼品の更新は、IDがあれば更新、無ければ追加します。</li>
 			<li>※ 特定の項目だけ更新したい場合は、<b>項目を空欄にするのではなくカラムごと消して下さい。</b>空欄にすると空で更新されます。</li>
 			<li>※ <b>シート雛形</b>は<a href="https://docs.google.com/spreadsheets/d/13HZn6w6S0XaXgAd_3RSkB46XUrRDkMQArVeE99pFD9Q/edit#gid=0" target="_blank">ココ</a>。複製して使用してください！</li>
 			<li>※ シートの範囲については<a href="https://developers.google.com/sheets/api/guides/concepts?hl=ja#expandable-1" target="_blank">ココ</a>を参照。</li>
@@ -239,11 +239,8 @@ class N2_Sync {
 			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_users_from_spreadsheet"; ?>" class="button" target="_blank" style="margin-right: 1em;">
 				今すぐユーザーを更新
 			</a>
-			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_posts_from_spreadsheet&update=1"; ?>" class="button" target="_blank" style="margin-right: 1em;">
+			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_posts_from_spreadsheet"; ?>" class="button" target="_blank" style="margin-right: 1em;">
 				今すぐ返礼品を更新
-			</a>
-			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_posts_from_spreadsheet"; ?>" class="button button-primary" target="_blank">
-				＋　今すぐ返礼品を追加
 			</a>
 		</div>
 		<form method="post" action="options.php">
@@ -984,7 +981,7 @@ class N2_Sync {
 			// $postarrにセット
 			$postarr[ $k ]['meta_input'] = $d;
 		}
-		$this->multi_insert_posts( $postarr, 100, $_GET['update'] ?? false );
+		$this->multi_insert_posts( $postarr, 100 );
 		// GETパラメータで受け取ったidとitem_rangeも保存
 		update_option(
 			'n2_sync_settings_spreadsheet',
@@ -1079,18 +1076,14 @@ class N2_Sync {
 	 *
 	 * @param array $postarr 投稿の多次元配列
 	 * @param int   $multi_insert_num 1スレットあたりのinsert数
-	 * @param bool  $update 上書きモードかどうか
 	 */
-	public function multi_insert_posts( $postarr, $multi_insert_num = 50, $update = false ) {
+	public function multi_insert_posts( $postarr, $multi_insert_num = 50 ) {
 		$mh       = curl_multi_init();
 		$ch_array = array();
 		$params   = array(
 			'action'  => 'n2_insert_posts',
 			'n2nonce' => wp_create_nonce( 'n2nonce' ),
 		);
-		if ( $update ) {
-			$params['update'] = 1;
-		}
 		foreach ( array_chunk( $postarr, $multi_insert_num ) as $index => $values ) {
 			$params['posts'] = wp_json_encode( $values );
 
