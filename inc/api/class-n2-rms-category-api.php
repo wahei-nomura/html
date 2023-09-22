@@ -22,7 +22,7 @@ class N2_RMS_Category_API extends N2_RMS_Base_API {
 	protected $folders = array();
 
 	/**
-	 * カテゴリ一覧取得
+	 * カテゴリツリー情報を取得
 	 *
 	 * @param int $categorySetId カテゴリセットID
 	 *
@@ -40,8 +40,33 @@ class N2_RMS_Category_API extends N2_RMS_Base_API {
 			return array();
 		}
 
-		$categories = json_decode( $data['body'], true );
+		return json_decode( $data['body'], true );
+	}
 
+	/**
+	 * カテゴリ一覧取得
+	 *
+	 * @return array
+	 */
+	public static function categories_get() {
+
+		$categories = array();
+		$root       = static::category_trees_get( 0, 'TITLE', 'TITLE' )['rootNode']['children'] ?? array();
+		$build_list = function ( $node, $title ) use( &$build_list, &$categories ) {
+			foreach ( $node as $n ) {
+				$t = match ( $title ) {
+					'' => $n['category']['title'],
+					default => $title . '\\' . $n['category']['title'],
+				};
+				$categories[] = $t;
+				if ( isset( $n['children'] ) ) {
+					$build_list( $n['children'], $t );
+				}
+			}
+		};
+
+		$build_list( $root, '' );
 		return $categories;
+
 	}
 }
