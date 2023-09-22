@@ -8,8 +8,12 @@ jQuery( $ => {
 		this.history = n2.history;
 	};
 	const methods = {
-		data_shaping( data ) {
-			return data;
+		async turn_back_time(id) {
+			if ( confirm(`ID: ${id}\n本当にこの時に戻りますか？\n※現在の設定が上書きされます。`) ) {
+				new Audio('https://app.steamship.co.jp/ss-tool/assets/audio/toki_ed.mp3').play();
+				const res = $.ajax( `${n2.ajaxurl}?action=n2_turn_back_time_api&id=${id}` );
+				console.log(res)
+			}
 		},
 	};
 	$('#n2-history').ready(()=>{

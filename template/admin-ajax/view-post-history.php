@@ -24,7 +24,14 @@ wp_localize_script( 'jquery', 'n2', $n2 );
 	<div id="n2-history" class="p-3">
 		<table class="table mb-4 shadow" v-for="v in history" >
 			<thead>
-				<tr><td colspan="3" class="bg-secondary text-white">{{v.date}}　｜　{{v.author}}</td></tr>
+				<tr>
+					<td colspan="3" class="bg-secondary text-white">
+						<div class="d-flex justify-content-between align-items-center">
+							{{v.date}}　｜　{{v.author}}
+							<div class="btn btn-sm btn-dark" @click="turn_back_time(v.ID)">この時に戻す</div>
+						</div>
+					</td>
+				</tr>
 				<tr>
 					<th style="width: 10em;"></th>
 					<th class="text-success">After</th>
