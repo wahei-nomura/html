@@ -173,6 +173,12 @@ class N2 {
 							'list' => array(),
 						);
 					}
+					if ( '楽天カテゴリー' === $name && is_string( $value ) ) {
+						$value = array(
+							'text' => $value,
+							'list' => array(),
+						);
+					}
 					$this->custom_field[ $id ][ $name ]['value'] = $value;
 				}
 			}
