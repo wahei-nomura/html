@@ -1,9 +1,8 @@
 <?php
 /**
- * 楽天の商品エクスポート専用
- * 楽天CSVの仕様：https://steamship.docbase.io/posts/2774108
- * class-n2-item-export-rakuten-item.php
- * デバッグモード：admin-ajax.php?action=n2_item_export_rakuten&mode=debug
+ * 楽天カテゴリーのエクスポート
+ * class-n2-item-export-rakuten-cat.php
+ * デバッグモード：admin-ajax.php?action=n2_item_export_rakuten_cat&mode=debug
  *
  * @package neoneng
  */
@@ -38,14 +37,13 @@ class N2_Item_Export_Rakuten_Cat extends N2_Item_Export_Base {
 		// CSVヘッダー
 		$this->data['header'] = $n2->settings['楽天']['csv_header']['item-cat'];
 		/**
-		 * [hook] n2_item_export_rakuten_set_header
+		 * [hook] n2_item_export_rakuten_cat_set_header
 		 */
 		$this->data['header'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_header', $this->data['header'] );
 	}
 
 	/**
 	 * データのマッピング（正しい値かどうかここでチェックする）
-	 * 楽天CSVの仕様：https://steamship.docbase.io/posts/2774108
 	 *
 	 * @param string $val 項目名
 	 * @param string $index インデックス
@@ -53,17 +51,17 @@ class N2_Item_Export_Rakuten_Cat extends N2_Item_Export_Base {
 	 */
 	protected function walk_values( &$val, $index, $n2values ) {
 		global $n2;
-		foreach ( explode( PHP_EOL, $n2values['楽天カテゴリー'] ) as $categoy ) {
+		foreach ( explode( PHP_EOL, $n2values['楽天カテゴリー'] ) as $category ) {
 			// preg_matchで判定
 			$data[] = match ( $val ) {
 				'コントロールカラム'      => 'n',
 				'商品管理番号（商品URL）'  => mb_strtolower( $n2values['返礼品コード'] ),
-				'表示先カテゴリ'          => $categoy,
+				'表示先カテゴリ'          => $category,
 				default => '',
 			};
 		}
 		/**
-		 * [hook] n2_item_export_rakuten_walk_values
+		 * [hook] n2_item_export_rakuten_cat_walk_values
 		 */
 		$val = apply_filters( mb_strtolower( get_class( $this ) ) . '_walk_values', $data, $val, $n2values );
 	}
