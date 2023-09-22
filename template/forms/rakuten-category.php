@@ -22,7 +22,7 @@ foreach ( $args as $k => $v ) {
 		type="text"
 		list="n2-rakuten-category"
 		style="width:100%;"
-		placeholder="選択してください。"
+		placeholder="選択してください"
 		@change="update_textarea_by_selected_option($event, '楽天カテゴリー', '\n')"
 	>
 	<datalist id="n2-rakuten-category">
