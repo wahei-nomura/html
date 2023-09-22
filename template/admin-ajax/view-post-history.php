@@ -18,8 +18,8 @@ wp_localize_script( 'jquery', 'n2', $n2 );
 	<title>履歴</title>
 	<?php wp_print_styles( array( 'dashicons' ) ); ?>
 	<?php wp_print_scripts( array( 'jquery' ) ); ?>
-	<script src="<?php echo get_theme_file_uri( 'dist/js/view-post-history.js' ); ?>"></script>
-	<link rel="stylesheet" href="<?php echo get_theme_file_uri( 'dist/css/view-post-history.css' ); ?>">
+	<script src="<?php echo get_theme_file_uri( "dist/js/view-post-history.js?ver={$n2->cash_buster}" ); ?>"></script>
+	<link rel="stylesheet" href="<?php echo get_theme_file_uri( "dist/css/view-post-history.css?ver={$n2->cash_buster}" ); ?>">
 </head>
 <body>
 	<div id="n2-history" class="p-3">
