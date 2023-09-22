@@ -226,7 +226,7 @@ abstract class N2_RMS_Base_API {
 		static::check_fatal_error( $val, '保存するvalueが設定されていません' );
 		$default = array(
 			'salt'       => SECURE_AUTH_SALT,
-			'expiration' => 10 * MINUTE_IN_SECONDS,
+			'expiration' => 24 * HOUR_IN_SECONDS,
 		);
 		// デフォルト値を$optで上書き
 		$opt = wp_parse_args( $opt, $default );
