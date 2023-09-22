@@ -115,7 +115,6 @@ class N2_Donation_Amount_API {
 			'numberposts' => -1,
 		);
 		$args    = wp_parse_args( $args, $default );
-		header( 'Content-Type: tsv; charset=utf-8' );
 		foreach ( get_posts( $args ) as $post ) {
 			$post->meta_input = array();// meta_input初期化
 			$meta             = json_decode( $post->post_content, true );// カスタムフィールド
@@ -148,6 +147,7 @@ class N2_Donation_Amount_API {
 		}
 		$header = empty( $log ) ? '更新する項目がありませんでした。' : "項目\t返礼品コード\tタイトル\tBefore\tAfter";
 		array_unshift( $log, $header );
+		echo '<style>body{margin:0;background: black;color: white;}</style><pre style="min-height: 100%;margin: 0;padding: 1em;">'; 
 		echo implode( "\n", $log );
 		exit;
 	}
