@@ -132,6 +132,9 @@ abstract class N2_RMS_Base_API {
 
 	/**
 	 * wp_remote_requestのラッパー
+	 *
+	 * @param string $url  url
+	 * @param array  $args args
 	 */
 	public static function request( $url, $args = array() ) {
 		$args['headers'] = array(
@@ -142,7 +145,10 @@ abstract class N2_RMS_Base_API {
 	}
 
 	/**
-	 * N2_Multi_URL_Request_API::request_multipleのラッパー
+	 * 認証を付与したrequest_multiple
+	 *
+	 * @param array $requests requests
+	 * @param array $options  options
 	 */
 	public static function request_multiple( $requests, $options = array() ) {
 		$requests = array_map(
@@ -278,11 +284,11 @@ abstract class N2_RMS_Base_API {
 	/**
 	 * 連想配列をXMLに変換する
 	 *
-	 * @param array  $array array
+	 * @param array  $arr array
 	 * @param object $xml SimpleXMLElement
 	 */
-	protected static function array_to_xml( $array, &$xml ) {
-		foreach ( $array as $key => $value ) {
+	protected static function array_to_xml( $arr, &$xml ) {
+		foreach ( $arr as $key => $value ) {
 			if ( is_array( $value ) ) {
 				if ( ! is_numeric( $key ) ) {
 					$subnode = $xml->addChild( "$key" );
@@ -312,7 +318,7 @@ abstract class N2_RMS_Base_API {
 	/**
 	 * 画像圧縮
 	 *
-	 * @var array $files files
+	 * @param array $files files
 	 */
 	protected static function image_compressor( $files ) {
 		// ファイルがなければ何もしない
