@@ -219,7 +219,7 @@ abstract class N2_RMS_Base_API {
 	}
 
 	/**
-	 * 秘密鍵を暗号化してtransientに保存する関数
+	 * 秘密鍵を暗号化してsite_transientに保存する関数
 	 *
 	 * @param  string $key transient key
 	 * @param  string $val transient value
@@ -227,7 +227,7 @@ abstract class N2_RMS_Base_API {
 	 *
 	 * @return bool 成功した場合はtrue、失敗した場合はfalse
 	 */
-	private static function save_encrypted_data_to_transient( $key, $val, $opt = array() ) {
+	private static function save_encrypted_data_to_site_transient( $key, $val, $opt = array() ) {
 		static::check_fatal_error( $key, '保存するkeyが設定されていません' );
 		static::check_fatal_error( $val, '保存するvalueが設定されていません' );
 		$default = array(
@@ -252,21 +252,21 @@ abstract class N2_RMS_Base_API {
 		);
 
 		// transientに暗号化したデータを保存
-		return set_transient( $key, $data_to_save, $opt['expiration'] );
+		return set_site_transient( $key, $data_to_save, $opt['expiration'] );
 	}
 
 	/**
-	 * transientから暗号化された値を取得し、復号化する関数
+	 * site_transientから暗号化された値を取得し、復号化する関数
 	 *
 	 * @param string $key  transient key
 	 * @param string $salt salt
 	 *
 	 * @return string|bool 復号化した秘密鍵。失敗した場合はfalse
 	 */
-	private static function get_decrypted_data_from_transient( $key, $salt = null ) {
+	private static function get_decrypted_data_from_site_transient( $key, $salt = null ) {
 		$salt ??= SECURE_AUTH_SALT;
 		// transientから暗号化されたデータを取得
-		$encrypted_data = get_transient( $key );
+		$encrypted_data = get_site_transient( $key );
 		if ( $encrypted_data ) {
 			$data           = json_decode( $encrypted_data, true );
 			$iv             = base64_decode( $data['iv'] );
