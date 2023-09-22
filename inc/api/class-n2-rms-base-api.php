@@ -60,22 +60,35 @@ abstract class N2_RMS_Base_API {
 	 * RMSのAPIキーをスプシから取得してセット
 	 */
 	private static function set_api_keys() {
-		$authkey = static::get_decrypted_data_from_transient( static::$settings['transient']['key'] );
-		if ( ! $authkey || ( static::$data['params']['apiUpdate'] ?? false ) ) {
+		// キャッシュ確認
+		$keys = static::get_decrypted_data_from_site_transient( static::$settings['transient']['key'] );
+		if ( ! get_bloginfo( 'name' ) ) {
+			return array();
+		}
+		if ( ! $keys ) {
 			global $n2_sync;
-			$keys           = $n2_sync->get_spreadsheet_data( static::$settings['sheetId'], static::$settings['range'] );
-			$keys           = array_filter( $keys ?: array(), fn( $v ) => get_bloginfo( 'name' ) === $v['town'] );
-			$keys           = call_user_func_array( 'array_merge', $keys );
-			$service_secret = $keys['serviceSecret'] ?? '';
-			$license_key    = $keys['licenseKey'] ?? '';
-			if ( ! ( $service_secret && $license_key ) ) {
+			$keys = $n2_sync->get_spreadsheet_data( static::$settings['sheetId'], static::$settings['range'] );
+			if ( ! empty( $keys ) ) {
+				$save = static::set_encrypted_data_to_site_transient( static::$settings['transient']['key'], $keys );
+			}
+			// 取得や保存できなければ空を返す
+			if ( ! $save ) {
 				return array();
 			}
-			$authkey = "{$service_secret}:{$license_key}";
-			$save    = static::save_encrypted_data_to_transient( static::$settings['transient']['key'], $authkey );
+		}
+		if ( ! is_array( $keys ) ) {
+			return array();
+		}
+
+		$keys           = array_filter( $keys, fn( $v ) => get_bloginfo( 'name' ) === $v['town'] );
+		$keys           = call_user_func_array( 'array_merge', $keys );
+		$service_secret = $keys['serviceSecret'] ?? '';
+		$license_key    = $keys['licenseKey'] ?? '';
+		if ( ! ( $service_secret && $license_key ) ) {
+			return array();
 		}
 		// base64_encode
-		$authkey = base64_encode( $authkey );
+		$authkey = base64_encode( "{$service_secret}:{$license_key}" );
 		return array(
 			'Authorization' => "ESA {$authkey}",
 		);
@@ -227,7 +240,7 @@ abstract class N2_RMS_Base_API {
 	 *
 	 * @return bool 成功した場合はtrue、失敗した場合はfalse
 	 */
-	private static function save_encrypted_data_to_site_transient( $key, $val, $opt = array() ) {
+	private static function set_encrypted_data_to_site_transient( $key, $val, $opt = array() ) {
 		static::check_fatal_error( $key, '保存するkeyが設定されていません' );
 		static::check_fatal_error( $val, '保存するvalueが設定されていません' );
 		$default = array(
@@ -279,6 +292,16 @@ abstract class N2_RMS_Base_API {
 			return maybe_unserialize( $data );
 		}
 		return false;
+	}
+
+	/**
+	 * RMS認証情報のキャッシュをリセット
+	 */
+	public static function reset_rms_transient() {
+		delete_site_transient( static::$settings['transient']['key'] );
+		return array(
+			'reset' => (bool) static::set_api_keys(),
+		);
 	}
 
 	/**
