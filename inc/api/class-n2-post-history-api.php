@@ -21,7 +21,7 @@ class N2_Post_History_API {
 	 */
 	public function __construct() {
 		add_action( 'wp_ajax_n2_post_history_api', array( $this, 'get' ) );
-		add_action( 'wp_ajax_n2_turn_back_time_api', array( $this, 'turn_back_time' ) );
+		add_action( 'wp_ajax_n2_checkout_revision_api', array( $this, 'checkout_revision' ) );
 	}
 
 	/**
@@ -64,7 +64,7 @@ class N2_Post_History_API {
 	/**
 	 * 時を戻すためのAPI
 	 */
-	public function turn_back_time() {
+	public function checkout_revision() {
 		header( 'Content-Type: application/json; charset=utf-8' );
 		if ( empty( $_GET['id'] ) ) {
 			echo 'ERROR: idが不正です';
@@ -75,9 +75,13 @@ class N2_Post_History_API {
 			echo 'ERROR: データがありません';
 			exit;
 		}
-		$data   = json_decode( $revision->post_content, true );
+		$data = json_decode( $revision->post_content, true );
+		if ( empty( $_GET['update'] ) ) {
+			echo wp_json_encode( $data, JSON_UNESCAPED_UNICODE );
+			exit;
+		}
 		$meta   = array_filter( $data, fn( $k ) => ! preg_match( '/タイトル|ステータス|事業者名|事業者コード/u', $k ), ARRAY_FILTER_USE_KEY );
-		$post = array(
+		$post   = array(
 			'ID'           => $revision->post_parent,
 			'post_status'  => $data['ステータス'],
 			'post_title'   => $revision->post_title,
