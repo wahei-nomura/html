@@ -17,7 +17,7 @@ foreach ( $args as $k => $v ) {
 }
 ?>
 <textarea <?php echo $attr; ?>><?php echo $value; ?></textarea>
-<div v-if="楽天カテゴリー.list.length">
+<div v-if="楽天カテゴリー.list.length" style="width:100%">
 	<input
 		type="text"
 		list="n2-rakuten-category"
