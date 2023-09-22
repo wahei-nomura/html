@@ -270,8 +270,7 @@ abstract class N2_RMS_Base_API {
 
 			// 復号化したデータからソルトを削除して秘密鍵を取得
 			$data = str_replace( $salt, '', $decrypted_data );
-			$data = maybe_unserialize( $data );
-			return $data;
+			return maybe_unserialize( $data );
 		}
 		return false;
 	}
