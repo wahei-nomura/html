@@ -230,6 +230,8 @@ abstract class N2_RMS_Base_API {
 		);
 		// デフォルト値を$optで上書き
 		$opt = wp_parse_args( $opt, $default );
+		// serialize
+		$val = maybe_serialize( $val );
 		// ソルトと秘密鍵を結合して暗号化
 		$data_to_encrypt = $opt['salt'] . $val;
 		// 16バイトのIVを生成
@@ -267,8 +269,9 @@ abstract class N2_RMS_Base_API {
 			$decrypted_data = openssl_decrypt( $encrypted_data, 'AES-256-CBC', $salt, 0, $iv );
 
 			// 復号化したデータからソルトを削除して秘密鍵を取得
-			$key = str_replace( $salt, '', $decrypted_data );
-			return $key;
+			$data = str_replace( $salt, '', $decrypted_data );
+			$data = maybe_unserialize( $data );
+			return $data;
 		}
 		return false;
 	}
