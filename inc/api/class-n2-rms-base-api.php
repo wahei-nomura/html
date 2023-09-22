@@ -60,22 +60,35 @@ abstract class N2_RMS_Base_API {
 	 * RMSのAPIキーをスプシから取得してセット
 	 */
 	private static function set_api_keys() {
-		$authkey = static::get_decrypted_data_from_transient( static::$settings['transient']['key'] );
-		if ( ! $authkey || ( static::$data['params']['apiUpdate'] ?? false ) ) {
+		// キャッシュ確認
+		$keys = static::get_decrypted_data_from_site_transient( static::$settings['transient']['key'] );
+		if ( ! get_bloginfo( 'name' ) ) {
+			return array();
+		}
+		if ( ! $keys ) {
 			global $n2_sync;
-			$keys           = $n2_sync->get_spreadsheet_data( static::$settings['sheetId'], static::$settings['range'] );
-			$keys           = array_filter( $keys ?: array(), fn( $v ) => get_bloginfo( 'name' ) === $v['town'] );
-			$keys           = call_user_func_array( 'array_merge', $keys );
-			$service_secret = $keys['serviceSecret'] ?? '';
-			$license_key    = $keys['licenseKey'] ?? '';
-			if ( ! ( $service_secret && $license_key ) ) {
+			$keys = $n2_sync->get_spreadsheet_data( static::$settings['sheetId'], static::$settings['range'] );
+			if ( ! empty( $keys ) ) {
+				$save = static::set_encrypted_data_to_site_transient( static::$settings['transient']['key'], $keys );
+			}
+			// 取得や保存できなければ空を返す
+			if ( ! $save ) {
 				return array();
 			}
-			$authkey = "{$service_secret}:{$license_key}";
-			$save    = static::save_encrypted_data_to_transient( static::$settings['transient']['key'], $authkey );
+		}
+		if ( ! is_array( $keys ) ) {
+			return array();
+		}
+
+		$keys           = array_filter( $keys, fn( $v ) => get_bloginfo( 'name' ) === $v['town'] );
+		$keys           = call_user_func_array( 'array_merge', $keys );
+		$service_secret = $keys['serviceSecret'] ?? '';
+		$license_key    = $keys['licenseKey'] ?? '';
+		if ( ! ( $service_secret && $license_key ) ) {
+			return array();
 		}
 		// base64_encode
-		$authkey = base64_encode( $authkey );
+		$authkey = base64_encode( "{$service_secret}:{$license_key}" );
 		return array(
 			'Authorization' => "ESA {$authkey}",
 		);
@@ -132,6 +145,9 @@ abstract class N2_RMS_Base_API {
 
 	/**
 	 * wp_remote_requestのラッパー
+	 *
+	 * @param string $url  url
+	 * @param array  $args args
 	 */
 	public static function request( $url, $args = array() ) {
 		$args['headers'] = array(
@@ -142,7 +158,10 @@ abstract class N2_RMS_Base_API {
 	}
 
 	/**
-	 * N2_Multi_URL_Request_API::request_multipleのラッパー
+	 * 認証を付与したrequest_multiple
+	 *
+	 * @param array $requests requests
+	 * @param array $options  options
 	 */
 	public static function request_multiple( $requests, $options = array() ) {
 		$requests = array_map(
@@ -213,7 +232,7 @@ abstract class N2_RMS_Base_API {
 	}
 
 	/**
-	 * 秘密鍵を暗号化してtransientに保存する関数
+	 * 秘密鍵を暗号化してsite_transientに保存する関数
 	 *
 	 * @param  string $key transient key
 	 * @param  string $val transient value
@@ -221,15 +240,17 @@ abstract class N2_RMS_Base_API {
 	 *
 	 * @return bool 成功した場合はtrue、失敗した場合はfalse
 	 */
-	private static function save_encrypted_data_to_transient( $key, $val, $opt = array() ) {
+	private static function set_encrypted_data_to_site_transient( $key, $val, $opt = array() ) {
 		static::check_fatal_error( $key, '保存するkeyが設定されていません' );
 		static::check_fatal_error( $val, '保存するvalueが設定されていません' );
 		$default = array(
 			'salt'       => SECURE_AUTH_SALT,
-			'expiration' => 10 * MINUTE_IN_SECONDS,
+			'expiration' => 24 * HOUR_IN_SECONDS,
 		);
 		// デフォルト値を$optで上書き
 		$opt = wp_parse_args( $opt, $default );
+		// serialize
+		$val = maybe_serialize( $val );
 		// ソルトと秘密鍵を結合して暗号化
 		$data_to_encrypt = $opt['salt'] . $val;
 		// 16バイトのIVを生成
@@ -244,21 +265,21 @@ abstract class N2_RMS_Base_API {
 		);
 
 		// transientに暗号化したデータを保存
-		return set_transient( $key, $data_to_save, $opt['expiration'] );
+		return set_site_transient( $key, $data_to_save, $opt['expiration'] );
 	}
 
 	/**
-	 * transientから暗号化された値を取得し、復号化する関数
+	 * site_transientから暗号化された値を取得し、復号化する関数
 	 *
 	 * @param string $key  transient key
 	 * @param string $salt salt
 	 *
 	 * @return string|bool 復号化した秘密鍵。失敗した場合はfalse
 	 */
-	private static function get_decrypted_data_from_transient( $key, $salt = null ) {
+	private static function get_decrypted_data_from_site_transient( $key, $salt = null ) {
 		$salt ??= SECURE_AUTH_SALT;
 		// transientから暗号化されたデータを取得
-		$encrypted_data = get_transient( $key );
+		$encrypted_data = get_site_transient( $key );
 		if ( $encrypted_data ) {
 			$data           = json_decode( $encrypted_data, true );
 			$iv             = base64_decode( $data['iv'] );
@@ -267,20 +288,30 @@ abstract class N2_RMS_Base_API {
 			$decrypted_data = openssl_decrypt( $encrypted_data, 'AES-256-CBC', $salt, 0, $iv );
 
 			// 復号化したデータからソルトを削除して秘密鍵を取得
-			$key = str_replace( $salt, '', $decrypted_data );
-			return $key;
+			$data = str_replace( $salt, '', $decrypted_data );
+			return maybe_unserialize( $data );
 		}
 		return false;
 	}
 
 	/**
+	 * RMS認証情報のキャッシュをリセット
+	 */
+	public static function reset_rms_transient() {
+		delete_site_transient( static::$settings['transient']['key'] );
+		return array(
+			'reset' => (bool) static::set_api_keys(),
+		);
+	}
+
+	/**
 	 * 連想配列をXMLに変換する
 	 *
-	 * @param array  $array array
+	 * @param array  $arr array
 	 * @param object $xml SimpleXMLElement
 	 */
-	protected static function array_to_xml( $array, &$xml ) {
-		foreach ( $array as $key => $value ) {
+	protected static function array_to_xml( $arr, &$xml ) {
+		foreach ( $arr as $key => $value ) {
 			if ( is_array( $value ) ) {
 				if ( ! is_numeric( $key ) ) {
 					$subnode = $xml->addChild( "$key" );
@@ -310,7 +341,7 @@ abstract class N2_RMS_Base_API {
 	/**
 	 * 画像圧縮
 	 *
-	 * @var array $files files
+	 * @param array $files files
 	 */
 	protected static function image_compressor( $files ) {
 		// ファイルがなければ何もしない
