@@ -53,7 +53,7 @@ class N2_RMS_Category_API extends N2_RMS_Base_API {
 		$categories = array();
 		$root       = static::category_trees_get( 0, 'TITLE', 'TITLE' )['rootNode']['children'] ?? array();
 		if ( empty( $root ) ) {
-			return $root;
+			return $categories;
 		}
 		// その他は除外
 		$root       = array_filter( $root, fn( $v ) => 'その他' !== $v['category']['title'] );
