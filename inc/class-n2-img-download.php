@@ -185,7 +185,13 @@ class N2_Img_Download {
 		header( 'Content-Transfer-Encoding: Binary' );
 		header( 'Content-Length: ' . filesize( $tmp_uri ) );
 		header( "Content-Disposition:attachment; filename = {$name}" );
-		echo $wp_filesystem->get_contents( $tmp_uri );
+
+		while ( ob_get_level() ) {
+			ob_end_clean(); // 出力バッファの無効化
+		}
+
+		// 出力処理
+		readfile( $tmp_uri );
 		exit;
 	}
 }
