@@ -63,9 +63,10 @@ class N2_RMS_Category_API extends N2_RMS_Base_API {
 					'' => $n['category']['title'],
 					default => $title . '\\' . $n['category']['title'],
 				};
-				$categories[] = $t;
 				if ( isset( $n['children'] ) ) {
 					$build_list( $n['children'], $t );
+				} else {
+					$categories[] = $t;
 				}
 			}
 		};
