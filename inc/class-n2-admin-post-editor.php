@@ -151,7 +151,10 @@ class N2_Admin_Post_Editor {
 		if ( in_array( '楽天', $n2->settings['N2']['出品ポータル'] ) ) {
 			// 楽天納期(楽天APIから取得)
 			$delvdate_api  = new N2_RMS_Shop_API();
-			$delvdate_data = $delvdate_api->delvdate_master_get();
+			$delvdate_data = match ( $delvdate_api->connect() ) {
+				true => $delvdate_api->delvdate_master_get(),
+				default => array(),
+			};
 			foreach ( $delvdate_data as $key => $delvdate_data_item ) {
 				$delv_no      = (int) $delvdate_data_item->delvdateNumber;
 				$delv_caption = $delvdate_data_item->delvdateCaption;
