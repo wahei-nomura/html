@@ -1,6 +1,7 @@
 <?php
 /**
- * RMS CABINET API
+ * class-n2-rms-category-api.php
+ * RMS CATEGORY API
  *
  * @package neoneng
  */
@@ -11,7 +12,7 @@ if ( class_exists( 'N2_RMS_Category_API' ) ) {
 }
 
 /**
- * N2からCABINETへ送信したりするAPI
+ * RMSカテゴリAPI
  */
 class N2_RMS_Category_API extends N2_RMS_Base_API {
 	/**
@@ -22,11 +23,11 @@ class N2_RMS_Category_API extends N2_RMS_Base_API {
 	protected $folders = array();
 
 	/**
-	 * カテゴリツリー情報を取得
+	 * カテゴリーツリー情報を取得
 	 *
-	 * @param int $categorySetId カテゴリセットID
+	 * @param int $categorySetId カテゴリーセットID
 	 *
-	 * @return array カテゴリ一覧
+	 * @return array カテゴリー一覧
 	 */
 	public static function category_trees_get( $categorySetId = 0, $categorysetfields = 'TITLE', $categoryfields = 'TITLE' ) {
 		$params = array(
@@ -44,7 +45,7 @@ class N2_RMS_Category_API extends N2_RMS_Base_API {
 	}
 
 	/**
-	 * カテゴリ一覧取得
+	 * カテゴリー一覧取得
 	 *
 	 * @return array
 	 */
