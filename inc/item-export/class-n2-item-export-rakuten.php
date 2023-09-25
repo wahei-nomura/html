@@ -473,9 +473,6 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 				<br><br>【対応機器備考】<br>
 				※<?php echo nl2br( $n2values['対応機器備考'] ); ?><br>
 			<?php endif; ?>
-			<?php if ( isset( $n2->settings['注意書き']['やきもの'] ) ) : ?>
-				<?php echo nl2br( $n2->settings['注意書き']['やきもの'] ); ?><br>
-			<?php endif; ?>
 			<?php if ( $n2values['検索キーワード'] ) : ?>
 				<br><br><?php echo nl2br( $n2values['検索キーワード'] ); ?><br>
 			<?php endif; ?>
