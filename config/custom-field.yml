@@ -133,6 +133,7 @@
     類型該当理由:
         type: textarea
         style: 'width: 100%;'
+        maxlength : 97
         v-if: "!商品タイプ.includes('eチケット')"
         description: 上記、地場産品類型に該当する理由を書いてください。
         placeholder: 例）〇〇県が認定した返礼品であるため。
