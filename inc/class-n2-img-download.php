@@ -103,6 +103,8 @@ class N2_Img_Download {
 	 * 投稿IDからダウンロード
 	 */
 	public function download_images_by_id() {
+		// タイムアウト制限を設定
+		set_time_limit( 120 );
 		global $n2;
 		$params = $_GET;
 		// $_POSTを$paramsで上書き
@@ -113,6 +115,7 @@ class N2_Img_Download {
 			echo 'idがセットされていません';
 			exit;
 		}
+
 		WP_Filesystem();
 		global $wp_filesystem;
 		// localhostでのwp_remote_getに必須
@@ -122,6 +125,11 @@ class N2_Img_Download {
 		$requests = array();// urlリスト
 		$info     = array();// 画像情報
 		$zip->open( $tmp_uri, ZipArchive::CREATE );
+
+		// 一時フォルダに画像を格納する
+		$tmp = wp_tempnam( __CLASS__, get_theme_file_path() . '/' );
+		unlink( $tmp );
+		mkdir( $tmp );
 
 		foreach ( $ids as $id ) {
 			$img_file_name = get_post_meta( $id, '返礼品コード', true );
@@ -142,7 +150,8 @@ class N2_Img_Download {
 				$requests[] = array(
 					'url'     => "{$img['url']}?id={$id}",
 					'options' => array(
-						'hooks' => $hooks,
+						'hooks'    => $hooks,
+						'filename' => "{$tmp}/{$filename}-{$index}.{$extension}",
 					),
 				);
 				$info[ "{$img['url']}?id={$id}" ] = array(
@@ -163,7 +172,7 @@ class N2_Img_Download {
 					'description' => $v->info['description'],
 				);
 			}
-			$zip->addFromString( "{$v->info['dirname']}/{$v->info['filename']}", $v->body );
+			$zip->addFile( "{$tmp}/{$v->info['filename']}", "{$v->info['dirname']}/{$v->info['filename']}" );
 		}
 		// 説明.txt生成
 		if ( ! empty( $description ) ) {
@@ -176,6 +185,8 @@ class N2_Img_Download {
 		// 単品か複数かで名前と構造を変更
 		$name = count( $ids ) > 1 ? 'NEONENG元画像.' . wp_date( 'Y-m-d-H-i' ) . '.zip' : "{$dirname}.zip";
 		$zip->close();
+		// 一時フォルダを削除
+		exec( "rm -Rf {$tmp}" );
 		if ( ! file_exists( $tmp_uri ) ) {
 			wp_safe_redirect( $_SERVER['HTTP_REFERER'] );
 			exit;
