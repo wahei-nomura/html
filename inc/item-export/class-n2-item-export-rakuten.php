@@ -424,7 +424,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			<?php $this->get_img_urls( $n2values, 'html' ); ?>
 			<?php echo nl2br( $n2values['説明文'] ); ?><br><br>
 			<?php if ( $n2values['地場産品類型'] && $n2values['類型該当理由'] && in_array( $n2values['地場産品類型'], $applicable_reasons ) ) : ?>
-				<p class="applicable_reasons">【地場産品に該当する理由】<br><?php echo nl2br( $n2values['類型該当理由'] ); ?></p>
+				<p>【地場産品に該当する理由】<br><?php echo nl2br( $n2values['類型該当理由'] ); ?></p>
 			<?php endif; ?>
 			<?php $this->make_itemtable( $n2values, false ); ?><br><br>
 			<?php
@@ -490,7 +490,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 				<br><br><?php echo nl2br( $n2values['楽天SPAカテゴリー'] ); ?><br>
 			<?php endif; ?>
 			<?php if ( $n2values['地場産品類型'] && $n2values['類型該当理由'] && in_array( $n2values['地場産品類型'], $applicable_reasons ) ) : ?>
-				<p class="applicable_reasons">【地場産品に該当する理由】<br><?php echo nl2br( $n2values['類型該当理由'] ); ?></p>
+				<p>【地場産品に該当する理由】<br><?php echo nl2br( $n2values['類型該当理由'] ); ?></p>
 			<?php endif; ?>
 			<?php
 		};
@@ -519,7 +519,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			<?php $this->get_img_urls( $n2values, 'html' ); ?>
 			<?php echo nl2br( $n2values['説明文'] ); ?><br><br>
 			<?php if ( $n2values['地場産品類型'] && $n2values['類型該当理由'] && in_array( $n2values['地場産品類型'], $applicable_reasons ) ) : ?>
-				<p class="applicable_reasons">【地場産品に該当する理由】<br><?php echo nl2br( $n2values['類型該当理由'] ); ?></p>
+				<p>【地場産品に該当する理由】<br><?php echo nl2br( $n2values['類型該当理由'] ); ?></p>
 			<?php endif; ?>
 			<?php $this->make_itemtable( $n2values, false ); ?>
 			<?php if ( $n2values['検索キーワード'] ) : ?>
