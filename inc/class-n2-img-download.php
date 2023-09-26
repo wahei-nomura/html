@@ -59,9 +59,9 @@ class N2_Img_Download {
 		WP_Filesystem();
 		global $wp_filesystem;
 		$tmp_files = array();
-		$requests = array_map(
-			function( $file ) use ( &$tmp_files ) {
-				$tmp_uri = stream_get_meta_data( tmpfile() )['uri'];
+		$requests  = array_map(
+			function ( $file ) use ( &$tmp_files ) {
+				$tmp_uri     = stream_get_meta_data( tmpfile() )['uri'];
 				$tmp_files[] = $tmp_uri;
 				return array(
 					'url'     => $file['url'],
@@ -72,18 +72,18 @@ class N2_Img_Download {
 			},
 			$params['url']
 		);
-		$response = N2_Multi_URL_Request_API::request_multiple( $requests );
+		$response  = N2_Multi_URL_Request_API::request_multiple( $requests );
 
 		$tmp_zip_uri = stream_get_meta_data( tmpfile() )['uri'];
-		$zip     = new ZipArchive();
+		$zip         = new ZipArchive();
 		$zip->open( $tmp_zip_uri, ZipArchive::CREATE );
 		$zip_name = $params['zipName'];
 
 		array_map(
-			function( $res, $index ) use ( $params, &$zip, $zip_name, $tmp_files ) {
+			function ( $res, $index ) use ( $params, &$zip, $zip_name, $tmp_files ) {
 				$file = array_filter(
 					$params['url'],
-					function( $file ) use ( $res ) {
+					function ( $file ) use ( $res ) {
 						return $res->url === $file['url'];
 					},
 				);
@@ -129,11 +129,11 @@ class N2_Img_Download {
 		WP_Filesystem();
 		global $wp_filesystem;
 		// localhostでのwp_remote_getに必須
-		$ids          = explode( ',', $params['ids'] );
-		$tmp_zip_uri  = stream_get_meta_data( tmpfile() )['uri'];
-		$zip          = new ZipArchive();
-		$requests     = array();// urlリスト
-		$info         = array();// 画像情報
+		$ids         = explode( ',', $params['ids'] );
+		$tmp_zip_uri = stream_get_meta_data( tmpfile() )['uri'];
+		$zip         = new ZipArchive();
+		$requests    = array();// urlリスト
+		$info        = array();// 画像情報
 		$zip->open( $tmp_zip_uri, ZipArchive::CREATE );
 
 		foreach ( $ids as $id ) {
@@ -153,7 +153,7 @@ class N2_Img_Download {
 				);
 				$tmp_uri = stream_get_meta_data( tmpfile() )['uri'];
 				// 配列生成
-				$requests[] = array(
+				$requests[]                       = array(
 					'url'     => "{$img['url']}?id={$id}",
 					'options' => array(
 						'hooks'    => $hooks,
