@@ -159,13 +159,13 @@ class N2_Output_Gift_API {
 					$data[] = array(
 						'title'      => $data[0]['title'],
 						'meta_key'   => $missing_key,
-						'meta_value' => 'true',
+						'meta_value' => true,
 					);
 				} else {
 					$data[] = array(
 						'title'      => $data[0]['title'],
 						'meta_key'   => $missing_key,
-						'meta_value' => 'false',
+						'meta_value' => false,
 					);
 				}
 			} else {
