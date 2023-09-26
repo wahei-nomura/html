@@ -208,6 +208,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 	protected function special_str_convert( $str ) {
 		global $n2;
 		$str = str_replace( array_keys( $n2->special_str_convert ), array_values( $n2->special_str_convert ), $str );
+		$str = preg_replace( '/\r\n?|\n/', "\r\n", $str );
 		/**
 		 * [hook] n2_item_export_furusato_choice_special_str_convert
 		 */
