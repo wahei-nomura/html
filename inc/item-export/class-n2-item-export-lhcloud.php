@@ -86,7 +86,7 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 		// 定期便の初期化
 		$n2values['定期便'] = $n2values['定期便'] ?: 1;
 		// eチケット判定
-		$is_e_ticket = in_array( 'eチケット', $n2values['商品タイプ'], true );
+		$is_e_ticket = in_array( 'eチケット', (array) $n2values['商品タイプ'], true );
 		// 発送サイズがヤマトか判定
 		$is_yamato = is_numeric( $n2values['発送サイズ'] );
 		// ループ回数

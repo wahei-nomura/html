@@ -124,7 +124,7 @@ class N2_Donation_Amount_API {
 				$post->meta_input['送料'] = $delivery_fee;
 			}
 			// 寄附金額のアップデート
-			if ( empty( array_filter( $meta['寄附金額固定'] ?? array() ) ) ) {
+			if ( empty( array_filter( (array) $meta['寄附金額固定'] ?? array() ) ) ) {
 				// 寄附金額計算の素材集め
 				$price        = $meta['価格'] ?? '';
 				$subscription = $meta['定期便'] ?? '';
