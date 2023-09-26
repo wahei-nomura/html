@@ -119,17 +119,12 @@ class N2_Img_Download {
 		WP_Filesystem();
 		global $wp_filesystem;
 		// localhostでのwp_remote_getに必須
-		$ids      = explode( ',', $params['ids'] );
-		$tmp_uri  = stream_get_meta_data( tmpfile() )['uri'];
-		$zip      = new ZipArchive();
-		$requests = array();// urlリスト
-		$info     = array();// 画像情報
-		$zip->open( $tmp_uri, ZipArchive::CREATE );
-
-		// 一時フォルダに画像を格納する
-		$tmp = wp_tempnam( __CLASS__, get_theme_file_path() . '/' );
-		unlink( $tmp );
-		mkdir( $tmp );
+		$ids          = explode( ',', $params['ids'] );
+		$tmp_zip_uri  = stream_get_meta_data( tmpfile() )['uri'];
+		$zip          = new ZipArchive();
+		$requests     = array();// urlリスト
+		$info         = array();// 画像情報
+		$zip->open( $tmp_zip_uri, ZipArchive::CREATE );
 
 		foreach ( $ids as $id ) {
 			$img_file_name = get_post_meta( $id, '返礼品コード', true );
@@ -146,24 +141,28 @@ class N2_Img_Download {
 						curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false );
 					}
 				);
+				$tmp_uri = stream_get_meta_data( tmpfile() )['uri'];
 				// 配列生成
 				$requests[] = array(
 					'url'     => "{$img['url']}?id={$id}",
 					'options' => array(
 						'hooks'    => $hooks,
-						'filename' => "{$tmp}/{$filename}-{$index}.{$extension}",
+						'filename' => $tmp_uri,
 					),
 				);
 				$info[ "{$img['url']}?id={$id}" ] = array(
 					'dirname'     => $dirname,
 					'filename'    => "{$filename}-{$index}.{$extension}",
 					'description' => $img['description'] ?? '',
+					'tmp_url'     => $tmp_uri,
 				);
 			}
 		}
 		$description = array();
 		foreach ( Requests::request_multiple( $requests, array( 'timeout' => 100 ) ) as $v ) {
 			$v->info = $info[ $v->url ];
+			$tmp_uri = $v->info['tmp_url'];
+			unset( $v->info['tmp_url'] );
 			// 説明を追加
 			if ( ! empty( $info[ $v->url ]['description'] ) ) {
 				$description[ $v->info['dirname'] ][] = array(
@@ -172,7 +171,7 @@ class N2_Img_Download {
 					'description' => $v->info['description'],
 				);
 			}
-			$zip->addFile( "{$tmp}/{$v->info['filename']}", "{$v->info['dirname']}/{$v->info['filename']}" );
+			$zip->addFile( $tmp_uri, "{$v->info['dirname']}/{$v->info['filename']}" );
 		}
 		// 説明.txt生成
 		if ( ! empty( $description ) ) {
@@ -185,16 +184,14 @@ class N2_Img_Download {
 		// 単品か複数かで名前と構造を変更
 		$name = count( $ids ) > 1 ? 'NEONENG元画像.' . wp_date( 'Y-m-d-H-i' ) . '.zip' : "{$dirname}.zip";
 		$zip->close();
-		// 一時フォルダを削除
-		exec( "rm -Rf {$tmp}" );
-		if ( ! file_exists( $tmp_uri ) ) {
+		if ( ! file_exists( $tmp_zip_uri ) ) {
 			wp_safe_redirect( $_SERVER['HTTP_REFERER'] );
 			exit;
 		}
 		// ダウンロード
 		header( 'Content-Type: application/zip' );
 		header( 'Content-Transfer-Encoding: Binary' );
-		header( 'Content-Length: ' . filesize( $tmp_uri ) );
+		header( 'Content-Length: ' . filesize( $tmp_zip_uri ) );
 		header( "Content-Disposition:attachment; filename = {$name}" );
 
 		while ( ob_get_level() ) {
@@ -202,7 +199,7 @@ class N2_Img_Download {
 		}
 
 		// 出力処理
-		readfile( $tmp_uri );
+		readfile( $tmp_zip_uri );
 		exit;
 	}
 }
