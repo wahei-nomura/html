@@ -58,25 +58,29 @@ class N2_Img_Download {
 
 		WP_Filesystem();
 		global $wp_filesystem;
-
+		$tmp_files = array();
 		$requests = array_map(
-			function( $file ) {
+			function( $file ) use ( &$tmp_files ) {
+				$tmp_uri = stream_get_meta_data( tmpfile() )['uri'];
+				$tmp_files[] = $tmp_uri;
 				return array(
-					'url' => $file['url'],
+					'url'     => $file['url'],
+					'options' => array(
+						'filename' => $tmp_uri,
+					),
 				);
 			},
 			$params['url']
 		);
 		$response = N2_Multi_URL_Request_API::request_multiple( $requests );
 
-		$tmp_uri = stream_get_meta_data( tmpfile() )['uri'];
+		$tmp_zip_uri = stream_get_meta_data( tmpfile() )['uri'];
 		$zip     = new ZipArchive();
-		$zip->open( $tmp_uri, ZipArchive::CREATE );
+		$zip->open( $tmp_zip_uri, ZipArchive::CREATE );
 		$zip_name = $params['zipName'];
 
 		array_map(
-			function( $res ) use ( $params, $zip, $zip_name ) {
-				global $n2;
+			function( $res, $index ) use ( $params, &$zip, $zip_name, $tmp_files ) {
 				$file = array_filter(
 					$params['url'],
 					function( $file ) use ( $res ) {
@@ -84,18 +88,24 @@ class N2_Img_Download {
 					},
 				);
 				// indexを振り直す
-				$file = array_values( $file )[0];
-				$zip->addFromString( "{$zip_name}/{$file['folderName']}/{$file['filePath']}", $res->body );
+				$file = current( $file );
+				$zip->addFile( $tmp_files[ $index ], "{$zip_name}/{$file['folderName']}/{$file['filePath']}" );
 			},
 			$response,
+			array_keys( $response ),
 		);
 		$zip->close();
 
 		header( 'Content-Type: application/zip' );
 		header( 'Content-Transfer-Encoding: Binary' );
-		header( 'Content-Length: ' . filesize( $tmp_uri ) );
+		header( 'Content-Length: ' . filesize( $tmp_zip_uri ) );
 		header( "Content-Disposition:attachment; filename = {$zip_name}" );
-		echo $wp_filesystem->get_contents( $tmp_uri );
+		while ( ob_get_level() ) {
+			ob_end_clean(); // 出力バッファの無効化
+		}
+
+		// 出力処理
+		readfile( $tmp_zip_uri );
 		exit;
 	}
 
