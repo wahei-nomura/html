@@ -79,21 +79,15 @@ class N2_Img_Download {
 		$zip->open( $tmp_zip_uri, ZipArchive::CREATE );
 		$zip_name = $params['zipName'];
 
-		array_map(
-			function ( $res, $index ) use ( $params, &$zip, $zip_name, $tmp_files ) {
-				$file = array_filter(
+		foreach ( $response as $index => $res ) {
+			$file = current(
+				array_filter(
 					$params['url'],
-					function ( $file ) use ( $res ) {
-						return $res->url === $file['url'];
-					},
-				);
-				// indexを振り直す
-				$file = current( $file );
-				$zip->addFile( $tmp_files[ $index ], "{$zip_name}/{$file['folderName']}/{$file['filePath']}" );
-			},
-			$response,
-			array_keys( $response ),
-		);
+					fn ( $f ) => $res->url === $f['url']
+				)
+			);
+			$zip->addFile( $tmp_files[ $index ], "{$zip_name}/{$file['folderName']}/{$file['filePath']}" );
+		}
 		$zip->close();
 
 		header( 'Content-Type: application/zip' );
