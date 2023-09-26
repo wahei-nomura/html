@@ -419,9 +419,13 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		// ========[html]PC用販売説明文========
 		$html = function() use ( $n2values ) {
 			global $n2;
+			$applicable_reasons = $n2->settings['N2']['理由表示地場産品類型'];
 			?>
 			<?php $this->get_img_urls( $n2values, 'html' ); ?>
 			<?php echo nl2br( $n2values['説明文'] ); ?><br><br>
+			<?php if ( $n2values['地場産品類型'] && $n2values['類型該当理由'] && in_array( $n2values['地場産品類型'], $applicable_reasons ) ) : ?>
+				<p class="applicable_reasons">【地場産品に該当する理由】<br><?php echo nl2br( $n2values['類型該当理由'] ); ?></p>
+			<?php endif; ?>
 			<?php $this->make_itemtable( $n2values, false ); ?><br><br>
 			<?php
 				echo $n2->settings['N2']['ポータル共通説明文']
@@ -448,7 +452,8 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	public function pc_item_description( $n2values, $return_string = true ) {
 		global $n2;
 		// ========[html]PC用商品説明文========
-		$html = function() use ( $n2values ) {
+		$html = function() use ( $n2values, $n2 ) {
+			$applicable_reasons = $n2->settings['N2']['理由表示地場産品類型'];
 			?>
 			<?php echo nl2br( $n2values['説明文'] ); ?><br><br>
 			<?php echo nl2br( $n2values['内容量・規格等'] ); ?><br>
@@ -484,10 +489,8 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			<?php if ( $n2values['楽天SPAカテゴリー'] ) : ?>
 				<br><br><?php echo nl2br( $n2values['楽天SPAカテゴリー'] ); ?><br>
 			<?php endif; ?>
-			<?php if ( $n2values['類型該当理由'] ) : ?>
-				<table style="background-color:#B71C1C; width:100%; border:2px;">
-				<tbody><tr><td style="background-color:#B71C1C;color:#fff;">地場産品に該当する理由</td></tr><tr><td>
-				<?php echo nl2br( $n2values['類型該当理由'] ); ?></td></tr></tbody></table>
+			<?php if ( $n2values['地場産品類型'] && $n2values['類型該当理由'] && in_array( $n2values['地場産品類型'], $applicable_reasons ) ) : ?>
+				<p class="applicable_reasons">【地場産品に該当する理由】<br><?php echo nl2br( $n2values['類型該当理由'] ); ?></p>
 			<?php endif; ?>
 			<?php
 		};
@@ -511,9 +514,13 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		// ========[html]SP用商品説明文========
 		$html = function() use ( $n2values ) {
 			global $n2;
+			$applicable_reasons = $n2->settings['N2']['理由表示地場産品類型'];
 			?>
 			<?php $this->get_img_urls( $n2values, 'html' ); ?>
 			<?php echo nl2br( $n2values['説明文'] ); ?><br><br>
+			<?php if ( $n2values['地場産品類型'] && $n2values['類型該当理由'] && in_array( $n2values['地場産品類型'], $applicable_reasons ) ) : ?>
+				<p class="applicable_reasons">【地場産品に該当する理由】<br><?php echo nl2br( $n2values['類型該当理由'] ); ?></p>
+			<?php endif; ?>
 			<?php $this->make_itemtable( $n2values, false ); ?>
 			<?php if ( $n2values['検索キーワード'] ) : ?>
 				<br><br><?php echo nl2br( $n2values['検索キーワード'] ); ?>
@@ -640,9 +647,6 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			),
 			'配送期日'    => array(
 				'td' => nl2br( $n2values['配送期間'] ),
-			),
-			'地場産品に該当する理由'    => array(
-				'td' => nl2br( $n2values['類型該当理由'] ),
 			),
 			'提供事業者'   => array(
 				'td' => $this->get_author_name( $n2values ),
