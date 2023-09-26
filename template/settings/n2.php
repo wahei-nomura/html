@@ -82,4 +82,43 @@ $settings = array(
 			</label>
 		</td>
 	</tr>
+	<tr>
+		<th>類型該当理由を表示する地場産品類型</th>
+		<td>
+			<input type="hidden" name="n2_settings[N2][理由表示地場産品類型]">
+			<label>
+				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="1" <?php checked( in_array( '1', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 1
+			</label>
+			<label>
+				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="2" <?php checked( in_array( '2', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 2
+			</label>
+			<label>
+				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="3" <?php checked( in_array( '3', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 3
+			</label>
+			<label>
+				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="4" <?php checked( in_array( '4', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 4
+			</label>
+			<label>
+				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="5" <?php checked( in_array( '5', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 5
+			</label>
+			<label>
+				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="6" <?php checked( in_array( '6', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 6
+			</label>
+			<label>
+				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="7" <?php checked( in_array( '7', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 7
+			</label>
+			<label>
+				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="8イ" <?php checked( in_array( '8イ', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 8イ
+			</label>
+			<label>
+				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="8ロ" <?php checked( in_array( '8ロ', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 8ロ
+			</label>
+			<label>
+				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="8ハ" <?php checked( in_array( '8ハ', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 8ハ
+			</label>
+			<label>
+				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="9" <?php checked( in_array( '9', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 9
+			</label>
+		</td>
+	</tr>
 </table>
