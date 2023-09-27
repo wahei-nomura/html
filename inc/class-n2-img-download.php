@@ -206,4 +206,44 @@ class N2_Img_Download {
 		readfile( $tmp_zip_uri );
 		exit;
 	}
+
+	/**
+	 * リサイズ&トリミング
+	 *
+	 * @param string $file_path file_path
+	 * @param int    $width width
+	 * @param int    $height file_path
+	 * @param int    $dpi file_path
+	 *
+	 * @return string new_file_path
+	 */
+	public function resize_and_crop_image_by_imagick( $file_path, $width = 700, $height = 700, $dpi = 72 ) {
+				$imagick         = new \Imagick( $file_path );
+				$original_width  = $imagick->getImageWidth();
+				$original_height = $imagick->getImageHeight();
+				$ratio           = $original_width / $original_height;
+				$resize_width    = $width / ( $ratio > 1 ? $ratio : 1 );
+				$resize_height   = $height * ( $ratio < 1 ? $ratio : 1 );
+
+				$imagick->resizeImage( $resize_width, $resize_height, \Imagick::FILTER_LANCZOS, 1 );
+
+				// 中央を基準にトリミング
+				$crop_x = ( $resize_width - $width ) / 2;
+				$crop_y = ( $resize_height - $height ) / 2;
+				$imagick->cropImage( $width, $headers, $crop_x, $crop_y );
+
+				// 解像度を72に設定
+				$imagick->setImageResolution( $dpi, $dpi );
+
+				$new_file_path = stream_get_meta_data( tmpfile() )['uri'];
+
+				// 画像を一時ファイルとして保存
+				$imagick->writeImage( $new_file_path );
+
+				// メモリのクリーンアップ
+				$imagick->clear();
+				$imagick->destroy();
+
+				return $new_file_path;
+	}
 }
