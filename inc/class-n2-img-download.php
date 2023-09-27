@@ -107,7 +107,6 @@ class N2_Img_Download {
 	 * 投稿IDからダウンロード
 	 */
 	public function download_images_by_id() {
-		$start_time = microtime(true);
 		// タイムアウト制限を設定
 		set_time_limit( 120 );
 		global $n2;
@@ -234,8 +233,6 @@ class N2_Img_Download {
 
 		// 出力処理
 		readfile( $tmp_zip_uri );
-		$end_time = microtime(true) - $start_time;
-		error_log( print_r( "{$end_time}秒", true ) );
 		exit;
 	}
 
