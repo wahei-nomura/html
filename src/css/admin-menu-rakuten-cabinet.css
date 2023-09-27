@@ -1,0 +1,172 @@
+@charset "UTF-8";
+#ss-cabinet {
+  position: relative;
+}
+#ss-cabinet #ss-cabinet-images.loading {
+  animation: loading 3s infinite;
+}
+#ss-cabinet #ss-cabinet-images .card { /* Bootstrapを上書き */
+  width: 18rem;
+  max-width: 160px;
+  padding: 0.5rem 0.7rem 1rem;
+  transition: box-shadow 0.3s;
+}
+#ss-cabinet #ss-cabinet-images .card.active {
+  box-shadow: 0 0.1rem 0.5rem rgba(0, 0, 255, 0.5) !important;
+}
+#ss-cabinet #ss-cabinet-images .card .card-img-top {
+  height: 136px;
+  width: 136px;
+  object-fit: contain;
+  object-position: 50% 25%;
+}
+#ss-cabinet #ss-cabinet-images .card .card-img-overlay {
+  background: rgba(0, 0, 0, 0.5333333333);
+  color: #fff;
+  top: unset;
+  right: 0.2rem;
+  bottom: 0.4rem;
+  left: 0.2rem;
+  padding: 0.5rem;
+}
+#ss-cabinet #ss-cabinet-images .card .card-header {
+  background-color: transparent;
+  border-bottom: none;
+  padding: 0.2rem;
+}
+#ss-cabinet #ss-cabinet-images .card .card-header .card-text {
+  font-size: 0.5rem;
+}
+#ss-cabinet #ss-cabinet-images .card .card-header .card-text:after {
+  content: "KB";
+}
+#ss-cabinet #ss-cabinet-images .card .card-text {
+  text-wrap: nowrap;
+}
+#ss-cabinet #ss-cabinet-lists thead th:has(> i) {
+  cursor: pointer;
+}
+#ss-cabinet #ss-cabinet-lists td {
+  font-size: 0.8rem;
+}
+#ss-cabinet #ss-cabinet-lists td[data-label=サイズ]:after {
+  content: "KB";
+}
+#ss-cabinet #ss-cabinet-lists img {
+  height: 28px;
+  object-fit: contain;
+  width: 50px;
+}
+#ss-cabinet .tree { /*親要素*/
+  position: relative;
+  background: white;
+  padding: 10px;
+  font-size: 0.85rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #212529;
+}
+#ss-cabinet .tree .folder-open:not(:has(:checked)) ~ ul {
+  display: none;
+}
+#ss-cabinet .tree ul {
+  padding-left: 5px;
+  list-style: none;
+}
+#ss-cabinet .tree ul li {
+  position: relative;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 10px;
+  box-sizing: border-box;
+  margin-bottom: 0px;
+}
+#ss-cabinet .tree ul li .bi {
+  padding-right: 5px;
+}
+#ss-cabinet .tree ul li .folder-open > input {
+  display: none;
+}
+#ss-cabinet .tree ul li.hasChildren > label:before {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border: 2px solid #000;
+  border-left: none;
+  border-top: none;
+  top: 15px;
+  left: -3px;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  transition: 0.2s;
+}
+#ss-cabinet .tree ul li.hasChildren > label:has(input:checked):before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+#ss-cabinet .tree ul li:last-child:after { /*これ以下は別フォルダになる事を明示する為、少しだけ離す*/
+  height: 15px;
+}
+#ss-cabinet .tree span { /*ファイル名部分*/
+  cursor: pointer;
+}
+#ss-cabinet .tree span.active {
+  background-color: rgba(0, 0, 255, 0.1333333333);
+}
+#ss-cabinet .dragable-area {
+  border-style: dashed !important;
+}
+#ss-cabinet input:not(:checked) + .radio-icon {
+  display: inline-block;
+}
+#ss-cabinet .radio-icon {
+  display: none;
+}
+#ss-cabinet #current-direcotry::after {
+  content: ":";
+}
+#ss-cabinet #file-count {
+  text-wrap: nowrap;
+}
+#ss-cabinet #file-count::before {
+  content: "全";
+}
+#ss-cabinet #file-count::after {
+  content: "件";
+}
+#ss-cabinet #right-aside-list li:before {
+  content: attr(data-label);
+  display: block;
+}
+#ss-cabinet #right-aside-list li[data-label=サイズ]:after {
+  content: "KB";
+}
+#ss-cabinet #right-aside-list li[data-label=画像保存先] i {
+  cursor: pointer;
+}
+#ss-cabinet #right-aside-list-img {
+  margin: auto;
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+}
+#ss-cabinet #right-aside .url-clipboard.active:after {
+  transition: 0.3s;
+  content: "copied!";
+}
+#ss-cabinet .cabinet-modal {
+  background: rgba(0, 0, 0, 0.5333333333);
+  z-index: 99999;
+}
+#ss-cabinet .cabinet-modal#loadingModal span {
+  width: 50px;
+  height: 50px;
+}
+
+@keyframes loading {
+  0%, 100% {
+    background-color: #fff;
+  }
+  50% {
+    background-color: rgba(0, 0, 0, 0.1333333333);
+  }
+}/*# sourceMappingURL=admin-menu-rakuten-cabinet.css.map */
