@@ -67,13 +67,22 @@ global $n2;
 					<button>印刷</button>
 				</form>
 			</li>
-			<li style="padding: 0;" v-if="items.filter(v=>v.商品画像 && v.商品画像.length).length">
-				<form method="post" action="admin-ajax.php">
-					<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
-					<input type="hidden" name="action" value="n2_download_images_by_id">
-					<input type="hidden" name="ids" :value="ids.join(',')">
-					<button>画像ダウンロード</button>
-				</form>
+			<li v-if="items.filter(v=>v.商品画像 && v.商品画像.length).length">
+				画像ダウンロード
+				<div class="childs">
+					<form method="post" action="admin-ajax.php">
+						<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
+						<input type="hidden" name="action" value="n2_download_images_by_id">
+						<input type="hidden" name="ids" :value="ids.join(',')">
+						<div style="margin-bottom: 1em;">
+							<span>モード選択 ：　</span>
+							<label><input type="radio" name="type" value="fullsize" checked> フルサイズ</label>
+							<label v-if="n2.settings.N2.出品ポータル.includes('楽天')"><input type="radio" name="type" value="楽天"> 楽天（700×700）</label>
+							<label v-if="n2.settings.N2.出品ポータル.includes('ふるさとチョイス')"><input type="radio" name="type" value="チョイス"> チョイス（700×435）</label>
+						</div>
+						<button>画像ダウンロード</button>
+					</form>
+				</div>
 			</li>
 			<?php if ( current_user_can( 'ss_crew' ) || current_user_can( 'local-government' ) ) : ?>
 			<li>
