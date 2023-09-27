@@ -130,12 +130,11 @@ class N2_Img_Download {
 		$info        = array();// 画像情報
 		$zip->open( $tmp_zip_uri, ZipArchive::CREATE );
 
-		$type = $params['type'] ?? 'フルサイズ';
+		$types = $params['type'] ?? array( 'フルサイズ' );
 
 		foreach ( $ids as $id ) {
 			$img_file_name = get_post_meta( $id, '返礼品コード', true );
 			$dirname       = $img_file_name ?: get_the_title( $id );
-			$dirname      .= 'フルサイズ' !== $type ? "_{$type}" : '';
 			$filename      = mb_strtolower( $img_file_name ) ?: get_the_title( $id );
 			foreach ( get_post_meta( $id, '商品画像', true ) as $i => $img ) {
 				$index     = $i + 1;
@@ -167,41 +166,42 @@ class N2_Img_Download {
 		}
 		$description = array();
 		foreach ( Requests::request_multiple( $requests, array( 'timeout' => 100 ) ) as $v ) {
-			$v->info = $info[ $v->url ];
-			$tmp_uri = $v->info['tmp_url'];
-			$tmp_uri = match ( $type ) {
-				'楽天' => call_user_func_array(
-					array(
-						$this,
-						'resize_and_crop_image_by_imagick',
-					),
-					array(
-						'file_path' => $v->info['tmp_url'],
-					),
-				),
-				'チョイス' => call_user_func_array(
-					array(
-						$this,
-						'resize_and_crop_image_by_imagick',
-					),
-					array(
-						'file_path' => $v->info['tmp_url'],
-						'height'    => 435,
-					),
-				),
-				default => $v->info['tmp_url'],
-			};
-
+			$v->info        = $info[ $v->url ];
+			$origin_tmp_uri = $v->info['tmp_url'];
 			unset( $v->info['tmp_url'] );
-			// 説明を追加
-			if ( ! empty( $info[ $v->url ]['description'] ) ) {
-				$description[ $v->info['dirname'] ][] = array(
-					'dirname'     => $v->info['dirname'],
-					'filename'    => $v->info['filename'],
-					'description' => $v->info['description'],
-				);
+			foreach ( $types as $type ) {
+				$tmp_uri = match ( $type ) {
+					'楽天' => call_user_func_array(
+						array(
+							$this,
+							'resize_and_crop_image_by_imagick',
+						),
+						array(
+							'file_path' => $origin_tmp_uri,
+						),
+					),
+					'チョイス' => call_user_func_array(
+						array(
+							$this,
+							'resize_and_crop_image_by_imagick',
+						),
+						array(
+							'file_path' => $origin_tmp_uri,
+							'height'    => 435,
+						),
+					),
+					default => $origin_tmp_uri,
+				};
+				// 説明を追加
+				if ( ! empty( $info[ $v->url ]['description'] ) ) {
+					$description[ $v->info['dirname'] ][] = array(
+						'dirname'     => "{$v->info['dirname']}_{$type}",
+						'filename'    => $v->info['filename'],
+						'description' => $v->info['description'],
+					);
+				}
+				$zip->addFile( $tmp_uri, "{$v->info['dirname']}_{$type}/{$v->info['filename']}" );
 			}
-			$zip->addFile( $tmp_uri, "{$v->info['dirname']}/{$v->info['filename']}" );
 		}
 		// 説明.txt生成
 		if ( ! empty( $description ) ) {
@@ -214,8 +214,7 @@ class N2_Img_Download {
 		// 単品か複数かで名前と構造を変更
 		$name = match ( true ) {
 			count( $ids ) === 1 => $dirname . '.zip',
-			'フルサイズ' === $type => 'NEONENG元画像.' . wp_date( 'Y-m-d-H-i' ) . '.zip',
-			default    => "NEONENG{$type}画像." . wp_date( 'Y-m-d-H-i' ) . '.zip',
+			default    => 'NEONENG元画像.' . wp_date( 'Y-m-d-H-i' ) . '.zip',
 		};
 		$zip->close();
 		if ( ! file_exists( $tmp_zip_uri ) ) {
@@ -251,9 +250,9 @@ class N2_Img_Download {
 		$imagick         = new \Imagick( $file_path );
 		$original_width  = $imagick->getImageWidth();
 		$original_height = $imagick->getImageHeight();
-		$original_ratio  = (int) $original_width / $original_height;
-		$resize_width    = max( $width, $height ) * ( $original_ratio > 1 ? $original_ratio : 1 );
-		$resize_height   = max( $width, $height ) / ( $original_ratio < 1 ? $original_ratio : 1 );
+		$original_ratio  = $original_width / $original_height;
+		$resize_width    = (int) max( $width, $height ) * ( $original_ratio > 1 ? $original_ratio : 1 );
+		$resize_height   = (int) max( $width, $height ) / ( $original_ratio < 1 ? $original_ratio : 1 );
 
 		$imagick->resizeImage( $resize_width, $resize_height, \Imagick::FILTER_LANCZOS, 1 );
 
