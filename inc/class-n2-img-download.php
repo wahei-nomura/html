@@ -130,9 +130,12 @@ class N2_Img_Download {
 		$info        = array();// 画像情報
 		$zip->open( $tmp_zip_uri, ZipArchive::CREATE );
 
+		$type = $params['type'] ?? 'フルサイズ';
+
 		foreach ( $ids as $id ) {
 			$img_file_name = get_post_meta( $id, '返礼品コード', true );
 			$dirname       = $img_file_name ?: get_the_title( $id );
+			$dirname      .= 'フルサイズ' !== $type ? "_{$type}" : '';
 			$filename      = mb_strtolower( $img_file_name ) ?: get_the_title( $id );
 			foreach ( get_post_meta( $id, '商品画像', true ) as $i => $img ) {
 				$index     = $i + 1;
@@ -166,6 +169,29 @@ class N2_Img_Download {
 		foreach ( Requests::request_multiple( $requests, array( 'timeout' => 100 ) ) as $v ) {
 			$v->info = $info[ $v->url ];
 			$tmp_uri = $v->info['tmp_url'];
+			$tmp_uri = match ( $type ) {
+				'楽天' => call_user_func_array(
+					array(
+						$this,
+						'resize_and_crop_image_by_imagick',
+					),
+					array(
+						'file_path' => $v->info['tmp_url'],
+					),
+				),
+				'チョイス' => call_user_func_array(
+					array(
+						$this,
+						'resize_and_crop_image_by_imagick',
+					),
+					array(
+						'file_path' => $v->info['tmp_url'],
+						'height'    => 435,
+					),
+				),
+				default => $v->info['tmp_url'],
+			};
+
 			unset( $v->info['tmp_url'] );
 			// 説明を追加
 			if ( ! empty( $info[ $v->url ]['description'] ) ) {
@@ -186,7 +212,11 @@ class N2_Img_Download {
 			}
 		}
 		// 単品か複数かで名前と構造を変更
-		$name = count( $ids ) > 1 ? 'NEONENG元画像.' . wp_date( 'Y-m-d-H-i' ) . '.zip' : "{$dirname}.zip";
+		$name = match ( true ) {
+			count( $ids ) === 1 => $dirname . '.zip',
+			'フルサイズ' === $type => 'NEONENG元画像.' . wp_date( 'Y-m-d-H-i' ) . '.zip',
+			default    => "NEONENG{$type}画像." . wp_date( 'Y-m-d-H-i' ) . '.zip',
+		};
 		$zip->close();
 		if ( ! file_exists( $tmp_zip_uri ) ) {
 			wp_safe_redirect( $_SERVER['HTTP_REFERER'] );
@@ -205,5 +235,45 @@ class N2_Img_Download {
 		// 出力処理
 		readfile( $tmp_zip_uri );
 		exit;
+	}
+
+	/**
+	 * リサイズ&トリミング
+	 *
+	 * @param string $file_path file_path
+	 * @param int    $width width
+	 * @param int    $height file_pathdddd
+	 * @param int    $dpi file_path
+	 *
+	 * @return string new_file_path
+	 */
+	public function resize_and_crop_image_by_imagick( $file_path, $width = 700, $height = 700, $dpi = 72 ) {
+		$imagick         = new \Imagick( $file_path );
+		$original_width  = $imagick->getImageWidth();
+		$original_height = $imagick->getImageHeight();
+		$original_ratio  = (int) $original_width / $original_height;
+		$resize_width    = max( $width, $height ) * ( $original_ratio > 1 ? $original_ratio : 1 );
+		$resize_height   = max( $width, $height ) / ( $original_ratio < 1 ? $original_ratio : 1 );
+
+		$imagick->resizeImage( $resize_width, $resize_height, \Imagick::FILTER_LANCZOS, 1 );
+
+		// 中央を基準にトリミング
+		$crop_x = ( $resize_width - $width ) / 2;
+		$crop_y = ( $resize_height - $height ) / 2;
+		$imagick->cropImage( $width, $height, $crop_x, $crop_y );
+
+		// 解像度を72に設定
+		$imagick->setImageResolution( $dpi, $dpi );
+
+		$new_file_path = stream_get_meta_data( tmpfile() )['uri'];
+
+		// 画像を一時ファイルとして保存
+		$imagick->writeImage( $new_file_path );
+
+		// メモリのクリーンアップ
+		$imagick->clear();
+		$imagick->destroy();
+
+		return $new_file_path;
 	}
 }

@@ -32,6 +32,7 @@ class N2_Admin_Post_Editor {
 		add_action( 'ajax_query_attachments_args', array( $this, 'display_only_self_uploaded_medias' ) );
 		add_filter( 'enter_title_here', array( $this, 'change_title' ) );
 		add_filter( 'intermediate_image_sizes_advanced', array( $this, 'not_create_image' ) );
+		add_action( 'after_setup_theme', array( $this, 'add_image_size' ) );
 		add_filter( 'wp_handle_upload', array( $this, 'image_compression' ) );
 		add_filter( 'post_link', array( $this, 'set_post_paermalink' ), 10, 3 );
 		add_action( 'init', array( $this, 'register_post_status' ) );
@@ -247,6 +248,13 @@ class N2_Admin_Post_Editor {
 		unset( $sizes['1536x1536'] );
 		unset( $sizes['2048x2048'] );
 		return $sizes;
+	}
+	/**
+	 * カスタムサイズを追加
+	 */
+	public function add_image_size() {
+		add_image_size( '楽天', 700, 700, true );
+		add_image_size( 'チョイス', 700, 435, true );
 	}
 
 	/**
