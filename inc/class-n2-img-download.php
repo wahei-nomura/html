@@ -135,6 +135,7 @@ class N2_Img_Download {
 		foreach ( $ids as $id ) {
 			$img_file_name = get_post_meta( $id, '返礼品コード', true );
 			$dirname       = $img_file_name ?: get_the_title( $id );
+			$dirname      .= 'フルサイズ' !== $type ? "_{$type}" : '';
 			$filename      = mb_strtolower( $img_file_name ) ?: get_the_title( $id );
 			foreach ( get_post_meta( $id, '商品画像', true ) as $i => $img ) {
 				$index     = $i + 1;
@@ -212,7 +213,7 @@ class N2_Img_Download {
 		}
 		// 単品か複数かで名前と構造を変更
 		$name = match ( true ) {
-			count( $ids ) === 1 => "{$dirname}_{$type}.zip",
+			count( $ids ) === 1 => $dirname,
 			'フルサイズ' === $type => 'NEONENG元画像.' . wp_date( 'Y-m-d-H-i' ) . '.zip',
 			default    => "NEONENG{$type}画像." . wp_date( 'Y-m-d-H-i' ) . '.zip',
 		};
