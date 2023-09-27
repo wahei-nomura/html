@@ -154,12 +154,13 @@ class N2_Item_Export_Base {
 	protected function set_header() {
 		// n2dataをもとに配列を作成
 		$header = reset( $this->data['n2data'] );
-		unset( $header['id'], $header['ステータス'] );
-		$this->data['header'] = array_keys( $header );
+		$header = array_keys( $header );
+		// アンダースコアで始まるものを排除
+		$header = array_filter( $header, fn( $v ) => ! preg_match( '/^_/', $v ) );
 		/**
 		 * [hook] n2_item_export_base_set_header
 		 */
-		$this->data['header'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_header', $this->data['header'] );
+		$this->data['header'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_header', $header );
 	}
 
 	/**
@@ -459,14 +460,12 @@ class N2_Item_Export_Base {
 
 	/**
 	 * デバッグ用
-	 *
-	 * @param floot $time 開始時刻
 	 */
 	private function debug() {
 		$this->set_header_string();
 		$this->set_data_string();
-		header( 'Content-Type: application/json; charset=utf-8' );
 		$time = microtime( true ) - $this->data['time']['start'];
+		echo '<style>body{margin:0;}</style><pre style="background: black;color: white;">';
 		print_r( '実行結果: ' . $time . '秒 ' ); // 実行時間を出力する
 		print_r( $this->settings );
 		print_r( $this->data );

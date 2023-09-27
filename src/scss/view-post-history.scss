@@ -16,4 +16,22 @@ $steamship: #1a4899;
 			white-space: nowrap;
 		}
 	}
+	&-chechout-revision{
+		min-width: 80%;
+		max-height: 80%;
+		&::backdrop{
+			background-color: rgba(0,0,0,.3);
+		}
+		&-close{
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 3em;
+			width: 3em;
+			cursor: pointer;
+			&:hover{
+				background-color: rgba(255,255,255,.1);
+			}
+		}
+	}
 }
