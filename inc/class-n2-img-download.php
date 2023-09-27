@@ -213,7 +213,7 @@ class N2_Img_Download {
 		}
 		// 単品か複数かで名前と構造を変更
 		$name = match ( true ) {
-			count( $ids ) === 1 => $dirname,
+			count( $ids ) === 1 => $dirname . '.zip',
 			'フルサイズ' === $type => 'NEONENG元画像.' . wp_date( 'Y-m-d-H-i' ) . '.zip',
 			default    => "NEONENG{$type}画像." . wp_date( 'Y-m-d-H-i' ) . '.zip',
 		};
