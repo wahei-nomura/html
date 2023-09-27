@@ -130,7 +130,7 @@ class N2_Img_Download {
 		$info        = array();// 画像情報
 		$zip->open( $tmp_zip_uri, ZipArchive::CREATE );
 
-		$type = $params['type'] ?? 'fullsize';
+		$type = $params['type'] ?? 'フルサイズ';
 
 		foreach ( $ids as $id ) {
 			$img_file_name = get_post_meta( $id, '返礼品コード', true );
@@ -212,8 +212,8 @@ class N2_Img_Download {
 		}
 		// 単品か複数かで名前と構造を変更
 		$name = match ( true ) {
-			count( $ids ) === 1 => "{$dirname}.zip",
-			'fullsize' === $type => 'NEONENG元画像.' . wp_date( 'Y-m-d-H-i' ) . '.zip',
+			count( $ids ) === 1 => "{$dirname}_{$type}.zip",
+			'フルサイズ' === $type => 'NEONENG元画像.' . wp_date( 'Y-m-d-H-i' ) . '.zip',
 			default    => "NEONENG{$type}画像." . wp_date( 'Y-m-d-H-i' ) . '.zip',
 		};
 		$zip->close();
@@ -250,10 +250,9 @@ class N2_Img_Download {
 		$imagick         = new \Imagick( $file_path );
 		$original_width  = $imagick->getImageWidth();
 		$original_height = $imagick->getImageHeight();
-		$original_ratio  = $original_width / $original_height;
-		$target_ratio    = $width / $height;
-		$resize_width    = max( $width, $height ) * ( $original_ratio > $target_ratio ? $original_ratio : 1 );
-		$resize_height   = max( $height, $width ) / ( $original_ratio < $target_ratio ? $original_ratio : 1 );
+		$original_ratio  = (int) $original_width / $original_height;
+		$resize_width    = max( $width, $height ) * ( $original_ratio > 1 ? $original_ratio : 1 );
+		$resize_height   = max( $width, $height ) / ( $original_ratio < 1 ? $original_ratio : 1 );
 
 		$imagick->resizeImage( $resize_width, $resize_height, \Imagick::FILTER_LANCZOS, 1 );
 
