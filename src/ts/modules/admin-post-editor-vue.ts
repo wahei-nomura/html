@@ -327,7 +327,7 @@ export default ($: any = jQuery) => {
 	});
 
 	// 地場産品類型変更されたら値取得
-	$(document).on('change', 'select', function(){
+	$(document).on('change', '#地場産品類型 select', function(){
 		let change_val = $(this).val();
 		let now_caution_text = $('#類型該当理由').find('.n2-field-description').find('.alert').text();
 		let ragex = /\(([^)]+)\)/;
