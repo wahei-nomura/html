@@ -412,7 +412,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			<?php echo nl2br( $n2values['説明文'] ); ?><br><br>
 			<?php // 商品タイプごとの注意書きを追加
 			foreach ( array_filter( $n2values['商品タイプ'] ) as $type ) {
-				echo $n2->settings['注意書き'][ $type ] . '<br>';
+				echo nl2br( $n2->settings['注意書き'][ $type ] ) . '<br>';
 			}
 			?>
 			<?php $this->make_itemtable( $n2values, false ); ?><br><br>
@@ -446,7 +446,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			<?php echo nl2br( $n2values['説明文'] ); ?><br><br>
 			<?php // 商品タイプごとの注意書きを追加
 			foreach ( array_filter( $n2values['商品タイプ'] ) as $type ) {
-				echo $n2->settings['注意書き'][ $type ] . '<br>';
+				echo nl2br( $n2->settings['注意書き'][ $type ] ) . '<br>';
 			}
 			?>
 			<?php echo nl2br( $n2values['内容量・規格等'] ); ?><br>
@@ -506,7 +506,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			<?php echo nl2br( $n2values['説明文'] ); ?><br><br>
 			<?php // 商品タイプごとの注意書きを追加
 			foreach ( array_filter( $n2values['商品タイプ'] ) as $type ) {
-				echo $n2->settings['注意書き'][ $type ] . '<br>';
+				echo nl2br( $n2->settings['注意書き'][ $type ] ) . '<br>';
 			}
 			?>
 			<?php $this->make_itemtable( $n2values, false ); ?>
@@ -584,9 +584,6 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			}
 			if ( isset( $n2values['対応機器備考'] ) ) {
 				$result .= '※' . $n2values['対応機器備考'] . '<br>';
-			}
-			if ( isset( $n2->settings['注意書き']['やきもの'] ) ) {
-				$result .= $n2->settings['注意書き']['やきもの'] . '<br>';
 			}
 		}
 		return $result;
