@@ -32,6 +32,7 @@ class N2_Admin_Post_List {
 		add_action( 'init', array( $this, 'change_postlabel' ) );// 投稿のラベル変更
 		add_action( 'pre_get_posts', array( $this, 'pre_get_author_posts' ) );// 事業者権限だと自分の投稿のみに
 		add_filter( 'wp_count_posts', array( $this, 'adjust_count_post' ), 10, 3 );// 事業者アカウントの投稿数の調整
+		add_filter( 'post_class', array( $this, 'add_post_class' ) );
 		add_action( 'admin_footer-edit.php', array( $this, 'save_post_ids_ui' ) );// 投稿ID保持＆一括ツールUI
 		add_filter( 'manage_posts_columns', array( $this, 'manage_posts_columns' ), 10, 2 );// カラム調整
 		add_filter( 'manage_edit-post_sortable_columns', array( $this, 'manage_posts_sortable_columns' ) );// ソート可能なカラムの調整
@@ -94,6 +95,21 @@ class N2_Admin_Post_List {
 			wp_cache_set( $cache_key, $counts, 'counts' );
 		}
 		return $counts;
+	}
+
+	/**
+	 * 一覧のtrにn2-readyクラス（準備が整っているのか判定）付与
+	 *
+	 * @param string[] $classes   An array of post class names.
+	 */
+	public function add_post_class( $classes ) {
+		$meta     = json_decode( get_the_content(), true );
+		$required = $meta['_n2_required'] ?? 1;
+		// 準備OKかどうか
+		if ( empty( $required ) ) {
+			$classes[] = 'n2-ready';
+		}
+		return $classes;
 	}
 
 	/**
@@ -180,7 +196,7 @@ class N2_Admin_Post_List {
 			'modified' => get_the_modified_date( 'y年 m/d' ) . '<br>' . get_the_modified_date( 'H:i:s' ),
 			'code' => $meta['返礼品コード'] ?? "<div onclick='navigator.clipboard.writeText({$post_id});' title='{$post_id}'>-</div>",
 			'subscription' => ( $meta['定期便'] ?? 1 ) > 1 ? "{$meta['定期便']}<small>回</small>" : '-',
-			'price' => number_format( (int) ( $meta['価格'] ?? 0 )) . '<small>円</small>',
+			'price' => number_format( (int) ( $meta['価格'] ?? 0 ) ) . '<small>円</small>',
 			'donation-amount' => number_format( (int) ( $meta['寄附金額'] ?? 0 ) ) . '<small>円</small>',
 			'rate' => sprintf( $rate > 30 ? '<span style="color:red;">%s<small>%s</small></span>' : '%s<small>%s</small>', $rate, '%' ),
 			'thumbnail' => $thumbnail ? "<img src='{$thumbnail}'>" : '<div class="empty-thumbnail">-</div>',
