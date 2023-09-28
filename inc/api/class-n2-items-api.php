@@ -236,6 +236,32 @@ class N2_Items_API {
 
 		// 投稿ステータス追加
 		$post_content['ステータス'] = $data['post_status'];
+
+		// 最低必要事項確認フラグ作成
+		{
+			// 最低必要事項
+			$required = array( '返礼品コード', '価格', '寄附金額' );
+			// eチケット以外なのに送料なし
+			if ( $meta_input['商品タイプ'] && ! in_array( 'eチケット', $meta_input['商品タイプ'], true ) ) {
+				$required[] = '送料';
+			}
+			// アレルギーあるのにアレルゲンなし
+			if (
+				! empty( array_filter( (array) $meta_input['アレルギー有無確認'] ) )
+				&& empty( array_filter( (array) $meta_input['アレルゲン'] ) )
+			) {
+				$required[] = 'アレルゲン';
+			}
+			// 最低必要事項の調査
+			$check_required = array_filter(
+				$meta_input,
+				fn( $v, $k ) => in_array( $k, $required, true ) && ! empty( array_filter( (array) $v ) ),
+				ARRAY_FILTER_USE_BOTH
+			);
+			// 最低必須項目が埋まっていないものリスト
+			$post_content['_n2_required'] = array_values( array_diff( $required, array_keys( $check_required ) ) );
+		}
+
 		// n2fieldのカスタムフィールド全取得
 		foreach ( $meta_input as $key => $meta ) {
 			// 値が配列の場合、空は削除
