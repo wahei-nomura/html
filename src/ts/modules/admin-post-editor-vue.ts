@@ -325,4 +325,18 @@ export default ($: any = jQuery) => {
 			components,
 		});
 	});
+
+	// 地場産品類型変更されたら値取得
+	$(document).on('change', 'select', function(){
+		let change_val = $(this).val();
+		let now_caution_text = $('#類型該当理由').find('.n2-field-description').find('.alert').text();
+		let ragex = /\(([^)]+)\)/;
+		var matches = ragex.exec(now_caution_text);
+		if(matches){
+			let inner_text = matches[1];
+			let new_text = n2.settings['N2']['類型該当理由注意書き'][change_val];
+			let replace_text = now_caution_text.replace("(" + inner_text + ")", ("(" + new_text + ")");
+			$('#類型該当理由').find('.n2-field-description').find('.alert').text(replace_text);
+		}
+	});	
 };
