@@ -90,10 +90,15 @@ export default ($: any = jQuery) => {
 	const methods = {
 		// 説明文・テキストカウンター
 		set_info(target) {
+			let description_text = $(target).parents('.n2-fields-value').data('description');
+			if('n2field[類型該当理由]' === $(target).attr('name')){
+				let caution_val = $('#地場産品類型').find('select option:selected').val();
+				description_text = description_text + '(' + n2.settings['N2']['類型該当理由注意書き'][caution_val] + ')';
+			}
 			$(target).parents('.n2-fields-value').find('.d-none').removeClass('d-none');
 			const info = [
 				$(target).parents('.n2-fields-value').data('description') && ! document.cookie.match(/n2-zenmode/) 
-					? `<div class="alert alert-primary mb-2">${$(target).parents('.n2-fields-value').data('description')}</div>`
+					? `<div class="alert alert-primary mb-2">${description_text}</div>`
 					: '',
 				$(target).attr('maxlength')
 					? `文字数：${($(target).val() as any).length} / ${$(target).attr('maxlength')}`
