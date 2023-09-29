@@ -184,14 +184,24 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 	 * @return $value
 	 */
 	public function check_error( $value, $name, $n2values ) {
+		global $n2;
 		foreach ( (array) $value as $num => $val ) {
 			// 定期便の一回目以降はこれ以下の処理はしない
 			if ( $num > 1 ) {
 				continue;
 			}
+			// エラー未生成で必須漏れ
+			if ( ! $this->data['error'][ $n2values['id'] ] && $n2values['_n2_required'] ) {
+				// LHcloudに不要な項目を削除
+				$del      = array( 'アレルゲン' );
+				$required = array_filter( $n2values['_n2_required'], fn( $n ) => ! in_array( $n, $del, true ) );
+				foreach ( $required as $v ) {
+					$this->add_error( $n2values['id'], "NEONENG項目：「{$v}」が空欄です。" );
+				}
+			}
 			// SS的必須漏れエラー
 			if ( preg_match( '/謝礼品番号|事業者|価格（税込み）|寄附設定金額/', $name ) && '' === trim( $val ) ) {
-				$this->add_error( $n2values['id'], "「{$name}」がありません。" );
+				$this->add_error( $n2values['id'], "LH項目：「{$name}」が設定できません。" );
 			}
 		}
 		return $value;
