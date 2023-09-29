@@ -158,7 +158,7 @@ class N2_Img_Download {
 						true => $type_info['tmp_uri'] ?: stream_get_meta_data( tmpfile() )['uri'],
 						default => stream_get_meta_data( tmpfile() )['uri'],
 					};
-					if ( $image_attributes && ! $set_fullsize ) {
+					if ( ! $image_attributes && ! $set_fullsize ) {
 						// フルサイズに変更
 						$type_bck                  = $type;
 						$type                      = 'フルサイズ';
