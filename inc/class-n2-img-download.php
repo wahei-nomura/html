@@ -202,8 +202,8 @@ class N2_Img_Download {
 		}
 		$description = array();
 		Requests::request_multiple( $requests, array( 'timeout' => 100 ) );
-		foreach ( $info as $type => $type_info ) {
-			foreach ( $type_info as $i ) {
+		foreach ( $dl_types as $type ) {
+			foreach ( $info[ $type ] as $i ) {
 				// DLした画像を必要ならリサイズ&トリミングする
 				$tmp_uri = match ( $type ) {
 					'楽天' => call_user_func_array(
