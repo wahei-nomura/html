@@ -159,6 +159,7 @@ class N2_Img_Download {
 						default => stream_get_meta_data( tmpfile() )['uri'],
 					};
 					if ( $image_attributes && ! $set_fullsize ) {
+						$type_info['dirname']      = "{$dirname}_フルサイズ";
 						$info['フルサイズ'][ $img_url ] = $type_info;
 					}
 					$img_url = match ( ! $image_attributes ) {
