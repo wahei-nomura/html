@@ -128,6 +128,7 @@ class N2_Item_Export_Base {
 			'事業者名',
 			'ステータス',
 			...$this->data['n2field'],
+			'_n2_required',
 		);
 		foreach ( N2_Items_API::get_items() as $v ) {
 			// fieldを絞る
