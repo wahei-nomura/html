@@ -71,7 +71,7 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 	 */
 	public function check_error( $value, $name, $n2values ) {
 		// エラー未生成で必須漏れ
-		if ( ! $this->data['error'][ $n2values['id'] ] && $n2values['_n2_required'] ) {
+		if ( ! isset( $this->data['error'][ $n2values['id'] ] ) && $n2values['_n2_required'] ) {
 			// Ledghomeに不要な項目を削除
 			$del      = array( 'アレルゲン' );
 			$required = array_filter( $n2values['_n2_required'], fn( $n ) => ! in_array( $n, $del, true ) );
