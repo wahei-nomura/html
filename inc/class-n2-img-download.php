@@ -159,8 +159,14 @@ class N2_Img_Download {
 						default => stream_get_meta_data( tmpfile() )['uri'],
 					};
 					if ( $image_attributes && ! $set_fullsize ) {
-						$type_info['dirname']      = "{$dirname}_フルサイズ";
-						$info['フルサイズ'][ $img_url ] = $type_info;
+						// フルサイズに変更
+						$type_bck                  = $type;
+						$type                      = 'フルサイズ';
+						$type_info['dirname']      = "{$dirname}_{$type}";
+						$info[ $type ][ $img_url ] = $type_info;
+						// 元に戻す
+						$type                 = $type_bck;
+						$type_info['dirname'] = "{$dirname}_{$type}";
 					}
 					$img_url = match ( ! $image_attributes ) {
 						true => $img_url,
