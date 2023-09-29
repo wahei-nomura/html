@@ -154,9 +154,10 @@ class N2 {
 			foreach ( $this->custom_field as $id => $arr ) {
 				foreach ( $arr as $name => $v ) {
 					$value = $v['value'] ?? '';
-					$value = get_post_meta( $post->ID, $name, true ) ?: $value;
+					$meta  = get_post_meta( $post->ID, $name, true );
+					$value = '' !== $meta ? $meta : $value;// こうしないと0が初期化されてしまう
 					// ====== 新規登録時の初期化 ======
-					if ( empty( $value ) ) {
+					if ( empty( $value ) && 0 !== $value && '0' !== $value ) {
 						$user_meta = $this->current_user->data->meta;
 						$value     = match ( $name ) {
 							'商品タイプ' => $user_meta['商品タイプ'] && 'post-new.php' === $pagenow

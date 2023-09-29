@@ -274,10 +274,19 @@ class N2_Items_API {
 		) {
 			$required[] = 'アレルゲン';
 		}
-		// 最低必要事項の調査
+		// 最低必要事項の調査（数値に関しては0は許したい）
 		$check_required = array_filter(
 			$meta,
-			fn( $v, $k ) => in_array( $k, $required, true ) && ! empty( array_filter( (array) $v ) ),
+			function ( $v, $k ) use ( $required ) {
+				if ( in_array( $k, $required, true ) ) {
+					if ( is_array( $v ) ) {
+						$bool = ! empty( array_filter( $v ) );
+					} else {
+						$bool = '' !== $v;
+					}
+				}
+				return $bool ?? false;
+			},
 			ARRAY_FILTER_USE_BOTH
 		);
 		// 最低必須項目が埋まっていないものリスト
