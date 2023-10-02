@@ -447,13 +447,8 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 */
 	public function pc_item_description( $n2values, $return_string = true ) {
 		// ========[html]PC用商品説明文========
-<<<<<<< HEAD
 		$html = function() use ( $n2values, $n2 ) {
 			$applicable_reasons = $n2->settings['N2']['理由表示地場産品類型'];
-=======
-		$html = function() use ( $n2values ) {
-			global $n2;
->>>>>>> v1.1
 			?>
 			<?php echo nl2br( $n2values['説明文'] ); ?><br><br>
 			<?php // 商品タイプごとの注意書きを追加
