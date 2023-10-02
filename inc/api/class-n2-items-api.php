@@ -297,6 +297,7 @@ class N2_Items_API {
 	 * 最低必要事項確認フラグがない場合は混ぜ込む（API更新したら不要）
 	 *
 	 * @param array $posts メタデータ
+	 * @param array $query クエリ
 	 */
 	public function add_required_posts( $posts, $query ) {
 		if ( 'post' !== $query->query['post_type'] ) {
