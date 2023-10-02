@@ -23,7 +23,7 @@ export default ($: any = jQuery) => {
 	**/
 	$('#事業者用').parent().children().each( (i,e) => {
 		for ( let d of Object.keys(n2.custom_field[e.id]) ) {
-			if ( ! meta[d] ) meta[d] = '';
+			if ( ! ( d in meta ) ) meta[d] = '';
 		}
 	});
 	console.log('meta', meta);

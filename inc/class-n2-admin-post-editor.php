@@ -32,6 +32,7 @@ class N2_Admin_Post_Editor {
 		add_action( 'ajax_query_attachments_args', array( $this, 'display_only_self_uploaded_medias' ) );
 		add_filter( 'enter_title_here', array( $this, 'change_title' ) );
 		add_filter( 'intermediate_image_sizes_advanced', array( $this, 'not_create_image' ) );
+		add_action( 'after_setup_theme', array( $this, 'add_image_size' ) );
 		add_filter( 'wp_handle_upload', array( $this, 'image_compression' ) );
 		add_filter( 'post_link', array( $this, 'set_post_paermalink' ), 10, 3 );
 		add_action( 'init', array( $this, 'register_post_status' ) );
@@ -148,6 +149,19 @@ class N2_Admin_Post_Editor {
 	 */
 	public function show_customfields( $post, $metabox ) {
 		global $n2;
+		if ( in_array( '楽天', $n2->settings['N2']['出品ポータル'] ) ) {
+			// 楽天納期(楽天APIから取得)
+			$delvdate_api  = new N2_RMS_Shop_API();
+			$delvdate_data = match ( $delvdate_api->connect() ) {
+				true => $delvdate_api->delvdate_master_get(),
+				default => array(),
+			};
+			foreach ( $delvdate_data as $delvdate_data_item ) {
+				$delv_no      = (int) $delvdate_data_item->delvdateNumber;
+				$delv_caption = $delvdate_data_item->delvdateCaption;
+				$n2->custom_field['スチームシップ用']['楽天納期情報']['option'][ $delv_no ] = $delv_no . ':' . $delv_caption;
+			}
+		}
 		$custom_field = array_filter( $n2->custom_field[ $metabox['id'] ], fn( $v ) => isset( $v['type'] ) );
 		?>
 		<div class="n2-fields fs-6">
@@ -234,6 +248,13 @@ class N2_Admin_Post_Editor {
 		unset( $sizes['1536x1536'] );
 		unset( $sizes['2048x2048'] );
 		return $sizes;
+	}
+	/**
+	 * カスタムサイズを追加
+	 */
+	public function add_image_size() {
+		add_image_size( '楽天', 700, 700, true );
+		add_image_size( 'チョイス', 700, 435, true );
 	}
 
 	/**

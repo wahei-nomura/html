@@ -117,7 +117,11 @@ class N2_Product_List_Print {
 													$td = number_format( $td );
 													break;
 												case '送料':
-													$td = number_format( $td );
+													if ( ! $td ) {
+														$td = '';
+													} else {
+														$td = number_format( $td );
+													}
 													break;
 												case '定期便回数':
 													$td  = $td > 1
@@ -139,9 +143,13 @@ class N2_Product_List_Print {
 													$td .= $p['アレルゲン注釈'] ? "<br>※ {$p['アレルゲン注釈']}" : '';
 													break;
 												case '発送サイズ':
-													$td = ( is_numeric( $td ) )
+													if ( '0100' === $td ) {
+														$td = '宅急便コンパクト';
+													} else {
+														$td = ( is_numeric( $td ) )
 														? ( ( mb_substr( $td, -1 ) * 20 ) + 40 ) . 'サイズ'
 														: $td;
+													}
 													break;
 												case '対応機器':
 													if ( in_array( 'やきもの', $p['商品タイプ'], true ) ) {
