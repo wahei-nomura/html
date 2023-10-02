@@ -32,7 +32,7 @@ class N2_Items_API {
 	public function __construct() {
 		// post_contentに必要なデータを全部ぶっこむ
 		add_action( 'wp_insert_post_data', array( $this, 'insert_post_data' ), 20, 4 );
-		add_filter( 'posts_results', array( $this, 'add_required_posts' ) );// 取得時に最低必要事項確認フラグ注入（取得が遅くなる）
+		add_filter( 'posts_results', array( $this, 'add_required_posts' ), 10, 2 );// 取得時に最低必要事項確認フラグ注入（取得が遅くなる）
 		add_action( 'wp_ajax_n2_items_api', array( $this, 'api' ) );
 		add_action( 'wp_ajax_nopriv_n2_items_api', array( $this, 'api' ) );
 		add_action( 'profile_update', array( $this, 'update_api_from_user' ) );
@@ -298,7 +298,10 @@ class N2_Items_API {
 	 *
 	 * @param array $posts メタデータ
 	 */
-	public function add_required_posts( $posts ) {
+	public function add_required_posts( $posts, $query ) {
+		if ( 'post' !== $query->query['post_type'] ) {
+			return $posts;
+		}
 		foreach ( $posts as $i => $post ) {
 			$post_content = json_decode( $posts[ $i ]->post_content, true );
 			// 最低必要事項確認フラグ注入
