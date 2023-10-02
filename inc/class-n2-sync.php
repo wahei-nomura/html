@@ -857,6 +857,7 @@ class N2_Sync {
 	 */
 	public function sync_posts_from_spreadsheet() {
 		global $n2;
+		echo '<style>body{margin:0;background: black;color: white;}</style><pre style="min-height: 100%;margin: 0;padding: 1em;">';
 		$default  = array(
 			'spreadsheet' => array(
 				'id'         => '',
@@ -886,24 +887,40 @@ class N2_Sync {
 		$sep = '/[,|、|\s|\/|\||｜|／]/u';
 		// 投稿配列
 		$postarr = array();
+		$errors  = array();
 		foreach ( $data as $k => $d ) {
 			// カスタムフィールド以外
 			{
-				// ID
-				if ( ! empty( $d['id'] ) ) {
-					$postarr[ $k ]['ID'] = $d['id'];
+				// ID（大文字・小文字対応）
+				if ( ! empty( $d['id'] ) || ! empty( $d['ID'] ) ) {
+					$postarr[ $k ]['ID'] = mb_convert_kana( $d['id'] ?? $d['ID'], 'n' );
 				}
 				// post_title
 				if ( ! empty( $d['タイトル'] ) ) {
 					$postarr[ $k ]['post_title'] = $d['タイトル'];
+					if ( mb_strlen( $d['タイトル'] ) > 100 ) {
+						$errors[ $k ][] = 'タイトルが長すぎます。タイトルは100文字までにして下さい。';
+					}
 				}
 				// post_status
 				if ( ! empty( $d['ステータス'] ) ) {
-					$postarr[ $k ]['post_status'] = $d['ステータス'];
+					$postarr[ $k ]['post_status'] = match ( 1 ) {
+						preg_match( '/入力中/u', $d['ステータス'] ) => 'draft',
+						preg_match( '/確認中/u', $d['ステータス'] ) => 'pending',
+						preg_match( '/準備中/u', $d['ステータス'] ) => 'publish',
+						preg_match( '/登録済/u', $d['ステータス'] ) => 'registered',
+						preg_match( '/非公開/u', $d['ステータス'] ) => 'private',
+						default => $d['ステータス'],
+					};
+					// N2のステータス
+					$n2_statuses = array( ...get_post_statuses(), 'registered' );
+					if ( ! in_array( $postarr[ $k ]['post_status'], $n2_statuses, true ) ) {
+						$errors[ $k ][] = "存在しないステータス「{$d['ステータス']}」が設定されています。";
+					}
 				}
 				// 事業者コードからuserid取得
 				if ( ! empty( $d['事業者コード'] ) ) {
-					$userid = $this->get_userid_by_usermeta( 'last_name', $d['事業者コード'] );
+					$userid = $this->get_userid_by_usermeta( 'last_name', strtoupper( mb_convert_kana( $d['事業者コード'], 'n' ) ) );
 				}
 				// 事業者名からuserid取得
 				if ( ! empty( $d['事業者名'] ) && empty( $userid ) ) {
@@ -915,6 +932,10 @@ class N2_Sync {
 				}
 				unset( $d['id'], $d['タイトル'], $d['ステータス'], $d['事業者コード'], $d['事業者名'] );// 破棄
 			}
+			// 返礼品コード
+			if ( isset( $d['返礼品コード'] ) ) {
+				$d['返礼品コード'] = strtoupper( mb_convert_kana( $d['返礼品コード'], 'n' ) );
+			}
 			// 寄附金額固定（入力あれば固定）
 			if ( isset( $d['寄附金額固定'] ) ) {
 				$d['寄附金額固定'] = array( $d['寄附金額固定'] ? '固定する' : '' );
@@ -923,6 +944,7 @@ class N2_Sync {
 			if ( isset( $d['寄附金額'] ) ) {
 				$d['寄附金額'] = preg_replace( '/[^0-9]/', '', mb_convert_kana( $d['寄附金額'], 'n' ) );
 			}
+			// 定期便
 			if ( isset( $d['定期便'] ) ) {
 				$d['定期便'] = preg_replace( '/[^0-9]/', '', mb_convert_kana( $d['定期便'], 'n' ) ) ?: 1;
 			}
@@ -937,9 +959,49 @@ class N2_Sync {
 					)
 				);
 			}
+			// 全商品ディレクトリID
+			if ( isset( $d['全商品ディレクトリID'] ) ) {
+				$d['全商品ディレクトリID'] = mb_convert_kana( $d['全商品ディレクトリID'], 'n' );
+				if ( preg_match( '/[^0-9]/', $d['全商品ディレクトリID'] ) ) {
+					$errors[ $k ][] = '全商品ディレクトリIDは数値です。';
+				}
+			}
+			// タグID
+			if ( isset( $d['タグID'] ) ) {
+				$d['タグID'] = array_filter( preg_split( $sep, $d['タグID'] ) );
+				foreach ( $d['タグID'] as $id ) {
+					if ( preg_match( '/[^0-9]/', $id ) ) {
+						$errors[ $k ][] = 'タグIDは数値です。';
+					}
+				}
+				$d['タグID'] = implode( '/', $d['タグID'] );
+			}
+			// 出品禁止ポータル
+			if ( isset( $d['出品禁止ポータル'] ) ) {
+				$d['出品禁止ポータル'] = array_filter( preg_split( $sep, $d['出品禁止ポータル'] ) );
+				foreach ( $d['出品禁止ポータル']  as $name ) {
+					if ( ! in_array( $name, $n2->settings['N2']['出品ポータル'], true ) ) {
+						$errors[ $k ][] = "そもそも出品していないポータル「{$name}」が出品禁止ポータルに設定されています。";
+					}
+				}
+			}
+			// 地場産品類型
+			if ( isset( $d['地場産品類型'] ) ) {
+				$num = $d['地場産品類型'];
+				// 数字は半角に
+				$d['地場産品類型'] = mb_convert_kana( mb_substr( $d['地場産品類型'], 0, 1 ), 'n' ) . mb_substr( $d['地場産品類型'], 1 );
+				if ( ! in_array( $d['地場産品類型'], array_map( 'strval', array_keys( $n2->custom_field['スチームシップ用']['地場産品類型']['option'] ?? array() ) ), true ) ) {
+					$errors[ $k ][] = "存在しない地場産品類型「{$num}」が設定されています。";
+				}
+			}
 			// 商品タイプ（区切り文字列でいい感じに配列化）
 			if ( isset( $d['商品タイプ'] ) ) {
 				$d['商品タイプ'] = array_values( array_filter( preg_split( $sep, $d['商品タイプ'] ) ) );
+				foreach ( $d['商品タイプ'] as $name ) {
+					if ( ! in_array( $name, $n2->settings['N2']['商品タイプ'], true ) ) {
+						$errors[ $k ][] = "存在しない商品タイプ「{$name}」が設定されています。";
+					}
+				}
 			}
 			// アレルギーの有無確認（入力あればアレルギー品目あり）
 			if ( isset( $d['アレルギー有無確認'] ) ) {
@@ -952,26 +1014,77 @@ class N2_Sync {
 				// アレルゲンをいい感じにN2に存在するものに変換する
 				$d['アレルゲン'] = $this->change_n2_allergen( $d['アレルゲン'] );
 			}
+			// 包装対応
+			foreach ( array( '包装', 'のし' ) as $name ) {
+				if ( isset( $d[ "{$name}対応" ] ) ) {
+					$d[ "{$name}対応" ] = match ( $d[ "{$name}対応" ] ) {
+						'有り','あり','する', '対応する', '可' => '有り',
+						'無し','なし', 'しない', '対応しない', '不可', '' => '無し',
+						default => false,
+					};
+					if ( ! $d[ "{$name}対応" ] ) {
+						$errors[ $k ][] = "{$name}対応に不適切な文字が入力されています。「有り」か「無し」で入力して下さい。";
+					}
+				}
+			}
+			// 発送方法
+			if ( isset( $d['発送方法'] ) ) {
+				if ( ! in_array( $d['発送方法'], $n2->custom_field['事業者用']['発送方法']['option'], true ) ) {
+					$errors[ $k ][] = "存在しない発送方法「{$d['発送方法']}」が設定されています。";
+				}
+			}
 			// 取り扱い方法（区切り文字列でいい感じに配列化）
 			if ( isset( $d['取り扱い方法'] ) ) {
 				$d['取り扱い方法'] = array_values( array_filter( preg_split( $sep, $d['取り扱い方法'] ) ) );
+				if ( count( $d['取り扱い方法'] ) > 2 ) {
+					$errors[ $k ][] = '取り扱い方法は最大2つまでです。';
+				}
+				foreach ( $d['取り扱い方法'] as $name ) {
+					if ( ! in_array( $name, $n2->custom_field['事業者用']['取り扱い方法']['option'], true ) ) {
+						$errors[ $k ][] = "存在しない取り扱い方法「{$name}」が設定されています。";
+					}
+				}
 			}
 			// 発送サイズの想定入力ミスに対応
 			if ( isset( $d['発送サイズ'] ) ) {
+				// 発送サイズの一時退避
+				$delivery_size = $d['発送サイズ'];
+				// 発送サイズの変換
 				$d['発送サイズ'] = match ( 1 ) {
 					preg_match( '/[1１][0０][0-8０-８]/u', $d['発送サイズ'], $m ) => '0' . mb_convert_kana( $m[0], 'n' ),// 0が抜けた発送サイズコードの場合
 					preg_match( '/[1-9１-９]{1,2}[0０]/u', $d['発送サイズ'], $m ) => '010' . ( mb_convert_kana( $m[0], 'n' ) - 40 ) / 20,// 発送サイズ名で入れたの場合（全角にも対応）
 					preg_match( '/コンパクト/u', $d['発送サイズ'] ) => '0100',
 					default => $d['発送サイズ'],
 				};
+				$n2_delivery_sizes = array_keys( array_filter( $n2->settings['寄附金額・送料']['送料'] ) );
+				if ( ! in_array( $d['発送サイズ'], $n2_delivery_sizes, true ) ) {
+					$errors[ $k ][] = "存在しない発送サイズ「{$delivery_size}」が設定されています。";
+				}
 			}
 			if ( empty( $d['送料'] ) && ! empty( $d['発送サイズ'] ) && ! empty( $d['発送方法'] ) ) {
 				$delivery_code = N2_Donation_Amount_API::create_delivery_code( $d['発送サイズ'], $d['発送方法'] );
 				// 送料計算
 				$d['送料'] = $n2->settings['寄附金額・送料']['送料'][ $delivery_code ] ?? '';
 			}
+			// LHカテゴリー
+			if ( isset( $d['LHカテゴリー'] ) ) {
+				if ( ! in_array( $d['LHカテゴリー'], $n2->custom_field['事業者用']['LHカテゴリー']['option'], true ) ) {
+					$errors[ $k ][] = "存在しないLHカテゴリー「{$d['LHカテゴリー']}」が設定されています。";
+				}
+			}
 			// $postarrにセット
 			$postarr[ $k ]['meta_input'] = $d;
+		}
+		// エラー発生の場合はストップ
+		if ( ! empty( $errors ) ) {
+			printf( "%s件のエラーのため処理を中止しました。\n\n行数\tエラー内容\n", count( array_reduce( $errors, 'array_merge', array() ) ) );
+			foreach ( $errors as $i => $values ) {
+				$i = $i + 2;
+				foreach ( $values as $value ) {
+					echo "{$i}行目\t{$value}\n";
+				}
+			}
+			exit;
 		}
 		$logs = $this->multi_insert_posts( $postarr, 50 );
 		// GETパラメータで受け取ったidとitem_rangeも保存
@@ -983,7 +1096,7 @@ class N2_Sync {
 				'item_range' => $item_range,
 			)
 		);
-		echo '<style>body{margin:0;background: black;color: white;}</style><pre style="min-height: 100%;margin: 0;padding: 1em;">';
+
 		printf(
 			"追加: %d件\n更新: %d件\n-----------\n合計: %d件\n\n\n",
 			count( array_filter( $logs, fn( $v ) => 'insert' === $v['mode'] ) ),
