@@ -76,9 +76,9 @@ global $n2;
 						<input type="hidden" name="ids" :value="ids.join(',')">
 						<div style="margin-bottom: 1em;">
 							<span>モード選択 ：　</span>
-							<label><input type="radio" name="type" value="フルサイズ" checked> フルサイズ</label>
-							<label v-if="n2.settings.N2.出品ポータル.includes('楽天')"><input type="radio" name="type" value="楽天"> 楽天（700×700）</label>
-							<label v-if="n2.settings.N2.出品ポータル.includes('ふるさとチョイス')"><input type="radio" name="type" value="チョイス"> チョイス（700×435）</label>
+							<label><input type="checkbox" name="type[]" value="フルサイズ" checked> フルサイズ</label>
+							<label v-if="n2.settings.N2.出品ポータル.includes('楽天')"><input type="checkbox" name="type[]" value="楽天"> 楽天（700×700）</label>
+							<label v-if="n2.settings.N2.出品ポータル.includes('ふるさとチョイス')"><input type="checkbox" name="type[]" value="チョイス"> チョイス（700×435）</label>
 						</div>
 						<button>画像ダウンロード</button>
 					</form>
