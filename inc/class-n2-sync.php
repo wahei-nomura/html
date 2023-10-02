@@ -1077,7 +1077,11 @@ class N2_Sync {
 		}
 		// エラー発生の場合はストップ
 		if ( ! empty( $errors ) ) {
-			printf( "%s件のエラーのため処理を中止しました。\n\n行数\tエラー内容\n", count( array_reduce( $errors, 'array_merge', array() ) ) );
+			$error_count = count( array_reduce( $errors, 'array_merge', array() ) );
+			$error_point = ( $n2->current_user->data->meta['error_point'] ?? 0 ) + $error_count;
+			update_user_meta( $n2->current_user->ID, 'error_point', $error_point );
+			printf( "%1\$s様\n\nおめでとうございます！？\n\n%2\$s件のエラーのため処理を中止し、あなたにN2エラーポイントを「%2\$spt」付与しました。\n現在のあなたの合計N2エラーポイントは%3\$sptです。（たまり過ぎると様々なN2の制限がかかります）", $n2->current_user->data->display_name, $error_count, $error_point );
+			echo "\n\n行数\tエラー内容\n";
 			foreach ( $errors as $i => $values ) {
 				$i = $i + 2;
 				foreach ( $values as $value ) {
