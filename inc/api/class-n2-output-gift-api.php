@@ -31,6 +31,8 @@ class N2_Output_Gift_API {
 		global $n2;
 		// 自治体コードを取得
 		$site_id = $n2->site_id;
+		// 注意書きと商品タイプを取得
+		$warning = $n2->settings['注意書き'];
 		// N2稼働中か判定するフラグを取得
 		$n2_active_flag = $n2->settings['N2']['稼働中'];
 
@@ -193,11 +195,16 @@ class N2_Output_Gift_API {
 			$results['data'][ $meta_key ] = $meta_value;
 		}
 
+		// 共通だけ常時merge、それ以外は抽出してmerge
+		$match_value            = array_merge( ['共通' => $warning['共通'] ], array_intersect_key( $warning, array_flip( unserialize( $results['data']['商品タイプ'] ) ) ) );
+		$results['data']['説明文'] = $results['data']['説明文'] . "\n" . implode( "\n", array_filter( $match_value ) );
+
 		// 結果をJSON形式に変換して出力
 		header( 'Content-Type: application/json' );
 		echo wp_json_encode( $results );
 		exit;
 	}
+
 	/**
 	 * 非プライベートユーザー用API
 	 */
@@ -206,6 +213,8 @@ class N2_Output_Gift_API {
 		global $n2;
 		// 自治体コードを取得
 		$site_id = $n2->site_id;
+		// 注意書きと商品タイプを取得
+		$warning = $n2->settings['注意書き'];
 		// N2稼働中か判定するフラグを取得
 		$n2_active_flag = $n2->settings['N2']['稼働中'];
 
@@ -258,7 +267,8 @@ class N2_Output_Gift_API {
 				'包装対応',
 				'のし対応',
 				'配送期間',
-				'やきもの'
+				'やきもの',
+				'商品タイプ'
 				)
 		AND
 			posts.id in (
@@ -309,6 +319,7 @@ class N2_Output_Gift_API {
 			'のし対応',
 			'配送期間',
 			'やきもの',
+			'商品タイプ',
 		);
 
 		// 実際に存在するキーと出力が期待されるキーとを比較し、不足しているキーがあれば、そのキーとその値（空文字）をdataに追加
@@ -336,6 +347,10 @@ class N2_Output_Gift_API {
 			}
 			$results['data'][ $meta_key ] = $meta_value;
 		}
+
+		// 共通だけ常時merge、それ以外は抽出してmerge
+		$match_value            = array_merge( ['共通' => $warning['共通'] ], array_intersect_key( $warning, array_flip( unserialize( $results['data']['商品タイプ'] ) ) ) );
+		$results['data']['説明文'] = $results['data']['説明文'] . "\n" . implode( "\n", array_filter( $match_value ) );
 
 		// 結果をJSON形式に変換して出力
 		header( 'Content-Type: application/json' );
