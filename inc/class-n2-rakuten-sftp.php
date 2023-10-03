@@ -27,12 +27,13 @@ class N2_Rakuten_SFTP {
 	 * @var array
 	 */
 	protected $data = array(
-		'connect' => null,
-		'params'  => array(),
-		'files'   => null,
-		'data'    => array(),
-		'error'   => array(),
-		'log'     => array(),
+		'connect'          => null,
+		'params'           => array(),
+		'files'            => null,
+		'data'             => array(),
+		'error'            => array(),
+		'log'              => array(),
+		'rakuten_csv_name' => array( 'normal-item.csv', 'cat-item.csv' ),
 	);
 
 	/**
@@ -218,11 +219,10 @@ class N2_Rakuten_SFTP {
 	}
 
 	public function csv_upload() {
-		$name     = $this->data['files']['name'];
-		$type     = $this->data['files']['type'];
-		$tmp_name = $this->data['files']['tmp_name'];
-
-		$rakuten_csv_name = 'normal-item.csv';
+		$name             = $this->data['files']['name'];
+		$type             = $this->data['files']['type'];
+		$tmp_name         = $this->data['files']['tmp_name'];
+		$rakuten_csv_name = $this->data['rakuten_csv_name'];
 
 		foreach ( $tmp_name as $k => $file ) {
 			if ( strpos( $name[ $k ], '.csv' ) === false ) {
@@ -230,14 +230,19 @@ class N2_Rakuten_SFTP {
 				continue;
 			}
 			// リネーム処理
-			if ( str_contains( $name[ $k ], $rakuten_csv_name ) ) {
-				$name[ $k ] = $rakuten_csv_name;
-			} else {
-				$this->data['log'][] = 'ファイル名が違います :' . $name[ $k ];
+			$is_checked = false;
+			foreach ( $rakuten_csv_name as $file_name ) {
+				if ( str_contains( $name[ $k ], $file_name ) ) {
+					$name[ $k ] = $file_name;
+					$is_checked = true;
+					break;
+				}
+			}
+			if ($is_checked === false){
+				$this->data['log'][] = 'ファイル名に指定のワードが含まれていません :' . $name[ $k ];
 				continue;
 			}
-			var_dump( $name );
-			var_dump( $this->data );
+
 			$remote_file         = 'ritem/batch/' . $name[ $k ];
 			$file_data           = file_get_contents( $file );
 			$this->data['log'][] = match ( $this->sftp->put_contents( $remote_file, $file_data ) ) {
