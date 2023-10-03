@@ -300,7 +300,7 @@ class N2_Items_API {
 	 * @param array $query クエリ
 	 */
 	public function add_required_posts( $posts, $query ) {
-		if ( 'post' !== $query->query['post_type'] ) {
+		if ( 'post' !== ( $query->query['post_type'] ?? '' ) ) {
 			return $posts;
 		}
 		foreach ( $posts as $i => $post ) {
