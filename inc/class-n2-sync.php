@@ -1063,7 +1063,8 @@ class N2_Sync {
 					preg_match( '/コンパクト/u', $d['発送サイズ'] ) => '0100',
 					default => $d['発送サイズ'],
 				};
-				$n2_delivery_sizes = array_keys( array_filter( $n2->settings['寄附金額・送料']['送料'] ) );
+				$n2_delivery_sizes   = array_keys( array_filter( $n2->settings['寄附金額・送料']['送料'] ) )
+				$n2_delivery_sizes[] = 'その他';// その他追加
 				if ( ! in_array( $d['発送サイズ'], $n2_delivery_sizes, true ) ) {
 					$errors[ $k ][] = "存在しない発送サイズ「{$delivery_size}」が設定されています。";
 				}
