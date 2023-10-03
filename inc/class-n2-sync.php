@@ -920,7 +920,7 @@ class N2_Sync {
 						default => $d['ステータス'],
 					};
 					// N2のステータス
-					$n2_statuses = array( ...get_post_statuses(), 'registered' );
+					$n2_statuses = array( ...array_keys( get_post_statuses() ), 'registered' );
 					if ( ! in_array( $postarr[ $k ]['post_status'], $n2_statuses, true ) ) {
 						$errors[ $k ][] = "存在しないステータス「{$d['ステータス']}」が設定されています。";
 					}
