@@ -60,6 +60,13 @@ class N2_Sync {
 	);
 
 	/**
+	 * エラー
+	 *
+	 * @var array
+	 */
+	private $error = array();
+
+	/**
 	 * コンストラクタ
 	 */
 	public function __construct() {
@@ -887,7 +894,7 @@ class N2_Sync {
 		$sep = '/[,|、|\s|\/|\||｜|／]/u';
 		// 投稿配列
 		$postarr = array();
-		$errors  = array();
+		$errors  = $this->error;
 		foreach ( $data as $k => $d ) {
 			// カスタムフィールド以外
 			{
@@ -1170,7 +1177,13 @@ class N2_Sync {
 		}
 		$data   = json_decode( $data['body'], true )['valueRanges'];
 		$header = $data[0]['values'][0];
-		$data   = $data[1]['values'];
+
+		// スプシヘッダーの異物混入を疑う
+		if ( ! in_array( $header[0], array( 'id', 'ID' ), true ) ) {
+			$this->error[-1][] = 'スプレットシートのヘッダー行に異物混入しています。1行目はヘッダー行ですのでその上に行を追加等はしないで下さい。';
+		}
+
+		$data = $data[1]['values'];
 		if ( $header === $data[0] ) {
 			unset( $data[0] );
 			$data = array_values( $data );
