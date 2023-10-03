@@ -264,15 +264,13 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 * RMS APIが使えるか判定
 	 */
 	protected function can_use_api() {
-		if ( null === $this->rms['use_api'] ) {
-			$this->rms['use_api'] = N2_RMS_Cabinet_API::ajax(
-				array(
-					'call' => 'connect',
-					'mode'    => 'func',
-				),
-			);
-		}
-		return $this->rms['use_api'];
+		return match( $this->rms['use_api'] ) {
+			null => ( function() {
+				$rms = new N2_RMS_Cabinet_API();
+				return $rms->connect();
+			})(),
+			default => $this->rms['use_api'],
+		};
 	}
 
 	/**
@@ -286,16 +284,10 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		}
 
 		// 検索ワードでハッシュ化
-		$cabinet              = N2_RMS_Cabinet_API::ajax(
-			array(
-				'keywords' => $keywords,
-				'call'  => 'files_search',
-				'mode'     => 'func',
-			),
-		);
+		$cabinet = new N2_RMS_Cabinet_API();
 		$this->rms['cabinet'] = array(
 			...$this->rms['cabinet'],
-			...$cabinet,
+			...$cabinet->files_search( $keywords ),
 		);
 	}
 
@@ -368,12 +360,8 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 
 		if ( ! $result ) { // 直接存在チェック
 			$result   = array();
-			$response = N2_Multi_URL_Request_API::ajax(
-				array(
-					'requests'    => array_map( fn( $req ) => array( 'url' => $req ), $requests ),
-					'mode'    => 'func',
-					'call' => 'verify_images',
-				),
+			$response = N2_Multi_URL_Request_API::verify_images(
+				array_map( fn( $req ) => array( 'url' => $req ), $requests ),
 			);
 			$result   = array_map(
 				function( $req ) use ( $response ) {
@@ -454,12 +442,17 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 * @return string|void 楽天のPC用商品説明文を(文字列|HTML出力)する
 	 */
 	public function pc_item_description( $n2values, $return_string = true ) {
-		global $n2;
 		// ========[html]PC用商品説明文========
-		$html = function() use ( $n2values, $n2 ) {
+		$html = function() use ( $n2values) {
+			global $n2;
 			$applicable_reasons = $n2->settings['N2']['理由表示地場産品類型'];
 			?>
 			<?php echo nl2br( $n2values['説明文'] ); ?><br><br>
+			<?php // 商品タイプごとの注意書きを追加
+			foreach ( array_filter( $n2values['商品タイプ'] ) as $type ) {
+				echo nl2br( $n2->settings['注意書き'][ $type ] ) . '<br>';
+			}
+			?>
 			<?php echo nl2br( $n2values['内容量・規格等'] ); ?><br>
 			<?php if ( $n2values['賞味期限'] ) : ?>
 				<br>【賞味期限】<br><?php echo nl2br( $n2values['賞味期限'] ); ?><br>
@@ -483,9 +476,6 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			<?php if ( $n2values['対応機器備考'] ) : ?>
 				<br><br>【対応機器備考】<br>
 				※<?php echo nl2br( $n2values['対応機器備考'] ); ?><br>
-			<?php endif; ?>
-			<?php if ( isset( $n2->settings['注意書き']['やきもの'] ) ) : ?>
-				<?php echo nl2br( $n2->settings['注意書き']['やきもの'] ); ?><br>
 			<?php endif; ?>
 			<?php if ( $n2values['検索キーワード'] ) : ?>
 				<br><br><?php echo nl2br( $n2values['検索キーワード'] ); ?><br>
@@ -608,9 +598,6 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			}
 			if ( isset( $n2values['対応機器備考'] ) ) {
 				$result .= '※' . $n2values['対応機器備考'] . '<br>';
-			}
-			if ( isset( $n2->settings['注意書き']['やきもの'] ) ) {
-				$result .= $n2->settings['注意書き']['やきもの'] . '<br>';
 			}
 		}
 		return $result;

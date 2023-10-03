@@ -181,7 +181,6 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 			$this->add_error( $n2values['id'], "「{$name}」がありません。" );
 		}
 		// 文字数制限エラー
-		$len       = mb_strlen( $value );// $valueの文字数
 		$maxlength = array(
 			40   => 'キャッチコピー',
 			64   => 'サイト表示事業者名',
@@ -190,6 +189,10 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 			1000 => '^説明$|^容量$|^申込期日$|^発送期日$|アレルギー特記事項|消費期限',
 		);
 		foreach ( $maxlength as $max => $pattern ) {
+			$len = match ( $pattern ) {
+				'地場産品類型番号' => mb_strlen( preg_replace( '/.*?\|/u', '', $value ) ),// パイプ前を削除
+				default => mb_strlen( $value ),
+			};
 			if ( preg_match( "/{$pattern}/", $name ) && $len > $max ) {
 				$over = $len - $max;
 				$this->add_error( $n2values['id'], "<div title='{$value}'>「{$name}」の文字数が{$over}文字多いです。</div>" );
@@ -206,6 +209,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 	protected function special_str_convert( $str ) {
 		global $n2;
 		$str = str_replace( array_keys( $n2->special_str_convert ), array_values( $n2->special_str_convert ), $str );
+		$str = preg_replace( '/\r\n?|\n/', "\r\n", $str );
 		/**
 		 * [hook] n2_item_export_furusato_choice_special_str_convert
 		 */

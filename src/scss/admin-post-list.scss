@@ -72,6 +72,7 @@ $bp: 782px;
 			position: relative;
 			background: white;
 			$transparent: 0.1;
+			// ステータス
 			&.status-draft{
 				background: linear-gradient(to right, $secondary 7px, rgba($secondary, $transparent) 7px, rgba($secondary, $transparent) 25%, white 25%);
 			}
@@ -86,6 +87,15 @@ $bp: 782px;
 			}
 			&.status-private{
 				background: linear-gradient(to right, $dark 7px, rgba($dark, 0.4) 7px, rgba($dark, 0.4) 100%);
+			}
+			// N2的準備OKフラグ
+			&.n2-ready{
+				.n2-admin-post-list-tool-open{
+					color: rgba($success, 0.7);
+					&:hover{
+						color: $success;
+					}
+				}
 			}
 		}
 		.check-column{
@@ -504,6 +514,14 @@ body.is_safari{
 	}
 	&-content{
 		word-break: break-all;
+		&-required{
+			position: sticky;
+			bottom: 0;
+			padding: 1em;
+			color: $danger;
+			font-weight: bold;
+			font-size: 1.2em;
+		}
 		&-imgs{
 			display: flex;
 			flex-wrap: nowrap;

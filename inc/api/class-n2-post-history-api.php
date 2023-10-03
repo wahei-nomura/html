@@ -1,7 +1,7 @@
 <?php
 /**
- * class-n2-donation-amount-api.php
- * 寄附金額の計算のためのAPI（jsでもPHPでも）
+ * class-n2-post-history-api.php
+ * 履歴のためのAPI（jsでもPHPでも）
  *
  * @package neoneng
  */
@@ -21,10 +21,11 @@ class N2_Post_History_API {
 	 */
 	public function __construct() {
 		add_action( 'wp_ajax_n2_post_history_api', array( $this, 'get' ) );
+		add_action( 'wp_ajax_n2_checkout_revision_api', array( $this, 'checkout_revision' ) );
 	}
 
 	/**
-	 * 寄附金額の計算のためのAPI
+	 * 履歴差分取得のためのAPI
 	 *
 	 * @param array|string $args パラメータ
 	 */
@@ -61,6 +62,42 @@ class N2_Post_History_API {
 	}
 
 	/**
+	 * 時を戻すためのAPI
+	 */
+	public function checkout_revision() {
+		header( 'Content-Type: application/json; charset=utf-8' );
+		if ( empty( $_GET['id'] ) ) {
+			echo 'ERROR: idが不正です';
+			exit;
+		}
+		$revision = get_post( $_GET['id'] );
+		if ( ! $revision ) {
+			echo 'ERROR: データがありません';
+			exit;
+		}
+		$data = json_decode( $revision->post_content, true );
+		if ( empty( $_GET['update'] ) ) {
+			echo wp_json_encode( $data, JSON_UNESCAPED_UNICODE );
+			exit;
+		}
+		$meta   = array_filter( $data, fn( $k ) => ! preg_match( '/タイトル|ステータス|事業者名|事業者コード/u', $k ), ARRAY_FILTER_USE_KEY );
+		$post   = array(
+			'ID'           => $revision->post_parent,
+			'post_status'  => $data['ステータス'],
+			'post_title'   => $revision->post_title,
+			'post_content' => $revision->post_content,
+			'meta_input'   => $meta,
+		);
+		$author = $this->get_userid_by_usermeta( 'last_name', $data['事業者コード'] ?? '' );
+		if ( $author ) {
+			$post['post_author'] = $author;
+		}
+		wp_insert_post( $post );
+		echo wp_json_encode( $post, JSON_UNESCAPED_UNICODE );
+		exit;
+	}
+
+	/**
 	 * 履歴の差分表示用の配列作成
 	 *
 	 * @param array $revisions リビジョン配列
@@ -72,6 +109,7 @@ class N2_Post_History_API {
 		$revisions = array_values( $revisions );// キーを連番に変更
 		foreach ( $revisions as $key => $value ) {
 			$data = array(
+				'ID'     => $value->ID,
 				'author' => get_the_author_meta( 'display_name', $value->post_author ),
 				'date'   => $value->post_date,
 				'before' => json_decode( $revisions[ $key + 1 ]->post_content ?? '', true ),
@@ -90,5 +128,23 @@ class N2_Post_History_API {
 			}
 		}
 		return $diff;
+	}
+
+	/**
+	 * usermetaからユーザーIDゲットだぜ
+	 *
+	 * @param string $field 名
+	 * @param string $value 名
+	 */
+	public function get_userid_by_usermeta( $field, $value ) {
+		global $wpdb;
+		$id = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT user_id FROM $wpdb->usermeta WHERE meta_key = %s AND meta_value = %s LIMIT 1",
+				$field,
+				$value
+			)
+		);
+		return $id;
 	}
 }

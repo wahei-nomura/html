@@ -191,7 +191,7 @@ export default ($: any = jQuery) => {
 			this.全商品ディレクトリID.list = await $.ajax(settings);
 		},
 		// タグIDと楽天SPAカテゴリーで利用
-		update_textarea(id, target = 'タグID', delimiter = '/'){
+		update_textarea(id, target = 'タグID', delimiter = '/', maxrow = null){
 			// 重複削除
 			const arr = this[target].text ? Array.from( new Set( this[target].text.split( delimiter ) ) ): [];
 			// 削除
@@ -199,7 +199,7 @@ export default ($: any = jQuery) => {
 				this[target].text = arr.filter( v => v != id ).join( delimiter )
 			}
 			// 追加
-			else {
+			else if ( ! maxrow || arr.length < maxrow ) {
 				// 楽天のタグIDの上限
 				if ( target == 'タグID' && arr.length >= ( $('[type="rakuten-tagid"]').attr('maxlength') as any)/8 ) return;
 				this[target].text = [...arr, id].filter( v => v ).join( delimiter );
@@ -208,6 +208,11 @@ export default ($: any = jQuery) => {
 			setTimeout( ()=>{
 				$(`[name="n2field[${target}]"]`).get(0).dispatchEvent( new Event('focus') );
 			}, 10 )
+		},
+		// 楽天カテゴリで利用
+		update_textarea_by_selected_option( event, target = '楽天カテゴリー', delimiter = '\n' ) {
+			this.update_textarea( event.target.value, target, delimiter, 5);
+			event.target.value = ''
 		},
 		// 寄附金額計算
 		async calc_donation(price, delivery_fee, subscription) {
@@ -309,6 +314,18 @@ export default ($: any = jQuery) => {
 				});
 				return `#/${v.join('/')}/`;
 			}).filter(v=>v);
+		},
+		// 楽天カテゴリー
+		async get_rakuten_category(){
+
+			n2.vue.楽天カテゴリー.list = await $.ajax({
+				url: n2.ajaxurl,
+				data:{
+					action:'n2_rms_category_api_ajax',
+					call:'categories_get',
+					mode:'json',
+				}
+			});
 		}
 	};
 	const components = {

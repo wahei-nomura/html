@@ -60,12 +60,24 @@ class N2_Sync {
 	);
 
 	/**
+	 * エラー
+	 *
+	 * @var array
+	 */
+	private $error = array();
+
+	/**
 	 * コンストラクタ
 	 */
 	public function __construct() {
 		global $current_blog, $wp_filesystem;
 		$n1_path           = preg_replace( '/f[0-9]{6}-/', '', $current_blog->path );
 		$this->n1_ajax_url = "https://steamship.co.jp{$n1_path}wp-admin/admin-ajax.php";
+
+		// 一旦フルフロンタル以外できなくする
+		if ( ! current_user_can( 'administrator' ) ) {
+			return;
+		}
 		add_action( 'wp_ajax_n2_sync_users_from_n1', array( $this, 'sync_users' ) );
 		add_action( 'wp_ajax_n2_sync_users_from_spreadsheet', array( $this, 'sync_users' ) );
 		add_action( 'wp_ajax_n2_sync_posts', array( $this, 'sync_posts' ) );
@@ -225,7 +237,7 @@ class N2_Sync {
 		<h2>Googleスプレットシートからの追加・上書き</h2>
 		<ul style="padding: 1em; background: white; margin: 2em 0; border: 1px solid;">
 			<li>※ ユーザーの更新はスプレットシートにある情報を追加、既に存在する場合は上書きします。</li>
-			<li>※ 返礼品の更新モードは、返礼品コードで照合して返礼品があれば更新、無ければ追加します。</li>
+			<li>※ 返礼品の更新は、IDがあれば更新、無ければ追加します。</li>
 			<li>※ 特定の項目だけ更新したい場合は、<b>項目を空欄にするのではなくカラムごと消して下さい。</b>空欄にすると空で更新されます。</li>
 			<li>※ <b>シート雛形</b>は<a href="https://docs.google.com/spreadsheets/d/13HZn6w6S0XaXgAd_3RSkB46XUrRDkMQArVeE99pFD9Q/edit#gid=0" target="_blank">ココ</a>。複製して使用してください！</li>
 			<li>※ シートの範囲については<a href="https://developers.google.com/sheets/api/guides/concepts?hl=ja#expandable-1" target="_blank">ココ</a>を参照。</li>
@@ -234,11 +246,8 @@ class N2_Sync {
 			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_users_from_spreadsheet"; ?>" class="button" target="_blank" style="margin-right: 1em;">
 				今すぐユーザーを更新
 			</a>
-			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_posts_from_spreadsheet&update=1"; ?>" class="button" target="_blank" style="margin-right: 1em;">
+			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_posts_from_spreadsheet"; ?>" class="button" target="_blank" style="margin-right: 1em;">
 				今すぐ返礼品を更新
-			</a>
-			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_posts_from_spreadsheet"; ?>" class="button button-primary" target="_blank">
-				＋　今すぐ返礼品を追加
 			</a>
 		</div>
 		<form method="post" action="options.php">
@@ -447,7 +456,7 @@ class N2_Sync {
 				'post_modified_gmt' => $v['post_modified_gmt'],
 				'post_type'         => $v['post_type'],
 				'post_title'        => $v['post_title'],
-				'post_author'       => $this->get_userid_by_last_name( $v['post_author_last_name'] ),
+				'post_author'       => $this->get_userid_by_usermeta( 'last_name', $v['post_author_last_name'] ),
 				'meta_input'        => (array) $v['acf'],
 				'comment_status'    => 'open',
 			);
@@ -855,12 +864,7 @@ class N2_Sync {
 	 */
 	public function sync_posts_from_spreadsheet() {
 		global $n2;
-		$before = microtime( true );
-
-		// ログテキスト
-		$logs   = array();
-		$logs[] = __METHOD__;
-
+		echo '<style>body{margin:0;background: black;color: white;}</style><pre style="min-height: 100%;margin: 0;padding: 1em;">';
 		$default  = array(
 			'spreadsheet' => array(
 				'id'         => '',
@@ -883,8 +887,6 @@ class N2_Sync {
 		// IP制限等で終了のケース
 		if ( ! $data ) {
 			$text   = '認証情報が間違っている、またはデータが存在しないので終了します。';
-			$logs[] = $text;
-			$this->log( $logs );
 			echo $text;
 			exit;
 		}
@@ -892,12 +894,55 @@ class N2_Sync {
 		$sep = '/[,|、|\s|\/|\||｜|／]/u';
 		// 投稿配列
 		$postarr = array();
+		$errors  = $this->error;
 		foreach ( $data as $k => $d ) {
-			$author_code = $d['事業者コード'] ?? preg_replace( '/[0-9]*/', '', $d['返礼品コード'] );
-			// 投稿配列作成
-			$postarr[ $k ]['post_title']  = $d['タイトル'] ?? '';
-			$postarr[ $k ]['post_author'] = $this->get_userid_by_last_name( $author_code );
-			unset( $d['タイトル'], $d['事業者コード'], $d['事業者名'] );
+			// カスタムフィールド以外
+			{
+				// ID（大文字・小文字対応）
+				if ( ! empty( $d['id'] ) || ! empty( $d['ID'] ) ) {
+					$postarr[ $k ]['ID'] = mb_convert_kana( $d['id'] ?? $d['ID'], 'n' );
+				}
+				// post_title
+				if ( ! empty( $d['タイトル'] ) ) {
+					$postarr[ $k ]['post_title'] = $d['タイトル'];
+					if ( mb_strlen( $d['タイトル'] ) > 100 ) {
+						$errors[ $k ][] = 'タイトルが長すぎます。タイトルは100文字までにして下さい。';
+					}
+				}
+				// post_status
+				if ( ! empty( $d['ステータス'] ) ) {
+					$postarr[ $k ]['post_status'] = match ( 1 ) {
+						preg_match( '/入力中/u', $d['ステータス'] ) => 'draft',
+						preg_match( '/確認中/u', $d['ステータス'] ) => 'pending',
+						preg_match( '/準備中/u', $d['ステータス'] ) => 'publish',
+						preg_match( '/登録済/u', $d['ステータス'] ) => 'registered',
+						preg_match( '/非公開/u', $d['ステータス'] ) => 'private',
+						default => $d['ステータス'],
+					};
+					// N2のステータス
+					$n2_statuses = array( ...array_keys( get_post_statuses() ), 'registered' );
+					if ( ! in_array( $postarr[ $k ]['post_status'], $n2_statuses, true ) ) {
+						$errors[ $k ][] = "存在しないステータス「{$d['ステータス']}」が設定されています。";
+					}
+				}
+				// 事業者コードからuserid取得
+				if ( ! empty( $d['事業者コード'] ) ) {
+					$userid = $this->get_userid_by_usermeta( 'last_name', strtoupper( mb_convert_kana( $d['事業者コード'], 'n' ) ) );
+				}
+				// 事業者名からuserid取得
+				if ( ! empty( $d['事業者名'] ) && empty( $userid ) ) {
+					$userid = $this->get_userid_by_usermeta( 'first_name', $d['事業者名'] );
+				}
+				// post_author
+				if ( ! empty( $userid ) ) {
+					$postarr[ $k ]['post_author'] = $userid;
+				}
+				unset( $d['id'], $d['タイトル'], $d['ステータス'], $d['事業者コード'], $d['事業者名'] );// 破棄
+			}
+			// 返礼品コード
+			if ( isset( $d['返礼品コード'] ) ) {
+				$d['返礼品コード'] = strtoupper( mb_convert_kana( $d['返礼品コード'], 'n' ) );
+			}
 			// 寄附金額固定（入力あれば固定）
 			if ( isset( $d['寄附金額固定'] ) ) {
 				$d['寄附金額固定'] = array( $d['寄附金額固定'] ? '固定する' : '' );
@@ -906,6 +951,7 @@ class N2_Sync {
 			if ( isset( $d['寄附金額'] ) ) {
 				$d['寄附金額'] = preg_replace( '/[^0-9]/', '', mb_convert_kana( $d['寄附金額'], 'n' ) );
 			}
+			// 定期便
 			if ( isset( $d['定期便'] ) ) {
 				$d['定期便'] = preg_replace( '/[^0-9]/', '', mb_convert_kana( $d['定期便'], 'n' ) ) ?: 1;
 			}
@@ -920,9 +966,49 @@ class N2_Sync {
 					)
 				);
 			}
-			// 商品タイプ（入力値をそのまま出力）
+			// 全商品ディレクトリID
+			if ( isset( $d['全商品ディレクトリID'] ) ) {
+				$d['全商品ディレクトリID'] = mb_convert_kana( $d['全商品ディレクトリID'], 'n' );
+				if ( preg_match( '/[^0-9]/', $d['全商品ディレクトリID'] ) ) {
+					$errors[ $k ][] = '全商品ディレクトリIDは数値です。';
+				}
+			}
+			// タグID
+			if ( isset( $d['タグID'] ) ) {
+				$d['タグID'] = array_filter( preg_split( $sep, $d['タグID'] ) );
+				foreach ( $d['タグID'] as $id ) {
+					if ( preg_match( '/[^0-9]/', $id ) ) {
+						$errors[ $k ][] = 'タグIDは数値です。';
+					}
+				}
+				$d['タグID'] = implode( '/', $d['タグID'] );
+			}
+			// 出品禁止ポータル
+			if ( isset( $d['出品禁止ポータル'] ) ) {
+				$d['出品禁止ポータル'] = array_filter( preg_split( $sep, $d['出品禁止ポータル'] ) );
+				foreach ( $d['出品禁止ポータル']  as $name ) {
+					if ( ! in_array( $name, $n2->settings['N2']['出品ポータル'], true ) ) {
+						$errors[ $k ][] = "そもそも出品していないポータル「{$name}」が出品禁止ポータルに設定されています。";
+					}
+				}
+			}
+			// 地場産品類型
+			if ( isset( $d['地場産品類型'] ) ) {
+				$num = $d['地場産品類型'];
+				// 数字は半角に
+				$d['地場産品類型'] = mb_convert_kana( mb_substr( $d['地場産品類型'], 0, 1 ), 'n' ) . mb_substr( $d['地場産品類型'], 1 );
+				if ( ! in_array( $d['地場産品類型'], array_map( 'strval', array_keys( $n2->custom_field['スチームシップ用']['地場産品類型']['option'] ?? array() ) ), true ) ) {
+					$errors[ $k ][] = "存在しない地場産品類型「{$num}」が設定されています。";
+				}
+			}
+			// 商品タイプ（区切り文字列でいい感じに配列化）
 			if ( isset( $d['商品タイプ'] ) ) {
-				$d['商品タイプ'] = array( $d['商品タイプ'] );
+				$d['商品タイプ'] = array_values( array_filter( preg_split( $sep, $d['商品タイプ'] ) ) );
+				foreach ( $d['商品タイプ'] as $name ) {
+					if ( ! in_array( $name, $n2->settings['N2']['商品タイプ'], true ) ) {
+						$errors[ $k ][] = "存在しない商品タイプ「{$name}」が設定されています。";
+					}
+				}
 			}
 			// アレルギーの有無確認（入力あればアレルギー品目あり）
 			if ( isset( $d['アレルギー有無確認'] ) ) {
@@ -935,28 +1021,84 @@ class N2_Sync {
 				// アレルゲンをいい感じにN2に存在するものに変換する
 				$d['アレルゲン'] = $this->change_n2_allergen( $d['アレルゲン'] );
 			}
+			// 包装対応
+			foreach ( array( '包装', 'のし' ) as $name ) {
+				if ( isset( $d[ "{$name}対応" ] ) ) {
+					$d[ "{$name}対応" ] = match ( $d[ "{$name}対応" ] ) {
+						'有り','あり','する', '対応する', '可' => '有り',
+						'無し','なし', 'しない', '対応しない', '不可', '' => '無し',
+						default => false,
+					};
+					if ( ! $d[ "{$name}対応" ] ) {
+						$errors[ $k ][] = "{$name}対応に不適切な文字が入力されています。「有り」か「無し」で入力して下さい。";
+					}
+				}
+			}
+			// 発送方法
+			if ( isset( $d['発送方法'] ) ) {
+				if ( ! in_array( $d['発送方法'], $n2->custom_field['事業者用']['発送方法']['option'], true ) ) {
+					$errors[ $k ][] = "存在しない発送方法「{$d['発送方法']}」が設定されています。";
+				}
+			}
 			// 取り扱い方法（区切り文字列でいい感じに配列化）
 			if ( isset( $d['取り扱い方法'] ) ) {
 				$d['取り扱い方法'] = array_values( array_filter( preg_split( $sep, $d['取り扱い方法'] ) ) );
+				if ( count( $d['取り扱い方法'] ) > 2 ) {
+					$errors[ $k ][] = '取り扱い方法は最大2つまでです。';
+				}
+				foreach ( $d['取り扱い方法'] as $name ) {
+					if ( ! in_array( $name, $n2->custom_field['事業者用']['取り扱い方法']['option'], true ) ) {
+						$errors[ $k ][] = "存在しない取り扱い方法「{$name}」が設定されています。";
+					}
+				}
 			}
 			// 発送サイズの想定入力ミスに対応
 			if ( isset( $d['発送サイズ'] ) ) {
+				// 発送サイズの一時退避
+				$delivery_size = $d['発送サイズ'];
+				// 発送サイズの変換
 				$d['発送サイズ'] = match ( 1 ) {
 					preg_match( '/[1１][0０][0-8０-８]/u', $d['発送サイズ'], $m ) => '0' . mb_convert_kana( $m[0], 'n' ),// 0が抜けた発送サイズコードの場合
 					preg_match( '/[1-9１-９]{1,2}[0０]/u', $d['発送サイズ'], $m ) => '010' . ( mb_convert_kana( $m[0], 'n' ) - 40 ) / 20,// 発送サイズ名で入れたの場合（全角にも対応）
 					preg_match( '/コンパクト/u', $d['発送サイズ'] ) => '0100',
 					default => $d['発送サイズ'],
 				};
+				$n2_delivery_sizes   = array_keys( array_filter( $n2->settings['寄附金額・送料']['送料'] ) );
+				$n2_delivery_sizes[] = 'その他';// その他追加
+				if ( ! in_array( $d['発送サイズ'], $n2_delivery_sizes, true ) ) {
+					$errors[ $k ][] = "存在しない発送サイズ「{$delivery_size}」が設定されています。";
+				}
 			}
 			if ( empty( $d['送料'] ) && ! empty( $d['発送サイズ'] ) && ! empty( $d['発送方法'] ) ) {
 				$delivery_code = N2_Donation_Amount_API::create_delivery_code( $d['発送サイズ'], $d['発送方法'] );
 				// 送料計算
 				$d['送料'] = $n2->settings['寄附金額・送料']['送料'][ $delivery_code ] ?? '';
 			}
+			// LHカテゴリー
+			if ( isset( $d['LHカテゴリー'] ) ) {
+				if ( ! in_array( $d['LHカテゴリー'], $n2->custom_field['事業者用']['LHカテゴリー']['option'], true ) ) {
+					$errors[ $k ][] = "存在しないLHカテゴリー「{$d['LHカテゴリー']}」が設定されています。";
+				}
+			}
 			// $postarrにセット
 			$postarr[ $k ]['meta_input'] = $d;
 		}
-		$this->multi_insert_posts( $postarr, 100, $_GET['update'] ?? false );
+		// エラー発生の場合はストップ
+		if ( ! empty( $errors ) ) {
+			$error_count = count( array_reduce( $errors, 'array_merge', array() ) );
+			$error_point = ( $n2->current_user->data->meta['error_point'] ?? 0 ) + $error_count;
+			update_user_meta( $n2->current_user->ID, 'error_point', $error_point );
+			printf( "%1\$s様\n\nおめでとうございます！？\n\n%2\$s件のエラーのため処理を中止し、あなたにN2エラーポイントを「%2\$spt」付与しました。\n現在のあなたの合計N2エラーポイントは%3\$sptです。（たまり過ぎると様々なN2の制限がかかります）", $n2->current_user->data->display_name, $error_count, $error_point );
+			echo "\n\n行数\tエラー内容\n";
+			foreach ( $errors as $i => $values ) {
+				$i = $i + 2;
+				foreach ( $values as $value ) {
+					echo "{$i}行目\t{$value}\n";
+				}
+			}
+			exit;
+		}
+		$logs = $this->multi_insert_posts( $postarr, 50 );
 		// GETパラメータで受け取ったidとitem_rangeも保存
 		update_option(
 			'n2_sync_settings_spreadsheet',
@@ -967,9 +1109,16 @@ class N2_Sync {
 			)
 		);
 
-		echo "N2-Insert-Posts-From-Spreadsheet「{$n2->town}の返礼品」スプレットシートからの追加完了！" . number_format( microtime( true ) - $before, 2 ) . ' sec';
-		$logs[] = '返礼品の追加完了 ' . number_format( microtime( true ) - $before, 2 ) . ' sec';
-		$this->log( $logs );
+		printf(
+			"追加: %d件\n更新: %d件\n-----------\n合計: %d件\n\n\n",
+			count( array_filter( $logs, fn( $v ) => 'insert' === $v['mode'] ) ),
+			count( array_filter( $logs, fn( $v ) => 'update' === $v['mode'] ) ),
+			count( $logs )
+		);
+		echo "id\tmode\tcode\ttitle\n";
+		foreach ( $logs as $id => $v ) {
+			echo "{$id}\t{$v['mode']}\t{$v['code']}\t{$v['title']}\n";
+		}
 		exit;
 	}
 
@@ -1029,7 +1178,13 @@ class N2_Sync {
 		}
 		$data   = json_decode( $data['body'], true )['valueRanges'];
 		$header = $data[0]['values'][0];
-		$data   = $data[1]['values'];
+
+		// スプシヘッダーの異物混入を疑う
+		if ( ! in_array( $header[0], array( 'id', 'ID' ), true ) ) {
+			$this->error[-1][] = 'スプレットシートのヘッダー行に異物混入しています。1行目はヘッダー行ですのでその上に行を追加等はしないで下さい。';
+		}
+
+		$data = $data[1]['values'];
 		if ( $header === $data[0] ) {
 			unset( $data[0] );
 			$data = array_values( $data );
@@ -1051,18 +1206,15 @@ class N2_Sync {
 	 *
 	 * @param array $postarr 投稿の多次元配列
 	 * @param int   $multi_insert_num 1スレットあたりのinsert数
-	 * @param bool  $update 上書きモードかどうか
+	 * @return array $logs ログ
 	 */
-	public function multi_insert_posts( $postarr, $multi_insert_num = 50, $update = false ) {
+	public function multi_insert_posts( $postarr, $multi_insert_num = 50 ) {
 		$mh       = curl_multi_init();
 		$ch_array = array();
 		$params   = array(
 			'action'  => 'n2_insert_posts',
 			'n2nonce' => wp_create_nonce( 'n2nonce' ),
 		);
-		if ( $update ) {
-			$params['update'] = 1;
-		}
 		foreach ( array_chunk( $postarr, $multi_insert_num ) as $index => $values ) {
 			$params['posts'] = wp_json_encode( $values );
 
@@ -1077,14 +1229,13 @@ class N2_Sync {
 				CURLOPT_HEADER         => false,
 				CURLOPT_RETURNTRANSFER => true,
 				CURLOPT_SSL_VERIFYPEER => false,
-				CURLOPT_TIMEOUT        => 30,
+				CURLOPT_TIMEOUT        => 300,
 				CURLOPT_USERPWD        => 'ss:ss',
 				// ログインセッションを渡してajax
 				CURLOPT_HTTPHEADER     => array(
 					'Cookie: ' . urldecode( http_build_query( $_COOKIE, '', '; ' ) ),
 				),
 			);
-
 			curl_setopt_array( $ch, $options );
 			curl_multi_add_handle( $mh, $ch );
 		}
@@ -1092,12 +1243,17 @@ class N2_Sync {
 			curl_multi_exec( $mh, $running );
 			curl_multi_select( $mh );
 		} while ( $running > 0 );
-
+		$logs = array();
 		foreach ( $ch_array as $ch ) {
+			$res = json_decode( curl_multi_getcontent( $ch ), true );
+			if ( $res ) {
+				$logs = $logs + $res;
+			}
 			curl_multi_remove_handle( $mh, $ch );
 			curl_close( $ch );
 		}
 		curl_multi_close( $mh );
+		return $logs;
 	}
 
 	/**
@@ -1111,17 +1267,28 @@ class N2_Sync {
 		if ( empty( $posts ) ) {
 			exit;
 		}
+		$logs = array();
 		foreach ( $posts as $post ) {
-			// 「updateモード」かつ「登録済み」
-			$p = get_posts( "meta_key=返礼品コード&meta_value={$post['meta_input']['返礼品コード']}&post_status=any" );
-			if ( isset( $_POST['update'] ) && ! empty( $p ) ) {
-				$post['ID']          = $p[0]->ID;
-				$post['post_status'] = $post['post_status'] ?? $p[0]->post_status;
-				$post['post_title']  = $post['post_title'] ?: $p[0]->post_title;
-				$post['post_author'] = $post['post_author'] ?: $p[0]->post_author;
+			if ( empty( $post['ID'] ) ) {
+				$id = wp_insert_post( $post );
+				// ログ追加
+				if ( ! is_wp_error( $id ) ) {
+					wp_save_post_revision( $id );// 初回リビジョンの登録
+				}
+			} else {
+				$id = wp_update_post( $post );
 			}
-			wp_insert_post( $post );
+			// ログ追加
+			if ( $id ) {
+				$logs[ $id ] = array(
+					'mode'  => empty( $post['ID'] ) ? 'insert' : 'update',
+					'code'  => get_post_meta( $id, '返礼品コード', true ),
+					'title' => get_the_title( $id ),
+				);
+			}
 		}
+		header( 'Content-Type: application/json; charset=utf-8' );
+		echo wp_json_encode( $logs );
 		exit;
 	}
 
@@ -1183,17 +1350,18 @@ class N2_Sync {
 	}
 
 	/**
-	 * last_nameからユーザーIDゲットだぜ
+	 * usermetaからユーザーIDゲットだぜ
 	 *
-	 * @param string $last_name 名
+	 * @param string $field 名
+	 * @param string $value 名
 	 */
-	public function get_userid_by_last_name( $last_name ) {
+	public function get_userid_by_usermeta( $field, $value ) {
 		global $wpdb;
 		$id = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT user_id FROM $wpdb->usermeta WHERE meta_key = %s AND meta_value = %s LIMIT 1",
-				'last_name',
-				$last_name
+				$field,
+				$value
 			)
 		);
 		return $id;

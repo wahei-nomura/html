@@ -32,6 +32,7 @@ class N2_Items_API {
 	public function __construct() {
 		// post_contentに必要なデータを全部ぶっこむ
 		add_action( 'wp_insert_post_data', array( $this, 'insert_post_data' ), 20, 4 );
+		add_filter( 'posts_results', array( $this, 'add_required_posts' ), 10, 2 );// 取得時に最低必要事項確認フラグ注入（取得が遅くなる）
 		add_action( 'wp_ajax_n2_items_api', array( $this, 'api' ) );
 		add_action( 'wp_ajax_nopriv_n2_items_api', array( $this, 'api' ) );
 		add_action( 'profile_update', array( $this, 'update_api_from_user' ) );
@@ -62,10 +63,11 @@ class N2_Items_API {
 		}
 		// デフォルト値
 		$defaults = array(
-			'post_status'    => 'any',
-			'numberposts'    => -1,
-			'mode'           => 'json',
-			'n2_active_flag' => $n2->settings['N2']['稼働中'],
+			'suppress_filters' => false,
+			'post_status'      => 'any',
+			'numberposts'      => -1,
+			'mode'             => 'json',
+			'n2_active_flag'   => $n2->settings['N2']['稼働中'],
 		);
 		// デフォルト値を$paramsで上書き
 		self::$data['params'] = wp_parse_args( $params, $defaults );
@@ -236,6 +238,10 @@ class N2_Items_API {
 
 		// 投稿ステータス追加
 		$post_content['ステータス'] = $data['post_status'];
+
+		// 最低必要事項確認フラグ注入
+		$post_content['_n2_required'] = $this->check_required( $meta_input );
+
 		// n2fieldのカスタムフィールド全取得
 		foreach ( $meta_input as $key => $meta ) {
 			// 値が配列の場合、空は削除
@@ -247,6 +253,66 @@ class N2_Items_API {
 		$data['post_content'] = addslashes( wp_json_encode( $post_content, JSON_UNESCAPED_UNICODE ) );
 		do_action( 'n2_items_api_after_insert_post_data', $data, $meta_input );
 		return $data;
+	}
+
+	/**
+	 * 最低必要事項確認フラグ作成
+	 *
+	 * @param array $meta メタデータ
+	 */
+	public function check_required( $meta ) {
+		// 最低必要事項
+		$required = array( '返礼品コード', '価格', '寄附金額' );
+		// eチケット以外なのに送料なし
+		if ( isset( $meta['商品タイプ'] ) && ! in_array( 'eチケット', $meta['商品タイプ'], true ) ) {
+			$required[] = '送料';
+		}
+		// アレルギーあるのにアレルゲンなし
+		if (
+			! empty( array_filter( (array) ( $meta['アレルギー有無確認'] ?? array() ) ) )
+			&& empty( array_filter( (array) ( $meta['アレルゲン'] ?? array() ) ) )
+		) {
+			$required[] = 'アレルゲン';
+		}
+		// 最低必要事項の調査（数値に関しては0は許したい）
+		$check_required = array_filter(
+			$meta,
+			function ( $v, $k ) use ( $required ) {
+				if ( in_array( $k, $required, true ) ) {
+					if ( is_array( $v ) ) {
+						$bool = ! empty( array_filter( $v ) );
+					} else {
+						$bool = '' !== $v;
+					}
+				}
+				return $bool ?? false;
+			},
+			ARRAY_FILTER_USE_BOTH
+		);
+		// 最低必須項目が埋まっていないものリスト
+		return array_values( array_diff( $required, array_keys( $check_required ) ) );
+	}
+
+	/**
+	 * 最低必要事項確認フラグがない場合は混ぜ込む（API更新したら不要）
+	 *
+	 * @param array $posts メタデータ
+	 * @param array $query クエリ
+	 */
+	public function add_required_posts( $posts, $query ) {
+		if ( 'post' !== ( $query->query['post_type'] ?? '' ) ) {
+			return $posts;
+		}
+		foreach ( $posts as $i => $post ) {
+			$post_content = json_decode( $posts[ $i ]->post_content, true );
+			// 最低必要事項確認フラグ注入
+			if ( isset( $post_content['_n2_required'] ) ) {
+				continue;
+			}
+			$post_content['_n2_required'] = $this->check_required( $post_content );
+			$posts[ $i ]->post_content    = wp_json_encode( $post_content, JSON_UNESCAPED_UNICODE );
+		}
+		return $posts;
 	}
 
 	/**

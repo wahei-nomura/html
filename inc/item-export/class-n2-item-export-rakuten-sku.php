@@ -267,6 +267,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 			preg_match( '/^販売価格$/', $val )  => $n2values['寄附金額'],
 			preg_match( '/^のし対応$/', $val )  =>  ( '有り' === $n2values['のし対応'] ) ? 1 : '',
 			preg_match( '/^在庫数$/', $val )  => 0,
+			preg_match( '/^在庫あり時納期管理番号$/', $val )  => $n2values['楽天納期情報'],
 			preg_match( '/^送料$/', $val )  => 1,
 			preg_match( '/^カタログIDなしの理由$/', $val )  => 5,
 			preg_match( '/^代引料$/', $val )  => 1,

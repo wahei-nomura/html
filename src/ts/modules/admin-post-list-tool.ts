@@ -13,7 +13,7 @@ export default ($: any) => {
 		data: {
 			id: false,
 			item: false,
-			custom_field: []
+			custom_field: [],
 		},
 		created() {
 			const role = n2.current_user.roles[0];
@@ -57,6 +57,8 @@ export default ($: any) => {
 					},
 				});
 				this.item = item.items[0] || false;
+				// 事業者に最低必須は見せない
+				this.item._n2_required = 'jigyousya' === n2.current_user.roles[0] ? [] : this.item._n2_required;
 				console.log(this.item)
 			}
 		}
