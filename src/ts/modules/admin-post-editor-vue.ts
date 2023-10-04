@@ -88,13 +88,15 @@ export default ($: any = jQuery) => {
 		wp.data.dispatch( 'core/keyboard-shortcuts' ).unregisterShortcut('core/editor/redo');
 	};
 	const methods = {
+		// 地場産品類型に応じて類型該当理由の注意書きを修正
+		update_applicable_reason() {
+			if( '' === this.類型該当理由 ) {
+				this.類型該当理由 = n2.settings['N2']['類型該当理由注意書き'][this.地場産品類型];
+			}
+		},
 		// 説明文・テキストカウンター
 		set_info(target) {
 			let description_text = $(target).parents('.n2-fields-value').data('description');
-			if('n2field[類型該当理由]' === $(target).attr('name')){
-				let caution_val = $('#地場産品類型').find('select option:selected').val();
-				description_text = description_text + '(' + n2.settings['N2']['類型該当理由注意書き'][caution_val] + ')';
-			}
 			$(target).parents('.n2-fields-value').find('.d-none').removeClass('d-none');
 			const info = [
 				$(target).parents('.n2-fields-value').data('description') && ! document.cookie.match(/n2-zenmode/) 
@@ -342,18 +344,4 @@ export default ($: any = jQuery) => {
 			components,
 		});
 	});
-
-	// 地場産品類型変更されたら値取得
-	$(document).on('change', '#地場産品類型 select', function(){
-		let change_val = $(this).val();
-		let now_caution_text = $('#類型該当理由').find('.n2-field-description').find('.alert').text();
-		let ragex = /\(([^)]+)\)/;
-		var matches = ragex.exec(now_caution_text);
-		if(matches){
-			let inner_text = matches[1];
-			let new_text = n2.settings['N2']['類型該当理由注意書き'][change_val];
-			let replace_text = now_caution_text.replace("(" + inner_text + ")", ("(" + new_text + ")");
-			$('#類型該当理由').find('.n2-field-description').find('.alert').text(replace_text);
-		}
-	});	
 };
