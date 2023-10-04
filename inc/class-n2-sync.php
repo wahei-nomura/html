@@ -83,6 +83,7 @@ class N2_Sync {
 		add_action( 'wp_ajax_n2_sync_posts', array( $this, 'sync_posts' ) );
 		add_action( 'wp_ajax_nopriv_n2_sync_posts', array( $this, 'sync_posts' ) );
 		add_action( 'wp_ajax_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
+		add_action( 'wp_ajax_n2_get_spreadsheet_data_api', array( $this, 'get_spreadsheet_data_api' ) );
 		add_action( 'wp_ajax_n2_sync_posts_from_spreadsheet', array( $this, 'sync_posts_from_spreadsheet' ) );
 		add_action( 'wp_ajax_n2_insert_posts', array( $this, 'insert_posts' ) );
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
@@ -161,7 +162,9 @@ class N2_Sync {
 				</nav>
 			</div>
 			<?php endif; ?>
-			<?php echo $this->$template(); ?>
+			<div id="n2sync">
+				<?php echo $this->$template(); ?>
+			</div>
 		</div>
 		<?php
 	}
@@ -220,55 +223,9 @@ class N2_Sync {
 	 * Googleスプレットシート同期の為のUI
 	 */
 	public function sync_ui_spreadsheet() {
-		global $n2;
-		if ( ! $n2->settings['寄附金額・送料']['送料'] ) {
-			?>
-			<br><p>Googleスプレットシート同期を使うには「<a href="?page=n2_settings_formula-delivery">N2設定 > 寄附金額・送料</a>」の値を適切に入力して下さい。</p>
-			<?php
-			return;
-		}
-		$default  = array(
-			'id'         => '',
-			'user_range' => '',
-			'item_range' => '',
-		);
-		$settings = get_option( 'n2_sync_settings_spreadsheet', $default );
-		?>
-		<h2>Googleスプレットシートからの追加・上書き</h2>
-		<ul style="padding: 1em; background: white; margin: 2em 0; border: 1px solid;">
-			<li>※ ユーザーの更新はスプレットシートにある情報を追加、既に存在する場合は上書きします。</li>
-			<li>※ 返礼品の更新は、IDがあれば更新、無ければ追加します。</li>
-			<li>※ 特定の項目だけ更新したい場合は、<b>項目を空欄にするのではなくカラムごと消して下さい。</b>空欄にすると空で更新されます。</li>
-			<li>※ <b>シート雛形</b>は<a href="https://docs.google.com/spreadsheets/d/13HZn6w6S0XaXgAd_3RSkB46XUrRDkMQArVeE99pFD9Q/edit#gid=0" target="_blank">ココ</a>。複製して使用してください！</li>
-			<li>※ シートの範囲については<a href="https://developers.google.com/sheets/api/guides/concepts?hl=ja#expandable-1" target="_blank">ココ</a>を参照。</li>
-		</ul>
-		<div id="n2sync-link-wrapper" style="padding: 1em 0;">
-			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_users_from_spreadsheet"; ?>" class="button" target="_blank" style="margin-right: 1em;">
-				今すぐユーザーを更新
-			</a>
-			<a href="<?php echo "{$n2->ajaxurl}?action=n2_sync_posts_from_spreadsheet"; ?>" class="button" target="_blank" style="margin-right: 1em;">
-				今すぐ返礼品を更新
-			</a>
-		</div>
-		<form method="post" action="options.php">
-			<?php settings_fields( 'n2_sync_settings_spreadsheet' ); ?>
-			<table class="widefat striped" style="margin-bottom: 2em;">
-				<tr>
-					<th>スプレットシートのIDまたはURL</th>
-					<td><input type="text" class="large-text" name="n2_sync_settings_spreadsheet[id]" value="<?php echo $settings['id']; ?>" placeholder="スプレッドシートのIDはたまURL"><a target="_blank"></a></td>
-				</tr>
-				<tr>
-					<th>ユーザーシートの範囲</th>
-					<td><input type="text" class="regular-text" name="n2_sync_settings_spreadsheet[user_range]" value="<?php echo $settings['user_range']; ?>" placeholder="user!A:ZZ"></td>
-				</tr>
-				<tr>
-					<th>返礼品シートの範囲</th>
-					<td><input type="text" class="regular-text" name="n2_sync_settings_spreadsheet[item_range]" value="<?php echo $settings['item_range']; ?>" placeholder="item!A:ZZ"></td>
-				</tr>
-			</table>
-			<button class="button button-primary">設定を保存</button>
-		</form>
-		<?php
+		get_template_part( 'template/sync/item' );
+		get_template_part( 'template/sync/user' );
+		get_template_part( 'template/sync/save' );
 	}
 
 	/**
@@ -865,36 +822,50 @@ class N2_Sync {
 	public function sync_posts_from_spreadsheet() {
 		global $n2;
 		echo '<style>body{margin:0;background: black;color: white;}</style><pre style="min-height: 100%;margin: 0;padding: 1em;">';
-		$default  = array(
-			'spreadsheet' => array(
-				'id'         => '',
-				'user_range' => '',
-				'item_range' => '',
-			),
+		$errors  = $this->error;
+		$default = array(
+			'spreadsheetid' => '',
+			'range'         => '',
+			'target_cols'   => array(),
 		);
-		$settings = get_option( 'n2_sync_settings_spreadsheet', $default );
-
-		// GETパラメータ優先、なければDB
-		$input_id         = filter_input( INPUT_GET, 'id', FILTER_SANITIZE_SPECIAL_CHARS );
-		$input_item_range = filter_input( INPUT_GET, 'item_range', FILTER_SANITIZE_SPECIAL_CHARS );
-
-		$sheet_id   = $input_id && '' !== $input_id ? $input_id : $settings['id'];
-		$item_range = $input_item_range && '' !== $input_item_range ? $input_item_range : $settings['item_range'];
-
+		$params  = get_option( 'n2_sync_settings_spreadsheet' );
+		$params  = wp_parse_args( $params, $default );
+		$params  = wp_parse_args( $_GET, $params );
 		// データ取得
-		$data = $this->get_spreadsheet_data( $sheet_id, $item_range );
+		$data = $this->get_spreadsheet_data( $params['spreadsheetid'], $params['range'] );
+
+		// 対象カラム指定なし
+		if ( empty( $params['target_cols'] ) ) {
+			$data = array();
+		}
+
+		// 「全て」以外の場合
+		if ( ! in_array( '全て', $params['target_cols'], true ) ) {
+			$params['target_cols'][] = 'id';
+			$params['target_cols'][] = 'ID';
+			// データの絞りこみ
+			$data = array_map(
+				fn( $v ) => array_filter( $v, fn( $k ) => in_array( $k, $params['target_cols'], true ), ARRAY_FILTER_USE_KEY ),
+				$data
+			);
+		}
 
 		// IP制限等で終了のケース
 		if ( ! $data ) {
-			$text   = '認証情報が間違っている、またはデータが存在しないので終了します。';
+			$text = '認証情報が間違っている、またはデータが存在しないので終了します。';
 			echo $text;
 			exit;
 		}
+
+		// スプシヘッダーの異物混入を疑う
+		if ( ! in_array( array_keys( $data[0] )[0], array( 'id', 'ID' ), true ) ) {
+			$errors[-1][] = 'スプレットシートのヘッダー行に異物混入しています。1行目はヘッダー行ですのでその上に行を追加等はしないで下さい。';
+		}
+
 		// 区切り文字
 		$sep = '/[,|、|\s|\/|\||｜|／]/u';
 		// 投稿配列
 		$postarr = array();
-		$errors  = $this->error;
 		foreach ( $data as $k => $d ) {
 			// カスタムフィールド以外
 			{
@@ -1099,15 +1070,6 @@ class N2_Sync {
 			exit;
 		}
 		$logs = $this->multi_insert_posts( $postarr, 50 );
-		// GETパラメータで受け取ったidとitem_rangeも保存
-		update_option(
-			'n2_sync_settings_spreadsheet',
-			array(
-				'id'         => $sheet_id,
-				'user_range' => $settings['user_range'],
-				'item_range' => $item_range,
-			)
-		);
 
 		printf(
 			"追加: %d件\n更新: %d件\n-----------\n合計: %d件\n\n\n",
@@ -1132,15 +1094,21 @@ class N2_Sync {
 	 * ② リダイレクトされたパラメータcodeを使って下記curlでリフレッシュトークン取得
 	 * curl -X POST -d 'code=ここにcode&client_id=クライアントID&client_secret=クライアントシークレット&redirect_uri=http://localhost&grant_type=authorization_code' https://accounts.google.com/o/oauth2/token
 	 *
-	 * @param string $sheetid スプレットシートのID
+	 * @param string $spreadsheetid スプレットシートのIDまたはurl
 	 * @param string $range スプレットシートの範囲
 	 */
-	public function get_spreadsheet_data( $sheetid, $range ) {
-
-		// URLが渡ってきた場合はSheetIDを抜き出す
-		if ( false !== strpos( $sheetid, 'spreadsheet' ) ) {
-			preg_match( '/spreadsheets\/d\/(.*?)(\/|$)/', $sheetid, $m );
-			$sheetid = $m[1];
+	public function get_spreadsheet_data( $spreadsheetid, $range = '', $debug = false ) {
+		// $rangeが渡ってきていない時
+		if ( empty( $range ) ) {
+			preg_match( '/\#gid\=([0-9]*)/', $spreadsheetid, $m );
+			if ( ! empty( $m[1] ) ) {
+				$sheet_id = (int) $m[1];
+			}
+		}
+		// $spreadsheetidの浄化
+		preg_match( '/spreadsheets\/d\/(.*?)(\/|$)/', $spreadsheetid, $m );
+		if ( ! empty( $m[1] ) ) {
+			$spreadsheetid = $m[1];
 		}
 
 		$secret = wp_json_file_decode( $this->spreadsheet_auth_path );
@@ -1162,10 +1130,25 @@ class N2_Sync {
 		if ( ! $body->access_token ) {
 			return false;
 		}
+		if ( ! empty( $sheet_id ) ) {
+			// url生成
+			$url  = "https://sheets.googleapis.com/v4/spreadsheets/{$spreadsheetid}";
+			$args = array(
+				'headers' => array(
+					'Authorization' => "Bearer {$body->access_token}",
+				),
+			);
+			// $range生成
+			$res   = wp_remote_get( $url, $args );
+			$res   = json_decode( $res['body'], true );
+			$title = $res['properties']['title'];
+			$range = array_values( array_filter( $res['sheets'], fn( $v ) => $sheet_id === $v['properties']['sheetId'] ) );
+			$range = $range[0]['properties']['title'];
+		}
 		// $rangeからヘッダーを分離
 		$range_header = preg_replace( '/[A-Z]*([0-9]*)\:[A-Z]*[0-9]*$/', '1:1', $range );
 		// url生成
-		$url  = "https://sheets.googleapis.com/v4/spreadsheets/{$sheetid}/values:batchGet?ranges={$range_header}&ranges={$range}";
+		$url  = "https://sheets.googleapis.com/v4/spreadsheets/{$spreadsheetid}/values:batchGet?ranges={$range_header}&ranges={$range}";
 		$args = array(
 			'headers' => array(
 				'Authorization' => "Bearer {$body->access_token}",
@@ -1192,7 +1175,35 @@ class N2_Sync {
 			},
 			$data
 		);
+		if ( $debug ) {
+			$data = array(
+				'spreadsheetid' => $spreadsheetid,
+				'range'         => $range,
+				'header'        => $header,
+				'data_count'    => count( $data ),
+				'data'          => $data,
+			);
+			if ( $title ) {
+				$data['title'] = $title;
+			}
+		}
 		return $data;
+	}
+
+	/**
+	 * スプレッドシートデータを取得するAPI
+	 */
+	public function get_spreadsheet_data_api() {
+		$params = array(
+			'spreadsheetid' => '',
+			'range'         => '',
+		);
+		$params = wp_parse_args( $_GET, $params );
+		$data   = $this->get_spreadsheet_data( $params['spreadsheetid'], $params['range'], true );
+		$data   = wp_json_encode( $data, JSON_UNESCAPED_UNICODE );
+		header( 'Content-Type: application/json; charset=utf-8' );
+		echo $data;
+		exit;
 	}
 
 	/**

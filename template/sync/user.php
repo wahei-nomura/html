@@ -11,5 +11,5 @@ $default  = array(
 );
 $settings = get_option( 'n2_sync_settings_spreadsheet', $default );
 ?>
-<h3 style="margin-top: 5em;">GS ユーザーの同期</h3>
+<h2 style="margin-top: 1em; font-size: 2em;">GS ユーザーの同期</h2>
 <p>Googleスプレットシートからユーザーデータを同期します。</p>
