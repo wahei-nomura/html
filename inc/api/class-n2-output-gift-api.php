@@ -31,6 +31,8 @@ class N2_Output_Gift_API {
 		global $n2;
 		// 自治体コードを取得
 		$site_id = $n2->site_id;
+		// 注意書きと商品タイプを取得
+		$warning = $n2->settings['注意書き'];
 		// N2稼働中か判定するフラグを取得
 		$n2_active_flag = $n2->settings['N2']['稼働中'];
 
@@ -94,11 +96,15 @@ class N2_Output_Gift_API {
 		}
 
 		// 結果の連想配列からキーを取り出す
-		$existing_keys = array();
+		$existing_keys      = array();
+		$local_product_data = '';
 		foreach ( $data as $datum ) {
 			$existing_keys[] = $datum['meta_key'];
+			// 地場産品類型データ取得
+			if ( '地場産品類型' === $datum['meta_key'] ) {
+				$local_product_data = $datum['meta_value'];
+			}
 		}
-
 		// 最終的に出力が期待されるキーのリストを作成
 		$expected_keys = array(
 			'送料',
@@ -106,6 +112,7 @@ class N2_Output_Gift_API {
 			'全商品ディレクトリID',
 			'地場産品類型',
 			'類型該当理由',
+			'類型該当理由を表示する',
 			'価格',
 			'説明文',
 			'内容量・規格等',
@@ -145,15 +152,33 @@ class N2_Output_Gift_API {
 		);
 
 		// 実際に存在するキーと出力が期待されるキーとを比較し、不足しているキーがあれば、そのキーとその値（空文字）をdataに追加
-		$missing_keys = array_diff( $expected_keys, $existing_keys );
+		$missing_keys       = array_diff( $expected_keys, $existing_keys );
+		$applicable_reasons = $n2->settings['N2']['理由表示地場産品類型'];
 		foreach ( $missing_keys as $missing_key ) {
-			$data[] = array(
-				'title'      => $data[0]['title'],
-				'meta_key'   => $missing_key,
-				'meta_value' => '',
-			);
-		}
+			// N2設定の「類型該当理由を表示する地場産品類型」に応じて類型該当理由を出力するか判定するサムシング
+			if ( '類型該当理由を表示する' === $missing_key ) {
+				if ( in_array( $local_product_data, $applicable_reasons ) ) {
+					$data[] = array(
+						'title'      => $data[0]['title'],
+						'meta_key'   => $missing_key,
+						'meta_value' => true,
+					);
+				} else {
+					$data[] = array(
+						'title'      => $data[0]['title'],
+						'meta_key'   => $missing_key,
+						'meta_value' => false,
+					);
+				}
+			} else {
+				$data[] = array(
+					'title'      => $data[0]['title'],
+					'meta_key'   => $missing_key,
+					'meta_value' => '',
+				);
 
+			}
+		}
 		// 空の配列を作って取得したデータを整える
 		$results = array(
 			'N2'   => true,
@@ -170,11 +195,16 @@ class N2_Output_Gift_API {
 			$results['data'][ $meta_key ] = $meta_value;
 		}
 
+		// 共通だけ常時merge、それ以外は抽出してmerge
+		$match_value            = array_merge( ['共通' => $warning['共通'] ], array_intersect_key( $warning, array_flip( unserialize( $results['data']['商品タイプ'] ) ) ) );
+		$results['data']['説明文'] = $results['data']['説明文'] . "\n" . implode( "\n", array_filter( $match_value ) );
+
 		// 結果をJSON形式に変換して出力
 		header( 'Content-Type: application/json' );
 		echo wp_json_encode( $results );
 		exit;
 	}
+
 	/**
 	 * 非プライベートユーザー用API
 	 */
@@ -183,6 +213,8 @@ class N2_Output_Gift_API {
 		global $n2;
 		// 自治体コードを取得
 		$site_id = $n2->site_id;
+		// 注意書きと商品タイプを取得
+		$warning = $n2->settings['注意書き'];
 		// N2稼働中か判定するフラグを取得
 		$n2_active_flag = $n2->settings['N2']['稼働中'];
 
@@ -235,7 +267,8 @@ class N2_Output_Gift_API {
 				'包装対応',
 				'のし対応',
 				'配送期間',
-				'やきもの'
+				'やきもの',
+				'商品タイプ'
 				)
 		AND
 			posts.id in (
@@ -286,6 +319,7 @@ class N2_Output_Gift_API {
 			'のし対応',
 			'配送期間',
 			'やきもの',
+			'商品タイプ',
 		);
 
 		// 実際に存在するキーと出力が期待されるキーとを比較し、不足しているキーがあれば、そのキーとその値（空文字）をdataに追加
@@ -313,6 +347,10 @@ class N2_Output_Gift_API {
 			}
 			$results['data'][ $meta_key ] = $meta_value;
 		}
+
+		// 共通だけ常時merge、それ以外は抽出してmerge
+		$match_value            = array_merge( ['共通' => $warning['共通'] ], array_intersect_key( $warning, array_flip( unserialize( $results['data']['商品タイプ'] ) ) ) );
+		$results['data']['説明文'] = $results['data']['説明文'] . "\n" . implode( "\n", array_filter( $match_value ) );
 
 		// 結果をJSON形式に変換して出力
 		header( 'Content-Type: application/json' );

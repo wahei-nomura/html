@@ -407,14 +407,17 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		// ========[html]PC用販売説明文========
 		$html = function() use ( $n2values ) {
 			global $n2;
+			$applicable_reasons = $n2->settings['N2']['理由表示地場産品類型'];
 			?>
 			<?php $this->get_img_urls( $n2values, 'html' ); ?>
 			<?php echo nl2br( $n2values['説明文'] ); ?><br><br>
-			<?php // 商品タイプごとの注意書きを追加
-			foreach ( array_filter( $n2values['商品タイプ'] ) as $type ) {
-				echo nl2br( $n2->settings['注意書き'][ $type ] ) . '<br>';
-			}
-			?>
+			<?php if ( $n2values['地場産品類型'] && $n2values['類型該当理由'] && in_array( $n2values['地場産品類型'], $applicable_reasons ) ) : ?>
+				<br><br>
+				<!-- 見出付しボックス --><table border="2" width="100%" cellspacing="0" cellpadding="15" bordercolor="#B71C1C">
+				<tr><td bgcolor="#B71C1C"><font color="white">地場産品基準該当理由</font></td></tr><tr><td bgcolor="white">
+				<?php echo nl2br( $n2values['類型該当理由'] ); ?>
+				</td></tr></table><!-- /見出し付ボックス -->
+			<?php endif; ?>
 			<?php $this->make_itemtable( $n2values, false ); ?><br><br>
 			<?php
 				echo $n2->settings['N2']['ポータル共通説明文']
@@ -440,8 +443,9 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 */
 	public function pc_item_description( $n2values, $return_string = true ) {
 		// ========[html]PC用商品説明文========
-		$html = function() use ( $n2values ) {
+		$html = function() use ( $n2values) {
 			global $n2;
+			$applicable_reasons = $n2->settings['N2']['理由表示地場産品類型'];
 			?>
 			<?php echo nl2br( $n2values['説明文'] ); ?><br><br>
 			<?php // 商品タイプごとの注意書きを追加
@@ -479,6 +483,13 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			<?php if ( $n2values['楽天SPAカテゴリー'] ) : ?>
 				<br><br><?php echo nl2br( $n2values['楽天SPAカテゴリー'] ); ?><br>
 			<?php endif; ?>
+			<?php if ( $n2values['地場産品類型'] && $n2values['類型該当理由'] && in_array( $n2values['地場産品類型'], $applicable_reasons ) ) : ?>
+				<br><br>
+				<!-- 見出付しボックス --><table border="2" width="100%" cellspacing="0" cellpadding="15" bordercolor="#B71C1C">
+				<tr><td bgcolor="#B71C1C"><font color="white">地場産品基準該当理由</font></td></tr><tr><td bgcolor="white">
+				<?php echo nl2br( $n2values['類型該当理由'] ); ?>
+				</td></tr></table><!-- /見出し付ボックス -->
+			<?php endif; ?>
 			<?php
 		};
 
@@ -501,14 +512,17 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		// ========[html]SP用商品説明文========
 		$html = function() use ( $n2values ) {
 			global $n2;
+			$applicable_reasons = $n2->settings['N2']['理由表示地場産品類型'];
 			?>
 			<?php $this->get_img_urls( $n2values, 'html' ); ?>
 			<?php echo nl2br( $n2values['説明文'] ); ?><br><br>
-			<?php // 商品タイプごとの注意書きを追加
-			foreach ( array_filter( $n2values['商品タイプ'] ) as $type ) {
-				echo nl2br( $n2->settings['注意書き'][ $type ] ) . '<br>';
-			}
-			?>
+			<?php if ( $n2values['地場産品類型'] && $n2values['類型該当理由'] && in_array( $n2values['地場産品類型'], $applicable_reasons ) ) : ?>
+				<br><br>
+				<!-- 見出付しボックス --><table border="2" width="100%" cellspacing="0" cellpadding="15" bordercolor="#B71C1C">
+				<tr><td bgcolor="#B71C1C"><font color="white">地場産品基準該当理由</font></td></tr><tr><td bgcolor="white">
+				<?php echo nl2br( $n2values['類型該当理由'] ); ?>
+				</td></tr></table><!-- /見出し付ボックス -->
+			<?php endif; ?>
 			<?php $this->make_itemtable( $n2values, false ); ?>
 			<?php if ( $n2values['検索キーワード'] ) : ?>
 				<br><br><?php echo nl2br( $n2values['検索キーワード'] ); ?>
