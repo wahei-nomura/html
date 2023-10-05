@@ -81,7 +81,7 @@ class N2_Items_API {
 		$posts = get_posts( self::$data['params'] );
 		// post_contentのみにする
 		$posts = array_map(
-			function( $v ) {
+			function ( $v ) {
 				$post_content = json_decode( $v->post_content, true );
 				// idを混ぜ込む
 				$post_content['id'] = $v->ID;
@@ -276,7 +276,7 @@ class N2_Items_API {
 		}
 		// 最低必要事項の調査（数値に関しては0は許したい）
 		$check_required = array_filter(
-			$meta,
+			$meta ?? array(),
 			function ( $v, $k ) use ( $required ) {
 				if ( in_array( $k, $required, true ) ) {
 					if ( is_array( $v ) ) {
