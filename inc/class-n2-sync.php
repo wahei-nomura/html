@@ -839,16 +839,14 @@ class N2_Sync {
 			$data = array();
 		}
 
-		// 「全て」以外の場合
-		if ( ! in_array( '全て', $params['target_cols'], true ) ) {
-			$params['target_cols'][] = 'id';
-			$params['target_cols'][] = 'ID';
-			// データの絞りこみ
-			$data = array_map(
-				fn( $v ) => array_filter( $v, fn( $k ) => in_array( $k, $params['target_cols'], true ), ARRAY_FILTER_USE_KEY ),
-				$data
-			);
-		}
+
+		$params['target_cols'][] = 'id';
+		$params['target_cols'][] = 'ID';
+		// データの絞りこみ
+		$data = array_map(
+			fn( $v ) => array_filter( $v, fn( $k ) => in_array( $k, $params['target_cols'], true ), ARRAY_FILTER_USE_KEY ),
+			$data
+		);
 
 		// IP制限等で終了のケース
 		if ( ! $data ) {

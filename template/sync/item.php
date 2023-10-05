@@ -15,29 +15,32 @@ $settings['item_url'] = $settings['item_url'] ?? $settings['id'];
 	<tr>
 		<th>スプレットシートのURL</th>
 		<td>
-			<input type="text" id="item_url" class="large-text" name="n2_sync_settings_spreadsheet[item_url]" value="<?php echo esc_attr( $settings['item_url'] ); ?>" v-model="item_url" placeholder="スプレッドシートのURL" form="n2_sync_settings_spreadsheet" @change="set_item_data()">
-			<p v-if="item_data">
+			<input type="text" id="item_url" class="large-text" name="n2_sync_settings_spreadsheet[item_url]" value="<?php echo esc_attr( $settings['item_url'] ); ?>" v-model="item.url" placeholder="スプレッドシートのURL" form="n2_sync_settings_spreadsheet" @change="set_data()">
+			<p v-if="typeof item.data === 'object'">
 				<span class="dashicons dashicons-media-spreadsheet" style="color: green;"></span>
-				<a :href="item_url" target="_blank">
-					{{item_data.title}} | {{item_data.range}}
+				<a :href="item.url" target="_blank">
+					{{item.data.title}} | {{item.data.range}}
 				</a>
 			</p>
+			<p v-if="typeof item.data === 'string'" style="color: red;">{{item.data}}</p>
 		</td>
 	</tr>
-	<tr v-if="item_data">
+	<tr v-if="typeof item.data === 'object'">
 		<th>同期項目</th>
 		<td>
 			<form method="get" action="admin-ajax.php" target="_blank">
 				<input type="hidden" name="action" value="n2_sync_posts_from_spreadsheet">
-				<input type="hidden" name="spreadsheetid" :value="item_url">
-				<!-- Vueを導入してリアクティブにidとitem_rangeをセット -->
-				<div style="display: flex; flex-wrap: wrap; margin: 0 0 1em;">
-					<label style="margin: 0 1em 1em 0;" v-for="name in item_data.header">
-						<input type="checkbox" name="target_cols[]" :value="name"> {{name}}
+				<input type="hidden" name="spreadsheetid" :value="item.url">
+				<label>
+					<input type="checkbox" v-model="item.checked.all" @change="check_all()"> 全項目チェック
+				</label>
+				<div style="display: flex; flex-wrap: wrap; margin: 1em 0;">
+					<label style="margin: 0 1em 1em 0;" v-for="name in item.data.header">
+						<input type="checkbox" name="target_cols[]" :value="name" v-model="item.checked.data"> {{name}}
 					</label>
 				</div>
 				<div>
-					<button class="button">チェックした項目を同期する</button>
+					<button class="button" :disabled="update_disabled()">チェックした項目を同期する</button>
 				</div>
 			</form>
 		</td>
