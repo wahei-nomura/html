@@ -32,7 +32,7 @@ $settings['item_url'] = $settings['item_url'] ?? $settings['id'];
 				<input type="hidden" name="action" value="n2_sync_posts_from_spreadsheet">
 				<input type="hidden" name="spreadsheetid" :value="item.url">
 				<label>
-					<input type="checkbox" v-model="item.checked.all" @change="check_all()"> 全項目チェック
+					<input type="checkbox" v-model="item.checked.all" @change="item.checked.data = item.checked.all ? item.data.header : []"> 全項目チェック
 				</label>
 				<div style="display: flex; flex-wrap: wrap; margin: 1em 0;">
 					<label style="margin: 0 1em 1em 0;" v-for="name in item.data.header">

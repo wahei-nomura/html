@@ -46,14 +46,6 @@ jQuery($=>{
 			h = h.filter(v => !v.match(/id|ID/));
 			return h;
 		},
-		check_all(mode = 'item'){
-			if ( this[mode].checked.all ) {
-				if ( ! confirm('全項目を更新すると、N2で直接変更された項目に関しても全て上書きされます。それでもよろしいですか？\n\n例）N2のスプシダウンロードして、スプシで価格を編集している間に誰かが説明文を変更した場合は、せっかく編集した説明文も上書きされます！') ) {
-					return;
-				}
-			}
-			this[mode].checked.data = this[mode].checked.all ? this[mode].data.header : [];
-		},
 		update_disabled(mode = 'item'){
 			return this[mode].checked.data.length ? false : true;
 		}
