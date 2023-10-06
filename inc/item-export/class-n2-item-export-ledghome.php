@@ -95,6 +95,8 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 	 * @return string $str 置換後の文字列
 	 */
 	protected function special_str_convert( $str ) {
+		global $n2;
+		$str = str_replace( array_keys( $n2->special_str_convert ), array_values( $n2->special_str_convert ), $str );
 		/**
 		 * [hook] n2_item_export_ledghome_special_str_convert
 		 */
