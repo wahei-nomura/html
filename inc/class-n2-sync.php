@@ -776,6 +776,7 @@ class N2_Sync {
 			// user_login_beforeでuser_loginを変更可能にする（要 N2_Setusers->change_user_login）
 			$user = get_user_by( 'login', $userdata['user_login_before'] ?? $userdata['user_login'] );
 			unset( $userdata['user_login_before'] );
+			add_filter( 'wp_pre_insert_user_data', array( $this, 'insert_user_pass' ), 10, 4 );
 			// 既存ユーザーの場合
 			if ( $user ) {
 				$userdata['ID'] = $user->ID;// 既存ユーザーは更新するのでIDを突っ込む
@@ -785,13 +786,12 @@ class N2_Sync {
 				}
 			} else {
 				// パスワードの適切な加工
-				add_filter( 'wp_pre_insert_user_data', array( $this, 'insert_user_pass' ), 10, 4 );
 				$from_id = wp_insert_user( $userdata );
 				if ( ! is_wp_error( $from_id ) ) {
 					$from_ids[] = $from_id;
 				}
-				remove_filter( 'wp_pre_insert_user_data', array( $this, 'insert_user_pass' ) );
 			}
+			remove_filter( 'wp_pre_insert_user_data', array( $this, 'insert_user_pass' ) );
 		}
 
 		// NENGから削除されているものを削除（refreshパラメータで完全同期 or $from以外で追加したものに関してはスルー）
