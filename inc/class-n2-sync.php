@@ -896,8 +896,8 @@ class N2_Sync {
 		$this->check_error_spreadsheet();// エラー発生の場合はストップ
 		foreach ( $userdata as $user ) {
 			add_filter( 'wp_pre_insert_user_data', array( $this, 'insert_user_pass' ), 10, 4 );
-			$method = $user['ID'] ? 'wp_update_user' : 'wp_insert_user';
-			$id     = $method( $user );
+			$fn = $user['ID'] ? 'wp_update_user' : 'wp_insert_user';
+			$id = $fn( $user );
 			remove_filter( 'wp_pre_insert_user_data', array( $this, 'insert_user_pass' ) );
 			// ログ追加
 			if ( $id ) {
