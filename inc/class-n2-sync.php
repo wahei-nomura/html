@@ -1178,6 +1178,10 @@ class N2_Sync {
 			$this->error[-1][] = 'スプレットシートのヘッダー行に異物混入しています。1行目はヘッダー行ですのでその上に行を追加等はしないで下さい。';
 		}
 		$sync_mode = "sync_spreadsheet_{$params['mode']}";
+		if ( ! method_exists( $this, $sync_mode ) ) {
+			$this->error[][] = "{$params['mode']}は存在しません。誰だ？直にURLを叩いているやつは！？";
+			$this->check_error_spreadsheet();// エラー発生の場合はストップ
+		}
 		$this->$sync_mode( $data );
 
 		printf(
