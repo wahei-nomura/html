@@ -29,7 +29,8 @@ $settings['item_url'] = $settings['item_url'] ?? $settings['id'];
 		<th>同期項目</th>
 		<td>
 			<form method="get" action="admin-ajax.php" target="_blank">
-				<input type="hidden" name="action" value="n2_sync_posts_from_spreadsheet">
+				<input type="hidden" name="action" value="n2_sync_from_spreadsheet">
+				<input type="hidden" name="mode" value="item">
 				<input type="hidden" name="spreadsheetid" :value="item.url">
 				<label>
 					<input type="checkbox" v-model="item.checked.all" @change="item.checked.data = item.checked.all ? item.data.header : []"> 全項目チェック

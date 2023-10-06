@@ -67,6 +67,12 @@ class N2_Sync {
 	private $error = array();
 
 	/**
+	 * エラー
+	 *
+	 * @var array
+	 */
+	private $log = array();
+	/**
 	 * コンストラクタ
 	 */
 	public function __construct() {
@@ -79,12 +85,11 @@ class N2_Sync {
 			return;
 		}
 		add_action( 'wp_ajax_n2_sync_users_from_n1', array( $this, 'sync_users' ) );
-		add_action( 'wp_ajax_n2_sync_users_from_spreadsheet', array( $this, 'sync_users' ) );
 		add_action( 'wp_ajax_n2_sync_posts', array( $this, 'sync_posts' ) );
 		add_action( 'wp_ajax_nopriv_n2_sync_posts', array( $this, 'sync_posts' ) );
 		add_action( 'wp_ajax_n2_multi_sync_posts', array( $this, 'multi_sync_posts' ) );
 		add_action( 'wp_ajax_n2_get_spreadsheet_data_api', array( $this, 'get_spreadsheet_data_api' ) );
-		add_action( 'wp_ajax_n2_sync_posts_from_spreadsheet', array( $this, 'sync_posts_from_spreadsheet' ) );
+		add_action( 'wp_ajax_n2_sync_from_spreadsheet', array( $this, 'sync_from_spreadsheet' ) );
 		add_action( 'wp_ajax_n2_insert_posts', array( $this, 'insert_posts' ) );
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 		add_action( 'init', array( $this, 'cron' ) );
@@ -278,7 +283,7 @@ class N2_Sync {
 		// IP制限等で終了のケース
 		if ( ! $data || ! $found_posts ) {
 			$logs[] = $json;
-			$this->log( $logs );
+			$this->insert_log_file( $logs );
 			echo $json;
 			exit;
 		}
@@ -304,7 +309,7 @@ class N2_Sync {
 			$sleep = $_GET['sleep'] ?? $this->sleep;
 			if ( $sleep > ( strtotime( 'now' ) - get_option( "n2syncing-{$params['paged']}", strtotime( '-1 hour' ) ) ) ) {
 				$logs[] = '2重起動防止のため終了';
-				$this->log( $logs );
+				$this->insert_log_file( $logs );
 				echo '2重起動防止のため終了';
 				exit;
 			}
@@ -357,7 +362,7 @@ class N2_Sync {
 
 		echo 'N2-Multi-Sync-Posts「' . get_bloginfo( 'name' ) . 'の返礼品」旧NENGとシンクロ完了！（' . number_format( microtime( true ) - $before, 2 ) . ' 秒）';
 		$logs[] = '返礼品シンクロ完了 ' . number_format( microtime( true ) - $before, 2 ) . ' sec';
-		$this->log( $logs );
+		$this->insert_log_file( $logs );
 		exit;
 	}
 
@@ -379,7 +384,7 @@ class N2_Sync {
 		if ( ! wp_verify_nonce( $params['n2nonce'] ?? '', 'n2nonce' ) ) {
 			$msg    = '不正アクセス';
 			$logs[] = $msg;
-			$this->log( $logs );
+			$this->insert_log_file( $logs );
 			echo $msg;
 			exit;
 		}
@@ -394,7 +399,7 @@ class N2_Sync {
 		// IP制限等で終了のケース
 		if ( ! $data ) {
 			$logs[] = $json;
-			$this->log( $logs );
+			$this->insert_log_file( $logs );
 			echo $json;
 			exit;
 		}
@@ -619,7 +624,7 @@ class N2_Sync {
 				}
 				$postarr['ID'] = $p->ID;
 				// ログ生成
-				$this->log( array( ...$logs, "「{$p->post_title}」を更新しました。{$p->post_modified}  {$v['post_modified']}" ) );
+				$this->insert_log_file( array( ...$logs, "「{$p->post_title}」を更新しました。{$p->post_modified}  {$v['post_modified']}" ) );
 			}
 			add_filter( 'wp_insert_post_data', array( $this, 'alter_post_modification_time' ), 99, 2 );
 			$neng_ids[] = wp_insert_post( $postarr );
@@ -685,23 +690,13 @@ class N2_Sync {
 				$user_range = $input_user_range && '' !== $input_user_range ? $input_user_range : $settings['user_range'];
 				// データ取得
 				$data = $this->get_spreadsheet_data( $sheet_id, $user_range );
-
-				// GETパラメータで受け取ったidとuser_rangeも保存
-				update_option(
-					'n2_sync_settings_spreadsheet',
-					array(
-						'id'         => $sheet_id,
-						'user_range' => $user_range,
-						'item_range' => $settings['item_range'],
-					)
-				);
 				break;
 		}
 		// IP制限 or データが無い
 		if ( ! $data ) {
 			$text   = $json ?: 'データがありません。';
 			$logs[] = $text;
-			$this->log( $logs );
+			$this->insert_log_file( $logs );
 			echo $text;
 			exit;
 		}
@@ -812,59 +807,121 @@ class N2_Sync {
 		echo "N2-User-Sync「{$n2->town}」ユーザーデータを同期しました。";
 		$logs[] = 'ユーザーシンクロ完了 ' . number_format( microtime( true ) - $before, 2 ) . ' sec';
 
-		$this->log( $logs );
+		$this->insert_log_file( $logs );
 		exit;
 	}
 
 	/**
-	 * スプレットシートから返礼品のインポート
+	 * スプレットシートユーザー同期
+	 * 一意の値のもの　user_login user_email
+	 *
+	 * @param array $data スプシから作った返礼品データ
 	 */
-	public function sync_posts_from_spreadsheet() {
+	public function sync_spreadsheet_user( $data = array() ) {
+		global $n2, $wp_roles;
+		// 区切り文字
+		$sep = '/[,|、|\s|\/|\||｜|／]/u';
+		// 投稿配列
+		$userdata = array();
+		// 存在するrole
+		$exist_roles = array_keys( $wp_roles->role_names );
+		foreach ( $data as $k => $d ) {
+			$name_label = array(
+				'user_login'               => '/.*(アカウント|ログイン|ユーザー).*/ui',
+				'user_email'               => '/.*(メール|mail).*/ui',
+				'user_pass'                => '/.*(パスワード|pass).*/ui',
+				'first_name'               => '/.*事業者.*名.*/ui',
+				'last_name'                => '/.*事業者.*コード.*/ui',
+				'portal_site_display_name' => '/.*ポータル.*表示名.*/ui',
+				'role'                     => '/.*(権限|ロール).*/ui',
+			);
+			// キーの変換の準備
+			$keys   = array_keys( $d );
+			$values = array_values( $d );
+			// キーの変換
+			$keys = preg_replace( array_values( $name_label ), array_keys( $name_label ), $keys );
+			// $dの再生成
+			$d = array_combine( $keys, $values );
+			// IDを追加
+			if ( isset( $d['id'] ) || isset( $d['ID'] ) ) {
+				$d['ID'] = mb_convert_kana( $d['id'] ?? $d['ID'], 'n' );
+				unset( $d['id'] );
+			}
+			// 既存のユーザーかチェック
+			if ( empty( $d['ID'] ) ) {
+				// user_loginチェック
+				if ( isset( $d['user_login'] ) ) {
+					$user = get_user_by( 'login', $d['user_login'] );
+					if ( $user ) {
+						$this->error[ $k ][] = "ログインアカウント名「{$d['user_login']}」が既に存在します。このユーザーを更新したい場合は、id列に「{$user->ID}」を入力して下さい。";
+					}
+				}
+				// user_emailチェック
+				if ( isset( $d['user_email'] ) ) {
+					$user = get_user_by( 'email', $d['user_email'] );
+					if ( $user ) {
+						$this->error[ $k ][] = "メールアドレス「{$d['user_email']}」が既に存在します。このユーザーを更新したい場合は、id列に「{$user->ID}」を入力して下さい。";
+					}
+				}
+			}
+			// 表示名自動生成
+			if ( ! empty( $d['last_name'] ) && ! empty( $d['first_name'] ) ) {
+				$d['display_name'] = "{$d['last_name']} {$d['first_name']}";
+			}
+			if ( isset( $d['role'] ) ) {
+				// roleの変換
+				$d['role'] = match ( $d['role'] ) {
+					'SSクルー', 'ss', 'sscrew' => 'ss-crew',
+					'自治体', '役場', '市役所', '県庁', 'jichitai', 'jititai' => 'local-government',
+					'事業者', 'jigyousha' => 'jigyousya',
+					default => $d['role'],
+				};
+				if ( ! in_array( $d['role'], $exist_roles, true ) ) {
+					$this->error[ $k ][] = "role「{$d['role']}」が存在しません。";
+				}
+			}
+			// ユーザーメタ
+			$meta_array = array(
+				'portal_site_display_name',
+				// ここに追加したいメタフィールド名
+			);
+			foreach ( $meta_array as $meta_name ) {
+				if ( isset( $d[ $meta_name ] ) ) {
+					$d['meta_input'][ $meta_name ] = $d[ $meta_name ];
+					unset( $d[ $meta_name ] );
+				}
+			}
+			$userdata[ $k ] = $d;
+		}
+		$this->check_error_spreadsheet();// エラー発生の場合はストップ
+		foreach ( $userdata as $user ) {
+			add_filter( 'wp_pre_insert_user_data', array( $this, 'insert_user_pass' ), 10, 4 );
+			$id = wp_insert_user( $user );
+			remove_filter( 'wp_pre_insert_user_data', array( $this, 'insert_user_pass' ) );
+			// ログ追加
+			if ( $id ) {
+				$this->log[ $id ] = array(
+					'mode'         => empty( $user['ID'] ) ? 'insert' : 'update',
+					'user_login'   => get_the_author_meta( 'user_login', $id ),
+					'display_name' => get_the_author_meta( 'display_name', $id ),
+				);
+			}
+		}
+	}
+
+	/**
+	 * スプレットシート返礼品同期
+	 *
+	 * @param array $data スプシから作った返礼品データ
+	 */
+	public function sync_spreadsheet_item( $data = array() ) {
 		global $n2;
-		echo '<style>body{margin:0;background: black;color: white;}</style><pre style="min-height: 100%;margin: 0;padding: 1em;">';
-		$errors  = $this->error;
-		$default = array(
-			'spreadsheetid' => '',
-			'range'         => '',
-			'target_cols'   => array(),
-		);
-		$params  = get_option( 'n2_sync_settings_spreadsheet' );
-		$params  = wp_parse_args( $params, $default );
-		$params  = wp_parse_args( $_GET, $params );
-		// データ取得
-		$data = $this->get_spreadsheet_data( $params['spreadsheetid'], $params['range'] );
-
-		// 対象カラム指定なし
-		if ( empty( $params['target_cols'] ) ) {
-			$data = array();
-		}
-
-
-		$params['target_cols'][] = 'id';
-		$params['target_cols'][] = 'ID';
-		// データの絞りこみ
-		$data = array_map(
-			fn( $v ) => array_filter( $v, fn( $k ) => in_array( $k, $params['target_cols'], true ), ARRAY_FILTER_USE_KEY ),
-			$data
-		);
-
-		// IP制限等で終了のケース
-		if ( ! $data ) {
-			$text = '認証情報が間違っている、またはデータが存在しないので終了します。';
-			echo $text;
-			exit;
-		}
-
-		// スプシヘッダーの異物混入を疑う
-		if ( ! in_array( array_keys( $data[0] )[0], array( 'id', 'ID' ), true ) ) {
-			$errors[-1][] = 'スプレットシートのヘッダー行に異物混入しています。1行目はヘッダー行ですのでその上に行を追加等はしないで下さい。';
-		}
-
 		// 区切り文字
 		$sep = '/[,|、|\s|\/|\||｜|／]/u';
 		// 投稿配列
 		$postarr = array();
 		foreach ( $data as $k => $d ) {
+			$d = array_map( fn( $v ) => wp_slash( $v ), $d );
 			// カスタムフィールド以外
 			{
 				// ID（大文字・小文字対応）
@@ -875,7 +932,7 @@ class N2_Sync {
 				if ( ! empty( $d['タイトル'] ) ) {
 					$postarr[ $k ]['post_title'] = $d['タイトル'];
 					if ( mb_strlen( $d['タイトル'] ) > 100 ) {
-						$errors[ $k ][] = 'タイトルが長すぎます。タイトルは100文字までにして下さい。';
+						$this->error[ $k ][] = 'タイトルが長すぎます。タイトルは100文字までにして下さい。';
 					}
 				}
 				// post_status
@@ -891,7 +948,7 @@ class N2_Sync {
 					// N2のステータス
 					$n2_statuses = array( ...array_keys( get_post_statuses() ), 'registered' );
 					if ( ! in_array( $postarr[ $k ]['post_status'], $n2_statuses, true ) ) {
-						$errors[ $k ][] = "存在しないステータス「{$d['ステータス']}」が設定されています。";
+						$this->error[ $k ][] = "存在しないステータス「{$d['ステータス']}」が設定されています。";
 					}
 				}
 				// 事業者コードからuserid取得
@@ -939,7 +996,7 @@ class N2_Sync {
 			if ( isset( $d['全商品ディレクトリID'] ) ) {
 				$d['全商品ディレクトリID'] = mb_convert_kana( $d['全商品ディレクトリID'], 'n' );
 				if ( preg_match( '/[^0-9]/', $d['全商品ディレクトリID'] ) ) {
-					$errors[ $k ][] = '全商品ディレクトリIDは数値です。';
+					$this->error[ $k ][] = '全商品ディレクトリIDは数値です。';
 				}
 			}
 			// タグID
@@ -947,7 +1004,7 @@ class N2_Sync {
 				$d['タグID'] = array_filter( preg_split( $sep, $d['タグID'] ) );
 				foreach ( $d['タグID'] as $id ) {
 					if ( preg_match( '/[^0-9]/', $id ) ) {
-						$errors[ $k ][] = 'タグIDは数値です。';
+						$this->error[ $k ][] = 'タグIDは数値です。';
 					}
 				}
 				$d['タグID'] = implode( '/', $d['タグID'] );
@@ -957,7 +1014,7 @@ class N2_Sync {
 				$d['出品禁止ポータル'] = array_filter( preg_split( $sep, $d['出品禁止ポータル'] ) );
 				foreach ( $d['出品禁止ポータル']  as $name ) {
 					if ( ! in_array( $name, $n2->settings['N2']['出品ポータル'], true ) ) {
-						$errors[ $k ][] = "そもそも出品していないポータル「{$name}」が出品禁止ポータルに設定されています。";
+						$this->error[ $k ][] = "そもそも出品していないポータル「{$name}」が出品禁止ポータルに設定されています。";
 					}
 				}
 			}
@@ -967,7 +1024,7 @@ class N2_Sync {
 				// 数字は半角に
 				$d['地場産品類型'] = mb_convert_kana( mb_substr( $d['地場産品類型'], 0, 1 ), 'n' ) . mb_substr( $d['地場産品類型'], 1 );
 				if ( ! in_array( $d['地場産品類型'], array_map( 'strval', array_keys( $n2->custom_field['スチームシップ用']['地場産品類型']['option'] ?? array() ) ), true ) ) {
-					$errors[ $k ][] = "存在しない地場産品類型「{$num}」が設定されています。";
+					$this->error[ $k ][] = "存在しない地場産品類型「{$num}」が設定されています。";
 				}
 			}
 			// 商品タイプ（区切り文字列でいい感じに配列化）
@@ -975,7 +1032,7 @@ class N2_Sync {
 				$d['商品タイプ'] = array_values( array_filter( preg_split( $sep, $d['商品タイプ'] ) ) );
 				foreach ( $d['商品タイプ'] as $name ) {
 					if ( ! in_array( $name, $n2->settings['N2']['商品タイプ'], true ) ) {
-						$errors[ $k ][] = "存在しない商品タイプ「{$name}」が設定されています。";
+						$this->error[ $k ][] = "存在しない商品タイプ「{$name}」が設定されています。";
 					}
 				}
 			}
@@ -999,25 +1056,25 @@ class N2_Sync {
 						default => false,
 					};
 					if ( ! $d[ "{$name}対応" ] ) {
-						$errors[ $k ][] = "{$name}対応に不適切な文字が入力されています。「有り」か「無し」で入力して下さい。";
+						$this->error[ $k ][] = "{$name}対応に不適切な文字が入力されています。「有り」か「無し」で入力して下さい。";
 					}
 				}
 			}
 			// 発送方法
 			if ( isset( $d['発送方法'] ) ) {
 				if ( ! in_array( $d['発送方法'], $n2->custom_field['事業者用']['発送方法']['option'], true ) ) {
-					$errors[ $k ][] = "存在しない発送方法「{$d['発送方法']}」が設定されています。";
+					$this->error[ $k ][] = "存在しない発送方法「{$d['発送方法']}」が設定されています。";
 				}
 			}
 			// 取り扱い方法（区切り文字列でいい感じに配列化）
 			if ( isset( $d['取り扱い方法'] ) ) {
 				$d['取り扱い方法'] = array_values( array_filter( preg_split( $sep, $d['取り扱い方法'] ) ) );
 				if ( count( $d['取り扱い方法'] ) > 2 ) {
-					$errors[ $k ][] = '取り扱い方法は最大2つまでです。';
+					$this->error[ $k ][] = '取り扱い方法は最大2つまでです。';
 				}
 				foreach ( $d['取り扱い方法'] as $name ) {
 					if ( ! in_array( $name, $n2->custom_field['事業者用']['取り扱い方法']['option'], true ) ) {
-						$errors[ $k ][] = "存在しない取り扱い方法「{$name}」が設定されています。";
+						$this->error[ $k ][] = "存在しない取り扱い方法「{$name}」が設定されています。";
 					}
 				}
 			}
@@ -1035,7 +1092,7 @@ class N2_Sync {
 				$n2_delivery_sizes   = array_keys( array_filter( $n2->settings['寄附金額・送料']['送料'] ) );
 				$n2_delivery_sizes[] = 'その他';// その他追加
 				if ( ! in_array( $d['発送サイズ'], $n2_delivery_sizes, true ) ) {
-					$errors[ $k ][] = "存在しない発送サイズ「{$delivery_size}」が設定されています。";
+					$this->error[ $k ][] = "存在しない発送サイズ「{$delivery_size}」が設定されています。";
 				}
 			}
 			if ( empty( $d['送料'] ) && ! empty( $d['発送サイズ'] ) && ! empty( $d['発送方法'] ) ) {
@@ -1046,20 +1103,29 @@ class N2_Sync {
 			// LHカテゴリー
 			if ( isset( $d['LHカテゴリー'] ) ) {
 				if ( ! in_array( $d['LHカテゴリー'], $n2->custom_field['事業者用']['LHカテゴリー']['option'], true ) ) {
-					$errors[ $k ][] = "存在しないLHカテゴリー「{$d['LHカテゴリー']}」が設定されています。";
+					$this->error[ $k ][] = "存在しないLHカテゴリー「{$d['LHカテゴリー']}」が設定されています。";
 				}
 			}
 			// $postarrにセット
 			$postarr[ $k ]['meta_input'] = $d;
 		}
+
+		$this->check_error_spreadsheet();// エラー発生の場合はストップ
+		$this->log = $this->multi_insert_posts( $postarr, 50 );
+	}
+	/**
+	 * 同期を止める
+	 */
+	public function check_error_spreadsheet() {
+		global $n2;
 		// エラー発生の場合はストップ
-		if ( ! empty( $errors ) ) {
-			$error_count = count( array_reduce( $errors, 'array_merge', array() ) );
+		if ( ! empty( $this->error ) ) {
+			$error_count = count( array_reduce( $this->error, 'array_merge', array() ) );
 			$error_point = ( $n2->current_user->data->meta['error_point'] ?? 0 ) + $error_count;
 			update_user_meta( $n2->current_user->ID, 'error_point', $error_point );
 			printf( "%1\$s様\n\nおめでとうございます！？\n\n%2\$s件のエラーのため処理を中止し、あなたにN2エラーポイントを「%2\$spt」付与しました。\n現在のあなたの合計N2エラーポイントは%3\$sptです。（たまり過ぎると様々なN2の制限がかかります）", $n2->current_user->data->display_name, $error_count, $error_point );
 			echo "\n\n行数\tエラー内容\n";
-			foreach ( $errors as $i => $values ) {
+			foreach ( $this->error as $i => $values ) {
 				$i = $i + 2;
 				foreach ( $values as $value ) {
 					echo "{$i}行目\t{$value}\n";
@@ -1067,17 +1133,64 @@ class N2_Sync {
 			}
 			exit;
 		}
-		$logs = $this->multi_insert_posts( $postarr, 50 );
+	}
+
+	/**
+	 * スプレットシート同期
+	 */
+	public function sync_from_spreadsheet() {
+		global $n2;
+		echo '<style>body{margin:0;background: black;color: white;}</style><pre style="min-height: 100%;margin: 0;padding: 1em;">';
+		$default = array(
+			'spreadsheetid' => '',
+			'range'         => '',
+			'target_cols'   => array(),
+		);
+		$params  = get_option( 'n2_sync_settings_spreadsheet' );
+		$params  = wp_parse_args( $params, $default );
+		$params  = wp_parse_args( $_GET, $params );
+		// データ取得
+		$data = $this->get_spreadsheet_data( $params['spreadsheetid'], $params['range'] );
+
+		// 対象カラム指定なし
+		if ( empty( $params['target_cols'] ) ) {
+			$data = array();
+		}
+
+		$params['target_cols'][] = 'id';
+		$params['target_cols'][] = 'ID';
+		// データの絞りこみ
+		$data = array_map(
+			fn( $v ) => array_filter( $v, fn( $k ) => in_array( $k, $params['target_cols'], true ), ARRAY_FILTER_USE_KEY ),
+			$data
+		);
+
+		// IP制限等で終了のケース
+		if ( ! $data ) {
+			$text = '認証情報が間違っている、またはデータが存在しないので終了します。';
+			echo $text;
+			exit;
+		}
+
+		// スプシヘッダーの異物混入を疑う
+		if ( ! in_array( array_keys( $data[0] )[0], array( 'id', 'ID' ), true ) ) {
+			$this->error[-1][] = 'スプレットシートのヘッダー行に異物混入しています。1行目はヘッダー行ですのでその上に行を追加等はしないで下さい。';
+		}
+		$sync_mode = "sync_spreadsheet_{$params['mode']}";
+		$this->$sync_mode( $data );
 
 		printf(
 			"追加: %d件\n更新: %d件\n-----------\n合計: %d件\n\n\n",
-			count( array_filter( $logs, fn( $v ) => 'insert' === $v['mode'] ) ),
-			count( array_filter( $logs, fn( $v ) => 'update' === $v['mode'] ) ),
-			count( $logs )
+			count( array_filter( $this->log, fn( $v ) => 'insert' === $v['mode'] ) ),
+			count( array_filter( $this->log, fn( $v ) => 'update' === $v['mode'] ) ),
+			count( $this->log )
 		);
-		echo "id\tmode\tcode\ttitle\n";
-		foreach ( $logs as $id => $v ) {
-			echo "{$id}\t{$v['mode']}\t{$v['code']}\t{$v['title']}\n";
+		foreach ( $this->log as $id => $val ) {
+			// 最初はヘッダーを追加
+			if ( reset( $this->log ) === $val ) {
+				echo "id\t" . implode( "\t", array_keys( $val ) ) . PHP_EOL;
+			}
+			echo "{$id}\t" . implode( "\t", $val ) . PHP_EOL;
 		}
 		exit;
 	}
@@ -1094,6 +1207,7 @@ class N2_Sync {
 	 *
 	 * @param string $spreadsheetid スプレットシートのIDまたはurl
 	 * @param string $range スプレットシートの範囲
+	 * @param bool   $debug デバッグモードの情報を取得するかどうか
 	 */
 	public function get_spreadsheet_data( $spreadsheetid, $range = '', $debug = false ) {
 		// $rangeが渡ってきていない時
@@ -1300,7 +1414,7 @@ class N2_Sync {
 	 *
 	 * @param array $arr ログ用の追加配列
 	 */
-	private function log( $arr ) {
+	private function insert_log_file( $arr ) {
 		$logs = array(
 			date_i18n( 'Y/m/d H:i:s' ),
 			get_bloginfo( 'name' ),

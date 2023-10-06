@@ -14,10 +14,21 @@ jQuery($=>{
 				data: [],
 			},
 		},
+		user: {
+			url: false,
+			data: false,
+			checked: {
+				all: false,
+				data: [],
+			},
+		},
 	};
 	const created = async function(){
-		this.item.url = $('#item_url').val();
-		this.set_data();
+		// データの初期セット
+		for ( const mode of ['item', 'user'] ) {
+			this[mode].url = $(`#${mode}_url`).val();
+			this.set_data(mode);
+		}
 	};
 	const methods = {
 		async set_data(mode = 'item') {
