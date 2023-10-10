@@ -248,6 +248,9 @@ class N2_Items_API {
 			if ( is_array( $meta ) ) {
 				$meta = array_filter( $meta, fn( $v ) => $v );
 			}
+			if ( is_string( $meta ) ) {
+				$meta = wp_unslash( $meta );
+			}
 			$post_content[ $key ] = $meta;
 		}
 		$data['post_content'] = addslashes( wp_json_encode( $post_content, JSON_UNESCAPED_UNICODE ) );
