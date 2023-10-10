@@ -1223,7 +1223,7 @@ class N2_Sync {
 		// $rangeが渡ってきていない時
 		if ( empty( $range ) ) {
 			preg_match( '/\#gid\=([0-9]*)/', $spreadsheetid, $m );
-			if ( ! empty( $m[1] ) ) {
+			if ( isset( $m[1] ) ) {
 				$sheet_id = (int) $m[1];
 			}
 		}
@@ -1252,7 +1252,7 @@ class N2_Sync {
 		if ( ! $body->access_token ) {
 			return false;
 		}
-		if ( ! empty( $sheet_id ) ) {
+		if ( isset( $sheet_id ) ) {
 			// url生成
 			$url  = "https://sheets.googleapis.com/v4/spreadsheets/{$spreadsheetid}";
 			$args = array(
