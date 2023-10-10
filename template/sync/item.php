@@ -9,8 +9,6 @@ global $n2;
 $settings             = get_option( 'n2_sync_settings_spreadsheet' );
 $settings['item_url'] = $settings['item_url'] ?? $settings['id'];
 ?>
-<h2 style="margin-top: 1em; font-size: 2em;">GS 返礼品の同期</h2>
-<p>Googleスプレットシートから返礼品データを同期項目を選んで同期します。</p>
 <table class="form-table">
 	<tr>
 		<th>スプレットシートのURL</th>

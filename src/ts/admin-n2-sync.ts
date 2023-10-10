@@ -49,6 +49,7 @@ jQuery($=>{
 				this[mode].data.header  = this.adjust_header(this[mode].data.header||[]);
 				this[mode].checked.all  = false;
 				this[mode].checked.data = [];
+				$('#n2sync, #n2sync-loading').addClass('is-active');
 			} else {
 				this[mode].data = 'スプレットシートのURLが間違っています。';
 			}

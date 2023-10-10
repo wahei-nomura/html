@@ -167,9 +167,14 @@ class N2_Sync {
 				</nav>
 			</div>
 			<?php endif; ?>
+			<ul style="padding: 1em; background: white; margin: 2em 0; border: 1px solid;">
+				<li>※ 返礼品もユーザーもIDがあれば更新、無ければ追加します。</li>
+				<li>※ <b>シート雛形</b>は<a href="https://docs.google.com/spreadsheets/d/13HZn6w6S0XaXgAd_3RSkB46XUrRDkMQArVeE99pFD9Q/edit#gid=0" target="_blank">ココ</a>。複製して使用してください！</li>
+			</ul>
 			<div id="n2sync">
 				<?php echo $this->$template(); ?>
 			</div>
+			<div id="n2sync-loading" class="spinner"></div>
 		</div>
 		<?php
 	}
