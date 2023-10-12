@@ -228,7 +228,7 @@ class N2_Items_API {
 				$meta_input[ $key ] = get_post_meta( $postarr['ID'], $key, true );
 			}
 		}
-		$meta_input = wp_parse_args( $postarr['meta_input'] ?? array(), $meta_input );
+		$meta_input = wp_parse_args( wp_unslash( $postarr['meta_input'] ?? array() ), $meta_input );
 
 		// 事業者コード追加
 		$post_content['事業者コード'] = get_user_meta( $data['post_author'], 'last_name', true );
@@ -247,9 +247,6 @@ class N2_Items_API {
 			// 値が配列の場合、空は削除
 			if ( is_array( $meta ) ) {
 				$meta = array_filter( $meta, fn( $v ) => $v );
-			}
-			if ( is_string( $meta ) ) {
-				$meta = wp_unslash( $meta );
 			}
 			$post_content[ $key ] = $meta;
 		}
