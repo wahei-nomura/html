@@ -28,18 +28,6 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 		'charset'       => 'sjis',
 		'header_string' => '', // 基本は自動設定、falseでヘッダー文字列無し
 	);
-	/**
-	 * RMS
-	 *
-	 * @var array
-	 */
-	protected $rms = array(
-		'header'       => null,
-		'cabinet'      => array(),
-		'use_api'      => null,
-		'ignore_error' => false,
-		'image_error'  => false,
-	);
 
 	/**
 	 * constructor
