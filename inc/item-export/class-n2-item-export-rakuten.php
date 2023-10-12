@@ -35,7 +35,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 *
 	 * @var array
 	 */
-	private $rms = array(
+	protected $rms = array(
 		'header'       => null,
 		'cabinet'      => array(),
 		'use_api'      => null,
