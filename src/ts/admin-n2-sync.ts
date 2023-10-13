@@ -53,7 +53,7 @@ jQuery($=>{
 			$('#n2sync, #n2sync-loading').addClass('is-active');
 		},
 		adjust_header(h){
-			h = h.filter(v => !v.match(/id|ID/));
+			h = h.filter(v => !v.match(/^(id|ID)$/));
 			return h;
 		},
 		update_disabled(mode = 'item'){
