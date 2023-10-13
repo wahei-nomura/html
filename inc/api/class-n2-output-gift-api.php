@@ -259,7 +259,7 @@ class N2_Output_Gift_API {
 				'包装対応',
 				'のし対応',
 				'配送期間',
-				'やきもの',
+				'やきもの'
 				)
 		AND
 			posts.id in (

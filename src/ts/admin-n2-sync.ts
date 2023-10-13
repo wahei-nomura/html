@@ -32,11 +32,9 @@ jQuery($=>{
 	};
 	const methods = {
 		async set_data(mode = 'item') {
-			if ( ! this[mode].url ) {
-				this[mode].data = false;
-				return;
-			}
 			this[mode].data = false;
+			if ( this[mode].url ) {
+			}
 			const params = {
 				url: n2.ajaxurl,
 				data: {
