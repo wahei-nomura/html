@@ -107,12 +107,12 @@ global $n2;
 						</div>
 						<div style="margin-bottom: 1em;">
 							<span>ユーザー変更 ：　</span>
-							<select name="change_author">
+							<input type="hidden" name="change_author" :value="change_author_id">
+							<input type="text" list="author_name_list" v-model="change_author_name">
+							<datalist id="author_name_list">
 								<option value="">選択してください</option>
-								<?php foreach ( get_users( 'role=jigyousya' ) as $user ) : ?>
-									<option value="<?php echo $user->ID; ?>"><?php echo $user->display_name; ?></option>
-								<?php endforeach; ?>
-							</select>
+								<option v-for="user in users" :value="user.display_name"></option>
+							</datalist>
 						</div>
 						<button>変更</button>
 						<div style="margin-top: 1em;">
