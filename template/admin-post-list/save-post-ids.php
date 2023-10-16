@@ -107,11 +107,10 @@ global $n2;
 						</div>
 						<div style="margin-bottom: 1em;">
 							<span>ユーザー変更 ：　</span>
-							<input type="hidden" name="change_author" :value="change_author_id">
-							<input type="text" list="author_name_list" v-model="change_author_name" :disabled=" ! users.length">
-							<datalist id="author_name_list">
-								<option v-for="user in users" :value="user.display_name"></option>
-							</datalist>
+							<select name="change_author">
+								<option value="">選択してください</option>
+								<option v-for="user in users" :value="user.ID">{{user.display_name}}</option>
+							</select>
 						</div>
 						<button>変更</button>
 						<div style="margin-top: 1em;">
