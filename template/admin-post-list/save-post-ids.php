@@ -85,7 +85,7 @@ global $n2;
 				</div>
 			</li>
 			<?php if ( current_user_can( 'ss_crew' ) || current_user_can( 'local-government' ) ) : ?>
-			<li>
+			<li @mouseover="set_hover_list('情報変更')" @mouseleave="set_hover_list()" :class="{'is-hover':hover_list==='情報変更'}">
 				情報変更
 				<div class="childs">
 					<form method="post" action="admin-ajax.php" onsubmit="if ( ! confirm('本当に変更してよろしいですか？') ) return false;">
@@ -107,10 +107,12 @@ global $n2;
 						</div>
 						<div style="margin-bottom: 1em;">
 							<span>ユーザー変更 ：　</span>
-							<select name="change_author">
-								<option value="">選択してください</option>
-								<option v-for="user in users" :value="user.ID">{{user.display_name}}</option>
-							</select>
+							<input type="hidden" name="change_author" :value="change_author_id">
+							<input type="text" list="author_list" v-model="change_author_name">
+							<datalist id="author_list">
+								<option value="選択してください"></option>
+								<option v-for="user in users" :value="user.display_name"></option>
+							</datalist>
 						</div>
 						<button>変更</button>
 						<div style="margin-top: 1em;">

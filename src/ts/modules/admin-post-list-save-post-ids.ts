@@ -25,6 +25,7 @@ export default ($: any = jQuery) => {
 			// ユーザー変更
 			users: [],
 			change_author_name: '',
+			hover_list: '',
 			n2,
 		},
 		async created(){
@@ -98,10 +99,18 @@ export default ($: any = jQuery) => {
 						role: 'jigyousya',
 					},
 				}).then(res=> JSON.parse(res));
+			},
+			set_hover_list(list_name=''){
+				this.hover_list = list_name;
 			}
 		},
 		computed: {
 			change_author_id(){
+				if ( ! this.hover_list ) return;
+				// hoverウィンドの再表示
+				setTimeout(()=>{
+					this.set_hover_list('情報変更')
+				},100)
 				return this.users.filter(user=>user.display_name === this.change_author_name)[0]?.ID ?? '';
 			}
 		}
