@@ -22,6 +22,9 @@ export default ($: any = jQuery) => {
 				mode: 'download',
 				type: 2,// 主に通常レジの定期便の出し分け
 			},
+			// ユーザー変更
+			users: [],
+			change_author_name: '',
 			n2,
 		},
 		async created(){
@@ -46,6 +49,7 @@ export default ($: any = jQuery) => {
 					this.set_items();
 				});
 			}
+			this.set_users();
 		},
 		methods: {
 			async set_items() {
@@ -85,6 +89,20 @@ export default ($: any = jQuery) => {
 				$('#posts-filter .check-column input').each((k,v) => {
 					this.ids.includes($(v).attr('value')) ? $(v).prop('checked', true) : $(v).prop('checked', false);
 				});
+			},
+			async set_users() {
+				this.users = await $.ajax({
+					url: n2.ajaxurl,
+					data: {
+						action: 'n2_users_api',
+						role: 'jigyousya',
+					},
+				}).then(res=> JSON.parse(res));
+			}
+		},
+		computed: {
+			change_author_id(){
+				return this.users.filter(user=>user.display_name === this.change_author_name)[0]?.ID ?? '';
 			}
 		}
 	});
