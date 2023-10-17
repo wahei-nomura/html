@@ -116,7 +116,6 @@
         "@input": auto_fit_tetxarea($event.target)
     地場産品類型:
         type: select
-        v-if: "!商品タイプ.includes('eチケット')"
         option:
             '': 選択して下さい
             1 : 1.当該地方団体の区域内において生産されたもの。
@@ -137,7 +136,6 @@
         type: textarea
         style: 'width: 100%;'
         maxlength : 100
-        v-if: "!商品タイプ.includes('eチケット')"
         description: 上記、地場産品類型に該当する理由を書いてください。
         placeholder: 例）〇〇県が認定した返礼品であるため。
         "@focus": set_info($event.target)
