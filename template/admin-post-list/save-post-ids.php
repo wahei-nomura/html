@@ -115,7 +115,7 @@ global $n2;
 							<span>ユーザー変更 ：　</span>
 							<input type="hidden" name="change_author" :value="change_author_id()">
 							<input type="text" list="author_list" :disabled="!users.length">
-							<datalist id="author_list">
+							<datalist id="author_list" style="position:relative;">
 								<option v-for="user in users" :value="user.display_name"></option>
 							</datalist>
 						</div>
