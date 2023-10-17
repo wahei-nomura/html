@@ -48,26 +48,44 @@ class N2_Furunavi_Items_API {
 
 	/**
 	 * APIデータのアップデート
+	 *
+	 * N2設定にmunicipalidがあればそれを利用、なければ取得しN2設定にセットする
+	 * municipalidが取れたら、１回目にページ数を取得するためシングルアクセス
+	 * ページ数確定後、N2のマルチリクエストAPIで並列で取得
+	 * 取得した配列を整形し、wp_insert_postでDB保存
 	 */
 	public function update() {
 		$before = microtime( true );
 		global $n2;
 		$url    = 'https://furunavi.jp/get_product_list.ashx?';
+
 		$params = array(
 			'keyword'  => $n2->town,
 			'pagesize' => 100,
 			'pageno'   => 1,
-			'order'    => 5,
 		);
 		// データ取得を試みる
 		$data = wp_remote_get( $url . http_build_query( $params ) );
-		if ( 200 !== $data['response']['code'] ) {
-			echo 'ふるなびの返礼品データ取得失敗';
-			exit;
-		}
 		$data = $data['body'];
 		$data = json_decode( $data, true );
-
+		// 自治体のID取得（N2設定に設定する）
+		foreach ( $data['ProductData'] as $v ) {
+			// 自治体名が合致するものを探す
+			if ( $n2->town === $v['MunicipalName'] ) {
+				$municipalid = $v['MunicipalID'];
+				// N2設定にmunicipalidの保存
+				break;// 発見できたらループ終了
+			}
+		}
+		$params = array(
+			'municipalid' => $municipalid,
+			'pagesize'    => 100,
+			'pageno'      => 1,
+		);
+		// データ取得
+		$data = wp_remote_get( $url . http_build_query( $params ) );
+		$data = $data['body'];
+		$data = json_decode( $data, true );
 		// ページ数算出
 		$num_result    = $data['ProductCount'];
 		$max_num_pages = ceil( $num_result / 100 );
@@ -75,41 +93,32 @@ class N2_Furunavi_Items_API {
 		$data = $this->array_format( $data['ProductData'] );
 
 		// マルチcURL
-		$mh       = curl_multi_init();
 		$ch_array = array();
+		$requests = array();
 		$params['pageno']++;
 		while ( $max_num_pages >= $params['pageno'] ) {
-			$ch         = curl_init();
-			$ch_array[] = $ch;
-			$options = array(
-				CURLOPT_URL            => $url . http_build_query( $params ),
-				CURLOPT_HEADER         => false,
-				CURLOPT_RETURNTRANSFER => true,
-				CURLOPT_SSL_VERIFYPEER => false,
-				CURLOPT_TIMEOUT        => 30,
+			$requests[] = array(
+				'url'  => $url,
+				'data' => $params,
 			);
-			curl_setopt_array( $ch, $options );
-			curl_multi_add_handle( $mh, $ch );
 			$params['pageno']++;
 		}
-		do {
-			curl_multi_exec( $mh, $running );
-			curl_multi_select( $mh );
-		} while ( $running > 0 );
-
-		foreach ( $ch_array as $ch ) {
-			$res  = curl_multi_getcontent( $ch );
-			$res  = json_decode( $res, true );
+		$response = N2_Multi_URL_Request_API::request_multiple( $requests );
+		$response = array_map( fn( $v ) => json_decode( $v->body, true ), $response );
+		foreach ( $response as $res ) {
+			$res = json_decode( $v->body, true );
+			if ( empty( $res ) ) {
+				continue;
+			}
 			$res  = $this->array_format( $res['ProductData'] );
 			$data = array(
 				...$data,
 				...$res,
 			);
-			curl_multi_remove_handle( $mh, $ch );
-			curl_close( $ch );
 		}
-		curl_multi_close( $mh );
 		$data = array_unique( $data, SORT_REGULAR );
+		// goods_g_numでソートする
+		array_multisort( array_column( $data, 'goods_g_num' ), SORT_ASC, $data );
 		$args = array(
 			'post_type'    => 'portal_item_data',
 			'post_title'   => 'furunavi',
