@@ -50,12 +50,6 @@ class N2_Furunavi_Items_API {
 	 * APIデータのアップデート
 	 */
 	public function update() {
-		// すでに本日分がアップデートされていたら中止
-		$data = get_option( $this->option_name );
-		if ( $data['update'] > wp_date( 'Y-m-d' ) ) {
-			echo '既に本日分をアップデート済のため処理を中止します。';
-			exit;
-		}
 		$before = microtime( true );
 		global $n2;
 		$url    = 'https://furunavi.jp/get_product_list.ashx?';
@@ -63,6 +57,7 @@ class N2_Furunavi_Items_API {
 			'keyword'  => $n2->town,
 			'pagesize' => 100,
 			'pageno'   => 1,
+			'order'    => 5,
 		);
 		// データ取得を試みる
 		$data = wp_remote_get( $url . http_build_query( $params ) );
@@ -114,11 +109,23 @@ class N2_Furunavi_Items_API {
 			curl_close( $ch );
 		}
 		curl_multi_close( $mh );
-		$data = array(
-			'update' => date_i18n( 'Y-m-d H:i:s' ),
-			'data'   => array_unique( $data, SORT_REGULAR ),
+		$data = array_unique( $data, SORT_REGULAR );
+		$args = array(
+			'post_type'    => 'portal_item_data',
+			'post_title'   => 'furunavi',
+			'post_content' => wp_json_encode( $data, JSON_UNESCAPED_UNICODE ),
 		);
-		update_option( $this->option_name, $data );
+		$ids  = get_posts( 'title=furunavi&fields=ids&post_type=portal_item_data&post_status=any' );
+		if ( empty( $ids ) ) {
+			$id = wp_insert_post( $args );
+			// ログ追加
+			if ( ! is_wp_error( $id ) ) {
+				wp_save_post_revision( $id );// 初回リビジョンの登録
+			}
+		} else {
+			$args['ID'] = $ids[0];
+			$id         = wp_update_post( $args );
+		}
 		echo 'n2_furunavi_items_api「' . get_bloginfo( 'name' ) . 'のふるなび出品中」の返礼品データを保存しました（' . number_format( microtime( true ) - $before, 2 ) . ' 秒）';
 		exit;
 	}
