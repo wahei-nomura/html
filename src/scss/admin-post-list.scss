@@ -404,6 +404,9 @@ body.is_safari{
 				.childs{
 					display: none;
 				}
+				input{
+					line-height: 1;
+				}
 			}
 			&-content{
 				position: fixed;
