@@ -85,49 +85,18 @@ $settings = array(
 	<tr>
 		<th>類型該当理由を表示する地場産品類型</th>
 		<td>
-			<input type="hidden" name="n2_settings[N2][理由表示地場産品類型]">
-			<label style="display:block;margin-bottom:1rem;">
-				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="1" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '1', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 1
-			</label>
-			<label style="display:block;margin-bottom:1rem;">
-				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="2" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '2', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 2
-			</label>
-			<label style="display:block;margin-bottom:1rem;">
-				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="3" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '3', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 3
-			</label>
-			<label style="display:block;margin-bottom:1rem;">
-				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="3（精米）" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '3（精米）', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 3（精米）
-			</label>
-			<label style="display:block;margin-bottom:1rem;">
-				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="3（熟成肉）" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '3（熟成肉）', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 3（熟成肉）
-			</label>
-			<label style="display:block;margin-bottom:1rem;">
-				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="4" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '4', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 4
-			</label>
-			<label style="display:block;margin-bottom:1rem;">
-				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="5" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '5', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 5
-			</label>
-			<label style="display:block;margin-bottom:1rem;">
-				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="6" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '6', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 6
-			</label>
-			<label style="display:block;margin-bottom:1rem;">
-				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="7" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '7', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 7
-			</label>
-			<label style="display:block;margin-bottom:1rem;">
-				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="8イ" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '8イ', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 8イ
-			</label>
-			<label style="display:block;margin-bottom:1rem;">
-				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="8ロ" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '8ロ', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 8ロ
-			</label>
-			<label style="display:block;margin-bottom:1rem;">
-				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="8ハ" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '8ハ', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 8ハ
-			</label>
-			<label style="display:block;margin-bottom:1rem;">
-				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="9" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '9', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 9
-			</label>
-			<label style="display:block;margin-bottom:1rem;">
-				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="99" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '99', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 99
-			</label>
+			<?php $typology = array_filter( array_keys( array_filter( $n2->custom_field['スチームシップ用']['地場産品類型']['option'] ) ) ); ?>
+			<?php foreach ( $typology as $key => $value ) { ?>
+				<label style="display:block;margin-bottom:1rem;">
+					<input type="checkbox"
+						name="n2_settings[N2][理由表示地場産品類型][]"
+						value="<?php echo esc_attr( $value ); ?>"
+						<?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( (string) $value, $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>>
+					<?php echo esc_html( $value ); ?>
+				</label>
+				<?php
+			}
+			?>
 		</td>
 	</tr>
 </table>
