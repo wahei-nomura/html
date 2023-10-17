@@ -14,13 +14,9 @@ global $n2;
 		<span class="dashicons dashicons-no-alt" @click="active = ! active"></span>
 		<ul
 			id="n2-checked-posts-actions"
-			@mouseleave="set_hover_list()"
 		>
 			<?php if ( current_user_can( 'ss_crew' ) ) : ?>
-			<li
-				@mouseover="set_hover_list('エクスポート')"
-				:class="{'is-hover':hover_list==='エクスポート'}"
-			>
+			<li>
 				エクスポート
 				<div class="childs">
 					<form method="post" action="admin-ajax.php" target="_blank">
@@ -64,8 +60,6 @@ global $n2;
 			<?php endif; ?>
 			<li
 				style="padding: 0;"
-				@mouseover="set_hover_list('印刷')"
-				:class="{'is-hover':hover_list==='印刷'}"
 			>
 				<form method="post" action="admin-ajax.php" target="_blank">
 					<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
@@ -79,8 +73,6 @@ global $n2;
 			</li>
 			<li
 				v-if="items.filter(v=>v.商品画像 && v.商品画像.length).length"
-				@mouseover="set_hover_list('画像ダウンロード')"
-				:class="{'is-hover':hover_list==='画像ダウンロード'}"
 			>
 				画像ダウンロード
 				<div class="childs">
@@ -99,10 +91,7 @@ global $n2;
 				</div>
 			</li>
 			<?php if ( current_user_can( 'ss_crew' ) || current_user_can( 'local-government' ) ) : ?>
-			<li
-				@mouseover="set_hover_list('情報変更')"
-				:class="{'is-hover':hover_list==='情報変更'}"
-			>
+			<li>
 				情報変更
 				<div class="childs">
 					<form method="post" action="admin-ajax.php" onsubmit="if ( ! confirm('本当に変更してよろしいですか？') ) return false;">
@@ -125,7 +114,7 @@ global $n2;
 						<div style="margin-bottom: 1em;">
 							<span>ユーザー変更 ：　</span>
 							<input type="hidden" name="change_author" :value="change_author_id()">
-							<input type="text" list="author_list" v-model="change_author_name" :disabled="!users.length">
+							<input type="text" list="author_list" :disabled="!users.length">
 							<datalist id="author_list">
 								<option v-for="user in users" :value="user.display_name"></option>
 							</datalist>

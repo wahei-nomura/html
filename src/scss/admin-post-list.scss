@@ -362,7 +362,7 @@ body.is_safari{
 					position: relative;
 					margin: 0;
 					padding: 0 1em;
-					&.is-hover{
+					&:hover{
 						background-color: darken( $header-bg, 5% );
 						.childs{
 							display: block;
