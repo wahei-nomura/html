@@ -96,6 +96,12 @@ $settings = array(
 				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="3" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '3', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 3
 			</label>
 			<label style="display:block;margin-bottom:1rem;">
+				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="3（精米）" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '3（精米）', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 3（精米）
+			</label>
+			<label style="display:block;margin-bottom:1rem;">
+				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="3（熟成肉）" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '3（熟成肉）', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 3（熟成肉）
+			</label>
+			<label style="display:block;margin-bottom:1rem;">
 				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="4" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '4', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 4
 			</label>
 			<label style="display:block;margin-bottom:1rem;">
@@ -118,6 +124,9 @@ $settings = array(
 			</label>
 			<label style="display:block;margin-bottom:1rem;">
 				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="9" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '9', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 9
+			</label>
+			<label style="display:block;margin-bottom:1rem;">
+				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="99" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '99', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 99
 			</label>
 		</td>
 	</tr>
