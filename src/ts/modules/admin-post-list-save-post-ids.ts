@@ -102,9 +102,7 @@ export default ($: any = jQuery) => {
 			},
 			set_hover_list(list_name=''){
 				this.hover_list = list_name;
-			}
-		},
-		computed: {
+			},
 			change_author_id(){
 				if ( ! this.hover_list ) return;
 				// hoverウィンドの再表示
@@ -113,6 +111,6 @@ export default ($: any = jQuery) => {
 				},100)
 				return this.users.filter(user=>user.display_name === this.change_author_name)[0]?.ID ?? '';
 			}
-		}
+		},
 	});
 }
