@@ -85,7 +85,7 @@ global $n2;
 				</div>
 			</li>
 			<?php if ( current_user_can( 'ss_crew' ) || current_user_can( 'local-government' ) ) : ?>
-			<li @mouseover="set_hover_list('情報変更')" @mouseleave="set_hover_list()" :class="{'is-hover':hover_list==='情報変更'}">
+			<li>
 				情報変更
 				<div class="childs">
 					<form method="post" action="admin-ajax.php" onsubmit="if ( ! confirm('本当に変更してよろしいですか？') ) return false;">
