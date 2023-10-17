@@ -12,9 +12,15 @@ global $n2;
 	<div id="n2-checked-posts-header">
 		<span v-text="`${ids.length} 件選択中`"></span>
 		<span class="dashicons dashicons-no-alt" @click="active = ! active"></span>
-		<ul id="n2-checked-posts-actions">
+		<ul
+			id="n2-checked-posts-actions"
+			@mouseleave="focusHover ? null : set_hover_list()"
+		>
 			<?php if ( current_user_can( 'ss_crew' ) ) : ?>
-			<li>
+			<li
+				@mouseenter="set_hover_list('エクスポート')"
+				:class="{'is-hover': 'エクスポート'=== hover_list}"
+			>
 				エクスポート
 				<div class="childs">
 					<form method="post" action="admin-ajax.php" target="_blank">
@@ -58,6 +64,8 @@ global $n2;
 			<?php endif; ?>
 			<li
 				style="padding: 0;"
+				@mouseenter="set_hover_list('印刷')"
+				:class="{'is-hover': '印刷'=== hover_list}"
 			>
 				<form method="post" action="admin-ajax.php" target="_blank">
 					<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
@@ -71,6 +79,8 @@ global $n2;
 			</li>
 			<li
 				v-if="items.filter(v=>v.商品画像 && v.商品画像.length).length"
+				@mouseenter="set_hover_list('画像ダウンロード')"
+				:class="{'is-hover': '画像ダウンロード'=== hover_list}"
 			>
 				画像ダウンロード
 				<div class="childs">
@@ -118,8 +128,8 @@ global $n2;
 							<input type="hidden" name="change_author" :value="change_author_id()">
 							<input
 								type="text" list="author_list"
-								@focus="focusChangeAuthor = true"
-								@blur="focusChangeAuthor = false"
+								@focus="focusHover = true"
+								@blur="focusHover = false"
 								v-model="change_author_name"
 								:disabled="!users.length">
 							<datalist id="author_list" style="position:relative;">
