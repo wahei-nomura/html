@@ -12,9 +12,15 @@ global $n2;
 	<div id="n2-checked-posts-header">
 		<span v-text="`${ids.length} 件選択中`"></span>
 		<span class="dashicons dashicons-no-alt" @click="active = ! active"></span>
-		<ul id="n2-checked-posts-actions">
+		<ul
+			id="n2-checked-posts-actions"
+			@mouseleave="set_hover_list()"
+		>
 			<?php if ( current_user_can( 'ss_crew' ) ) : ?>
-			<li>
+			<li
+				@mouseover="set_hover_list('エクスポート')"
+				:class="{'is-hover':hover_list==='エクスポート'}"
+			>
 				エクスポート
 				<div class="childs">
 					<form method="post" action="admin-ajax.php" target="_blank">
@@ -56,7 +62,11 @@ global $n2;
 				</div>
 			</li>
 			<?php endif; ?>
-			<li style="padding: 0;">
+			<li
+				style="padding: 0;"
+				@mouseover="set_hover_list('印刷')"
+				:class="{'is-hover':hover_list==='印刷'}"
+			>
 				<form method="post" action="admin-ajax.php" target="_blank">
 					<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
 					<input type="hidden" name="action" value="n2_print_out">
@@ -67,7 +77,11 @@ global $n2;
 					<button>印刷</button>
 				</form>
 			</li>
-			<li v-if="items.filter(v=>v.商品画像 && v.商品画像.length).length">
+			<li
+				v-if="items.filter(v=>v.商品画像 && v.商品画像.length).length"
+				@mouseover="set_hover_list('画像ダウンロード')"
+				:class="{'is-hover':hover_list==='画像ダウンロード'}"
+			>
 				画像ダウンロード
 				<div class="childs">
 					<form method="post" action="admin-ajax.php">
@@ -85,7 +99,10 @@ global $n2;
 				</div>
 			</li>
 			<?php if ( current_user_can( 'ss_crew' ) || current_user_can( 'local-government' ) ) : ?>
-			<li>
+			<li
+				@mouseover="set_hover_list('情報変更')"
+				:class="{'is-hover':hover_list==='情報変更'}"
+			>
 				情報変更
 				<div class="childs">
 					<form method="post" action="admin-ajax.php" onsubmit="if ( ! confirm('本当に変更してよろしいですか？') ) return false;">
@@ -107,7 +124,7 @@ global $n2;
 						</div>
 						<div style="margin-bottom: 1em;">
 							<span>ユーザー変更 ：　</span>
-							<input type="hidden" name="change_author" :value="change_author_id">
+							<input type="hidden" name="change_author" :value="change_author_id()">
 							<input type="text" list="author_list" v-model="change_author_name" :disabled="!users.length">
 							<datalist id="author_list">
 								<option v-for="user in users" :value="user.display_name"></option>
