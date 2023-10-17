@@ -25,6 +25,7 @@ export default ($: any = jQuery) => {
 			// ユーザー変更
 			users: [],
 			change_author_name: '',
+			focusChangeAuthor: false,
 			hover_list: '',
 			n2,
 		},
@@ -104,11 +105,7 @@ export default ($: any = jQuery) => {
 				this.hover_list = list_name;
 			},
 			change_author_id(){
-				if ( ! this.hover_list ) return;
-				// hoverウィンドの再表示
-				setTimeout(()=>{
-					this.set_hover_list('情報変更')
-				},100)
+				this.focusChangeAuthor = false;
 				return this.users.filter(user=>user.display_name === this.change_author_name)[0]?.ID ?? '';
 			}
 		},

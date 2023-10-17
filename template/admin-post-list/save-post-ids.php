@@ -12,9 +12,7 @@ global $n2;
 	<div id="n2-checked-posts-header">
 		<span v-text="`${ids.length} 件選択中`"></span>
 		<span class="dashicons dashicons-no-alt" @click="active = ! active"></span>
-		<ul
-			id="n2-checked-posts-actions"
-		>
+		<ul id="n2-checked-posts-actions">
 			<?php if ( current_user_can( 'ss_crew' ) ) : ?>
 			<li>
 				エクスポート
@@ -91,7 +89,11 @@ global $n2;
 				</div>
 			</li>
 			<?php if ( current_user_can( 'ss_crew' ) || current_user_can( 'local-government' ) ) : ?>
-			<li>
+			<li
+				@mouseleave="focusChangeAuthor ? null : set_hover_list()"
+				@mouseenter="set_hover_list('情報変更')"
+				:class="{'is-hover': '情報変更'=== hover_list}"
+			>
 				情報変更
 				<div class="childs">
 					<form method="post" action="admin-ajax.php" onsubmit="if ( ! confirm('本当に変更してよろしいですか？') ) return false;">
@@ -114,7 +116,12 @@ global $n2;
 						<div style="margin-bottom: 1em;">
 							<span>ユーザー変更 ：　</span>
 							<input type="hidden" name="change_author" :value="change_author_id()">
-							<input type="text" list="author_list" :disabled="!users.length">
+							<input
+								type="text" list="author_list"
+								@focus="focusChangeAuthor = true"
+								@blur="focusChangeAuthor = false"
+								v-model="change_author_name"
+								:disabled="!users.length">
 							<datalist id="author_list" style="position:relative;">
 								<option v-for="user in users" :value="user.display_name"></option>
 							</datalist>
