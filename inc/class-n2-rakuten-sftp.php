@@ -27,12 +27,14 @@ class N2_Rakuten_SFTP {
 	 * @var array
 	 */
 	protected $data = array(
-		'connect' => null,
-		'params'  => array(),
-		'files'   => null,
-		'data'    => array(),
-		'error'   => array(),
-		'log'     => array(),
+		'connect'          => null,
+		'params'           => array(),
+		'files'            => null,
+		'data'             => array(),
+		'error'            => array(),
+		'log'              => array(),
+		'rakuten_csv_name' => array( 'normal-item', 'cat-item' ),
+		'extensions'       => '.csv',
 	);
 
 	/**
@@ -50,7 +52,6 @@ class N2_Rakuten_SFTP {
 		add_action( 'wp_ajax_n2_upload_to_rakuten_sftp', array( $this, 'upload_to_rakuten' ) );
 	}
 	public function __destruct() {
-
 	}
 
 	/**
@@ -130,14 +131,14 @@ class N2_Rakuten_SFTP {
 		$args['logs'] = $this->sftp->dirlist( $args['dir'] );
 		$args['logs'] = array_reverse( $args['logs'] );
 		$args['logs'] = array_map(
-			function( $log ) use ( $args ) {
-			$contents = $this->sftp->get_contents( "{$args['dir']}/{$log['name']}" );
-			$contents = htmlspecialchars( mb_convert_encoding( $contents, 'utf-8', 'sjis' ) );
-			return array(
-				'name'     => $log['name'],
-				'time'     => date( 'Y M d', $log['lastmodunix'] ),
-				'contents' => $contents,
-			);
+			function ( $log ) use ( $args ) {
+				$contents = $this->sftp->get_contents( "{$args['dir']}/{$log['name']}" );
+				$contents = htmlspecialchars( mb_convert_encoding( $contents, 'utf-8', 'sjis' ) );
+				return array(
+					'name'     => $log['name'],
+					'time'     => date( 'Y M d', $log['lastmodunix'] ),
+					'contents' => $contents,
+				);
 			},
 			$args['logs']
 		);
@@ -203,11 +204,11 @@ class N2_Rakuten_SFTP {
 			// 商品画像の場合
 			if ( $this->sftp->mkdir( $remote_dir ) ) {
 				$this->data['log'][] = "{$remote_dir}を作成\n";
-			};
+			}
 			$remote_dir .= $m[1] . $m[2];
 			if ( $this->sftp->mkdir( $remote_dir ) ) {
 				$this->data['log'][] = "{$remote_dir}を作成\n";
-			};
+			}
 			$remote_file         = "{$remote_dir}/{$name[$k]}";
 			$image_data          = file_get_contents( "{$tmp}/{$name[$k]}" );
 			$this->data['log'][] = match ( $this->sftp->put_contents( $remote_file, $image_data ) ) {
@@ -222,13 +223,30 @@ class N2_Rakuten_SFTP {
 		$name     = $this->data['files']['name'];
 		$type     = $this->data['files']['type'];
 		$tmp_name = $this->data['files']['tmp_name'];
+		$name     = array_map(
+			function ( $n ) {
+				foreach ( $this->data['rakuten_csv_name'] as $file_name ) {
+					// リネーム処理
+					if ( str_contains( $n, $file_name ) ) {
+						$n = $file_name . $this->data['extensions'];
+						break;
+					}
+				}
+				return $n;
+			},
+			$name,
+		);
 
 		foreach ( $tmp_name as $k => $file ) {
-			if ( strpos( $name[ $k ], '.csv' ) === false ) {
+			if ( ! str_contains( $name[ $k ], $this->data['extensions'] ) ) {
 				$this->data['log'][] = 'ファイル形式(csv)が違います :' . $name[ $k ];
 				continue;
 			}
-			$remote_file         = 'ritem/batch/' . $name[ $k ];
+			if ( ! in_array( preg_replace( "/\\{$this->data['extensions']}/", '', $name[ $k ] ), $this->data['rakuten_csv_name'], true ) ) {
+				$this->data['log'][] = 'ファイル名に指定のワード(' . implode( ',', $this->data['rakuten_csv_name'] ) . ')が含まれていません :' . $name[ $k ];
+				continue;
+			}
+			$remote_file         = "ritem/batch/{$name[ $k ]}";
 			$file_data           = file_get_contents( $file );
 			$this->data['log'][] = match ( $this->sftp->put_contents( $remote_file, $file_data ) ) {
 				true => "転送成功 $name[$k]\n",
@@ -289,5 +307,4 @@ class N2_Rakuten_SFTP {
 			exit;
 		}
 	}
-
 }

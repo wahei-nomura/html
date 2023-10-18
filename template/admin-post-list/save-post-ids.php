@@ -100,7 +100,7 @@ global $n2;
 			</li>
 			<?php if ( current_user_can( 'ss_crew' ) || current_user_can( 'local-government' ) ) : ?>
 			<li
-				@mouseleave="focusChangeAuthor ? null : set_hover_list()"
+				@mouseleave="focusHover ? null : set_hover_list()"
 				@mouseenter="set_hover_list('情報変更')"
 				:class="{'is-hover': '情報変更'=== hover_list}"
 			>
