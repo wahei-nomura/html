@@ -33,7 +33,8 @@ class N2_Rakuten_SFTP {
 		'data'             => array(),
 		'error'            => array(),
 		'log'              => array(),
-		'rakuten_csv_name' => array( 'normal-item.csv', 'cat-item.csv' ),
+		'rakuten_csv_name' => array( 'normal-item', 'cat-item' ),
+		'extensions'       => '.csv',
 	);
 
 	/**
@@ -219,31 +220,33 @@ class N2_Rakuten_SFTP {
 	}
 
 	public function csv_upload() {
-		$name             = $this->data['files']['name'];
-		$type             = $this->data['files']['type'];
-		$tmp_name         = $this->data['files']['tmp_name'];
-		$rakuten_csv_name = $this->data['rakuten_csv_name'];
+		$name     = $this->data['files']['name'];
+		$type     = $this->data['files']['type'];
+		$tmp_name = $this->data['files']['tmp_name'];
+		$name     = array_map(
+			function ( $n ) {
+				foreach ( $this->data['rakuten_csv_name'] as $file_name ) {
+					// リネーム処理
+					if ( str_contains( $n, $file_name ) ) {
+						$n = $file_name . $this->data['extensions'];
+						break;
+					}
+				}
+				return $n;
+			},
+			$name,
+		);
 
 		foreach ( $tmp_name as $k => $file ) {
-			if ( strpos( $name[ $k ], '.csv' ) === false ) {
+			if ( ! str_contains( $name[ $k ], $this->data['extensions'] ) ) {
 				$this->data['log'][] = 'ファイル形式(csv)が違います :' . $name[ $k ];
 				continue;
 			}
-			// リネーム処理
-			$is_checked = false;
-			foreach ( $rakuten_csv_name as $file_name ) {
-				if ( str_contains( $name[ $k ], $file_name ) ) {
-					$name[ $k ] = $file_name;
-					$is_checked = true;
-					break;
-				}
-			}
-			if ($is_checked === false){
-				$this->data['log'][] = 'ファイル名に指定のワードが含まれていません :' . $name[ $k ];
+			if ( ! in_array( preg_replace( "/\\{$this->data['extensions']}/", '', $name[ $k ] ), $this->data['rakuten_csv_name'], true ) ) {
+				$this->data['log'][] = 'ファイル名に指定のワード(' . implode( ',', $this->data['rakuten_csv_name'] ) . ')が含まれていません :' . $name[ $k ];
 				continue;
 			}
-
-			$remote_file         = 'ritem/batch/' . $name[ $k ];
+			$remote_file         = "ritem/batch/{$name[ $k ]}";
 			$file_data           = file_get_contents( $file );
 			$this->data['log'][] = match ( $this->sftp->put_contents( $remote_file, $file_data ) ) {
 				true => "転送成功 $name[$k]\n",
