@@ -60,9 +60,9 @@ class N2_Item_Export_Base {
 	 */
 	public function add_town_to_filename( $filename ) {
 		global $n2;
-		preg_match( '/\.(tsv|csv)/', $filename, $match);
-		$extensiton = $match[0];
-		return str_replace( $extensiton, "_{$n2->town}{$extensiton}", $filename );
+		preg_match( '/\.(tsv|csv)/', $filename, $match );
+		$extensions = $match[0];
+		return str_replace( $extensions, "_{$n2->town}{$extensions}", $filename );
 	}
 
 	/**
