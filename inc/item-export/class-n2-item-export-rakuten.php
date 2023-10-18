@@ -370,6 +370,12 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 				$requests,
 			);
 			$result   = array_filter( $result, fn( $r ) => $r );
+			$imgs_count = count( $result );
+			if(3 < $imgs_count){
+				$result[3] = 'https://image.rakuten.co.jp/f413275-yoshinogari/cabinet/yoshinogari_yaki_r.jpg';
+			}else{
+				$result[] = 'https://image.rakuten.co.jp/f413275-yoshinogari/cabinet/yoshinogari_yaki_r.jpg';
+			}
 		}
 
 		// ========戻り値判定========
