@@ -81,7 +81,7 @@ class N2_Items_API {
 		$posts = get_posts( self::$data['params'] );
 		// post_contentのみにする
 		$posts = array_map(
-			function( $v ) {
+			function ( $v ) {
 				$post_content = json_decode( $v->post_content, true );
 				// idを混ぜ込む
 				$post_content['id'] = $v->ID;
@@ -228,7 +228,7 @@ class N2_Items_API {
 				$meta_input[ $key ] = get_post_meta( $postarr['ID'], $key, true );
 			}
 		}
-		$meta_input = wp_parse_args( $postarr['meta_input'] ?? array(), $meta_input );
+		$meta_input = wp_parse_args( wp_unslash( $postarr['meta_input'] ?? array() ), $meta_input );
 
 		// 事業者コード追加
 		$post_content['事業者コード'] = get_user_meta( $data['post_author'], 'last_name', true );
@@ -276,7 +276,7 @@ class N2_Items_API {
 		}
 		// 最低必要事項の調査（数値に関しては0は許したい）
 		$check_required = array_filter(
-			$meta,
+			$meta ?? array(),
 			function ( $v, $k ) use ( $required ) {
 				if ( in_array( $k, $required, true ) ) {
 					if ( is_array( $v ) ) {

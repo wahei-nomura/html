@@ -474,6 +474,15 @@ class N2_Item_Export_Base {
 	/**
 	 * デバッグ用
 	 */
+	private function json() {
+		header( 'Content-Type: application/json; charset=utf-8' );
+		echo wp_json_encode( $this->data, JSON_UNESCAPED_UNICODE );
+		exit;
+	}
+
+	/**
+	 * デバッグ用
+	 */
 	private function debug() {
 		$this->set_header_string();
 		$this->set_data_string();

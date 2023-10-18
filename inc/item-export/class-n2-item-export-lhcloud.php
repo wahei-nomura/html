@@ -140,7 +140,7 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 				'地場産品類型' => str_replace( 'イ', '', $n2values['地場産品類型'] ),
 				'類型該当理由' => $n2values['類型該当理由'],
 				'自動出荷依頼予約（種別）' => $lh_setting['自動出荷依頼予約日'] ? 'する（月指定）' : 'しない',
-				'自動出荷依頼予約（値）' => $lh_setting['自動出荷依頼予約日'] ?: '',
+				'自動出荷依頼予約（値）' => $lh_setting['自動出荷依頼予約日'] ? 1 : '',
 				'1月1' => 1 <= $n2values['定期便'] ? "{$item_code}_1/{$n2values['定期便']}" : '',
 				'2月1' => 2 <= $n2values['定期便'] ? "{$item_code}_2/{$n2values['定期便']}" : '',
 				'3月1' => 3 <= $n2values['定期便'] ? "{$item_code}_3/{$n2values['定期便']}" : '',
