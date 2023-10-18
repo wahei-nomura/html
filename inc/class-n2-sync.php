@@ -1503,6 +1503,7 @@ class N2_Sync {
 		global $n2;
 		$allergens = array_map(
 			function( $v ) use ( $n2 ) {
+				
 				$pattern = trim( preg_split( '/\(|（/', $v )[0] );// カッコの前だけにする
 				$pattern = $n2->allergen_convert[ $pattern ] ?? $pattern;// カタカナとか漢字も互換する
 				$str     = '';// 最終的にリターンする文字列
