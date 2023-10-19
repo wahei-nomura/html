@@ -81,7 +81,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 				$ex_rakuten_url  = explode( '/', $rakuten_dir ); // 自治体ローマ字取得
 				$ex_towncode     = explode( '-', $ex_rakuten_url[3] );
 				$townname        = $ex_towncode[1]; // 自治体ローマ字
-					$caution_name = $townname . '_yaki_r.jpg';
+					$caution_name = $townname . '_yaki_c.jpg';
 			}
 			// 商品タイプごとの注意書きを追加
 			foreach ( array_filter( $n2values['商品タイプ'] ) as $type ) {
