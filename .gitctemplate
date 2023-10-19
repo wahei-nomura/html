@@ -1,20 +1,5 @@
 ### git config commit.template .gitctemplate ###
-# :poop: unkomit
 
-# ==== Prefix ====
-# fix　　　　　　　　　　　　　　　　　　　　　　修正
-# feat　　　　　　　　　　　　　　　　　　　　新機能
-# add　　　　　　　　　　　　　　　　　　　　　　何かしら追加
-# update　　　　　　　　　　　　　　　　アップデート
-# docs　　　　　　　　　　　　　　　　　　　ドキュメントのみ変更
-# disable　　　　　　　　　　　　　無効化
-# delete　　　　　　　　　　　　　　　削除
-# style　　　　　　　　　　　　　　　　　動作に影響しない見た目だけの変更
-# refactor　　　　　　　　　　　機能を変更しないリファクタリング
-# test　　　　　　　　　　　　　　　　　　　テスト
-# chore　　　　　　　　　　　　　　　　　補助ツールやライブラリの変更
-
-# ==== Emojis ====
 # :bug:         バグ修正 (fix)
 # :+1:          機能改善 (fix/feat)
 # :sparkles:    部分的な機能追加 (feat)
