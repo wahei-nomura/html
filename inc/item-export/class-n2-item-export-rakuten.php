@@ -724,11 +724,8 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			$caution_url     = $rakuten_dir . $townname . '_yaki_r.jpg'; // キャビネットURL + 自治体ローマ字 + 固定文字(_yaki_r) + .jpg
 			$caution_item    = 'yaki';
 			if ( ! preg_match( '/' . $caution_item . '/', $result_item, $m ) ) {
-				if ( 19 < $imgs_count ) {
-					$result[19] = $caution_url;
-				} else {
-					$result[ $imgs_count + 1 ] = $caution_url;
-				}
+				$result = array_slice( $result, 0, 19, true);
+				$result[] = $caution_url;
 			}
 		}
 		return $result;
