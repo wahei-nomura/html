@@ -373,7 +373,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			$result   = array_filter( $result, fn( $r ) => $r );
 		}
 		// print_r('<pre>');
-		$result = $this->add_pottery_caution_picture( $result );
+		$result = $this->add_pottery_caution_picture( $result, $n2values );
 
 		// ========戻り値判定========
 		switch ( $return_type ) {
@@ -710,24 +710,27 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 *
 	 * @return string
 	 */
-	public function add_pottery_caution_picture( $result ) {
-		global $n2;
-		// $postcontent = json_decode($n2->query->post->post_content, true);
-		// $imgs_count = count($postcontent['商品画像']);
-		// print_r($imgs_count);
-		// print_r($postcontent['商品画像']);
-		$result_item = implode( '', $result );
-		$imgs_count = count( $result );
-		$caution_url = 'https://image.rakuten.co.jp/f413275-yoshinogari/cabinet/yoshinogari_yaki_r.jpg';
-		$caution_item = 'yaki';
-		if( ! preg_match( '/' . $caution_item . '/', $result_item, $m ) ) {
-			if(19 < $imgs_count){
-				$result[19] = $caution_url;
-			}else{
-				$result[$imgs_count+1] = $caution_url;
-			}	
+	public function add_pottery_caution_picture( $result, $n2values ) {
+		if ( in_array( 'やきもの', $n2values['商品タイプ'], true ) ) {
+			global $n2;
+			$n2_settings     = $n2->settings;
+			$rakuten_dir_def = $n2_settings['楽天']['商品画像ディレクトリ']; // 画像ディレクトリ取得
+			$rakuten_dir     = str_replace( '/item', '', $rakuten_dir_def ); // 基本フォルダ直下にやきもの注意書きを置くのでitemを削る
+			$ex_rakuten_url  = explode( '/', $rakuten_dir_def ); // 自治体ローマ字取得
+			$ex_towncode     = explode( '-', $ex_rakuten_url[3] );
+			$townname        = $ex_towncode[1]; // 自治体ローマ字
+			$result_item     = implode( '', $result );
+			$imgs_count      = count( $result );
+			$caution_url     = $rakuten_dir . $townname . '_yaki_r.jpg'; // キャビネットURL + 自治体ローマ字 + 固定文字(_yaki_r) + .jpg
+			$caution_item    = 'yaki';
+			if ( ! preg_match( '/' . $caution_item . '/', $result_item, $m ) ) {
+				if ( 19 < $imgs_count ) {
+					$result[19] = $caution_url;
+				} else {
+					$result[ $imgs_count + 1 ] = $caution_url;
+				}
+			}
 		}
 		return $result;
 	}
-
 }
