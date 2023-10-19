@@ -318,6 +318,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			}
 			$result[ $i ] = $img_url;
 		}
+		$result = $this->add_pottery_caution_picture( $result );
 		return $result;
 	}
 	/**
@@ -370,13 +371,8 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 				$requests,
 			);
 			$result   = array_filter( $result, fn( $r ) => $r );
-			$imgs_count = count( $result );
-			if(3 < $imgs_count){
-				$result[3] = 'https://image.rakuten.co.jp/f413275-yoshinogari/cabinet/yoshinogari_yaki_r.jpg';
-			}else{
-				$result[] = 'https://image.rakuten.co.jp/f413275-yoshinogari/cabinet/yoshinogari_yaki_r.jpg';
-			}
 		}
+		$result = $this->add_pottery_caution_picture( $result );
 
 		// ========戻り値判定========
 		switch ( $return_type ) {
@@ -706,4 +702,29 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		<?php
 		return rtrim( str_replace( "\t", '', ob_get_clean() ), PHP_EOL );
 	}
+	/**
+	 * やきもの注意書き画像差し替え
+	 *
+	 * @param array $n2values n2dataのループ中の値
+	 *
+	 * @return string
+	 */
+	public function add_pottery_caution_picture( $result ) {
+		global $n2;
+		$postcontent = json_decode($n2->query->post->post_content, true);
+		$imgs_count = count($postcontent['商品画像']);
+		$result_item = implode( '', $result );
+		// $imgs_count = count( $result );
+		$caution_url = 'https://image.rakuten.co.jp/f413275-yoshinogari/cabinet/yoshinogari_yaki_r.jpg';
+		$caution_item = 'yaki';
+		if( ! preg_match( '/' . $caution_item . '/', $result_item, $m ) ) {
+			if(19 < $imgs_count){
+				$result[19] = $caution_url;
+			}else{
+				$result[$imgs_count] = $caution_url;
+			}	
+		}
+		return $result;
+	}
+
 }
