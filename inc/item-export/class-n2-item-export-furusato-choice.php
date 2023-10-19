@@ -77,11 +77,12 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 				}
 				$warning['やきもの対応機器']  = implode( ' / ', $warning['やきもの対応機器'] );
 				$warning['やきもの対応機器'] .= "\n{$n2values['対応機器備考']}";
+				$siteurl = site_url();
 				$rakuten_dir = $n2->settings['楽天']['商品画像ディレクトリ']; // 画像ディレクトリ取得
-				$ex_rakuten_url  = explode( '/', $rakuten_dir ); // 自治体ローマ字取得
-				$ex_towncode     = explode( '-', $ex_rakuten_url[3] );
+				$ex_siteurl  = explode( '/', $siteurl ); // 自治体ローマ字取得(N2URLから取得)
+				$ex_towncode     = explode( '-', end($ex_siteurl) );
 				$townname        = $ex_towncode[1]; // 自治体ローマ字
-					$caution_name = $townname . '_yaki_c.jpg';
+				$caution_name = $townname . '_yaki_c.jpg';
 			}
 			// 商品タイプごとの注意書きを追加
 			foreach ( array_filter( $n2values['商品タイプ'] ) as $type ) {

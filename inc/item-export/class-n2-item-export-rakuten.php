@@ -713,18 +713,19 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	public function add_pottery_caution_picture( $result, $n2values ) {
 		if ( in_array( 'やきもの', $n2values['商品タイプ'], true ) ) {
 			global $n2;
+			$siteurl         = site_url();
 			$n2_settings     = $n2->settings;
 			$rakuten_dir_def = $n2_settings['楽天']['商品画像ディレクトリ']; // 画像ディレクトリ取得
 			$rakuten_dir     = str_replace( '/item', '', $rakuten_dir_def ); // 基本フォルダ直下にやきもの注意書きを置くのでitemを削る
-			$ex_rakuten_url  = explode( '/', $rakuten_dir_def ); // 自治体ローマ字取得
-			$ex_towncode     = explode( '-', $ex_rakuten_url[3] );
+			$ex_siteurl      = explode( '/', $siteurl ); // 自治体ローマ字取得(N2URLから取得)
+			$ex_towncode     = explode( '-', end( $ex_siteurl ) );
 			$townname        = $ex_towncode[1]; // 自治体ローマ字
 			$result_item     = implode( '', $result );
 			$imgs_count      = count( $result );
 			$caution_url     = $rakuten_dir . $townname . '_yaki_r.jpg'; // キャビネットURL + 自治体ローマ字 + 固定文字(_yaki_r) + .jpg
 			$caution_item    = 'yaki';
 			if ( ! preg_match( '/' . $caution_item . '/', $result_item, $m ) ) {
-				$result = array_slice( $result, 0, 19, true);
+				$result   = array_slice( $result, 0, 19, true );
 				$result[] = $caution_url;
 			}
 		}
