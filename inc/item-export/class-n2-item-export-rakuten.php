@@ -50,6 +50,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		parent::__construct();
 		add_filter( mb_strtolower( get_class( $this ) ) . '_download_add_btn', array( $this, 'add_download_btn' ) );
 		add_filter( mb_strtolower( get_class( $this ) ) . '_download_str', array( $this, 'change_download_str' ), 10, 2 );
+		$this->caution_url = $this->get_pottery_caution_url( $result, $n2values );
 	}
 
 	/**
@@ -318,7 +319,6 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			}
 			$result[ $i ] = $img_url;
 		}
-		// $result = $this->add_pottery_caution_picture( $result );
 		return $result;
 	}
 	/**
@@ -372,9 +372,13 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			);
 			$result   = array_filter( $result, fn( $r ) => $r );
 		}
-		// print_r('<pre>');
-		$result = $this->add_pottery_caution_picture( $result, $n2values );
-
+		$n2_settings     = $n2->settings;
+		$rakuten_dir_def = $n2_settings['楽天']['商品画像ディレクトリ']; // 画像ディレクトリ取得
+		$rakuten_dir     = str_replace( '/item', '', $rakuten_dir_def ); // 基本フォルダ直下にやきもの注意書きを置くのでitemを削る
+		if ( in_array( 'やきもの', $n2values['商品タイプ'], true ) && ! in_array( $rakuten_dir . $this->caution_url, $result, true ) ) {
+			$result   = array_slice( $result, 0, 19, true );
+			$result[] = $rakuten_dir . $this->caution_url;
+		}
 		// ========戻り値判定========
 		switch ( $return_type ) {
 			// 文字列を返却
@@ -704,31 +708,23 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		return rtrim( str_replace( "\t", '', ob_get_clean() ), PHP_EOL );
 	}
 	/**
-	 * やきもの注意書き画像差し替え
+	 * やきもの注意書き画像のURL作成
 	 *
 	 * @param array $n2values n2dataのループ中の値
 	 *
 	 * @return string
 	 */
-	public function add_pottery_caution_picture( $result, $n2values ) {
-		if ( in_array( 'やきもの', $n2values['商品タイプ'], true ) ) {
-			global $n2;
-			$siteurl         = site_url();
-			$n2_settings     = $n2->settings;
-			$rakuten_dir_def = $n2_settings['楽天']['商品画像ディレクトリ']; // 画像ディレクトリ取得
-			$rakuten_dir     = str_replace( '/item', '', $rakuten_dir_def ); // 基本フォルダ直下にやきもの注意書きを置くのでitemを削る
-			$ex_siteurl      = explode( '/', $siteurl ); // 自治体ローマ字取得(N2URLから取得)
-			$ex_towncode     = explode( '-', end( $ex_siteurl ) );
-			$townname        = $ex_towncode[1]; // 自治体ローマ字
-			$result_item     = implode( '', $result );
-			$imgs_count      = count( $result );
-			$caution_url     = $rakuten_dir . $townname . '_yaki_r.jpg'; // キャビネットURL + 自治体ローマ字 + 固定文字(_yaki_r) + .jpg
-			$caution_item    = 'yaki';
-			if ( ! preg_match( '/' . $caution_item . '/', $result_item, $m ) ) {
-				$result   = array_slice( $result, 0, 19, true );
-				$result[] = $caution_url;
-			}
-		}
+	public function get_pottery_caution_url( $n2values ) {
+			$siteurl     = site_url();
+			$ex_siteurl  = explode( '/', $siteurl ); // 自治体ローマ字取得(N2URLから取得)
+			$ex_towncode = explode( '-', end( $ex_siteurl ) );
+			$townname    = $ex_towncode[1]; // 自治体ローマ字
+			$caution_url = $townname . '_yaki_r.jpg'; // 自治体ローマ字 + 固定文字(_yaki_r) + .jpg
+			return $caution_url;
+		/**
+		 * [hook] n2_item_export_base_get_pottery_caution_url
+		 */
+		$result = apply_filters( mb_strtolower( get_class( $this ) ) . '_get_pottery_caution_url', $result, $n2values );
 		return $result;
 	}
 }
