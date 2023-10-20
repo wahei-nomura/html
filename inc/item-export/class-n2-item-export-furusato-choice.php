@@ -125,10 +125,9 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 
 		// 類型・該当理由
 		{
-			$typology = array();
-			// 類型該当理由が空ではなく、かつポータルに理由を表示する設定になっていたら類型該当理由を配列に追加
-			if ( ! empty( $n2values['類型該当理由'] ) && in_array( $n2values['地場産品類型'], $n2->settings['N2']['理由表示地場産品類型'], true ) ) {
-				$typology[] = $n2values['類型該当理由'];
+			// ポータルに理由を表示する設定になっていない場合は空欄にする
+			if ( ! in_array( $n2values['地場産品類型'], $n2->settings['N2']['理由表示地場産品類型'] ?? array(), true ) ) {
+				$n2values['類型該当理由'] = '';
 			}
 			// 類型番号99の場合は7に変更、（）の場合は中身ごと削除
 			$n2values['地場産品類型'] = preg_replace(
@@ -136,10 +135,8 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 				array( '7', '' ),
 				$n2values['地場産品類型']
 			);
-			// 先頭に類型を追加
-			array_unshift( $typology, $n2values['地場産品類型'] );
 			// '|'で類型と該当理由を連結
-			$typology = implode( '|', $typology );
+			$n2values['地場産品類型'] = "{$n2values['地場産品類型']}|{$n2values['類型該当理由']}";
 		}
 
 		// preg_matchで判定
@@ -163,7 +160,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 			preg_match( '/アレルギー：([^（]*)/u', $val, $m ) => in_array( $m[1], $n2values['アレルゲン'], true ) ? 1 : 2,// アレルギー品目がありの場合は半角数字の1、なしの場合は半角数字の2、未確認の場合は半角数字の3
 			preg_match( '/アレルギー特記事項/', $val ) => $n2values['アレルゲン注釈'],// アレルギーに関する注意情報を1,000文字以内で入力
 			// preg_match( '/地場産品類型番号/', $val )  => $n2values['地場産品類型'] ? in_array( $n2values['地場産品類型'], $applicable_reasons ) ? "{$n2values['地場産品類型']}|{$n2values['類型該当理由']}" : "{$n2values['地場産品類型']}|" : '',// 設定したい地場産品類型番号と、地場産品に該当する理由（100文字以内）を入力してください。地場産品類型番号と該当する理由のテキストを『 | 』で区切ってください。
-			preg_match( '/地場産品類型番号/', $val )  => $typology,// 設定したい地場産品類型番号と、地場産品に該当する理由（100文字以内）を入力してください。地場産品類型番号と該当する理由のテキストを『 | 』で区切ってください。
+			preg_match( '/地場産品類型番号/', $val )  => $n2values['地場産品類型'],// 設定したい地場産品類型番号と、地場産品に該当する理由（100文字以内）を入力してください。地場産品類型番号と該当する理由のテキストを『 | 』で区切ってください。
 			preg_match( '/消費期限/', $val ) => $n2values['消費期限'],// 食品系の場合はなるべく消費期限を1,000文字以内で入力
 			preg_match( '/^（必須）.+?配送$/', $val ) => false !== strpos( $val, $n2values['発送方法'] ) ? 1 : 0,// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
 			preg_match( '/^（必須）((包装|のし)対応)$/', $val, $m ) => false !== strpos( '有り', $n2values[ $m[1] ] ) ? 1 : 0,// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
