@@ -50,7 +50,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		parent::__construct();
 		add_filter( mb_strtolower( get_class( $this ) ) . '_download_add_btn', array( $this, 'add_download_btn' ) );
 		add_filter( mb_strtolower( get_class( $this ) ) . '_download_str', array( $this, 'change_download_str' ), 10, 2 );
-		$this->caution_url = $this->get_pottery_caution_url( $result, $n2values );
+		$this->caution_url = $this->get_pottery_caution_url();
 	}
 
 	/**
@@ -710,21 +710,18 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	/**
 	 * やきもの注意書き画像のURL作成
 	 *
-	 * @param array $n2values n2dataのループ中の値
-	 *
 	 * @return string
 	 */
-	public function get_pottery_caution_url( $n2values ) {
-			$siteurl     = site_url();
-			$ex_siteurl  = explode( '/', $siteurl ); // 自治体ローマ字取得(N2URLから取得)
-			$ex_towncode = explode( '-', end( $ex_siteurl ) );
-			$townname    = $ex_towncode[1]; // 自治体ローマ字
-			$caution_url = $townname . '_yaki_r.jpg'; // 自治体ローマ字 + 固定文字(_yaki_r) + .jpg
-			return $caution_url;
+	public function get_pottery_caution_url() {
+		$siteurl     = site_url();
+		$ex_siteurl  = explode( '/', $siteurl ); // 自治体ローマ字取得(N2URLから取得)
+		$ex_towncode = explode( '-', end( $ex_siteurl ) );
+		$townname    = $ex_towncode[1]; // 自治体ローマ字
+		$caution_url = $townname . '_yaki_r.jpg'; // 自治体ローマ字 + 固定文字(_yaki_r) + .jpg
 		/**
 		 * [hook] n2_item_export_base_get_pottery_caution_url
 		 */
-		$result = apply_filters( mb_strtolower( get_class( $this ) ) . '_get_pottery_caution_url', $result, $n2values );
-		return $result;
+		$caution_url = apply_filters( mb_strtolower( get_class( $this ) ) . '_get_pottery_caution_url', $caution_url );
+		return $caution_url;
 	}
 }
