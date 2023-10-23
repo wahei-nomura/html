@@ -258,13 +258,19 @@ class N2_Rakuten_SFTP {
 		}
 	}
 
+	/**
+	 * log output
+	 */
 	public function log_output() {
 		header( 'Content-Type: text/html; charset=utf-8' );
 		?>
-		<a href="<?php the_permalink( $this->data['insert_post'] ); ?>"></a>
-		<?php foreach ( $this->data['log'] as $log ) {
-			echo $log;
-		}
+		<a href="<?php the_permalink( $this->data['insert_post'] ); ?>">
+			<?php echo $this->data['insert_post']; ?>
+		</a>
+		<?php foreach ( $this->data['log'] as $log ) : ?> 
+			<?php echo $log; ?>
+		<?php
+		endforeach;
 		exit;
 	}
 
