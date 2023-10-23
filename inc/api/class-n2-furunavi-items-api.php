@@ -133,7 +133,7 @@ class N2_Furunavi_Items_API {
 			function( $d ) {
 				preg_match( '/\[([A-Z]{2,3}[0-9]{2,3})\]/', $d['ProductName'], $m );
 				return array(
-					'goods_name'  => $d['ProductName'],
+					'goods_name'  => wp_specialchars_decode( $d['ProductName'] ),
 					'goods_g_num' => $m[1],
 					'goods_price' => preg_replace( '/[^0-9]/', '', $d['LowerAmount'] ),
 					'url'         => "https://furunavi.jp/product_detail.aspx?pid={$d['ProductID']}",
