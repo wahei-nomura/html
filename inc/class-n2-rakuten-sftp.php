@@ -30,7 +30,7 @@ class N2_Rakuten_SFTP {
 		'connect'          => null,
 		'params'           => array(),
 		'files'            => null,
-		'data'             => array(),
+		'n2data'           => array(),
 		'error'            => array(),
 		'log'              => array(),
 		'rakuten_csv_name' => array( 'normal-item', 'item-cat' ),
@@ -185,6 +185,8 @@ class N2_Rakuten_SFTP {
 		unlink( $tmp );
 		mkdir( $tmp );
 
+		// 初期化
+		$this->n2data = array();
 		foreach ( $tmp_name as $k => $file ) {
 			// 画像圧縮処理
 			$quality = isset( $quality ) ? $quality : 50;
@@ -214,10 +216,14 @@ class N2_Rakuten_SFTP {
 			}
 			$remote_file         = "{$remote_dir}/{$name[$k]}";
 			$image_data          = file_get_contents( "{$tmp}/{$name[$k]}" );
-			$this->data['log'][] = match ( $this->sftp->put_contents( $remote_file, $image_data ) ) {
+			$uploaded            = $this->sftp->put_contents( $remote_file, $image_data );
+			$this->data['log'][] = match ( $uploaded ) {
 				true => "転送成功 $name[$k]\n",
 				default => "転送失敗 $name[$k]\n",
 			};
+			if ( $uploaded ) {
+				$this->n2data[ $m[1] ][] = str_replace( 'cabinet/images', '', $remote_file );
+			}
 		}
 		exec( "rm -Rf {$tmp}" );
 	}
@@ -344,6 +350,9 @@ class N2_Rakuten_SFTP {
 			'post_type'    => 'n2_sftp',
 			'post_title'   => "[$now] $judge",
 			'post_content' => implode( '', $this->data['log'] ),
+			'meta_input'   => array(
+				'更新' => $this->n2data,
+			),
 		);
 		// $defaultを$argsで上書き
 		$postarr = wp_parse_args( $args, $default );
