@@ -35,6 +35,7 @@ class N2_Rakuten_SFTP {
 		'log'              => array(),
 		'rakuten_csv_name' => array( 'normal-item', 'item-cat' ),
 		'extensions'       => '.csv',
+		'insert_post'      => null,
 	);
 
 	/**
@@ -259,6 +260,7 @@ class N2_Rakuten_SFTP {
 
 	public function log_output() {
 		header( 'Content-Type: application/json; charset=utf-8' );
+		echo "POST ID: {$this->data['insert_post']}";
 		foreach ( $this->data['log'] as $log ) {
 			echo $log;
 		}
@@ -338,6 +340,6 @@ class N2_Rakuten_SFTP {
 		);
 		// $defaultを$argsで上書き
 		$postarr = wp_parse_args( $args, $default );
-		wp_insert_post( $postarr );
+		$this->data['insert_post'] = wp_insert_post( $postarr );
 	}
 }
