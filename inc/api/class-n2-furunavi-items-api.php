@@ -68,24 +68,6 @@ class N2_Furunavi_Items_API {
 		$data = wp_remote_get( $url . http_build_query( $params ) );
 		$data = $data['body'];
 		$data = json_decode( $data, true );
-		// 自治体のID取得（N2設定に設定する）
-		foreach ( $data['ProductData'] as $v ) {
-			// 自治体名が合致するものを探す
-			if ( $n2->town === $v['MunicipalName'] ) {
-				$municipalid = $v['MunicipalID'];
-				// N2設定にmunicipalidの保存
-				break;// 発見できたらループ終了
-			}
-		}
-		$params = array(
-			'municipalid' => $municipalid,
-			'pagesize'    => 100,
-			'pageno'      => 1,
-		);
-		// データ取得
-		$data = wp_remote_get( $url . http_build_query( $params ) );
-		$data = $data['body'];
-		$data = json_decode( $data, true );
 		// ページ数算出
 		$num_result    = $data['ProductCount'];
 		$max_num_pages = ceil( $num_result / 100 );
@@ -98,15 +80,13 @@ class N2_Furunavi_Items_API {
 		$params['pageno']++;
 		while ( $max_num_pages >= $params['pageno'] ) {
 			$requests[] = array(
-				'url'  => $url,
-				'data' => $params,
+				'url' => $url . http_build_query( $params ),
 			);
 			$params['pageno']++;
 		}
 		$response = N2_Multi_URL_Request_API::request_multiple( $requests );
 		$response = array_map( fn( $v ) => json_decode( $v->body, true ), $response );
 		foreach ( $response as $res ) {
-			$res = json_decode( $v->body, true );
 			if ( empty( $res ) ) {
 				continue;
 			}
@@ -119,6 +99,7 @@ class N2_Furunavi_Items_API {
 		$data = array_unique( $data, SORT_REGULAR );
 		// goods_g_numでソートする
 		array_multisort( array_column( $data, 'goods_g_num' ), SORT_ASC, $data );
+		$data = array_values( $data );
 		$args = array(
 			'post_type'    => 'portal_item_data',
 			'post_title'   => 'furunavi',
