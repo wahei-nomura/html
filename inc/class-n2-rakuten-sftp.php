@@ -186,8 +186,6 @@ class N2_Rakuten_SFTP {
 		unlink( $tmp );
 		mkdir( $tmp );
 
-		// 初期化
-		$this->n2data = array();
 		foreach ( $tmp_name as $k => $file ) {
 			// 画像圧縮処理
 			$quality = isset( $quality ) ? $quality : 50;
