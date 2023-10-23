@@ -167,6 +167,7 @@ class N2_Rakuten_SFTP {
 		$this->set_params();
 		$this->set_files();
 		$this->{$this->data['params']['judge']}();
+		$this->insert_post();
 		$this->log_output();
 	}
 
@@ -250,8 +251,8 @@ class N2_Rakuten_SFTP {
 			$remote_file         = "ritem/batch/{$name[ $k ]}";
 			$file_data           = file_get_contents( $file );
 			$this->data['log'][] = match ( $this->sftp->put_contents( $remote_file, $file_data ) ) {
-				true => "転送成功 $name[$k]\n",
-				default => "転送失敗 $name[$k]\n",
+				true => "転送成功 {$this->data['files']['name'][$k]}\n",
+				default => "転送失敗 {$this->data['files']['name'][$k]}\n",
 			};
 		}
 	}
@@ -323,15 +324,17 @@ class N2_Rakuten_SFTP {
 	/**
 	 * insert
 	 */
-	public function insert_post( $args = array() ) {
+	public function insert_post() {
 		global $n2;
+		$now     = date( 'Y M d h:i:s A' );
+		$judge   = $this->data['params']['judge'];
 		$default = array(
 			'ID'           => 0,
 			'post_author'  => $n2->current_user->ID,
 			'post_status'  => 'pending',
 			'post_type'    => 'n2_sftp',
-			'post_title'   => 'title',
-			'post_content' => 'content',
+			'post_title'   => "[$now] $judge",
+			'post_content' => implode( '', $this->data['log'] ),
 		);
 		// $defaultを$argsで上書き
 		$postarr = wp_parse_args( $args, $default );
