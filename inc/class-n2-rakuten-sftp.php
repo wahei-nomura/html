@@ -267,13 +267,14 @@ class N2_Rakuten_SFTP {
 	 * log output
 	 */
 	public function log_output() {
+		$edit_link = get_edit_post_link( $this->data['insert_post'] );
 		header( 'Content-Type: text/html; charset=utf-8' );
 		?>
-		<a href="<?php the_permalink( $this->data['insert_post'] ); ?>">
+		<a href="<?php echo esc_url( $edit_link ); ?>">
 			<?php echo $this->data['insert_post']; ?>
 		</a>
 		<?php foreach ( $this->data['log'] as $log ) : ?> 
-			<?php echo $log; ?>
+			<?php echo nl2br( $log ); ?>
 		<?php
 		endforeach;
 		exit;
@@ -329,8 +330,13 @@ class N2_Rakuten_SFTP {
 	 */
 	public function register_post_type() {
 		$args = array(
-			'label'  => 'sftp_log',
-			'public' => true,
+			'label'    => 'sftp_log',
+			'public'   => true,
+			'supports' => array(
+				'title',
+				'editor',
+				'revisions',
+			),
 		);
 		register_post_type( $this->data['post_type'], $args );
 	}
