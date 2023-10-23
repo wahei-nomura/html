@@ -260,8 +260,9 @@ class N2_Rakuten_SFTP {
 
 	public function log_output() {
 		header( 'Content-Type: text/html; charset=utf-8' );
-		echo "POST ID: {$this->data['insert_post']}";
-		foreach ( $this->data['log'] as $log ) {
+		?>
+		<a href="<?php the_permalink( $this->data['insert_post'] ); ?>"></a>
+		<?php foreach ( $this->data['log'] as $log ) {
 			echo $log;
 		}
 		exit;
