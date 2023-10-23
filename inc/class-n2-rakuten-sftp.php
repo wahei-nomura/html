@@ -36,6 +36,7 @@ class N2_Rakuten_SFTP {
 		'rakuten_csv_name' => array( 'normal-item', 'item-cat' ),
 		'extensions'       => '.csv',
 		'insert_post'      => null,
+		'post_type'        => 'n2_sftp',
 	);
 
 	/**
@@ -333,7 +334,7 @@ class N2_Rakuten_SFTP {
 			'label'  => 'sftp_log',
 			'public' => true,
 		);
-		register_post_type( 'n2_sftp', $args );
+		register_post_type( $this->data['post_type'], $args );
 	}
 
 	/**
@@ -351,7 +352,7 @@ class N2_Rakuten_SFTP {
 			'ID'           => 0,
 			'post_author'  => $n2->current_user->ID,
 			'post_status'  => 'pending',
-			'post_type'    => 'n2_sftp',
+			'post_type'    => $this->data['post_type'],
 			'post_title'   => "[$now] $judge",
 			'post_content' => implode( '', $this->data['log'] ),
 			'meta_input'   => $post_meta,
