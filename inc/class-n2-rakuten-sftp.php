@@ -341,21 +341,23 @@ class N2_Rakuten_SFTP {
 	 */
 	public function insert_post() {
 		global $n2;
-		$now     = date( 'Y M d h:i:s A' );
-		$judge   = $this->data['params']['judge'];
-		$default = array(
+		$now       = date( 'Y M d h:i:s A' );
+		$judge     = $this->data['params']['judge'];
+		$post_meta = array(
+			'upload_data' => $this->n2data,
+			'upload_type' => $judge,
+		);
+		$default   = array(
 			'ID'           => 0,
 			'post_author'  => $n2->current_user->ID,
 			'post_status'  => 'pending',
 			'post_type'    => 'n2_sftp',
 			'post_title'   => "[$now] $judge",
 			'post_content' => implode( '', $this->data['log'] ),
-			'meta_input'   => array(
-				'更新' => $this->n2data,
-			),
+			'meta_input'   => $post_meta,
 		);
 		// $defaultを$argsで上書き
-		$postarr = wp_parse_args( $args, $default );
+		$postarr                   = wp_parse_args( $args, $default );
 		$this->data['insert_post'] = wp_insert_post( $postarr );
 	}
 }
