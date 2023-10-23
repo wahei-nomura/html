@@ -50,6 +50,7 @@ class N2_Rakuten_SFTP {
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 		add_action( 'wp_ajax_n2_upload_to_rakuten_sftp', array( $this, 'upload_to_rakuten' ) );
+		add_action( 'init', array( $this, 'register_post_type' ) );
 	}
 	public function __destruct() {
 	}
@@ -306,5 +307,16 @@ class N2_Rakuten_SFTP {
 			echo $message;
 			exit;
 		}
+	}
+
+	/**
+	 * カスタム投稿を追加
+	 */
+	public function register_post_type() {
+		$args = array(
+			'label'  => 'sftp_log',
+			'public' => true,
+		);
+		register_post_type( 'n2_sftp_upload', $args );
 	}
 }
