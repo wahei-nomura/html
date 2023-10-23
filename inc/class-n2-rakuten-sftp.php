@@ -317,6 +317,24 @@ class N2_Rakuten_SFTP {
 			'label'  => 'sftp_log',
 			'public' => true,
 		);
-		register_post_type( 'n2_sftp_upload', $args );
+		register_post_type( 'n2_sftp', $args );
+	}
+
+	/**
+	 * insert
+	 */
+	public function insert_post( $args = array() ) {
+		global $n2;
+		$default = array(
+			'ID'           => 0,
+			'post_author'  => $n2->current_user->ID,
+			'post_status'  => 'pending',
+			'post_type'    => 'n2_sftp',
+			'post_title'   => 'title',
+			'post_content' => 'content',
+		);
+		// $defaultを$argsで上書き
+		$postarr = wp_parse_args( $args, $default );
+		wp_insert_post( $postarr );
 	}
 }
