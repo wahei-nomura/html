@@ -5,18 +5,36 @@
  * @package neoneng
  */
 
-if ( empty( $args['post_id'] ) ) {
+$query = new WP_Query(
+	array(
+		'post_type'      => $args,
+		'posts_per_page' => -1,
+	)
+);
+
+if ( ! $query->have_posts() ) {
 	echo 'アップロードのログはありません。';
+	wp_reset_postdata();
 	return;
 }
 
-$post      = get_post( $args['post_id'] );
-$revisions = wp_get_post_revisions( $args['post_id'] );
+while ( $query->have_posts() ) {
+	$query->the_post();
 
-echo '<pre>';
-var_dump( $post );
-echo '</pre><br>';
+	// 投稿IDを取得します
+	$post_id = get_the_ID();
+	echo '<pre>';
+	var_dump( $post_id );
+	echo '</pre><br>';
 
-echo '<pre>';
-var_dump( $revisions );
-echo '</pre><br>';
+
+	// postmetaデータを取得します
+	$meta_data = get_post_meta( $post_id );
+	echo '<pre>';
+	var_dump( $meta_data );
+	echo '</pre><br>';
+
+	// 必要に応じてpostmetaデータを処理します
+	// ...
+}
+wp_reset_postdata();

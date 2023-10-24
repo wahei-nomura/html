@@ -7,8 +7,8 @@
 
 $radio_count = 0;
 ?>
-<div class="container mt-2 mb-4">
-	<form action="admin-ajax.php" target="_blank" method="post" enctype="multipart/form-data">
+<div class="container mt-4 mb-4">
+	<form action="admin-ajax.php" target="_blank" method="post" enctype="multipart/form-data" class="mb-4">
 		<input type="hidden" name="action" value="<?php echo esc_attr( $args['action'] ); ?>">
 		<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
 		<div class="mb-2">
@@ -23,6 +23,6 @@ $radio_count = 0;
 			<input type="submit" class="btn btn-outline-secondary" value="楽天に転送する">
 		</div>
 	</form>
-	<?php get_template_part( 'template/admin-menu/sftp', 'image-link', null ); ?>
+	<?php get_template_part( 'template/admin-menu/sftp', 'image-link', $args['post_type'] ); ?>
 </div>
 
