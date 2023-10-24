@@ -320,14 +320,13 @@ class N2 {
 		$this->blog_prefix = $wpdb->get_blog_prefix();
 		$this->site_id     = get_current_blog_id();
 		$this->town        = get_bloginfo( 'name' );
-		$jichitai_name     = end( explode( '/', get_home_url() ) );
-		if ( 'f424111-shinkamigoto' === $jichitai_name ) {
-			$this->logo = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_' . end( explode( '/', get_home_url() ) ) . '.jpg';
-		} elseif ( 'f422142-minamishimabara' === $jichitai_name ) {
-			$this->logo = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_f422142-minamisimabara.png';
-		} else {
-			$this->logo = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_' . end( explode( '/', get_home_url() ) ) . '.png';
-		}
+		$home_url_array    = explode( '/', get_home_url() );
+		$jichitai_name     = end( $home_url_array );
+		$this->logo        = match ( $jichitai_name ) {
+			'f422142-minamishimabara' => 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_f422142-minamisimabara.png',
+			'f424111-shinkamigoto'    => "https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_{$jichitai_name}.jpg",
+			default                   => "https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_{$jichitai_name}.png",
+		};
 		$this->ajaxurl = admin_url( 'admin-ajax.php' );
 		$this->cookie  = $_COOKIE;
 
