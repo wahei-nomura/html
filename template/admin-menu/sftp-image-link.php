@@ -37,4 +37,6 @@ while ( $query->have_posts() ) {
 	// 必要に応じてpostmetaデータを処理します
 	// ...
 }
-wp_reset_postdata();
+wp_reset_postdata(); ?>
+
+<div id="ss-sftp"></div>
