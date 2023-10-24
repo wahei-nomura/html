@@ -27,9 +27,9 @@ class N2_Rakuten_SFTP {
 	 * @var array
 	 */
 	public $settings = array(
-		'upload'     => 'SFTP',
+		'upload'     => 'アップロード',
 		'image-link' => 'SFTPログ',
-		'error-log'  => 'SFTPエラーログ',
+		'error-log'  => 'エラーログ',
 		'client'     => 'CABINET',
 	);
 
@@ -106,10 +106,9 @@ class N2_Rakuten_SFTP {
 	public function display_ui() {
 		$template = $_GET['page'];
 		$html     = array(
-			'title'    => '',
 			'nav'      => '',
 			'contents' => '',
-			'args'     => '',
+			'args'     => null,
 		);
 		foreach ( $this->settings as $page => $name ) {
 			$menu_slug    = $this->create_menu_slug( $page );
@@ -123,13 +122,12 @@ class N2_Rakuten_SFTP {
 				ob_start();
 				get_template_part( 'template/admin-menu/sftp', $page, $args );
 				$html['contents'] = ob_get_clean();
-				$html['title']    = $name;
 			}
 		}
 		?>
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 		<div class="wrap">
-			<h1><?php echo $html['title']; ?></h1>
+			<h1>楽天SFTP</h1>
 			<div id="crontrol-header">
 				<nav class="nav-tab-wrapper"><?php echo $html['nav']; ?></nav>
 			</div>
