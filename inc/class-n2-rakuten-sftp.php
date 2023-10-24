@@ -261,18 +261,18 @@ class N2_Rakuten_SFTP {
 
 			// 商品画像の場合
 			if ( $this->sftp->mkdir( $remote_dir ) ) {
-				$this->data['log'][] = "{$remote_dir}を作成\n";
+				$this->data['log'][] = "{$remote_dir}を作成";
 			}
 			$remote_dir .= $m[1];
 			if ( $this->sftp->mkdir( $remote_dir ) ) {
-				$this->data['log'][] = "{$remote_dir}を作成\n";
+				$this->data['log'][] = "{$remote_dir}を作成";
 			}
 			$remote_file         = "{$remote_dir}/{$name[$k]}";
 			$image_data          = file_get_contents( "{$tmp}/{$name[$k]}" );
 			$uploaded            = $this->sftp->put_contents( $remote_file, $image_data );
 			$this->data['log'][] = match ( $uploaded ) {
-				true => "転送成功 $name[$k]\n",
-				default => "転送失敗 $name[$k]\n",
+				true => "転送成功 $name[$k]",
+				default => "転送失敗 $name[$k]",
 			};
 			if ( $uploaded ) {
 				$this->n2data[ $m[1] . $m[2] ][] = str_replace( 'cabinet/images', '', $remote_file );
@@ -311,8 +311,8 @@ class N2_Rakuten_SFTP {
 			$remote_file         = "ritem/batch/{$name[ $k ]}";
 			$file_data           = file_get_contents( $file );
 			$this->data['log'][] = match ( $this->sftp->put_contents( $remote_file, $file_data ) ) {
-				true => "転送成功 {$this->data['files']['name'][$k]}\n",
-				default => "転送失敗 {$this->data['files']['name'][$k]}\n",
+				true => "転送成功 {$this->data['files']['name'][$k]}",
+				default => "転送失敗 {$this->data['files']['name'][$k]}",
 			};
 		}
 	}
@@ -322,15 +322,12 @@ class N2_Rakuten_SFTP {
 	 */
 	public function log_output() {
 		$edit_link = get_edit_post_link( $this->data['insert_post'] );
-		header( 'Content-Type: text/html; charset=utf-8' );
-		?>
-		<a href="<?php echo esc_url( $edit_link ); ?>">
-			<?php echo $this->data['insert_post']; ?>
-		</a>
-		<?php foreach ( $this->data['log'] as $log ) : ?> 
-			<?php echo nl2br( $log ); ?>
-		<?php
-		endforeach;
+		$data      = array(
+			'url' => $edit_link,
+			'log' => $this->data['log'],
+		);
+		header( 'Content-Type: application/json; charset=utf-8' );
+		echo wp_json_encode( $data, JSON_UNESCAPED_UNICODE );
 		exit;
 	}
 
@@ -374,8 +371,9 @@ class N2_Rakuten_SFTP {
 	protected function check_fatal_error( $data, $message ) {
 		if ( ! $data ) {
 			header( 'Content-Type: application/json; charset=utf-8' );
-			echo $message;
-			exit;
+			http_response_code( 400 );
+			echo wp_json_encode( array( 'message' => $message ), JSON_UNESCAPED_UNICODE );
+			die;
 		}
 	}
 
