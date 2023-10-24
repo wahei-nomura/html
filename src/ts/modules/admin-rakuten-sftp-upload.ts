@@ -31,12 +31,13 @@ export default Vue.extend({
 			for (let i = 0; i < files.length; i++) {
 				formData.append('sftp_file[]', files[i]);
 			}
+			const headers = {
+				'content-type': 'multipart/form-data',
+			};
 			return await axios.post(
 				window['n2'].ajaxurl,
 				formData,
-				{headers:{
-					'content-type': 'multipart/form-data',
-				}}
+				{headers:headers}
 			).then(res=>{
 				alert(
 					res.data['log'].join('\n')
