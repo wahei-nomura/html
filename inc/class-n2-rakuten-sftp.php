@@ -27,10 +27,9 @@ class N2_Rakuten_SFTP {
 	 * @var array
 	 */
 	public $settings = array(
-		'upload'     => 'アップロード',
-		'image-link' => 'SFTPログ',
-		'error-log'  => 'エラーログ',
-		'client'     => 'CABINET',
+		'upload'    => 'アップロード',
+		'error-log' => 'エラーログ',
+		'client'    => 'CABINET',
 	);
 
 	/**

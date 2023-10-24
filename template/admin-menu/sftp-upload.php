@@ -23,4 +23,6 @@ $radio_count = 0;
 			<input type="submit" class="btn btn-outline-secondary" value="楽天に転送する">
 		</div>
 	</form>
+	<?php get_template_part( 'template/admin-menu/sftp', 'image-link', null ); ?>
 </div>
+
