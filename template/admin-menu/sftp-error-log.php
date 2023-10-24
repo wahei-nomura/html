@@ -17,7 +17,6 @@ if ( empty( $args['logs'] ) ) {
 	exit;
 }
 ?>
-<h3>エラーログ</h3>
 <table class="widefat striped" style="margin: 2em 0;">
 <?php
 foreach ( $args['logs'] as $log ) :
