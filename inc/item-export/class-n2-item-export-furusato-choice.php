@@ -64,7 +64,6 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 	protected function walk_values( &$val, $index, $n2values ) {
 		global $n2;
 		$choice_settings = $n2->settings['ふるさとチョイス'];
-
 		// 注意書き
 		{
 			$warning = array();
@@ -76,6 +75,12 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 				}
 				$warning['やきもの対応機器']  = implode( ' / ', $warning['やきもの対応機器'] );
 				$warning['やきもの対応機器'] .= "\n{$n2values['対応機器備考']}";
+				$siteurl = site_url();
+				$rakuten_dir = $n2->settings['楽天']['商品画像ディレクトリ']; // 画像ディレクトリ取得
+				$ex_siteurl  = explode( '/', $siteurl ); // 自治体ローマ字取得(N2URLから取得)
+				$ex_towncode     = explode( '-', end($ex_siteurl) );
+				$townname        = $ex_towncode[1]; // 自治体ローマ字
+				$caution_name = $townname . '_yaki_c.jpg';
 			}
 			// 商品タイプごとの注意書きを追加
 			foreach ( array_filter( $n2values['商品タイプ'] ) as $type ) {
@@ -154,7 +159,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 			preg_match( '/^容量$/', $val )  => $n2values['内容量・規格等'],// お礼の品の容量情報を1,000文字以内で入力
 			preg_match( '/(お礼の品|スライド)画像[1]*$/', $val ) => mb_strtolower( $n2values['返礼品コード'] ) . '.jpg',// お礼の品画像のファイル名
 			preg_match( '/スライド画像([2-8]{1})$/u', $val, $m ) => mb_strtolower( $n2values['返礼品コード'] ) . '-' . ( $m[1] - 1 ) . '.jpg',// スライド画像のファイル名を指定
-			preg_match( '/品梱包画像$/u', $val ) => $n2->town . '-注意書き.jpg',// 〇〇(市|町|県)-注意書き.jpg
+			preg_match( '/品梱包画像$/u', $val ) => $caution_name,// 〇〇(市|町|県)-注意書き.jpg || 自治体ローマ字_yaki_r.jpg (やきものの場合の注意書き)
 			preg_match( '/^申込期日$/', $val ) => $n2values['申込期間'],// お礼の品の申込期日情報を1,000文字以内で入力　〇〇(市|町|県)-注意書き.jpg
 			preg_match( '/^発送期日$/', $val ) => $n2values['配送期間'],// 発送期日種別が任意入力の場合はお礼の品の発送期日情報を1,000文字以内で入力
 			preg_match( '/アレルギー：([^（]*)/u', $val, $m ) => in_array( $m[1], $n2values['アレルゲン'], true ) ? 1 : 2,// アレルギー品目がありの場合は半角数字の1、なしの場合は半角数字の2、未確認の場合は半角数字の3
