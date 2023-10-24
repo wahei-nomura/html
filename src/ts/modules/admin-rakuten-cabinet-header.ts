@@ -1,7 +1,7 @@
 import Vue from 'vue/dist/vue.min';
 import Vuex from 'vuex/dist/vuex.min';
 import { mapState,mapActions,mapGetters } from 'vuex/dist/vuex.min';
-import { cabinetFolder,cabinetImage } from './admin-menu-cabinet-interface';
+import { cabinetFolder,cabinetImage } from './admin-rakuten-cabinet-interface';
 
 Vue.use(Vuex);
 
