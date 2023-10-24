@@ -113,7 +113,7 @@ export default ($: any = jQuery) => {
 			// 全角英数を半角英数に変換
 			let text = $event.target.value.replace(/[Ａ-Ｚａ-ｚ０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 65248) );
 			// 半角英数以外削除
-			text = text.replace(/[^A-Za-z0-9]/g, '');
+			text = text.replace(/[^A-Za-z0-9_-]/g, '');
 			switch (type) {
 				case 'number':
 					// 半角数字以外削除

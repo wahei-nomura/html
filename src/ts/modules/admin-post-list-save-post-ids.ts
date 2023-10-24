@@ -25,6 +25,8 @@ export default ($: any = jQuery) => {
 			// ユーザー変更
 			users: [],
 			change_author_name: '',
+			focusHover: false,
+			hover_list: '',
 			n2,
 		},
 		async created(){
@@ -98,12 +100,13 @@ export default ($: any = jQuery) => {
 						role: 'jigyousya',
 					},
 				}).then(res=> JSON.parse(res));
-			}
-		},
-		computed: {
+			},
+			set_hover_list(list_name=''){
+				this.hover_list = list_name;
+			},
 			change_author_id(){
 				return this.users.filter(user=>user.display_name === this.change_author_name)[0]?.ID ?? '';
 			}
-		}
+		},
 	});
 }

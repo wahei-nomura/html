@@ -246,6 +246,8 @@ class N2_Output_Gift_API {
 			posts.post_status != 'trash' AND
 			postmeta.meta_key in (
 				'寄附金額',
+				'地場産品類型',
+				'類型該当理由',
 				'返礼品コード',
 				'消費期限',
 				'賞味期限',
@@ -289,13 +291,20 @@ class N2_Output_Gift_API {
 
 		// 結果の連想配列からキーを取り出す
 		$existing_keys = array();
+		$local_product_data = '';
 		foreach ( $data as $datum ) {
 			$existing_keys[] = $datum['meta_key'];
+			if ( '地場産品類型' === $datum['meta_key'] ) {
+				$local_product_data = $datum['meta_value'];
+			}
 		}
 
 		// 最終的に出力が期待されるキーのリストを作成
 		$expected_keys = array(
 			'寄附金額',
+			'地場産品類型',
+			'類型該当理由',
+			'類型該当理由を表示する',
 			'返礼品コード',
 			'消費期限',
 			'賞味期限',
@@ -313,13 +322,32 @@ class N2_Output_Gift_API {
 		);
 
 		// 実際に存在するキーと出力が期待されるキーとを比較し、不足しているキーがあれば、そのキーとその値（空文字）をdataに追加
-		$missing_keys = array_diff( $expected_keys, $existing_keys );
+		$missing_keys       = array_diff( $expected_keys, $existing_keys );
+		$applicable_reasons = $n2->settings['N2']['理由表示地場産品類型'];
 		foreach ( $missing_keys as $missing_key ) {
-			$data[] = array(
-				'title'      => $data[0]['title'],
-				'meta_key'   => $missing_key,
-				'meta_value' => '',
-			);
+			// N2設定の「類型該当理由を表示する地場産品類型」に応じて類型該当理由を出力するか判定するサムシング
+			if ( '類型該当理由を表示する' === $missing_key ) {
+				if ( in_array( $local_product_data, $applicable_reasons ) ) {
+					$data[] = array(
+						'title'      => $data[0]['title'],
+						'meta_key'   => $missing_key,
+						'meta_value' => true,
+					);
+				} else {
+					$data[] = array(
+						'title'      => $data[0]['title'],
+						'meta_key'   => $missing_key,
+						'meta_value' => false,
+					);
+				}
+			} else {
+				$data[] = array(
+					'title'      => $data[0]['title'],
+					'meta_key'   => $missing_key,
+					'meta_value' => '',
+				);
+
+			}
 		}
 
 		// 空の配列を作って取得したデータを整える

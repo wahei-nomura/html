@@ -23,7 +23,7 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 	 * @var array
 	 */
 	public $settings = array(
-		'filename'      => 'n2_export_lhcloud.csv',
+		'filename'      => 'ledghome.csv',
 		'delimiter'     => ',',
 		'charset'       => 'sjis',
 		'header_string' => '"LedgHOMEクラウド謝礼品リスト"' . PHP_EOL,
@@ -41,7 +41,7 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 		$this->data['header'] = $lh_setting['csv_header'][ $type ];
 
 		// filename変更
-		$this->settings['filename'] = "{$type}.csv";
+		$this->settings['filename'] = "ledghome_{$type}.csv";
 
 		switch ( $type ) {
 			case '謝礼品リスト':
