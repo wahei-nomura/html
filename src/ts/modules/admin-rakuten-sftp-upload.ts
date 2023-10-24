@@ -43,6 +43,9 @@ export default Vue.extend({
 				);
 				// ログ一覧の更新
 				this.updateSFTPLog();
+			}).catch(err=>{
+				console.log(err);
+				alert(err.response.data.message);
 			});
 		},
 	},
