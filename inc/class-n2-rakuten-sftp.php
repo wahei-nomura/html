@@ -169,6 +169,9 @@ class N2_Rakuten_SFTP {
 		return $this->data['connect'];
 	}
 
+	/**
+	 * エラーログテンプレート用の変数
+	 */
 	public function error_log_args() {
 		$args = array();
 		$this->connect();
@@ -272,7 +275,7 @@ class N2_Rakuten_SFTP {
 				default => "転送失敗 $name[$k]\n",
 			};
 			if ( $uploaded ) {
-				$this->n2data[ $m[1] ][] = str_replace( 'cabinet/images', '', $remote_file );
+				$this->n2data[ $m[1] . $m[2] ][] = str_replace( 'cabinet/images', '', $remote_file );
 			}
 		}
 		exec( "rm -Rf {$tmp}" );
@@ -397,20 +400,20 @@ class N2_Rakuten_SFTP {
 	 */
 	public function insert_post() {
 		global $n2;
-		$now       = date( 'Y M d h:i:s A' );
-		$judge     = $this->data['params']['judge'];
-		$post_meta = array(
+		$now          = date( 'Y M d h:i:s A' );
+		$judge        = $this->data['params']['judge'];
+		$post_content = array(
 			'upload_data' => $this->n2data,
 			'upload_type' => $judge,
+			'upload_log'  => $this->data['log'],
 		);
-		$default   = array(
+		$default      = array(
 			'ID'           => 0,
 			'post_author'  => $n2->current_user->ID,
 			'post_status'  => 'pending',
 			'post_type'    => $this->data['post_type'],
 			'post_title'   => "[$now] $judge",
-			'post_content' => implode( '', $this->data['log'] ),
-			'meta_input'   => $post_meta,
+			'post_content' => wp_json_encode( $post_content, JSON_UNESCAPED_UNICODE ),
 		);
 		// $defaultを$argsで上書き
 		$postarr                   = wp_parse_args( $args, $default );

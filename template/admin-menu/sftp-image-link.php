@@ -29,7 +29,7 @@ while ( $query->have_posts() ) {
 
 
 	// postmetaデータを取得します
-	$meta_data = get_post_meta( $post_id );
+	$meta_data = get_post( $post_id );
 	echo '<pre>';
 	var_dump( $meta_data );
 	echo '</pre><br>';
