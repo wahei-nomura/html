@@ -6,7 +6,9 @@ Vue.use(Vuex);
 export default new Vuex.Store({
 	state:{
 		n2nonce: null,
-		sftpLog : [],
+		sftpLog : {
+			items: [],
+		},
 	},
 	mutations: {
 		SET_N2NONCE(state, n2nonce:string){
