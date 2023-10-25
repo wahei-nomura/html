@@ -404,6 +404,7 @@ class N2_Rakuten_SFTP {
 			'upload_data' => $this->n2data,
 			'upload_type' => $judge,
 			'upload_log'  => $this->data['log'],
+			'upload_date' => $now,
 		);
 		$default      = array(
 			'ID'           => 0,
