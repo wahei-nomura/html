@@ -18,7 +18,7 @@ jQuery( async function($){
 			sftpUploadLog, 
 		},
 		template: `
-		<div id="ss-sftp">
+		<div id="ss-sftp" class="container mt-4 mb-4">
 			<sftpUpload />
 			<sftpUploadLog />
 		</div>
