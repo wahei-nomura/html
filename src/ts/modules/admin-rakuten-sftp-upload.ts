@@ -53,9 +53,9 @@ export default Vue.extend({
 	template:`
 		<form enctype="multipart/form-data" class="mb-4">
 			<div class="mb-2">
-				<span>モード選択 ：　</span>
+				<span>モード選択 ：</span>
 				<template v-for="( text, mode ) in uploadMode">
-					<label>
+					<label class="me-2">
 						<input type="radio" :value="mode" v-model="selectedRadio">{{text}}
 					</label>
 				</template>
