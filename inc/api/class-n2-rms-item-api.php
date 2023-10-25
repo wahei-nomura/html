@@ -26,7 +26,7 @@ class N2_RMS_Item_API extends N2_RMS_Base_API {
 	 */
 	public static function items_patch( $manageNumber, $body ) {
 		static::check_fatal_error(
-			! preg_match( '/^[a-Z0-9\-\_]+$/', $manageNumber ),
+			preg_match( '/^[a-zA-Z0-9\-\_]*$/', $manageNumber ),
 			'商品管理番号は英数字と「-」「_」のみ使用可能です'
 		);
 		$url = static::$settings['endpoint'] . '/2.0/items/manage-numbers/' . $manageNumber;
@@ -50,7 +50,7 @@ class N2_RMS_Item_API extends N2_RMS_Base_API {
 	 */
 	public static function items_get( $manageNumber ) {
 		static::check_fatal_error(
-			! preg_match( '/^[a-Z0-9\-\_]+$/', $manageNumber ),
+			preg_match( '/^[a-zA-Z0-9\-\_]*$/', $manageNumber ),
 			'商品管理番号は英数字と「-」「_」のみ使用可能です'
 		);
 		$url = static::$settings['endpoint'] . '/2.0/items/manage-numbers/' . $manageNumber;
