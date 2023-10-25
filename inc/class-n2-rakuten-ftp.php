@@ -26,7 +26,7 @@ class N2_Rakuten_FTP {
 	public function __construct() {
 		add_action( 'wp_ajax_n2_rakuten_ftp', array( $this, 'ftp' ) );
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
-		add_action( 'wp_ajax_n2_upload_to_rakuten', array( $this, 'upload_to_rakuten' ) );
+		add_action( 'wp_ajax_n2_rakuten_ftp_upload_to_rakuten', array( $this, 'upload_to_rakuten' ) );
 	}
 
 	/**
@@ -63,7 +63,7 @@ class N2_Rakuten_FTP {
 	 */
 	public function upload_args() {
 		return array(
-			'action' => 'n2_upload_to_rakuten',
+			'action' => 'n2_rakuten_ftp_upload_to_rakuten',
 			'file'   => 'ftp_files[]',
 			'radio'  => array(
 				'ftp_img' => '商品画像',

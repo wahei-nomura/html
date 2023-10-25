@@ -10,7 +10,7 @@ export default Vue.extend({
 				'csv_upload': '商品CSV',
 			},
 			selectedRadio: 'img_upload',
-			action: 'n2_upload_to_rakuten_sftp',
+			action: 'n2_rakuten_sftp_upload_to_rakuten',
 		}
 	},
 	computed:{

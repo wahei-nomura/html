@@ -37,9 +37,8 @@ export default Vue.extend({
 			'updateSFTPLog'
 		]),
 		linkImage2RMS(data){
-			const formData = new FormData();
 			Object.keys(data).forEach(async manageNumber => {
-				console.log(manageNumber);
+				const formData = new FormData();
 				formData.append('manageNumber', manageNumber);
 				formData.append('n2nonce', this.n2nonce);
 				formData.append('action', 'n2_rms_item_api_ajax');
@@ -55,7 +54,11 @@ export default Vue.extend({
 				await axios.post(
 					window['n2'].ajaxurl,
 					formData,
-				).then(res=>console.log(res));
+				).then(()=>{
+
+				}).catch((err)=>{
+
+				});
 			})
 		}
 	},
