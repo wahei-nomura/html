@@ -24,15 +24,18 @@ class N2_RMS_Item_API extends N2_RMS_Base_API {
 	 */
 	public static function items_patch( $manageNumber, $body ) {
 		static::check_fatal_error(
-			preg_match( '/[^a-Z0-9\-\_]/', $manageNumber ),
+			! preg_match( '/^[a-Z0-9\-\_]+$/', $manageNumber ),
 			'商品管理番号は英数字と「-」「_」のみ使用可能です'
 		);
-		$url = static::$settings['indpoint'] . '/2.0/items/manage-numbers/' . $manageNumber;
-		static::request(
+		$url = static::$settings['endpoint'] . '/2.0/items/manage-numbers/' . $manageNumber;
+		return static::request(
 			$url,
 			array(
-				'method' => 'PATCH',
-				'body'   => $body,
+				'method'  => 'PATCH',
+				'body'    => wp_unslash( $body ),
+				'headers' => array(
+					'Content-Type' => 'application/json',
+				),
 			),
 		);
 	}
