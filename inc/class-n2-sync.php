@@ -561,14 +561,14 @@ class N2_Sync {
 				unset( $postarr['meta_input']['市役所確認'] );
 			}
 			// オリジナル商品変換
-			if ( isset( $postarr['meta_input']['オリジナル商品'] ) ) {
+			if ( isset( $postarr['meta_input']['オリジナル商品'] )  ) {
+				if ( ! empty( $postarr['meta_input']['オリジナル商品'] ) ) {
+					$postarr['meta_input']['返礼品ルール'] = array( 'A', 'B' );
+				}
 				$postarr['meta_input']['オリジナル商品'] = match ( $postarr['meta_input']['オリジナル商品'] ) {
 					'適' => array( 'オリジナル商品である' ),
 					default => array(),
 				};
-				if ( ! empty( $postarr['meta_input']['オリジナル商品'] ) ) {
-					$postarr['meta_input']['返礼品ルール'] = array( 'A', 'B' );
-				}
 			}
 			// 旧コードを社内共有事項に付ける
 			if ( ! empty( $postarr['meta_input']['旧コード'] ) ) {
