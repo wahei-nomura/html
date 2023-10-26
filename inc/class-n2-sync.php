@@ -437,6 +437,10 @@ class N2_Sync {
 			// 同期用 裏カスタムフィールドNENGのID追加
 			$postarr['meta_input']['_neng_id'] = $v['ID'];
 
+			// 金額系のやつは数値だけにする
+			$postarr['meta_input']['価格'] = preg_replace( '/[^0-9]/', '', mb_convert_kana( $postarr['meta_input']['価格'], 'n' ) );
+			$postarr['meta_input']['寄附金額'] = preg_replace( '/[^0-9]/', '', mb_convert_kana( $postarr['meta_input']['寄附金額'], 'n' ) );
+
 			// 寄附金額をロックする
 			$postarr['meta_input']['寄附金額固定'] = 'draft' !== $postarr['post_status'] ? array( '固定する' ) : array();
 
@@ -491,6 +495,19 @@ class N2_Sync {
 			// やきもの
 			if ( 'やきもの' === ( $postarr['meta_input']['やきもの'] ?? '' ) ) {
 				$postarr['meta_input']['商品タイプ'][] = 'やきもの';
+				// オリジナル商品変換
+				if ( isset( $postarr['meta_input']['オリジナル商品'] )  ) {
+					if ( ! empty( $postarr['meta_input']['オリジナル商品'] ) ) {
+						$postarr['meta_input']['返礼品ルール'] = array( 'A', 'B' );
+					}
+					$postarr['meta_input']['オリジナル商品'] = match ( $postarr['meta_input']['オリジナル商品'] ) {
+						'適' => array( 'オリジナル商品である' ),
+						default => array(),
+					};
+				}
+			}
+			if ( 'やきもの' !== ( $postarr['meta_input']['やきもの'] ?? '' ) ) {
+				unset( $postarr['meta_input']['製造元'], $postarr['meta_input']['オリジナル商品'], $postarr['meta_input']['オリジナル商品理由'] );
 			}
 			// eチケット
 			if ( '該当する' === ( $postarr['meta_input']['eチケット'] ?? '' ) ) {
@@ -556,14 +573,7 @@ class N2_Sync {
 				};
 				unset( $postarr['meta_input']['市役所確認'] );
 			}
-			// オリジナル商品変換
-			if ( isset( $postarr['meta_input']['オリジナル商品'] ) ) {
-				$postarr['meta_input']['オリジナル商品'] = match ( $postarr['meta_input']['オリジナル商品'] ) {
-					'適' => array( 'オリジナル商品である' ),
-					default => array(),
-				};
-				unset( $postarr['meta_input']['市役所確認'] );
-			}
+
 			// 旧コードを社内共有事項に付ける
 			if ( ! empty( $postarr['meta_input']['旧コード'] ) ) {
 				$postarr['meta_input']['社内共有事項'] .= "\n旧コード：{$postarr['meta_input']['旧コード']}";
