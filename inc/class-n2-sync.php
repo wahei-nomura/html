@@ -566,7 +566,9 @@ class N2_Sync {
 					'適' => array( 'オリジナル商品である' ),
 					default => array(),
 				};
-				unset( $postarr['meta_input']['市役所確認'] );
+				if ( ! empty( $postarr['meta_input']['オリジナル商品'] ) ) {
+					$postarr['meta_input']['返礼品ルール'] = array( 'A', 'B' );
+				}
 			}
 			// 旧コードを社内共有事項に付ける
 			if ( ! empty( $postarr['meta_input']['旧コード'] ) ) {
