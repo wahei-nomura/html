@@ -495,6 +495,16 @@ class N2_Sync {
 			// やきもの
 			if ( 'やきもの' === ( $postarr['meta_input']['やきもの'] ?? '' ) ) {
 				$postarr['meta_input']['商品タイプ'][] = 'やきもの';
+				// オリジナル商品変換
+				if ( isset( $postarr['meta_input']['オリジナル商品'] )  ) {
+					if ( ! empty( $postarr['meta_input']['オリジナル商品'] ) ) {
+						$postarr['meta_input']['返礼品ルール'] = array( 'A', 'B' );
+					}
+					$postarr['meta_input']['オリジナル商品'] = match ( $postarr['meta_input']['オリジナル商品'] ) {
+						'適' => array( 'オリジナル商品である' ),
+						default => array(),
+					};
+				}
 			}
 			// eチケット
 			if ( '該当する' === ( $postarr['meta_input']['eチケット'] ?? '' ) ) {
@@ -560,16 +570,7 @@ class N2_Sync {
 				};
 				unset( $postarr['meta_input']['市役所確認'] );
 			}
-			// オリジナル商品変換
-			if ( isset( $postarr['meta_input']['オリジナル商品'] )  ) {
-				if ( ! empty( $postarr['meta_input']['オリジナル商品'] ) ) {
-					$postarr['meta_input']['返礼品ルール'] = array( 'A', 'B' );
-				}
-				$postarr['meta_input']['オリジナル商品'] = match ( $postarr['meta_input']['オリジナル商品'] ) {
-					'適' => array( 'オリジナル商品である' ),
-					default => array(),
-				};
-			}
+
 			// 旧コードを社内共有事項に付ける
 			if ( ! empty( $postarr['meta_input']['旧コード'] ) ) {
 				$postarr['meta_input']['社内共有事項'] .= "\n旧コード：{$postarr['meta_input']['旧コード']}";
