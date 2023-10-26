@@ -418,6 +418,12 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			?>
 			<?php $this->get_img_urls( $n2values, 'html' ); ?>
 			<?php echo nl2br( $n2values['説明文'] ); ?><br><br>
+			<?php
+			// 商品タイプごとの注意書きを追加
+			foreach ( array_filter( $n2values['商品タイプ'] ) as $type ) {
+				echo nl2br( $n2->settings['注意書き'][ $type ] ) . '<br>';
+			}
+			?>
 			<?php if ( $n2values['地場産品類型'] && $n2values['類型該当理由'] && in_array( $n2values['地場産品類型'], $applicable_reasons, true ) ) : ?>
 				<br><br>
 				<!-- 見出付しボックス --><table border="2" width="100%" cellspacing="0" cellpadding="15" bordercolor="#B71C1C">
@@ -461,6 +467,13 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 				echo nl2br( $n2->settings['注意書き'][ $type ] ) . '<br>';
 			}
 			?>
+			<?php if ( $n2values['地場産品類型'] && $n2values['類型該当理由'] && in_array( $n2values['地場産品類型'], $applicable_reasons, true ) ) : ?>
+				<br><br>
+				<!-- 見出付しボックス --><table border="2" width="100%" cellspacing="0" cellpadding="15" bordercolor="#B71C1C">
+				<tr><td bgcolor="#B71C1C"><font color="white">地場産品基準該当理由</font></td></tr><tr><td bgcolor="white">
+				<?php echo nl2br( $n2values['類型該当理由'] ); ?>
+				</td></tr></table><!-- /見出し付ボックス -->
+			<?php endif; ?>
 			<?php echo nl2br( $n2values['内容量・規格等'] ); ?><br>
 			<?php if ( $n2values['賞味期限'] ) : ?>
 				<br>【賞味期限】<br><?php echo nl2br( $n2values['賞味期限'] ); ?><br>
@@ -524,6 +537,12 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			?>
 			<?php $this->get_img_urls( $n2values, 'html' ); ?>
 			<?php echo nl2br( $n2values['説明文'] ); ?><br><br>
+			<?php
+			// 商品タイプごとの注意書きを追加
+			foreach ( array_filter( $n2values['商品タイプ'] ) as $type ) {
+				echo nl2br( $n2->settings['注意書き'][ $type ] ) . '<br>';
+			}
+			?>
 			<?php if ( $n2values['地場産品類型'] && $n2values['類型該当理由'] && in_array( $n2values['地場産品類型'], $applicable_reasons, true ) ) : ?>
 				<br><br>
 				<!-- 見出付しボックス --><table border="2" width="100%" cellspacing="0" cellpadding="15" bordercolor="#B71C1C">
