@@ -506,6 +506,9 @@ class N2_Sync {
 					};
 				}
 			}
+			if ( 'やきもの' !== ( $postarr['meta_input']['やきもの'] ?? '' ) {
+				unset( $postarr['meta_input']['製造元'], $postarr['meta_input']['オリジナル商品'], $postarr['meta_input']['オリジナル商品理由'] );
+			}
 			// eチケット
 			if ( '該当する' === ( $postarr['meta_input']['eチケット'] ?? '' ) ) {
 				$postarr['meta_input']['商品タイプ'][] = 'eチケット';
