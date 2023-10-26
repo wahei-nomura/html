@@ -439,7 +439,7 @@ class N2_Sync {
 
 			// 金額系のやつは数値だけにする
 			$postarr['meta_input']['価格'] = preg_replace( '/[^0-9]/', '', mb_convert_kana( $postarr['meta_input']['価格'], 'n' ) );
-			$postarr['meta_input']['寄附金額固定'] = preg_replace( '/[^0-9]/', '', mb_convert_kana( $postarr['meta_input']['寄附金額固定'], 'n' ) );
+			$postarr['meta_input']['寄附金額'] = preg_replace( '/[^0-9]/', '', mb_convert_kana( $postarr['meta_input']['寄附金額'], 'n' ) );
 
 			// 寄附金額をロックする
 			$postarr['meta_input']['寄附金額固定'] = 'draft' !== $postarr['post_status'] ? array( '固定する' ) : array();
