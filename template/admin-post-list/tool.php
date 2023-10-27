@@ -11,14 +11,14 @@ global $n2;
 <div popover id="n2-admin-post-list-tool" :class="`n2-admin-post-list-tool ${item.ステータス}`" v-if="HTMLElement.prototype.hasOwnProperty('popover')">
 	<div id="n2-admin-post-list-tool-header">
 		<ul>
-			<li v-if="'trash' === item.ステータス" @click="confirm('ゴミ箱から復元します。よろしいですか？') ? location.href=`admin-ajax.php?action=n2_items_api&mode=untrash&id=${id}` : 0">ゴミ箱から復元</li>
+			<li v-if="'trash' === item.ステータス" @click="confirm('ゴミ箱から復元します。よろしいですか？') ? location.href=`admin-ajax.php?action=n2_items_api&mode=untrash&p=${id}` : 0">ゴミ箱から復元</li>
 			<template v-else>
 				<li @click="location.href=`post.php?post=${id}&action=edit`"><span class="dashicons dashicons-edit"></span> 編集</li>
-				<li @click="confirm('返礼品を複製します。よろしいですか？') ? location.href=`admin-ajax.php?action=n2_items_api&mode=copy&id=${id}` : 0">
+				<li @click="confirm('返礼品を複製します。よろしいですか？') ? location.href=`admin-ajax.php?action=n2_items_api&mode=copy&p=${id}` : 0">
 					<span class="dashicons dashicons-admin-page"></span> 複製
 				</li>
 				<!-- ある権限かつあるステータスの場合はできないでいい -->
-				<li v-if="!('draft' !== item.ステータス && 'jigyousya' === n2.current_user.roles[0])" @click="confirm('ゴミ箱に入れます。よろしいですか？') ? location.href=`admin-ajax.php?action=n2_items_api&mode=delete&id=${id}` : 0">
+				<li v-if="!('draft' !== item.ステータス && 'jigyousya' === n2.current_user.roles[0])" @click="confirm('ゴミ箱に入れます。よろしいですか？') ? location.href=`admin-ajax.php?action=n2_items_api&mode=delete&p=${id}` : 0">
 					<span class="dashicons dashicons-trash"></span> 削除
 				</li>
 				<li v-if="'jigyousya' !== n2.current_user.roles[0]" @click="window.open(`admin-ajax.php?action=n2_post_history_api&post_id=${id}&type=table`, '_blank')">
