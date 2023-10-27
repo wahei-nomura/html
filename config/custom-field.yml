@@ -326,41 +326,6 @@
 # ▲ =========== 食品専用のフィールド ==========
 
 # ▼ =========== やきもの専用のフィールド ==========
-    返礼品ルール:
-        type: checkbox
-        v-model: 返礼品ルール
-        v-if: n2.settings.N2.返礼品の出品基準チェック && 商品タイプ.includes('やきもの')
-        value: []
-        required: required
-        option:
-            A: 市内で全ての製造工程が行われているもの、または、商品の付加価値（価格）の半分を一定程度上回る割合が市内での製造工程にて行われているもの。
-            B: 市内で製造された陶土を8割以上使用した自社のオリジナル商品であり、かつ他の事業者から出品されることがないもの。
-    製造元:
-        type: text
-        v-if: "返礼品ルール.filter(v=>v).length"
-        placeholder: 例）○○窯
-    オリジナル商品:
-        type: checkbox
-        v-if: "!返礼品ルール.includes('B') && 返礼品ルール.filter(v=>v).length"
-        v-model: オリジナル商品
-        option:
-            - オリジナル商品である
-    オリジナル商品理由:
-        type: textarea
-        v-if: "オリジナル商品.filter(v=>v).length || 返礼品ルール.includes('B')"
-        v-model: オリジナル商品理由
-        required: required
-        rows: auto
-        description: オリジナル性が認められる部分をお答えください。
-        placeholder: "例）形状が自社オリジナルであるから\n例）デザインが自社オリジナルである\n例）裏印を刻印している"
-        "@focus": set_info($event.target)
-        "@input": set_info($event.target);auto_fit_tetxarea($event.target)
-    陶土の製造元:
-        type: text
-        v-if: "!返礼品ルール.includes('A') && 返礼品ルール.filter(v=>v).length"
-        placeholder: 例）○○陶料
-        v-model: 陶土の製造元
-        required: required
     電子レンジ対応:
         type: radio
         value: ○

@@ -147,7 +147,7 @@ class N2_Items_API {
 			exit;
 		}
 		$params = self::$data['params'];
-		wp_trash_post( $params['id'] );
+		wp_trash_post( $params['p'] );
 		if ( isset( $_SERVER['HTTP_REFERER'] ) ) {
 			wp_safe_redirect( $_SERVER['HTTP_REFERER'] );
 		}
@@ -162,7 +162,7 @@ class N2_Items_API {
 			exit;
 		}
 		$params = self::$data['params'];
-		wp_untrash_post( $params['id'] );
+		wp_untrash_post( $params['p'] );
 		if ( isset( $_SERVER['HTTP_REFERER'] ) ) {
 			wp_safe_redirect( $_SERVER['HTTP_REFERER'] );
 		}
@@ -177,7 +177,7 @@ class N2_Items_API {
 			exit;
 		}
 		$params = self::$data['params'];
-		$post   = get_post( $params['id'] );
+		$post   = get_post( $params['p'] );
 		$meta   = json_decode( $post->post_content, true );
 		unset(
 			$meta['タイトル'],
