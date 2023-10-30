@@ -63,6 +63,7 @@ class N2_Rakuten_SFTP {
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 		add_action( 'wp_ajax_n2_rakuten_sftp_upload_to_rakuten', array( $this, 'upload_to_rakuten' ) );
+		add_action( 'wp_ajax_n2_rakuten_sftp_update_post', array( $this, 'update_post' ) );
 		add_action( 'init', array( $this, 'register_post_type' ) );
 	}
 	public function __destruct() {
@@ -401,10 +402,11 @@ class N2_Rakuten_SFTP {
 		$now          = date( 'Y M d h:i:s A' );
 		$judge        = $this->data['params']['judge'];
 		$post_content = array(
-			'upload_data' => $this->n2data,
-			'upload_type' => $judge,
-			'upload_log'  => $this->data['log'],
-			'upload_date' => $now,
+			'upload_data'     => $this->n2data,
+			'upload_type'     => $judge,
+			'upload_log'      => $this->data['log'],
+			'upload_date'     => $now,
+			'image_revisions' => array(),
 		);
 		$default      = array(
 			'ID'           => 0,
@@ -417,5 +419,33 @@ class N2_Rakuten_SFTP {
 		// $defaultを$argsで上書き
 		$postarr                   = wp_parse_args( $args, $default );
 		$this->data['insert_post'] = wp_insert_post( $postarr );
+	}
+
+	/**
+	 * update_post
+	 */
+	public function update_post() {
+		$params = $_GET;
+		// $_POSTを$paramsで上書き
+		if ( wp_verify_nonce( $_POST['n2nonce'] ?? '', 'n2nonce' ) ) {
+			$params = wp_parse_args( $params, $_POST );
+		}
+		$this->check_fatal_error( $params['post_id'] ?? '', 'IDが未設定です' );
+		$this->check_fatal_error( $params['post_content'] ?? '', 'contentが未設定です' );
+		$result = wp_update_post(
+			array(
+				'ID'           => $params['post_id'],
+				'post_content' => $params['post_content'],
+			)
+		);
+		header( 'Content-Type: application/json; charset=utf-8' );
+		echo wp_json_encode(
+			array(
+				'id'      => $result,
+				'message' => 'updated',
+			),
+			JSON_UNESCAPED_UNICODE
+		);
+		exit;
 	}
 }

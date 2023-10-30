@@ -8,16 +8,25 @@ export default Vue.extend({
 	},
 	data() {
 		return {
+			linkIndex: null,
 			tr: {
 				upload_type: {
 					name: '転送モード',
+					icon: 'dashicons dashicons-cloud-upload',
 					value:{
-						img_upload: '商品画像',
-						csv_upload: '商品CSV',
+						img_upload: {
+							icon:'dashicons dashicons-format-gallery',
+							value:'商品画像',
+						},
+						csv_upload: {
+							icon:'dashicons dashicons-media-spreadsheet',
+							value:'商品CSV',
+						},
 					},
 				},
 				upload_date: {
 					name:'アップロード',
+					icon:'dashicons dashicons-backup',
 				},
 				upload_log: {
 					name:'アップロードログ',
@@ -36,43 +45,73 @@ export default Vue.extend({
 		...mapActions([
 			'updateSFTPLog'
 		]),
-		linkImage2RMS(data){
-			Object.keys(data).forEach(async manageNumber => {
-				const formData = new FormData();
+		linkImage2RMS(item){
+			this.linkIndex = item.id;
+			const updateRmsItems = [];
+			Object.keys(item.upload_data).forEach(manageNumber => {
+				let formData = new FormData();
 				formData.append('manageNumber', manageNumber);
 				formData.append('n2nonce', this.n2nonce);
 				formData.append('action', 'n2_rms_item_api_ajax');
 				formData.append('call', 'items_patch');
 				formData.append('mode', 'json');
-				const images = data[manageNumber].map(path=>{
+				const images = item.upload_data[manageNumber].map(path=>{
 					return {
 						type: 'CABINET',
 						location: path,
 					};
 				});
 				formData.append('body',JSON.stringify({images}));
-				await axios.post(
+				const request = axios.post(
 					window['n2'].ajaxurl,
 					formData,
-				).then(()=>{
-
-				}).catch((err)=>{
-
+				).then(async (res)=>{
+					console.log('items_patch:',res.data);
+					// N2を更新
+					const temp_item = structuredClone(item);
+					formData = new FormData();
+					formData.append('n2nonce', this.n2nonce);
+					formData.append('action', 'n2_rakuten_sftp_update_post');
+					formData.append('post_id', temp_item.id );
+					// id削除
+					delete temp_item.id;
+					// 画像用revision追加
+					temp_item.image_revisions.push(temp_item.upload_data)
+					formData.append('post_content', JSON.stringify(temp_item));
+					return await axios.post(
+						window['n2'].ajaxurl,
+						formData,
+					);
 				});
+				updateRmsItems.push(request)
 			})
-		}
+			Promise.all(updateRmsItems).then( async res => {
+				console.log(res);
+				// 最新情報に更新
+				await this.updateSFTPLog()
+				alert('紐付けが完了しました！')
+				this.linkIndex = null;
+			})
+		},
+		displayHistory(item){
+			console.log(item);
+		},
 	},
 	template:`
-	<table class="table align-middle lh-1">
+	<table class="table align-middle lh-1 text-center">
 		<thead>
 			<tr>
-				<th v-for="th in tr">{{th.name}}</th>
+				<th v-for="th in tr">
+					<span :class="th.icon"></span>
+					{{th.name}}
+				</th>
 				<th>RMS連携</th>
+				<th>RMS連携履歴</th>
 			</tr>
 		</thead>
 		<tbody>
 			<template v-if="sftpLog.items.length">
-				<tr v-for="item in sftpLog.items">
+				<tr v-for="item in sftpLog.items" :key="item.id">
 					<td v-for="(td,meta) in tr">
 						<template v-if="td?.details">
 							<button type="button" :popovertarget="meta + item.id" class="btn btn-sm btn-outline-info">詳細</button>
@@ -81,24 +120,38 @@ export default Vue.extend({
 							</div>
 						</template>
 						<template v-else-if="td.value">
-							{{td.value[item[meta]]}}
+							<span :class="td.value[item[meta]].icon"></span>
+							{{td.value[item[meta]].value}}
 						</template>
 						<template v-else>
 							{{item[meta]}}
 						</template>
 					</td>
-					<td>
 					<template v-if="item.upload_type==='img_upload'">
-						<button type="button" class="btn btn-sm btn-outline-warning">元に戻す</button>
+					<td>
 						<button
-							@click="linkImage2RMS(item.upload_data)"
+							@click="linkImage2RMS(item)"
 							:disabled="! item?.upload_data"
-							type="button" class="btn btn-sm btn-outline-secondary"
+							type="button" class="btn btn-sm btn-secondary"
 						>
+						<template v-if="linkIndex===item.id">
+							<span class="spinner-border spinner-border-sm"></span>
+						</template>
+						<template v-else>
 							紐付ける
+						</template>
 						</button>
-					</template>
 					</td>
+					<td>
+						<button
+							@click="displayHistory(item)"
+							:disabled="!item?.image_revisions?.length"
+							type="button" class="btn btn-sm btn-outline-warning"
+						>
+							時を見る
+						</button>
+					</td>
+					</template>
 				</tr>
 			</template>
 			<template v-else>

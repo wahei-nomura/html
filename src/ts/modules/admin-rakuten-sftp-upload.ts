@@ -5,6 +5,7 @@ import {mapState,mapActions} from 'vuex/dist/vuex.min';
 export default Vue.extend({
 	data(){
 		return {
+			uploading: false,
 			uploadMode: {
 				'img_upload': '商品画像',
 				'csv_upload': '商品CSV',
@@ -23,6 +24,7 @@ export default Vue.extend({
 			'updateSFTPLog'
 		]),
 		async postFiles(){
+			this.uploading = true;
 			const formData = new FormData();
 			formData.append( 'n2nonce', this.n2nonce);
 			formData.append( 'action', this.action);
@@ -47,6 +49,8 @@ export default Vue.extend({
 			}).catch(err=>{
 				console.log(err);
 				alert(err.response.data.message);
+			}).then(()=>{
+				this.uploading = false;
 			});
 		},
 	},
@@ -62,7 +66,14 @@ export default Vue.extend({
 			</div>
 			<div class="mb-2 input-group">
 				<input ref="fileInput" class="form-control" name="sftp_file[]" type="file" multiple="multiple" style="padding: 0.375rem 0.75rem;">
-				<input @click.prevent="postFiles" type="submit" class="btn btn-outline-secondary" value="楽天に転送する">
+				<button @click.prevent="postFiles" class="btn btn-outline-secondary" :class="{'active':uploading}">
+					<template v-if="uploading">
+						<span class="spinner-border spinner-border-sm"></span>
+					</template>
+					<template v-else>
+						楽天に転送する
+					</template>
+				</button>
 			</div>
 		</form>
 	`
