@@ -12,7 +12,7 @@ export default Vue.extend({
 			tr: {
 				upload_type: {
 					name: '転送モード',
-					icon: 'dashicons dashicons-cloud-upload',
+					icon: 'dashicons dashicons-cloud-saved',
 					value:{
 						img_upload: {
 							icon:'dashicons dashicons-format-gallery',
@@ -27,10 +27,7 @@ export default Vue.extend({
 				upload_date: {
 					name:'アップロード',
 					icon:'dashicons dashicons-backup',
-				},
-				upload_log: {
-					name:'アップロードログ',
-					details: true,
+					detail: "upload_log",
 				},
 			}
 		};
@@ -96,6 +93,13 @@ export default Vue.extend({
 		displayHistory(item){
 			console.log(item);
 		},
+		formatUploadLogs(data){
+			// フォルダ作成は除外する
+			const arr = data.filter(d=>! d.includes('cabinet/images'));
+			console.log(arr);
+
+			return arr.join('\n');
+		},
 	},
 	template:`
 	<table class="table align-middle lh-1 text-center">
@@ -105,18 +109,29 @@ export default Vue.extend({
 					<span :class="th.icon"></span>
 					{{th.name}}
 				</th>
-				<th>RMS連携</th>
-				<th>RMS連携履歴</th>
+				<th>
+					<span class="dashicons dashicons-cloud-upload"></span>
+					RMS連携
+				</th>
+				<th>
+					<span class="dashicons dashicons-clipboard"></span>
+					RMS連携履歴
+				</th>
 			</tr>
 		</thead>
 		<tbody>
 			<template v-if="sftpLog.items.length">
 				<tr v-for="item in sftpLog.items" :key="item.id">
 					<td v-for="(td,meta) in tr">
-						<template v-if="td?.details">
-							<button type="button" :popovertarget="meta + item.id" class="btn btn-sm btn-outline-info">詳細</button>
+						<template v-if="td?.detail">
+							<button
+								type="button" class="btn btn-sm btn-outline-info"
+								:popovertarget="meta + item.id"
+							>
+								{{item[meta]}}
+							</button>
 							<div popover="auto" :id="meta + item.id" style="width: 80%; max-height: 80%; overflow-y: scroll;">
-								<pre>{{item[meta]}}</pre>
+								<pre>{{formatUploadLogs(item[td.detail])}}</pre>
 							</div>
 						</template>
 						<template v-else-if="td.value">
