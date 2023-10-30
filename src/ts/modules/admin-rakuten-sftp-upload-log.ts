@@ -94,10 +94,8 @@ export default Vue.extend({
 			console.log(item);
 		},
 		formatUploadLogs(data){
-			// フォルダ作成は除外する
+			// フォルダ作成ログは除外する
 			const arr = data.filter(d=>! d.includes('cabinet/images'));
-			console.log(arr);
-
 			return arr.join('\n');
 		},
 	},
@@ -166,6 +164,10 @@ export default Vue.extend({
 							時を見る
 						</button>
 					</td>
+					</template>
+					<template v-else-if="item.upload_type==='csv_upload'">
+						<td></td>
+						<td></td>
 					</template>
 				</tr>
 			</template>
