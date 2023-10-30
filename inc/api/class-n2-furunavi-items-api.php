@@ -55,10 +55,15 @@ class N2_Furunavi_Items_API {
 	 * 取得した配列を整形し、wp_insert_postでDB保存
 	 */
 	public function update() {
+		$args = array(
+			'post_type'    => 'portal_item_data',
+			'post_title'   => 'furunavi',
+			'post_content' => wp_json_encode( $data, JSON_UNESCAPED_UNICODE ),
+		);
+
 		$before = microtime( true );
 		global $n2;
 		$url    = 'https://furunavi.jp/get_product_list.ashx?';
-
 		$params = array(
 			'keyword'  => $n2->town,
 			'pagesize' => 100,
@@ -106,6 +111,7 @@ class N2_Furunavi_Items_API {
 			'post_content' => wp_json_encode( $data, JSON_UNESCAPED_UNICODE ),
 		);
 		$ids  = get_posts( 'title=furunavi&fields=ids&post_type=portal_item_data&post_status=any' );
+		kses_remove_filters();
 		if ( empty( $ids ) ) {
 			$id = wp_insert_post( $args );
 			// ログ追加
@@ -116,6 +122,7 @@ class N2_Furunavi_Items_API {
 			$args['ID'] = $ids[0];
 			$id         = wp_update_post( $args );
 		}
+		kses_init_filters();
 		echo 'n2_furunavi_items_api「' . get_bloginfo( 'name' ) . 'のふるなび出品中」の返礼品データを保存しました（' . number_format( microtime( true ) - $before, 2 ) . ' 秒）';
 		exit;
 	}
@@ -133,8 +140,8 @@ class N2_Furunavi_Items_API {
 			function( $d ) {
 				preg_match( '/\[([A-Z]{2,3}[0-9]{2,3})\]/', $d['ProductName'], $m );
 				return array(
-					'goods_name'  => wp_specialchars_decode( $d['ProductName'] ),
-					'goods_g_num' => $m[1],
+					'goods_name'  => $d['ProductName'],
+					'goods_g_num' => $m[1] ?? '',
 					'goods_price' => preg_replace( '/[^0-9]/', '', $d['LowerAmount'] ),
 					'url'         => "https://furunavi.jp/product_detail.aspx?pid={$d['ProductID']}",
 					'image'       => "https://cf.furunavi.jp/product_images/800/{$d['ProductID']}/1.jpg",
