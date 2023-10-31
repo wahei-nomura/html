@@ -11,22 +11,26 @@ export default Vue.extend({
 			linkIndex: null,
 			logTable: {
 				upload_type: {
-					name: '転送モード',
-					icon: 'dashicons dashicons-cloud-saved',
-					value:{
-						img_upload: {
-							icon:'dashicons dashicons-format-gallery',
-							value:'商品画像',
+					th: {
+						value: '転送モード',
+						icon: 'dashicons dashicons-cloud-saved',
+					},
+					td:{
+						icon: {
+							img_upload: 'dashicons dashicons-format-gallery',
+							csv_upload: 'dashicons dashicons-media-spreadsheet',
 						},
-						csv_upload: {
-							icon:'dashicons dashicons-media-spreadsheet',
-							value:'商品CSV',
+						value: {
+							img_upload: '商品画像',
+							csv_upload: '商品CSV',
 						},
 					},
 				},
 				upload_date: {
-					name:'アップロード',
-					icon:'dashicons dashicons-backup',
+					th:{
+						value:'アップロード',
+						icon:'dashicons dashicons-backup',
+					},
 					detail: "upload_log",
 				},
 			}
@@ -104,8 +108,8 @@ export default Vue.extend({
 		<thead>
 			<tr>
 				<th v-for="col in logTable">
-					<span :class="col.icon"></span>
-					{{col.name}}
+					<span :class="col.th.icon"></span>
+					{{col.th.value}}
 				</th>
 				<th>
 					<span class="dashicons dashicons-cloud-upload"></span>
@@ -135,12 +139,9 @@ export default Vue.extend({
 							>
 							</div>
 						</template>
-						<template v-else-if="col.value">
-							<span :class="col.value[item[meta]].icon"></span>
-							{{col.value[item[meta]].value}}
-						</template>
 						<template v-else>
-							{{item[meta]}}
+							<span :class="col.td.icon?.[item.upload_type] ?? col.td.icon ?? ''"></span>
+							{{col.td.value?.[item.upload_type] ?? col.td.value ?? item[meta]}}
 						</template>
 					</td>
 					<template v-if="item.upload_type==='img_upload'">
