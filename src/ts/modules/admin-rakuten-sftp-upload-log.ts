@@ -96,7 +96,7 @@ export default Vue.extend({
 		formatUploadLogs(data){
 			// フォルダ作成ログは除外する
 			const arr = data.filter(d=>! d.includes('cabinet/images'));
-			return arr.join('\n');
+			return arr.join('<br>');
 		},
 	},
 	template:`
@@ -128,8 +128,11 @@ export default Vue.extend({
 							>
 								{{item[meta]}}
 							</button>
-							<div popover="auto" :id="meta + item.id" style="width: 80%; max-height: 80%; overflow-y: scroll;">
-								<pre>{{formatUploadLogs(item[td.detail])}}</pre>
+							<div
+								popover="auto" :id="meta + item.id"
+								style="width: 80%; max-height: 80%; overflow-y: scroll;"
+								v-html="formatUploadLogs(item[td.detail])"
+							>
 							</div>
 						</template>
 						<template v-else-if="td.value">
