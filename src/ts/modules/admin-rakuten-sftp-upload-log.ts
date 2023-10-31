@@ -9,7 +9,7 @@ export default Vue.extend({
 	data() {
 		return {
 			linkIndex: null,
-			tr: {
+			logTable: {
 				upload_type: {
 					name: '転送モード',
 					icon: 'dashicons dashicons-cloud-saved',
@@ -103,9 +103,9 @@ export default Vue.extend({
 	<table class="table align-middle lh-1 text-center">
 		<thead>
 			<tr>
-				<th v-for="th in tr">
-					<span :class="th.icon"></span>
-					{{th.name}}
+				<th v-for="col in logTable">
+					<span :class="col.icon"></span>
+					{{col.name}}
 				</th>
 				<th>
 					<span class="dashicons dashicons-cloud-upload"></span>
@@ -120,8 +120,8 @@ export default Vue.extend({
 		<tbody>
 			<template v-if="sftpLog.items.length">
 				<tr v-for="item in sftpLog.items" :key="item.id">
-					<td v-for="(td,meta) in tr">
-						<template v-if="td?.detail">
+					<td v-for="(col,meta) in logTable">
+						<template v-if="col?.detail">
 							<button
 								type="button" class="btn btn-sm btn-outline-info"
 								:popovertarget="meta + item.id"
@@ -131,13 +131,13 @@ export default Vue.extend({
 							<div
 								popover="auto" :id="meta + item.id"
 								style="width: 80%; max-height: 80%; overflow-y: scroll;"
-								v-html="formatUploadLogs(item[td.detail])"
+								v-html="formatUploadLogs(item[col.detail])"
 							>
 							</div>
 						</template>
-						<template v-else-if="td.value">
-							<span :class="td.value[item[meta]].icon"></span>
-							{{td.value[item[meta]].value}}
+						<template v-else-if="col.value">
+							<span :class="col.value[item[meta]].icon"></span>
+							{{col.value[item[meta]].value}}
 						</template>
 						<template v-else>
 							{{item[meta]}}
@@ -176,7 +176,7 @@ export default Vue.extend({
 			</template>
 			<template v-else>
 				<tr>
-					<td :colspan="Object.keys(tr).length">アップロードログはありません</td>
+					<td :colspan="Object.keys(logTable).length">アップロードログはありません</td>
 				</tr>
 			</template>
 		</tbody>
