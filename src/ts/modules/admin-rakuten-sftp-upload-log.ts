@@ -33,6 +33,18 @@ export default Vue.extend({
 					},
 					detail: "upload_log",
 				},
+				link_rms: {
+					th:{
+						value:'RMS連携',
+						icon:'dashicons dashicons-cloud-upload',
+					},
+				},
+				link_rms_history: {
+					th:{
+						value:'RMS連携履歴',
+						icon:'dashicons dashicons-clipboard',
+					},
+				},
 			}
 		};
 	},
@@ -111,14 +123,6 @@ export default Vue.extend({
 					<span :class="col.th.icon"></span>
 					{{col.th.value}}
 				</th>
-				<th>
-					<span class="dashicons dashicons-cloud-upload"></span>
-					RMS連携
-				</th>
-				<th>
-					<span class="dashicons dashicons-clipboard"></span>
-					RMS連携履歴
-				</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -139,40 +143,34 @@ export default Vue.extend({
 							>
 							</div>
 						</template>
+						<template v-else-if="meta==='link_rms' && item.upload_type==='img_upload'">
+							<button
+								@click="linkImage2RMS(item)"
+								:disabled="! item?.upload_data"
+								type="button" class="btn btn-sm btn-secondary"
+							>
+							<template v-if="linkIndex===item.id">
+								<span class="spinner-border spinner-border-sm"></span>
+							</template>
+							<template v-else>
+								紐付ける
+							</template>
+							</button>
+						</template>
+						<template v-else-if="meta==='link_rms_history' && item.upload_type==='img_upload'">
+							<button
+								@click="displayHistory(item)"
+								:disabled="!item?.image_revisions?.length"
+								type="button" class="btn btn-sm btn-outline-warning"
+							>
+								時を見る
+							</button>
+						</template>
 						<template v-else>
-							<span :class="col.td.icon?.[item.upload_type] ?? col.td.icon ?? ''"></span>
-							{{col.td.value?.[item.upload_type] ?? col.td.value ?? item[meta]}}
+							<span :class="col.td?.icon?.[item.upload_type] ?? col.td?.icon ?? ''"></span>
+							{{col.td?.value?.[item.upload_type] ?? col.td?.value ?? item[meta] ?? ''}}
 						</template>
 					</td>
-					<template v-if="item.upload_type==='img_upload'">
-					<td>
-						<button
-							@click="linkImage2RMS(item)"
-							:disabled="! item?.upload_data"
-							type="button" class="btn btn-sm btn-secondary"
-						>
-						<template v-if="linkIndex===item.id">
-							<span class="spinner-border spinner-border-sm"></span>
-						</template>
-						<template v-else>
-							紐付ける
-						</template>
-						</button>
-					</td>
-					<td>
-						<button
-							@click="displayHistory(item)"
-							:disabled="!item?.image_revisions?.length"
-							type="button" class="btn btn-sm btn-outline-warning"
-						>
-							時を見る
-						</button>
-					</td>
-					</template>
-					<template v-else-if="item.upload_type==='csv_upload'">
-						<td></td>
-						<td></td>
-					</template>
 				</tr>
 			</template>
 			<template v-else>
