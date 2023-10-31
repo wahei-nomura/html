@@ -149,12 +149,8 @@ export default Vue.extend({
 								:disabled="! item?.upload_data"
 								type="button" class="btn btn-sm btn-secondary"
 							>
-							<template v-if="linkIndex===item.id">
-								<span class="spinner-border spinner-border-sm"></span>
-							</template>
-							<template v-else>
+								<span :class="{'spinner-border spinner-border-sm':linkIndex===item.id}"></span>
 								紐付ける
-							</template>
 							</button>
 						</template>
 						<template v-else-if="meta==='link_rms_history' && item.upload_type==='img_upload'">
