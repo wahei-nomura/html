@@ -98,7 +98,8 @@ export default Vue.extend({
 					return;
 				}
 				// diffの精査
-				const diff = update_item.upload_data[manageNumber].filter( (i:number) => update_item_before_revisions[manageNumber].indexOf(i) === -1 );
+				const mergeArr = [...update_item.upload_data[manageNumber],...update_item_before_revisions[manageNumber]];
+				const diff = update_item.upload_data[manageNumber].filter( (i:number) => mergeArr.indexOf(i) === -1 );
 				if (diff.length) updateItems.push(manageNumber);
 			})
 
@@ -107,7 +108,26 @@ export default Vue.extend({
 				this.linkIndex = null;
 				return;
 			};
-			
+
+			// 確認用メッセージ作成
+			let confirmMessage = [];
+			updateItems.forEach(manageNumber=>{
+
+				const add = update_item.upload_data[manageNumber].filter( (i:number) => update_item_before_revisions[manageNumber].indexOf(i) === -1 );
+				if (add.length){
+					confirmMessage.push('【追加】' + manageNumber);
+					confirmMessage = [...confirmMessage,...add];
+				}
+				const remove  = update_item_before_revisions[manageNumber].filter( (i:number) => update_item.upload_data[manageNumber].indexOf(i) === -1 );
+				if (remove.length){
+					confirmMessage.push('【解除】' + manageNumber);
+					confirmMessage = [...confirmMessage,...remove];
+				}
+			});
+			if (!confirm('以下の内容で更新しますか？\n'+ confirmMessage.join('\n'))){
+				this.linkIndex = null;
+				return
+			}
 
 			// RMS更新用
 			updateItems.forEach(manageNumber => {
@@ -149,7 +169,7 @@ export default Vue.extend({
 				);
 				// 最新情報に更新
 				await this.updateSFTPLog()
-				alert('紐付けが完了しました！')
+				alert('更新完了しました！')
 				this.linkIndex = null;
 			})
 		},
@@ -197,7 +217,7 @@ export default Vue.extend({
 								type="button" class="btn btn-sm btn-secondary"
 							>
 								<span :class="{'spinner-border spinner-border-sm':linkIndex===item.id}"></span>
-								紐付ける
+								商品ページと紐付ける
 							</button>
 						</template>
 						<template v-else-if="meta==='link_rms_history' && item.upload_type==='img_upload'">
