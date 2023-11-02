@@ -14,7 +14,10 @@ foreach ( $args as $k => $v ) {
 	$attr .= " {$k}=\"{$v}\"";
 }
 ?>
-<input type="number"<?php echo $attr; ?> @focus="set_info($event.target);get_genreid()" @change="get_genreid()">
+<!-- 最後まで選択されてないとID表示されないようにする -->
+<div v-if="!全商品ディレクトリID.list.children || 全商品ディレクトリID.list.children.length === 0">
+	<input type="number"<?php echo $attr; ?> @focus="set_info($event.target);get_genreid()" @change="get_genreid()">
+</div>
 <ol class="breadcrumb m-0 mt-1">
 	<li v-if="全商品ディレクトリID.list.current" class="breadcrumb-item">
 		<span 
