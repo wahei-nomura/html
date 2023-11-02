@@ -302,6 +302,11 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 						}
 					}
 				}
+				if ( 'ジャンルID' === $name ) {
+					if ( empty( $n2values['全商品ディレクトリID'] ) ) {
+						$this->add_error( $n2values['id'], '楽天ジャンルIDが空です。' );
+					}
+				}
 				break;
 			case 'walk_option_values':
 				break;

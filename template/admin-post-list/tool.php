@@ -30,7 +30,7 @@ global $n2;
 	</div>
 	<div id="n2-admin-post-list-tool-content">
 		<div v-if="item._n2_required && item._n2_required.length" id="n2-admin-post-list-tool-content-required">
-			最低必須漏れ：　{{item._n2_required.join('、')}}
+			最低必須漏れ：　{{item._n2_required.join('、').replace('全商品ディレクトリID', '楽天ジャンルID')}}
 		</div>
 		<table class="widefat striped">
 			<tr>

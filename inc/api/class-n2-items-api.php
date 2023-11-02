@@ -261,11 +261,16 @@ class N2_Items_API {
 	 * @param array $meta メタデータ
 	 */
 	public function check_required( $meta ) {
+		global $n2;
 		// 最低必要事項
 		$required = array( '返礼品コード', '価格', '寄附金額' );
 		// eチケット以外なのに送料なし
 		if ( isset( $meta['商品タイプ'] ) && ! in_array( 'eチケット', $meta['商品タイプ'], true ) ) {
 			$required[] = '送料';
+		}
+		// 全商品ディレクトリID
+		if ( in_array( '楽天', $n2->settings['N2']['出品ポータル'], true ) && ! in_array( '楽天', (array) $meta['出品禁止ポータル'], true ) ) {
+			$required[] = '全商品ディレクトリID';
 		}
 		// アレルギーあるのにアレルゲンなし
 		if (
