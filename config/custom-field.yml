@@ -69,16 +69,6 @@
         v-model: 全商品ディレクトリID.text
         v-if: "!出品禁止ポータル.includes('楽天') && !商品タイプ.includes('eチケット')"
         description: 必ず、ID（6桁の数字）が表示されるまで黒いボタンを押していってください。
-    タグID:
-        portal: 楽天
-        type: rakuten-tagid
-        description: 楽天登録に必要なタグを複数選択します。
-        maxlength: 161
-        rows: auto
-        v-model: タグID.text
-        v-if: "!出品禁止ポータル.includes('楽天')&&全商品ディレクトリID.text && !商品タイプ.includes('eチケット')"
-        style: 'width: 100%;'
-        "@focus": set_info($event.target);get_genreid();auto_fit_tetxarea($event.target)
     楽天SPAカテゴリー:
         portal: 楽天
         type: rakuten-spa-category
