@@ -54,6 +54,6 @@ class N2_RMS_Item_API extends N2_RMS_Base_API {
 			'商品管理番号は英数字と「-」「_」のみ使用可能です'
 		);
 		$url = static::$settings['endpoint'] . '/2.0/items/manage-numbers/' . $manageNumber;
-		return static::request( $url );
+		return json_decode( static::request( $url )['body'], true );
 	}
 }
