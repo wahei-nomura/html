@@ -64,6 +64,7 @@
     全商品ディレクトリID:
         portal: 楽天
         type: rakuten-genreid
+        label: 楽天ジャンルID
         min: 0
         v-model: 全商品ディレクトリID.text
         v-if: "!出品禁止ポータル.includes('楽天') && !商品タイプ.includes('eチケット')"
