@@ -406,7 +406,10 @@ class N2_Rakuten_SFTP {
 			'upload_type'     => $judge,
 			'upload_log'      => $this->data['log'],
 			'upload_date'     => $now,
-			'image_revisions' => array(),
+			'image_revisions' => array(
+				'before' => array(),
+				'after'  => array(),
+			),
 		);
 		$default      = array(
 			'ID'           => 0,
