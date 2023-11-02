@@ -85,17 +85,12 @@ export default Vue.extend({
 			})
 			await Promise.all(getRmsItemRequests).then(responses=>{
 				responses.forEach(res=>{
-					console.log(res.data);
 					update_item_before_revisions[res.data.manageNumber] = res.data.images.map(image=>image.location);
 				})
 			});
 
-
-			const updateItems = [];
-			console.log('now:',update_item_before_revisions);
-			console.log('update_data:' + item.id ,item.upload_data);
-			
 			// 更新の必要性を確認
+			const updateItems = [];
 			Object.keys(update_item_before_revisions).forEach(manageNumber=>{
 				// 明らかに配列の長さが違う場合は必要
 				if(update_item.upload_data[manageNumber].length !== update_item_before_revisions[manageNumber].length) {
@@ -112,6 +107,7 @@ export default Vue.extend({
 				this.linkIndex = null;
 				return;
 			};
+			
 
 			// RMS更新用
 			updateItems.forEach(manageNumber => {
@@ -150,10 +146,7 @@ export default Vue.extend({
 				await axios.post(
 					window['n2'].ajaxurl,
 					formData,
-				).then(res=>{
-					console.log(res);
-					
-				});
+				);
 				// 最新情報に更新
 				await this.updateSFTPLog()
 				alert('紐付けが完了しました！')
