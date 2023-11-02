@@ -67,7 +67,7 @@
         min: 0
         v-model: 全商品ディレクトリID.text
         v-if: "!出品禁止ポータル.includes('楽天') && !商品タイプ.includes('eチケット')"
-        description: 必ず下のボタンが無くなるまで押していってください。
+        description: 必ず、ID（6桁の数字）が表示されるまで黒いボタンを押していってください。
     タグID:
         portal: 楽天
         type: rakuten-tagid
