@@ -58,11 +58,64 @@ export default Vue.extend({
 		...mapActions([
 			'updateSFTPLog'
 		]),
-		linkImage2RMS(item){
-			this.linkIndex = item.id;
-			const updateRmsItems = [];
-			Object.keys(item.upload_data).forEach(manageNumber => {
-				let formData = new FormData();
+		setLinkIndex(index){
+			this.linkIndex = index;
+		},
+		async linkImage2RMS (item){
+			// RMS 更新用
+			const getRmsItemRequests = [];
+			const updateRmsItemRequests = [];
+			// N2 更新用
+			const update_item = structuredClone(item);
+			const update_item_before_revisions = {};
+
+			// RMSから返礼品情報を取得
+			Object.keys(item.upload_data).forEach(manageNumber=>{
+				const formData = new FormData();
+				formData.append('manageNumber', manageNumber);
+				formData.append('n2nonce', this.n2nonce);
+				formData.append('action', 'n2_rms_item_api_ajax');
+				formData.append('call', 'items_get');
+				formData.append('mode', 'json');
+				const request = axios.post(
+					window['n2'].ajaxurl,
+					formData,
+				);
+				getRmsItemRequests.push(request);
+			})
+			await Promise.all(getRmsItemRequests).then(responses=>{
+				responses.forEach(res=>{
+					console.log(res.data);
+					update_item_before_revisions[res.data.manageNumber] = res.data.images.map(image=>image.location);
+				})
+			});
+
+
+			const updateItems = [];
+			console.log('now:',update_item_before_revisions);
+			console.log('update_data:' + item.id ,item.upload_data);
+			
+			// 更新の必要性を確認
+			Object.keys(update_item_before_revisions).forEach(manageNumber=>{
+				// 明らかに配列の長さが違う場合は必要
+				if(update_item.upload_data[manageNumber].length !== update_item_before_revisions[manageNumber].length) {
+					updateItems.push(manageNumber);
+					return;
+				}
+				// diffの精査
+				const diff = update_item.upload_data[manageNumber].filter( (i:number) => update_item_before_revisions[manageNumber].indexOf(i) === -1 );
+				if (diff.length) updateItems.push(manageNumber);
+			})
+
+			if(! updateItems.length){
+				alert('更新不要です');
+				this.linkIndex = null;
+				return;
+			};
+
+			// RMS更新用
+			updateItems.forEach(manageNumber => {
+				const formData = new FormData();
 				formData.append('manageNumber', manageNumber);
 				formData.append('n2nonce', this.n2nonce);
 				formData.append('action', 'n2_rms_item_api_ajax');
@@ -78,28 +131,29 @@ export default Vue.extend({
 				const request = axios.post(
 					window['n2'].ajaxurl,
 					formData,
-				).then(async (res)=>{
-					console.log('items_patch:',res.data);
-					// N2を更新
-					const temp_item = structuredClone(item);
-					formData = new FormData();
-					formData.append('n2nonce', this.n2nonce);
-					formData.append('action', 'n2_rakuten_sftp_update_post');
-					formData.append('post_id', temp_item.id );
-					// id削除
-					delete temp_item.id;
-					// 画像用revision追加
-					temp_item.image_revisions.push(temp_item.upload_data)
-					formData.append('post_content', JSON.stringify(temp_item));
-					return await axios.post(
-						window['n2'].ajaxurl,
-						formData,
-					);
-				});
-				updateRmsItems.push(request)
+				)
+				updateRmsItemRequests.push(request)
 			})
-			Promise.all(updateRmsItems).then( async res => {
-				console.log(res);
+			await Promise.all(updateRmsItemRequests).then( async res => {
+				console.log('item_batch',res);
+				// N2を更新
+				const formData = new FormData();
+				formData.append('n2nonce', this.n2nonce);
+				formData.append('action', 'n2_rakuten_sftp_update_post');
+				formData.append('post_id', update_item.id );
+				// id削除
+				delete update_item.id;
+				// 画像用revision追加
+				update_item.image_revisions.before = update_item_before_revisions;
+				update_item.image_revisions.after  = update_item.upload_data;
+				formData.append('post_content', JSON.stringify(update_item));
+				await axios.post(
+					window['n2'].ajaxurl,
+					formData,
+				).then(res=>{
+					console.log(res);
+					
+				});
 				// 最新情報に更新
 				await this.updateSFTPLog()
 				alert('紐付けが完了しました！')
@@ -145,7 +199,7 @@ export default Vue.extend({
 						</template>
 						<template v-else-if="meta==='link_rms' && item.upload_type==='img_upload'">
 							<button
-								@click="linkImage2RMS(item)"
+								@click="linkImage2RMS(item), setLinkIndex(item.id)"
 								:disabled="! item?.upload_data"
 								type="button" class="btn btn-sm btn-secondary"
 							>

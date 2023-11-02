@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, {AxiosResponse} from 'axios';
 import Vue from 'vue/dist/vue.min';
 import {mapState,mapActions} from 'vuex/dist/vuex.min';
 
@@ -40,7 +40,7 @@ export default Vue.extend({
 				window['n2'].ajaxurl,
 				formData,
 				{headers:headers}
-			).then(res=>{
+			).then((res)=>{
 				alert(
 					res.data['log'].join('\n')
 				);
