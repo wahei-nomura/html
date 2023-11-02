@@ -23,6 +23,7 @@ export default new Vuex.Store({
 			const params = new URLSearchParams({
 				action: 'n2_items_api',
 				post_type: 'n2_sftp',
+				orderby: "ID",
 			});
 			return await axios.get( 
 				`${window['n2'].ajaxurl}?${params}`,
