@@ -399,19 +399,28 @@ class N2_Rakuten_SFTP {
 	 */
 	public function insert_post() {
 		global $n2;
-		$now          = date( 'Y M d h:i:s A' );
-		$judge        = $this->data['params']['judge'];
-		$post_content = array(
+		$now                       = date( 'Y M d h:i:s A' );
+		$judge                     = $this->data['params']['judge'];
+		$item_api                  = new N2_RMS_Item_API();
+		$before_images             = array_map(
+			fn ( $item_code ) => array_map(
+				fn( $image ) => $image['location'],
+				$item_api->items_get( $item_code )['images'],
+			),
+			array_keys( $this->n2data ),
+		);
+		$before_images             = array_combine( array_keys( $this->n2data ), $before_images );
+		$post_content              = array(
 			'upload_data'     => $this->n2data,
 			'upload_type'     => $judge,
 			'upload_log'      => $this->data['log'],
 			'upload_date'     => $now,
 			'image_revisions' => array(
-				'before' => array(),
-				'after'  => array(),
+				'before' => $before_images,
+				'after'  => null,
 			),
 		);
-		$default      = array(
+		$default                   = array(
 			'ID'           => 0,
 			'post_author'  => $n2->current_user->ID,
 			'post_status'  => 'pending',
@@ -419,9 +428,7 @@ class N2_Rakuten_SFTP {
 			'post_title'   => "[$now] $judge",
 			'post_content' => wp_json_encode( $post_content, JSON_UNESCAPED_UNICODE ),
 		);
-		// $defaultを$argsで上書き
-		$postarr                   = wp_parse_args( $args, $default );
-		$this->data['insert_post'] = wp_insert_post( $postarr );
+		$this->data['insert_post'] = wp_insert_post( $default );
 	}
 
 	/**
