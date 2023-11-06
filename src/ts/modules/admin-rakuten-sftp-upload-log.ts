@@ -178,7 +178,7 @@ export default Vue.extend({
 				action: 'n2_post_history_api',
 				post_id: item.id,
 				type: 'table',
-				post_type: 'n2_stfp',
+				post_type: 'n2_sftp',
 			}).toString();
 			window.open(
 				`${window['n2'].ajaxurl}?${param}`,
