@@ -31,9 +31,10 @@ class N2_Post_History_API {
 	 */
 	public function get( $args ) {
 		global $n2;
-		$args   = $args ? wp_parse_args( $args ) : $_GET;
-		$action = $args['action'] ?? false;
-		$type   = $args['type'] ?? 'json';
+		$args      = $args ? wp_parse_args( $args ) : $_GET;
+		$action    = $args['action'] ?? false;
+		$type      = $args['type'] ?? 'json';
+		$post_type = $args['post_type'] ?? 'post';
 
 		// リビジョンを整形
 		$diff = $this->get_history_diff( wp_get_post_revisions( $args['post_id'] ) );
@@ -49,7 +50,7 @@ class N2_Post_History_API {
 						echo '履歴がありません';
 						exit;
 					}
-					get_template_part( 'template/admin-ajax/view-post-history', null, $diff );
+					get_template_part( "template/admin-ajax/view-${post_type}-history", null, $diff );
 					break;
 				default:
 					header( 'Content-Type: application/json; charset=utf-8' );
