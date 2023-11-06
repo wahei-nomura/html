@@ -34,7 +34,7 @@ class N2_Post_History_API {
 		$args      = $args ? wp_parse_args( $args ) : $_GET;
 		$action    = $args['action'] ?? false;
 		$type      = $args['type'] ?? 'json';
-		$post_type = $args['post_type'] ?? 'post';
+		$post_type = str_replace( '_', '-', $args['post_type'] ) ?? 'post';
 
 		// リビジョンを整形
 		$diff = $this->get_history_diff( wp_get_post_revisions( $args['post_id'] ) );
