@@ -42,38 +42,12 @@ wp_localize_script( 'jquery', 'n2', $n2 );
 				</tr>
 			</thead>
 			<tbody>
-				<template v-for="(after, name) in v.after">
-					<template v-if="name==='RMS画像一覧'" v-for="(td,th) in after">
-						<tr>
-							<th>{{th}}</th>
-							<td class="text-success">
-								<details>
-									<table class="">
-										<tbody>
-											<tr v-for="(val,key) in td">
-												<th>{{key}}</th>
-												<td v-html="Array.isArray(val) ? val.join(', '): val"></td>
-											</tr>
-										</tbody>
-									</table>
-								</details>
-							</td>
-							<td class="text-danger">
-								<template v-if="v.before?.[name]?.[th]">
-								<details>
-									<table class="">
-										<tbody>
-											<tr v-for="(val,key) in v.before[name][th]">
-												<th>{{key}}</th>
-												<td v-html="Array.isArray(val) ? val.join(', '): val"></td>
-											</tr>
-										</tbody>
-									</table>
-								</details>
-								</template>
-							</td>
-						</tr>
-					</template>
+				<template v-for="(after, name) in v.after.RMS画像一覧.更新後">
+					<tr>
+						<th>{{name}}</th>
+						<td>{{after.join(', ')}}</td>
+						<td>{{v.after.RMS画像一覧.更新前[name]?.join(', ') ?? ''}}</td>
+					</tr>
 				</template>
 			</tbody>
 		</table>
