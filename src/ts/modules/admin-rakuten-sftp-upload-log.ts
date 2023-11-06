@@ -10,9 +10,8 @@ export default Vue.extend({
 		return {
 			linkIndex: null,
 			logTable: {
-				upload_type: {
+				転送モード: {
 					th: {
-						value: '転送モード',
 						icon: 'dashicons dashicons-cloud-saved',
 					},
 					td:{
@@ -26,22 +25,19 @@ export default Vue.extend({
 						},
 					},
 				},
-				upload_date: {
+				アップロード: {
 					th:{
-						value:'アップロード',
 						icon:'dashicons dashicons-backup',
 					},
-					detail: "upload_log",
+					detail: "アップロードログ",
 				},
-				link_rms: {
+				RMS連携: {
 					th:{
-						value:'RMS連携',
 						icon:'dashicons dashicons-cloud-upload',
 					},
 				},
-				link_rms_history: {
+				RMS連携履歴: {
 					th:{
-						value:'RMS連携履歴',
 						icon:'dashicons dashicons-clipboard',
 					},
 				},
@@ -70,7 +66,7 @@ export default Vue.extend({
 			const rms_images = {};
 
 			// RMSから返礼品情報を取得
-			Object.keys(item.upload_data).forEach(manageNumber=>{
+			Object.keys(item.アップロード).forEach(manageNumber=>{
 				const formData = new FormData();
 				formData.append('manageNumber', manageNumber);
 				formData.append('n2nonce', this.n2nonce);
@@ -93,13 +89,13 @@ export default Vue.extend({
 			const updateItems = [];
 			Object.keys(rms_images).forEach(manageNumber=>{
 				// 明らかに配列の長さが違う場合は必要
-				if(update_item.upload_data[manageNumber].length !== rms_images[manageNumber].length) {
+				if(update_item.アップロード[manageNumber].length !== rms_images[manageNumber].length) {
 					updateItems.push(manageNumber);
 					return;
 				}
 				// diffの精査
-				const mergeArr = [...update_item.upload_data[manageNumber],...rms_images[manageNumber]];
-				const diff = update_item.upload_data[manageNumber].filter( (i:number) => mergeArr.indexOf(i) === -1 );
+				const mergeArr = [...update_item.アップロード[manageNumber],...rms_images[manageNumber]];
+				const diff = update_item.アップロード[manageNumber].filter( (i:number) => mergeArr.indexOf(i) === -1 );
 				if (diff.length) updateItems.push(manageNumber);
 			})
 
@@ -113,12 +109,12 @@ export default Vue.extend({
 			let confirmMessage = [];
 			updateItems.forEach(manageNumber=>{
 
-				const add = update_item.upload_data[manageNumber].filter( (i:number) => rms_images[manageNumber].indexOf(i) === -1 );
+				const add = update_item.アップロード[manageNumber].filter( (i:number) => rms_images[manageNumber].indexOf(i) === -1 );
 				if (add.length){
 					confirmMessage.push('【追加】' + manageNumber);
 					confirmMessage = [...confirmMessage,...add];
 				}
-				const remove  = rms_images[manageNumber].filter( (i:number) => update_item.upload_data[manageNumber].indexOf(i) === -1 );
+				const remove  = rms_images[manageNumber].filter( (i:number) => update_item.アップロード[manageNumber].indexOf(i) === -1 );
 				if (remove.length){
 					confirmMessage.push('【解除】' + manageNumber);
 					confirmMessage = [...confirmMessage,...remove];
@@ -137,7 +133,7 @@ export default Vue.extend({
 				formData.append('action', 'n2_rms_item_api_ajax');
 				formData.append('call', 'items_patch');
 				formData.append('mode', 'json');
-				const images = item.upload_data[manageNumber].map(path=>{
+				const images = item.アップロード[manageNumber].map(path=>{
 					return {
 						type: 'CABINET',
 						location: path,
@@ -160,8 +156,8 @@ export default Vue.extend({
 				// id削除
 				delete update_item.id;
 				// 画像用revision追加
-				update_item.image_revisions.rms = rms_images;
-				update_item.image_revisions.after  = update_item.upload_data;
+				update_item.RMS画像一覧.更新前 = rms_images;
+				update_item.RMS画像一覧.更新後 = update_item.アップロード;
 				formData.append('post_content', JSON.stringify(update_item));
 				await axios.post(
 					window['n2'].ajaxurl,
@@ -195,9 +191,9 @@ export default Vue.extend({
 	<table class="table align-middle lh-1 text-center">
 		<thead>
 			<tr>
-				<th v-for="col in logTable">
-					<span :class="col.th.icon"></span>
-					{{col.th.value}}
+				<th v-for="(col,meta) in logTable">
+					<span :class="col.th?.icon"></span>
+					{{meta}}
 				</th>
 			</tr>
 		</thead>
@@ -205,42 +201,42 @@ export default Vue.extend({
 			<template v-if="sftpLog.items.length">
 				<tr v-for="item in sftpLog.items" :key="item.id">
 					<td v-for="(col,meta) in logTable">
-						<template v-if="col?.detail">
+						<template v-if="meta === 'アップロード'">
 							<button
 								type="button" class="btn btn-sm btn-outline-info"
 								:popovertarget="meta + item.id"
 							>
-								{{item[meta]}}
+								{{item.アップロード日時}}
 							</button>
 							<div
 								popover="auto" :id="meta + item.id"
 								style="width: 80%; max-height: 80%; overflow-y: scroll;"
-								v-html="formatUploadLogs(item[col.detail])"
+								v-html="formatUploadLogs(item.アップロードログ)"
 							>
 							</div>
 						</template>
-						<template v-else-if="meta==='link_rms' && item.upload_type==='img_upload'">
+						<template v-else-if="meta==='RMS連携' && item.転送モード==='img_upload'">
 							<button
 								@click="linkImage2RMS(item), setLinkIndex(item.id)"
-								:disabled="! item?.upload_data"
+								:disabled="! item?.アップロード"
 								type="button" class="btn btn-sm btn-secondary"
 							>
 								<span :class="{'spinner-border spinner-border-sm':linkIndex===item.id}"></span>
 								商品ページと紐付ける
 							</button>
 						</template>
-						<template v-else-if="meta==='link_rms_history' && item.upload_type==='img_upload'">
+						<template v-else-if="meta==='RMS連携履歴' && item.転送モード==='img_upload'">
 							<button
 								@click="displayHistory(item)"
-								:disabled="! item.image_revisions.after || !Object.keys(item.image_revisions.after).length"
+								:disabled="! item.RMS画像一覧.更新後 || !Object.keys(item.RMS画像一覧.更新後).length"
 								type="button" class="btn btn-sm btn-outline-warning"
 							>
 								時を見る
 							</button>
 						</template>
 						<template v-else>
-							<span :class="col.td?.icon?.[item.upload_type] ?? col.td?.icon ?? ''"></span>
-							{{col.td?.value?.[item.upload_type] ?? col.td?.value ?? item[meta] ?? ''}}
+							<span :class="col.td?.icon?.[item.転送モード] ?? col.td?.icon ?? ''"></span>
+							{{col.td?.value?.[item.転送モード] ?? col.td?.value ?? item[meta] ?? ''}}
 						</template>
 					</td>
 				</tr>

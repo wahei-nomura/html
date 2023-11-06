@@ -399,7 +399,7 @@ class N2_Rakuten_SFTP {
 	 */
 	public function insert_post() {
 		global $n2;
-		$now                       = date( 'Y M d h:i:s A' );
+		$now                       = date_i18n( 'Y M d h:i:s A' );
 		$judge                     = $this->data['params']['judge'];
 		$item_api                  = new N2_RMS_Item_API();
 		$rms_images                = array_map(
@@ -411,13 +411,13 @@ class N2_Rakuten_SFTP {
 		);
 		$rms_images                = array_combine( array_keys( $this->n2data ), $rms_images );
 		$post_content              = array(
-			'upload_data'     => $this->n2data,
-			'upload_type'     => $judge,
-			'upload_log'      => $this->data['log'],
-			'upload_date'     => $now,
-			'image_revisions' => array(
-				'rms'   => $rms_images,
-				'after' => null,
+			'アップロード'   => $this->n2data,
+			'転送モード'    => $judge,
+			'アップロードログ' => $this->data['log'],
+			'アップロード日時' => $now,
+			'RMS画像一覧'  => array(
+				'更新前' => $rms_images,
+				'更新後' => null,
 			),
 		);
 		$default                   = array(
