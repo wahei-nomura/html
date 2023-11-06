@@ -223,7 +223,7 @@ export default Vue.extend({
 						<template v-else-if="meta==='link_rms_history' && item.upload_type==='img_upload'">
 							<button
 								@click="displayHistory(item)"
-								:disabled="!Object.keys(item.image_revisions.after).length"
+								:disabled="! item.image_revisions.after || !Object.keys(item.image_revisions.after).length"
 								type="button" class="btn btn-sm btn-outline-warning"
 							>
 								時を見る
