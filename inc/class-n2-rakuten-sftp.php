@@ -387,8 +387,8 @@ class N2_Rakuten_SFTP {
 			'public'   => true,
 			'supports' => array(
 				'title',
-				'editor',
 				'revisions',
+				'page-attributes',
 			),
 		);
 		register_post_type( $this->data['post_type'], $args );
@@ -402,22 +402,22 @@ class N2_Rakuten_SFTP {
 		$now                       = date( 'Y M d h:i:s A' );
 		$judge                     = $this->data['params']['judge'];
 		$item_api                  = new N2_RMS_Item_API();
-		$before_images             = array_map(
+		$rms_images                = array_map(
 			fn ( $item_code ) => array_map(
 				fn( $image ) => $image['location'],
 				$item_api->items_get( $item_code )['images'],
 			),
 			array_keys( $this->n2data ),
 		);
-		$before_images             = array_combine( array_keys( $this->n2data ), $before_images );
+		$rms_images                = array_combine( array_keys( $this->n2data ), $rms_images );
 		$post_content              = array(
 			'upload_data'     => $this->n2data,
 			'upload_type'     => $judge,
 			'upload_log'      => $this->data['log'],
 			'upload_date'     => $now,
 			'image_revisions' => array(
-				'before' => $before_images,
-				'after'  => null,
+				'rms'   => $rms_images,
+				'after' => null,
 			),
 		);
 		$default                   = array(
@@ -442,12 +442,15 @@ class N2_Rakuten_SFTP {
 		}
 		$this->check_fatal_error( $params['post_id'] ?? '', 'IDが未設定です' );
 		$this->check_fatal_error( $params['post_content'] ?? '', 'contentが未設定です' );
-		$result = wp_update_post(
-			array(
-				'ID'           => $params['post_id'],
-				'post_content' => $params['post_content'],
-			)
+		$update_post = array(
+			'ID'           => $params['post_id'],
+			'post_content' => $params['post_content'],
 		);
+		$post        = get_post( $params['post_id'] );
+		if ( $post->post_parent ) {
+			$update_post['post_parent'] = $post->post_parent;
+		}
+		$result = wp_update_post( $update_post );
 		header( 'Content-Type: application/json; charset=utf-8' );
 		echo wp_json_encode(
 			array(

@@ -67,7 +67,7 @@ export default Vue.extend({
 			const updateRmsItemRequests = [];
 			// N2 更新用
 			const update_item = structuredClone(item);
-			const update_item_before_revisions = {};
+			const rms_images = {};
 
 			// RMSから返礼品情報を取得
 			Object.keys(item.upload_data).forEach(manageNumber=>{
@@ -85,20 +85,20 @@ export default Vue.extend({
 			})
 			await Promise.all(getRmsItemRequests).then(responses=>{
 				responses.forEach(res=>{
-					update_item_before_revisions[res.data.manageNumber] = res.data.images.map(image=>image.location);
+					rms_images[res.data.manageNumber] = res.data.images.map(image=>image.location);
 				})
 			});
 
 			// 更新の必要性を確認
 			const updateItems = [];
-			Object.keys(update_item_before_revisions).forEach(manageNumber=>{
+			Object.keys(rms_images).forEach(manageNumber=>{
 				// 明らかに配列の長さが違う場合は必要
-				if(update_item.upload_data[manageNumber].length !== update_item_before_revisions[manageNumber].length) {
+				if(update_item.upload_data[manageNumber].length !== rms_images[manageNumber].length) {
 					updateItems.push(manageNumber);
 					return;
 				}
 				// diffの精査
-				const mergeArr = [...update_item.upload_data[manageNumber],...update_item_before_revisions[manageNumber]];
+				const mergeArr = [...update_item.upload_data[manageNumber],...rms_images[manageNumber]];
 				const diff = update_item.upload_data[manageNumber].filter( (i:number) => mergeArr.indexOf(i) === -1 );
 				if (diff.length) updateItems.push(manageNumber);
 			})
@@ -113,12 +113,12 @@ export default Vue.extend({
 			let confirmMessage = [];
 			updateItems.forEach(manageNumber=>{
 
-				const add = update_item.upload_data[manageNumber].filter( (i:number) => update_item_before_revisions[manageNumber].indexOf(i) === -1 );
+				const add = update_item.upload_data[manageNumber].filter( (i:number) => rms_images[manageNumber].indexOf(i) === -1 );
 				if (add.length){
 					confirmMessage.push('【追加】' + manageNumber);
 					confirmMessage = [...confirmMessage,...add];
 				}
-				const remove  = update_item_before_revisions[manageNumber].filter( (i:number) => update_item.upload_data[manageNumber].indexOf(i) === -1 );
+				const remove  = rms_images[manageNumber].filter( (i:number) => update_item.upload_data[manageNumber].indexOf(i) === -1 );
 				if (remove.length){
 					confirmMessage.push('【解除】' + manageNumber);
 					confirmMessage = [...confirmMessage,...remove];
@@ -160,7 +160,7 @@ export default Vue.extend({
 				// id削除
 				delete update_item.id;
 				// 画像用revision追加
-				update_item.image_revisions.before = update_item_before_revisions;
+				update_item.image_revisions.rms = rms_images;
 				update_item.image_revisions.after  = update_item.upload_data;
 				formData.append('post_content', JSON.stringify(update_item));
 				await axios.post(
@@ -173,8 +173,17 @@ export default Vue.extend({
 				this.linkIndex = null;
 			})
 		},
-		displayHistory(item){
-			console.log(item);
+		async displayHistory(item){
+			const param   = new URLSearchParams({
+				action: 'n2_post_history_api',
+				post_id: item.id,
+				type: 'table',
+				post_type: 'n2_stfp',
+			}).toString();
+			window.open(
+				`${window['n2'].ajaxurl}?${param}`,
+				'_blank'
+			)
 		},
 		formatUploadLogs(data){
 			// フォルダ作成ログは除外する
