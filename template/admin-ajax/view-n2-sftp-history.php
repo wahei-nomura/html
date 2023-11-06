@@ -36,17 +36,21 @@ wp_localize_script( 'jquery', 'n2', $n2 );
 					</td>
 				</tr>
 				<tr>
-					<th style="width: 10em;"></th>
-					<th class="text-success">After</th>
-					<th class="text-danger">Before</th>
+					<th style="width: 10%;"></th>
+					<th class="text-success" style="width:45%">After</th>
+					<th class="text-danger" style="width:45%">Before</th>
 				</tr>
 			</thead>
 			<tbody>
 				<template v-for="(after, name) in v.after.RMS画像一覧.更新後">
 					<tr>
 						<th>{{name}}</th>
-						<td>{{after.join(', ')}}</td>
-						<td>{{v.after.RMS画像一覧.更新前[name]?.join(', ') ?? ''}}</td>
+						<td>
+							<img v-for="img in after" witdh="100px" height="100px" :src="n2.settings.楽天.商品画像ディレクトリ.replace(/\/$/,'') + img.replace(/^(\/item\/)/,'/')" >
+						</td>
+						<td>
+							<img v-for="img in v.after.RMS画像一覧.更新前[name]" witdh="100px" height="100px" :src="n2.settings.楽天.商品画像ディレクトリ.replace(/\/$/,'') + img.replace(/^(\/item\/)/,'/')" >
+						</td>
 					</tr>
 				</template>
 			</tbody>
