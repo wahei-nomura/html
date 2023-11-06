@@ -18,7 +18,7 @@ wp_localize_script( 'jquery', 'n2', $n2 );
 	<title>履歴</title>
 	<?php wp_print_styles( array( 'dashicons' ) ); ?>
 	<?php wp_print_scripts( array( 'jquery' ) ); ?>
-	<script src="<?php echo get_theme_file_uri( "dist/js/view-post-history.js?ver={$n2->cash_buster}" ); ?>"></script>
+	<script src="<?php echo get_theme_file_uri( "dist/js/view-n2-sftp-history.js?ver={$n2->cash_buster}" ); ?>"></script>
 	<link rel="stylesheet" href="<?php echo get_theme_file_uri( "dist/css/view-post-history.css?ver={$n2->cash_buster}" ); ?>">
 </head>
 <body>
@@ -43,32 +43,37 @@ wp_localize_script( 'jquery', 'n2', $n2 );
 			</thead>
 			<tbody>
 				<template v-for="(after, name) in v.after">
-					<tr v-if="'商品画像' == name">
-						<th>{{name}}</th>
-						<td>
-							<template v-for="img in after">
-								<img :src="img.sizes.thumbnail.url || img.sizes.thumbnail">
-							</template>
-						</td>
-						<td>
-							<template v-if="v.before">
-								<template v-for="img in v.before[name]">
-									<img :src="img.sizes.thumbnail.url || img.sizes.thumbnail">
+					<template v-if="name==='RMS画像一覧'" v-for="(td,th) in after">
+						<tr>
+							<th>{{th}}</th>
+							<td class="text-success">
+								<details>
+									<table class="">
+										<tbody>
+											<tr v-for="(val,key) in td">
+												<th>{{key}}</th>
+												<td v-html="Array.isArray(val) ? val.join(', '): val"></td>
+											</tr>
+										</tbody>
+									</table>
+								</details>
+							</td>
+							<td class="text-danger">
+								<template v-if="v.before?.[name]?.[th]">
+								<details>
+									<table class="">
+										<tbody>
+											<tr v-for="(val,key) in v.before[name][th]">
+												<th>{{key}}</th>
+												<td v-html="Array.isArray(val) ? val.join(', '): val"></td>
+											</tr>
+										</tbody>
+									</table>
+								</details>
 								</template>
-							</template>
-						</td>
-					</tr>
-					<tr v-else>
-						<th>{{name}}</th>
-						<td class="text-success">
-							{{Array.isArray(after) ? after.join(', ') : after}}
-						</td>
-						<td class="text-danger">
-							<template v-if="v.before">
-								{{Array.isArray(v.before[name]) ? v.before[name].join(', ') : v.before[name]}}
-							</template>
-						</td>
-					</tr>
+							</td>
+						</tr>
+					</template>
 				</template>
 			</tbody>
 		</table>
@@ -84,16 +89,26 @@ wp_localize_script( 'jquery', 'n2', $n2 );
 			</div>
 			<div id="n2-history-chechout-revision-content">
 				<table class="table">
-					<tr>
-						<th>返礼品名</th>
-						<td>{{item.タイトル}}</td>
-					</tr>
 					<template v-for="name in custom_field">
 						<tr v-if="item[name]">
 							<th style="text-align: left;">{{name}}</th>
 							<td style="text-align: left;">
-								<div v-if="Array.isArray(item[name])">{{item[name].join(', ')}}</div>
-								<div v-else v-html="item[name].toString().replace(/\r\n|\r|\n/g,'<br>')"></div>
+								<div v-if="Array.isArray(item[name])"
+									v-html="item[name].join('<br>')"
+								></div>
+								<div v-else-if="typeof(item[name]) === 'object'">
+									<table>
+										<tbody>
+											<tr v-for="(val,key) in item[name]">
+												<th>{{key}}</th>
+												<td v-html="Array.isArray(val) ? val.join(', '): val"></td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+								<div v-else>
+									{{item[name]}}
+								</div>
 							</td>
 						</tr>
 					</template>
