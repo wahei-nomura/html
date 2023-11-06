@@ -26,7 +26,7 @@ wp_localize_script( 'jquery', 'n2', $n2 );
 		<table class="table mb-4 shadow" v-for="(v,k) in history" >
 			<thead>
 				<tr>
-					<td colspan="3" class="bg-secondary text-white">
+					<td colspan="4" class="bg-secondary text-white">
 						<div class="d-flex justify-content-between align-items-center">
 							<div class="d-flex align-items-center">
 								<span class="dashicons dashicons-clock me-2"></span>{{v.date}}　｜　<span class="dashicons dashicons-admin-users me-2"></span>{{v.author}}
@@ -37,8 +37,9 @@ wp_localize_script( 'jquery', 'n2', $n2 );
 				</tr>
 				<tr>
 					<th style="width: 10%;"></th>
-					<th class="text-success" style="width:45%">After</th>
-					<th class="text-danger" style="width:45%">Before</th>
+					<th class="text-success" style="width:40%">共通</th>
+					<th class="text-secondary" style="width:25%">追加</th>
+					<th class="text-danger" style="width:25%">解除</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -46,10 +47,55 @@ wp_localize_script( 'jquery', 'n2', $n2 );
 					<tr>
 						<th>{{name}}</th>
 						<td>
-							<img v-for="img in after" witdh="100px" height="100px" :src="n2.settings.楽天.商品画像ディレクトリ.replace(/\/$/,'') + img.replace(/^(\/item\/)/,'/')" >
+							<div class="d-flex">
+								<div
+									class="card me-1"
+									v-for="img in after.filter(img=>v.after.RMS画像一覧.更新前[name].indexOf(img) !== -1 )"
+									>
+									<img
+									witdh="125px" height="125px"
+									class="card-img-top"
+									:src="n2.settings.楽天.商品画像ディレクトリ.replace(/\/$/,'') + img.replace(/^(\/item\/)/,'/')"
+									>
+									<div class="card-img-overlay p-0 d-flex align-items-end justify-content-center">
+										<h6 class="card-title text-nowrap text-center py-2  mb-0 bg-light w-100">{{img.split('/').slice(-1)[0]}}</h6>
+									</div>
+								</div>
+							</div>
 						</td>
 						<td>
-							<img v-for="img in v.after.RMS画像一覧.更新前[name]" witdh="100px" height="100px" :src="n2.settings.楽天.商品画像ディレクトリ.replace(/\/$/,'') + img.replace(/^(\/item\/)/,'/')" >
+							<div class="d-flex">
+								<div
+									class="card me-1"
+									v-for="img in after.filter(img=>v.after.RMS画像一覧.更新前[name].indexOf(img) === -1 )"
+									>
+									<img
+									witdh="125px" height="125px"
+									class="card-img-top"
+									:src="n2.settings.楽天.商品画像ディレクトリ.replace(/\/$/,'') + img.replace(/^(\/item\/)/,'/')"
+									>
+									<div class="card-img-overlay p-0 d-flex align-items-end justify-content-center">
+										<h6 class="card-title text-nowrap text-center py-2 mb-0 bg-light w-100 ">{{img.split('/').slice(-1)[0]}}</h6>
+									</div>
+								</div>
+							</div>
+						</td>
+						<td>
+							<dib class="d-flex">
+								<div
+									class="card me-1"
+									v-for="img in v.after.RMS画像一覧.更新前[name].filter(img=> after.indexOf(img) === -1 )"
+								>
+									<img
+										witdh="125px" height="125px"
+										class="card-img-top"
+										:src="n2.settings.楽天.商品画像ディレクトリ.replace(/\/$/,'') + img.replace(/^(\/item\/)/,'/')"
+									>
+									<div class="card-img-overlay p-0 d-flex align-items-end justify-content-center">
+										<h6 class="card-title text-nowrap text-center py-2 mb-0 bg-light w-100 ">{{img.split('/').slice(-1)[0]}}</h6>
+									</div>
+								</div>
+							</div>
 						</td>
 					</tr>
 				</template>
