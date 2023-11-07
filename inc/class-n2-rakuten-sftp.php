@@ -409,26 +409,29 @@ class N2_Rakuten_SFTP {
 			),
 			array_keys( $this->n2data ),
 		);
-		$rms_images                = array_combine( array_keys( $this->n2data ), $rms_images );
-		$post_content              = array(
+		$rms_images                           = array_combine( array_keys( $this->n2data ), $rms_images );
+		$this->data['params']['post_content'] = array(
 			'アップロード'   => $this->n2data,
 			'転送モード'    => $judge,
 			'アップロードログ' => $this->data['log'],
 			'アップロード日時' => $now,
 			'RMS画像一覧'  => array(
 				'更新前' => $rms_images,
-				'更新後' => null,
+				'更新後' => array(),
 			),
 		);
-		$default                   = array(
+		$default                              = array(
 			'ID'           => 0,
 			'post_author'  => $n2->current_user->ID,
 			'post_status'  => 'pending',
 			'post_type'    => $this->data['post_type'],
 			'post_title'   => "[$now] $judge",
-			'post_content' => wp_json_encode( $post_content, JSON_UNESCAPED_UNICODE ),
+			'post_content' => wp_json_encode( $this->data['params']['post_content'], JSON_UNESCAPED_UNICODE ),
 		);
-		$this->data['insert_post'] = wp_insert_post( $default );
+		$this->data['params']['post_id']      = wp_insert_post( $default );
+		$this->data['params']['post_content']['RMS画像一覧']['更新後'] = null;
+		// リビジョン生成用
+		$this->update_post();
 	}
 
 	/**
