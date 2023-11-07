@@ -180,6 +180,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 			preg_match( '/受付開始日時/', $val ) => gmdate( 'Y/m/d', strtotime( '+1 year' ) ) . ' 00:00',// 受付開始日時を設定することが出来ます。指定した場合、この日時以降でないと申込みできない
 			preg_match( '/還元率（\%）$/', $val ) => 30,// 対応する場合は半角数字の1、対応しない場合は半角数字の0
 			preg_match( '/^（必須）別送対応$/', $val ) => 1,// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
+			preg_match( '/^（必須）カテゴリー$/', $val ) => 166,// 11/7よりカテゴリ入力が必須のため臨時対応。166(地域のお礼の品)をとりあえず設定
 			default => '',
 		};
 		/**
