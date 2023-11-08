@@ -111,7 +111,7 @@ wp_localize_script( 'jquery', 'n2', $n2 );
 					<span class="dashicons dashicons-backup me-1"></span>商品画像を<b>変更前</b>に戻す
 				</div>
 			</div>
-			<div id="n2-history-chechout-revision-content">
+			<div id="n2-history-chechout-revision-content" class="px-2">
 				<table class="table">
 					<template v-for="name in custom_field">
 						<tr v-if="item[name]">
