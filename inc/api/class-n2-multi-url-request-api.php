@@ -184,10 +184,10 @@ class N2_Multi_URL_Request_API {
 	 * @return array|void
 	 */
 	public static function request_multiple( $requests, $options = array() ) {
+		$requests = static::allow_oreore_ssl( $requests );
 		// 共通のheadersとoptionsを設定
 		static::set_options( $options );
 		static::set_headers( $requests );
-		$requests = static::allow_oreore_ssl( $requests );
 		return Requests::request_multiple( $requests, $options );
 	}
 
