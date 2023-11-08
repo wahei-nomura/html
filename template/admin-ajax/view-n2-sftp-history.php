@@ -23,7 +23,7 @@ wp_localize_script( 'jquery', 'n2', $n2 );
 </head>
 <body>
 	<div id="n2-history" class="p-3">
-		<table class="table mb-4 shadow" v-for="(v,k) in history" >
+		<table class="table mb-4 shadow" v-for="(v,k) in history" v-if="v.after.RMS商品画像.変更後 !== null" >
 			<thead>
 				<tr>
 					<td colspan="4" class="bg-secondary text-white">
@@ -31,7 +31,7 @@ wp_localize_script( 'jquery', 'n2', $n2 );
 							<div class="d-flex align-items-center">
 								<span class="dashicons dashicons-clock me-2"></span>{{v.date}}　｜　<span class="dashicons dashicons-admin-users me-2"></span>{{v.author}}
 							</div>
-							<div v-if="v.after.RMS商品画像.変更後 !== null" class="btn btn-sm btn-dark" @click="popover_revision_data(v.ID)"><span class="dashicons dashicons-visibility me-1"></span>この時を見る</div>
+							<div class="btn btn-sm btn-dark" @click="popover_revision_data(v.ID)"><span class="dashicons dashicons-visibility me-1"></span>この時を見る</div>
 						</div>
 					</td>
 				</tr>
