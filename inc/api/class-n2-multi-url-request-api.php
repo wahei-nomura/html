@@ -179,22 +179,51 @@ class N2_Multi_URL_Request_API {
 	/**
 	 * URLを並列化でリクエストするAPI
 	 *
-	 * @var    array $requests requests
-	 * @var    array $options  options 
+	 * @param array $requests requests
+	 * @param array $options  options
 	 * @return array|void
 	 */
 	public static function request_multiple( $requests, $options = array() ) {
 		// 共通のheadersとoptionsを設定
 		static::set_options( $options );
 		static::set_headers( $requests );
+		$requests = static::allow_oreore_ssl( $requests );
 		return Requests::request_multiple( $requests, $options );
+	}
+
+	/**
+	 * ローカルでオレオレ証明を許可する
+	 *
+	 * @param array $requests requests
+	 * @return array $requests
+	 */
+	public static function allow_oreore_ssl( $requests ) {
+		global $n2;
+		if ( 'develop' !== $n2->mode ) {
+			return $requests;
+		}
+		// ローカルではオレオレ証明書も自動許可する
+		return array_map(
+			function ( $re ) {
+				$hooks = new Requests_Hooks();
+				$hooks->register(
+					'curl.before_multi_add',
+					function ( $ch ) {
+						curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false );
+					}
+				);
+				$re['options']['hooks'] = $hooks;
+				return $re;
+			},
+			$requests
+		);
 	}
 
 	/**
 	 * 画像が存在するかチェックするAPI
 	 *
-	 * @var    array $requests requests
-	 * @var    array $options  options 
+	 * @param array $requests requests
+	 * @param array $options  options
 	 * @return array
 	 */
 	public static function verify_images( $requests, $options = array() ) {
