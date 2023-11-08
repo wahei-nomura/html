@@ -108,7 +108,7 @@ wp_localize_script( 'jquery', 'n2', $n2 );
 					<span class="dashicons dashicons-no-alt" ></span>
 				</div>
 				<div id="n2-history-chechout-revision-update" class="btn btn-sm btn-success me-2 px-3" @click="checkout_revision">
-					<span class="dashicons dashicons-backup me-1"></span>この時に戻す
+					<span class="dashicons dashicons-backup me-1"></span>商品画像を<b>変更前</b>に戻す
 				</div>
 			</div>
 			<div id="n2-history-chechout-revision-content">
