@@ -444,32 +444,22 @@ class N2_Rakuten_SFTP {
 	 * @param array $args args
 	 */
 	public function update_post( $args = array() ) {
-		// $_GETを$argsで上書き
-		$params = wp_parse_args( $args, $_GET );
-		// $_POSTを$paramsで上書き
-		if ( wp_verify_nonce( $_POST['n2nonce'] ?? '', 'n2nonce' ) ) {
-			$params = wp_parse_args( $params, $_POST );
-		}
-		$this->check_fatal_error( $params['post_id'] ?? '', 'IDが未設定です' );
-		$this->check_fatal_error( $params['post_content'] ?? '', 'contentが未設定です' );
+		// $this->data['params']を$argsで上書き
+		$this->data['params'] = wp_parse_args( $args, $this->data['params'] );
+		$this->check_fatal_error( $this->data['params']['post_id'] ?? '', 'IDが未設定です' );
+		$this->check_fatal_error( $this->data['params']['post_content'] ?? '', 'contentが未設定です' );
 		$update_post = array(
-			'ID'           => $params['post_id'],
-			'post_content' => $params['post_content'],
+			'ID'           => $this->data['params']['post_id'],
+			'post_content' => $this->data['params']['post_content'],
 		);
-		$post        = get_post( $params['post_id'] );
+		$post        = get_post( $this->data['params']['post_id'] );
 		if ( $post->post_parent ) {
 			$update_post['post_parent'] = $post->post_parent;
 		}
-		$result = wp_update_post( $update_post );
-		header( 'Content-Type: application/json; charset=utf-8' );
-		echo wp_json_encode(
-			array(
-				'id'      => $result,
-				'message' => 'updated',
-			),
-			JSON_UNESCAPED_UNICODE
+		$this->data['log'] = array(
+			'id'      => wp_update_post( $update_post ),
+			'message' => 'updated',
 		);
-		exit;
 	}
 
 	/**
