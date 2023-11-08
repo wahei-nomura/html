@@ -20,6 +20,8 @@ class N2_Portal_Item_Data {
 	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'create_post_type' ) );
+		add_action( 'init', array( $this, 'enable_portal_items_api' ) );
+
 	}
 
 	/**
@@ -34,5 +36,16 @@ class N2_Portal_Item_Data {
 				),
 			)
 		);
+	}
+
+	/**
+	 * API読込
+	 */
+	public function enable_portal_items_api() {
+		global $n2;
+		$translates = array_flip( N2_Settings::$settings );
+		foreach ( array_filter( $n2->settings['N2']['出品ポータル'] ?? array() ) as $name ) {
+			require_once get_theme_file_path( "/inc/api/class-n2-items-{$translates[ $name ]}-api.php" );
+		}
 	}
 }
