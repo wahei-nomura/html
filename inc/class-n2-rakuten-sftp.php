@@ -63,8 +63,6 @@ class N2_Rakuten_SFTP {
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 		add_action( 'wp_ajax_n2_rakuten_sftp_upload_to_rakuten', array( $this, 'upload_to_rakuten' ) );
-		add_action( 'wp_ajax_n2_rakuten_sftp_update_post', array( $this, 'update_post' ) );
-		add_action( 'wp_ajax_n2_rakuten_sftp_checkout_revision', array( $this, 'checkout_revision' ) );
 		add_action( 'init', array( $this, 'register_post_type' ) );
 	}
 	public function __destruct() {
@@ -223,12 +221,12 @@ class N2_Rakuten_SFTP {
 	public function upload_to_rakuten() {
 		$this->check_fatal_error( $this->connect(), 'パスワードが違います' );
 		$this->set_params();
-		$this->set_files();
 		$this->{$this->data['params']['judge']}();
 		$this->log_output();
 	}
 
 	public function img_upload() {
+		$this->set_files();
 		global $n2;
 		$name     = $this->data['files']['name'];
 		$type     = $this->data['files']['type'];
@@ -284,6 +282,7 @@ class N2_Rakuten_SFTP {
 	}
 
 	public function csv_upload() {
+		$this->set_files();
 		$name     = $this->data['files']['name'];
 		$type     = $this->data['files']['type'];
 		$tmp_name = $this->data['files']['tmp_name'];
@@ -466,23 +465,16 @@ class N2_Rakuten_SFTP {
 	 * 時を戻すためのAPI
 	 */
 	public function checkout_revision() {
-		// $_GETを$argsで上書き
-		$params = wp_parse_args( $args ?? array(), $_GET );
-		// $_POSTを$paramsで上書き
-		if ( wp_verify_nonce( $_POST['n2nonce'] ?? '', 'n2nonce' ) ) {
-			$params = wp_parse_args( $params, $_POST );
-		}
-
 		// id check
-		$this->check_fatal_error( isset( $params['post_id'] ), 'ERROR: idが不正です' );
+		$this->check_fatal_error( isset( $this->data['params']['post_id'] ), 'ERROR: idが不正です' );
 
 		// revision check
-		$revision = get_post( $params['post_id'] );
+		$revision = get_post( $this->data['params']['post_id'] );
 		$this->check_fatal_error( $revision, 'ERROR: データがありません' );
 
 		// update check
 		$data = json_decode( $revision->post_content, true );
-		$this->check_fatal_error( $params['update'] ?? '', wp_json_encode( $data, JSON_UNESCAPED_UNICODE ) );
+		$this->check_fatal_error( $this->data['params']['update'] ?? '', wp_json_encode( $data, JSON_UNESCAPED_UNICODE ) );
 
 		// valueの入れ替え
 		$tmp_arg               = $data['RMS商品画像']['変更前'];
@@ -516,7 +508,7 @@ class N2_Rakuten_SFTP {
 	 * @param string $field 名
 	 * @param string $value 名
 	 */
-	public function get_userid_by_usermeta( $field, $value ) {
+	protected function get_userid_by_usermeta( $field, $value ) {
 		global $wpdb;
 		$id = $wpdb->get_var(
 			$wpdb->prepare(

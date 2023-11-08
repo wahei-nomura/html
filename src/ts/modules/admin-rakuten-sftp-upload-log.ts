@@ -41,7 +41,8 @@ export default Vue.extend({
 						icon:'dashicons dashicons-clipboard',
 					},
 				},
-			}
+			},
+			action: 'n2_rakuten_sftp_upload_to_rakuten',
 		};
 	},
 	computed:{
@@ -151,7 +152,8 @@ export default Vue.extend({
 				// N2を更新
 				const formData = new FormData();
 				formData.append('n2nonce', this.n2nonce);
-				formData.append('action', 'n2_rakuten_sftp_update_post');
+				formData.append('action', this.action);
+				formData.append('judge', 'update_post' );
 				formData.append('post_id', update_item.id );
 				// id削除
 				delete update_item.id;
