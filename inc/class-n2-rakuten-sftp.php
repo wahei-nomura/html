@@ -506,10 +506,7 @@ class N2_Rakuten_SFTP {
 					$path_arr,
 				),
 			);
-			$this->data['log'][ $item_code ] = array(
-				'body'     => $body,
-				'response' => $item_api->items_patch( $item_code, wp_json_encode( $body ) ),
-			);
+			$this->data['log'][ $item_code ] = $item_api->items_patch( $item_code, wp_json_encode( $body ) );
 		}
 		$author = $this->get_userid_by_usermeta( 'last_name', $data['事業者コード'] ?? '' );
 		if ( $author ) {
