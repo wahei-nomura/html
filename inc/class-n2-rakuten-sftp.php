@@ -225,7 +225,6 @@ class N2_Rakuten_SFTP {
 		$this->set_params();
 		$this->set_files();
 		$this->{$this->data['params']['judge']}();
-		$this->insert_post();
 		$this->log_output();
 	}
 
@@ -281,6 +280,7 @@ class N2_Rakuten_SFTP {
 			}
 		}
 		exec( "rm -Rf {$tmp}" );
+		$this->insert_post();
 	}
 
 	public function csv_upload() {
@@ -317,15 +317,14 @@ class N2_Rakuten_SFTP {
 				default => "転送失敗 {$this->data['files']['name'][$k]}",
 			};
 		}
+		$this->insert_post();
 	}
 
 	/**
 	 * log output
 	 */
 	public function log_output() {
-		$edit_link = get_edit_post_link( $this->data['insert_post'] );
-		$data      = array(
-			'url' => $edit_link,
+		$data = array(
 			'log' => $this->data['log'],
 		);
 		header( 'Content-Type: application/json; charset=utf-8' );
