@@ -457,7 +457,7 @@ class N2_Rakuten_SFTP {
 		}
 		$this->data['log'] = array(
 			'id'      => wp_update_post( $update_post ),
-			'message' => 'updated',
+			'message' => '更新完了！',
 		);
 	}
 
