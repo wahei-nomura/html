@@ -497,7 +497,12 @@ class N2_Rakuten_SFTP {
 			'post_content' => wp_json_encode( $data, JSON_UNESCAPED_UNICODE ),
 		);
 		foreach ( $data['RMS商品画像']['変更後'] as $item_code => $path_arr ) {
-			$body                = array(
+			if ( empty( array_diff( $path_arr, $rms_images[ $item_code ] ) ) &&
+				empty( array_diff( $rms_images[ $item_code ], $path_arr ) )
+			) {
+				continue;
+			}
+			$body                            = array(
 				'images' => array_map(
 					fn( $path ) => array(
 						'type'     => 'CABINET',
@@ -507,6 +512,12 @@ class N2_Rakuten_SFTP {
 				),
 			);
 			$this->data['log'][ $item_code ] = $item_api->items_patch( $item_code, wp_json_encode( $body ) );
+		}
+		if ( empty( $this->data['log'] ) ) {
+			$this->data['log'] = array(
+				'message' => '更新不要です',
+			);
+			return;
 		}
 		$author = $this->get_userid_by_usermeta( 'last_name', $data['事業者コード'] ?? '' );
 		if ( $author ) {
