@@ -476,30 +476,46 @@ class N2_Rakuten_SFTP {
 		$data = json_decode( $revision->post_content, true );
 		$this->check_fatal_error( $this->data['params']['update'] ?? '', wp_json_encode( $data, JSON_UNESCAPED_UNICODE ) );
 
-		// valueの入れ替え
-		$tmp_arg               = $data['RMS商品画像']['変更前'];
-		$data['RMS商品画像']['変更前'] = $data['RMS商品画像']['変更後'];
-		$data['RMS商品画像']['変更後'] = $tmp_arg;
-		$post                  = array(
-			'post_id'      => $revision->post_parent,
+		// 最新情報に更新
+		$item_api               = new N2_RMS_Item_API();
+		$rms_images             = array_map(
+			fn ( $item_code ) => array_map(
+				fn( $image ) => $image['location'],
+				$item_api->items_get( $item_code )['images'],
+			),
+			array_keys( $data['RMS商品画像']['変更後'] ),
+		);
+		$rms_images             = array_combine( array_keys( $data['RMS商品画像']['変更後'] ), $rms_images );
+		$data['RMS商品画像']['変更後'] = $data['RMS商品画像']['変更前'];
+		$data['RMS商品画像']['変更前'] = $rms_images;
+
+		$post = array(
+			'ID'           => $revision->post_parent,
+			'post_status'  => $revision->post_status,
+			'post_type'    => $this->data['post_type'],
+			'post_title'   => $revision->post_title,
 			'post_content' => wp_json_encode( $data, JSON_UNESCAPED_UNICODE ),
 		);
-		$item_api              = new N2_RMS_Item_API();
 		foreach ( $data['RMS商品画像']['変更後'] as $item_code => $path_arr ) {
-			$body = array_map(
-				fn( $path ) => array(
-					'type'     => 'CABINET',
-					'location' => $path,
+			$body                = array(
+				'images' => array_map(
+					fn( $path ) => array(
+						'type'     => 'CABINET',
+						'location' => $path,
+					),
+					$path_arr,
 				),
-				$path_arr,
 			);
-			$item_api->items_patch( $item_code, $body );
+			$this->data['log'][ $item_code ] = array(
+				'body'     => $body,
+				'response' => $item_api->items_patch( $item_code, wp_json_encode( $body ) ),
+			);
 		}
 		$author = $this->get_userid_by_usermeta( 'last_name', $data['事業者コード'] ?? '' );
 		if ( $author ) {
 			$post['post_author'] = $author;
 		}
-		$this->update_post( $post );
+		wp_insert_post( $post );
 	}
 
 	/**
