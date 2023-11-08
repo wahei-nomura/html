@@ -31,7 +31,7 @@ wp_localize_script( 'jquery', 'n2', $n2 );
 							<div class="d-flex align-items-center">
 								<span class="dashicons dashicons-clock me-2"></span>{{v.date}}　｜　<span class="dashicons dashicons-admin-users me-2"></span>{{v.author}}
 							</div>
-							<div v-if="0 !== k" class="btn btn-sm btn-dark" @click="popover_revision_data(v.ID)"><span class="dashicons dashicons-visibility me-1"></span>この時見る</div>
+							<div v-if="v.after.RMS商品画像.変更後 !== null" class="btn btn-sm btn-dark" @click="popover_revision_data(v.ID)"><span class="dashicons dashicons-visibility me-1"></span>この時を見る</div>
 						</div>
 					</td>
 				</tr>
@@ -43,14 +43,14 @@ wp_localize_script( 'jquery', 'n2', $n2 );
 				</tr>
 			</thead>
 			<tbody>
-				<template v-for="(after, name) in v.after.RMS画像一覧.更新後">
+				<template v-for="(after, name) in v.after.RMS商品画像.変更後">
 					<tr>
 						<th>{{name}}</th>
 						<td>
 							<div class="d-flex">
 								<div
 									class="card me-1"
-									v-for="img in after.filter(img=>v.after.RMS画像一覧.更新前[name].indexOf(img) !== -1 )"
+									v-for="img in after.filter(img=>v.after.RMS商品画像.変更前[name].indexOf(img) !== -1 )"
 									>
 									<img
 									witdh="125px" height="125px"
@@ -67,7 +67,7 @@ wp_localize_script( 'jquery', 'n2', $n2 );
 							<div class="d-flex">
 								<div
 									class="card me-1"
-									v-for="img in after.filter(img=>v.after.RMS画像一覧.更新前[name].indexOf(img) === -1 )"
+									v-for="img in after.filter(img=>v.after.RMS商品画像.変更前[name].indexOf(img) === -1 )"
 									>
 									<img
 									witdh="125px" height="125px"
@@ -84,7 +84,7 @@ wp_localize_script( 'jquery', 'n2', $n2 );
 							<dib class="d-flex">
 								<div
 									class="card me-1"
-									v-for="img in v.after.RMS画像一覧.更新前[name].filter(img=> after.indexOf(img) === -1 )"
+									v-for="img in v.after.RMS商品画像.変更前[name].filter(img=> after.indexOf(img) === -1 )"
 								>
 									<img
 										witdh="125px" height="125px"

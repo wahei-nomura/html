@@ -27,7 +27,7 @@ jQuery( $ => {
 			if ( confirm(`ID: ${id}\n本当にこの時に戻りますか？\n※現在の設定が上書きされます。`) ) {
 				new Audio('https://app.steamship.co.jp/ss-tool/assets/audio/toki_ed.mp3').play();
 				// 時を戻す
-				const res = await $.ajax( `${n2.ajaxurl}?action=n2_checkout_revision_api&id=${id}&update=1` );
+				const res = await $.ajax(`${n2.ajaxurl}?action=n2_rakuten_sftp_checkout_revision&post_id=${id}&update=1`);
 				// popover閉
 				$('#n2-history-chechout-revision').get(0).hidePopover();
 				// historyの更新

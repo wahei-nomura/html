@@ -41,9 +41,7 @@ export default Vue.extend({
 				formData,
 				{headers:headers}
 			).then((res)=>{
-				alert(
-					res.data['log'].join('\n')
-				);
+				alert(res.data['message']);
 				// ログ一覧の更新
 				this.updateSFTPLog();
 			}).catch(err=>{

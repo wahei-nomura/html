@@ -64,6 +64,7 @@ class N2_Rakuten_SFTP {
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 		add_action( 'wp_ajax_n2_rakuten_sftp_upload_to_rakuten', array( $this, 'upload_to_rakuten' ) );
 		add_action( 'wp_ajax_n2_rakuten_sftp_update_post', array( $this, 'update_post' ) );
+		add_action( 'wp_ajax_n2_rakuten_sftp_checkout_revision', array( $this, 'checkout_revision' ) );
 		add_action( 'init', array( $this, 'register_post_type' ) );
 	}
 	public function __destruct() {
@@ -410,14 +411,14 @@ class N2_Rakuten_SFTP {
 			array_keys( $this->n2data ),
 		);
 		$rms_images                           = array_combine( array_keys( $this->n2data ), $rms_images );
-		$this->data['params']['post_content'] = array(
+		$post_content = array(
 			'アップロード'   => $this->n2data,
 			'転送モード'    => $judge,
 			'アップロードログ' => $this->data['log'],
 			'アップロード日時' => $now,
-			'RMS画像一覧'  => array(
-				'更新前' => $rms_images,
-				'更新後' => array(),
+			'RMS商品画像'  => array(
+				'変更前' => $rms_images,
+				'変更後' => array(),
 			),
 		);
 		$default                              = array(
@@ -426,19 +427,26 @@ class N2_Rakuten_SFTP {
 			'post_status'  => 'pending',
 			'post_type'    => $this->data['post_type'],
 			'post_title'   => "[$now] $judge",
-			'post_content' => wp_json_encode( $this->data['params']['post_content'], JSON_UNESCAPED_UNICODE ),
+			'post_content' => wp_json_encode( $post_content, JSON_UNESCAPED_UNICODE ),
 		);
-		$this->data['params']['post_id']      = wp_insert_post( $default );
-		$this->data['params']['post_content']['RMS画像一覧']['更新後'] = null;
+		$post_content['RMS商品画像']['変更後'] = null;
 		// リビジョン生成用
-		$this->update_post();
+		$this->update_post(
+			array(
+				'post_id'      => wp_insert_post( $default ),
+				'post_content' => wp_json_encode( $post_content, JSON_UNESCAPED_UNICODE ),
+			),
+		);
 	}
 
 	/**
 	 * update_post
+	 *
+	 * @param array $args args
 	 */
-	public function update_post() {
-		$params = $_GET;
+	public function update_post( $args = array() ) {
+		// $_GETを$argsで上書き
+		$params = wp_parse_args( $args, $_GET );
 		// $_POSTを$paramsで上書き
 		if ( wp_verify_nonce( $_POST['n2nonce'] ?? '', 'n2nonce' ) ) {
 			$params = wp_parse_args( $params, $_POST );
@@ -463,5 +471,71 @@ class N2_Rakuten_SFTP {
 			JSON_UNESCAPED_UNICODE
 		);
 		exit;
+	}
+
+	/**
+	 * 時を戻すためのAPI
+	 */
+	public function checkout_revision() {
+		// $_GETを$argsで上書き
+		$params = wp_parse_args( $args ?? array(), $_GET );
+		// $_POSTを$paramsで上書き
+		if ( wp_verify_nonce( $_POST['n2nonce'] ?? '', 'n2nonce' ) ) {
+			$params = wp_parse_args( $params, $_POST );
+		}
+
+		// id check
+		$this->check_fatal_error( isset( $params['post_id'] ), 'ERROR: idが不正です' );
+
+		// revision check
+		$revision = get_post( $params['post_id'] );
+		$this->check_fatal_error( $revision, 'ERROR: データがありません' );
+
+		// update check
+		$data = json_decode( $revision->post_content, true );
+		$this->check_fatal_error( $params['update'] ?? '', wp_json_encode( $data, JSON_UNESCAPED_UNICODE ) );
+
+		// valueの入れ替え
+		$tmp_arg               = $data['RMS商品画像']['変更前'];
+		$data['RMS商品画像']['変更前'] = $data['RMS商品画像']['変更後'];
+		$data['RMS商品画像']['変更後'] = $tmp_arg;
+		$post                  = array(
+			'post_id'      => $revision->post_parent,
+			'post_content' => wp_json_encode( $data, JSON_UNESCAPED_UNICODE ),
+		);
+		$item_api              = new N2_RMS_Item_API();
+		foreach ( $data['RMS商品画像']['変更後'] as $item_code => $path_arr ) {
+			$body = array_map(
+				fn( $path ) => array(
+					'type'     => 'CABINET',
+					'location' => $path,
+				),
+				$path_arr,
+			);
+			$item_api->items_patch( $item_code, $body );
+		}
+		$author = $this->get_userid_by_usermeta( 'last_name', $data['事業者コード'] ?? '' );
+		if ( $author ) {
+			$post['post_author'] = $author;
+		}
+		$this->update_post( $post );
+	}
+
+	/**
+	 * usermetaからユーザーIDゲットだぜ
+	 *
+	 * @param string $field 名
+	 * @param string $value 名
+	 */
+	public function get_userid_by_usermeta( $field, $value ) {
+		global $wpdb;
+		$id = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT user_id FROM $wpdb->usermeta WHERE meta_key = %s AND meta_value = %s LIMIT 1",
+				$field,
+				$value
+			)
+		);
+		return $id;
 	}
 }

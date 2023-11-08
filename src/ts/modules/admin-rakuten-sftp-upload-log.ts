@@ -156,8 +156,8 @@ export default Vue.extend({
 				// id削除
 				delete update_item.id;
 				// 画像用revision追加
-				update_item.RMS画像一覧.更新前 = rms_images;
-				update_item.RMS画像一覧.更新後 = update_item.アップロード;
+				update_item.RMS商品画像.変更前 = rms_images;
+				update_item.RMS商品画像.変更後 = update_item.アップロード;
 				formData.append('post_content', JSON.stringify(update_item));
 				await axios.post(
 					window['n2'].ajaxurl,
@@ -228,7 +228,7 @@ export default Vue.extend({
 						<template v-else-if="meta==='RMS連携履歴' && item.転送モード==='img_upload'">
 							<button
 								@click="displayHistory(item)"
-								:disabled="! item.RMS画像一覧.更新後 || !Object.keys(item.RMS画像一覧.更新後).length"
+								:disabled="! item.RMS商品画像.変更後 || !Object.keys(item.RMS商品画像.変更後).length"
 								type="button" class="btn btn-sm btn-outline-warning"
 							>
 								時を見る
