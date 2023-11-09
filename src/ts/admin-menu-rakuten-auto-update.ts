@@ -36,12 +36,13 @@ jQuery( async function($){
 				await this.addLog('get_target_items', JSON.stringify(this.items));
 			}
 
+
+			const patchPromise = [];
 			// 返礼品ごとにループ
-			this.items.forEach(item => {
+			this.items.forEach(async item => {
 				let body = {};
 				const image_path = this.make_image_path(item.manageNumber);
 				let img_patch_log = [];
-				console.log(item.images);
 				
 				// 商品画像
 				const images = item.images.map(img=>{
@@ -60,6 +61,7 @@ jQuery( async function($){
 				const salesDescription = this.replace_path( item.salesDescription, image_path );
 				if ( salesDescription ) {
 					body = {...body,salesDescription};
+					console.log(body);
 				}
 
 				// スマホ商品説明文
@@ -68,19 +70,33 @@ jQuery( async function($){
 				if ( replaceSPproductDescription ) {
 					productDescription['sp'] = replaceSPproductDescription;
 					body = {...body,productDescription};
+					console.log(body);
+					
 				}
 				// PC商品説明文
 				const replacePCproductDescription = this.replace_path( item.productDescription.pc, image_path );
 				if ( replacePCproductDescription ) {
 					productDescription['pc'] = replacePCproductDescription;
 					body = {...body,productDescription};
+					console.log(body);
 				}
+				console.log( Object.keys(body).length,body );
+				
 				if ( Object.keys(body).length ) {
 					console.log(body);
-					this.addLog(`${item.manageNumber}: item patch`, JSON.stringify(body));
+					patchPromise.push(this.itemPatch(
+						item.manageNumber,
+						JSON.stringify(body)
+					));
+					await this.addLog(`${item.manageNumber}: search item patch`, JSON.stringify(body));
 				}
 			});
 
+			await Promise.all(patchPromise).then( responses =>{
+				responses.forEach( manageNumber=>{
+					this.addLog(`${manageNumber}: done item patch`, manageNumber);
+				})
+			});
 		},
 		replace_path( target, path:{old:string,new:string} ) {
 			if ( target.indexOf( path.new ) === -1 && target.indexOf( path.old ) !== -1 ) {
@@ -127,10 +143,7 @@ jQuery( async function($){
 			return await axios.post(
 				window['n2'].ajaxurl,
 				formData,
-			).then(res=>{
-				console.log(res);
-				return res.data;
-			});
+			).then(()=>manageNumber);
 		},
 		async addLog(title, postContent) {
 			const formData = new FormData();
@@ -141,10 +154,7 @@ jQuery( async function($){
 			return await axios.post(
 				window['n2'].ajaxurl,
 				formData,
-			).then(res=>{
-				console.log(res);
-				return res.data;
-			});
+			);
 		},
 		parseManageNumber ( manageNumber ) {
 			const match = manageNumber.match(/([0-9]{0,2}[a-z]{2,4})([0-9]{2,3})/);
