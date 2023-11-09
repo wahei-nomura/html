@@ -195,7 +195,7 @@ class N2_Rakuten_SFTP {
 			}
 			// $img_dir からキャビネットのディレクトリ構造を作成
 			$remote_dir = preg_replace( '/^.*cabinet/', 'cabinet/images', $img_dir );
-			preg_match( '/^([0-9]{0,2}[a-z]{2,4})[0-9]{2,3}[-]*[0-9]*\.jpg/', $name[ $k ], $m );
+			preg_match( '/^([0-9]{0,2}[a-z]{2,4})([0-9]{2,3})[-]*[0-9]*\.jpg/', $name[ $k ], $m );
 			if ( ! $m[1] ) {
 				$this->data['log'][] = 'ファイル名が違います :' . $name[ $k ];
 				continue;
@@ -205,9 +205,17 @@ class N2_Rakuten_SFTP {
 			if ( $this->sftp->mkdir( $remote_dir ) ) {
 				$this->data['log'][] = "{$remote_dir}を作成\n";
 			}
+			// 事業者コードでフォルダ作成
 			$remote_dir .= $m[1];
 			if ( $this->sftp->mkdir( $remote_dir ) ) {
 				$this->data['log'][] = "{$remote_dir}を作成\n";
+			}
+			// 数字でサブフォルダ作成
+			if ( (int) $m[2] >= 100 ) {
+				$remote_dir .= "/{$m[2][0]}";
+				if ( $this->sftp->mkdir( $remote_dir ) ) {
+					$this->data['log'][] = "{$remote_dir}を作成\n";
+				}
 			}
 			$remote_file         = "{$remote_dir}/{$name[$k]}";
 			$image_data          = file_get_contents( "{$tmp}/{$name[$k]}" );
