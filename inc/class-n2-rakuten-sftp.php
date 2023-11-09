@@ -65,6 +65,9 @@ class N2_Rakuten_SFTP {
 		add_action( 'wp_ajax_n2_rakuten_sftp_upload_to_rakuten', array( $this, 'upload_to_rakuten' ) );
 		add_action( 'init', array( $this, 'register_post_type' ) );
 	}
+	/**
+	 * デストラクタ
+	 */
 	public function __destruct() {
 	}
 
@@ -137,6 +140,8 @@ class N2_Rakuten_SFTP {
 
 	/**
 	 * SFTP CONNECT
+	 *
+	 * @param array|null $args args
 	 */
 	public function connect( $args = null ) {
 		// 初回時のみ接続確認
@@ -189,7 +194,7 @@ class N2_Rakuten_SFTP {
 				$contents = htmlspecialchars( mb_convert_encoding( $contents, 'utf-8', 'sjis' ) );
 				return array(
 					'name'     => $log['name'],
-					'time'     => date( 'Y M d', $log['lastmodunix'] ),
+					'time'     => date_i18n( 'Y M d', $log['lastmodunix'] ),
 					'contents' => $contents,
 				);
 			},
@@ -225,6 +230,9 @@ class N2_Rakuten_SFTP {
 		$this->log_output();
 	}
 
+	/**
+	 * キャビアップ
+	 */
 	public function img_upload() {
 		$this->set_files();
 		global $n2;
@@ -281,6 +289,9 @@ class N2_Rakuten_SFTP {
 		$this->insert_post();
 	}
 
+	/**
+	 * CSVアップロード
+	 */
 	public function csv_upload() {
 		$this->set_files();
 		$name     = $this->data['files']['name'];
@@ -398,18 +409,18 @@ class N2_Rakuten_SFTP {
 	 */
 	public function insert_post() {
 		global $n2;
-		$now                       = date_i18n( 'Y M d h:i:s A' );
-		$judge                     = $this->data['params']['judge'];
-		$item_api                  = new N2_RMS_Item_API();
-		$rms_images                = array_map(
+		$now                            = date_i18n( 'Y M d h:i:s A' );
+		$judge                          = $this->data['params']['judge'];
+		$item_api                       = new N2_RMS_Item_API();
+		$rms_images                     = array_map(
 			fn ( $item_code ) => array_map(
 				fn( $image ) => $image['location'],
 				$item_api->items_get( $item_code )['images'],
 			),
 			array_keys( $this->n2data ),
 		);
-		$rms_images                           = array_combine( array_keys( $this->n2data ), $rms_images );
-		$post_content = array(
+		$rms_images                     = array_combine( array_keys( $this->n2data ), $rms_images );
+		$post_content                   = array(
 			'アップロード'   => $this->n2data,
 			'転送モード'    => $judge,
 			'アップロードログ' => $this->data['log'],
@@ -419,7 +430,7 @@ class N2_Rakuten_SFTP {
 				'変更後' => array(),
 			),
 		);
-		$default                              = array(
+		$default                        = array(
 			'ID'           => 0,
 			'post_author'  => $n2->current_user->ID,
 			'post_status'  => 'pending',
