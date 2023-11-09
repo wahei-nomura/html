@@ -1,7 +1,6 @@
 <?php
 /**
- * class-n2-rms-category-api.php
- * RMS CATEGORY API
+ * RMS WEB SERVICE : items
  *
  * @package neoneng
  */
