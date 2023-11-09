@@ -50,6 +50,8 @@ class N2_Rakuten_SFTP {
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 		add_action( 'wp_ajax_n2_upload_to_rakuten_sftp', array( $this, 'upload_to_rakuten' ) );
+		add_action( 'wp_ajax_n2_rakuten_sftp_insert_log_post', array( $this, 'insert_log_post' ) );
+		add_action( 'init', array( $this, 'register_post_type' ) );
 	}
 	public function __destruct() {
 	}
@@ -63,6 +65,7 @@ class N2_Rakuten_SFTP {
 			add_menu_page( '楽天SFTP', '楽天SFTP', 'ss_crew', 'n2_rakuten_sftp_upload', array( $this, 'display_ui' ), 'dashicons-admin-site-alt3' );
 			add_submenu_page( 'n2_rakuten_sftp_upload', '楽天エラーログ', '楽天エラーログ', 'ss_crew', 'n2_rakuten_sftp_error_log', array( $this, 'display_ui' ) );
 			add_submenu_page( 'n2_rakuten_sftp_upload', '楽天Cabinet', '楽天Cabinet', 'ss_crew', 'n2_rakuten_sftp_client', array( $this, 'display_ui' ) );
+			add_submenu_page( 'n2_rakuten_sftp_upload', '楽天自動更新', '楽天自動更新', 'administrator', 'n2_rakuten_auto_update', array( $this, 'rakuten_auto_update' ) );
 		}
 	}
 
@@ -314,5 +317,58 @@ class N2_Rakuten_SFTP {
 			echo $message;
 			exit;
 		}
+	}
+
+	/**
+	 * rakuten_auto_update
+	 */
+	public function rakuten_auto_update() {
+		global $n2;
+		$img_dir = rtrim( $n2->settings['楽天']['商品画像ディレクトリ'], '/' );
+		?>
+		<div id="ss-rakuten-auto-update">
+			<input id="n2nonce" type="hidden" name="n2nonce" value="<?php echo esc_attr( wp_create_nonce( 'n2nonce' ) ); ?>">
+			<input id="n2nonce" type="hidden" name="imgDir" value="<?php echo esc_attr( $img_dir ); ?>">
+			Loading...
+		</div>
+		<?php
+	}
+
+	/**
+	 * カスタム投稿を追加
+	 */
+	public function register_post_type() {
+		$args = array(
+			'label'    => '楽天自動更新ログ',
+			'public'   => true,
+			'supports' => array(
+				'title',
+				'revisions',
+				'page-attributes',
+			),
+		);
+		register_post_type( 'rakuten_auto_update', $args );
+	}
+	public function insert_log_post() {
+		global $n2;
+		$this->check_fatal_error( wp_verify_nonce( $_POST['n2nonce'] ?? '', 'n2nonce' ), '不正なパラメータ' );
+		$params = $_POST;
+		$this->check_fatal_error( isset( $params['title'] ), 'titleがありません' );
+		$this->check_fatal_error( isset( $params['post_content'] ), 'post_contentがありません' );
+
+		$now                       = date_i18n( 'Y M d h:i:s A' );
+		$default                              = array(
+			'ID'           => 0,
+			'post_author'  => $n2->current_user->ID,
+			'post_status'  => 'pending',
+			'post_type'    => 'rakuten_auto_update',
+			'post_title'   => "[$now] $judge: {$params['title']}",
+			'post_content' => wp_json_encode( $params['post_content'], JSON_UNESCAPED_UNICODE ),
+		);
+		header( 'Content-Type: application/json; charset=utf-8' );
+		return array(
+			'id'      => wp_insert_post( $default ),
+			'message' => 'insert'
+		);
 	}
 }
