@@ -41,6 +41,7 @@ class N2_RMS_Items_API extends N2_RMS_Base_API {
 			'offset'         => $offset, // 0～10000
 			'hits'           => $hits, // 1〜100
 			'isItemStockout' => $is_item_stockout,
+			'sortKey'        => 'manageNumber',
 		);
 		$url    = static::$settings['endpoint'] . '/2.0/items/search?' . http_build_query( $params );
 		$data   = wp_remote_get( $url, array( 'headers' => static::$data['header'] ) );
