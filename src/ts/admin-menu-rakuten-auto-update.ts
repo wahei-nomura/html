@@ -23,22 +23,89 @@ jQuery( async function($){
 		async update(){
 			this.offset = 0
 			this.items = await this.itemsGet();
-			while( this.offset * 100 < this.itemCount ){
-				this.items = [...this.items, ...await this.itemsGet()];
+			// 対象の返礼品(100~)だけに絞る
+			this.items = this.items.filter(item=>{
+				return this.parseManageNumber(item.manageNumber).num >= 100;
+			});
+
+			// 対象返礼品
+			if( ! this.items.length ) {
+				this.addLog('not found items', JSON.stringify(this.items));
+				return;
+			} else {
+				await this.addLog('get_target_items', JSON.stringify(this.items));
 			}
 
+			// 返礼品ごとにループ
 			this.items.forEach(item => {
-				console.log(this.parseManageNumber(item.manageNumber));
+				let body = {};
+				const image_path = this.make_image_path(item.manageNumber);
+				let img_patch_log = [];
+				console.log(item.images);
+				
+				// 商品画像
+				const images = item.images.map(img=>{
+					const replace = this.replace_path( img.location, image_path );
+					if ( replace ) {
+						img_patch_log = [...img_patch_log, replace];
+						img.location = replace;
+					}
+					return img;
+				});
+				if ( img_patch_log.length ) {
+					body = {images};
+				}
+				
+				// PC販売説明文
+				const salesDescription = this.replace_path( item.salesDescription, image_path );
+				if ( salesDescription ) {
+					body = {...body,salesDescription};
+				}
+
+				// スマホ商品説明文
+				const productDescription = {};
+				const replaceSPproductDescription = this.replace_path( item.productDescription.sp, image_path );
+				if ( replaceSPproductDescription ) {
+					productDescription['sp'] = replaceSPproductDescription;
+					body = {...body,productDescription};
+				}
+				// PC商品説明文
+				const replacePCproductDescription = this.replace_path( item.productDescription.pc, image_path );
+				if ( replacePCproductDescription ) {
+					productDescription['pc'] = replacePCproductDescription;
+					body = {...body,productDescription};
+				}
+				if ( Object.keys(body).length ) {
+					console.log(body);
+					this.addLog(`${item.manageNumber}: item patch`, JSON.stringify(body));
+				}
 			});
-			await this.addLog('get_items', JSON.stringify(this.items));
+
+		},
+		replace_path( target, path:{old:string,new:string} ) {
+			if ( target.indexOf( path.new ) === -1 && target.indexOf( path.old ) !== -1 ) {
+				return target.replaceAll(path.old, path.new);
+			};
+			return false;
+		},
+
+		make_image_path( manageNumber:string, abs= false ){
+			const {sku,num} = this.parseManageNumber( manageNumber );
+			const path =  abs
+				? `${this.imgDir}/${sku}`
+				: `/item/${sku}`;
+			return {
+				new: `${path}/${num[0]}/${manageNumber}`,
+				old: `${path}/${manageNumber}`,
+			}
 		},
 		async itemsGet() {
 			const formData = new FormData();
 			formData.append('n2nonce',this.n2nonce);
-			formData.append('action',this.action);
+			formData.append('action',this.actions.rms.items);
 			formData.append('call','search');
 			formData.append('mode','json');
-			formData.append('offset', String(this.offset));
+			formData.append('hits', '-1');
 			return await axios.post(
 				window['n2'].ajaxurl,
 				formData,
@@ -49,10 +116,26 @@ jQuery( async function($){
 				return res.data.results.map(v => v.item);
 			});
 		},
+		async itemPatch( manageNumber:string, body:string ){
+			const formData = new FormData();
+			formData.append('n2nonce',this.n2nonce);
+			formData.append('action',this.actions.rms.items);
+			formData.append('manageNumber', manageNumber);
+			formData.append('body', body);
+			formData.append('call','items_patch');
+			formData.append('mode','json');
+			return await axios.post(
+				window['n2'].ajaxurl,
+				formData,
+			).then(res=>{
+				console.log(res);
+				return res.data;
+			});
+		},
 		async addLog(title, postContent) {
 			const formData = new FormData();
 			formData.append('n2nonce',this.n2nonce);
-			formData.append('action', 'n2_rakuten_sftp_insert_log_post');
+			formData.append('action', this.actions.log);
 			formData.append('title',title);
 			formData.append('post_content',postContent);
 			return await axios.post(
@@ -78,7 +161,13 @@ jQuery( async function($){
 			return {
 				n2nonce: null,
 				imgDir: null,
-				action: 'n2_rms_items_api_ajax',
+				actions: {
+					rms: {
+						cabinet:'n2_rms_cabinet_api_ajax',
+						items: 'n2_rms_items_api_ajax',
+					},
+					log: 'n2_rakuten_sftp_insert_log_post',
+				},
 				itemCount: 0,
 				offset: 0,
 				items: [],

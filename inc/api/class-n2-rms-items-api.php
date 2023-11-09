@@ -39,18 +39,42 @@ class N2_RMS_Items_API extends N2_RMS_Base_API {
 	public static function search( $offset = 0, $hits = 100, $is_item_stockout = 'false' ) {
 		$params = array(
 			'offset'         => $offset, // 0～10000
-			'hits'           => $hits, // 1〜100
+			'hits'           => $hits >= 1 ? $hits : 100, // 1〜100（N2では0以下で全件取得）
 			'isItemStockout' => $is_item_stockout,
-			'sortKey'        => 'manageNumber',
 		);
-		$url    = static::$settings['endpoint'] . '/2.0/items/search?' . http_build_query( $params );
-		$data   = wp_remote_get( $url, array( 'headers' => static::$data['header'] ) );
+		$url    = static::$settings['endpoint'] . '/2.0/items/search?';
+		$data   = wp_remote_get( $url . http_build_query( $params ), array( 'headers' => static::$data['header'] ) );
 
 		if ( is_wp_error( $data ) ) {
 			return array();
 		}
-
-		return json_decode( $data['body'], true );
+		$data = json_decode( $data['body'], true );
+		// $hitsが1以上の場合通常
+		if ( $hits >= 1 ) {
+			return $data;
+		}
+		// $hitsが1以下の場合は全件取得
+		$pages            = ceil( $data['numFound'] / $params['hits'] );// ページ数を取得
+		$params['offset'] = $params['offset'] + $params['hits'];// 最初のページは要らない
+		$requests         = array();
+		while ( $pages > ceil( $params['offset'] / $params['hits'] ) ) {
+			$requests[] = array(
+				'url'     => $url . http_build_query( $params ),
+				'headers' => static::$data['header'],
+			);
+			$params['offset'] = $params['offset'] + $params['hits'];
+		}
+		if ( empty( $requests ) ) {
+			return $data;
+		}
+		$response = N2_Multi_URL_Request_API::request_multiple( $requests );
+		foreach ( $response as $res ) {
+			$data['results'] = array(
+				...$data['results'],
+				...json_decode( $res->body, true )['results'],
+			);
+		}
+		return $data;
 	}
 
 	/**
