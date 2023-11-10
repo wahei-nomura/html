@@ -34,7 +34,7 @@ jQuery( async function($){
 			this.items = await this.itemsGet(isStockout);
 			// 対象の返礼品(100~)だけに絞る
 			this.items = this.items.filter(item=>{
-				return this.parseManageNumber(item.manageNumber).num >= 100;
+				return /([0-9]{0,2}[a-z]{2,4})([0-9]{2,3})/.test(item.manageNumber) && this.parseManageNumber(item.manageNumber).num >= 100;
 			});
 
 			// 対象返礼品
