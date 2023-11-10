@@ -47,18 +47,13 @@ class N2_RMS_Items_API extends N2_RMS_Base_API {
 		$pages            = ceil( $data['numFound'] / $params['hits'] );// ページ数を取得
 		$params['offset'] = $params['offset'] + $params['hits'];// 最初のページは要らない
 		while ( $pages > ceil( $params['offset'] / $params['hits'] ) ) {
-			$requests[] = array(
-				'url'     => $url . http_build_query( $params ),
-				'headers' => static::$data['header'],
-			);
-			$params['offset'] = $params['offset'] + $params['hits'];
-		}
-		$response = N2_Multi_URL_Request_API::request_multiple( $requests );
-		foreach ( $response as $res ) {
+			$res = wp_remote_get( $url . http_build_query( $params ), array( 'headers' => static::$data['header'] ) );
+			// $data['results']に追加
 			$data['results'] = array(
 				...$data['results'],
-				...json_decode( $res->body, true )['results'],
+				...json_decode( $res['body'], true )['results'],
 			);
+			$params['offset'] = $params['offset'] + $params['hits'];
 		}
 		return $data;
 	}
