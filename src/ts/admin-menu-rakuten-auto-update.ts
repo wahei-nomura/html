@@ -21,13 +21,17 @@ jQuery( async function($){
 
 	const methods = {
 		async update(){
+			await this.updateByStockOut(false);
+			await this.updateByStockOut(true);
+		},
+		async updateByStockOut(isStockout){
 			if( !confirm('更新を開始しますか？\n(実行状況はconsoleまたはN2のpostで確認してください)')){
 				return;
 			}
 
 			this.folders = await this.foldersGet().then(res=>res.data);
 			this.offset = 0
-			this.items = await this.itemsGet();
+			this.items = await this.itemsGet(isStockout);
 			// 対象の返礼品(100~)だけに絞る
 			this.items = this.items.filter(item=>{
 				return this.parseManageNumber(item.manageNumber).num >= 100;
@@ -209,13 +213,14 @@ jQuery( async function($){
 				this.addLog(`${manageNumber}: ${err.message}`,"",post_id);
 			});
 		},
-		async itemsGet() {
+		async itemsGet(isStockout) {
 			const formData = new FormData();
 			formData.append('n2nonce',this.n2nonce);
 			formData.append('action',this.actions.rms.items);
 			formData.append('call','search');
 			formData.append('mode','json');
 			formData.append('hits', '-1');
+			formData.append('is_item_stockout',isStockout);
 			return await axios.post(
 				window['n2'].ajaxurl,
 				formData,
