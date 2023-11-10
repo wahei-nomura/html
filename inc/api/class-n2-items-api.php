@@ -53,10 +53,12 @@ class N2_Items_API {
 
 	/**
 	 * パラメータのセット
+	 *
+	 * @param array $params パラメータ
 	 */
-	public static function set_params() {
+	public static function set_params( $params ) {
 		global $n2;
-		$params = $_GET;
+		$params = $params ?: $_GET;
 		// $_POSTを$paramsで上書き
 		if ( wp_verify_nonce( $_POST['n2nonce'] ?? '', 'n2nonce' ) ) {
 			$params = wp_parse_args( $params, $_POST );
@@ -75,9 +77,12 @@ class N2_Items_API {
 
 	/**
 	 * データ取得
+	 *
+	 * @param array $params パラメータ
 	 */
-	public static function get_items() {
-		self::set_params();
+	public static function get_items( $params = array() ) {
+		$params = wp_parse_args( $params );
+		self::set_params( $params );
 		$posts = get_posts( self::$data['params'] );
 		$posts = array_map(
 			function ( $v ) {
