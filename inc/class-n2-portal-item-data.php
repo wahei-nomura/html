@@ -78,6 +78,13 @@ class N2_Portal_Item_Data {
 	}
 
 	/**
+	 * APIデータのアップデート
+	 */
+	public function update() {
+		exit;
+	}
+
+	/**
 	 * ポータルデータをwp_postsに登録
 	 */
 	public function insert_portal_data() {
