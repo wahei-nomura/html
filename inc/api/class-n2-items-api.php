@@ -67,6 +67,7 @@ class N2_Items_API {
 		$defaults = array(
 			'suppress_filters' => false,
 			'post_status'      => 'any',
+			'post_type'        => 'post',
 			'numberposts'      => -1,
 			'mode'             => 'json',
 			'n2_active_flag'   => $n2->settings['N2']['稼働中'],
