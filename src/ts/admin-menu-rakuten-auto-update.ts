@@ -21,7 +21,15 @@ jQuery( async function($){
 
 	const methods = {
 		async update(){
-			if( !confirm('更新を開始しますか？\n(実行状況はconsoleまたはN2のpostで確認してください)')){
+			const confirmMessage = [
+				'以下の内容で更新を開始しますか？',
+				'(実行状況はconsoleまたはN2のpostで確認してください)',
+				'・CABINET画像移動',
+				'・SP商品説明文内の画像リンク修正',
+				'・PC商品説明文内の画像リンク修正',
+				'・PC販売説明文内の画像リンク修正',
+			];
+			if( !confirm(confirmMessage.join('\n'))){
 				return;
 			}
 			await this.updateByStockOut(false);
