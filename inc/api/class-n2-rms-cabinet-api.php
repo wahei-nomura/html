@@ -67,6 +67,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			$result           = (array) $result->folders;
 			return $result['folder'];
 		};
+
 		$folders          = $response_folders( $response );
 		if ( $folder_all_count <= $limit ) {
 			return $folders;
@@ -75,7 +76,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			fn ( $offset ) => array(
 				'url' => $url( $offset ),
 			),
-			range( 2, floor( $folder_all_count / $limit ) + 1 )
+			range( 2, ceil( $folder_all_count / $limit ) )
 		);
 		foreach ( static::request_multiple( $requests ) as $res ) {
 			$folders = array( ...$folders, ...$response_folders( $res ) );
@@ -108,7 +109,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			fn ( $offset ) => array(
 				'url' => $url( $offset ),
 			),
-			range( 2, floor( $file_all_count / $limit ) + 1 )
+			range( 2, ceil( $file_all_count / $limit ) )
 		);
 
 		foreach ( static::request_multiple( $requests ) as $res ) {
@@ -153,7 +154,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 				fn ( $offset ) => array(
 					'url' => $url( $keyword )( $offset ),
 				),
-				range( 2, floor( $file_all_count / $limit ) + 1 ),
+				range( 2, ceil( $file_all_count / $limit ) ),
 			);
 
 			foreach ( static::request_multiple( $additional_requests ) as $res ) {
@@ -382,7 +383,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			fn ( $offset ) => array(
 				'url' => $url( $offset ),
 			),
-			range( 2, floor( $file_all_count / $limit ) + 1 )
+			range( 2, ceil( $file_all_count / $limit ) )
 		);
 
 		foreach ( static::request_multiple( $requests ) as $res ) {
