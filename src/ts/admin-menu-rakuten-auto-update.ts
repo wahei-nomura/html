@@ -110,10 +110,14 @@ jQuery( async function($){
 			});
 		},
 		replace_path( target, path:{old:string,new:string} ) {
-			if ( target.indexOf( path.new ) === -1 && target.indexOf( path.old ) !== -1 ) {
-				return target.replaceAll(path.old, path.new);
-			};
-			return false;
+			try{
+				if ( target.indexOf( path.new ) === -1 && target.indexOf( path.old ) !== -1 ) {
+					return target.replaceAll(path.old, path.new);
+				};
+			}catch(err){
+				this.addLog(`Error: ${err.message}`,JSON.stringify(target));
+				return false;
+			}
 		},
 
 		make_image_path( manageNumber:string, abs= false ){
