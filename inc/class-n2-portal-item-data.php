@@ -40,14 +40,15 @@ class N2_Portal_Item_Data {
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		// 親クラスでのみ実行
-		if ( ! is_subclass_of( $this, 'N2_Portal_Item_Data' ) ) {
+		// 子クラスでのみ実行
+		if ( is_subclass_of( $this, 'N2_Portal_Item_Data' ) ) {
+			add_action( 'wp_ajax_' . mb_strtolower( get_class( $this ) ) . '_update', array( $this, 'update' ) );
+			if ( ! wp_next_scheduled( 'wp_ajax_' . mb_strtolower( get_class( $this ) ) . '_update' ) ) {
+				wp_schedule_event( time() + 200, 'hourly', 'wp_ajax_' . mb_strtolower( get_class( $this ) ) . '_update' );
+			}
+		} else {
 			add_action( 'init', array( $this, 'create_post_type' ) );
 			add_action( 'init', array( $this, 'enable_portal_items_api' ) );
-		}
-		add_action( 'wp_ajax_' . mb_strtolower( get_class( $this ) ) . '_update', array( $this, 'update' ) );
-		if ( ! wp_next_scheduled( 'wp_ajax_' . mb_strtolower( get_class( $this ) ) . '_update' ) ) {
-			wp_schedule_event( time() + 200, 'hourly', 'wp_ajax_' . mb_strtolower( get_class( $this ) ) . '_update' );
 		}
 	}
 
