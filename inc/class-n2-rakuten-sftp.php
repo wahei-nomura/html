@@ -352,23 +352,33 @@ class N2_Rakuten_SFTP {
 	public function insert_log_post() {
 		global $n2;
 		$this->check_fatal_error( wp_verify_nonce( $_POST['n2nonce'] ?? '', 'n2nonce' ), '不正なパラメータ' );
-		$params = $_POST;
-		$this->check_fatal_error( isset( $params['title'] ), 'titleがありません' );
-		$this->check_fatal_error( isset( $params['post_content'] ), 'post_contentがありません' );
+		$this->data['params'] = $this->data['params'] ?: $_POST;
+		$this->check_fatal_error( isset( $this->data['params']['title'] ), 'titleがありません' );
+		$this->check_fatal_error( isset( $this->data['params']['post_content'] ), 'post_contentがありません' );
 
-		$now                       = date_i18n( 'Y M d h:i:s A' );
-		$default                              = array(
-			'ID'           => 0,
+		$now       = date_i18n( 'Y M d h:i:s A' );
+		$default   = array(
+			'ID'           => $this->data['params']['post_id'] ?? 0,
 			'post_author'  => $n2->current_user->ID,
 			'post_status'  => 'pending',
 			'post_type'    => 'rakuten_auto_update',
-			'post_title'   => "[$now] $judge: {$params['title']}",
-			'post_content' => wp_json_encode( $params['post_content'], JSON_UNESCAPED_UNICODE ),
+			'post_title'   => "[$now]: {$this->data['params']['title']}",
+			'post_content' => wp_json_encode( $this->data['params']['post_content'], JSON_UNESCAPED_UNICODE ),
 		);
+		$insert_id = wp_insert_post( $default );
+		// 初回はリビジョン作成
+		if ( ! ( $this->data['params']['post_id'] ?? 0 ) ) {
+			$this->data['params']['post_id'] = $insert_id;
+			$this->insert_log_post();
+			return;
+		}
 		header( 'Content-Type: application/json; charset=utf-8' );
-		return array(
-			'id'      => wp_insert_post( $default ),
-			'message' => 'insert'
+		echo wp_json_encode(
+			array(
+				'id'      => $insert_id,
+				'message' => 'insert',
+			)
 		);
+		exit;
 	}
 }
