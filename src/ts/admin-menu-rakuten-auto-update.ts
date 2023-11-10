@@ -221,7 +221,7 @@ jQuery( async function($){
 					throw new Error(`${oldPath}: Failed to find FolderID`)
 				}
 				const res = await this.folderInsert(manageNumber,oldFolder[0].FolderId).then(res=>res.data.cabinetFolderInsertResult);
-				if ( ! res.resultCode ) {
+				if ( res.resultCode ) {
 					return await this.getFolderId( manageNumber, path, post_id);
 				}
 				// 最新の情報に更新
