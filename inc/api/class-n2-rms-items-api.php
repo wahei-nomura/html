@@ -17,15 +17,6 @@ if ( class_exists( 'N2_RMS_Items_API' ) ) {
 class N2_RMS_Items_API extends N2_RMS_Base_API {
 
 	/**
-	 * コンストラクタ
-	 */
-	public function __construct() {
-		parent::__construct();
-		add_action( 'wp_ajax_' . mb_strtolower( get_class( $this ) ) . '_ajax', array( $this, 'ajax' ) );
-		add_action( 'wp_ajax_nopriv_' . mb_strtolower( get_class( $this ) ) . '_ajax', array( $this, 'ajax' ) );
-	}
-
-	/**
 	 * RMS WEB SERVICE : items.search
 	 * この機能を利用すると、指定した条件から通常商品・予約商品・定期購入商品の商品情報を検索することができます。
 	 * 商品を登録・削除してから本機能の検索情報に反映されるまで、最大24時間かかります。
@@ -56,23 +47,14 @@ class N2_RMS_Items_API extends N2_RMS_Base_API {
 		// $hitsが1以下の場合は全件取得
 		$pages            = ceil( $data['numFound'] / $params['hits'] );// ページ数を取得
 		$params['offset'] = $params['offset'] + $params['hits'];// 最初のページは要らない
-		$requests         = array();
 		while ( $pages > ceil( $params['offset'] / $params['hits'] ) ) {
-			$requests[] = array(
-				'url'     => $url . http_build_query( $params ),
-				'headers' => static::$data['header'],
-			);
-			$params['offset'] = $params['offset'] + $params['hits'];
-		}
-		if ( empty( $requests ) ) {
-			return $data;
-		}
-		$response = N2_Multi_URL_Request_API::request_multiple( $requests );
-		foreach ( $response as $res ) {
+			$res = wp_remote_get( $url . http_build_query( $params ), array( 'headers' => static::$data['header'] ) );
+			// $data['results']に追加
 			$data['results'] = array(
 				...$data['results'],
-				...json_decode( $res->body, true )['results'],
+				...json_decode( $res['body'], true )['results'],
 			);
+			$params['offset'] = $params['offset'] + $params['hits'];
 		}
 		return $data;
 	}
