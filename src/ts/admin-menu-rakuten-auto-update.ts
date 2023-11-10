@@ -21,13 +21,13 @@ jQuery( async function($){
 
 	const methods = {
 		async update(){
+			if( !confirm('更新を開始しますか？\n(実行状況はconsoleまたはN2のpostで確認してください)')){
+				return;
+			}
 			await this.updateByStockOut(false);
 			await this.updateByStockOut(true);
 		},
 		async updateByStockOut(isStockout){
-			if( !confirm('更新を開始しますか？\n(実行状況はconsoleまたはN2のpostで確認してください)')){
-				return;
-			}
 
 			this.folders = await this.foldersGet().then(res=>res.data);
 			this.offset = 0
