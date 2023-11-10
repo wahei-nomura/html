@@ -176,23 +176,7 @@ jQuery( async function($){
 				if ( ! images.length ) {
 					throw new Error('not found necessary moved images')
 				}
-
-				// folderID取得
-				let folderID:string;
-				const newFolder = this.folders.filter(f=>f.FolderPath === newPath );
-				if ( ! newFolder.length ) {
-					const oldFolder = this.folders.filter(f=>f.FolderPath === oldPath );
-					if ( ! oldFolder.length ){
-						console.log(oldFolder);
-						
-						throw new Error(`${oldPath}: Failed to find FolderID`)
-					}
-					const res = await this.folderInsert(manageNumber,oldFolder[0].FolderId).then(res=>res.data.cabinetFolderInsertResult);
-					this.addLog( `${manageNumber}: insert folder`, JSON.stringify(res),post_id );
-					folderID = res.FolderId;
-				}else {
-					folderID = newFolder[0].FolderId;
-				}
+				const folderID = await this.getFolderId(manageNumber, path, post_id)
 				return {folderID,images};
 			}).then( ({folderID,images})=>{
 				console.log(folderID,images);
@@ -221,6 +205,30 @@ jQuery( async function($){
 				this.addLog(`${manageNumber}: ${err.message}`,"",post_id);
 			});
 		},
+		async getFolderId(manageNumber,path, post_id ){
+			const oldPath = path.old.replace(`/${manageNumber}`,'');
+			const newPath = path.new.replace(`/${manageNumber}`,'');
+			// folderID取得
+			let folderID:string;
+			const newFolder = this.folders.filter(f=>f.FolderPath === newPath );
+			if ( ! newFolder.length ) {
+				const oldFolder = this.folders.filter(f=>f.FolderPath === oldPath );
+				if ( ! oldFolder.length ){
+					throw new Error(`${oldPath}: Failed to find FolderID`)
+				}
+				const res = await this.folderInsert(manageNumber,oldFolder[0].FolderId).then(res=>res.data.cabinetFolderInsertResult);
+				if ( ! res.resultCode ) {
+					return await this.getFolderId( manageNumber, path, post_id);
+				}
+				// 最新の情報に更新
+				this.folders = await this.foldersGet().then(res=>res.data);
+				this.addLog( `${manageNumber}: insert folder`, JSON.stringify(res),post_id );
+				folderID = res.FolderId;
+			}else {
+				folderID = newFolder[0].FolderId;
+			}
+			return folderID;
+		},
 		async itemsGet(isStockout) {
 			const formData = new FormData();
 			formData.append('n2nonce',this.n2nonce);
@@ -233,7 +241,6 @@ jQuery( async function($){
 				window['n2'].ajaxurl,
 				formData,
 			).then(res=>{
-				console.log(res);
 				this.offset += 1;
 				this.itemCount = res.data.numFound ?? 0;
 				return res.data.results.map(v => v.item);
