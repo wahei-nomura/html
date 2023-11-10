@@ -28,15 +28,6 @@ class N2_Items_Rakuten_API extends N2_Portal_Item_Data {
 	 * @var array
 	 */
 	public $post_title = '楽天';
-	/**
-	 * コンストラクタ
-	 */
-	public function __construct() {
-		add_action( 'wp_ajax_n2_items_rakuten_api_update', array( $this, 'update' ) );
-		if ( ! wp_next_scheduled( 'wp_ajax_n2_items_rakuten_api_update' ) ) {
-			wp_schedule_event( time() + 200, 'hourly', 'wp_ajax_n2_items_rakuten_api_update' );
-		}
-	}
 
 	/**
 	 * APIデータのアップデート

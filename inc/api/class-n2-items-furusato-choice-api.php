@@ -24,16 +24,6 @@ class N2_Items_Furusato_Choice_API extends N2_Portal_Item_Data {
 	public $post_title = 'ふるさとチョイス';
 
 	/**
-	 * コンストラクタ
-	 */
-	public function __construct() {
-		add_action( 'wp_ajax_n2_items_furusato_choice_api_update', array( $this, 'update' ) );
-		if ( ! wp_next_scheduled( 'wp_ajax_n2_items_furusato_choice_api_update' ) ) {
-			wp_schedule_event( time() + 200, 'hourly', 'wp_ajax_n2_items_furusato_choice_api_update' );
-		}
-	}
-
-	/**
 	 * APIデータのアップデート
 	 */
 	public function update() {

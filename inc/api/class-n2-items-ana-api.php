@@ -14,28 +14,13 @@ if ( class_exists( 'N2_Items_ANA_API' ) ) {
  * 寄附金額の計算のためのAPI
  */
 class N2_Items_ANA_API extends N2_Portal_Item_Data {
+
 	/**
 	 * 保存時のタイトル
 	 *
 	 * @var array
 	 */
 	public $post_title = 'ANA';
-	/**
-	 * option_name
-	 *
-	 * @var string
-	 */
-	private $option_name = 'n2_items_ana_api';
-
-	/**
-	 * コンストラクタ
-	 */
-	public function __construct() {
-		add_action( 'wp_ajax_n2_items_ana_api_update', array( $this, 'update' ) );
-		if ( ! wp_next_scheduled( 'wp_ajax_n2_items_ana_api_update' ) ) {
-			wp_schedule_event( time() + 200, 'hourly', 'wp_ajax_n2_items_ana_api_update' );
-		}
-	}
 
 	/**
 	 * APIデータのアップデート
