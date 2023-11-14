@@ -339,12 +339,10 @@ class N2_Rakuten_SFTP {
 	 */
 	public function register_post_type() {
 		$args = array(
-			'label'    => '楽天自動更新ログ',
 			'public'   => false,
 			'supports' => array(
 				'title',
 				'revisions',
-				'page-attributes',
 			),
 		);
 		register_post_type( 'rakuten_auto_update', $args );
