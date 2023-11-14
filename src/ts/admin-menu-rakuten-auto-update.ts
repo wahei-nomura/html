@@ -57,66 +57,66 @@ jQuery( async function($){
 			
 			// 返礼品情報
 			this.items.forEach(async item => {
-				let body = {};
-				const post_id = await this.addLog(`${item.manageNumber}: search item patch`, JSON.stringify(item) );
-				const image_path = this.make_image_path(item.manageNumber);
+				try{
+					let body = {};
+					const post_id = await this.addLog(`${item.manageNumber}: search item patch`, JSON.stringify(item) );
+					const image_path = this.make_image_path(item.manageNumber);
 
-				// CABINET移動
-				await this.imageMove(item.manageNumber,image_path,post_id)
-				let img_patch_log = [];
+					// CABINET移動
+					await this.imageMove(item.manageNumber,image_path,post_id)
+					let img_patch_log = [];
 
-				// 商品画像
-				const images = item.images.map(img=>{
-					const replace = this.replace_path( img.location, image_path );
-					if ( replace ) {
-						img_patch_log = [...img_patch_log, replace];
-						img.location = replace;
-					}
-					return img;
-				});
-				if ( img_patch_log.length ) {
-					body = {images};
-				}
-				
-				// PC販売説明文
-				const salesDescription = this.replace_path( item.salesDescription, image_path );
-				if ( salesDescription ) {
-					body = {...body,salesDescription};
-				}
-
-				// スマホ商品説明文
-				const productDescription = {};
-				const replaceSPproductDescription = this.replace_path( item.productDescription.sp, image_path );
-				if ( replaceSPproductDescription ) {
-					productDescription['sp'] = replaceSPproductDescription;
-					body = {...body,productDescription};
-				}
-
-				// PC商品説明文
-				const replacePCproductDescription = this.replace_path( item.productDescription.pc, image_path );
-				if ( replacePCproductDescription ) {
-					productDescription['pc'] = replacePCproductDescription;
-					body = {...body,productDescription};
-				}
-				
-				if ( Object.keys(body).length ) {
-					await this.itemPatch(item.manageNumber, JSON.stringify(body)).then(()=>{
-						this.addLog(`${item.manageNumber}: done item patch`, JSON.stringify(body), post_id);
+					// 商品画像
+					const images = item.images.map(img=>{
+						const replace = this.replace_path( img.location, image_path );
+						if ( replace ) {
+							img_patch_log = [...img_patch_log, replace];
+							img.location = replace;
+						}
+						return img;
 					});
-				} else {
-					this.addLog(`${item.manageNumber}: unecessary item patch`, '', post_id);
+					if ( img_patch_log.length ) {
+						body = {images};
+					}
+
+					// PC販売説明文
+					const salesDescription = this.replace_path( item.salesDescription, image_path );
+					if ( salesDescription ) {
+						body = {...body,salesDescription};
+					}
+
+					// スマホ商品説明文
+					const productDescription = {};
+					const replaceSPproductDescription = this.replace_path( item.productDescription.sp, image_path );
+					if ( replaceSPproductDescription ) {
+						productDescription['sp'] = replaceSPproductDescription;
+						body = {...body,productDescription};
+					}
+
+					// PC商品説明文
+					const replacePCproductDescription = this.replace_path( item.productDescription.pc, image_path );
+					if ( replacePCproductDescription ) {
+						productDescription['pc'] = replacePCproductDescription;
+						body = {...body,productDescription};
+					}
+
+					if ( Object.keys(body).length ) {
+						await this.itemPatch(item.manageNumber, JSON.stringify(body)).then(()=>{
+							this.addLog(`${item.manageNumber}: done item patch`, JSON.stringify(body), post_id);
+						});
+					} else {
+						this.addLog(`${item.manageNumber}: unecessary item patch`, '', post_id);
+					}
+				}catch(err){
+					this.addLog(`Error: ${err.message}`,JSON.stringify(item));
+					return false;
 				}
 			});
 		},
 		replace_path( target, path:{old:string,new:string} ) {
-			try{
-				if ( target.indexOf( path.new ) === -1 && target.indexOf( path.old ) !== -1 ) {
-					return target.replaceAll(path.old, path.new);
-				};
-			}catch(err){
-				this.addLog(`Error: ${err.message}`,JSON.stringify(target));
-				return false;
-			}
+			if ( target.indexOf( path.new ) === -1 && target.indexOf( path.old ) !== -1 ) {
+				return target.replaceAll(path.old, path.new);
+			};
 		},
 
 		make_image_path( manageNumber:string, abs= false ){
