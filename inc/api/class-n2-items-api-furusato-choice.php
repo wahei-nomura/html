@@ -6,15 +6,15 @@
  * @package neoneng
  */
 
-if ( class_exists( 'N2_Items_Furusato_Choice_API' ) ) {
-	new N2_Items_Furusato_Choice_API();
+if ( class_exists( 'N2_Items_API_Furusato_Choice' ) ) {
+	new N2_Items_API_Furusato_Choice();
 	return;
 }
 
 /**
  * ふるさとチョイス商品API
  */
-class N2_Items_Furusato_Choice_API extends N2_Portal_Item_Data {
+class N2_Items_API_Furusato_Choice extends N2_Portal_Item_Data {
 
 	/**
 	 * 保存時のタイトル
@@ -29,7 +29,7 @@ class N2_Items_Furusato_Choice_API extends N2_Portal_Item_Data {
 	public function update() {
 		// 自治体コード取得
 		if ( ! preg_match( '/\/f([0-9]{5})/', get_bloginfo( 'url' ), $m ) ) {
-			echo '自治体コードが取得できません';
+			$this->exit( '自治体コードが取得できません' );
 		}
 		$town_code = $m[1];
 		$url       = "https://www.furusato-tax.jp/ajax/city/product/{$town_code}?";
@@ -38,9 +38,8 @@ class N2_Items_Furusato_Choice_API extends N2_Portal_Item_Data {
 		);
 		// データ取得を試みる
 		$data = wp_remote_get( $url . http_build_query( $params ) );
-		if ( 200 !== $data['response']['code'] ) {
-			echo 'ふるさとチョイスの返礼品データ取得失敗';
-			exit;
+		if ( is_wp_error( $data ) || 200 !== (int) $data['response']['code'] ) {
+			$this->exit( 'ふるさとチョイスの返礼品データ取得失敗' );
 		}
 		$data = $data['body'];
 

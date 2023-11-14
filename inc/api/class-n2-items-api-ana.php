@@ -5,15 +5,15 @@
  * @package neoneng
  */
 
-if ( class_exists( 'N2_Items_ANA_API' ) ) {
-	new N2_Items_ANA_API();
+if ( class_exists( 'N2_Items_API_ANA' ) ) {
+	new N2_Items_API_ANA();
 	return;
 }
 
 /**
  * 寄附金額の計算のためのAPI
  */
-class N2_Items_ANA_API extends N2_Portal_Item_Data {
+class N2_Items_API_ANA extends N2_Portal_Item_Data {
 
 	/**
 	 * 保存時のタイトル
@@ -36,9 +36,8 @@ class N2_Items_ANA_API extends N2_Portal_Item_Data {
 		);
 		// データ取得を試みる
 		$data = wp_remote_get( $url . http_build_query( $params ) );
-		if ( 200 !== $data['response']['code'] ) {
-			echo 'ANAのふるさと納税の返礼品データ取得失敗';
-			exit;
+		if ( is_wp_error( $data ) || 200 !== (int) $data['response']['code'] ) {
+			$this->exit( 'ANAのふるさと納税の返礼品データ取得失敗' );
 		}
 		$data = $data['body'];
 		// DOMDocument

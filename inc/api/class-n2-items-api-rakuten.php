@@ -5,15 +5,15 @@
  * @package neoneng
  */
 
-if ( class_exists( 'N2_Items_Rakuten_API' ) ) {
-	new N2_Items_Rakuten_API();
+if ( class_exists( 'N2_Items_API_Rakuten' ) ) {
+	new N2_Items_API_Rakuten();
 	return;
 }
 
 /**
  * 寄附金額の計算のためのAPI
  */
-class N2_Items_Rakuten_API extends N2_Portal_Item_Data {
+class N2_Items_API_Rakuten extends N2_Portal_Item_Data {
 
 	/**
 	 * 楽天ショップコード
@@ -36,15 +36,13 @@ class N2_Items_Rakuten_API extends N2_Portal_Item_Data {
 		// ショップコード取得
 		$shop = N2_RMS_Shop_API::shop_master_get();
 		if ( ! isset( $shop['url'] ) ) {
-			echo 'ERROR！RMS ShopAPIでurl取得失敗。処理を中止します。';
-			exit;
+			$this->exit( '[RMS Shop API] url取得失敗' );
 		}
 		$this->shop_code = $shop['url'];
 		// 返礼品データ取得
 		$items = N2_RMS_Items_API::search( 0, -1 );
 		if ( ! isset( $items['results'] ) ) {
-			echo 'ERROR！RMS ItemsAPIで返礼品データ取得失敗。処理を中止します。';
-			exit;
+			$this->exit( '[RMS Items API] 返礼品データ取得失敗' );
 		}
 		$this->data = array_map( array( $this, 'array_format' ), $items['results'] );
 		$this->data = array_unique( $this->data, SORT_REGULAR );

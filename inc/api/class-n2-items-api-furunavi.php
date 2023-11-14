@@ -5,15 +5,15 @@
  * @package neoneng
  */
 
-if ( class_exists( 'N2_Items_Furunavi_API' ) ) {
-	new N2_Items_Furunavi_API();
+if ( class_exists( 'N2_Items_API_Furunavi' ) ) {
+	new N2_Items_API_Furunavi();
 	return;
 }
 
 /**
  * ふるなびの商品情報取得API
  */
-class N2_Items_Furunavi_API extends N2_Portal_Item_Data {
+class N2_Items_API_Furunavi extends N2_Portal_Item_Data {
 
 	/**
 	 * 保存時のタイトル
@@ -35,6 +35,9 @@ class N2_Items_Furunavi_API extends N2_Portal_Item_Data {
 		);
 		// データ取得を試みる
 		$data = wp_remote_get( $url . http_build_query( $params ) );
+		if ( is_wp_error( $data ) || 200 !== (int) $data['response']['code'] ) {
+			$this->exit( 'ふるなびの返礼品データ取得失敗' );
+		}
 		$data = $data['body'];
 		$data = json_decode( $data, true );
 		// ページ数算出

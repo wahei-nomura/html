@@ -73,7 +73,7 @@ class N2_Portal_Item_Data {
 		global $n2;
 		$translates = array_flip( N2_Settings::$settings );
 		foreach ( array_filter( $n2->settings['N2']['出品ポータル'] ?? array() ) as $name ) {
-			require_once get_theme_file_path( "/inc/api/class-n2-items-{$translates[ $name ]}-api.php" );
+			require_once get_theme_file_path( "/inc/api/class-n2-items-api-{$translates[ $name ]}.php" );
 		}
 	}
 
@@ -113,5 +113,16 @@ class N2_Portal_Item_Data {
 		kses_init_filters();
 		header( 'Content-Type: application/json; charset=utf-8' );
 		printf( "ポータルデータ更新完了\n\n自治体：%s\nポータル：%s\n件数：%s", $n2->town, $this->post_title, count( $this->data ) );
+	}
+
+	/**
+	 * エラー終了
+	 *
+	 * @param array|string $error エラー時の表示
+	 */
+	public function exit( $error ) {
+		header( 'Content-Type: application/json; charset=utf-8' );
+		print_r( $error );
+		exit;
 	}
 }
