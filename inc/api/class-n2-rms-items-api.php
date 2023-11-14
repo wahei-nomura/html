@@ -29,7 +29,7 @@ class N2_RMS_Items_API extends N2_RMS_Base_API {
 	public static function search( $offset = 0, $hits = 100, $is_item_stockout = 'false' ) {
 		$params = array(
 			'offset'         => $offset, // 0～10000
-			'hits'           => $hits >= 1 ? $hits : 100, // 1〜100（N2では0以下で全件取得）
+			'hits'           => ( $hits < 1 || $hits > 100 ) ? 100 : $hits, // 1〜100（N2では0以下で全件取得）
 			'isItemStockout' => $is_item_stockout,
 		);
 		$url    = static::$settings['endpoint'] . '/2.0/items/search?';
@@ -39,22 +39,40 @@ class N2_RMS_Items_API extends N2_RMS_Base_API {
 			return array();
 		}
 		$data = json_decode( $data['body'], true );
-		// $hitsが1以上の場合通常
-		if ( $hits >= 1 ) {
+		// $hitsが1〜100の場合通常
+		if ( $hits >= 1 && $hits <= 100 ) {
 			return $data;
 		}
 		// $hitsが1以下の場合は全件取得
-		$pages            = ceil( $data['numFound'] / $params['hits'] );// ページ数を取得
+		$pages            = ceil( ( $hits < 1 ? $data['numFound'] : $hits ) / $params['hits'] );// ページ数を取得
 		$params['offset'] = $params['offset'] + $params['hits'];// 最初のページは要らない
 		while ( $pages > ceil( $params['offset'] / $params['hits'] ) ) {
-			$res = wp_remote_get( $url . http_build_query( $params ), array( 'headers' => static::$data['header'] ) );
-			// $data['results']に追加
-			$data['results'] = array(
-				...$data['results'],
-				...json_decode( $res['body'], true )['results'],
+			$requests[] = array(
+				'url'     => $url . http_build_query( $params ),
+				'headers' => static::$data['header'],
 			);
 			$params['offset'] = $params['offset'] + $params['hits'];
 		}
-		return $data;
+		// HTTP ステータスコード429の場合は無限にやり続ける
+		while ( true ) {
+			if ( empty( $requests ) ) {
+				break;
+			}
+			$response = N2_Multi_URL_Request_API::request_multiple( $requests );
+			foreach ( $response as $res ) {
+				if ( 429 === (int) $res->status_code ) {
+					continue;
+				}
+				if ( 200 === (int) $res->status_code ) {
+					$data['results'] = array(
+						...$data['results'],
+						...json_decode( $res->body, true )['results'],
+					);
+				}
+				// リクエスト破棄
+				$requests = array_filter( $requests, fn( $v ) => $res->url !== $v['url'] );
+			}
+		}
+		return $data['results'];
 	}
 }
