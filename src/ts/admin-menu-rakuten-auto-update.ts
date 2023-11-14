@@ -129,7 +129,7 @@ jQuery( async function($){
 						const alertMessage = [
 							( isStockout ? '在庫なし':'在庫あり' ) + ':更新終了！',
 							`置換: ${this.counts.info.patch[isStockout]}件`,
-							`移動: ${this.counts.img[isStockout]}件`,
+							`移動: ${this.counts.img[isStockout]}枚`,
 							`エラー: ${this.counts.error[isStockout]}件`,
 						];
 						this.addLog(`finish: isStockOut: ${isStockout}`, JSON.stringify({
