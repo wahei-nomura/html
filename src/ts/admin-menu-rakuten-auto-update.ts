@@ -100,7 +100,6 @@ jQuery( async function($){
 				}
 				
 				if ( Object.keys(body).length ) {
-					console.log(body);
 					await this.itemPatch(item.manageNumber, JSON.stringify(body)).then(()=>{
 						this.addLog(`${item.manageNumber}: done item patch`, JSON.stringify(body), post_id);
 					});
