@@ -43,7 +43,7 @@ class N2_Items_Rakuten_API extends N2_Portal_Item_Data {
 		// 返礼品データ取得
 		$items = N2_RMS_Items_API::search( 0, -1 );
 		if ( ! isset( $items['results'] ) ) {
-			echo 'ERROR！RMS ShopAPIで返礼品データ取得失敗。処理を中止します。';
+			echo 'ERROR！RMS ItemsAPIで返礼品データ取得失敗。処理を中止します。';
 			exit;
 		}
 		$this->data = array_map( array( $this, 'array_format' ), $items['results'] );

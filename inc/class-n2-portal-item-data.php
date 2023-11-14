@@ -88,6 +88,7 @@ class N2_Portal_Item_Data {
 	 * ポータルデータをwp_postsに登録
 	 */
 	public function insert_portal_data() {
+		global $n2;
 		// goods_g_numでソートする
 		array_multisort( array_column( $this->data, 'goods_g_num' ), SORT_ASC, $this->data );
 		$this->data = array_values( $this->data );
@@ -110,7 +111,7 @@ class N2_Portal_Item_Data {
 			$id         = wp_update_post( $args );
 		}
 		kses_init_filters();
-		echo '完了';
-		return $id;
+		header( 'Content-Type: application/json; charset=utf-8' );
+		printf( "ポータルデータ更新完了\n\n自治体：%s\nポータル：%s\n件数：%s", $n2->town, $this->post_title, count( $this->data ) );
 	}
 }
