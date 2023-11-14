@@ -252,7 +252,7 @@ jQuery( async function($){
 				}
 				const res = await this.folderInsert(manageNumber,oldFolder[0].FolderId).then(res=>res.data.cabinetFolderInsertResult);
 				if ( res.resultCode ) {
-					await this.wait(1000);
+					await this.randomWait(1000);
 					// 最新の情報に更新
 					this.folders = await this.foldersGet().then(res=>res.data);
 					return await this.getFolderId( manageNumber, path, post_id);
