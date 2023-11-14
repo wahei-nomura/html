@@ -399,24 +399,25 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	 */
 	public static function trashbox_files_revert( $fileId ) {
 		static::check_fatal_error( ! empty( $fileId ), 'ファイルIdが設定されていません。' );
-		$target_files   = array_filter(
+
+		$target_files = array_filter(
 			static::trashbox_files_get(),
-			fn ( $file ) => in_array( $file['FileId'], $fileId, true ),
+			fn ( $file ) => in_array( (string) $file->FileId, $fileId, true ),
 		);
-		$folders        = static::folders_get();
-		$requests       = array_map(
+		$folders      = static::folders_get();
+		$requests     = array_map(
 			function ( $file ) use ( $folders ) {
 				$xml_request_body = new SimpleXMLElement( '<?xml version="1.0" encoding="UTF-8"?><request></request>' );
 				$foleder_index    = array_search(
-					$file['FolderPath'],
+					$file->FolderPath,
 					array_column( $folders, 'FolderPath' ),
 					true,
 				);
 				$xml_array        = array(
 					'fileRevertRequest' => array(
 						'file' => array(
-							'fileId'   => $file['FileId'],
-							'folderId' => $folders[ $foleder_index ]['FolderId'],
+							'fileId'   => $file->FileId,
+							'folderId' => $folders[ $foleder_index ]->FolderId,
 						),
 					),
 				);
@@ -429,7 +430,6 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 					'type' => Requests::POST,
 					'data' => $xml_data,
 				);
-
 			},
 			$target_files
 		);
