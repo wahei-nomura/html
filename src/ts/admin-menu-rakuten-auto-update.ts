@@ -124,6 +124,7 @@ jQuery( async function($){
 					this.addLog(`Error: ${err.message}`,JSON.stringify(item));
 					this.counts.error[isStockout] += 1;
 				} finally {
+					// 終了時
 					if ( this.counts.items[isStockout] === this.counts.info.patch[isStockout] + this.counts.info.stay[isStockout] + this.counts.error[isStockout] ) {
 						const alertMessage = [
 							( isStockout ? '在庫なし':'在庫あり' ) + ':更新終了！',
@@ -131,6 +132,11 @@ jQuery( async function($){
 							`移動: ${this.counts.img[isStockout]}件`,
 							`エラー: ${this.counts.error[isStockout]}件`,
 						];
+						this.addLog(`finish: isStockOut: ${isStockout}`, JSON.stringify({
+							item_patch: this.counts.info.patch[isStockout],
+							error: this.counts.error[isStockout],
+							img_move:this.counts.img[isStockout],
+						}));
 						alert(alertMessage.join('\n'));
 					}
 				}
