@@ -24,8 +24,11 @@ class N2_RMS_Shop_API extends N2_RMS_Base_API {
 	 * @return object
 	 */
 	public static function shop_master_get() {
-		$url    = static::$settings['endpoint'] . '/1.0/shop/shopMaster';
-		$data   = wp_remote_get( $url, array( 'headers' => static::$data['header'] ) );
+		$url  = static::$settings['endpoint'] . '/1.0/shop/shopMaster';
+		$data = wp_remote_get( $url, array( 'headers' => static::$data['header'] ) );
+		if ( is_wp_error( $data ) ) {
+			return array();
+		}
 		$result = (array) simplexml_load_string( $data['body'] )->result->shopMaster;
 		return $result;
 	}
