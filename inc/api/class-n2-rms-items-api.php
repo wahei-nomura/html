@@ -29,7 +29,7 @@ class N2_RMS_Items_API extends N2_RMS_Base_API {
 	public static function search( $offset = 0, $hits = 100, $is_item_stockout = 'false' ) {
 		$params = array(
 			'offset'         => $offset, // 0～10000
-			'hits'           => ( $hits < 1 || $hits > 100 ) ? 100 : $hits, // 1〜100（N2では0以下で全件取得）
+			'hits'           => ( $hits < 1 || $hits > 100 ) ? 100 : $hits, // 1〜100（N2では0以下で全件取得、100以上も対応）
 			'isItemStockout' => $is_item_stockout,
 		);
 		$url    = static::$settings['endpoint'] . '/2.0/items/search?';
