@@ -109,11 +109,11 @@ jQuery( async function($){
 					}
 				}catch(err){
 					this.addLog(`Error: ${err.message}`,JSON.stringify(item));
-					return false;
 				}
 			});
 		},
 		replace_path( target, path:{old:string,new:string} ) {
+			if( ! target ) return false;
 			if ( target.indexOf( path.new ) === -1 && target.indexOf( path.old ) !== -1 ) {
 				return target.replaceAll(path.old, path.new);
 			};
