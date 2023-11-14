@@ -58,6 +58,8 @@ jQuery( async function($){
 			// 返礼品情報
 			this.items.forEach(async item => {
 				try{
+					// 実行タイミングをズラす
+					this.randomWait(1000);
 					let body = {};
 					const post_id = await this.addLog(`${item.manageNumber}: search item patch`, JSON.stringify(item) );
 					const image_path = this.make_image_path(item.manageNumber);
