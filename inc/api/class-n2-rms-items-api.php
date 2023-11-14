@@ -73,6 +73,6 @@ class N2_RMS_Items_API extends N2_RMS_Base_API {
 				$requests = array_filter( $requests, fn( $v ) => $res->url !== $v['url'] );
 			}
 		}
-		return $data['results'];
+		return $data;
 	}
 }
