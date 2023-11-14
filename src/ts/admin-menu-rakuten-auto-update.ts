@@ -221,12 +221,11 @@ jQuery( async function($){
 				}
 				const res = await this.folderInsert(manageNumber,oldFolder[0].FolderId).then(res=>res.data.cabinetFolderInsertResult);
 				if ( res.resultCode ) {
-					console.log(`${manageNumber}: retry insert folder`);
 					await this.wait(1000);
+					// 最新の情報に更新
+					this.folders = await this.foldersGet().then(res=>res.data);
 					return await this.getFolderId( manageNumber, path, post_id);
 				}
-				// 最新の情報に更新
-				this.folders = await this.foldersGet().then(res=>res.data);
 				this.addLog( `${manageNumber}: insert folder`, JSON.stringify(res),post_id );
 				folderID = res.FolderId;
 			}else {
@@ -284,11 +283,11 @@ jQuery( async function($){
 				num: match[2],
 			};
 		},
-		async wait(ms:number) {
+		async randomWait(ms:number) {
 			return new Promise(resolve=>{
 				setTimeout(() => {
 					resolve(0);
-				}, ms);
+				}, Math.floor(Math.random() * ( 9 * ms ) + ms ));
 			})
 		},
 	};
