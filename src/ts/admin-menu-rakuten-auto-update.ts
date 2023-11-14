@@ -32,28 +32,35 @@ jQuery( async function($){
 			if( !confirm(confirmMessage.join('\n'))){
 				return;
 			}
+			this.folders = await this.foldersGet().then(res=>res.data);
+
 			await this.updateByStockOut(false);
 			await this.updateByStockOut(true);
 		},
 		async updateByStockOut(isStockout){
-
-			this.folders = await this.foldersGet().then(res=>res.data);
-			this.offset = 0
 			this.items = await this.itemsGet(isStockout);
 			// 対象の返礼品(100~)だけに絞る
 			this.items = this.items.filter(item=>{
 				return /^([0-9]{0,2}[a-z]{2,4})([0-9]{2,3})/.test(item.manageNumber) && this.parseManageNumber(item.manageNumber).num >= 100;
 			});
-
+			
 			// 対象返礼品
 			if( ! this.items.length ) {
 				this.addLog('not found items', JSON.stringify(this.items));
+				alert(( isStockout ? '在庫なし':'在庫あり' ) + ':更新不要です！');
 				return;
 			} else {
 				this.addLog('get_target_items', JSON.stringify(this.items));
 			}
 
-			
+			// 商品数をセット
+			this.counts.items[isStockout] = this.items.length;
+
+			// 初期化
+			this.counts.info.patch[isStockout] = 0;
+			this.counts.info.stay[isStockout] = 0;
+			this.counts.img[isStockout] = 0;
+			this.counts.error[isStockout] = 0;
 			
 			// 返礼品情報
 			this.items.forEach(async item => {
@@ -65,7 +72,7 @@ jQuery( async function($){
 					const image_path = this.make_image_path(item.manageNumber);
 
 					// CABINET移動
-					await this.imageMove(item.manageNumber,image_path,post_id)
+					this.counts.img[isStockout] += await this.imageMove(item.manageNumber,image_path,post_id)
 					let img_patch_log = [];
 
 					// 商品画像
@@ -106,11 +113,26 @@ jQuery( async function($){
 						await this.itemPatch(item.manageNumber, JSON.stringify(body)).then(()=>{
 							this.addLog(`${item.manageNumber}: done item patch`, JSON.stringify(body), post_id);
 						});
+						this.counts.info.patch[isStockout] += 1;
 					} else {
+						this.counts.info.stay[isStockout] += 1;
 						this.addLog(`${item.manageNumber}: unecessary item patch`, '', post_id);
 					}
+
+
 				}catch(err){
 					this.addLog(`Error: ${err.message}`,JSON.stringify(item));
+					this.counts.error[isStockout] += 1;
+				} finally {
+					if ( this.counts.items[isStockout] === this.counts.info.patch[isStockout] + this.counts.info.stay[isStockout] + this.counts.error[isStockout] ) {
+						const alertMessage = [
+							( isStockout ? '在庫なし':'在庫あり' ) + ':更新終了！',
+							`置換: ${this.counts.info.patch[isStockout]}件`,
+							`移動: ${this.counts.img[isStockout]}件`,
+							`エラー: ${this.counts.error[isStockout]}件`,
+						];
+						alert(alertMessage.join('\n'));
+					}
 				}
 			});
 		},
@@ -173,7 +195,7 @@ jQuery( async function($){
 		async imageMove(manageNumber:string, path, post_id){
 			const oldPath = path.old.replace(`/${manageNumber}`,'');
 			const newPath = path.new.replace(`/${manageNumber}`,'');
-			await this.imageSearch(manageNumber).then( async res=>{
+			return await this.imageSearch(manageNumber).then( async res=>{
 				// 移動前のファイルに絞る
 				const images = res.data[manageNumber].filter(image=>{
 					return image.FolderPath === oldPath
@@ -205,9 +227,10 @@ jQuery( async function($){
 				})
 			}).then((res)=>{
 				this.addLog(`${manageNumber}: moved cabinet files`,JSON.stringify(res),post_id);
-			})
-			.catch(err=>{
+				return res.images.length;
+			}).catch(err=>{
 				this.addLog(`${manageNumber}: ${err.message}`,"",post_id);
+				return 0;
 			});
 		},
 		async getFolderId(manageNumber,path, post_id ){
@@ -308,9 +331,17 @@ jQuery( async function($){
 					log: 'n2_rakuten_sftp_insert_log_post',
 				},
 				itemCount: 0,
-				offset: 0,
 				items: [],
 				folders: [],
+				counts:{
+					items: {},
+					error: {},
+					info:{
+						patch: {},
+						stay: {},
+					},
+					img:{},
+				}
 			};
 		},
 		created(){
