@@ -42,6 +42,10 @@ class N2_Portal_Item_Data {
 	public function __construct() {
 		// 子クラスでのみ実行
 		if ( is_subclass_of( $this, 'N2_Portal_Item_Data' ) ) {
+			// 旧APIのURLに対応（Kintone対応後削除）
+			if ( preg_match( '/api_(.*)/', mb_strtolower( get_class( $this ) ), $m ) ) {
+				add_action( "wp_ajax_n2_{$m[1]}_items_api", array( $this, 'get' ) );
+			}
 			add_action( 'wp_ajax_' . mb_strtolower( get_class( $this ) ) . '_update', array( $this, 'update' ) );
 			if ( ! wp_next_scheduled( 'wp_ajax_' . mb_strtolower( get_class( $this ) ) . '_update' ) ) {
 				wp_schedule_event( time() + 200, 'hourly', 'wp_ajax_' . mb_strtolower( get_class( $this ) ) . '_update' );
@@ -50,6 +54,24 @@ class N2_Portal_Item_Data {
 			add_action( 'init', array( $this, 'create_post_type' ) );
 			add_action( 'init', array( $this, 'enable_portal_items_api' ) );
 		}
+	}
+
+	/**
+	 * 旧APIのURLに対応（Kintone対応後削除）
+	 */
+	public function get() {
+		$args = array(
+			'post_type' => 'portal_item_data',
+			'title'     => $this->post_title,
+		);
+		$data = N2_Items_API::get_items( $args );
+		$data = array(
+			'update' => $data[0]['post_date'],
+			'data'   => $data[0]['post_content'],
+		);
+		header( 'Content-Type: application/json; charset=utf-8' );
+		echo wp_json_encode( $data, JSON_UNESCAPED_UNICODE );
+		exit;
 	}
 
 	/**
