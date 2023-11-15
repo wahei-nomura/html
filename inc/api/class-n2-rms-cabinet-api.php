@@ -395,14 +395,14 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	/**
 	 * 削除したファイルを元に戻す
 	 *
-	 * @var array $fileId fileId
+	 * @var array $fileIds fileIds
 	 */
-	public static function trashbox_files_revert( $fileId ) {
-		static::check_fatal_error( ! empty( $fileId ), 'ファイルIdが設定されていません。' );
+	public static function trashbox_files_revert( $fileIds ) {
+		static::check_fatal_error( ! empty( $fileIds ), 'ファイルIdが設定されていません。' );
 
 		$target_files = array_filter(
 			static::trashbox_files_get(),
-			fn ( $file ) => in_array( (string) $file->FileId, $fileId, true ),
+			fn ( $file ) => in_array( (string) $file->FileId, $fileIds, true ),
 		);
 		$folders      = static::folders_get();
 		$requests     = array_map(
