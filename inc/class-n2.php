@@ -325,6 +325,8 @@ class N2 {
 			$this->logo = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_' . end( explode( '/', get_home_url() ) ) . '.jpg';
 		} elseif ( 'f422142-minamishimabara' === $jichitai_name ) {
 			$this->logo = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_f422142-minamisimabara.png';
+		} elseif ( 'f212041-tajimi' === $jichitai_name ) {
+			$this->logo = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_f212041-tajimi.jpg';
 		} else {
 			$this->logo = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_' . end( explode( '/', get_home_url() ) ) . '.png';
 		}

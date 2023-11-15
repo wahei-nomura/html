@@ -161,7 +161,7 @@ class N2_Items_API {
 			exit;
 		}
 		$params = self::$data['params'];
-		wp_trash_post( $params['id'] );
+		wp_trash_post( $params['p'] );
 		if ( isset( $_SERVER['HTTP_REFERER'] ) ) {
 			wp_safe_redirect( $_SERVER['HTTP_REFERER'] );
 		}
@@ -176,7 +176,7 @@ class N2_Items_API {
 			exit;
 		}
 		$params = self::$data['params'];
-		wp_untrash_post( $params['id'] );
+		wp_untrash_post( $params['p'] );
 		if ( isset( $_SERVER['HTTP_REFERER'] ) ) {
 			wp_safe_redirect( $_SERVER['HTTP_REFERER'] );
 		}
@@ -191,7 +191,7 @@ class N2_Items_API {
 			exit;
 		}
 		$params = self::$data['params'];
-		$post   = get_post( $params['id'] );
+		$post   = get_post( $params['p'] );
 		$meta   = json_decode( $post->post_content, true );
 		unset(
 			$meta['タイトル'],
@@ -275,11 +275,16 @@ class N2_Items_API {
 	 * @param array $meta メタデータ
 	 */
 	public function check_required( $meta ) {
+		global $n2;
 		// 最低必要事項
 		$required = array( '返礼品コード', '価格', '寄附金額' );
 		// eチケット以外なのに送料なし
 		if ( isset( $meta['商品タイプ'] ) && ! in_array( 'eチケット', $meta['商品タイプ'], true ) ) {
 			$required[] = '送料';
+		}
+		// 全商品ディレクトリID
+		if ( in_array( '楽天', $n2->settings['N2']['出品ポータル'], true ) && ! in_array( '楽天', (array) $meta['出品禁止ポータル'], true ) ) {
+			$required[] = '全商品ディレクトリID';
 		}
 		// アレルギーあるのにアレルゲンなし
 		if (

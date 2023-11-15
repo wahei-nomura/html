@@ -163,6 +163,8 @@ class N2_Setmenu {
 			$town_icon_name = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_f422142-minamisimabara.png';
 		}elseif('f424111-shinkamigoto' === $name){
 			$town_icon_name = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_f424111-shinkamigoto.jpg';
+		}elseif('f212041-tajimi' === $name){
+			$town_icon_name = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_f212041-tajimi.jpg';
 		}
 		return $n2_active ? $town_icon_name : $url;
 	}

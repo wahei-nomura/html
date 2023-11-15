@@ -83,7 +83,7 @@ class N2_Post_History_API {
 			echo wp_json_encode( $data, JSON_UNESCAPED_UNICODE );
 			exit;
 		}
-		$meta   = array_filter( $data, fn( $k ) => ! preg_match( '/タイトル|ステータス|事業者名|事業者コード/u', $k ), ARRAY_FILTER_USE_KEY );
+		$meta   = array_filter( $data, fn( $k ) => ! preg_match( '/タイトル|ステータス|事業者名|事業者コード|_n2_required/u', $k ), ARRAY_FILTER_USE_KEY );
 		$post   = array(
 			'ID'           => $revision->post_parent,
 			'post_status'  => $data['ステータス'],

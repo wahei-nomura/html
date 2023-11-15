@@ -64,20 +64,11 @@
     全商品ディレクトリID:
         portal: 楽天
         type: rakuten-genreid
+        label: 楽天ジャンルID
         min: 0
         v-model: 全商品ディレクトリID.text
         v-if: "!出品禁止ポータル.includes('楽天') && !商品タイプ.includes('eチケット')"
-        description: 下のボタンが無くなるまで押していかないと楽天で地味にエラーが出ます。
-    タグID:
-        portal: 楽天
-        type: rakuten-tagid
-        description: 楽天登録に必要なタグを複数選択します。
-        maxlength: 161
-        rows: auto
-        v-model: タグID.text
-        v-if: "!出品禁止ポータル.includes('楽天')&&全商品ディレクトリID.text && !商品タイプ.includes('eチケット')"
-        style: 'width: 100%;'
-        "@focus": set_info($event.target);get_genreid();auto_fit_tetxarea($event.target)
+        description: 必ず、ID（6桁の数字）が表示されるまで黒いボタンを押していってください。
     楽天SPAカテゴリー:
         portal: 楽天
         type: rakuten-spa-category
@@ -116,12 +107,13 @@
         "@input": auto_fit_tetxarea($event.target)
     地場産品類型:
         type: select
-        v-if: "!商品タイプ.includes('eチケット')"
         option:
             '': 選択して下さい
             1 : 1.当該地方団体の区域内において生産されたもの。
             2 : 2.当該地方団体の区域内において返礼品等の原材料の主要な部分が生産されたもの。
             3 : 3.当該地方団体の区域内において返礼品等の製造、加工その他の工程のうち主要な部分を行うことにより相応の付加価値が生じているもの。
+            3（精米） : 3（精米）.地場産品基準第3号ただし書に規定する、当該地方団体が属する都道府県の区域内において生産された玄米を原材料として、当該地方団体の区域内において精白したもの。
+            3（熟成肉） : 3（熟成肉）.地場産品基準第3号ただし書に規定する、当該地方団体が属する都道府県の区域内において生産された食肉を原材料として、当該地方団体の区域内において熟成したもの。
             4 : 4.返礼品等を提供する市区町村の区域内において生産されたものであって、近隣の他の市区町村の区域内において生産されたものと混在したもの。
             5 : 5.地方団体の広報の目的で生産された当該地方団体のキャラクターグッズ、オリジナルグッズその他これらに類するものであって、形状、名称その他の特徴から当該地方団体の独自の返礼品等であることが明白なもの。
             6 : 6.前各号に該当する返礼品等と当該返礼品等との間に関連性のあるものとを合わせて提供するものであって、当該返礼品等が主要な部分を占めるもの。
@@ -130,11 +122,11 @@
             8ロ : 8ロ：都道府県が当該都道府県の区域内の複数の市区町村と連携し、<br>当該連携する市区町村の区域内において前各号のいずれかに該当するものを当該都道府県及び当該市区町村の共通の返礼品等とするもの。
             8ハ : 8ハ：都道府県が当該都道府県の区域内の複数の市区町村において地域資源として相当程度認識されているもの及び当該市区町村を認定し、当該地域資源を当該市区町村がそれぞれ返礼品等とするもの。
             9 : 9.震災、風水害、落雷、火災その他これらに類する災害により甚大な被害を受けたことにより、その被害を受ける前に提供していた前各号のいずれかに該当する返礼品等を提供することができなくなった場合において、当該返礼品等を代替するものとして提供するもの。
+            99 : 99.前各号のいずれかに該当する返礼品等とのみ交換させるために提供するもの。
     類型該当理由:
         type: textarea
         style: 'width: 100%;'
         maxlength : 100
-        v-if: "!商品タイプ.includes('eチケット')"
         description: 上記、地場産品類型に該当する理由を書いてください。
         placeholder: 例）〇〇県が認定した返礼品であるため。
         "@focus": set_info($event.target)
@@ -325,41 +317,6 @@
 # ▲ =========== 食品専用のフィールド ==========
 
 # ▼ =========== やきもの専用のフィールド ==========
-    返礼品ルール:
-        type: checkbox
-        v-model: 返礼品ルール
-        v-if: n2.settings.N2.返礼品の出品基準チェック && 商品タイプ.includes('やきもの')
-        value: []
-        required: required
-        option:
-            A: 商品価値の半分以上が${n2.town}で製造されている
-            B: ${n2.town}で製造された陶土を8割以上使用した自社のオリジナル商品で、他の事業者から出品されることはない
-    製造元:
-        type: text
-        v-if: "返礼品ルール.filter(v=>v).length"
-        placeholder: 例）○○窯
-    オリジナル商品:
-        type: checkbox
-        v-if: "!返礼品ルール.includes('B') && 返礼品ルール.filter(v=>v).length"
-        v-model: オリジナル商品
-        option:
-            - オリジナル商品である
-    オリジナル商品理由:
-        type: textarea
-        v-if: "オリジナル商品.filter(v=>v).length || 返礼品ルール.includes('B')"
-        v-model: オリジナル商品理由
-        required: required
-        rows: auto
-        description: オリジナル性が認められる部分をお答えください。
-        placeholder: "例）形状が自社オリジナルであるから\n例）デザインが自社オリジナルである\n例）裏印を刻印している"
-        "@focus": set_info($event.target)
-        "@input": set_info($event.target);auto_fit_tetxarea($event.target)
-    陶土の製造元:
-        type: text
-        v-if: "!返礼品ルール.includes('A') && 返礼品ルール.filter(v=>v).length"
-        placeholder: 例）○○陶料
-        v-model: 陶土の製造元
-        required: required
     電子レンジ対応:
         type: radio
         value: ○
