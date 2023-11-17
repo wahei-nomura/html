@@ -529,6 +529,10 @@ body.is_safari{
 			display: flex;
 			flex-wrap: nowrap;
 			overflow-x: scroll;
+			align-items: flex-start;
+			img{
+				height: 150px;
+			}
 		}
 		table th{
 			white-space: nowrap;
