@@ -24,7 +24,7 @@ class N2_Setmenu {
 		add_action( 'admin_init', array( $this, 'not_edit_user' ) );
 		add_filter( 'get_site_icon_url', array( $this, 'change_site_icon' ) );
 		add_action( 'admin_head', array( $this, 'my_custom_logo' ) );
-		add_action( 'admin_bar_menu', array( $this, 'remove_admin_bar_menus' ), 999 );
+		add_action( 'admin_bar_menu', array( $this, 'change_admin_bar_menus' ), 999 );
 		add_action( 'admin_head', array( $this, 'remove_help_tabs' ) );// ヘルプ削除
 		add_filter( 'admin_footer_text', '__return_false' );// 「WordPress のご利用ありがとうございます。」を削除
 	}
@@ -181,7 +181,7 @@ class N2_Setmenu {
 	 *
 	 * @param array $wp_admin_bar 管理バーの項目を格納
 	 */
-	public function remove_admin_bar_menus( $wp_admin_bar ) {
+	public function change_admin_bar_menus( $wp_admin_bar ) {
 		global $n2;
 		$wp_admin_bar->remove_menu( 'wp-logo' ); // WordPressロゴ.
 		$wp_admin_bar->remove_menu( 'comments' );     // コメント
@@ -210,6 +210,21 @@ class N2_Setmenu {
 		}
 		if ( ! current_user_can( 'administrator' ) && ! current_user_can( 'ss-crew' ) ) {
 			$wp_admin_bar->remove_menu( 'my-sites' ); // 参加サイト.
+		}
+		// adminerのリンク調整
+		$wp_adminer = $wp_admin_bar->get_node( 'wp_adminer' );
+		if ( $wp_adminer ) {
+			$wp_admin_bar->remove_node( 'wp_adminer' );
+			$wp_adminer_posts        = $wp_adminer;
+			$wp_adminer_posts->id    = 'wp_adminer_posts';
+			$wp_adminer_posts->title = "Adminer : wp_{$n2->site_id}_posts";
+			$wp_adminer_posts->href .= "?username=&db=wp&select=wp_{$n2->site_id}_posts";
+			$wp_admin_bar->add_node( $wp_adminer_posts );
+			$wp_adminer_postmeta        = $wp_adminer;
+			$wp_adminer_posts->id       = 'wp_adminer_postmeta';
+			$wp_adminer_postmeta->title = "Adminer : wp_{$n2->site_id}_postmeta";
+			$wp_adminer_postmeta->href .= "?username=&db=wp&select=wp_{$n2->site_id}_postmeta";
+			$wp_admin_bar->add_node( $wp_adminer_postmeta );
 		}
 	}
 	/**
