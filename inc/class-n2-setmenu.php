@@ -214,15 +214,22 @@ class N2_Setmenu {
 		// adminerのリンク調整
 		$wp_adminer = $wp_admin_bar->get_node( 'wp_adminer' );
 		if ( $wp_adminer ) {
-			$wp_admin_bar->remove_node( 'wp_adminer' );
-			$wp_adminer->id    = 'wp_adminer_posts';
-			$wp_adminer->title = "Adminer : wp_{$n2->site_id}_posts";
-			$wp_adminer->href .= "?username=&select=wp_{$n2->site_id}_posts";
-			$wp_admin_bar->add_node( $wp_adminer );
-			$wp_adminer->id    = 'wp_adminer_postmeta';
-			$wp_adminer->title = "Adminer : wp_{$n2->site_id}_postmeta";
-			$wp_adminer->href  = preg_replace( '/posts$/', 'postmeta', $wp_adminer->href );
-			$wp_admin_bar->add_node( $wp_adminer );
+			$href = $wp_adminer->href;
+			// サブメニュー追加
+			$wp_adminer->parent = 'wp_adminer';
+			foreach ( explode( '|', 'posts|postmeta|options' ) as $v ) {
+				$wp_adminer->id    = "wp_adminer_{$v}";
+				$wp_adminer->title = "wp_{$n2->site_id}_{$v}";
+				$wp_adminer->href  = "{$href}?username=&select=wp_{$n2->site_id}_{$v}";
+				$wp_admin_bar->add_menu( $wp_adminer );
+			}
+			// ユーザー系
+			foreach ( explode( '|', 'users|usermeta' ) as $v ) {
+				$wp_adminer->id    = "wp_adminer_{$v}";
+				$wp_adminer->title = "wp_{$v}";
+				$wp_adminer->href  = "{$href}?username=&select=wp_{$v}";
+				$wp_admin_bar->add_menu( $wp_adminer );
+			}
 		}
 	}
 	/**
