@@ -215,16 +215,14 @@ class N2_Setmenu {
 		$wp_adminer = $wp_admin_bar->get_node( 'wp_adminer' );
 		if ( $wp_adminer ) {
 			$wp_admin_bar->remove_node( 'wp_adminer' );
-			$wp_adminer_posts        = $wp_adminer;
-			$wp_adminer_posts->id    = 'wp_adminer_posts';
-			$wp_adminer_posts->title = "Adminer : wp_{$n2->site_id}_posts";
-			$wp_adminer_posts->href .= "?username=&db=wp&select=wp_{$n2->site_id}_posts";
-			$wp_admin_bar->add_node( $wp_adminer_posts );
-			$wp_adminer_postmeta        = $wp_adminer;
-			$wp_adminer_posts->id       = 'wp_adminer_postmeta';
-			$wp_adminer_postmeta->title = "Adminer : wp_{$n2->site_id}_postmeta";
-			$wp_adminer_postmeta->href .= "?username=&db=wp&select=wp_{$n2->site_id}_postmeta";
-			$wp_admin_bar->add_node( $wp_adminer_postmeta );
+			$wp_adminer->id    = 'wp_adminer_posts';
+			$wp_adminer->title = "Adminer : wp_{$n2->site_id}_posts";
+			$wp_adminer->href .= "?username=&select=wp_{$n2->site_id}_posts";
+			$wp_admin_bar->add_node( $wp_adminer );
+			$wp_adminer->id    = 'wp_adminer_postmeta';
+			$wp_adminer->title = "Adminer : wp_{$n2->site_id}_postmeta";
+			$wp_adminer->href  = preg_replace( '/posts$/', 'postmeta', $wp_adminer->href );
+			$wp_admin_bar->add_node( $wp_adminer );
 		}
 	}
 	/**
