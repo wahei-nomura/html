@@ -50,6 +50,19 @@ class N2_Item_Export_Base {
 	public function __construct() {
 		add_filter( mb_strtolower( get_class( $this ) ) . '_walk_values', array( $this, 'check_error' ), 10, 3 );
 		add_action( 'wp_ajax_' . mb_strtolower( get_class( $this ) ), array( $this, 'export' ) );
+		add_filter( mb_strtolower( get_class( $this ) ) . '_filename', array( $this, 'add_town_to_filename' ) );
+	}
+
+	/**
+	 * ファイル名に自治体名を追加する
+	 * @param  string $filename filename
+	 * @return string
+	 */
+	public function add_town_to_filename( $filename ) {
+		global $n2;
+		preg_match( '/\.(tsv|csv)/', $filename, $match );
+		$extensions = $match[0];
+		return str_replace( $extensions, "_{$n2->town}{$extensions}", $filename );
 	}
 
 	/**
@@ -366,7 +379,6 @@ class N2_Item_Export_Base {
 	 * ダウンロード
 	 */
 	private function download() {
-		global $n2;
 		/**
 		 * [hook] n2_item_export_base_charset
 		 */
@@ -374,7 +386,7 @@ class N2_Item_Export_Base {
 		/**
 		 * [hook] n2_item_export_base_filename
 		 */
-		$filename = apply_filters( mb_strtolower( get_class( $this ) ) . '_filename', $n2->town . $this->settings['filename'] );
+		$filename = apply_filters( mb_strtolower( get_class( $this ) ) . '_filename', $this->settings['filename'] );
 		/**
 		 * [hook] n2_item_export_base_download_add_btn
 		 */
@@ -456,6 +468,15 @@ class N2_Item_Export_Base {
 		<title>スプレットシートに値貼り付け</title>
 		<textarea class="form-control"style="height:100%"><?php echo esc_html( $this->settings['header_string'] . $this->data['string'] ); ?></textarea>
 		<?php
+		exit;
+	}
+
+	/**
+	 * デバッグ用
+	 */
+	private function json() {
+		header( 'Content-Type: application/json; charset=utf-8' );
+		echo wp_json_encode( $this->data, JSON_UNESCAPED_UNICODE );
 		exit;
 	}
 

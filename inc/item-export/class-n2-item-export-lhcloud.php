@@ -23,7 +23,7 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 	 * @var array
 	 */
 	public $settings = array(
-		'filename'      => 'n2_export_lhcloud.csv',
+		'filename'      => 'ledghome.csv',
 		'delimiter'     => ',',
 		'charset'       => 'sjis',
 		'header_string' => '"LedgHOMEクラウド謝礼品リスト"' . PHP_EOL,
@@ -41,7 +41,7 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 		$this->data['header'] = $lh_setting['csv_header'][ $type ];
 
 		// filename変更
-		$this->settings['filename'] = "{$type}.csv";
+		$this->settings['filename'] = "ledghome_{$type}.csv";
 
 		switch ( $type ) {
 			case '謝礼品リスト':
@@ -113,12 +113,12 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 				'状態' => '表示',
 				'寄附設定金額' => $i > 1 ? 0 : $n2values['寄附金額'],// 定期便の場合は１回目のみ
 				'価格（税込み）' => match ( $lh_setting['価格'] ) {
-					'定期便初回に全額をまとめて登録' => $i > 1 ? '' : (int) $n2values['価格'] * (int) $n2values['定期便'],
+					'定期便初回に全額をまとめて登録' => $i > 1 ? 0 : (int) $n2values['価格'] * (int) $n2values['定期便'],
 					default => $n2values['価格'] ?: 0,
 				},
 				'その他経費' => match ( $lh_setting['その他経費'] ) {
 					'ヤマト以外の送料を登録' => $is_yamato ? '' : $n2values['送料'],
-					'ヤマト以外の送料を登録（定期便の場合は1回目に総額）' => $is_yamato || $i > 1 ? '' : (int) $n2values['送料'] * (int) $n2values['定期便'],
+					'ヤマト以外の送料を登録（定期便の場合は1回目に総額）' => $is_yamato || $i > 1 ? 0 : (int) $n2values['送料'] * (int) $n2values['定期便'],
 					default => '',
 				},
 				'送料' => match ( $lh_setting['送料'] ) {
@@ -140,7 +140,7 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 				'地場産品類型' => str_replace( 'イ', '', $n2values['地場産品類型'] ),
 				'類型該当理由' => $n2values['類型該当理由'],
 				'自動出荷依頼予約（種別）' => $lh_setting['自動出荷依頼予約日'] ? 'する（月指定）' : 'しない',
-				'自動出荷依頼予約（値）' => $lh_setting['自動出荷依頼予約日'] ?: '',
+				'自動出荷依頼予約（値）' => $lh_setting['自動出荷依頼予約日'] ? 1 : '',
 				'1月1' => 1 <= $n2values['定期便'] ? "{$item_code}_1/{$n2values['定期便']}" : '',
 				'2月1' => 2 <= $n2values['定期便'] ? "{$item_code}_2/{$n2values['定期便']}" : '',
 				'3月1' => 3 <= $n2values['定期便'] ? "{$item_code}_3/{$n2values['定期便']}" : '',

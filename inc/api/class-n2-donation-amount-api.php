@@ -48,7 +48,7 @@ class N2_Donation_Amount_API {
 		$args    = wp_parse_args( array_filter( $args ), $default );
 
 		// ○○円未満は加算
-		$args['delivery_multiplier'] = (int) ( $args['price'] < $args['delivery_add_point'] || 0 === $args['delivery_add_point'] ) * $args['delivery_multiplier'];
+		$args['delivery_multiplier'] = (int) ( $args['price'] * $args['subscription'] < $args['delivery_add_point'] || 0 === $args['delivery_add_point'] ) * $args['delivery_multiplier'];
 
 		/**
 		 * [hook] n2_donation_amount_api_args

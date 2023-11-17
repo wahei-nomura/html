@@ -65,15 +65,6 @@ $settings = array(
 		</td>
 	</tr>
 	<tr>
-		<th>返礼品の出品基準チェック</th>
-		<td>
-			<input type="hidden" name="n2_settings[N2][返礼品の出品基準チェック]">
-			<label>
-				<input type="checkbox" name="n2_settings[N2][返礼品の出品基準チェック]" value="1" <?php checked( $n2->settings['N2']['返礼品の出品基準チェック'] ); ?>> 返礼品の出品基準チェックする
-			</label>
-		</td>
-	</tr>
-	<tr>
 		<th>提供事業者名入力</th>
 		<td>
 			<input type="hidden" name="n2_settings[N2][提供事業者名]">
@@ -85,51 +76,18 @@ $settings = array(
 	<tr>
 		<th>類型該当理由を表示する地場産品類型(入力時の注意書き)</th>
 		<td>
-			<input type="hidden" name="n2_settings[N2][理由表示地場産品類型]">
-			<label style="display:block;margin-bottom:1rem;">
-				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="1" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '1', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 1
-				<span style="margin:0 .5rem 0 2rem;">注意書き:</span><input type="text" name="n2_settings[N2][類型該当理由注意書き][1]" value="<?php echo esc_attr( $n2->settings['N2']['類型該当理由注意書き']['1'] ); ?>" style="width: 20em;">
-			</label>
-			<label style="display:block;margin-bottom:1rem;">
-				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="2" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '2', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 2
-				<span style="margin:0 .5rem 0 2rem;">注意書き:</span><input type="text" name="n2_settings[N2][類型該当理由注意書き][2]" value="<?php echo esc_attr( $n2->settings['N2']['類型該当理由注意書き']['2'] ); ?>" style="width: 20em;">
-			</label>
-			<label style="display:block;margin-bottom:1rem;">
-				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="3" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '3', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 3
-				<span style="margin:0 .5rem 0 2rem;">注意書き:</span><input type="text" name="n2_settings[N2][類型該当理由注意書き][3]" value="<?php echo esc_attr( $n2->settings['N2']['類型該当理由注意書き']['3'] ); ?>" style="width: 20em;">
-			</label>
-			<label style="display:block;margin-bottom:1rem;">
-				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="4" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '4', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 4
-				<span style="margin:0 .5rem 0 2rem;">注意書き:</span><input type="text" name="n2_settings[N2][類型該当理由注意書き][4]" value="<?php echo esc_attr( $n2->settings['N2']['類型該当理由注意書き']['4'] ); ?>" style="width: 20em;">
-			</label>
-			<label style="display:block;margin-bottom:1rem;">
-				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="5" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '5', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 5
-				<span style="margin:0 .5rem 0 2rem;">注意書き:</span><input type="text" name="n2_settings[N2][類型該当理由注意書き][5]" value="<?php echo esc_attr( $n2->settings['N2']['類型該当理由注意書き']['5'] ); ?>" style="width: 20em;">
-			</label>
-			<label style="display:block;margin-bottom:1rem;">
-				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="6" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '6', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 6
-				<span style="margin:0 .5rem 0 2rem;">注意書き:</span><input type="text" name="n2_settings[N2][類型該当理由注意書き][6]" value="<?php echo esc_attr( $n2->settings['N2']['類型該当理由注意書き']['6'] ); ?>" style="width: 20em;">
-			</label>
-			<label style="display:block;margin-bottom:1rem;">
-				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="7" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '7', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 7
-				<span style="margin:0 .5rem 0 2rem;">注意書き:</span><input type="text" name="n2_settings[N2][類型該当理由注意書き][7]" value="<?php echo esc_attr( $n2->settings['N2']['類型該当理由注意書き']['7'] ); ?>" style="width: 20em;">
-			</label>
-			<label style="display:block;margin-bottom:1rem;">
-				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="8イ" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '8イ', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 8イ
-				<span style="margin:0 .5rem 0 1rem;">注意書き:</span><input type="text" name="n2_settings[N2][類型該当理由注意書き][8イ]" value="<?php echo esc_attr( $n2->settings['N2']['類型該当理由注意書き']['8イ'] ); ?>" style="width: 20em;">
-			</label>
-			<label style="display:block;margin-bottom:1rem;">
-				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="8ロ" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '8ロ', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 8ロ
-				<span style="margin:0 .5rem 0 1rem;">注意書き:</span><input type="text" name="n2_settings[N2][類型該当理由注意書き][8ロ]" value="<?php echo esc_attr( $n2->settings['N2']['類型該当理由注意書き']['8ロ'] ); ?>" style="width: 20em;">
-			</label>
-			<label style="display:block;margin-bottom:1rem;">
-				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="8ハ" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '8ハ', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 8ハ
-				<span style="margin:0 .5rem 0 1rem;">注意書き:</span><input type="text" name="n2_settings[N2][類型該当理由注意書き][8ハ]" value="<?php echo esc_attr( $n2->settings['N2']['類型該当理由注意書き']['8ハ'] ); ?>" style="width: 20em;">
-			</label>
-			<label style="display:block;margin-bottom:1rem;">
-				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="9" <?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( '9', $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>> 9
-				<span style="margin:0 .5rem 0 2rem;">注意書き:</span><input type="text" name="n2_settings[N2][類型該当理由注意書き][9]" value="<?php echo esc_attr( $n2->settings['N2']['類型該当理由注意書き']['9'] ); ?>" style="width: 20em;">
-			</label>
+			<?php $typology = array_filter( array_keys( array_filter( $n2->custom_field['スチームシップ用']['地場産品類型']['option'] ) ) ); ?>
+			<?php foreach ( $typology as $key => $value ) { ?>
+				<label style="display:block;margin-bottom:1rem;">
+					<input type="checkbox"
+						name="n2_settings[N2][理由表示地場産品類型][]"
+						value="<?php echo esc_attr( $value ); ?>"
+						<?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( (string) $value, $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>>
+					<?php echo esc_html( $value ); ?>
+				</label>
+				<?php
+			}
+			?>
 		</td>
 	</tr>
 </table>

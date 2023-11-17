@@ -81,7 +81,7 @@ class N2_Items_API {
 		$posts = get_posts( self::$data['params'] );
 		// post_contentのみにする
 		$posts = array_map(
-			function( $v ) {
+			function ( $v ) {
 				$post_content = json_decode( $v->post_content, true );
 				// idを混ぜ込む
 				$post_content['id'] = $v->ID;
@@ -147,7 +147,7 @@ class N2_Items_API {
 			exit;
 		}
 		$params = self::$data['params'];
-		wp_trash_post( $params['id'] );
+		wp_trash_post( $params['p'] );
 		if ( isset( $_SERVER['HTTP_REFERER'] ) ) {
 			wp_safe_redirect( $_SERVER['HTTP_REFERER'] );
 		}
@@ -162,7 +162,7 @@ class N2_Items_API {
 			exit;
 		}
 		$params = self::$data['params'];
-		wp_untrash_post( $params['id'] );
+		wp_untrash_post( $params['p'] );
 		if ( isset( $_SERVER['HTTP_REFERER'] ) ) {
 			wp_safe_redirect( $_SERVER['HTTP_REFERER'] );
 		}
@@ -177,7 +177,7 @@ class N2_Items_API {
 			exit;
 		}
 		$params = self::$data['params'];
-		$post   = get_post( $params['id'] );
+		$post   = get_post( $params['p'] );
 		$meta   = json_decode( $post->post_content, true );
 		unset(
 			$meta['タイトル'],
@@ -228,7 +228,7 @@ class N2_Items_API {
 				$meta_input[ $key ] = get_post_meta( $postarr['ID'], $key, true );
 			}
 		}
-		$meta_input = wp_parse_args( $postarr['meta_input'] ?? array(), $meta_input );
+		$meta_input = wp_parse_args( wp_unslash( $postarr['meta_input'] ?? array() ), $meta_input );
 
 		// 事業者コード追加
 		$post_content['事業者コード'] = get_user_meta( $data['post_author'], 'last_name', true );
@@ -261,11 +261,16 @@ class N2_Items_API {
 	 * @param array $meta メタデータ
 	 */
 	public function check_required( $meta ) {
+		global $n2;
 		// 最低必要事項
 		$required = array( '返礼品コード', '価格', '寄附金額' );
 		// eチケット以外なのに送料なし
 		if ( isset( $meta['商品タイプ'] ) && ! in_array( 'eチケット', $meta['商品タイプ'], true ) ) {
 			$required[] = '送料';
+		}
+		// 全商品ディレクトリID
+		if ( in_array( '楽天', $n2->settings['N2']['出品ポータル'], true ) && ! in_array( '楽天', (array) $meta['出品禁止ポータル'], true ) ) {
+			$required[] = '全商品ディレクトリID';
 		}
 		// アレルギーあるのにアレルゲンなし
 		if (
@@ -276,7 +281,7 @@ class N2_Items_API {
 		}
 		// 最低必要事項の調査（数値に関しては0は許したい）
 		$check_required = array_filter(
-			$meta,
+			$meta ?? array(),
 			function ( $v, $k ) use ( $required ) {
 				if ( in_array( $k, $required, true ) ) {
 					if ( is_array( $v ) ) {

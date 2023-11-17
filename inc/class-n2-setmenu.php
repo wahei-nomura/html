@@ -158,7 +158,15 @@ class N2_Setmenu {
 	public function change_site_icon( $url ) {
 		$name      = end( explode( '/', get_home_url() ) );
 		$n2_active = get_option( 'n2_settings' )['N2']['稼働中'] ?? 0;
-		return $n2_active ? "https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_{$name}.png" : $url;
+		$town_icon_name = "https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_{$name}.png";
+		if('f422142-minamishimabara' === $name){
+			$town_icon_name = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_f422142-minamisimabara.png';
+		}elseif('f424111-shinkamigoto' === $name){
+			$town_icon_name = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_f424111-shinkamigoto.jpg';
+		}elseif('f212041-tajimi' === $name){
+			$town_icon_name = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_f212041-tajimi.jpg';
+		}
+		return $n2_active ? $town_icon_name : $url;
 	}
 	/**
 	 * 管理画面左上のロゴ変更
