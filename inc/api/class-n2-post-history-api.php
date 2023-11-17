@@ -21,6 +21,7 @@ class N2_Post_History_API {
 	 */
 	public function __construct() {
 		add_action( 'wp_ajax_n2_post_history_api', array( $this, 'get' ) );
+		add_action( 'wp_ajax_nopriv_n2_post_history_api', array( $this, 'get' ) );
 		add_action( 'wp_ajax_n2_checkout_revision_api', array( $this, 'checkout_revision' ) );
 	}
 
@@ -31,12 +32,14 @@ class N2_Post_History_API {
 	 */
 	public function get( $args ) {
 		global $n2;
-		$args   = $args ? wp_parse_args( $args ) : $_GET;
+		$args   = wp_parse_args( $args ?? array(), array( 'post_status' => 'any' ) );
+		$args   = wp_parse_args( $_GET, $args );
 		$action = $args['action'] ?? false;
 		$type   = $args['type'] ?? 'json';
+		$post   = $args['post_id'] ?? get_posts( $args )[0];
 
 		// リビジョンを整形
-		$diff = $this->get_history_diff( wp_get_post_revisions( $args['post_id'] ) );
+		$diff = $this->get_history_diff( wp_get_post_revisions( $post ) );
 		// admin-ajax.phpアクセス時
 		if ( $action ) {
 			switch ( $type ) {
@@ -115,16 +118,25 @@ class N2_Post_History_API {
 				'before' => json_decode( $revisions[ $key + 1 ]->post_content ?? '', true ),
 				'after'  => json_decode( $value->post_content, true ),
 			);
-			// beforeとafterの差分チェック
-			foreach ( $data['after'] as $k => $v ) {
-				// アンダースコアで始まるフィールドと変更無いフィールドは破棄
-				if ( preg_match( '/^_/', $k ) || ( $data['before'][ $k ] ?? '' ) == $data['after'][ $k ] ) {
-					unset( $data['before'][ $k ], $data['after'][ $k ] );
-				}
-			}
-			// diff 生成
-			if ( ! empty( $data['after'] ) ) {
+			// ポータル差分チェッカーの場合
+			if ( 'portal_item_data' === get_post_type( $value->post_parent ) ) {
+				$before = array_map( fn( $v ) => wp_json_encode( $v ), (array) $data['before'] );
+				$after  = array_map( fn( $v ) => wp_json_encode( $v ), (array) $data['after'] );
+				// 差分を取る
+				$data['before'] = array_values( array_map( fn( $v ) => json_decode( $v, true ), array_diff( $before, $after ) ) );
+				$data['after']  = array_values( array_map( fn( $v ) => json_decode( $v, true ), array_diff( $after, $before ) ) );
 				$diff[] = $data;
+			} else {
+				// beforeとafterの差分チェック
+				foreach ( $data['after'] as $k => $v ) {
+					// アンダースコアで始まるフィールドと変更無いフィールドは破棄
+					if ( preg_match( '/^_/', $k ) || ( $data['before'][ $k ] ?? '' ) === $data['after'][ $k ] ) {
+						unset( $data['before'][ $k ], $data['after'][ $k ] );
+					}
+				}
+				if ( ! empty( $data['after'] ) ) {
+					$diff[] = $data;
+				}
 			}
 		}
 		return $diff;

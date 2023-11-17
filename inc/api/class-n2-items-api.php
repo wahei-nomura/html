@@ -53,10 +53,12 @@ class N2_Items_API {
 
 	/**
 	 * パラメータのセット
+	 *
+	 * @param array $params パラメータ
 	 */
-	public static function set_params() {
+	public static function set_params( $params ) {
 		global $n2;
-		$params = $_GET;
+		$params = $params ?: $_GET;
 		// $_POSTを$paramsで上書き
 		if ( wp_verify_nonce( $_POST['n2nonce'] ?? '', 'n2nonce' ) ) {
 			$params = wp_parse_args( $params, $_POST );
@@ -65,6 +67,7 @@ class N2_Items_API {
 		$defaults = array(
 			'suppress_filters' => false,
 			'post_status'      => 'any',
+			'post_type'        => 'post',
 			'numberposts'      => -1,
 			'mode'             => 'json',
 			'n2_active_flag'   => $n2->settings['N2']['稼働中'],
@@ -74,18 +77,29 @@ class N2_Items_API {
 	}
 
 	/**
-	 * N2データのみ取得
+	 * データ取得
+	 *
+	 * @param array $params パラメータ
 	 */
-	public static function get_items() {
-		self::set_params();
+	public static function get_items( $params = array() ) {
+		$params = wp_parse_args( $params );
+		self::set_params( $params );
 		$posts = get_posts( self::$data['params'] );
-		// post_contentのみにする
 		$posts = array_map(
 			function ( $v ) {
 				$post_content = json_decode( $v->post_content, true );
-				// idを混ぜ込む
-				$post_content['id'] = $v->ID;
-				return $post_content;
+				if ( 'post' === self::$data['params']['post_type'] ) {
+					// idを混ぜ込む
+					$post_content['id'] = $v->ID;
+					return $post_content;
+				} else {
+					return array(
+						'ID'           => $v->ID,
+						'post_title'   => $v->post_title,
+						'post_date'    => $v->post_date,
+						'post_content' => $post_content,
+					);
+				}
 			},
 			$posts
 		);
@@ -99,14 +113,14 @@ class N2_Items_API {
 	/**
 	 * json
 	 */
-	private function json() {
+	public function json() {
 		echo wp_json_encode( self::$data, JSON_UNESCAPED_UNICODE );
 	}
 
 	/**
 	 * デバッグ用
 	 */
-	private function debug() {
+	public function debug() {
 		print_r( self::$data );
 	}
 

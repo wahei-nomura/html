@@ -177,20 +177,11 @@ class N2_Img_Download {
 					if ( ! $image_attributes && $set_fullsize ) {
 						continue;
 					}
-					// オレオレ証明書も許可する
-					$hooks = new Requests_Hooks();
-					$hooks->register(
-						'curl.before_multi_add',
-						function ( $ch ) {
-							curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false );
-						}
-					);
 
 					// 配列生成
 					$requests[] = array(
 						'url'     => $img_url,
 						'options' => array(
-							'hooks'    => $hooks,
 							'filename' => $type_info['tmp_uri'],
 						),
 					);

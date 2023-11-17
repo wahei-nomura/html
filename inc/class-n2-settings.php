@@ -22,7 +22,7 @@ class N2_Settings {
 	 *
 	 * @var array
 	 */
-	public $settings = array(
+	public static $settings = array(
 		'n2'               => 'N2',
 		'formula-delivery' => '寄附金額・送料',
 		'ledghome'         => 'LedgHOME',
@@ -71,10 +71,10 @@ class N2_Settings {
 		}
 		global $wp_filesystem;
 		add_menu_page( 'N2設定', 'N2設定', 'ss_crew', 'n2_settings', array( $this, 'ui' ), 'dashicons-admin-tools', 80 );
-		foreach ( $this->settings as $page => $name ) {
+		foreach ( self::$settings as $page => $name ) {
 			// 設定テンプレートの存在を確認して、ない場合は破棄してスキップする
 			if ( ! $wp_filesystem->exists( get_theme_file_path( "template/settings/{$page}.php" ) ) ) {
-				unset( $this->settings[ $page ] );
+				unset( self::$settings[ $page ] );
 				continue;
 			}
 			// 出品しないポータルの場合はスキップする
@@ -97,7 +97,7 @@ class N2_Settings {
 			'contents' => '',
 		);
 		// n2_settings
-		foreach ( $this->settings as $page => $name ) {
+		foreach ( self::$settings as $page => $name ) {
 			$menu_slug = $this->create_menu_slug( $page );
 			if ( ! $this->is_hide_menu( $name ) ) {
 				// ナビゲーション

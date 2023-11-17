@@ -55,15 +55,8 @@ $incs = array(
 	'api/class-n2-multi-url-request-api',
 	'class-n2-change-allergen',
 	'class-n2-change-sku-firstaid',
+	'class-n2-portal-item-data',
 );
-
-// （仮）とりあえず、長崎市のみチョンボAPIを有効化
-if ( '長崎市' === get_bloginfo( 'name' ) ) {
-	$incs[] = 'api/class-n2-furusato-choice-items-api';
-	$incs[] = 'api/class-n2-rakuten-items-api';
-	$incs[] = 'api/class-n2-furunavi-items-api';
-	$incs[] = 'api/class-n2-ana-items-api';
-}
 
 foreach ( $incs as $name ) {
 	require_once get_theme_file_path( "/inc/{$name}.php" );
