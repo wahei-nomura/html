@@ -50,6 +50,8 @@ class N2_Rakuten_SFTP {
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 		add_action( 'wp_ajax_n2_upload_to_rakuten_sftp', array( $this, 'upload_to_rakuten' ) );
+		add_action( 'wp_ajax_n2_rakuten_sftp_insert_log_post', array( $this, 'insert_log_post' ) );
+		add_action( 'init', array( $this, 'register_post_type' ) );
 	}
 	public function __destruct() {
 	}
@@ -63,6 +65,7 @@ class N2_Rakuten_SFTP {
 			add_menu_page( '楽天SFTP', '楽天SFTP', 'ss_crew', 'n2_rakuten_sftp_upload', array( $this, 'display_ui' ), 'dashicons-admin-site-alt3' );
 			add_submenu_page( 'n2_rakuten_sftp_upload', '楽天エラーログ', '楽天エラーログ', 'ss_crew', 'n2_rakuten_sftp_error_log', array( $this, 'display_ui' ) );
 			add_submenu_page( 'n2_rakuten_sftp_upload', '楽天Cabinet', '楽天Cabinet', 'ss_crew', 'n2_rakuten_sftp_client', array( $this, 'display_ui' ) );
+			add_submenu_page( 'n2_rakuten_sftp_upload', '楽天自動更新', '楽天自動更新', 'administrator', 'n2_rakuten_auto_update', array( $this, 'rakuten_auto_update' ) );
 		}
 	}
 
@@ -195,8 +198,8 @@ class N2_Rakuten_SFTP {
 			}
 			// $img_dir からキャビネットのディレクトリ構造を作成
 			$remote_dir = preg_replace( '/^.*cabinet/', 'cabinet/images', $img_dir );
-			preg_match( '/^([0-9]{0,2})([a-z]{2,4})[0-9]{2,3}[-]*[0-9]*\.jpg/', $name[ $k ], $m );
-			if ( ! ( $m[1] || $m[2] ) ) {
+			preg_match( '/^([0-9]{0,2}[a-z]{2,4})([0-9]{2,3})[-]*[0-9]*\.jpg/', $name[ $k ], $m );
+			if ( ! $m[1] ) {
 				$this->data['log'][] = 'ファイル名が違います :' . $name[ $k ];
 				continue;
 			}
@@ -205,9 +208,17 @@ class N2_Rakuten_SFTP {
 			if ( $this->sftp->mkdir( $remote_dir ) ) {
 				$this->data['log'][] = "{$remote_dir}を作成\n";
 			}
-			$remote_dir .= $m[1] . $m[2];
+			// 事業者コードでフォルダ作成
+			$remote_dir .= $m[1];
 			if ( $this->sftp->mkdir( $remote_dir ) ) {
 				$this->data['log'][] = "{$remote_dir}を作成\n";
+			}
+			// 数字でサブフォルダ作成
+			if ( (int) $m[2] >= 100 ) {
+				$remote_dir .= "/{$m[2][0]}";
+				if ( $this->sftp->mkdir( $remote_dir ) ) {
+					$this->data['log'][] = "{$remote_dir}を作成\n";
+				}
 			}
 			$remote_file         = "{$remote_dir}/{$name[$k]}";
 			$image_data          = file_get_contents( "{$tmp}/{$name[$k]}" );
@@ -306,5 +317,66 @@ class N2_Rakuten_SFTP {
 			echo $message;
 			exit;
 		}
+	}
+
+	/**
+	 * rakuten_auto_update
+	 */
+	public function rakuten_auto_update() {
+		global $n2;
+		$img_dir = rtrim( $n2->settings['楽天']['商品画像ディレクトリ'], '/' );
+		?>
+		<div id="ss-rakuten-auto-update">
+			<input id="n2nonce" type="hidden" name="n2nonce" value="<?php echo esc_attr( wp_create_nonce( 'n2nonce' ) ); ?>">
+			<input id="n2nonce" type="hidden" name="imgDir" value="<?php echo esc_attr( $img_dir ); ?>">
+			Loading...
+		</div>
+		<?php
+	}
+
+	/**
+	 * カスタム投稿を追加
+	 */
+	public function register_post_type() {
+		$args = array(
+			'public'   => false,
+			'supports' => array(
+				'title',
+				'revisions',
+			),
+		);
+		register_post_type( 'rakuten_auto_update', $args );
+	}
+	public function insert_log_post() {
+		global $n2;
+		$this->check_fatal_error( wp_verify_nonce( $_POST['n2nonce'] ?? '', 'n2nonce' ), '不正なパラメータ' );
+		$this->data['params'] = $this->data['params'] ?: $_POST;
+		$this->check_fatal_error( isset( $this->data['params']['title'] ), 'titleがありません' );
+		$this->check_fatal_error( isset( $this->data['params']['post_content'] ), 'post_contentがありません' );
+
+		$now       = date_i18n( 'Y M d h:i:s A' );
+		$default   = array(
+			'ID'           => $this->data['params']['post_id'] ?? 0,
+			'post_author'  => $n2->current_user->ID,
+			'post_status'  => 'pending',
+			'post_type'    => 'rakuten_auto_update',
+			'post_title'   => "[$now]: {$this->data['params']['title']}",
+			'post_content' => wp_json_encode( $this->data['params']['post_content'], JSON_UNESCAPED_UNICODE ),
+		);
+		$insert_id = wp_insert_post( $default );
+		// 初回はリビジョン作成
+		if ( ! ( $this->data['params']['post_id'] ?? 0 ) ) {
+			$this->data['params']['post_id'] = $insert_id;
+			$this->insert_log_post();
+			return;
+		}
+		header( 'Content-Type: application/json; charset=utf-8' );
+		echo wp_json_encode(
+			array(
+				'id'      => $insert_id,
+				'message' => 'insert',
+			)
+		);
+		exit;
 	}
 }
