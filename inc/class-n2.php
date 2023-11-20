@@ -302,6 +302,11 @@ class N2 {
 				yaml_parse_file( get_theme_file_path( 'config/portal-setting.yml' ) )
 			),
 		);
+		// 無駄な空の設定を排除
+		$this->settings = array_map(
+			fn( $v ) => array_map( fn( $a ) => is_array( $a ) ? array_filter( $a ) : $a, $v ),
+			$this->settings
+		);
 
 		// アクセス中のIP
 		$this->ip_address = $_SERVER['REMOTE_ADDR'];
