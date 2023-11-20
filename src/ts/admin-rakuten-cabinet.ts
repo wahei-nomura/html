@@ -3,6 +3,7 @@ import Modals from './modules/admin-rakuten-cabinet-modals';
 import store from './modules/admin-rakuten-cabinet-store'
 import App from './modules/admin-rakuten-cabinet-app'
 import axios from 'axios';
+import { mapState } from 'vuex';
 
 jQuery( async function($){
 	// 接続確認
@@ -31,6 +32,33 @@ jQuery( async function($){
 		created(){
 			const n2nonce = $('input[name="n2nonce"]').val();
 			this.$store.commit('SET_N2NONCE',n2nonce)
+		},
+		data() {
+			return {
+				timer: null,
+			}
+		},
+		beforeDestroy() {
+			if ( this.timer ) {
+				clearTimeout(this.timer);
+			}
+		},
+		watch: {
+			isLoading(newVal, _){
+				if ( this.timer ) {
+					clearTimeout(this.timer);
+				}
+				if ( newVal ) {
+					this.timer = setTimeout(()=>{
+						document.getElementById('ss-cabinet').innerText = 'RMS CABINETに接続できませんでした。';
+					},5000);
+				}
+			},
+		},
+		computed: {
+			...mapState([
+				'isLoading',
+			]),
 		},
 		template: `
 		<div id="ss-cabinet" class="container-fluid">
