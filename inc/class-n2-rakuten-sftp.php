@@ -415,42 +415,12 @@ class N2_Rakuten_SFTP {
 		global $n2;
 		$now                            = date_i18n( 'Y M d h:i:s A' );
 		$judge                          = $this->data['params']['judge'];
-
-		switch( $judge ) {
-			case 'img_upload':
-				$item_api                       = new N2_RMS_Item_API();
-				$rms_images                     = array_map(
-					fn ( $item_code ) => array_map(
-						fn( $image ) => $image['location'],
-						$item_api->items_get( $item_code )['images'],
-					),
-					array_keys( $this->n2data ),
-				);
-				$rms_images                     = array_combine( array_keys( $this->n2data ), $rms_images );
-				break;
-			case 'csv_upload':
-
-		};
-
-		$post_content                   = match( $judege ) {
-			'img_upload' => array(
-				'アップロード'   => $this->n2data,
-				'転送モード'    => $judge,
-				'アップロードログ' => $this->data['log'],
-				'アップロード日時' => $now,
-				'RMS商品画像'  => array(
-					'変更前' => $rms_images,
-					'変更後' => array(),
-				),
-			),
-			default => array(
-				'アップロード'   => $this->n2data,
-				'転送モード'    => $judge,
-				'アップロードログ' => $this->data['log'],
-				'アップロード日時' => $now,
-				'RMS商品画像'  => null,
-			),
-		};
+		$post_content                   = array(
+			'アップロード'   => $this->n2data,
+			'転送モード'    => $judge,
+			'アップロードログ' => $this->data['log'],
+			'アップロード日時' => $now,
+		);
 		$default                        = array(
 			'ID'           => 0,
 			'post_author'  => $n2->current_user->ID,
