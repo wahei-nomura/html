@@ -1,22 +1,23 @@
 import axios, {AxiosResponse} from 'axios';
 import Vue from 'vue/dist/vue.min';
 import {mapState,mapActions} from 'vuex/dist/vuex.min';
+import { SftpUploadData } from './admin-rakuten-sftp-interface';
 
 export default Vue.extend({
-	data(){
+	data():SftpUploadData{
 		return {
 			uploading: false,
 			modeProp : {
 				'text/csv': {
 					mode:'csv_upload',
 					icon: 'dashicons dashicons-media-spreadsheet',
+					name: ['normal-item', 'item-cat'],
 				},
 				'image/jpeg': {
 					mode:'img_upload',
 					icon: 'dashicons dashicons-format-gallery',
 				},
 			},
-			selectedRadio: 'img_upload',
 			action: 'n2_rakuten_sftp_upload_to_rakuten',
 			files: [],
 			fileReset: 0,
@@ -26,13 +27,13 @@ export default Vue.extend({
 		...mapState([
 			'n2nonce',
 		]),
-		uploadType(){
+		uploadType(): string|undefined{
 			return this.files[0]?.type;
 		},
-		uploadMode(){
+		uploadMode(): string|undefined{
 			return this.modeProp[this.uploadType]?.mode;
 		},
-		uploadIcon(){
+		uploadIcon(): string|undefined{
 			return this.modeProp[this.uploadType]?.icon;
 		},
 	},
@@ -40,43 +41,48 @@ export default Vue.extend({
 		...mapActions([
 			'updateSFTPLog'
 		]),
-		setFiles(){
-			interface file {
-				type:string
-			}
-			const files: file[]    = Array.from(this.$refs.fileInput.files);
+		setFiles():void{
+			const files: File[] = Array.from(this.$refs.fileInput.files);
+			const type = files[0].type
+			// ファイルが選択されなければ何もしない
 			if( ! files.length ) {
 				this.files = [];
 				return
 			}
 			// 違う種類のファイルが混ざっていないか判定
-			if ( files.filter((file : file)=> files[0].type !== file.type).length ) {
+			if ( files.some((file : File)=> type !== file.type) ) {
 				this.files = [];
 				++this.fileReset;
-				alert('アップロードできるファイル形式(CSV,画像)は一種類です');
+				alert('アップロードできるファイル形式(CSV,画像)が複数選択されています。形式毎にアップロードしてください');
 				return
 			}
-			const type = files[0].type
 			// ファイル形式が正しいか判定
-			if ( ! Object.keys(this.modeProp).filter( key=> key===type ).length ) {
+			if ( ! Object.keys(this.modeProp).some( key=> key === type ) ) {
 				this.files = [];
 				++this.fileReset;
 				alert('アップロードできる拡張子は.csvまたは.jpgです');
 				return
 			}
+			// ファイル名判定
+			if (this.modeProp[type]?.name && ! files.every((file : File)=> this.modeProp[type].name.some( name => file.name.includes(name) ) ) ) {
+				this.files = [];
+				++this.fileReset;
+				alert('ファイル名に指定のワード(normal-item,item-cat)が含まれていません');
+				return
+			}
 			this.files = files;
 		},
 		async postFiles(){
-			const files    = this.files;
+			const files:File[] = this.files;
 			if( ! files.length ) {
 				alert('ファイルが選択されていません。')
 				return;
 			}
 			this.uploading = true;
-			const formData = new FormData();
+			const formData:FormData = new FormData();
 			formData.append( 'n2nonce', this.n2nonce);
 			formData.append( 'action', this.action);
-			formData.append( 'judge', this.selectedRadio);
+			formData.append( 'judge', this.uploadMode);
 			for (let i = 0; i < files.length; i++) {
 				formData.append('sftp_file[]', files[i]);
 			}
@@ -92,7 +98,7 @@ export default Vue.extend({
 				// ログ一覧の更新
 				this.updateSFTPLog();
 			}).catch(err=>{
-				console.log(err);
+				console.error(err);
 				alert(err.response.data.message);
 			}).then(()=>{
 				this.uploading = false;
