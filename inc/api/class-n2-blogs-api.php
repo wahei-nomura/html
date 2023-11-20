@@ -84,11 +84,12 @@ class N2_Blogs_API {
 		// 自治体名・自治体コード・出品ポータル・LH
 		foreach ( $sites as $site ) {
 			switch_to_blog( $site->blog_id );
-			global $n2;
-			// グローバル変数N2がセットされていない場合はスルー
-			if ( ! isset( $n2 ) ) {
+			// N2がない場合はスルー
+			if ( ! class_exists( 'N2' ) ) {
 				continue;
 			}
+			$n2 = new N2();
+			// $blogsセット
 			$blogs[ $site->blog_id ] = array(
 				'name'       => $n2->town,
 				'url'        => str_replace( 'wp-admin/admin-ajax.php', '', $n2->ajaxurl ),
