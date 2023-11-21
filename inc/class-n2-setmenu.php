@@ -259,7 +259,7 @@ class N2_Setmenu {
 		$html              = '<div class = "wrap">';
 		$html             .= '<h1 id="copyTarget"> ログインページブックマーク用URL </h1>';
 		$html             .= '<p>以下のリンクをブックマーク登録してください(ブックマークバーにドラッグドロップでも登録できます)。</p>';
-		$html             .= '<a onclick="copyToClipboard()" id="bookmarkLink" href="' . $bookmark_url . '" class="pressthis-bookmarklet">' . $n2->town . 'ログイン</a>';
+		$html             .= '<a onclick="copyToClipboard()" id="bookmarkLink" href="' . $bookmark_url . '" class="pressthis-bookmarklet" style="padding:.5rem;">' . $n2->town . 'ログイン</a>';
 		$html             .= '</div>';
 		echo $html;
 		?>
