@@ -257,7 +257,7 @@ class N2_Setmenu {
 		$request_url_array = explode( '/', $request_url );
 		$bookmark_url      = $host_url . '/' . $request_url_array[1] . '/MSN-06S/?auth=ss:ss';
 		$html              = '<div class = "wrap">';
-		$html             .= '<h1 id="copyTarget"> ログインページブックマーク用URl </h1>';
+		$html             .= '<h1 id="copyTarget"> ログインページブックマーク用URL </h1>';
 		$html             .= '<p>以下のリンクをブックマーク登録してください(ブックマークバーにドラッグドロップでも登録できます)。</p>';
 		$html             .= '<a onclick="copyToClipboard()" id="bookmarkLink" href="' . $bookmark_url . '" class="pressthis-bookmarklet">' . $n2->town . 'ログイン</a>';
 		$html             .= '</div>';
