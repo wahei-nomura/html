@@ -252,7 +252,7 @@ class N2_Setmenu {
 	 */
 	public function display_addbookmark() {
 		global $n2;
-		$host_url          = 'http://ss:ss@' . $_SERVER['HTTP_HOST'];
+		$host_url          = 'https://ss:ss@' . $_SERVER['HTTP_HOST'];
 		$request_url       = $_SERVER['REQUEST_URI']; // https://ss:ss@n2.steamship.co.jp/f423238-hasami/MSN-06S/?auth=ss:ss
 		$request_url_array = explode( '/', $request_url );
 		$bookmark_url      = $host_url . '/' . $request_url_array[1] . '/MSN-06S/?auth=ss:ss';
