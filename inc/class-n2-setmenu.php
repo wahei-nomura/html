@@ -251,16 +251,13 @@ class N2_Setmenu {
 	 * ログインブックマーク表示
 	 */
 	public function display_addbookmark() {
-		global $n2;
-		$host_url          = 'https://ss:ss@' . $_SERVER['HTTP_HOST'];
-		$request_url       = $_SERVER['REQUEST_URI']; // https://ss:ss@n2.steamship.co.jp/f423238-hasami/MSN-06S/?auth=ss:ss
-		$request_url_array = explode( '/', $request_url );
-		$bookmark_url      = $host_url . '/' . $request_url_array[1] . '/MSN-06S/?auth=ss:ss';
-		$html              = '<div class = "wrap">';
-		$html             .= '<h1 id="copyTarget"> ログインページブックマーク用URL </h1>';
-		$html             .= '<p>以下のリンクをブックマーク登録してください(ブックマークバーにドラッグドロップでも登録できます)。</p>';
-		$html             .= '<a onclick="copyToClipboard()" id="bookmarkLink" href="' . $bookmark_url . '" class="pressthis-bookmarklet" style="padding:.5rem;">' . $n2->town . 'ログイン</a>';
-		$html             .= '</div>';
+		$site_details = get_blog_details();
+		$bookmark_url = 'https://ss:ss@' . $site_details->domain . $site_details->path . 'MSN-06S/?auth=ss:ss';
+		$html         = '<div class = "wrap">';
+		$html        .= '<h1 id="copyTarget"> ログインページブックマーク用URL </h1>';
+		$html        .= '<p>以下のリンクをブックマーク登録してください(ブックマークバーにドラッグドロップでも登録できます)。</p>';
+		$html        .= '<a onclick="copyToClipboard()" id="bookmarkLink" href="' . $bookmark_url . '" class="pressthis-bookmarklet" style="padding:.5rem;">' . $site_details->blogname . 'ログイン</a>';
+		$html        .= '</div>';
 		echo $html;
 		?>
 		<script>
