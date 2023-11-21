@@ -27,6 +27,7 @@ class N2_Setmenu {
 		add_action( 'admin_bar_menu', array( $this, 'change_admin_bar_menus' ), 999 );
 		add_action( 'admin_head', array( $this, 'remove_help_tabs' ) );// ヘルプ削除
 		add_filter( 'admin_footer_text', '__return_false' );// 「WordPress のご利用ありがとうございます。」を削除
+		add_action( 'admin_menu', array( $this, 'add_loginbookmark' ) );
 	}
 
 	/**
@@ -140,7 +141,7 @@ class N2_Setmenu {
 				'tooles.php',
 				'upload.php',
 			);
-	
+
 		}
 		if ( in_array( $pagenow, $hide_pages, true ) ) {
 			wp_safe_redirect( admin_url( 'edit.php' ) );
@@ -156,14 +157,14 @@ class N2_Setmenu {
 	 * @param string $url デフォルトURL
 	 */
 	public function change_site_icon( $url ) {
-		$name      = end( explode( '/', get_home_url() ) );
-		$n2_active = get_option( 'n2_settings' )['N2']['稼働中'] ?? 0;
+		$name           = end( explode( '/', get_home_url() ) );
+		$n2_active      = get_option( 'n2_settings' )['N2']['稼働中'] ?? 0;
 		$town_icon_name = "https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_{$name}.png";
-		if('f422142-minamishimabara' === $name){
+		if ( 'f422142-minamishimabara' === $name ) {
 			$town_icon_name = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_f422142-minamisimabara.png';
-		}elseif('f424111-shinkamigoto' === $name){
+		} elseif ( 'f424111-shinkamigoto' === $name ) {
 			$town_icon_name = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_f424111-shinkamigoto.jpg';
-		}elseif('f212041-tajimi' === $name){
+		} elseif ( 'f212041-tajimi' === $name ) {
 			$town_icon_name = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_f212041-tajimi.jpg';
 		}
 		return $n2_active ? $town_icon_name : $url;
@@ -238,5 +239,44 @@ class N2_Setmenu {
 	public function remove_help_tabs() {
 		global $current_screen;
 		$current_screen->remove_help_tabs();
+	}
+	/**
+	 * ログインブックマークページ
+	 */
+	public function add_loginbookmark() {
+		global $n2;
+		add_menu_page( 'ブックマークURL', 'ブックマークURL', '', 'add_bookmark', array( $this, 'display_addbookmark' ), 'dashicons-admin-site-alt2' );
+	}
+	/**
+	 * ログインブックマーク表示
+	 */
+	public function display_addbookmark() {
+		global $n2;
+		$host_url          = 'http://ss:ss@' . $_SERVER['HTTP_HOST'];
+		$request_url       = $_SERVER['REQUEST_URI']; // https://ss:ss@n2.steamship.co.jp/f423238-hasami/MSN-06S/?auth=ss:ss
+		$request_url_array = explode( '/', $request_url );
+		$bookmark_url      = $host_url . '/' . $request_url_array[1] . '/MSN-06S/?auth=ss:ss';
+		$html              = '<div class = "wrap">';
+		$html             .= '<h1 id="copyTarget"> ログインページブックマーク用URL </h1>';
+		$html             .= '<p>以下のリンクをブックマーク登録してください(ブックマークバーにドラッグドロップでも登録できます)。</p>';
+		$html             .= '<a onclick="copyToClipboard()" id="bookmarkLink" href="' . $bookmark_url . '" class="pressthis-bookmarklet" style="padding:.5rem;">' . $n2->town . 'ログイン</a>';
+		$html             .= '</div>';
+		echo $html;
+		?>
+		<script>
+			function copyToClipboard() {
+				event.preventDefault();
+				// コピー対象をJavaScript上で変数として定義する
+				let copyTarget = document.getElementById("bookmarkLink");
+				let copyLink = copyTarget.getAttribute('href');
+				navigator.clipboard.writeText(copyLink);
+				// 選択しているテキストをクリップボードにコピーする
+				document.execCommand("Copy");
+
+				// コピーをお知らせする
+				alert("URLをコピーしました : " + copyLink);
+			}
+		</script>
+		<?php
 	}
 }
