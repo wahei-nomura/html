@@ -93,7 +93,7 @@ export default ($: any = jQuery) => {
 			if( '' === this.類型該当理由 ) {
 				this.類型該当理由 = n2.settings['N2']['類型該当理由注意書き'][this.地場産品類型];
 			}
-			let info = n2.custom_field['スチームシップ用']['類型該当理由']['description'] + ' 注意書き：' + n2.settings['N2']['類型該当理由注意書き'][this.地場産品類型];
+			let info = n2.custom_field['スチームシップ用']['類型該当理由']['description'] + '<br>注意書き：' + n2.settings['N2']['類型該当理由注意書き'][this.地場産品類型];
 			if(undefined !== n2.settings['N2']['類型該当理由注意書き'][this.地場産品類型]){
 				$('#類型該当理由').find('.n2-fields-value').data('description',info);
 				$('#類型該当理由').find('.n2-field-description').find('.alert-primary').html(info);
