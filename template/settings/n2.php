@@ -86,7 +86,7 @@ $settings = array(
 							<?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( (string) $value, $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>>
 						<?php echo esc_html( $value ); ?>
 					</span>
-					<span style="margin:0 .5rem 0 2rem;">注意書き:</span><input type="text" name="n2_settings[N2][類型該当理由注意書き][<?php echo $value; ?>]" value="<?php echo esc_attr( $n2->settings['N2']['類型該当理由注意書き'][ $value ] ); ?>" style="width: 20em;">
+					<span style="margin:0 .5rem 0 2rem;">注意書き:</span><input type="text" name="n2_settings[N2][類型該当理由注意書き][<?php echo $value; ?>]" value="<?php echo ! empty( $n2->settings['N2']['類型該当理由注意書き'][ $value ] ) ? esc_attr( $n2->settings['N2']['類型該当理由注意書き'][ $value ] ) : ''; ?>" style="width: 20em;">
 				</label>
 				<?php
 			}
