@@ -29,8 +29,11 @@ class N2_Users_API {
 	 * 全ユーザーを出力する
 	 */
 	public function get() {
-		$role           = isset( $_GET['role'] ) ? filter_input( INPUT_GET, 'role' ) : '';
-		$users_all_data = get_users( "role={$role}" );
+		$args = $_GET;
+		if ( wp_verify_nonce( $_POST['n2nonce'] ?? '', 'n2nonce' ) ) {
+			$args = wp_parse_args( $args, $_POST );
+		}
+		$users_all_data = get_users( $args );
 
 		// userデータをシンプルに加工
 		$users = array_map(
