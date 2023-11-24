@@ -24,7 +24,7 @@ foreach ( $args as $k => $v ) {
 			style="text-decoration: underline;"
 			role="button"
 			@click="全商品ディレクトリID.text = 0;get_genreid();"
-			v-text="`全商品ディレクトリID`"
+			v-text="`楽天ジャンルID`"
 		></span>
 	</li>
 	<li class="breadcrumb-item" v-for="v in 全商品ディレクトリID.list.parents">
