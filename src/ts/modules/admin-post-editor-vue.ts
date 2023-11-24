@@ -88,12 +88,24 @@ export default ($: any = jQuery) => {
 		wp.data.dispatch( 'core/keyboard-shortcuts' ).unregisterShortcut('core/editor/redo');
 	};
 	const methods = {
+		// 地場産品類型に応じて類型該当理由の注意書きを修正
+		update_applicable_reason() {
+			if( '' === this.類型該当理由 ) {
+				this.類型該当理由 = n2.settings['N2']['類型該当理由注意書き'][this.地場産品類型];
+			}
+			let info = n2.custom_field['スチームシップ用']['類型該当理由']['description'] + '<br>注意書き：' + n2.settings['N2']['類型該当理由注意書き'][this.地場産品類型];
+			if(undefined !== n2.settings['N2']['類型該当理由注意書き'][this.地場産品類型]){
+				$('#類型該当理由').find('.n2-fields-value').data('description',info);
+				$('#類型該当理由').find('.n2-field-description').find('.alert-primary').html(info);
+			}
+		},
 		// 説明文・テキストカウンター
 		set_info(target) {
+			let description_text = $(target).parents('.n2-fields-value').data('description');
 			$(target).parents('.n2-fields-value').find('.d-none').removeClass('d-none');
 			const info = [
 				$(target).parents('.n2-fields-value').data('description') && ! document.cookie.match(/n2-zenmode/) 
-					? `<div class="alert alert-primary mb-2">${$(target).parents('.n2-fields-value').data('description')}</div>`
+					? `<div class="alert alert-primary mb-2">${description_text}</div>`
 					: '',
 				$(target).attr('maxlength')
 					? `文字数：${($(target).val() as any).length} / ${$(target).attr('maxlength')}`
