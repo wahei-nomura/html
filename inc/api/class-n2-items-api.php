@@ -205,7 +205,8 @@ class N2_Items_API {
 			$meta['配送伝票表示名'],
 			$meta['寄附金額固定'],
 			$meta['_neng_id'],
-			$meta['_edit_lock']
+			$meta['_edit_lock'],
+			$meta['_n2_required'],
 		);
 		$postarr = array(
 			'post_title'  => "（コピー） {$post->post_title}",
