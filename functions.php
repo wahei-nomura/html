@@ -51,6 +51,7 @@ $incs = array(
 	'api/class-n2-output-gift-api',
 	'api/class-n2-post-history-api',
 	'api/class-n2-users-api',
+	'class-n2-chrome-checker',
 	'api/class-n2-items-api',
 	'api/class-n2-blogs-api',
 	'api/class-n2-multi-url-request-api',
