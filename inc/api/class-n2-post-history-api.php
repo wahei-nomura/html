@@ -52,7 +52,8 @@ class N2_Post_History_API {
 						echo '履歴がありません';
 						exit;
 					}
-					get_template_part( 'template/admin-ajax/view-post-history', null, $diff );
+					$name = 'portal_item_data' === $post->post_type ? 'portal-item' : 'post';
+					get_template_part( "template/admin-ajax/view-{$name}-history", null, $diff );
 					break;
 				default:
 					header( 'Content-Type: application/json; charset=utf-8' );
