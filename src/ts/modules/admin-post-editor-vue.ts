@@ -90,9 +90,6 @@ export default ($: any = jQuery) => {
 	const methods = {
 		// 地場産品類型に応じて類型該当理由の注意書きを修正
 		update_applicable_reason() {
-			if( '' === this.類型該当理由 ) {
-				this.類型該当理由 = n2.settings['N2']['類型該当理由注意書き'][this.地場産品類型];
-			}
 			let info = n2.custom_field['スチームシップ用']['類型該当理由']['description'] + '<br>※記入例：' + n2.settings['N2']['類型該当理由注意書き'][this.地場産品類型];
 			if(undefined !== n2.settings['N2']['類型該当理由注意書き'][this.地場産品類型]){
 				$('#類型該当理由').find('.n2-fields-value').data('description',info);
