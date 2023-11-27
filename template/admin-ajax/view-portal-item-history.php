@@ -47,7 +47,7 @@ $n2->poratal_item_history = $arr;// Vueでやるならいる
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>[履歴] <?php echo $n2->query->post->post_title; ?></title>
+	<title>[履歴] <?php echo get_the_title( $args[0]['ID'] ); ?></title>
 	<?php wp_print_styles( array( 'dashicons' ) ); ?>
 	<link rel="stylesheet" href="<?php echo get_theme_file_uri( "dist/css/view-post-history.css?ver={$n2->cash_buster}" ); ?>">
 </head>
