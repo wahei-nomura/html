@@ -74,16 +74,19 @@ $settings = array(
 		</td>
 	</tr>
 	<tr>
-		<th>類型該当理由を表示する地場産品類型</th>
+		<th>類型該当理由を表示する地場産品類型(入力時の注意書き)</th>
 		<td>
 			<?php $typology = array_filter( array_keys( array_filter( $n2->custom_field['スチームシップ用']['地場産品類型']['option'] ) ) ); ?>
 			<?php foreach ( $typology as $key => $value ) { ?>
 				<label style="display:block;margin-bottom:1rem;">
-					<input type="checkbox"
-						name="n2_settings[N2][理由表示地場産品類型][]"
-						value="<?php echo esc_attr( $value ); ?>"
-						<?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( (string) $value, $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>>
-					<?php echo esc_html( $value ); ?>
+					<span style="display:inline-block;width:8rem;">
+						<input type="checkbox"
+							name="n2_settings[N2][理由表示地場産品類型][]"
+							value="<?php echo esc_attr( $value ); ?>"
+							<?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( (string) $value, $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>>
+						<?php echo esc_html( $value ); ?>
+					</span>
+					<span style="margin:0 .5rem 0 2rem;">記入例:</span><input type="text" name="n2_settings[N2][類型該当理由注意書き][<?php echo $value; ?>]" value="<?php echo ! empty( $n2->settings['N2']['類型該当理由注意書き'][ $value ] ) ? esc_attr( $n2->settings['N2']['類型該当理由注意書き'][ $value ] ) : ''; ?>" style="width: 20em;">
 				</label>
 				<?php
 			}
