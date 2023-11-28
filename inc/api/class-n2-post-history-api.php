@@ -38,8 +38,12 @@ class N2_Post_History_API {
 		$type   = $args['type'] ?? 'json';
 		$post   = $args['post_id'] ?? get_posts( $args )[0];
 
-		// リビジョンを整形
-		$diff = $this->get_history_diff( wp_get_post_revisions( $post ) );
+		// リビジョンを整形（投稿タイプによってメソッド変更）
+		$get_history_diff = match ( $post->post_type ) {
+			'portal_item_data' => 'get_poratal_item_history_diff',
+			default            => 'get_history_diff',
+		};
+		$diff = $this->{$get_history_diff}( wp_get_post_revisions( $post ) );
 		// admin-ajax.phpアクセス時
 		if ( $action ) {
 			switch ( $type ) {
@@ -119,24 +123,77 @@ class N2_Post_History_API {
 				'before' => json_decode( $revisions[ $key + 1 ]->post_content ?? '', true ),
 				'after'  => json_decode( $value->post_content, true ),
 			);
-			// ポータル差分チェッカーの場合
-			if ( 'portal_item_data' === get_post_type( $value->post_parent ) ) {
-				$before = array_map( fn( $v ) => wp_json_encode( $v ), (array) $data['before'] );
-				$after  = array_map( fn( $v ) => wp_json_encode( $v ), (array) $data['after'] );
-				// 差分を取る
-				$data['before'] = array_values( array_map( fn( $v ) => json_decode( $v, true ), array_diff( $before, $after ) ) );
-				$data['after']  = array_values( array_map( fn( $v ) => json_decode( $v, true ), array_diff( $after, $before ) ) );
-				$diff[] = $data;
-			} else {
-				// beforeとafterの差分チェック
-				foreach ( $data['after'] as $k => $v ) {
-					// アンダースコアで始まるフィールドと変更無いフィールドは破棄
-					if ( preg_match( '/^_/', $k ) || ( $data['before'][ $k ] ?? '' ) === $data['after'][ $k ] ) {
-						unset( $data['before'][ $k ], $data['after'][ $k ] );
-					}
+			// beforeとafterの差分チェック
+			foreach ( $data['after'] as $k => $v ) {
+				// アンダースコアで始まるフィールドと変更無いフィールドは破棄
+				if ( preg_match( '/^_/', $k ) || ( $data['before'][ $k ] ?? '' ) === $data['after'][ $k ] ) {
+					unset( $data['before'][ $k ], $data['after'][ $k ] );
 				}
-				if ( ! empty( $data['after'] ) ) {
-					$diff[] = $data;
+			}
+			if ( ! empty( $data['after'] ) ) {
+				$diff[] = $data;
+			}
+		}
+		return $diff;
+	}
+
+	/**
+	 * ポータル履歴の差分表示用の配列作成（追加・削除・更新）
+	 *
+	 * @param array $revisions リビジョン配列
+	 * @return array $diff
+	 */
+	protected function get_poratal_item_history_diff( $revisions ) {
+		$diff      = array();
+		$revisions = array_values( $revisions );// キーを連番に変更
+		foreach ( $revisions as $key => $value ) {
+			$diff[ $key ] = array(
+				'ID'   => $value->ID,
+				'date' => $value->post_date,
+			);
+			// before/after
+			$before = (array) json_decode( $revisions[ $key + 1 ]->post_content ?? '' );
+			$after  = (array) json_decode( $value->post_content );
+			// １つ１つを文字列にしてarray_diffで差分をとれるようにする
+			$jsons = array(
+				'before' => array_map( 'json_encode', $before ),
+				'after'  => array_map( 'json_encode', $after ),
+			);
+			// 差分を取る
+			$before = array_values( array_map( 'json_decode', array_diff( $jsons['before'], $jsons['after'] ) ) );
+			$after  = array_values( array_map( 'json_decode', array_diff( $jsons['after'], $jsons['before'] ) ) );
+			// 返礼品コードで差分をとる
+			$codes = array(
+				'before' => array_map( fn( $v ) => $v->goods_g_num, $before ),
+				'after'  => array_map( fn( $v ) => $v->goods_g_num, $after ),
+			);
+			$add    = array_values( array_diff( $codes['after'], $codes['before'] ) );// 追加
+			$delete = array_values( array_diff( $codes['before'], $codes['after'] ) );// 削除
+			$codes  = array_unique( array( ...$codes['before'], ...$codes['after'] ) );// 全コード
+			$update = array_diff( $codes, $delete, $add );// 更新
+			foreach ( compact( 'add', 'delete', 'update' ) as $k => $codes ) {
+				foreach ( $codes as $code ) {
+					// 返礼品コードでターゲットを絞る
+					$tgt = array(
+						'before' => array_values( array_filter( $before, fn( $v ) => $code === $v->goods_g_num ) )[0] ?? array(),
+						'after'  => array_values( array_filter( $after, fn( $v ) => $code === $v->goods_g_num ) )[0] ?? array(),
+					);
+					// urlを突っ込む
+					$diff[ $key ][ $k ][ $code ]['url'] = $tgt['after']->url ?? $tgt['before']->url;
+					// parent_code
+					if ( isset( $tgt['before']->parent_code ) ) {
+						$diff[ $key ][ $k ][ $code ]['parent_code'] = $tgt['before']->parent_code;
+						unset( $tgt['before']->parent_code );
+					}
+					if ( isset( $tgt['after']->parent_code ) ) {
+						$diff[ $key ][ $k ][ $code ]['parent_code'] = $tgt['after']->parent_code;
+						unset( $tgt['after']->parent_code );
+					}
+					// update時はbefore/after
+					if ( 'update' === $k ) {
+						$diff[ $key ][ $k ][ $code ]['before'] = array_diff( (array) $tgt['before'], (array) $tgt['after'] );
+						$diff[ $key ][ $k ][ $code ]['after']  = array_diff( (array) $tgt['after'], (array) $tgt['before'] );
+					}
 				}
 			}
 		}
