@@ -306,6 +306,10 @@ class N2_Item_Export_Base {
 	private function set_data_string() {
 		$str = '';
 		foreach ( $this->data['data'] as $key => $value ) {
+			// 商品属性が存在する場合は削除（要リファクタ）
+			if ( array_key_exists( '商品属性', $value ) ) {
+				unset( $value['商品属性'] );
+			}
 			// $valueが多次元配列の場合は行列入れ替え
 			$value = match ( count( $value, COUNT_RECURSIVE ) ) {
 				count( $value ) => array( $value ),
