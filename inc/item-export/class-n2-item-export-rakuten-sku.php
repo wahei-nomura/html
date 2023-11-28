@@ -145,7 +145,6 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 				},
 				$data[ $id ],
 			);
-
 			$data[ $id ] = array_combine( $this->data['header'], $data[ $id ] );
 		}
 		/**
@@ -169,7 +168,6 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 	protected function walk_values( &$val, $index, $n2values ) {
 		$is_callable = is_callable( array( $this, "walk_${val}_values" ) );
 		$this->check_fatal_error( $is_callable, '未定義のレベルです' );
-
 		$header = $this->data['header'];
 		array_walk( $header, array( $this, "walk_${val}_values" ), $n2values );
 		$val = $header;
@@ -307,9 +305,9 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 				if ( 'ジャンルID' === $name ) {
 					if ( empty( $n2values['全商品ディレクトリID'] ) ) {
 						$this->add_error( $n2values['id'], '楽天ジャンルIDが空です。' );
-					} // elseif ( empty( $n2values['商品属性'] ) ) {
-					// $this->add_error( $n2values['id'], '商品属性が空です。' );
-					// }
+					} elseif ( empty( $n2values['商品属性'] ) ) {
+						$this->add_error( $n2values['id'], '商品属性が空です。' );
+					}
 				}
 				break;
 			case 'walk_option_values':
