@@ -41,7 +41,16 @@ global $n2;
 				<tr v-if="item[name]">
 					<th style="text-align: left;">{{name}}</th>
 					<td style="text-align: left;">
-						<div v-if="Array.isArray(item[name])">{{item[name].join(', ')}}</div>
+						<div v-if="Array.isArray(item[name])">
+							<template v-if="'商品属性' === name">
+								<div v-for="{nameJa, value, unitValue, properties} in item[name]">
+									{{nameJa}}{{properties.rmsMandatoryFlg ? '*' : ''}}：{{value}}{{ unitValue ? '：' + unitValue : '' }}
+								</div>
+							</template>
+							<template v-else>
+								{{item[name].join(', ')}}
+							</template>
+						</div>
 						<div v-else v-html="item[name].toString().replace(/\r\n|\r|\n/g,'<br>')"></div>
 					</td>
 				</tr>

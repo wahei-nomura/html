@@ -61,11 +61,35 @@ wp_localize_script( 'jquery', 'n2', $n2 );
 					<tr v-else>
 						<th>{{name}}</th>
 						<td class="text-success">
-							{{Array.isArray(after) ? after.join(', ') : after}}
+							<template v-if="Array.isArray(after)">
+									<template v-if="'商品属性' === name">
+										<div v-for="{nameJa, value, properties} in after">
+											{{nameJa}}{{properties.rmsMandatoryFlg ? '*' : ''}}：{{value}}
+										</div>
+									</template>
+									<template v-else>
+										{{after.join(', ')}}
+									</template>
+							</template>
+							<template v-else>
+								{{after}}
+							</template>
 						</td>
 						<td class="text-danger">
 							<template v-if="v.before">
-								{{Array.isArray(v.before[name]) ? v.before[name].join(', ') : v.before[name]}}
+								<template v-if="Array.isArray(v.before[name])">
+										<template v-if="'商品属性' === name">
+											<div v-for="{nameJa, value, properties} in v.before[name]">
+												{{nameJa}}{{properties.rmsMandatoryFlg ? '*' : ''}}：{{value}}
+											</div>
+										</template>
+										<template v-else>
+											{{v.before[name].join(', ')}}
+										</template>
+								</template>
+								<template v-else>
+									{{v.before[name]}}
+								</template>
 							</template>
 						</td>
 					</tr>
@@ -92,7 +116,16 @@ wp_localize_script( 'jquery', 'n2', $n2 );
 						<tr v-if="item[name]">
 							<th style="text-align: left;">{{name}}</th>
 							<td style="text-align: left;">
-								<div v-if="Array.isArray(item[name])">{{item[name].join(', ')}}</div>
+								<div v-if="Array.isArray(item[name])">
+									<template v-if="'商品属性' === name">
+										<div v-for="{nameJa, value, properties} in item[name]">
+											{{nameJa}}{{properties.rmsMandatoryFlg ? '*' : ''}}：{{value}}
+										</div>
+									</template>
+									<template v-else>
+										{{item[name].join(', ')}}
+									</template>
+								</div>
 								<div v-else v-html="item[name].toString().replace(/\r\n|\r|\n/g,'<br>')"></div>
 							</td>
 						</tr>

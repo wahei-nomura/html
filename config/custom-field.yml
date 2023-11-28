@@ -63,12 +63,19 @@
 # ▼ =========== 楽天専用のフィールド ==========
     全商品ディレクトリID:
         portal: 楽天
+        label: ジャンルID
         type: rakuten-genreid
         label: 楽天ジャンルID
         min: 0
         v-model: 全商品ディレクトリID.text
         v-if: "!出品禁止ポータル.includes('楽天') && !商品タイプ.includes('eチケット')"
-        description: 必ず、ID（6桁の数字）が表示されるまで黒いボタンを押していってください。
+        description: 必ず、ID（6桁の数字）が見えるようになるまで黒いボタンを押していってください。
+    商品属性:
+        portal: 楽天
+        type: rakuten-attributes
+        v-model: 商品属性
+        v-if: "!出品禁止ポータル.includes('楽天') && !商品タイプ.includes('eチケット') && 全商品ディレクトリID.text"
+        description: 少なくとも必須の商品属性は必ず取得し、保存してください。
     楽天SPAカテゴリー:
         portal: 楽天
         type: rakuten-spa-category

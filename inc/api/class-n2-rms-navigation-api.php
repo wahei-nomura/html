@@ -1,7 +1,7 @@
 <?php
 /**
  * RMS NAVIGATION API
- * /wp-admin/admin-ajax.php?action=n2_rms_navigation_api_ajax&mode=debug&request=
+ * /wp-admin/admin-ajax.php?action=n2_rms_navigation_api_ajax&mode=debug&call=
  *
  * @package neoneng
  */
@@ -23,12 +23,12 @@ class N2_RMS_Navigation_API extends N2_RMS_Base_API {
 	 * @return array
 	 */
 	public static function genres_attributes_get( $genreId, $attributeId = '' ) {
-		$url = static::$settings['endpoint'] . '2.0/navigation/genres/' . $genreId . '/attributes/';
+		$url = static::$settings['endpoint'] . '/2.0/navigation/genres/' . $genreId . '/attributes/';
 
 		// 商品属性IDがあれば追加する
 		$url .= $attributeId ?? '';
 
-		$response = static::get( $url );
+		$response = static::request( $url );
 		return $response;
 	}
 }

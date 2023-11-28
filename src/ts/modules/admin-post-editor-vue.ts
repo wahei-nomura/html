@@ -24,6 +24,7 @@ export default ($: any = jQuery) => {
 	data['寄附金額自動計算値'] = '';
 	data['media'] = false;
 	data['number_format'] = true;// ３桁区切りカンマ用
+	data['商品属性アニメーション'] = false;
 	const created = async function() {
 		save_as_pending.append_button("#n2-save-post");// スチームシップへ送信
 		this.全商品ディレクトリID = {
@@ -35,7 +36,7 @@ export default ($: any = jQuery) => {
 			group: '',
 			list: [],
 		};
-		
+		this.商品属性 = JSON.stringify( this.商品属性 || [] );
 		this.寄附金額 = await this.calc_donation(this.価格,this.送料,this.定期便);
 		this.control_submit();
 		// 発送サイズ・発送方法をダブル監視
@@ -55,13 +56,6 @@ export default ($: any = jQuery) => {
 			async function(newVal, oldVal) {
 				// 保存ボタン
 				this.control_submit();
-				// タグIDのリセット
-				if ( newVal.全商品ディレクトリID != oldVal.全商品ディレクトリID && this.タグID.text.length ) {
-					if ( confirm('全商品ディレクトリIDが変更されます。\nそれに伴い入力済みのタグIDをリセットしなければ楽天で地味にエラーがでます。\n\nタグIDをリセットしてよろしいでしょうか？') ) {
-						this.タグID.list = [];
-						this.タグID.text = '';
-					}
-				}
 				// 寄附金額の算出
 				const size = [
 					newVal.発送サイズ,
@@ -196,6 +190,52 @@ export default ($: any = jQuery) => {
 				},
 			};
 			this.全商品ディレクトリID.list = await $.ajax(settings);
+		},
+		// 楽天の商品属性を取得
+		async insert_rms_attributes( mandatoryFlg = false ) {
+			const attributesUrl = {
+				url: n2.ajaxurl,
+				data: {
+					action: 'n2_rms_navigation_api_ajax',
+					mode: 'json',
+					call: 'genres_attributes_get',
+					genreId: this.全商品ディレクトリID.text || '0',
+				},
+			};
+			this.商品属性アニメーション = true;
+			this.商品属性 = await $.ajax(attributesUrl).then( (res) => {
+				return JSON.parse(res.body);
+			}).then( (body) => {
+				const attributes = body.genre.attributes;
+				return mandatoryFlg ? attributes.filter( v => v.properties.rmsMandatoryFlg ) : attributes;
+			}).then( (attributes) => {
+				return attributes.map( v => {
+					const before = this.商品属性parse.filter( value => value.nameJa === v.nameJa );
+					v.value = before.length ? (before[0].value || '') : '' ;
+					v.unitValue = before.length ? (before[0].unitValue || null) : null ;
+					return v;
+				})
+			}).then( (attributes) => {
+				return JSON.stringify(attributes);
+			}).catch( (e) => {
+				alert('属性情報を取得できませんでした。ジャンルIDが正しいことを確認してください。') 
+				console.log(e.message);
+				return JSON.stringify([]);
+			})
+			this.商品属性アニメーション = false;
+		},
+		set_rms_attributes_value(index, value) {
+			const attributes = JSON.parse(this.商品属性);
+			attributes[index].value = value;
+			this.商品属性 = JSON.stringify(attributes);
+		},
+		set_rms_attributes_unit(index, unitValue) {
+			const attributes = JSON.parse(this.商品属性);
+			attributes[index].unitValue = unitValue;
+			this.商品属性 = JSON.stringify(attributes);
+		},
+		get_units(v) {
+			return v.unit ? [v.unit, ...v.subUnits] : [];
 		},
 		// タグIDと楽天SPAカテゴリーで利用
 		update_textarea(id, target = 'タグID', delimiter = '/', maxrow = null){
@@ -338,6 +378,11 @@ export default ($: any = jQuery) => {
 	const components = {
 		draggable,
 	};
+	const computed = {
+		商品属性parse() {
+			return JSON.parse(this.商品属性);
+		},
+	};
 
 	// メタボックスが生成されてから
 	$('.edit-post-layout__metaboxes').ready(()=>{
@@ -347,6 +392,7 @@ export default ($: any = jQuery) => {
 			created,
 			methods,
 			components,
+			computed,
 		});
 	});
 };

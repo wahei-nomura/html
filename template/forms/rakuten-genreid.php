@@ -8,16 +8,14 @@
 
 $defaults = array();
 $args     = wp_parse_args( $args, $defaults );
-$attr  = '';
+$attr     = '';
 foreach ( $args as $k => $v ) {
 	$v     = esc_attr( $v );// エスケープしないとバグる
 	$attr .= " {$k}=\"{$v}\"";
 }
 ?>
 <!-- 最後まで選択されてないとID表示されないようにする -->
-<div v-if="!全商品ディレクトリID.list.children || 全商品ディレクトリID.list.children.length === 0">
-	<input type="number"<?php echo $attr; ?> @focus="set_info($event.target);get_genreid()" @change="get_genreid()">
-</div>
+<input :type="全商品ディレクトリID.list.children && 全商品ディレクトリID.list.children.length > 0 ? 'password' : 'number'" <?php echo $attr; ?> @focus="set_info($event.target);get_genreid()" @change="get_genreid()">
 <ol class="breadcrumb m-0 mt-1">
 	<li v-if="全商品ディレクトリID.list.current" class="breadcrumb-item">
 		<span 

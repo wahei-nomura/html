@@ -1015,6 +1015,25 @@ class N2_Sync {
 					$this->error[ $k ][] = '全商品ディレクトリIDは数値です。';
 				}
 			}
+			// 商品属性
+			if ( isset( $d['商品属性'] ) ) {
+				$d['商品属性'] = array_values( array_filter( preg_split( '/\r\n|\n|\r/', $d['商品属性'] ) ) );	
+				$d['商品属性'] = preg_replace( '/:{2,}/i', ':', $d['商品属性'] );// コロンが二つ続いてると単位と見做されるので大文字小文字共にreplace
+				$d['商品属性'] = array_map(
+					function( $value ) {
+						$value = preg_split( '/:|：/', $value );
+						return array(
+							'nameJa'     => trim( rtrim( $value[0], '*' ) ),
+							'value'      => trim( $value[1] ),
+							'unitValue'  => isset( $value[2] ) ? trim( $value[2] ) : null,
+							'properties' => array(
+								'rmsMandatoryFlg' => (bool) strpos( $value[0], '*' ),
+							),
+						);
+					},
+					$d['商品属性']
+				);
+			}
 			// タグID
 			if ( isset( $d['タグID'] ) ) {
 				$d['タグID'] = array_filter( preg_split( $sep, $d['タグID'] ) );

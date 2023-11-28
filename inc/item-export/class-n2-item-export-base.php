@@ -183,6 +183,38 @@ class N2_Item_Export_Base {
 	protected function set_data() {
 		$data = array();
 		$this->check_fatal_error( $this->data['header'], 'ヘッダーが正しくセットされていません' );
+		// キャッシュのために空の配列を作成
+		$genre_ids        = array();
+		$attributes_cache = array();
+		// 商品属性が空の返礼品のジャンルIDを集める
+		foreach ( $this->data['n2data'] as $values ) {
+			if ( empty( $values['商品属性'] ) ) {
+				$genre_ids[] = $values['全商品ディレクトリID'];
+			}
+		}
+		// 重複削除
+		$genre_ids = array_unique( $genre_ids );
+		// 商品属性が空の返礼品があればインスタンス作成
+		$attributes_api = $genre_ids ? new N2_RMS_Navigation_API() : '';
+		// 商品属性が空の返礼品のジャンルIDをもとにAPIを呼び出し、商品属性のキャッシュを作成
+		if ( $attributes_api ) {
+			foreach ( $genre_ids as $genre_id ) {
+				if ( ! $attributes_api->connect() ) {
+					continue;
+				}
+				$response                      = $attributes_api->genres_attributes_get( $genre_id );
+				$body                          = $response['body'];
+				$attributes_cache[ $genre_id ] = json_decode( $body )->genre->attributes;
+				$attributes_cache[ $genre_id ] = array_map(
+					fn( $attribute ) => $attribute->nameJa .
+					( $attribute->properties->rmsMandatoryFlg ? '*' : '' ) .
+					( null === $attribute->unit ? '：' : '：：' ) . "\n",
+					$attributes_cache[ $genre_id ] ?? array()
+				);
+				$attributes_cache[ $genre_id ] = implode( '', $attributes_cache[ $genre_id ] );
+			}
+		}
+		// データをセットする
 		foreach ( $this->data['n2data'] as $key => $values ) {
 			$id = $values['id'];
 			// ヘッダーをセット
@@ -191,6 +223,11 @@ class N2_Item_Export_Base {
 			$data[ $id ] = array_filter( $data[ $id ], fn( $v ) => ! is_array( $v ) || ! empty( $v ) );
 			if ( ! empty( $data[ $id ] ) ) {
 				$data[ $id ] = array_combine( $this->data['header'], $data[ $id ] );
+			}
+			// 空だったらキャッシュされた商品属性をセットする
+			if ( empty( $data[ $id ]['商品属性'] ) ) {
+				$genre_id            = $data[ $id ]['全商品ディレクトリID'];
+				$data[ $id ]['商品属性'] = $attributes_cache[ $genre_id ] ?? '';
 			}
 		}
 		/**
@@ -214,6 +251,25 @@ class N2_Item_Export_Base {
 	protected function walk_values( &$val, $index, $n2values ) {
 		// 最終的に入る項目の値（文字列）
 		$data = $n2values[ $val ] ?: '';
+		// 商品属性だけ階層が深くなっているので必要なデータだけ掘りだして格納
+		$data = match ( $val ) {
+			'商品属性' => is_array( $data )
+			? implode(
+				"\n",
+				array_map(
+					fn( $v ) => sprintf(
+						'%s%s：%s%s',
+						$v['nameJa'],
+						$v['properties']['rmsMandatoryFlg'] ? '*' : '',
+						$v['value'],
+						! empty( $v['unitValue'] ) ? '：' . $v['unitValue'] : ''
+					),
+					$data
+				)
+			)
+			: '',
+			default => $data,
+		};
 		if ( is_array( $data ) ) {
 			// |で連結
 			$data = implode( '|', $data );

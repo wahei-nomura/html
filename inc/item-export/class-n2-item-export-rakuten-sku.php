@@ -81,8 +81,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 			$variation                               = $values['バリエーション項目名定義'] ?? ''; // keyを仮に設定
 			$variation                               = array_filter( explode( '|', $variation ) );
 			$this->data['sku']['max']['variation']   = max( $this->data['sku']['max']['variation'] ?? 0, count( $variation ) );
-			$attribute                               = $values['商品属性'] ?? ''; // keyを仮に設定
-			$attribute                               = array_filter( explode( '|', $attribute ) );
+			$attribute                               = ! empty( $values['商品属性'] ) ? $values['商品属性'] : array(); // keyを仮に設定
 			$this->data['sku']['max']['attribute']   = max( $this->data['sku']['max']['attribute'] ?? 0, count( $attribute ) );
 		}
 
@@ -246,8 +245,8 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 	 * @param array  $n2values n2dataのループ中の値
 	 */
 	protected function walk_sku_values( &$val, $index, $n2values ) {
-
 		global $n2;
+		$n2values['商品属性'] = is_array( $n2values['商品属性'] ) ? array_values( array_filter( $n2values['商品属性'], fn( $v ) => $v['value'] ) ) : array();
 		// preg_matchで判定
 		$data = match ( 1 ) {
 			preg_match( '/^商品管理番号（商品URL）$/', $val )  => mb_strtolower( $n2values['返礼品コード'] ),
@@ -259,6 +258,9 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 			preg_match( '/^送料$/', $val )  => 1,
 			preg_match( '/^カタログIDなしの理由$/', $val )  => 5,
 			preg_match( '/^代引料$/', $val )  => 1,
+			preg_match( '/(?<=商品属性（項目）)[0-9]{1,}/', $val, $m )  => $n2values['商品属性'][ $m[0] - 1 ]['nameJa'],
+			preg_match( '/(?<=商品属性（値）)[0-9]{1,}/', $val, $m )  => $n2values['商品属性'][ $m[0] - 1 ]['value'],
+			preg_match( '/(?<=商品属性（単位）)[0-9]{1,}/', $val, $m )  => $n2values['商品属性'][ $m[0] - 1 ]['unitValue'],
 			default => '',
 		};
 		/**
