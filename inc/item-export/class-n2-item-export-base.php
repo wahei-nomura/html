@@ -227,7 +227,7 @@ class N2_Item_Export_Base {
 			// 空だったらキャッシュされた商品属性をセットする
 			if ( empty( $data[ $id ]['商品属性'] ) ) {
 				$genre_id            = $data[ $id ]['全商品ディレクトリID'];
-				$data[ $id ]['商品属性'] = $attributes_cache[ $genre_id ] ?? '';
+				$data[ $id ]['商品属性'] = $attributes_cache[ $genre_id ] ?? array();
 			}
 		}
 		/**
