@@ -75,7 +75,7 @@
         type: rakuten-attributes
         v-model: 商品属性
         v-if: "!出品禁止ポータル.includes('楽天') && !商品タイプ.includes('eチケット') && 全商品ディレクトリID.text"
-        description: 少なくとも必須の商品属性は必ず取得し、保存してください。
+        description: 少なくとも必須の商品属性は必ず取得し、保存してください。必須の商品属性が無かった場合は、任意入力になります。
     楽天SPAカテゴリー:
         portal: 楽天
         type: rakuten-spa-category
