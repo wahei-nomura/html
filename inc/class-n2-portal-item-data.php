@@ -113,7 +113,7 @@ class N2_Portal_Item_Data {
 		global $n2;
 		// goods_g_numでソートする
 		array_multisort( array_column( $this->data, 'goods_g_num' ), SORT_ASC, $this->data );
-		$this->data = array_values( $this->data );
+		$this->data = wp_slash( array_values( $this->data ) );
 		// 保存用配列
 		$args = array(
 			'post_type'    => $this->post_type,
