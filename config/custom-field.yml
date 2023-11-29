@@ -95,13 +95,10 @@
     楽天カテゴリー:
         portal: 楽天
         type: rakuten-category
-        description: 最大5項目まで登録可能です。
         v-model: 楽天カテゴリー.text
         v-if: "!出品禁止ポータル.includes('楽天')"
-        style: 'width: 100%;'
         rows: auto
-        "@focus": set_info($event.target);get_rakuten_category();auto_fit_tetxarea($event.target)
-        "@input": auto_fit_tetxarea($event.target)
+        style: 'display: none;'
 # ▲ =========== 楽天専用のフィールド ==========
 
     検索キーワード:
