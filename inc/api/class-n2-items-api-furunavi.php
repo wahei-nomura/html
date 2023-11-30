@@ -78,8 +78,8 @@ class N2_Items_API_Furunavi extends N2_Portal_Item_Data {
 		// 自治体のものだけにデータの浄化
 		$v = array_values( array_filter( $v, fn( $d ) => $d['MunicipalName'] === $n2->town && 0 !== $d['Stock'] ) );
 		$v = array_map(
-			function( $d ) {
-				preg_match( '/\[([A-Z]{2,3}[0-9]{2,3})\]/', $d['ProductName'], $m );
+			function( $d ) use ( $n2 ) {
+				preg_match( "/\[{$n2->regex['item_code']['strict']}\]/", $d['ProductName'], $m );
 				return array(
 					'goods_g_num' => $m[1] ?? '',
 					'goods_name'  => $d['ProductName'],
