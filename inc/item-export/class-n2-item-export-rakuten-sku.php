@@ -119,26 +119,45 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 	}
 
 	/**
-	 * 商品属性入力必須判定フラグ
+	 * 商品属性必須だけど空のジャンルIDをセットするための変数
 	 *
-	 * @param string $genre_id ジャンルID
+	 * @var array $attr_ids
 	 */
-	protected function attr_flg( $genre_id ) {
-		// 商品属性APIインスタンス生成
-		$attributes_api = new N2_RMS_Navigation_API();
-		// 接続確認
-		$response = match ( $attributes_api->connect() ) {
-			true => $attributes_api->genres_attributes_get( $genre_id ),
-			default => array(),
-		};
-		$body = $response['body'];
-		$flg  = json_decode( $body )->genre->attributes;
-		$flg  = array_map(
-			fn( $v ) => $v->properties->rmsMandatoryFlg,
-			$flg
-		);
-		$flg  = in_array( true, $flg, true ) ? true : false;
-		return $flg;
+	public $empty_attr_ids = array();
+
+	/**
+	 * 商品属性が必須なのに入ってないジャンルIDをメンバ変数にセットする関数
+	 */
+	protected function set_ids() {
+		// キャッシュのための配列
+		$attr_ids = array();
+		// 商品属性が空の返礼品のジャンルIDを集める
+		foreach ( $this->data['n2data'] as $values ) {
+			if ( empty( $values['商品属性'] ) ) {
+				$attr_ids[] = $values['全商品ディレクトリID'];
+			}
+		}
+		// 重複削除
+		$attr_ids = array_unique( $attr_ids );
+		// 商品属性必須のジャンルIDを絞る
+		foreach ( $attr_ids as $attr_id ) {
+			$response = N2_RMS_Navigation_API::genres_attributes_get( $attr_id );
+			if ( ! 200 === $response['response']['code'] ) {
+				echo 'NavigationAPIから情報取得できませんでした';
+				exit;
+			}
+			$body = $response['body'];
+			$flg  = json_decode( $body )->genre->attributes;
+			$flg  = array_map(
+				fn( $v ) =>
+				$v->properties->rmsMandatoryFlg,
+				$flg
+			);
+			if ( ! in_array( true, $flg, true ) ) {
+				$empty_attr_ids = array_values( array_diff( $attr_ids, array( $attr_id ) ) );
+			}
+			$this->empty_attr_ids = $empty_attr_ids;
+		}
 	}
 
 	/**
@@ -147,6 +166,8 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 	protected function set_data() {
 		global $n2;
 		$data = array();
+		// 商品属性が必須なのに入ってないジャンルIDをメンバ変数にセットする
+		$this->set_ids();
 
 		$this->check_fatal_error( $this->data['sku']['header'] && $this->data['header'], 'ヘッダーが設定されていません' );
 
@@ -328,7 +349,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 				if ( 'ジャンルID' === $name ) {
 					if ( empty( $n2values['全商品ディレクトリID'] ) ) {
 						$this->add_error( $n2values['id'], '楽天ジャンルIDが空です。' );
-					} elseif ( empty( $n2values['商品属性'] ) && $this->attr_flg( $n2values['全商品ディレクトリID'] ) ) {
+					} elseif ( empty( $n2values['商品属性'] ) && in_array( $n2values['全商品ディレクトリID'], $this->empty_attr_ids, true ) ) {
 						$this->add_error( $n2values['id'], '商品属性が空です。' );
 					}
 				}
