@@ -118,7 +118,10 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 				},
 				'その他経費' => match ( $lh_setting['その他経費'] ) {
 					'ヤマト以外の送料を登録' => $is_yamato ? '' : $n2values['送料'],
-					'ヤマト以外の送料を登録（定期便の場合は1回目に総額）' => $is_yamato || $i > 1 ? 0 : (int) $n2values['送料'] * (int) $n2values['定期便'],
+					'ヤマト以外の送料を登録（定期便の場合は1回目に総額）' => match ( $i ) {
+						1 => $is_yamato ? '' : (int) $n2values['送料'] * (int) $n2values['定期便'],
+						default => $is_yamato ? '' : 0,
+					},
 					default => '',
 				},
 				'送料' => match ( $lh_setting['送料'] ) {
