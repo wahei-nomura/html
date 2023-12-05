@@ -207,6 +207,7 @@ class N2_Items_API {
 			$meta['_neng_id'],
 			$meta['_edit_lock'],
 			$meta['_n2_required'],
+			$meta['自治体確認'],
 		);
 		$postarr = array(
 			'post_title'  => "（コピー） {$post->post_title}",
