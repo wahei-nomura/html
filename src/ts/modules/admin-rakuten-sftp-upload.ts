@@ -20,7 +20,7 @@ export default Vue.extend({
 			},
 			action: 'n2_rakuten_sftp_upload_to_rakuten',
 			files: [],
-			fileReset: 0,
+			fileResetCount: 0,
 		}
 	},
 	computed:{
@@ -43,34 +43,36 @@ export default Vue.extend({
 		]),
 		setFiles():void{
 			const files: File[] = Array.from(this.$refs.fileInput.files);
-			const type = files[0].type
 			// ファイルが選択されなければ何もしない
 			if( ! files.length ) {
-				this.files = [];
+				this.resetFiles()
 				return
 			}
+			const type = files[0].type
 			// 違う種類のファイルが混ざっていないか判定
 			if ( files.some((file : File)=> type !== file.type) ) {
-				this.files = [];
-				++this.fileReset;
+				this.resetFiles();
 				alert('アップロードできるファイル形式(CSV,画像)が複数選択されています。形式毎にアップロードしてください');
 				return
 			}
 			// ファイル形式が正しいか判定
 			if ( ! Object.keys(this.modeProp).some( key=> key === type ) ) {
-				this.files = [];
-				++this.fileReset;
+				this.resetFiles();
 				alert('アップロードできる拡張子は.csvまたは.jpgです');
 				return
 			}
 			// ファイル名判定
 			if (this.modeProp[type]?.name && ! files.every((file : File)=> this.modeProp[type].name.some( name => file.name.includes(name) ) ) ) {
-				this.files = [];
-				++this.fileReset;
+				this.resetFiles();
 				alert('ファイル名に指定のワード(normal-item,item-cat)が含まれていません');
 				return
 			}
 			this.files = files;
+		},
+		resetFiles():void{
+			++this.fileResetCount;
+			this.$refs.fileInput.value = '';
+			this.files = [];
 		},
 		async postFiles(){
 			const files:File[] = this.files;
@@ -102,6 +104,7 @@ export default Vue.extend({
 				alert(err.response.data.message);
 			}).then(()=>{
 				this.uploading = false;
+				this.resetFiles();
 			});
 		},
 	},
@@ -109,11 +112,14 @@ export default Vue.extend({
 		<form enctype="multipart/form-data" class="mb-4">
 			<input type="hidden" :value="uploadMode">
 			<div class="mb-2 input-group">
-				<span v-if="files.length" :class="uploadIcon"></span>
-				<input @change="setFiles" :key="fileReset" ref="fileInput" class="form-control" name="sftp_file[]" type="file" multiple="multiple" style="padding: 0.375rem 0.75rem;" aria-describedby="files-label">
-				<button @click.prevent="postFiles" class="btn btn-outline-secondary" :class="{'active':uploading}">
+				<input @change="setFiles" :key="fileResetCount" ref="fileInput" class="form-control" name="sftp_file[]" type="file" multiple="multiple" style="padding: 0.375rem 0.75rem;" aria-describedby="files-label">
+				<button @click.prevent="postFiles" class="btn btn-outline-secondary" :class="{'active':uploading}" :disabled="!files.length">
 					<template v-if="uploading">
 						<span class="spinner-border spinner-border-sm"></span>
+					</template>
+					<template v-else-if="files.length">
+						<span :class="uploadIcon"></span>
+						楽天に転送する
 					</template>
 					<template v-else>
 						楽天に転送する
