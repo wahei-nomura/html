@@ -96,7 +96,7 @@ export default Vue.extend({
 				formData,
 				{headers:headers}
 			).then((res)=>{
-				alert(res.data['message']);
+				alert(res.data.log.message);
 				// ログ一覧の更新
 				this.updateSFTPLog();
 			}).catch(err=>{
@@ -113,7 +113,7 @@ export default Vue.extend({
 			<input type="hidden" :value="uploadMode">
 			<div class="mb-2 input-group">
 				<input @change="setFiles" :key="fileResetCount" ref="fileInput" class="form-control" name="sftp_file[]" type="file" multiple="multiple" style="padding: 0.375rem 0.75rem;" aria-describedby="files-label">
-				<button @click.prevent="postFiles" class="btn btn-outline-secondary" :class="{'active':uploading}" :disabled="!files.length">
+				<button @click.prevent="postFiles" class="btn btn-outline-secondary" :class="{'active':uploading}" :disabled="!files.length || uploading">
 					<template v-if="uploading">
 						<span class="spinner-border spinner-border-sm"></span>
 					</template>

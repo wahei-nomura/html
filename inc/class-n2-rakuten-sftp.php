@@ -194,7 +194,7 @@ class N2_Rakuten_SFTP {
 				$contents = htmlspecialchars( mb_convert_encoding( $contents, 'utf-8', 'sjis' ) );
 				return array(
 					'name'     => $log['name'],
-					'time'     => date_i18n( 'Y M d', $log['lastmodunix'] ),
+					'time'     => wp_date( 'Y M d', $log['lastmodunix'] ),
 					'contents' => $contents,
 				);
 			},
@@ -413,7 +413,7 @@ class N2_Rakuten_SFTP {
 	 */
 	public function insert_post() {
 		global $n2;
-		$now                            = date_i18n( 'Y M d h:i:s A' );
+		$now                            = wp_date( 'Y M d h:i:s A' );
 		$judge                          = $this->data['params']['judge'];
 		$post_content                   = array(
 			'アップロード'   => $this->n2data,
