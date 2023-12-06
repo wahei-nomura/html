@@ -126,7 +126,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 	public $empty_attr_ids = array();
 
 	/**
-	 * 商品属性が必須なのに入ってないジャンルIDをメンバ変数にセットする関数
+	 * 商品属性が必須なのに入ってない返礼品のジャンルIDをメンバ変数にセットする関数
 	 */
 	protected function set_ids() {
 		// キャッシュのための配列
