@@ -283,17 +283,19 @@ class N2_Items_API {
 		// eチケット以外なのに送料なし
 		if ( isset( $meta['商品タイプ'] ) && ! in_array( 'eチケット', $meta['商品タイプ'], true ) ) {
 			$required[] = '送料';
-		}
-		// 全商品ディレクトリID
-		if ( in_array( '楽天', $n2->settings['N2']['出品ポータル'], true ) && ! in_array( '楽天', (array) $meta['出品禁止ポータル'], true ) ) {
-			$required[] = '全商品ディレクトリID';
-		}
-		// アレルギーあるのにアレルゲンなし
-		if (
-			! empty( array_filter( (array) ( $meta['アレルギー有無確認'] ?? array() ) ) )
-			&& empty( array_filter( (array) ( $meta['アレルゲン'] ?? array() ) ) )
-		) {
-			$required[] = 'アレルゲン';
+
+			// 楽天なのにジャンルID or 商品属性なし
+			if ( in_array( '楽天', $n2->settings['N2']['出品ポータル'], true ) && ! in_array( '楽天', (array) $meta['出品禁止ポータル'], true ) ) {
+				array_push( $required, '全商品ディレクトリID', '商品属性' );
+			}
+
+			// アレルギーあるのにアレルゲンなし
+			if (
+				! empty( array_filter( (array) ( $meta['アレルギー有無確認'] ?? array() ) ) )
+				&& empty( array_filter( (array) ( $meta['アレルゲン'] ?? array() ) ) )
+			) {
+				$required[] = 'アレルゲン';
+			}
 		}
 		// 最低必要事項の調査（数値に関しては0は許したい）
 		$check_required = array_filter(
