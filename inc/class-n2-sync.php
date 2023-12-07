@@ -1130,6 +1130,10 @@ class N2_Sync {
 					$this->error[ $k ][] = "存在しない発送サイズ「{$delivery_size}」が設定されています。";
 				}
 			}
+			// 送料
+			if ( ! is_numeric( $d['送料'] ) && '' != $d['送料'] ) {
+				$d['送料'] = 0;
+			}
 			if ( empty( $d['送料'] ) && ! empty( $d['発送サイズ'] ) && ! empty( $d['発送方法'] ) ) {
 				$delivery_code = N2_Donation_Amount_API::create_delivery_code( $d['発送サイズ'], $d['発送方法'] );
 				// 送料計算
