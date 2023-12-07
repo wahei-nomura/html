@@ -88,15 +88,6 @@ $bp: 782px;
 			&.status-private{
 				background: linear-gradient(to right, $dark 7px, rgba($dark, 0.4) 7px, rgba($dark, 0.4) 100%);
 			}
-			// N2的準備OKフラグ
-			&.n2-ready{
-				.n2-admin-post-list-tool-open{
-					color: rgba($success, 0.7);
-					&:hover{
-						color: $success;
-					}
-				}
-			}
 		}
 		.check-column{
 			@media screen and (max-width: $bp) {
@@ -135,41 +126,35 @@ $bp: 782px;
 			&::before{
 				display: none;
 			}
-			&.title{
-				text-align: left;
-				padding-left: 2rem;
-				position: relative;
-				strong{
-					font-size: 0;
-					line-height: 0;
-					.row-title,span:not([class]){
-						line-height: 1.5;
-						font-size: .85rem !important;
-						font-weight: normal;
-						overflow: hidden;
-						display: -webkit-box;
-						-webkit-box-orient: vertical;
-						-webkit-line-clamp: 2;
-						@media screen and (max-width: $bp) {
-							display: block;
+			&.status{
+				.dashicons{
+					color: $secondary;
+					&-yes{
+						color: $success;
+					}
+					&-dismiss{
+						color: $danger;
+					}
+					&-yes-alt{
+						color: $success;
+					}
+				}
+			}
+			&.tool{
+				.n2-admin-post-list-tool-open{
+					position: relative;
+					color: #ccc;
+					&.n2-ready{
+						color: rgba($success, 0.7);
+						&:hover{
+							color: $success;
 						}
 					}
-				}
-				.locked-info{
-					img{
-						border-radius: 1em;
-					}
-				}
-				.n2-admin-post-list-tool-open{
-					color: #ccc;
 					&::before{
 						bottom: 0;
 						content: "\f107";
 						font-family: dashicons;
 						font-size: 1.3rem;
-						left: 0;
-						position: absolute;
-						top: 0;
 						width: 2rem;
 						display: flex;
 						justify-content: center;
@@ -190,6 +175,31 @@ $bp: 782px;
 					}
 					&:hover{
 						color: $dark;
+					}
+				}
+			}
+			&.title{
+				text-align: left;
+				position: relative;
+				strong{
+					font-size: 0;
+					line-height: 0;
+					.row-title,span:not([class]){
+						line-height: 1.5;
+						font-size: .85rem !important;
+						font-weight: normal;
+						overflow: hidden;
+						display: -webkit-box;
+						-webkit-box-orient: vertical;
+						-webkit-line-clamp: 2;
+						@media screen and (max-width: $bp) {
+							display: block;
+						}
+					}
+				}
+				.locked-info{
+					img{
+						border-radius: 1em;
 					}
 				}
 			}
