@@ -34,8 +34,15 @@ foreach ( $args as $k => $v ) {
 			</td>
 			<td class="border-0">
 				<template v-if="v.dataType === 'STRING'">
-					<input type="text" :maxlength="v.maxLength" :value="v.value || ''" 
-					@change="set_rms_attributes_value(k,$event.target.value)" placeholder="値">
+					<template v-if="v.properties.rmsInputMethod === 'SELECTIVE'">
+						<select :value="v.value || ''" @change="set_rms_attributes_value(k,$event.target.value)">
+							<option v-for="v in v.dictionaryValues" :value="v.nameJa">{{ v.nameJa }}</option>
+						</select>
+					</template>
+					<template v-else>
+						<input type="text" :maxlength="v.maxLength" :value="v.value || ''" 
+						@change="set_rms_attributes_value(k,$event.target.value)" placeholder="値">
+					</template>
 				</template>
 				<template v-else-if="v.dataType === 'NUMBER'">
 					<input type="number" :value="v.value || ''" 
