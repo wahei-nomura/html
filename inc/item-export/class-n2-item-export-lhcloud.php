@@ -61,6 +61,9 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 				// ヘッダー文字列変更
 				add_filter( 'n2_item_export_lhcloud_set_header_string', fn() => $lh_setting['csv_header_string']['定期便（子謝礼品）リスト'] );
 				break;
+			case '税率リスト':
+				$this->settings['header_string'] = 'LedgHOMEクラウド 謝礼品税区分・税率リスト' . PHP_EOL;
+				break;
 		}
 
 		/**
@@ -92,6 +95,7 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 		// ループ回数
 		$loop = match ( $params['type'] ) {
 			'謝礼品リスト' => $n2values['定期便'],
+			'税率リスト' => 1,
 			default => $n2values['定期便'] > 1 ? 1 : 0,
 		};
 		for ( $i = 1; $i <= $loop; $i++ ) {
@@ -168,6 +172,8 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 				'10月日' => 10 <= $n2values['定期便'] ? $lh_setting['自動出荷依頼予約日'] : '',
 				'11月日' => 11 <= $n2values['定期便'] ? $lh_setting['自動出荷依頼予約日'] : '',
 				'12月日' => 12 <= $n2values['定期便'] ? $lh_setting['自動出荷依頼予約日'] : '',
+				'税区分' => '内税', // 税率リスト用
+				'税率' => 8, // 税率リスト用、とりあえず8固定出力
 				default => '',
 			};
 		}
