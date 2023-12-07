@@ -32,6 +32,7 @@
     総務省申請不要理由:
         type: textarea
         style: 'width: 100%;'
+        required: required
         v-if: 総務省申請==='不要'
         rows: auto
         description: 総務省申請で「不要」を選択した場合は必ず記入して下さい。
@@ -42,6 +43,7 @@
         type: text
         description: "[事業者コード3桁アルファベット大文字][3桁数字]で構成"
         placeholder: 例）AAA000
+        required: required
         :value: 返礼品コード
         "@focus": set_info($event.target)
         "@change": "force_half_size_text($event, 'uppercase', '返礼品コード')"
@@ -477,6 +479,7 @@
         description: 発送サイズ「その他」を選択の場合は必須項目です
         style: 'width: 6em'
         v-if: 発送サイズ=='その他'
+        required: required
         :value: 送料
         "@focus": set_info($event.target)
         "@change": "force_half_size_text($event, 'number', '送料')"
