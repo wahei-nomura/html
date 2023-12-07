@@ -9,6 +9,7 @@ import get_meta from "./admin-post-editor-get-meta";
 export default (target: string, $: any = jQuery) => {
 	const n2 = window['n2'];
 	const wp = window['wp'];
+	const reason = [];
 	const btn_class = {
 		save: 'btn btn-sm btn-dark d-flex align-items-center px-4',
 		saved: 'btn btn-sm btn-outeline-dark d-flex align-items-center disabled'
@@ -18,10 +19,15 @@ export default (target: string, $: any = jQuery) => {
 		setTimeout(()=>{
 			// 差分チェック
 			const editor = wp.data.select('core/editor');
-			let diff = n2.saved_post != JSON.stringify($('form').serializeArray());
+			const fd = $('form').serializeArray();
+			let diff = n2.saved_post != JSON.stringify(fd);
 			diff = diff || editor.getEditedPostAttribute('status') != editor.getCurrentPostAttribute('status');
 			diff = diff || editor.getEditedPostAttribute('title') != editor.getCurrentPostAttribute('title');
 			diff = editor.getEditedPostAttribute('title') ? diff : true;
+			// 総務省申請理由がない場合は保存させない
+			if ( fd.filter( v=>v.name.match(/総務省申請不要理由/) && !v.value ).length ) {
+				diff = false;
+			}
 			if ( diff ){
 				$('#n2-save-post').attr('class', btn_class.save).find('span').attr('class', '');
 				$(window).on('beforeunload', () => '' );
@@ -55,6 +61,11 @@ export default (target: string, $: any = jQuery) => {
 			}).then(()=>{
 				// カスタムフィールドの保存
 				const meta = get_meta();
+				if ( ! meta ) {
+					alert(meta);
+					$('#n2-save-post').attr('class', btn_class.save).find('span').attr('class', '');
+					return;
+				}
 				wp.data.dispatch( 'core/editor' ).editPost({ meta });
 	
 				// 保存時の挙動
