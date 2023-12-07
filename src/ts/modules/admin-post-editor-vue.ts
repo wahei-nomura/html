@@ -196,15 +196,15 @@ export default ($: any = jQuery) => {
 				data: {
 					action: 'n2_rms_navigation_api_ajax',
 					mode: 'json',
-					call: 'genres_attributes_get',
+					call: 'genres_attributes_dictionary_values_get',
 					genreId: this.全商品ディレクトリID.text || '0',
 				},
 			};
 			this.商品属性アニメーション = true;
 			this.商品属性 = await $.ajax(attributesUrl).then( (res) => {
-				return JSON.parse(res.body);
-			}).then( (body) => {
-				const attributes = body.genre.attributes;
+				return JSON.parse(res);
+			}).then( (res) => {
+				const attributes = res.genre.attributes;
 				return mandatoryFlg ? attributes.filter( v => v.properties.rmsMandatoryFlg ) : attributes;
 			}).then( (attributes) => {
 				return attributes.map( v => {
