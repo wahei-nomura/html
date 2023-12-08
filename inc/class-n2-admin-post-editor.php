@@ -178,6 +178,9 @@ class N2_Admin_Post_Editor {
 			<div id="<?php echo $field; ?>" class="n2-fields-list d-flex flex-wrap border-bottom p-3" v-if="<?php echo $detail['v-if'] ?? ''; ?>">
 				<div class="n2-fields-title col-12 mb-1 col-sm-3 mb-sm-0 d-flex align-items-center">
 					<?php echo ! empty( $detail['label'] ) ? $detail['label'] : $field; ?>
+					<?php if ( isset( $detail['required'] ) ) : ?>
+					<span class="badge bg-danger ms-2">必須</span>
+					<?php endif; ?>
 				</div>
 				<div class="n2-fields-value col-12 col-sm-9 gap-2 d-flex flex-wrap" data-description="<?php echo $detail['description'] ?? ''; ?>">
 				<?php

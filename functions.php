@@ -15,7 +15,6 @@ add_action(
 		$GLOBALS['n2'] = new N2();
 	}
 );
-
 /**
  * Require inc
  */
@@ -26,6 +25,7 @@ $incs = array(
 	'class-n2-settings',
 	'class-n2-rakuten-sftp',
 	'class-n2-setmenu',
+	'class-n2-custom-query',
 	'class-n2-admin-post-editor',
 	'class-n2-admin-post-list',
 	'class-n2-setusers',
