@@ -155,52 +155,72 @@ class N2_Admin_Post_List {
 	 * @param int    $post_id 投稿ID
 	 */
 	public function manage_posts_custom_column( $column_name, $post_id ) {
+		// デフォルト
 		$defaults = array(
 			'id'    => $post_id,
 			'総務省申請' => '未',
 		);
-		$meta     = json_decode( get_the_content(), true );
-		$meta     = wp_parse_args( $meta, $defaults );
+		// メタデータ
+		$meta = json_decode( get_the_content(), true );
+		$meta = wp_parse_args( $meta, $defaults );
 
-		// サムネイル
-		$thumbnail = ! empty( $meta['商品画像'] )
-			? ( $meta['商品画像'][0]['sizes']['thumbnail']['url'] ?? $meta['商品画像'][0]['sizes']['thumbnail'] )
-			: false;
+		// 出力
+		echo match ( $column_name ) {
+
+			// 総務省申請ステータス
+			'status_government' => ( function() use ( $meta ) {
+				$title = empty( $meta['総務省申請不要理由'] ) ? $meta['総務省申請'] : "{$meta['総務省申請']}: {$meta['総務省申請不要理由']}";
+				$s     = '未' === $meta['総務省申請'] ? '未 OR  -総務省申請' : $meta['総務省申請'];
+				$icon  = "<a href='?s=総務省申請:{$s}' class='dashicons %s'  title='{$title}'></a>";
+				return match ( $meta['総務省申請'] ) {
+					'未' => sprintf( $icon, 'dashicons-minus' ),
+					'不要' => sprintf( $icon, 'dashicons-yes' ),
+					'申請前' => sprintf( $icon, 'dashicons-arrow-right-alt' ),
+					'申請中' => sprintf( $icon, 'dashicons-hourglass' ),
+					'差戻' =>  sprintf( $icon, 'dashicons-undo' ),
+					'却下' => sprintf( $icon, 'dashicons-dismiss' ),
+					'承認済' => sprintf( $icon, 'dashicons-yes-alt' ),
+					default => '',
+				};
+			} )(),
+
+			// ツール
+			'tool' => ( function() use ( $meta ) {
+				$class = empty( $meta['_n2_required'] ?? 1 ) ? 'n2-ready' : '';
+				return "<div class='n2-admin-post-list-tool-open {$class}' data-id='{$meta['id']}'></div>";
+			} )(),
+
+			// 返礼品コード
+			'code' => $meta['返礼品コード'] ?? "<div onclick='navigator.clipboard.writeText({$post_id});' title='{$post_id}'>-</div>",
+
+			// 画像
+			'thumbnail' => ( function() use ( $meta ) {
+				$thumbnail = ! empty( $meta['商品画像'] )
+				? ( $meta['商品画像'][0]['sizes']['thumbnail']['url'] ?? $meta['商品画像'][0]['sizes']['thumbnail'] )
+				: false;
+				return $thumbnail ? "<img src='{$thumbnail}' class='n2-admin-post-list-tool-open'>" : '<div class="empty-thumbnail">-</div>';
+			} )(),
+
+			// 価格
+			'price' => number_format( (int) ( $meta['価格'] ?? 0 ) ) . '<small>円</small>',
+
+			// 寄附金額
+			'donation-amount' => number_format( (int) ( $meta['寄附金額'] ?? 0 ) ) . '<small>円</small>',
 
 			// 返礼率
-		$rate = N2_Donation_Amount_API::calc_return_rate( $meta );
+			'rate' => ( function() use ( $meta ) {
+				$rate = N2_Donation_Amount_API::calc_return_rate( $meta );
+				return sprintf( $rate > 30 ? '<span style="color:red;">%s<small>%s</small></span>' : '%s<small>%s</small>', $rate, '%' );
+			} )(),
 
-		// n2ready
-		$n2ready = empty( $meta['_n2_required'] ?? 1 ) ? 'n2-ready' : '';
-
-		// 総務省申請関連
-		$title = empty( $meta['総務省申請不要理由'] ) ? $meta['総務省申請'] : "{$meta['総務省申請']}: {$meta['総務省申請不要理由']}";
-		$s     = '未' === $meta['総務省申請'] ? '未 OR  -総務省申請' : $meta['総務省申請'];
-		$icon  = "<a href='?s=総務省申請:{$s}' class='dashicons %s'  title='{$title}'></a>";
-
-		// html
-		$html = match ( $column_name ) {
-			'modified' => get_the_modified_date( 'y年 m/d' ) . '<br>' . get_the_modified_date( 'H:i:s' ),
-			'tool' => "<div class='n2-admin-post-list-tool-open {$n2ready}' data-id='{$post_id}'></div>",
-			'status_government' => match ( $meta['総務省申請'] ) {
-				'未' => sprintf( $icon, 'dashicons-minus' ),
-				'不要' => sprintf( $icon, 'dashicons-yes' ),
-				'申請前' => sprintf( $icon, 'dashicons-arrow-right-alt' ),
-				'申請中' => sprintf( $icon, 'dashicons-hourglass' ),
-				'差戻' =>  sprintf( $icon, 'dashicons-undo' ),
-				'却下' => sprintf( $icon, 'dashicons-dismiss' ),
-				'承認済' => sprintf( $icon, 'dashicons-yes-alt' ),
-				default => '',
-			},
-			'code' => $meta['返礼品コード'] ?? "<div onclick='navigator.clipboard.writeText({$post_id});' title='{$post_id}'>-</div>",
+			// 定期便
 			'subscription' => ( $meta['定期便'] ?? 1 ) > 1 ? "{$meta['定期便']}<small>回</small>" : '-',
-			'price' => number_format( (int) ( $meta['価格'] ?? 0 ) ) . '<small>円</small>',
-			'donation-amount' => number_format( (int) ( $meta['寄附金額'] ?? 0 ) ) . '<small>円</small>',
-			'rate' => sprintf( $rate > 30 ? '<span style="color:red;">%s<small>%s</small></span>' : '%s<small>%s</small>', $rate, '%' ),
-			'thumbnail' => $thumbnail ? "<img src='{$thumbnail}'>" : '<div class="empty-thumbnail">-</div>',
+
+			// 更新日
+			'modified' => get_the_modified_date( 'y年 m/d' ) . '<br>' . get_the_modified_date( 'H:i:s' ),
+
 			default => '',
 		};
-		echo $html;
 	}
 
 	/**
