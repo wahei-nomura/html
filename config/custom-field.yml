@@ -6,6 +6,7 @@
         v-if: n2.settings.N2.自治体確認
         option:
             - 未
+            - 確認中
             - 却下
             - 承諾
     却下理由:

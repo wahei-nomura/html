@@ -115,18 +115,22 @@ class N2_Admin_Post_List {
 	 */
 	public function manage_posts_columns( $columns, $post_type ) {
 		if ( 'post' === $post_type ) {
+			global $n2;
 			unset( $columns['title'], $columns['author'], $columns['date'] );
 			$columns['status_government'] = '<span title="総務省申請">総</span>';
-			$columns['tool']              = '';
-			$columns['title']             = '返礼品名';
-			$columns['code']              = 'コード';
-			$columns['author']            = '事業者名';
-			$columns['thumbnail']         = '画像';
-			$columns['price']             = '価格';
-			$columns['donation-amount']   = '寄附金額';
-			$columns['rate']              = '返礼率';
-			$columns['subscription']      = '定期便';
-			$columns['modified']          = '更新日';
+			if ( $n2->settings['N2']['自治体確認'] ) {
+				$columns['status_local'] = '<span title="自治体確認">自</span>';
+			}
+			$columns['tool']            = '';
+			$columns['title']           = '返礼品名';
+			$columns['code']            = 'コード';
+			$columns['author']          = '事業者名';
+			$columns['thumbnail']       = '画像';
+			$columns['price']           = '価格';
+			$columns['donation-amount'] = '寄附金額';
+			$columns['rate']            = '返礼率';
+			$columns['subscription']    = '定期便';
+			$columns['modified']        = '更新日';
 		}
 		return $columns;
 	}
@@ -159,6 +163,7 @@ class N2_Admin_Post_List {
 		$defaults = array(
 			'id'    => $post_id,
 			'総務省申請' => '未',
+			'自治体確認' => '未',
 		);
 		// メタデータ
 		$meta = json_decode( get_the_content(), true );
@@ -180,6 +185,19 @@ class N2_Admin_Post_List {
 					'差戻' =>  sprintf( $icon, 'dashicons-undo' ),
 					'却下' => sprintf( $icon, 'dashicons-dismiss' ),
 					'承認済' => sprintf( $icon, 'dashicons-yes-alt' ),
+					default => '',
+				};
+			} )(),
+
+			// 自治体確認ステータス
+			'status_local' => ( function() use ( $meta ) {
+				$s    = '未' === $meta['自治体確認'] ? '未 OR  -自治体確認' : $meta['自治体確認'];
+				$icon = "<a href='?s=自治体確認:{$s}' class='dashicons %s'  title='{$title}'></a>";
+				return match ( $meta['自治体確認'] ) {
+					'未' => sprintf( $icon, 'dashicons-minus' ),
+					'確認中' => sprintf( $icon, 'dashicons-hourglass' ),
+					'却下' => sprintf( $icon, 'dashicons-dismiss' ),
+					'承諾' => sprintf( $icon, 'dashicons-yes-alt' ),
 					default => '',
 				};
 			} )(),
