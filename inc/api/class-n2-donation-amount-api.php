@@ -35,6 +35,11 @@ class N2_Donation_Amount_API {
 	public static function calc( $args ) {
 		global $n2;
 		$args    = $args ? wp_parse_args( $args ) : $_GET;
+		foreach ( $args as $k => &$v ) {
+			if ( $k != 'action' && ! is_numeric( $v ) ) {
+				$v = 0;
+			}
+		}
 		$default = array(
 			'price'               => 0,
 			'subscription'        => 1,
