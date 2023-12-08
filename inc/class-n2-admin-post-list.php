@@ -192,7 +192,7 @@ class N2_Admin_Post_List {
 			// 自治体確認ステータス
 			'status_local' => ( function() use ( $meta ) {
 				$s    = '未' === $meta['自治体確認'] ? '未 OR  -自治体確認' : $meta['自治体確認'];
-				$icon = "<a href='?s=自治体確認:{$s}' class='dashicons %s'  title='{$title}'></a>";
+				$icon = "<a href='?s=自治体確認:{$s}' class='dashicons %s'  title='{$meta['自治体確認']}'></a>";
 				return match ( $meta['自治体確認'] ) {
 					'未' => sprintf( $icon, 'dashicons-minus' ),
 					'確認中' => sprintf( $icon, 'dashicons-hourglass' ),
