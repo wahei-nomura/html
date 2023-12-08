@@ -99,23 +99,24 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 			default => $n2values['定期便'] > 1 ? 1 : 0,
 		};
 		for ( $i = 1; $i <= $loop; $i++ ) {
+			var_dump( $n2values['税率'] );
 			// 返礼品コード
 			$item_code = $n2values['返礼品コード'] . ( $loop > 1 ? "_{$i}/{$n2values['定期便']}" : '' );
 			// データ配列
 			$data[ $i ] = match ( $val ) {
 				'謝礼品番号', '定期便番号' => $item_code,
-				'取扱年度' => $is_e_ticket ? '2023' : '',// 謎の2023
-				'謝礼品名', '定期便名' => "{$item_code} " . ( $n2values['LH表示名'] ?: $n2values['タイトル'] ),// LH表示名 > タイトル
+				'取扱年度' => $is_e_ticket ? '2023' : '', // 謎の2023
+				'謝礼品名', '定期便名' => "{$item_code} " . ( $n2values['LH表示名'] ?: $n2values['タイトル'] ), // LH表示名 > タイトル
 				'定期便種別' => '回数',
-				'配送名称' => "{$item_code} " . ( $n2values['配送伝票表示名'] ?: $n2values['タイトル'] ),// 配送伝票表示名 > タイトル
-				'特設サイト名称' => $is_e_ticket ? "{$item_code} " . ( $n2values['配送伝票表示名'] ?: $n2values['タイトル'] ) : '',// eチケット
+				'配送名称' => "{$item_code} " . ( $n2values['配送伝票表示名'] ?: $n2values['タイトル'] ), // 配送伝票表示名 > タイトル
+				'特設サイト名称' => $is_e_ticket ? "{$item_code} " . ( $n2values['配送伝票表示名'] ?: $n2values['タイトル'] ) : '', // eチケット
 				'事業者' => $n2values['事業者名'],
 				'謝礼品カテゴリー' => $n2values['LHカテゴリー'],
 				'セット内容' => $n2values['内容量・規格等'],
 				'謝礼品紹介文' => $n2values['説明文'],
 				'ステータス' => '受付中',
 				'状態' => '表示',
-				'寄附設定金額' => $i > 1 ? 0 : $n2values['寄附金額'],// 定期便の場合は１回目のみ
+				'寄附設定金額' => $i > 1 ? 0 : $n2values['寄附金額'], // 定期便の場合は１回目のみ
 				'価格（税込み）' => match ( $lh_setting['価格'] ) {
 					'定期便初回に全額をまとめて登録' => $i > 1 ? 0 : (int) $n2values['価格'] * (int) $n2values['定期便'],
 					default => $n2values['価格'] ?: 0,
@@ -129,7 +130,7 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 					default => '',
 				},
 				'送料' => match ( $lh_setting['送料'] ) {
-					'ヤマト以外は送料を空欄で登録' => $is_yamato ? $n2values['送料'] : 0,// 土岐カオスなのでやっつけたい By わかちゃん
+					'ヤマト以外は送料を空欄で登録' => $is_yamato ? $n2values['送料'] : 0, // 土岐カオスなのでやっつけたい By わかちゃん
 					'送料は空欄で登録' => '',
 					default => $n2values['送料'],
 				},
@@ -173,7 +174,7 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 				'11月日' => 11 <= $n2values['定期便'] ? $lh_setting['自動出荷依頼予約日'] : '',
 				'12月日' => 12 <= $n2values['定期便'] ? $lh_setting['自動出荷依頼予約日'] : '',
 				'税区分' => '内税', // 税率リスト用
-				'税率' => 8, // 税率リスト用、とりあえず8固定出力
+				'税率' => $n2values['税率'] ?: 8, // 税率リスト用、税率が入力されてたらその数値を、なければ初期値8を出力
 				default => '',
 			};
 		}
