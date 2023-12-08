@@ -116,18 +116,17 @@ class N2_Admin_Post_List {
 	public function manage_posts_columns( $columns, $post_type ) {
 		if ( 'post' === $post_type ) {
 			unset( $columns['title'], $columns['author'], $columns['date'] );
-			$columns['status']          = '<span title="総務省申請">総</span>';
-			$columns['status_local']    = '<span title="自治体確認">自</span>';
-			$columns['tool']            = '';
-			$columns['title']           = '返礼品名';
-			$columns['code']            = 'コード';
-			$columns['author']          = '事業者名';
-			$columns['thumbnail']       = '画像';
-			$columns['price']           = '価格';
-			$columns['donation-amount'] = '寄附金額';
-			$columns['rate']            = '返礼率';
-			$columns['subscription']    = '定期便';
-			$columns['modified']        = '更新日';
+			$columns['status_government'] = '<span title="総務省申請">総</span>';
+			$columns['tool']              = '';
+			$columns['title']             = '返礼品名';
+			$columns['code']              = 'コード';
+			$columns['author']            = '事業者名';
+			$columns['thumbnail']         = '画像';
+			$columns['price']             = '価格';
+			$columns['donation-amount']   = '寄附金額';
+			$columns['rate']              = '返礼率';
+			$columns['subscription']      = '定期便';
+			$columns['modified']          = '更新日';
 		}
 		return $columns;
 	}
@@ -183,7 +182,7 @@ class N2_Admin_Post_List {
 		$html = match ( $column_name ) {
 			'modified' => get_the_modified_date( 'y年 m/d' ) . '<br>' . get_the_modified_date( 'H:i:s' ),
 			'tool' => "<div class='n2-admin-post-list-tool-open {$n2ready}' data-id='{$post_id}'></div>",
-			'status' => match ( $meta['総務省申請'] ) {
+			'status_government' => match ( $meta['総務省申請'] ) {
 				'未' => sprintf( $icon, 'dashicons-minus' ),
 				'不要' => sprintf( $icon, 'dashicons-yes' ),
 				'申請前' => sprintf( $icon, 'dashicons-arrow-right-alt' ),
