@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=PT+Mono&display=swap');
 #wpadminbar{
 	body.administrator & {
 		background-color: #8b0000;
@@ -5,6 +6,9 @@
 	body.ss-crew & {
 		background-color: #1a4899;
 	}
+}
+#wpbody-content {
+	font-family: 'PT Mono',system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans","Liberation Sans",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
 }
 #wp-admin-bar{
 	&-my-sites {

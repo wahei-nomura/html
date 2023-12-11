@@ -15,6 +15,11 @@ body.n2-darkmode{
 		filter: invert(100%);
 	}
 }
+.edit-post-visual-editor {
+	h1 {
+		font-family: 'PT Mono',system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans","Liberation Sans",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+	}
+}
 .post-type-post{
 	#wpadminbar{
 		display: none;

@@ -3,6 +3,7 @@
 @import "bootstrap/scss/variables"; // Required
 @import "bootstrap/scss/mixins"; // Required
 $bp: 782px;
+
 .page-title-action{
 	@media screen and (max-width: $bp) {
 		display: block;
@@ -119,6 +120,7 @@ $bp: 782px;
 		}
 		td{
 			text-align: center;
+			font-family: 'PT Mono',system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans","Liberation Sans",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
 			a{
 				outline: none;
 				box-shadow: none;
