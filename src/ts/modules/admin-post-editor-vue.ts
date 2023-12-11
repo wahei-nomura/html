@@ -303,6 +303,15 @@ export default ($: any = jQuery) => {
 				}
 			}
 		},
+		check_tax(){
+			if ( "" !== n2.custom_field['事業者用']['税率'].value ) return; // 既に設定済なら動かさない
+			if ( this.商品タイプ.includes('食品') ) {
+				this.税率 = '8';
+			}else{
+				this.税率 = '10';
+			}
+			$('input[name="n2field[税率]"][value="' + this.税率 + '"]').prop('checked',true);
+		},
 		// スチームシップへ送信ボタンの制御
 		control_submit() {
 			// 必須漏れがあれば、「スチームシップへ送信」できなくする
