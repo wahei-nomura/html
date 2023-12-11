@@ -217,6 +217,14 @@
         "@blur": "number_format=true"
         "@change": "force_half_size_text($event, 'number', '価格');auto_adjust_price()"
     価格総額: # N2エクスポートに入れるために必須
+    税率:
+        type : radio
+        description : 返礼品の税率を%なしの数値のみで入力してください。未入力の場合は初期値「8」となります。
+        value: 8
+        option:
+            - 8
+            - 10
+        "@focus": set_info($event.target)
     キャッチコピー:
         type : text
         description : こだわりやポイントを端的にご記載ください。
