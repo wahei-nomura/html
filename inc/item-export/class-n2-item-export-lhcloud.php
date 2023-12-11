@@ -173,7 +173,7 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 				'11月日' => 11 <= $n2values['定期便'] ? $lh_setting['自動出荷依頼予約日'] : '',
 				'12月日' => 12 <= $n2values['定期便'] ? $lh_setting['自動出荷依頼予約日'] : '',
 				'税区分' => '内税', // 税率リスト用
-				'税率' => $n2values['税率'] ?: 8, // 税率リスト用、税率が入力されてたらその数値を、なければ初期値8を出力
+				'税率' => $n2values['税率'] ?: ( ! empty( $n2values['商品タイプ'] ) && in_array( '食品', $n2values['商品タイプ'], true ) ? 8 : 10 ), // 税率リスト用、税率が入力されてたらその数値を、なければ初期値8を出力
 				default => '',
 			};
 		}
