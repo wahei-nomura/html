@@ -1134,7 +1134,7 @@ class N2_Sync {
 			if ( isset( $d['送料'] ) ) {
 				$d['送料'] = preg_replace( '/[^0-9]/', '', mb_convert_kana( $d['送料'], 'n' ) );
 				$d['送料'] = '' === $d['送料'] ? 0 : $d['送料'];
-				if ( empty( $d['送料'] ) && ! empty( $d['発送サイズ'] ) && ! empty( $d['発送方法'] ) ) {
+				if ( 0 === $d['送料'] && ! empty( $d['発送サイズ'] ) && ! empty( $d['発送方法'] ) ) {
 					$delivery_code = N2_Donation_Amount_API::create_delivery_code( $d['発送サイズ'], $d['発送方法'] );
 					// 送料計算
 					$d['送料'] = $n2->settings['寄附金額・送料']['送料'][ $delivery_code ] ?? 0;
