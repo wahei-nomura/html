@@ -81,6 +81,7 @@ export default ($: any = jQuery) => {
 		// 「進む」「戻る」の制御をデフォルトに戻す
 		wp.data.dispatch( 'core/keyboard-shortcuts' ).unregisterShortcut('core/editor/undo');
 		wp.data.dispatch( 'core/keyboard-shortcuts' ).unregisterShortcut('core/editor/redo');
+		this.check_tax(); 
 	};
 	const methods = {
 		// 地場産品類型に応じて類型該当理由の注意書きを修正
