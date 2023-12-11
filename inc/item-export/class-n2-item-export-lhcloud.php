@@ -99,7 +99,6 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 			default => $n2values['定期便'] > 1 ? 1 : 0,
 		};
 		for ( $i = 1; $i <= $loop; $i++ ) {
-			var_dump( $n2values['税率'] );
 			// 返礼品コード
 			$item_code = $n2values['返礼品コード'] . ( $loop > 1 ? "_{$i}/{$n2values['定期便']}" : '' );
 			// データ配列
