@@ -36,9 +36,7 @@ class N2_Donation_Amount_API {
 		global $n2;
 		$args = $args ? wp_parse_args( $args ) : $_GET;
 		foreach ( $args as $k => &$v ) {
-			if ( 'action' !== $k && ! is_numeric( $v ) ) {
-				$v = 0;
-			}
+			$v = 'action' !== $k && ! is_numeric( $v ) ? 0 : $v;
 		}
 		$default = array(
 			'price'               => 0,
