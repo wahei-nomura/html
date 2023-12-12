@@ -55,7 +55,8 @@ class N2_Item_Export_Base {
 
 	/**
 	 * ファイル名に自治体名を追加する
-	 * @param  string $filename filename
+	 *
+	 * @param string $filename filename
 	 * @return string
 	 */
 	public function add_town_to_filename( $filename ) {
@@ -477,8 +478,10 @@ class N2_Item_Export_Base {
 	 * スプレットシートに値貼り付け用
 	 */
 	private function spreadsheet() {
-		$this->settings['delimiter']     = "\t";// タブを強制
 		$this->settings['header_string'] = $this->settings['header_string'] ?: '';// ヘッダーを強制
+		// タブを強制
+		$this->settings['header_string'] = str_replace( $this->settings['delimiter'], "\t", $this->settings['header_string'] );
+		$this->settings['delimiter']     = "\t";
 		$this->set_header_string();
 		$this->set_data_string();
 		// データを文字列に
