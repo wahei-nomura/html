@@ -2,11 +2,15 @@
 /**
  * 投稿IDを選択して保存するUI
  * 削除・印刷・エクスポート・画像ダウンロード
- * ※[コメント]はHTMLコメントにN2プラグインからフックで書き換えあり
  *
  * @package neoneng
  */
 
+/**
+ * 出力バッファによる書き換え（[hook] n2_save_post_ids_html）
+ * ※[コメント]はHTMLコメントにN2プラグインからフックで書き換えあり
+ */
+ob_start();
 global $n2;
 ?>
 <div id="n2-checked-posts" :class="active ? 'is-active': ''" v-if="ids.length" style="display: none;">
@@ -168,3 +172,8 @@ global $n2;
 	</div>
 	<div id="n2-checked-posts-toggler" @click="active = ! active"></div>
 </div>
+<?php
+/**
+ * [hook] n2_save_post_ids_html
+ */
+echo apply_filters( 'n2_save_post_ids_html', ob_get_clean() );
