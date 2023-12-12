@@ -34,7 +34,10 @@ class N2_Donation_Amount_API {
 	 */
 	public static function calc( $args ) {
 		global $n2;
-		$args    = $args ? wp_parse_args( $args ) : $_GET;
+		$args = $args ? wp_parse_args( $args ) : $_GET;
+		foreach ( $args as $k => &$v ) {
+			$v = 'action' !== $k && ! is_numeric( $v ) ? 0 : $v;
+		}
 		$default = array(
 			'price'               => 0,
 			'subscription'        => 1,
@@ -147,7 +150,7 @@ class N2_Donation_Amount_API {
 		}
 		$header = empty( $log ) ? '更新する項目がありませんでした。' : "項目\t返礼品コード\tタイトル\tBefore\tAfter";
 		array_unshift( $log, $header );
-		echo '<style>body{margin:0;background: black;color: white;}</style><pre style="min-height: 100%;margin: 0;padding: 1em;">'; 
+		echo '<style>body{margin:0;background: black;color: white;}</style><pre style="min-height: 100%;margin: 0;padding: 1em;">';
 		echo implode( "\n", $log );
 		exit;
 	}
@@ -172,7 +175,6 @@ class N2_Donation_Amount_API {
 			$delivery_fee = $calc_delivery_fee;
 		}
 		return $delivery_fee;
-
 	}
 
 	/**
