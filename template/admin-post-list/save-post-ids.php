@@ -2,6 +2,7 @@
 /**
  * 投稿IDを選択して保存するUI
  * 削除・印刷・エクスポート・画像ダウンロード
+ * ※[コメント]はHTMLコメントにN2プラグインからフックで書き換えあり
  *
  * @package neoneng
  */
@@ -30,7 +31,7 @@ global $n2;
 							<span>フォーマット選択 ：　</span>
 							<!-- N2 -->
 							<label><input type="radio" name="action" value="n2_item_export_base" v-model="fd.action"> N2</label>
-							<!-- LedgHOME -->
+							<!-- [LedgHOME] -->
 							<label><input type="radio" name="action" :value="`n2_item_export_${n2.settings.N2.LedgHOME}`" v-model="fd.action"> LedgHOME</label>
 							<!-- ふるさとチョイス -->
 							<label v-if="n2.settings.N2.出品ポータル.includes('ふるさとチョイス')"><input type="radio" name="action" value="n2_item_export_furusato_choice" v-model="fd.action"> ふるさとチョイス</label>
