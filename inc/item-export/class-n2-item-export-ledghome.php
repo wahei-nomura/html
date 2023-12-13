@@ -73,7 +73,7 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 		// エラー未生成で必須漏れ
 		if ( ! isset( $this->data['error'][ $n2values['id'] ] ) && $n2values['_n2_required'] ) {
 			// Ledghomeに不要な項目を削除
-			$del      = array( 'アレルゲン' );
+			$del      = array( 'アレルゲン', '全商品ディレクトリID', '商品属性' );
 			$required = array_filter( $n2values['_n2_required'], fn( $n ) => ! in_array( $n, $del, true ) );
 			foreach ( $required as $v ) {
 				$this->add_error( $n2values['id'], "NEONENG項目：「{$v}」が空欄です。" );
