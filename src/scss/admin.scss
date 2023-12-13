@@ -7,8 +7,12 @@
 		background-color: #1a4899;
 	}
 }
+:root {
+	--cutom-fonts: 'PT Mono'; //0,O 1,I,L,lが認識しやすいフォント
+	--n2-clear-font-family: var(--cutom-fonts),system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans","Liberation Sans",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+}
 #wpbody-content {
-	font-family: 'PT Mono',system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans","Liberation Sans",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+	font-family: var(--n2-clear-font-family);
 }
 #wp-admin-bar{
 	&-my-sites {
