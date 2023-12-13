@@ -23,10 +23,7 @@ class N2_RMS_Navigation_API extends N2_RMS_Base_API {
 	 * @return array
 	 */
 	public static function genres_attributes_get( $genreId, $attributeId = '' ) {
-		$url = static::$settings['endpoint'] . '/2.0/navigation/genres/' . $genreId . '/attributes/';
-
-		// 商品属性IDがあれば追加する
-		$url .= $attributeId ?? '';
+		$url = static::$settings['endpoint'] . "/2.0/navigation/genres/{$genreId}/attributes/{$attributeId}";
 
 		$response = static::request( $url );
 		return $response['body'];
@@ -39,13 +36,8 @@ class N2_RMS_Navigation_API extends N2_RMS_Base_API {
 	 * @var    string $attributeId 商品属性ID
 	 * @return array
 	 */
-	public static function genres_attributes_dictionary_values_get( $genreId, $attributeId = '' ) {
-		$url = static::$settings['endpoint'] . '/2.0/navigation/genres/' . $genreId . '/attributes/';
-
-		// 商品属性IDがあれば追加し、なければジャンルIDの全属性返すパラメータ'-'を入れる
-		$url .= empty( $attributeId ) ? '-' : $attributeId;
-
-		$url .= '/dictionaryValues';
+	public static function genres_attributes_dictionary_values_get( $genreId, $attributeId = '-' ) {
+		$url = static::$settings['endpoint'] . "/2.0/navigation/genres/{$genreId}/attributes/{$attributeId}/dictionaryValues";
 
 		$response = static::request( $url );
 		return $response['body'];
