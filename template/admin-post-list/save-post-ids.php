@@ -6,31 +6,40 @@
  * @package neoneng
  */
 
+/**
+ * 出力バッファによる書き換え（[hook] n2_save_post_ids_html）
+ * ※[コメント]はHTMLコメントにN2プラグインからフックで書き換えあり
+ */
+ob_start();
 global $n2;
 ?>
 <div id="n2-checked-posts" :class="active ? 'is-active': ''" v-if="ids.length" style="display: none;">
+	<!-- ヘッダー -->
 	<div id="n2-checked-posts-header">
+		<!-- 選択数 -->
 		<span v-text="`${ids.length} 件選択中`"></span>
+		<!-- 閉じるボタン -->
 		<span class="dashicons dashicons-no-alt" @click="active = ! active"></span>
-		<ul
-			id="n2-checked-posts-actions"
-			@mouseleave="focusHover ? null : set_hover_list()"
-		>
+		<!-- メニュー -->
+		<ul	id="n2-checked-posts-actions" @mouseleave="focusHover ? null : set_hover_list()">
+			<!-- エクスポート -->
 			<?php if ( current_user_can( 'ss_crew' ) ) : ?>
-			<li
-				@mouseenter="set_hover_list('エクスポート')"
-				:class="{'is-hover': 'エクスポート'=== hover_list}"
-			>
+			<li @mouseenter="set_hover_list('エクスポート')" :class="{'is-hover': 'エクスポート'=== hover_list}">
 				エクスポート
 				<div class="childs">
 					<form method="post" action="admin-ajax.php" target="_blank">
 						<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
 						<input type="hidden" name="include[]" v-for="id in ids" :value="id">
+						<!-- フォーマット選択 -->
 						<div style="margin-bottom: 1em;">
 							<span>フォーマット選択 ：　</span>
+							<!-- N2 -->
 							<label><input type="radio" name="action" value="n2_item_export_base" v-model="fd.action"> N2</label>
+							<!-- [LedgHOME] -->
 							<label><input type="radio" name="action" :value="`n2_item_export_${n2.settings.N2.LedgHOME}`" v-model="fd.action"> LedgHOME</label>
+							<!-- ふるさとチョイス -->
 							<label v-if="n2.settings.N2.出品ポータル.includes('ふるさとチョイス')"><input type="radio" name="action" value="n2_item_export_furusato_choice" v-model="fd.action"> ふるさとチョイス</label>
+							<!-- 楽天 -->
 							<template v-if="n2.settings.N2.出品ポータル.includes('楽天')">
 								<template v-if="n2.settings.楽天.SKU">
 									<label><input type="radio" name="action" value="n2_item_export_rakuten_sku" v-model="fd.action"> 楽天</label>
@@ -42,18 +51,21 @@ global $n2;
 								</template>
 							</template>
 						</div>
-						<div style="margin-bottom: 1em;">
-							<span>モード選択 ：　</span>
-							<label><input type="radio" name="mode" value="download" v-model="fd.mode"> CSV・TSVダウンロード</label>
-							<label><input type="radio" name="mode" value="spreadsheet" v-model="fd.mode"> スプレットシート貼付</label>
-							<label><input type="radio" name="mode" value="debug" v-model="fd.mode"> デバッグモード</label>
-						</div>
+						<!-- タイプ選択 -->
 						<div style="margin-bottom: 1em;" v-if="fd.action.match(/lhcloud|ledghome/)">
 							<?php foreach ( (array) array_keys( $n2->settings['LedgHOME']['csv_header'] ) as $i => $v ) : ?>
 								<label><input type="radio" name="type" value="<?php echo $v; ?>" <?php echo ! $i ? 'checked' : ''; ?>> <?php echo $v; ?></label>
 							<?php endforeach; ?>
 							<!-- <label v-if="'download' === fd.mode"><input type="radio" name="type" value="3"> 3ファイル一括ダウンロード</label> -->
 						</div>
+						<!-- モード選択 -->
+						<div style="margin-bottom: 1em;">
+							<span>モード選択 ：　</span>
+							<label><input type="radio" name="mode" value="download" v-model="fd.mode"> CSV・TSVダウンロード</label>
+							<label><input type="radio" name="mode" value="spreadsheet" v-model="fd.mode"> スプレットシート貼付</label>
+							<label><input type="radio" name="mode" value="debug" v-model="fd.mode"> デバッグモード</label>
+						</div>
+						<!-- 送信 -->
 						<button>エクスポート実行</button>
 						<div style="margin-top: 1em;">
 							<input type="checkbox" name="include" value=""> 選択しているものに関わらず「<?php bloginfo( 'name' ); ?>」全返礼品を対象にする
@@ -62,11 +74,8 @@ global $n2;
 				</div>
 			</li>
 			<?php endif; ?>
-			<li
-				style="padding: 0;"
-				@mouseenter="set_hover_list('印刷')"
-				:class="{'is-hover': '印刷'=== hover_list}"
-			>
+			<!-- 印刷 -->
+			<li style="padding: 0;" @mouseenter="set_hover_list('印刷')" :class="{'is-hover': '印刷'=== hover_list}">
 				<form method="post" action="admin-ajax.php" target="_blank">
 					<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
 					<input type="hidden" name="action" value="n2_print_out">
@@ -77,11 +86,8 @@ global $n2;
 					<button>印刷</button>
 				</form>
 			</li>
-			<li
-				v-if="items.filter(v=>v.商品画像 && v.商品画像.length).length"
-				@mouseenter="set_hover_list('画像ダウンロード')"
-				:class="{'is-hover': '画像ダウンロード'=== hover_list}"
-			>
+			<!-- 画像ダウンロード -->
+			<li v-if="items.filter(v=>v.商品画像 && v.商品画像.length).length" @mouseenter="set_hover_list('画像ダウンロード')" :class="{'is-hover': '画像ダウンロード'=== hover_list}">
 				画像ダウンロード
 				<div class="childs">
 					<form method="post" action="admin-ajax.php">
@@ -98,12 +104,9 @@ global $n2;
 					</form>
 				</div>
 			</li>
+			<!-- 情報変更 -->
 			<?php if ( current_user_can( 'ss_crew' ) || current_user_can( 'local-government' ) ) : ?>
-			<li
-				@mouseleave="focusHover ? null : set_hover_list()"
-				@mouseenter="set_hover_list('情報変更')"
-				:class="{'is-hover': '情報変更'=== hover_list}"
-			>
+			<li @mouseleave="focusHover ? null : set_hover_list()" @mouseenter="set_hover_list('情報変更')" :class="{'is-hover': '情報変更'=== hover_list}">
 				情報変更
 				<div class="childs">
 					<form method="post" action="admin-ajax.php" onsubmit="if ( ! confirm('本当に変更してよろしいですか？') ) return false;">
@@ -146,6 +149,7 @@ global $n2;
 			<?php endif; ?>
 		</ul>
 	</div>
+	<!-- 選択返礼品リスト -->
 	<div id="n2-checked-posts-content">
 		<table class="widefat striped">
 			<thead>
@@ -168,3 +172,8 @@ global $n2;
 	</div>
 	<div id="n2-checked-posts-toggler" @click="active = ! active"></div>
 </div>
+<?php
+/**
+ * [hook] n2_save_post_ids_html
+ */
+echo apply_filters( 'n2_save_post_ids_html', ob_get_clean() );

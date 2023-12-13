@@ -152,7 +152,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 			preg_match( '/^サイト表示事業者名$/', $val )  => $this->get_author_name( $n2values ),// 64文字以内
 			preg_match( '/必要寄付金額$/', $val )  => $n2values['寄附金額'],// * 半角数字
 			preg_match( '/（条件付き必須）ポイント$/', $val ) => match ( $choice_settings['ポイント導入'] ?? false ) {
-				'導入する' => $n2values['価格'] * $n2values['定期便'],// 必要ポイントを半角数字で入力してください。
+				'導入する' => $n2values['寄附金額'] * 0.3, // ポイントは寄附金額の3割で計算
 				default => '',
 			},
 			preg_match( '/^説明$/', $val )  => $n2values['説明文'],// 1,000文字以内
@@ -173,6 +173,8 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 			preg_match( '/^（必須）定期配送対応$/', $val ) => $n2values['定期便'] > 1 ? 1 : 0,// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
 			preg_match( '/^（必須）(会員|チョイス)限定$/', $val ) => 0,// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
 			preg_match( '/^（必須）オンライン決済限定$/', $val ) => (int) in_array( '限定', (array) $n2values['オンライン決済限定'] ?? array(), true ),// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
+			preg_match( '/^（必須）配送業者$/', $val ) => $choice_settings['配送業者'] ?? 0,// * N2設定で選択した業者を設定。未設定の場合は0
+			preg_match( '/^（必須）配達時間指定$/', $val ) => $choice_settings['配達時間指定'] ?? 0,// * N2設定で「指定できる」を選択している場合は1、選択していないor「指定できない」を選択時は0
 			preg_match( '/^（必須）(発送|配達|配送).+$/', $val ) => 0,// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
 			preg_match( '/^（必須）容量単位$/', $val ) => 0,// * グラムは半角数字の0、キログラムは半角数字の1、ミリリットルは半角数字の2、リットルは半角数字の3
 			preg_match( '/^（必須）地域の生産者応援の品/', $val ) => 0,// * 適用する場合は半角数字の1、適用しない場合は半角数字の0

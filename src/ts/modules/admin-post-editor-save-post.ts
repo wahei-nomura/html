@@ -18,10 +18,15 @@ export default (target: string, $: any = jQuery) => {
 		setTimeout(()=>{
 			// 差分チェック
 			const editor = wp.data.select('core/editor');
-			let diff = n2.saved_post != JSON.stringify($('form').serializeArray());
+			const fd = $('form').serializeArray();
+			let diff = n2.saved_post != JSON.stringify(fd);
 			diff = diff || editor.getEditedPostAttribute('status') != editor.getCurrentPostAttribute('status');
 			diff = diff || editor.getEditedPostAttribute('title') != editor.getCurrentPostAttribute('title');
 			diff = editor.getEditedPostAttribute('title') ? diff : true;
+			// 総務省申請理由がない場合は保存させない
+			if ( fd.filter( v=>v.name.match(/総務省申請不要理由/) && !v.value ).length ) {
+				diff = false;
+			}
 			if ( diff ){
 				$('#n2-save-post').attr('class', btn_class.save).find('span').attr('class', '');
 				$(window).on('beforeunload', () => '' );

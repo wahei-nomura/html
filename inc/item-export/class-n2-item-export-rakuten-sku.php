@@ -147,7 +147,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 				exit;
 			}
 			$body = $response['body'];
-			$flg  = json_decode( $body )->genre->attributes;
+			$flg  = json_decode( $body )->genre->attributes ?? array();
 			$flg  = array_map(
 				fn( $v ) =>
 				$v->properties->rmsMandatoryFlg,
