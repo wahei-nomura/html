@@ -26,7 +26,7 @@ class N2_RMS_Navigation_API extends N2_RMS_Base_API {
 		$url = static::$settings['endpoint'] . "/2.0/navigation/genres/{$genreId}/attributes/{$attributeId}";
 
 		$response = static::request( $url );
-		return $response['body'];
+		return $response;
 	}
 
 	/**
