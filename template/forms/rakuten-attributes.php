@@ -45,7 +45,7 @@ foreach ( $args as $k => $v ) {
 					</template>
 				</template>
 				<template v-else-if="v.dataType === 'NUMBER'">
-					<input type="number" :value="v.value || ''" 
+					<input type="number" min="0" :value="v.value || ''" 
 					@change="set_rms_attributes_value(k,$event.target.value)" placeholder="値">
 				</template>
 				<template v-else-if="v.dataType === 'DATE'">
