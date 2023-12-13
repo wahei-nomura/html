@@ -5,21 +5,22 @@
  * @package neoneng
  */
 
-$defaults     = array();
-$args         = wp_parse_args( $args, $defaults );
-$option       = $args['option'];
-$value        = $args['value'];
-$option_equal = array_values( $option ) === $option;// optionのvalueと表示名が一緒かどうか判定
-unset( $args['option'], $args['value'] );
+$defaults = array();
+$args     = wp_parse_args( $args, $defaults );
+$option   = ( $args[':option'] ?? (array) $args['option'] ) ?? '';
+$value    = $args['value'];
+
+unset( $args[':option'], $args['option'], $args['value'] );
 $attr = '';
 foreach ( $args as $k => $v ) {
 	$v     = esc_attr( $v );// エスケープしないとバグる
 	$attr .= " {$k}=\"{$v}\"";
 }
-?>
-<select <?php echo $attr; ?>>
-	<?php
-	foreach ( $option as $val => $data ) :
+// option_html
+$option_html = "<option v-for='(v,k) in {$option}' :value='k' v-text='v'></option>";
+if ( is_array( $option ) ) {
+	$option_html = '';
+	foreach ( $option as $val => $data ) {
 		// 属性の追加
 		$text = $data;
 		$attr = '';
@@ -35,14 +36,8 @@ foreach ( $args as $k => $v ) {
 			}
 		}
 		// 値とラベルが同一の場合
-		$val = $option_equal ? $text : $val;
-	?>
-	<option
-		<?php echo $attr; ?>
-		value="<?php echo $val; ?>"
-		<?php selected( $value, $val ); ?>
-	>
-		<?php echo $text; ?>
-	</option>
-	<?php endforeach; ?>
-</select>
+		$val          = array_values( $option ) === $option ? $text : $val;
+		$option_html .= sprintf( '<option %s value="%s" %s>%s</option>', $attr, $val, selected( $value, $val, false ), $text );
+	}
+}
+printf( '<select %s>%s</select>', $attr, $option_html );
