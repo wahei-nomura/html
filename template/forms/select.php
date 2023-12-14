@@ -21,8 +21,8 @@ $option_html = is_array( $option ) ? '' : "<option v-for='(v,k) in {$option}' :v
 if ( is_array( $option ) ) {
 	foreach ( $option as $val => $data ) {
 		// 属性の追加
-		$text = $data;
-		$attr = '';
+		$text        = $data;
+		$option_attr = '';
 		if ( is_array( $data ) ) {
 			foreach ( $data as $k => $v ) {
 				switch ( $k ) {
@@ -30,13 +30,13 @@ if ( is_array( $option ) ) {
 						$text = $v;
 						break;
 					default:
-						$attr .= " {$k}=\"{$v}\"";
+						$option_attr .= " {$k}=\"{$v}\"";
 				}
 			}
 		}
 		// 値とラベルが同一の場合
 		$val          = array_values( $option ) === $option ? $text : $val;
-		$option_html .= sprintf( '<option %s value="%s" %s>%s</option>', $attr, $val, selected( $value, $val, false ), $text );
+		$option_html .= sprintf( '<option%s value="%s"%s>%s</option>', $option_attr, $val, selected( $value, $val, false ), $text );
 	}
 }
-printf( '<select %s>%s</select>', $attr, $option_html );
+printf( '<select%s>%s</select>', $attr, $option_html );
