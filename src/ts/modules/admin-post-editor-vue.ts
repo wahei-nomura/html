@@ -25,7 +25,11 @@ export default ($: any = jQuery) => {
 	data['media'] = false;
 	data['number_format'] = true;// ３桁区切りカンマ用
 	data['商品属性アニメーション'] = false;
+	data['RMSAPI'] = {};
 	const created = async function() {
+		// ローディング削除
+		loading_view.show('#wpwrap', 500);
+
 		save_as_pending.append_button("#n2-save-post");// スチームシップへ送信
 		this.全商品ディレクトリID = {
 			text: this.全商品ディレクトリID,
@@ -39,6 +43,7 @@ export default ($: any = jQuery) => {
 		this.商品属性 = JSON.stringify( this.商品属性 || [] );
 		this.寄附金額 = await this.calc_donation(this.価格,this.送料,this.定期便);
 		this.get_rakuten_category();
+		this.get_rakuten_delvdate();
 		this.control_submit();
 		// 発送サイズ・発送方法をダブル監視
 		this.$watch(
@@ -76,8 +81,6 @@ export default ($: any = jQuery) => {
 		});
 		// 投稿のメタ情報を全保存
 		n2.saved_post = JSON.stringify($('form').serializeArray());
-		// ローディング削除
-		loading_view.show('#wpwrap', 500);
 		// 「進む」「戻る」の制御をデフォルトに戻す
 		wp.data.dispatch( 'core/keyboard-shortcuts' ).unregisterShortcut('core/editor/undo');
 		wp.data.dispatch( 'core/keyboard-shortcuts' ).unregisterShortcut('core/editor/redo');
@@ -255,12 +258,12 @@ export default ($: any = jQuery) => {
 				$(`[name="n2field[${target}]"]`).get(0).dispatchEvent( new Event('focus') );
 			}, 10 )
 		},
-		 // 楽天カテゴリで利用
-        update_textarea_by_selected_option( event, index, target = '楽天カテゴリー', delimiter = '\n' ) {
+		// 楽天カテゴリで利用
+		update_textarea_by_selected_option( event, index, target = '楽天カテゴリー', delimiter = '\n' ) {
 			this.clearRakutenCategory(event,index);
-    		this.update_textarea( event.target.value, target, delimiter, 5);
+			this.update_textarea( event.target.value, target, delimiter, 5);
 			event.target.value = '';
-	    },
+		},
 		// 寄附金額計算
 		async calc_donation(price, delivery_fee, subscription) {
 			this.check_donation();
@@ -384,7 +387,23 @@ export default ($: any = jQuery) => {
 		clearRakutenCategory(e,index){
 			e.preventDefault();
 			n2.vue.楽天カテゴリー.text = this.楽天カテゴリーselected.filter((_,i)=>i!==index).join('\n')
-		}
+		},
+		// 楽天納期
+		async get_rakuten_delvdate(){
+			this.$set(this.RMSAPI, '楽天納期情報', {} );
+			this.$set(this.RMSAPI.楽天納期情報, '', '選択して下さい' );
+			let res = await $.ajax({
+				url: n2.ajaxurl,
+				data:{
+					action:'n2_rms_shop_api_ajax',
+					call:'delvdate_master_get',
+					mode:'json',
+				}
+			});
+			for ( const v of res ) {
+				this.$set(this.RMSAPI.楽天納期情報, v.delvdateNumber, `[${v.delvdateNumber}] ${v.delvdateCaption}` );
+			}
+		},
 	};
 	const components = {
 		draggable,

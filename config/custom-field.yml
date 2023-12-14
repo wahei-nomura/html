@@ -115,7 +115,7 @@
         label: 楽天納期
         v-model: 楽天納期情報
         v-if: "!出品禁止ポータル.includes('楽天')"
-        option: []
+        ':option': RMSAPI.楽天納期情報
     楽天カテゴリー:
         portal: 楽天
         type: rakuten-category

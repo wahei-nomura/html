@@ -16,7 +16,7 @@ foreach ( $args as $k => $v ) {
 	$attr .= " {$k}=\"{$v}\"";
 }
 ?>
-<textarea <?php echo $attr; ?>><?php echo $values; ?></textarea>
+<textarea <?php echo $attr; ?>><?php echo $value; ?></textarea>
 <div v-if="楽天カテゴリー.list.length" style="width:100%">
 	<template v-for="index in [...Array(5).keys()]" :key="'楽天カテゴリー'+index">
 	<div class="d-flex mb-1 input-group flex-nowrap w-100">

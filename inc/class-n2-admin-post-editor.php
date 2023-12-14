@@ -149,19 +149,6 @@ class N2_Admin_Post_Editor {
 	 */
 	public function show_customfields( $post, $metabox ) {
 		global $n2;
-		if ( in_array( '楽天', $n2->settings['N2']['出品ポータル'] ) ) {
-			// 楽天納期(楽天APIから取得)
-			$delvdate_api  = new N2_RMS_Shop_API();
-			$delvdate_data = match ( $delvdate_api->connect() ) {
-				true => $delvdate_api->delvdate_master_get(),
-				default => array(),
-			};
-			foreach ( $delvdate_data as $delvdate_data_item ) {
-				$delv_no      = (int) $delvdate_data_item->delvdateNumber;
-				$delv_caption = $delvdate_data_item->delvdateCaption;
-				$n2->custom_field['スチームシップ用']['楽天納期情報']['option'][ $delv_no ] = $delv_no . ':' . $delv_caption;
-			}
-		}
 		$custom_field = array_filter( $n2->custom_field[ $metabox['id'] ], fn( $v ) => isset( $v['type'] ) );
 		?>
 		<div class="n2-fields fs-6">
