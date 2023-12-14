@@ -278,6 +278,7 @@
         "@change": "check_handling_method();check_tax()"
     税率:
         type : radio
+        v-model: 税率
         description : 返礼品の税率を%なしの数値のみで入力してください。未入力の場合は初期値「10」となります。
         option:
             - 8
