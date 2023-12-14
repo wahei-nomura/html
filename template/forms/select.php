@@ -16,10 +16,9 @@ foreach ( $args as $k => $v ) {
 	$v     = esc_attr( $v );// エスケープしないとバグる
 	$attr .= " {$k}=\"{$v}\"";
 }
-// option_html
-$option_html = "<option v-for='(v,k) in {$option}' :value='k' v-text='v'></option>";
+// option_html（文字列ならv-for）
+$option_html = is_array( $option ) ? '' : "<option v-for='(v,k) in {$option}' :value='k' v-text='v'></option>";
 if ( is_array( $option ) ) {
-	$option_html = '';
 	foreach ( $option as $val => $data ) {
 		// 属性の追加
 		$text = $data;
