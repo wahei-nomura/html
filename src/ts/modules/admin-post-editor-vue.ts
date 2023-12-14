@@ -311,7 +311,6 @@ export default ($: any = jQuery) => {
 			}else{
 				this.税率 = '10';
 			}
-			$('input[name="n2field[税率]"][value="' + this.税率 + '"]').prop('checked',true);
 		},
 		// スチームシップへ送信ボタンの制御
 		control_submit() {
