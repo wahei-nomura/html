@@ -58,33 +58,56 @@ export default Vue.extend({
 		setLinkIndex(index){
 			this.linkIndex = index;
 		},
-		async linkImage2RMS (item){
-			// RMS 更新用
-			const getRmsItemRequests = [];
-			const updateRmsItemRequests = [];
-			// N2 更新用
-			const update_item = structuredClone(item);
-			const rms_images = {};
+		async getRmsItemImages(item){
+			const rmsItemImages = {};
 
 			// RMSから返礼品情報を取得
-			Object.keys(item.アップロード).forEach(manageNumber=>{
+			const requests = Object.keys(item.アップロード).map(manageNumber=>{
 				const formData = new FormData();
 				formData.append('manageNumber', manageNumber);
 				formData.append('n2nonce', this.n2nonce);
 				formData.append('action', 'n2_rms_item_api_ajax');
 				formData.append('call', 'items_get');
 				formData.append('mode', 'json');
-				const request = axios.post(
+				return axios.post(
 					window['n2'].ajaxurl,
 					formData,
 				);
-				getRmsItemRequests.push(request);
 			})
-			await Promise.all(getRmsItemRequests).then(responses=>{
+			let errorMessages = [];
+			await Promise.all(requests).then(responses=>{
 				responses.forEach(res=>{
-					rms_images[res.data.manageNumber] = res.data.images.map(image=>image.location);
+					const errors = res.data?.errors;
+					if ( errors?.length ) {
+						errors.map(err=>{
+							errorMessages = [ ...errorMessages, err.message ];
+						})
+					} else {
+						rmsItemImages[res.data.manageNumber] = res.data.images.map(image=>image.location);
+					}
 				})
 			});
+
+			if ( errorMessages.length && ! confirm( [
+				'【返礼品情報が取得できませんでした】',
+				...errorMessages,
+				'続けますか？'
+			].join('\n') ) ) {
+				return [];
+			}
+			return rmsItemImages;
+		},
+		async linkImage2RMS (item){
+			// RMS 更新用
+			const updateRmsItemRequests = [];
+			// N2 更新用
+			const update_item = structuredClone(item);
+			const rms_images = await this.getRmsItemImages(item);
+			if ( ! rms_images.length ) {
+				alert('商品画像を取得できませんでした');
+				this.linkIndex = null;
+				return;
+			}
 
 			// 更新の必要性を確認
 			const updateItems = [];
@@ -185,8 +208,7 @@ export default Vue.extend({
 		},
 		formatUploadLogs(data){
 			// フォルダ作成ログは除外する
-			const arr = data.filter(d=>! d.includes('cabinet/images'));
-			return arr.join('<br>');
+			return data.filter(d=>! d.includes('cabinet/images')).join('<br>');
 		},
 	},
 	template:`
