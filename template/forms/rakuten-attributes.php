@@ -22,13 +22,13 @@ foreach ( $args as $k => $v ) {
 	<div>
 		<div type="button" class="btn btn-danger" @click="insert_rms_attributes(true)">必須の商品属性を取得</div>
 		<div type="button" class="btn btn-dark" @click="insert_rms_attributes()">全ての商品属性を取得</div>
-		<div v-if="商品属性アニメーション" class="spinner-border text-danger" role="status">
+		<div v-if="tmp.商品属性アニメーション" class="spinner-border text-danger" role="status">
 			<span class="visually-hidden">Loading...</span>
 		</div>
 	</div>
 	<input type="hidden"<?php echo $attr; ?> >
 	<table v-if="商品属性" class="d-block table align-middle m-0" style="width: 100%;">
-		<tr v-for="(v, k) in JSON.parse(商品属性)">
+		<tr v-for="(v, k) in 商品属性">
 			<td class="border-0">
 				{{v.nameJa}} <span v-if="v.properties.rmsMandatoryFlg" class="badge bg-danger">必須</span>
 			</td>

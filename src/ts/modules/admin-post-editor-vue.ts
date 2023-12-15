@@ -18,29 +18,25 @@ export default ($: any = jQuery) => {
 		}
 	}
 	data['_force_watch'] = 1;// 外部から変更して強制でwatchをFire
-	data['current_user'] = n2.current_user.roles[0];// current_user追加
-	data['楽天SPA'] = n2.settings.楽天.楽天SPA || '';
-	data['寄附金額チェッカー'] = '';
-	data['寄附金額自動計算値'] = '';
-	data['media'] = false;
-	data['number_format'] = true;// ３桁区切りカンマ用
-	data['商品属性アニメーション'] = false;
-	data['RMSAPI'] = {};
+	// ※保存に必要ないデータは全部tmpへ（APIデータ・フラグなど）
+	data['tmp'] = {
+		media: false,
+		current_user: n2.current_user.roles[0],
+		number_format: true,// ３桁区切りカンマ用
+		寄附金額自動計算値: '',
+		寄附金額チェッカー: '',
+		商品属性アニメーション: false,
+		楽天SPA対応: n2.settings.楽天.楽天SPA || '',
+		楽天SPAカテゴリー: [],
+		楽天カテゴリー: [],
+		楽天納期情報: {},
+		楽天ジャンルID: [],
+	};
 	const created = async function() {
 		// ローディング削除
 		loading_view.show('#wpwrap', 500);
 
 		save_as_pending.append_button("#n2-save-post");// スチームシップへ送信
-		this.全商品ディレクトリID = {
-			text: this.全商品ディレクトリID,
-			list: [],
-		};
-		this.タグID = {
-			text: this.タグID,
-			group: '',
-			list: [],
-		};
-		this.商品属性 = JSON.stringify( this.商品属性 || [] );
 		this.寄附金額 = await this.calc_donation(this.価格,this.送料,this.定期便);
 		this.get_rakuten_category();
 		this.get_rakuten_delvdate();
@@ -52,9 +48,6 @@ export default ($: any = jQuery) => {
 				const data = {};
 				for ( const name in this.$data ) {
 					data[name] = this.$data[name];
-					if ( '全商品ディレクトリID' === name ) {
-						data[name] = data[name].text;
-					}
 				}
 				console.log('watching')
 				return data;
@@ -157,41 +150,41 @@ export default ($: any = jQuery) => {
 		},
 		// メディアアップローダー関連
 		add_media(){
-			if ( this.media ) {
-				this.media.open();
+			if ( this.tmp.media ) {
+				this.tmp.media.open();
 				return;
 			}
 			// N1の画像データにはnoncesが無い
-			this.media = wp.media({
+			this.tmp.media = wp.media({
 				title: "商品画像", 
 				multiple: "add",
 				library: {type: "image"},
 			});
-			this.media.on( 'open', () => {
+			this.tmp.media.on( 'open', () => {
 				// N2のものだけに
-				console.log(this.media)
+				console.log(this.tmp.media)
 				const add =  n2.vue.商品画像.filter( v => v.nonces );
-				this.media.state().get('selection').add( add.map( v => wp.media.attachment(v.id) ) );
+				this.tmp.media.state().get('selection').add( add.map( v => wp.media.attachment(v.id) ) );
 			});
-			this.media.on( 'select close', () => {
-				this.media.state().get('selection').forEach( img => {
+			this.tmp.media.on( 'select close', () => {
+				this.tmp.media.state().get('selection').forEach( img => {
 					if ( ! n2.vue.商品画像.find( v => v.id == img.attributes.id ) ) {
 						n2.vue.商品画像.push( img.attributes );
 					}
 				})
 			});
-			this.media.open();
+			this.tmp.media.open();
 		},
-		// 楽天の全商品ディレクトリID取得（タグIDでも利用）
+		// 楽天の全商品ディレクトリID取得
 		async get_genreid(){
 			const settings = {
 				url: '//app.rakuten.co.jp/services/api/IchibaGenre/Search/20140222',
 				data: {
 					applicationId: '1002772968546257164',
-					genreId: this.全商品ディレクトリID.text || '0',
+					genreId: this.全商品ディレクトリID || '0',
 				},
 			};
-			this.全商品ディレクトリID.list = await $.ajax(settings);
+			this.tmp.楽天ジャンルID = await $.ajax(settings);
 		},
 		// 楽天の商品属性を取得
 		async insert_rms_attributes( mandatoryFlg = false ) {
@@ -201,10 +194,10 @@ export default ($: any = jQuery) => {
 					action: 'n2_rms_navigation_api_ajax',
 					mode: 'json',
 					call: 'genres_attributes_dictionary_values_get',
-					genreId: this.全商品ディレクトリID.text || '0',
+					genreId: this.全商品ディレクトリID || '0',
 				},
 			};
-			this.商品属性アニメーション = true;
+			this.tmp.商品属性アニメーション = true;
 			this.商品属性 = await $.ajax(attributesUrl).then( (res) => {
 				return JSON.parse(res);
 			}).then( (res) => {
@@ -212,46 +205,46 @@ export default ($: any = jQuery) => {
 				return mandatoryFlg ? attributes.filter( v => v.properties.rmsMandatoryFlg ) : attributes;
 			}).then( (attributes) => {
 				return attributes.map( v => {
-					const before = this.商品属性parse.filter( value => value.nameJa === v.nameJa );
+					const before = this.商品属性.filter( value => value.nameJa === v.nameJa );
 					v.value = before.length ? (before[0].value || '') : '' ;
 					v.unitValue = before.length ? (before[0].unitValue || null) : null ;
 					return v;
 				})
 			}).then( (attributes) => {
-				return JSON.stringify(attributes);
+				return attributes;
 			}).catch( (e) => {
 				alert('属性情報を取得できませんでした。ジャンルIDが正しいことを確認してください。') 
 				console.log(e.message);
-				return JSON.stringify([]);
+				return [];
 			})
-			this.商品属性アニメーション = false;
+			this.tmp.商品属性アニメーション = false;
 		},
 		set_rms_attributes_value(index, value) {
-			const attributes = JSON.parse(this.商品属性);
+			const attributes = this.商品属性;
 			attributes[index].value = value;
-			this.商品属性 = JSON.stringify(attributes);
+			this.商品属性 = attributes;
 		},
 		set_rms_attributes_unit(index, unitValue) {
-			const attributes = JSON.parse(this.商品属性);
+			const attributes = this.商品属性;
 			attributes[index].unitValue = unitValue;
-			this.商品属性 = JSON.stringify(attributes);
+			this.商品属性 = attributes;
 		},
 		get_units(v) {
 			return v.unit ? [v.unit, ...v.subUnits] : [];
 		},
-		// タグIDと楽天SPAカテゴリーで利用
-		update_textarea(id, target = 'タグID', delimiter = '/', maxrow = null){
+		// 楽天SPAカテゴリーで利用
+		update_textarea(id, target = '楽天SPAカテゴリー', delimiter = '\n', maxrow = null){
 			// 重複削除
-			const arr = this[target].text ? Array.from( new Set( this[target].text.split( delimiter ) ) ): [];
+			const arr = this[target] ? Array.from( new Set( this[target].split( delimiter ) ) ): [];
 			// 削除
 			if ( arr.includes( id.toString() ) ) {
-				this[target].text = arr.filter( v => v != id ).join( delimiter )
+				this[target] = arr.filter( v => v != id ).join( delimiter )
 			}
 			// 追加
 			else if ( ! maxrow || arr.length < maxrow ) {
 				// 楽天のタグIDの上限
 				if ( target == 'タグID' && arr.length >= ( $('[type="rakuten-tagid"]').attr('maxlength') as any)/8 ) return;
-				this[target].text = [...arr, id].filter( v => v ).join( delimiter );
+				this[target] = [...arr, id].filter( v => v ).join( delimiter );
 			}
 			// 自動可変高　一瞬ずらさんとまだレンダリングされてない
 			setTimeout( ()=>{
@@ -276,13 +269,13 @@ export default ($: any = jQuery) => {
 					subscription,
 				}
 			}
-			this.寄附金額自動計算値 = await $.ajax(opt);
+			this.tmp.寄附金額自動計算値 = await $.ajax(opt);
 			if ( this.寄附金額固定.filter(v=>v).length ) {
 				this.check_donation();
 				return this.寄附金額;
 			}
-			this.寄附金額チェッカー = '';
-			return this.寄附金額自動計算値;
+			this.tmp.寄附金額チェッカー = '';
+			return this.tmp.寄附金額自動計算値;
 		},
 		// 寄附金額の更新
 		async update_donation(){
@@ -292,8 +285,8 @@ export default ($: any = jQuery) => {
 		},
 		check_donation() {
 			const check = ['text-danger', '', 'text-success'];
-			if ( this.寄附金額自動計算値 ) {
-				this.寄附金額チェッカー = check[ Math.sign( this.寄附金額 - this.寄附金額自動計算値 ) + 1 ];
+			if ( this.tmp.寄附金額自動計算値 ) {
+				this.tmp.寄附金額チェッカー = check[ Math.sign( this.寄附金額 - this.tmp.寄附金額自動計算値 ) + 1 ];
 			}
 		},
 		// 取り扱い方法自動設定
@@ -341,7 +334,7 @@ export default ($: any = jQuery) => {
 			text += n2.custom_field.事業者用.説明文.placeholder
 			textarea.val(text);
 		},
-		// 楽天SPA
+		// 楽天SPAカテゴリー取得
 		async get_spa_category() {
 			const folderCode = '1p7DlbhcIEVIaH7Rw2mTmqJJKVDZCumYK';
 			const settings = {
@@ -364,7 +357,7 @@ export default ($: any = jQuery) => {
 				return;
 			}
 			delete cat.values[0];
-			n2.vue.楽天SPAカテゴリー.list = cat.values.map( (v,k) => {
+			n2.vue.tmp.楽天SPAカテゴリー = cat.values.map( (v,k) => {
 				if ( ! v.length ) return
 				v.forEach((e,i) => {
 					v[i] = e || cat.values[k-1][i];
@@ -375,7 +368,7 @@ export default ($: any = jQuery) => {
 		},
 		// 楽天カテゴリー
 		async get_rakuten_category(){
-			n2.vue.楽天カテゴリー.list = await $.ajax({
+			this.tmp.楽天カテゴリー = await $.ajax({
 				url: n2.ajaxurl,
 				data:{
 					action:'n2_rms_category_api_ajax',
@@ -386,12 +379,11 @@ export default ($: any = jQuery) => {
 		},
 		clearRakutenCategory(e,index){
 			e.preventDefault();
-			n2.vue.楽天カテゴリー.text = this.楽天カテゴリーselected.filter((_,i)=>i!==index).join('\n')
+			n2.vue.楽天カテゴリー = this.楽天カテゴリーselected.filter((_,i)=>i!==index).join('\n')
 		},
 		// 楽天納期
 		async get_rakuten_delvdate(){
-			this.$set(this.RMSAPI, '楽天納期情報', {} );
-			this.$set(this.RMSAPI.楽天納期情報, '', '選択して下さい' );
+			this.$set(this.tmp.楽天納期情報, '', '選択して下さい' );
 			let res = await $.ajax({
 				url: n2.ajaxurl,
 				data:{
@@ -401,7 +393,7 @@ export default ($: any = jQuery) => {
 				}
 			});
 			for ( const v of res ) {
-				this.$set(this.RMSAPI.楽天納期情報, v.delvdateNumber, `[${v.delvdateNumber}] ${v.delvdateCaption}` );
+				this.$set(this.tmp.楽天納期情報, v.delvdateNumber, `[${v.delvdateNumber}] ${v.delvdateCaption}` );
 			}
 		},
 	};
@@ -409,11 +401,8 @@ export default ($: any = jQuery) => {
 		draggable,
 	};
 	const computed = {
-		商品属性parse() {
-			return JSON.parse(this.商品属性);
-		},
 		楽天カテゴリーselected(){
-			return this.楽天カテゴリー.text.split('\n').filter(x=>x);
+			return this.楽天カテゴリー.split('\n').filter(x=>x);
 		}
 	};
 
