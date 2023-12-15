@@ -33,7 +33,7 @@ class N2_Rakuten_SFTP {
 		'data'             => array(),
 		'error'            => array(),
 		'log'              => array(),
-		'rakuten_csv_name' => array( 'normal-item', 'item-cat' ),
+		'rakuten_csv_name' => array( 'normal-item', 'item-cat', 'item-delete' ),
 		'extensions'       => '.csv',
 	);
 
