@@ -59,7 +59,11 @@ class N2_Items_API_Rakuten extends N2_Portal_Item_Data {
 		return array(
 			'goods_g_num' => $v['item']['itemNumber'],
 			'goods_name'  => $v['item']['title'],
-			'goods_price' => $v['item']['variants'][ $v['item']['manageNumber'] ]['standardPrice'] ?? array_values( $v['item']['variants'] )[0]['standardPrice'],
+			'goods_price' => (
+					$v['item']['variants'][ $v['item']['itemNumber'] ]['standardPrice'] ?? // itemNumber照合
+					$v['item']['variants'][ $v['item']['manageNumber'] ]['standardPrice'] // manageNumber照合
+				) ??
+				array_values( $v['item']['variants'] )[0]['standardPrice'], // 照合できない場合１つ目でええ
 			'insert_date' => $v['item']['created'],
 			'updated'     => $v['item']['updated'],
 			'url'         => "https://item.rakuten.co.jp/{$this->shop_code}/{$v['item']['manageNumber']}",
