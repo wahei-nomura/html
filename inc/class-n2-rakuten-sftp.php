@@ -165,7 +165,7 @@ class N2_Rakuten_SFTP {
 	 * @return void
 	 */
 	public function upload_to_rakuten() {
-		$this->check_fatal_error( $this->connect(), 'パスワードが違います' );
+		$this->check_fatal_error( $this->connect(), 'パスワードが違います。パスワードの有効期限が切れていないかRMSでご確認ください。' );
 		$this->set_params();
 		$this->set_files();
 		$this->{$this->data['params']['judge']}();
