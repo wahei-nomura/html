@@ -55,14 +55,15 @@ export default Vue.extend({
 		...mapActions([
 			'updateSFTPLog'
 		]),
-		setLinkIndex(index){
-			this.linkIndex = index;
+		async setLink(log){
+			this.linkIndex = log.id;
+			await this.linkImage2RMS(log);
+			this.linkIndex = null;
 		},
-		async getRmsItemImages(item){
-			const rmsItemImages = {};
+		async getRmsItemImages(log){
 
 			// RMSから返礼品情報を取得
-			const requests = Object.keys(item.アップロード).map(manageNumber=>{
+			const requests = Object.keys(log.アップロード.data).map(manageNumber=>{
 				const formData = new FormData();
 				formData.append('manageNumber', manageNumber);
 				formData.append('n2nonce', this.n2nonce);
@@ -74,78 +75,56 @@ export default Vue.extend({
 					formData,
 				);
 			})
-			let errorMessages = [];
-			await Promise.all(requests).then(responses=>{
-				responses.forEach(res=>{
-					const errors = res.data?.errors;
-					if ( errors?.length ) {
-						errors.map(err=>{
-							errorMessages = [ ...errorMessages, err.message ];
-						})
-					} else {
-						rmsItemImages[res.data.manageNumber] = res.data.images.map(image=>image.location);
-					}
-				})
+			return await Promise.all(requests).then(responses=>{
+				return responses.reduce((obj,res)=>{
+					obj[res.data.manageNumber] = res.data.images.map(image=>image.location);
+					return obj;
+				},{});
 			});
-
-			if ( errorMessages.length && ! confirm( [
-				'【返礼品情報が取得できませんでした】',
-				...errorMessages,
-				'続けますか？'
-			].join('\n') ) ) {
-				return [];
-			}
-			return rmsItemImages;
 		},
-		async linkImage2RMS (item){
+
+		diffImageItems (log, images) {
+			return Object.keys(images).map(manageNumber=>{
+				// 明らかに配列の長さが違う場合は必要
+				if(log.アップロード.data[manageNumber].length !== images[manageNumber].length) {
+					return manageNumber;
+				}
+				// diffの精査
+				const mergeArr = [...log.アップロード.data[manageNumber],...images[manageNumber]];
+				const diff = log.アップロード.data[manageNumber].filter( (i:number) => mergeArr.indexOf(i) === -1 );
+				if (diff.length) return manageNumber;
+				return '';
+			}).filter(x=>x);
+		},
+		async linkImage2RMS (log){
 			// RMS 更新用
 			const updateRmsItemRequests = [];
 			// N2 更新用
-			const update_item = structuredClone(item);
-			const rms_images = await this.getRmsItemImages(item);
-			if ( ! rms_images.length ) {
-				alert('商品画像を取得できませんでした');
-				this.linkIndex = null;
-				return;
-			}
+			const updateLog = structuredClone(log);
+			const rmsImages = await this.getRmsItemImages(updateLog);
 
 			// 更新の必要性を確認
-			const updateItems = [];
-			Object.keys(rms_images).forEach(manageNumber=>{
-				// 明らかに配列の長さが違う場合は必要
-				if(update_item.アップロード[manageNumber].length !== rms_images[manageNumber].length) {
-					updateItems.push(manageNumber);
-					return;
-				}
-				// diffの精査
-				const mergeArr = [...update_item.アップロード[manageNumber],...rms_images[manageNumber]];
-				const diff = update_item.アップロード[manageNumber].filter( (i:number) => mergeArr.indexOf(i) === -1 );
-				if (diff.length) updateItems.push(manageNumber);
-			})
-
+			const updateItems = this.diffImageItems(updateLog,rmsImages);
 			if(! updateItems.length){
 				alert('更新不要です');
-				this.linkIndex = null;
 				return;
 			};
 
 			// 確認用メッセージ作成
 			let confirmMessage = [];
 			updateItems.forEach(manageNumber=>{
-
-				const add = update_item.アップロード[manageNumber].filter( (i:number) => rms_images[manageNumber].indexOf(i) === -1 );
+				const add = updateLog.アップロード.data[manageNumber].filter( (i:number) => rmsImages[manageNumber].indexOf(i) === -1 );
 				if (add.length){
 					confirmMessage.push('【追加】' + manageNumber);
 					confirmMessage = [...confirmMessage,...add];
 				}
-				const remove  = rms_images[manageNumber].filter( (i:number) => update_item.アップロード[manageNumber].indexOf(i) === -1 );
+				const remove  = rmsImages[manageNumber].filter( (i:number) => updateLog.アップロード.data[manageNumber].indexOf(i) === -1 );
 				if (remove.length){
 					confirmMessage.push('【解除】' + manageNumber);
 					confirmMessage = [...confirmMessage,...remove];
 				}
 			});
 			if (!confirm('以下の内容で更新しますか？\n'+ confirmMessage.join('\n'))){
-				this.linkIndex = null;
 				return
 			}
 
@@ -157,7 +136,7 @@ export default Vue.extend({
 				formData.append('action', 'n2_rms_item_api_ajax');
 				formData.append('call', 'items_patch');
 				formData.append('mode', 'json');
-				const images = item.アップロード[manageNumber].map(path=>{
+				const images = log.アップロード.data[manageNumber].map(path=>{
 					return {
 						type: 'CABINET',
 						location: path,
@@ -177,13 +156,13 @@ export default Vue.extend({
 				formData.append('n2nonce', this.n2nonce);
 				formData.append('action', this.action);
 				formData.append('judge', 'update_post' );
-				formData.append('post_id', update_item.id );
+				formData.append('post_id', updateLog.id );
 				// id削除
-				delete update_item.id;
+				delete updateLog.id, updateLog.log;
 				// 画像用revision追加
-				update_item.RMS商品画像.変更前 = rms_images;
-				update_item.RMS商品画像.変更後 = update_item.アップロード;
-				formData.append('post_content', JSON.stringify(update_item));
+				updateLog.RMS商品画像.変更前 = rmsImages;
+				updateLog.RMS商品画像.変更後 = updateLog.アップロード.data;
+				formData.append('post_content', JSON.stringify(updateLog));
 				await axios.post(
 					window['n2'].ajaxurl,
 					formData,
@@ -191,13 +170,12 @@ export default Vue.extend({
 				// 最新情報に更新
 				await this.updateSFTPLog()
 				alert('更新完了しました！')
-				this.linkIndex = null;
 			})
 		},
-		async displayHistory(item){
+		async displayHistory(log){
 			const param   = new URLSearchParams({
 				action: 'n2_post_history_api',
-				post_id: item.id,
+				post_id: log.id,
 				type: 'table',
 				post_type: 'n2_sftp',
 			}).toString();
@@ -206,9 +184,11 @@ export default Vue.extend({
 				'_blank'
 			)
 		},
-		formatUploadLogs(data){
+		formatUploadLogs(log){
+			log['テスト'] = 'test';
+			const logs = log.アップロード.log.filter(d=>! d.includes('cabinet/images')).join('<br>');
 			// フォルダ作成ログは除外する
-			return data.filter(d=>! d.includes('cabinet/images')).join('<br>');
+			return logs
 		},
 	},
 	template:`
@@ -223,44 +203,44 @@ export default Vue.extend({
 		</thead>
 		<tbody>
 			<template v-if="sftpLog.items.length">
-				<tr v-for="item in sftpLog.items" :key="item.id">
+				<tr v-for="log in sftpLog.items" :key="log.id">
 					<td v-for="(col,meta) in logTable">
 						<template v-if="meta === 'アップロード'">
 							<button
 								type="button" class="btn btn-sm btn-outline-info"
-								:popovertarget="meta + item.id"
+								:popovertarget="meta + log.id"
 							>
-								{{item.アップロード日時}}
+								{{log.アップロード.date}}
 							</button>
 							<div
-								popover="auto" :id="meta + item.id"
+								popover="auto" :id="meta + log.id"
 								style="width: 80%; max-height: 80%; overflow-y: scroll;"
-								v-html="formatUploadLogs(item.アップロードログ)"
+								v-html="formatUploadLogs(log)"
 							>
 							</div>
 						</template>
-						<template v-else-if="meta==='RMS連携' && item.転送モード==='img_upload'">
+						<template v-else-if="meta==='RMS連携' && log.転送モード==='img_upload'">
 							<button
-								@click="linkImage2RMS(item), setLinkIndex(item.id)"
-								:disabled="! item?.アップロード"
+								@click="setLink(log)"
+								:disabled="! log?.アップロード.data"
 								type="button" class="btn btn-sm btn-secondary"
 							>
-								<span :class="{'spinner-border spinner-border-sm':linkIndex===item.id}"></span>
+								<span :class="{'spinner-border spinner-border-sm':linkIndex===log.id}"></span>
 								商品ページと紐付ける
 							</button>
 						</template>
-						<template v-else-if="meta==='RMS連携履歴' && item.転送モード==='img_upload'">
+						<template v-else-if="meta==='RMS連携履歴' && log.転送モード==='img_upload'">
 							<button
-								@click="displayHistory(item)"
-								:disabled="! item.RMS商品画像.変更後 || !Object.keys(item.RMS商品画像.変更後).length"
+								@click="displayHistory(log)"
+								:disabled="! log.RMS商品画像.変更後 || !Object.keys(log.RMS商品画像.変更後).length"
 								type="button" class="btn btn-sm btn-outline-warning"
 							>
 								時を見る
 							</button>
 						</template>
 						<template v-else>
-							<span :class="col.td?.icon?.[item.転送モード] ?? col.td?.icon ?? ''"></span>
-							{{col.td?.value?.[item.転送モード] ?? col.td?.value ?? item[meta] ?? ''}}
+							<span :class="col.td?.icon?.[log.転送モード] ?? col.td?.icon ?? ''"></span>
+							{{col.td?.value?.[log.転送モード] ?? col.td?.value ?? log[meta] ?? ''}}
 						</template>
 					</td>
 				</tr>

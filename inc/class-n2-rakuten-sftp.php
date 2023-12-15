@@ -416,10 +416,12 @@ class N2_Rakuten_SFTP {
 		$now                            = wp_date( 'Y M d h:i:s A' );
 		$judge                          = $this->data['params']['judge'];
 		$post_content                   = array(
-			'アップロード'   => $this->n2data,
-			'転送モード'    => $judge,
-			'アップロードログ' => $this->data['log'],
-			'アップロード日時' => $now,
+			'アップロード' => array(
+				'data' => $this->n2data,
+				'log'  => $this->data['log'],
+				'date' => $now,
+			),
+			'転送モード'  => $judge,
 		);
 		$default                        = array(
 			'ID'           => 0,
