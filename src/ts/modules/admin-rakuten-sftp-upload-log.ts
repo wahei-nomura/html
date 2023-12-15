@@ -110,7 +110,7 @@ export default Vue.extend({
 				return obj;
 			},{});
 		},
-		async linkImage2RMS (log){
+		async linkImage2RMS ( log ) {
 			// RMS 更新用
 			const updateRmsItemRequests = [];
 			// N2 更新用
@@ -141,7 +141,7 @@ export default Vue.extend({
 			}
 
 			// RMS更新用
-			Object.keys(updateItems).forEach(manageNumber => {
+			const itemPatchRequests = Object.keys(updateItems).map(manageNumber => {
 				const formData = new FormData();
 				formData.append('manageNumber', manageNumber);
 				formData.append('n2nonce', this.n2nonce);
@@ -155,13 +155,12 @@ export default Vue.extend({
 					};
 				});
 				formData.append('body',JSON.stringify({images}));
-				const request = axios.post(
+				return axios.post(
 					window['n2'].ajaxurl,
 					formData,
 				)
-				updateRmsItemRequests.push(request)
 			})
-			await Promise.all(updateRmsItemRequests).then( async res => {
+			await Promise.all(itemPatchRequests).then( async res => {
 				console.log('item_batch',res);
 				// N2を更新
 				const formData = new FormData();
