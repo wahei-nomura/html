@@ -51,8 +51,8 @@ class N2_Admin_Post_Editor {
 		$persisted_preferences['core/edit-post'] = array(
 			'welcomeGuide'               => false,
 			'showBlockBreadcrumbs'       => false,
-			'isPublishSidebarEnabled'    => false,
-			'isComplementaryAreaVisible' => false,
+			'isPublishSidebarEnabled'    => true,
+			'isComplementaryAreaVisible' => true,
 		);
 		$persisted_preferences['_modified']      = gmdate( 'c' );
 		update_user_meta( $n2->current_user->ID, "{$n2->blog_prefix}persisted_preferences", $persisted_preferences );

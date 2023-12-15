@@ -190,19 +190,6 @@ class N2 {
 							default => 'checkbox' === ( $v['type'] ?? false ) ? array() : '',
 						};
 					}
-					// ====== 特殊フィールド系 ======
-					if ( '楽天SPAカテゴリー' === $name && is_string( $value ) ) {
-						$value = array(
-							'text' => $value,
-							'list' => array(),
-						);
-					}
-					if ( '楽天カテゴリー' === $name && is_string( $value ) ) {
-						$value = array(
-							'text' => $value,
-							'list' => array(),
-						);
-					}
 					$this->custom_field[ $id ][ $name ]['value'] = $value;
 				}
 			}
