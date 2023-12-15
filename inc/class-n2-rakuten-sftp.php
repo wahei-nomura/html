@@ -33,7 +33,7 @@ class N2_Rakuten_SFTP {
 		'data'             => array(),
 		'error'            => array(),
 		'log'              => array(),
-		'rakuten_csv_name' => array( 'normal-item', 'item-cat' ),
+		'rakuten_csv_name' => array( 'normal-item', 'item-cat', 'item-delete' ),
 		'extensions'       => '.csv',
 	);
 
@@ -257,8 +257,12 @@ class N2_Rakuten_SFTP {
 				$this->data['log'][] = 'ファイル名に指定のワード(' . implode( ',', $this->data['rakuten_csv_name'] ) . ')が含まれていません :' . $name[ $k ];
 				continue;
 			}
-			$remote_file         = "ritem/batch/{$name[ $k ]}";
 			$file_data           = file_get_contents( $file );
+			// 削除エラーチェック
+			if ( str_contains( $name[ $k ], 'item-delete' ) ) {
+				$this->check_fatal_error( ! $this->count_item_delete_row( $file_data ), '商品削除する行が含まれているため、アップロードを中止しました' );
+			}
+			$remote_file         = "ritem/batch/{$name[ $k ]}";
 			$this->data['log'][] = match ( $this->sftp->put_contents( $remote_file, $file_data ) ) {
 				true => "転送成功 $name[$k]\n",
 				default => "転送失敗 $name[$k]\n",
@@ -272,6 +276,26 @@ class N2_Rakuten_SFTP {
 			echo $log;
 		}
 		exit;
+	}
+
+	/**
+	 * 商品管理番号のみか判定
+	 * ※商品管理番号（商品URL）のみの行があると、商品自体が削除されますのでご注意ください。
+	 *
+	 * @param string $csv_content csv content
+	 */
+	public function count_item_delete_row( $csv_content ) {
+		$rows            = array_map( fn( $row ) => explode( ',', $row ), preg_split( "/\r\n|\n/", $csv_content ) );
+		$header          = array_shift( $rows );
+		$item_code_index = array_search( '商品管理番号（商品URL）', $header, true );
+		// 商品管理番号（商品URL）のみの行をカウント
+		return array_reduce(
+			$rows,
+			function ( $carry, $row ) use ( $item_code_index ) {
+				$carry += $row[ $item_code_index ] && count( array_filter( $row ) ) === 1;
+				return $carry;
+			}
+		);
 	}
 
 
