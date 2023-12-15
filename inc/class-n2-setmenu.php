@@ -253,7 +253,7 @@ class N2_Setmenu {
 	 */
 	public function display_addbookmark() {
 		$site_details = get_blog_details();
-		$bookmark_url = str_replace( '//', '//ss:ss@', wp_login_url() ) . '/?auth=ss:ss';
+		$bookmark_url = str_replace( '//', '//ss:ss@', str_replace( '?', '', wp_login_url() ) ) . '/?auth=ss:ss';
 		$html         = '<div class = "wrap">';
 		$html        .= '<h1 id="copyTarget"> ログインページブックマーク用URL </h1>';
 		$html        .= '<p>以下のリンクをブックマーク登録してください(ブックマークバーにドラッグドロップでも登録できます)。</p>';
