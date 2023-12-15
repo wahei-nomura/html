@@ -15,7 +15,7 @@
   \*********************************************/
 /***/ (() => {
 
-eval("jQuery(function ($) {\n    document.getElementById('ss-sftp').addEventListener('change', function (event) {\n        var fileInput = document.getElementById('ss-sftp');\n        if (!fileInput.files.length)\n            return;\n        console.log(fileInput.files);\n        var hasDeleteCSV = Array.from(fileInput.files).filter(function (file) { return file.name.indexOf('item-delete') !== -1; }).length;\n        if (hasDeleteCSV && !confirm('商品情報削除用CSVが選択されています。続けますか？'))\n            fileInput.value = null;\n    });\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/admin-rakuten-sftp-upload.ts?");
+eval("jQuery(function ($) {\n    document.getElementById('ss-sftp').addEventListener('change', function (event) {\n        var fileInput = document.getElementById('ss-sftp');\n        if (!fileInput.files.length)\n            return;\n        console.log(fileInput.files);\n        var hasDeleteCSV = Array.from(fileInput.files).filter(function (file) { return file.name.indexOf('item-delete') !== -1; }).length;\n        if (hasDeleteCSV && !confirm('item-delete.csv が選択されています。続けますか？'))\n            fileInput.value = null;\n    });\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/admin-rakuten-sftp-upload.ts?");
 
 /***/ })
 
