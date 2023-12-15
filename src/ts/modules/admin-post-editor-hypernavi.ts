@@ -30,8 +30,12 @@ export default ($:any = jQuery) => {
 				wp.data.dispatch('core/editor').editPost(p);
 				for ( const k in n2.vue.$data ) {
 					if ( undefined == data[k] ) {
+						// tmpと_force_watch以外初期化
 						if ( ! k.match(/^(tmp|_force_watch)$/) ) {
-							delete n2.vue.$data[k];
+							switch ( typeof n2.vue.$data[k] ) {
+								case 'object': n2.vue.$data[k] = []; break;
+								default: n2.vue.$data[k] = '';
+							}
 						}
 					} else {
 						n2.vue.$data[k] = data[k];
