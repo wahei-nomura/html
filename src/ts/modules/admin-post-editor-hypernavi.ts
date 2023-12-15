@@ -29,11 +29,12 @@ export default ($:any = jQuery) => {
 				}
 				wp.data.dispatch('core/editor').editPost(p);
 				for ( const k in n2.vue.$data ) {
-					if ( undefined != data[k] ) {
-						n2.vue.$data[k] = data[k];
+					if ( undefined == data[k] ) {
+						if ( ! k.match(/^(tmp|_force_watch)$/) ) {
+							delete n2.vue.$data[k];
+						}
 					} else {
-						if ( k != 'tmp' && k != '_force_watch' ) continue;
-						delete n2.vue.$data[k];
+						n2.vue.$data[k] = data[k];
 					}
 				}
 			});
