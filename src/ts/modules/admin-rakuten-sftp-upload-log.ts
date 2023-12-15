@@ -84,7 +84,7 @@ export default Vue.extend({
 		},
 
 		diffImageItems (log, images) {
-			return Object.keys(images).map(manageNumber=>{
+			const diffItemNumbers = Object.keys(images).map(manageNumber=>{
 				// 明らかに配列の長さが違う場合は必要
 				if(log.アップロード.data[manageNumber].length !== images[manageNumber].length) {
 					return manageNumber;
@@ -95,6 +95,20 @@ export default Vue.extend({
 				if (diff.length) return manageNumber;
 				return '';
 			}).filter(x=>x);
+
+			
+			return diffItemNumbers.reduce((obj,manageNumber)=>{
+				obj[manageNumber] = {};
+				const add = log.アップロード.data[manageNumber].filter( (i:number) => images[manageNumber].indexOf(i) === -1 );
+				if (add.length){
+					obj[manageNumber]['add'] = add;
+				}
+				const remove  = images[manageNumber].filter( (i:number) => log.アップロード.data[manageNumber].indexOf(i) === -1 );
+				if (remove.length){
+					obj[manageNumber]['remove'] = remove;
+				}
+				return obj;
+			},{});
 		},
 		async linkImage2RMS (log){
 			// RMS 更新用
@@ -105,23 +119,21 @@ export default Vue.extend({
 
 			// 更新の必要性を確認
 			const updateItems = this.diffImageItems(updateLog,rmsImages);
-			if(! updateItems.length){
+			if(! Object.keys(updateItems).length){
 				alert('更新不要です');
 				return;
 			};
 
 			// 確認用メッセージ作成
 			let confirmMessage = [];
-			updateItems.forEach(manageNumber=>{
-				const add = updateLog.アップロード.data[manageNumber].filter( (i:number) => rmsImages[manageNumber].indexOf(i) === -1 );
-				if (add.length){
+			Object.keys(updateItems).forEach(manageNumber=>{
+				if ( updateItems[manageNumber].add ){
 					confirmMessage.push('【追加】' + manageNumber);
-					confirmMessage = [...confirmMessage,...add];
+					confirmMessage = [...confirmMessage,...updateItems[manageNumber].add];
 				}
-				const remove  = rmsImages[manageNumber].filter( (i:number) => updateLog.アップロード.data[manageNumber].indexOf(i) === -1 );
-				if (remove.length){
+				if (updateItems[manageNumber].remove){
 					confirmMessage.push('【解除】' + manageNumber);
-					confirmMessage = [...confirmMessage,...remove];
+					confirmMessage = [...confirmMessage,...updateItems[manageNumber].remove];
 				}
 			});
 			if (!confirm('以下の内容で更新しますか？\n'+ confirmMessage.join('\n'))){
@@ -129,14 +141,14 @@ export default Vue.extend({
 			}
 
 			// RMS更新用
-			updateItems.forEach(manageNumber => {
+			Object.keys(updateItems).forEach(manageNumber => {
 				const formData = new FormData();
 				formData.append('manageNumber', manageNumber);
 				formData.append('n2nonce', this.n2nonce);
 				formData.append('action', 'n2_rms_item_api_ajax');
 				formData.append('call', 'items_patch');
 				formData.append('mode', 'json');
-				const images = log.アップロード.data[manageNumber].map(path=>{
+				const images = updateLog.アップロード.data[manageNumber].map(path=>{
 					return {
 						type: 'CABINET',
 						location: path,
