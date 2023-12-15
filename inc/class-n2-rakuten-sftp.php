@@ -255,14 +255,14 @@ class N2_Rakuten_SFTP {
 
 			// jpg以外はエラー
 			if ( strpos( $name[ $k ], '.jpg' ) === false ) {
-				$this->data['log'][] = 'ファイル形式(jpeg)が違います :' . $name[ $k ];
+				$this->data['log'][] = 'ファイル形式(jpeg)が違います:' . $name[ $k ];
 				continue;
 			}
 			// $img_dir からキャビネットのディレクトリ構造を作成
 			$remote_dir = preg_replace( '/^.*cabinet/', 'cabinet/images', $img_dir );
 			preg_match( '/^([0-9]{0,2}[a-z]{2,4})([0-9]{2,3})[-]*[0-9]*\.jpg/', $name[ $k ], $m );
 			if ( ! ( $m[1] ) ) {
-				$this->data['log'][] = 'ファイル名が違います :' . $name[ $k ];
+				$this->data['log'][] = 'ファイル名が違います:' . $name[ $k ];
 				continue;
 			}
 
@@ -278,8 +278,8 @@ class N2_Rakuten_SFTP {
 			$image_data          = file_get_contents( "{$tmp}/{$name[$k]}" );
 			$uploaded            = $this->sftp->put_contents( $remote_file, $image_data );
 			$this->data['log'][] = match ( $uploaded ) {
-				true => "転送成功 $name[$k]",
-				default => "転送失敗 $name[$k]",
+				true => "転送成功:$name[$k]",
+				default => "転送失敗:$name[$k]",
 			};
 			if ( $uploaded ) {
 				$this->n2data[ $m[1] . $m[2] ][] = str_replace( 'cabinet/images', '', $remote_file );
