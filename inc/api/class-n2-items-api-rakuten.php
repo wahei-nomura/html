@@ -65,7 +65,7 @@ class N2_Items_API_Rakuten extends N2_Portal_Item_Data {
 				// $item['variants']のキーとmerchantDefinedSkuIdで絞り込み
 				array_filter(
 					$item['variants'],
-					fn( $d, $k ) => in_array( $k, $ids, true ) || in_array( $d['merchantDefinedSkuId'], $ids, true ),
+					fn( $d, $k ) => in_array( $k, $ids, true ) || in_array( preg_split( '/[^A-Z0-9]/', $d['merchantDefinedSkuId'] )[0], $ids, true ),
 					ARRAY_FILTER_USE_BOTH
 				)
 			)[0]['standardPrice'],
