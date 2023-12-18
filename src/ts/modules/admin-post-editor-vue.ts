@@ -188,7 +188,8 @@ export default ($: any = jQuery) => {
 		},
 		// 楽天の商品属性を取得
 		async insert_rms_attributes( mandatoryFlg = false ) {
-			const attributesUrl = {
+			this.tmp.商品属性アニメーション = true;
+			const opt = {
 				url: n2.ajaxurl,
 				data: {
 					action: 'n2_rms_navigation_api_ajax',
@@ -197,26 +198,27 @@ export default ($: any = jQuery) => {
 					genreId: this.全商品ディレクトリID || '0',
 				},
 			};
-			this.tmp.商品属性アニメーション = true;
-			this.商品属性 = await $.ajax(attributesUrl).then( (res) => {
-				return JSON.parse(res);
-			}).then( (res) => {
-				const attributes = res.genre.attributes;
-				return mandatoryFlg ? attributes.filter( v => v.properties.rmsMandatoryFlg ) : attributes;
-			}).then( (attributes) => {
-				return attributes.map( v => {
-					const before = this.商品属性.filter( value => value.nameJa === v.nameJa );
-					v.value = before.length ? (before[0].value || '') : '' ;
-					v.unitValue = before.length ? (before[0].unitValue || null) : null ;
+			let res = await $.ajax(opt);
+			res = JSON.parse(res);
+			let attr = res.genre.attributes;
+			attr = mandatoryFlg ? attr.filter( v => v.properties.rmsMandatoryFlg ) : attr;
+			if ( this.商品属性.length ) {
+				const values = {}
+				for( const v of this.商品属性 ) {
+					values[v.nameJa] = {
+						value: v.value ?? '',
+						unitValue: v.unitValue ?? null,
+					};
+				}
+				attr = attr.map(v=>{
+					if ( values[v.nameJa] ) {
+						v.value = values[v.nameJa].value;
+						v.unitValue = values[v.nameJa].unitValue;
+					}
 					return v;
-				})
-			}).then( (attributes) => {
-				return attributes;
-			}).catch( (e) => {
-				alert('属性情報を取得できませんでした。ジャンルIDが正しいことを確認してください。') 
-				console.log(e.message);
-				return [];
-			})
+				});
+			}
+			this.商品属性 = attr;
 			this.tmp.商品属性アニメーション = false;
 		},
 		set_rms_attributes_value(index, value) {
