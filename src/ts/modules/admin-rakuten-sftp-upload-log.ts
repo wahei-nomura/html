@@ -43,6 +43,12 @@ export default Vue.extend({
 				},
 			},
 			action: 'n2_rakuten_sftp_upload_to_rakuten',
+			popover: {
+				'アップロード': {
+					display: '',
+					id     : null,
+				}
+			},
 		};
 	},
 	computed:{
@@ -111,8 +117,6 @@ export default Vue.extend({
 			},{});
 		},
 		async linkImage2RMS ( log ) {
-			// RMS 更新用
-			const updateRmsItemRequests = [];
 			// N2 更新用
 			const updateLog = structuredClone(log);
 			const rmsImages = await this.getRmsItemImages(updateLog);
@@ -169,7 +173,7 @@ export default Vue.extend({
 				formData.append('judge', 'update_post' );
 				formData.append('post_id', updateLog.id );
 				// id削除
-				delete updateLog.id, updateLog.log;
+				delete updateLog.id, updateLog.display;
 				// 画像用revision追加
 				updateLog.RMS商品画像.変更前 = rmsImages;
 				updateLog.RMS商品画像.変更後 = updateLog.アップロード.data;
@@ -195,14 +199,82 @@ export default Vue.extend({
 				'_blank'
 			)
 		},
-		formatUploadLogs(log){
-			log['テスト'] = 'test';
-			const logs = log.アップロード.log.filter(d=>! d.includes('cabinet/images')).join('<br>');
+		async formatUploadLogs(log){
+			this.popover.アップロード.id = null;
+			// status(転送成功|転送失敗)用
+			const logToObj = (arr,status) => {
+				return arr.filter(d=> d.includes(status)).toSorted().reduce((obj,d)=>{
+					d = d.replace(`${status}:`,'');
+					const manageNumber = d.match(/([0-4]{1}[0-9]{1}[a-z]{4}[0-9]{3}|[a-z]{2,4}[0-9]{2,3})/)[0];
+					if ( ! obj[manageNumber] ) obj[manageNumber] = [];
+					obj[manageNumber] = [...obj[manageNumber],d];
+					return obj;
+				},{});
+			};
 			// フォルダ作成ログは除外する
-			return logs
+			const errorLog = logToObj(log.アップロード.log,'転送失敗');
+			const succesLog = logToObj(log.アップロード.log,'転送成功');
+			const succesKeys = Object.keys(succesLog);
+			if (!succesKeys.length ) {
+				this.popover.アップロード.display = '';
+				return;
+			}
+			// 改変用にディープコピー
+			const updateLog = structuredClone(log);
+			let rmsImages = await this.getRmsItemImages(updateLog);
+			// 更新の必要性を確認
+			let diffImages = this.diffImageItems(updateLog,rmsImages);
+			diffImages = Object.keys(diffImages).reduce((obj,manageNumber)=>{
+				obj[manageNumber] = {};
+				if (diffImages[manageNumber].add) obj[manageNumber].add = diffImages[manageNumber].add.map( image => {
+					const arr = image.split('/');
+					return arr[arr.length-1];
+				});
+				if (diffImages[manageNumber].remove) obj[manageNumber].remove = diffImages[manageNumber].remove.map( image => {
+					const arr = image.split('/');
+					return arr[arr.length-1];
+				});
+				return obj
+			},{});
+			rmsImages = Object.keys(rmsImages).reduce((obj,manageNumber)=>{
+				obj[manageNumber] = rmsImages[manageNumber].map( image => {
+					const arr = image.split('/');
+					return arr[arr.length-1];
+				});
+				return obj
+			},{});
+			this.popover.アップロード.display = succesKeys.map(manageNumber => {
+				const unique = Array.from(
+					new Set([
+						...(succesLog[manageNumber] ?? []),
+						...(errorLog[manageNumber] ?? []),
+						...(rmsImages[manageNumber] ?? []),
+						...(diffImages[manageNumber]?.add ?? []),
+						...(diffImages[manageNumber]?.remove ?? []),
+					]).values()
+				);
+				return unique.map(image=>{
+					const row = [];
+					if(succesLog[manageNumber]?.includes(image)) row.push('転送成功:');
+					if(errorLog[manageNumber]?.includes(image)) row.push('転送失敗:');
+					row.push(image);
+					if(diffImages[manageNumber]?.add?.includes(image) ) row.push('<span class="ms-1 text-secondary">new</span>');
+					if(diffImages[manageNumber]?.remove?.includes(image)) row.push('<span class="ms-1 text-danger">remove</span>');
+					return row.join(' ');
+				}).join('<br>')
+			}).join('<br>');
+			this.popover.アップロード.id = log.id;
 		},
 	},
 	template:`
+	<div>
+		<div
+			popover="auto" id="popover-upload"
+			style="width: 80%; max-height: 80%; overflow-y: scroll;"
+			v-html="popover.アップロード.display"
+			:class="{loading:!popover.アップロード.id}"
+		>
+		</div>
 	<table class="table align-middle lh-1 text-center">
 		<thead>
 			<tr>
@@ -214,21 +286,17 @@ export default Vue.extend({
 		</thead>
 		<tbody>
 			<template v-if="sftpLog.items.length">
-				<tr v-for="log in sftpLog.items" :key="log.id">
+				<tr v-for="log in sftpLog.items">
 					<td v-for="(col,meta) in logTable">
 						<template v-if="meta === 'アップロード'">
 							<button
 								type="button" class="btn btn-sm btn-outline-info"
-								:popovertarget="meta + log.id"
+								popovertarget="popover-upload"
+								popovertargetaction="show"
+								@click="formatUploadLogs(log)"
 							>
 								{{log.アップロード.date}}
 							</button>
-							<div
-								popover="auto" :id="meta + log.id"
-								style="width: 80%; max-height: 80%; overflow-y: scroll;"
-								v-html="formatUploadLogs(log)"
-							>
-							</div>
 						</template>
 						<template v-else-if="meta==='RMS連携' && log.転送モード==='img_upload'">
 							<button
@@ -263,5 +331,6 @@ export default Vue.extend({
 			</template>
 		</tbody>
 	</table>
+	</div>
 	`,
 });
