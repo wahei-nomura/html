@@ -130,7 +130,7 @@
         type: textarea
         description: 商品名や説明文に入っていないキーワードをスペース区切りで書いてください。
         placeholder: 例）はちみつ 蜂蜜 お歳暮 お中元
-        style: 'width: 100%;'
+        style: 'width: 100%;min-height: 2em;'
         v-if: "!商品タイプ.includes('eチケット')"
         "@focus": set_info($event.target)
         "@input": auto_fit_tetxarea($event.target)
