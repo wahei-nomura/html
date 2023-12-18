@@ -305,7 +305,7 @@ export default Vue.extend({
 								type="button" class="btn btn-sm btn-secondary"
 							>
 								<span :class="{'spinner-border spinner-border-sm':linkIndex===log.id}"></span>
-								商品ページと紐付ける
+								商品ページ画像への追加・解除
 							</button>
 						</template>
 						<template v-else-if="meta==='RMS連携履歴' && log.転送モード==='img_upload'">
