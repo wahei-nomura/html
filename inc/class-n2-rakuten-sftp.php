@@ -62,6 +62,7 @@ class N2_Rakuten_SFTP {
 			add_menu_page( '楽天SFTP', '楽天SFTP', 'ss_crew', 'n2_rakuten_sftp_upload', array( $this, 'display_ui' ), 'dashicons-admin-site-alt3' );
 			add_submenu_page( 'n2_rakuten_sftp_upload', '楽天エラーログ', '楽天エラーログ', 'ss_crew', 'n2_rakuten_sftp_error_log', array( $this, 'display_ui' ) );
 			add_submenu_page( 'n2_rakuten_sftp_upload', '楽天Cabinet', '楽天Cabinet', 'ss_crew', 'n2_rakuten_sftp_client', array( $this, 'display_ui' ) );
+			add_submenu_page( 'n2_rakuten_sftp_upload', 'SFTPエクスプローラー', 'SFTPエクスプローラー', 'ss_crew', 'n2_rakuten_sftp_explorer', array( $this, 'display_ui' ) );
 		}
 	}
 
@@ -73,6 +74,7 @@ class N2_Rakuten_SFTP {
 		$args     = match ( $template ) {
 			'error-log' => $this->rakuten_error_log_args(),
 			'upload'    => $this->rakuten_upload_args(),
+			'explorer'  => $this->rakuten_sftp_explorer_args(),
 			default     => null,
 		}
 		?>
@@ -116,6 +118,20 @@ class N2_Rakuten_SFTP {
 		$this->data['connect'] = $this->sftp->connect();
 
 		return $this->data['connect'];
+	}
+
+	/**
+	 * SFTP EXPLORER
+	 */
+	public function rakuten_sftp_explorer_args() {
+		$args = array();
+		$this->connect();
+		$args['connect'] = $this->data['connect'];
+		if ( ! $args['connect'] ) {
+			return $args;
+		}
+		$args['dirlist'] = $this->sftp->dirlist( '/', true, true );
+		return $args;
 	}
 
 	public function rakuten_error_log_args() {
