@@ -83,7 +83,16 @@ export default Vue.extend({
 			})
 			return await Promise.all(requests).then(responses=>{
 				return responses.reduce((obj,res)=>{
-					obj[res.data.manageNumber] = res.data.images.map(image=>image.location);
+					console.log(res);
+					
+					if(res.data.manageNumber) {
+						obj[res.data.manageNumber] = res.data?.images?.map(image=>image.location) ?? [];
+					}
+					if(res.data.errors) {
+						console.error(res.data.errors);
+						
+						alert(['商品画像が取得できませんでした',...res.data.errors.map(error=>error.message)].join('\n'))
+					}
 					return obj;
 				},{});
 			});
@@ -92,12 +101,12 @@ export default Vue.extend({
 		diffImageItems (log, images) {
 			const diffItemNumbers = Object.keys(images).map(manageNumber=>{
 				// 明らかに配列の長さが違う場合は必要
-				if(log.アップロード.data[manageNumber].length !== images[manageNumber].length) {
+				if(log.アップロード.data[manageNumber]?.length !== images[manageNumber]?.length) {
 					return manageNumber;
 				}
 				// diffの精査
 				const mergeArr = [...log.アップロード.data[manageNumber],...images[manageNumber]];
-				const diff = log.アップロード.data[manageNumber].filter( (i:number) => mergeArr.indexOf(i) === -1 );
+				const diff = log.アップロード.data[manageNumber]?.filter( (i:number) => mergeArr.indexOf(i) === -1 ) ?? [];
 				if (diff.length) return manageNumber;
 				return '';
 			}).filter(x=>x);
@@ -105,11 +114,11 @@ export default Vue.extend({
 			
 			return diffItemNumbers.reduce((obj,manageNumber)=>{
 				obj[manageNumber] = {};
-				const add = log.アップロード.data[manageNumber].filter( (i:number) => images[manageNumber].indexOf(i) === -1 );
+				const add = log.アップロード.data[manageNumber]?.filter( (i:number) => images[manageNumber].indexOf(i) === -1 ) ?? [];
 				if (add.length){
 					obj[manageNumber]['add'] = add;
 				}
-				const remove  = images[manageNumber].filter( (i:number) => log.アップロード.data[manageNumber].indexOf(i) === -1 );
+				const remove  = images[manageNumber]?.filter( (i:number) => log.アップロード.data[manageNumber].indexOf(i) === -1 ) ?? [];
 				if (remove.length){
 					obj[manageNumber]['remove'] = remove;
 				}
@@ -120,6 +129,9 @@ export default Vue.extend({
 			// N2 更新用
 			const updateLog = structuredClone(log);
 			const rmsImages = await this.getRmsItemImages(updateLog);
+
+			console.log(rmsImages);
+			
 
 			// 更新の必要性を確認
 			const updateItems = this.diffImageItems(updateLog,rmsImages);
@@ -140,6 +152,10 @@ export default Vue.extend({
 					confirmMessage = [...confirmMessage,...updateItems[manageNumber].remove];
 				}
 			});
+			if(! confirmMessage.length){
+				alert('更新不要です');
+				return;
+			};
 			if (!confirm('以下の内容で更新しますか？\n'+ confirmMessage.join('\n'))){
 				return
 			}
