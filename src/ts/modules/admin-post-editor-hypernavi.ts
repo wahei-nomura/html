@@ -1,3 +1,4 @@
+import {set_default_meta} from "./admin-post-editor-get-meta";
 /**
  * 爆速ナビを追加
  *
@@ -21,7 +22,9 @@ export default ($:any = jQuery) => {
 						p: id,
 					}
 				});
-				data = data.items[0];
+				// dataの浄化
+				data = set_default_meta($, data.items[0]);
+				console.log(data)
 				const p = {
 					id,
 					title: data.タイトル,
