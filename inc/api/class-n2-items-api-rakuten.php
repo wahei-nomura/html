@@ -57,7 +57,7 @@ class N2_Items_API_Rakuten extends N2_Portal_Item_Data {
 	 */
 	public function array_format( $v ) {
 		$item = $v['item'];
-		$ids  = array( $item['itemNumber'], $item['manageNumber'] );
+		$ids  = array( $item['itemNumber'], $item['manageNumber'], 'normal-inventory' );
 		return array(
 			'goods_g_num' => $item['itemNumber'],
 			'goods_name'  => $item['title'],
