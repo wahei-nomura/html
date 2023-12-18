@@ -398,11 +398,10 @@ class N2_Rakuten_SFTP {
 	public function register_post_type() {
 		$args = array(
 			'label'    => 'sftp_log',
-			'public'   => true,
+			'public'   => false,
 			'supports' => array(
 				'title',
 				'revisions',
-				'page-attributes',
 			),
 		);
 		register_post_type( $this->data['post_type'], $args );
