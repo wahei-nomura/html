@@ -258,7 +258,7 @@ export default Vue.extend({
 					if(succesLog[manageNumber]?.includes(image)) row.push('転送成功:');
 					if(errorLog[manageNumber]?.includes(image)) row.push('転送失敗:');
 					row.push(image);
-					if(diffImages[manageNumber]?.add?.includes(image) ) row.push('<span class="ms-1 text-secondary">追加</span>');
+					if(diffImages[manageNumber]?.add?.includes(image) ) row.push('<span class="ms-1 text-primary">追加</span>');
 					if(diffImages[manageNumber]?.remove?.includes(image)) row.push('<span class="ms-1 text-danger">解除</span>');
 					return row.join(' ');
 				}).join('<br>')
