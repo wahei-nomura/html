@@ -34,8 +34,9 @@ class N2_Enqueuescript {
 	 */
 	public function admin_enqueue_scripts( $hook_suffix ) {
 		global $n2;
+		wp_enqueue_style( 'n2-google-font-PTmono', 'https://fonts.googleapis.com/css2?family=PT+Mono&display=swap', array(), 'PTMono' );
 		wp_enqueue_script( 'n2-admin', get_theme_file_uri( 'dist/js/admin.js' ), array( 'jquery', 'jquery-touch-punch' ), $n2->cash_buster, false );
-		wp_enqueue_style( 'n2-admin', get_theme_file_uri( 'dist/css/admin.css' ), array(), $n2->cash_buster );
+		wp_enqueue_style( 'n2-admin', get_theme_file_uri( 'dist/css/admin.css' ), array( 'n2-google-font-PTmono' ), $n2->cash_buster );
 		$n2->hook_suffix = $hook_suffix;
 		wp_localize_script( 'n2-admin', 'n2', $n2 );
 		wp_localize_script( 'n2-admin', 'tmp_path', $this->get_tmp_path() );
