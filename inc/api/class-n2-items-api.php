@@ -285,7 +285,7 @@ class N2_Items_API {
 			$required[] = '送料';
 
 			// 楽天なのにジャンルID or 商品属性なし
-			if ( in_array( '楽天', $n2->settings['N2']['出品ポータル'], true ) && ! in_array( '楽天', $meta['出品禁止ポータル'] ?? array(), true ) ) {
+			if ( in_array( '楽天', $n2->settings['N2']['出品ポータル'], true ) && ! in_array( '楽天', (array) ( $meta['出品禁止ポータル'] ?? '' ), true ) ) {
 				array_push( $required, '全商品ディレクトリID', '商品属性' );
 			}
 
