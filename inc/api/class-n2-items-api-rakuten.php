@@ -39,8 +39,15 @@ class N2_Items_API_Rakuten extends N2_Portal_Item_Data {
 			$this->exit( '[RMS Shop API] url取得失敗' );
 		}
 		$this->shop_code = $shop['url'];
+		// パラメータ指定
+		$params = array(
+			'offset'         => 0,
+			'hits'           => -1,
+			'isItemStockout' => 'false',
+			'isHiddenItem'   => 'false',
+		);
 		// 返礼品データ取得
-		$items = N2_RMS_Items_API::search( 0, -1 );
+		$items = N2_RMS_Items_API::search( $params );
 		if ( ! isset( $items['results'] ) ) {
 			$this->exit( '[RMS Items API] 返礼品データ取得失敗' );
 		}
