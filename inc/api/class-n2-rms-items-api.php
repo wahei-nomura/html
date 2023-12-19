@@ -30,7 +30,8 @@ class N2_RMS_Items_API extends N2_RMS_Base_API {
 			'hits'   => 100,
 		);
 		$params         = wp_parse_args( $params, $default );
-		$params['hits'] = ( $params['hits'] < 1 || $params['hits'] > 100 ) ? 100 : $params['hits']; // 1〜100（N2では0以下で全件取得、100以上も対応）
+		$hits           = $params['hits'];
+		$params['hits'] = ( $hits < 1 || $hits > 100 ) ? 100 : $hits; // 1〜100（N2では0以下で全件取得、100以上も対応）
 		$url            = static::$settings['endpoint'] . '/2.0/items/search?';
 		$data           = wp_remote_get( $url . http_build_query( $params ), array( 'headers' => static::$data['header'] ) );
 
@@ -38,12 +39,12 @@ class N2_RMS_Items_API extends N2_RMS_Base_API {
 			return array();
 		}
 		$data = json_decode( $data['body'], true );
-		// $params['hits']が1〜100の場合通常
-		if ( $params['hits'] >= 1 && $params['hits'] <= 100 ) {
+		// $hitsが1〜100の場合通常
+		if ( $hits >= 1 && $hits <= 100 ) {
 			return $data;
 		}
-		// $params['hits']が1以下の場合は全件取得
-		$pages            = ceil( ( $params['hits'] < 1 ? $data['numFound'] : $params['hits'] ) / $params['hits'] );// ページ数を取得
+		// $hitsが1以下の場合は全件取得
+		$pages            = ceil( ( $hits < 1 ? $data['numFound'] : $hits ) / $params['hits'] );// ページ数を取得
 		$params['offset'] = $params['offset'] + $params['hits'];// 最初のページは要らない
 		while ( $pages > ceil( $params['offset'] / $params['hits'] ) ) {
 			$requests[] = array(
