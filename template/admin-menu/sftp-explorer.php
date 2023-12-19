@@ -23,10 +23,13 @@ function build_tree( $dirlist, $prefix ) {
 	 */
 	$folder_list = fn( $l ) => array_filter( $l, fn( $d )=> 'd' === $d['type'] );
 	return array_map(
-		fn ( $v ) => match ( count( $folder_list( $v['files'] ) ) > 0 ) {
-			true => build_tree( $v['files'], "{$prefix}/{$v['name']}" ),
-			default => "{$prefix}/{$v['name']}",
-		},
+		fn ( $v ) => array(
+			'path'     => "{$prefix}/{$v['name']}",
+			'children' => match ( count( $folder_list( $v['files'] ) ) > 0 ) {
+				true => build_tree( $v['files'], "{$prefix}/{$v['name']}" ),
+				default => array(),
+			},
+		),
 		$folder_list( $dirlist ),
 	);
 }
@@ -36,15 +39,15 @@ function build_tree_ul_element( $tree ) {
 	<ul class="n2-tree-parent">
 	<?php foreach ( $tree as $node => $val ) : ?>
 		<li class="n2-tree-node">
-			<?php if ( is_array( $val ) ) : ?>
+			<?php if ( count( $val['children'] ) ) : ?>
 			<label>
+				<span class="dashicons dashicons-open-folder"></span>
 				<span>
-					<span class="dashicons dashicons-open-folder"></span>
 					<?php echo $node; ?>
 				</span>
 				<input type="checkbox">
 			</label>
-			<?php build_tree_ul_element( $val ); ?>
+			<?php build_tree_ul_element( $val['children'] ); ?>
 			<?php else : ?>
 				<label>
 					<span class="dashicons dashicons-open-folder"></span>
@@ -70,10 +73,10 @@ function array_flatten( $arr ) {
 
 $tree = build_tree( $args['dirlist'], '' );
 
-// // フラット化
-// echo '<pre>';
-// var_dump( $tree );
-// echo '</pre><br>';
+// フラット化
+echo '<pre>';
+var_dump( $tree );
+echo '</pre><br>';
 
 ?>
 <h3>SFTPサーバー</h3>
@@ -83,7 +86,7 @@ $tree = build_tree( $args['dirlist'], '' );
 			<li class="n2-tree-node">
 				<label>
 					<span class="dashicons dashicons-open-folder"></span>
-					<span>root</span>
+					<span data-path="/">root</span>
 					<input type="checkbox">
 				</label>
 				<?php build_tree_ul_element( $tree ); ?>
