@@ -255,31 +255,49 @@ class N2_Rakuten_SFTP {
 
 			// jpg以外はエラー
 			if ( strpos( $name[ $k ], '.jpg' ) === false ) {
-				$this->data['log'][] = 'ファイル形式(jpeg)が違います:' . $name[ $k ];
+				$this->data['log'][] = array(
+					'status'  => 'ファイル形式(jpeg)が違います',
+					'context' => $name[ $k ],
+				);
 				continue;
 			}
 			// $img_dir からキャビネットのディレクトリ構造を作成
 			$remote_dir = preg_replace( '/^.*cabinet/', 'cabinet/images', $img_dir );
 			preg_match( '/^([0-9]{0,2}[a-z]{2,4})([0-9]{2,3})[-]*[0-9]*\.jpg/', $name[ $k ], $m );
 			if ( ! ( $m[1] ) ) {
-				$this->data['log'][] = 'ファイル名が違います:' . $name[ $k ];
+				$this->data['log'][] = array(
+					'status'  => 'ファイル名が違います',
+					'context' => $name[ $k ],
+				);
 				continue;
 			}
 
 			// 商品画像の場合
 			if ( $this->sftp->mkdir( $remote_dir ) ) {
-				$this->data['log'][] = "{$remote_dir}を作成";
+				$this->data['log'][] = array(
+					'status'  => '作成',
+					'context' => $remote_dir,
+				);
 			}
 			$remote_dir .= $m[1];
 			if ( $this->sftp->mkdir( $remote_dir ) ) {
-				$this->data['log'][] = "{$remote_dir}を作成";
+				$this->data['log'][] = array(
+					'status'  => '作成',
+					'context' => $remote_dir,
+				);
 			}
 			$remote_file         = "{$remote_dir}/{$name[$k]}";
 			$image_data          = file_get_contents( "{$tmp}/{$name[$k]}" );
 			$uploaded            = $this->sftp->put_contents( $remote_file, $image_data );
 			$this->data['log'][] = match ( $uploaded ) {
-				true => "転送成功:$name[$k]",
-				default => "転送失敗:$name[$k]",
+				true => array(
+					'status'  => '転送成功',
+					'context' => $name[ $k ],
+				),
+				default => array(
+					'status'  => '転送失敗',
+					'context' => $name[ $k ],
+				),
 			};
 			if ( $uploaded ) {
 				$this->n2data[ $m[1] . $m[2] ][] = str_replace( 'cabinet/images', '', $remote_file );
@@ -313,22 +331,34 @@ class N2_Rakuten_SFTP {
 
 		foreach ( $tmp_name as $k => $file ) {
 			if ( ! str_contains( $name[ $k ], $this->data['extensions'] ) ) {
-				$this->data['log'][] = 'ファイル形式(csv)が違います :' . $name[ $k ];
+				$this->data['log'][] = array(
+					'status'  => 'ファイル形式(csv)が違います',
+					'context' => $name[ $k ],
+				);
 				continue;
 			}
 			if ( ! in_array( preg_replace( "/\\{$this->data['extensions']}/", '', $name[ $k ] ), $this->data['rakuten_csv_name'], true ) ) {
-				$this->data['log'][] = 'ファイル名に指定のワード(' . implode( ',', $this->data['rakuten_csv_name'] ) . ')が含まれていません :' . $name[ $k ];
+				$this->data['log'][] = array(
+					'status'  => 'ファイル名に指定のワード(' . implode( ',', $this->data['rakuten_csv_name'] ) . ')が含まれていません',
+					'context' => $name[ $k ],
+				);
 				continue;
 			}
 			$remote_file         = "ritem/batch/{$name[ $k ]}";
 			$file_data           = file_get_contents( $file );
 			$uploaded            = $this->sftp->put_contents( $remote_file, $file_data );
 			$this->data['log'][] = match ( $uploaded ) {
-				true => "転送成功 {$this->data['files']['name'][$k]}",
-				default => "転送失敗 {$this->data['files']['name'][$k]}",
+				true => array(
+					'status'  => '転送成功',
+					'context' => $this->data['files']['name'][ $k ],
+				),
+				default => array(
+					'status'  => '転送失敗',
+					'context' => $this->data['files']['name'][ $k ],
+				),
 			};
 			if ( $uploaded ) {
-				$this->n2data[$this->data['files']['name'][$k]][] = $this->data['files']['name'][$k];
+				$this->n2data[ $this->data['files']['name'][ $k ] ][] = $this->data['files']['name'][ $k ];
 			}
 		}
 		$this->insert_post();
