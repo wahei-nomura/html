@@ -68,11 +68,17 @@ class N2_Items_API_Rakuten extends N2_Portal_Item_Data {
 		return array(
 			'goods_g_num' => $item['itemNumber'],
 			'goods_name'  => $item['title'],
+			/**
+			 * 1. variantsのキーがちゃんと返礼品コード（ちゃんと価格取れる）
+			 * 2. variantsのmerchantDefinedSkuIdが返礼品コード（ちゃんと価格取れる）
+			 * 3. variantsのmerchantDefinedSkuIdが返礼品コード_なんちゃら（前半部分の返礼品コードで照合して価格は1個目）
+			 * 4. variantsのmerchantDefinedSkuIdが返礼品コード_なんちゃらで価格違うのある（前半部分の返礼品コードで照合して価格は1個目なので違うのとれることもある）
+			 * 5. variantsのキーも返礼品コードじゃないしmerchantDefinedSkuIdが無い（もうしらん1個目の価格）
+			 */
 			'goods_price' => array_values(
-				// $item['variants']のキーとmerchantDefinedSkuIdで絞り込み
 				array_filter(
 					$item['variants'],
-					fn( $d, $k ) => in_array( (string) $k, $ids, true ) || in_array( (string) preg_split( '/[^A-Za-z0-9]/', $d['merchantDefinedSkuId'] )[0], $ids, true ),
+					fn( $d, $k ) => in_array( (string) $k, $ids, true ) || in_array( (string) preg_split( '/[^A-Za-z0-9]/', $d['merchantDefinedSkuId'] )[0], $ids, true ) || ! isset( $d['merchantDefinedSkuId'] ),
 					ARRAY_FILTER_USE_BOTH
 				)
 			)[0]['standardPrice'],
