@@ -58,6 +58,7 @@ $incs = array(
 	'class-n2-change-allergen',
 	'class-n2-change-sku-firstaid',
 	'class-n2-portal-item-data',
+	'api/class-n2-gpt-api',
 );
 
 foreach ( $incs as $name ) {
