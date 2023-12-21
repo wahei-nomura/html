@@ -15,6 +15,9 @@ body.n2-darkmode{
 		filter: invert(100%);
 	}
 }
+.edit-post-visual-editor h1 {	
+	font-family: var(--n2-clear-font-family);
+}
 .post-type-post{
 	#wpadminbar{
 		display: none;
