@@ -1,7 +1,7 @@
 import Vue from 'vue/dist/vue.min';
-import Modals from './modules/admin-rakuten-cabinet-modals';
-import store from './modules/admin-rakuten-cabinet-store'
-import App from './modules/admin-rakuten-cabinet-app'
+import Modals from './modules/admin-rakuten-menu/cabinet-modals';
+import store from './modules/admin-rakuten-menu/cabinet-store'
+import App from './modules/admin-rakuten-menu/cabinet-app'
 import axios from 'axios';
 import { mapState } from 'vuex';
 

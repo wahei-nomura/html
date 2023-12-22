@@ -1,6 +1,6 @@
 import Vue from 'vue/dist/vue.min';
 import Vuex,{mapState} from 'vuex/dist/vuex.min';
-import FolderTree from './admin-rakuten-cabinet-folder-tree';
+import FolderTree from './cabinet-folder-tree';
 import { mapActions } from 'vuex';
 
 Vue.use(Vuex);

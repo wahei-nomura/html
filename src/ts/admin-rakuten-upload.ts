@@ -1,7 +1,7 @@
 import Vue from 'vue/dist/vue.min';
-import store from './modules/admin-rakuten-sftp-store';
-import sftpUpload from './modules/admin-rakuten-sftp-upload';
-import sftpUploadLog from './modules/admin-rakuten-sftp-upload-log';
+import store from './modules/admin-rakuten-menu/sftp-store';
+import sftpUpload from './modules/admin-rakuten-menu/sftp-upload';
+import sftpUploadLog from './modules/admin-rakuten-menu/sftp-upload-log';
 
 Vue.config.devtools = true;
 
