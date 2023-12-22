@@ -1,5 +1,5 @@
 import Vue from 'vue/dist/vue.min';
-import store from './modules/admin-rakuten-menu/sftp-upload-store';
+import store from './modules/admin-rakuten-menu/sftp-store';
 import sftpUpload from './modules/admin-rakuten-menu/sftp-uploader';
 import sftpUploadLog from './modules/admin-rakuten-menu/sftp-upload-log';
 
