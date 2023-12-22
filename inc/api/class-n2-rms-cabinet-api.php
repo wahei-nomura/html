@@ -52,13 +52,35 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	 * @return array フォルダ一覧
 	 */
 	public static function folders_get() {
-		$params  = array(
-			'limit' => 100,
+		$limit            = 100;
+		$url              = fn ( $offset = 1 ) => static::$settings['endpoint'] . '/1.0/cabinet/folders/get?' . http_build_query(
+			array(
+				'limit'  => $limit,
+				'offset' => $offset,
+			)
 		);
-		$url     = static::$settings['endpoint'] . '/1.0/cabinet/folders/get?' . http_build_query( $params );
-		$data    = static::request( $url );
-		$folders = simplexml_load_string( $data['body'] )->cabinetFoldersGetResult->folders;
-		return json_decode( wp_json_encode( $folders ), true )['folder'];
+		$response         = static::request( $url() );
+		$response_folders = function ( $res ) use ( &$folder_all_count ) {
+			$res              = (array) $res;
+			$result           = simplexml_load_string( $res['body'] )->cabinetFoldersGetResult;
+			$folder_all_count = (int) $result->folderAllCount;
+			$result           = (array) $result->folders;
+			return $result['folder'];
+		};
+		$folders          = $response_folders( $response );
+		if ( $folder_all_count <= $limit ) {
+			return $folders;
+		}
+		$requests = array_map(
+			fn ( $offset ) => array(
+				'url' => $url( $offset ),
+			),
+			range( 2, floor( $folder_all_count / $limit ) + 1 )
+		);
+		foreach ( static::request_multiple( $requests ) as $res ) {
+			$folders = array( ...$folders, ...$response_folders( $res ) );
+		}
+		return $folders;
 	}
 	/**
 	 * ファイル一覧取得

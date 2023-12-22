@@ -1,8 +1,8 @@
 import Vue from 'vue/dist/vue.min';
 import {mapState,mapGetters,mapActions} from 'vuex/dist/vuex.min';
-import ImageCard from './admin-menu-cabinet-main-card';
-import TableRow from './admin-menu-cabinet-main-tr';
-import { cabinetImage } from './admin-menu-cabinet-interface';
+import ImageCard from './admin-rakuten-cabinet-main-card';
+import TableRow from './admin-rakuten-cabinet-main-tr';
+import { cabinetImage } from './admin-rakuten-cabinet-interface';
 
 export default Vue.extend({
     name: 'Main',

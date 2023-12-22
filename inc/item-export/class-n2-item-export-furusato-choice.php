@@ -121,7 +121,23 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 			);
 			// 空要素削除して連結
 			$n2values['消費期限'] = implode( "\n\n【消費期限】\n", array_filter( $n2values['消費期限'] ) );
-		};
+		}
+
+		// 類型・該当理由
+		{
+			// ポータルに理由を表示する設定になっていない場合は空欄にする
+			if ( ! in_array( $n2values['地場産品類型'], $n2->settings['N2']['理由表示地場産品類型'] ?? array(), true ) ) {
+				$n2values['類型該当理由'] = '';
+			}
+			// 類型番号99の場合は7に変更、（）の場合は中身ごと削除
+			$n2values['地場産品類型'] = preg_replace(
+				array( '/99/', '/（.*）/' ),
+				array( '7', '' ),
+				$n2values['地場産品類型']
+			);
+			// '|'で類型と該当理由を連結
+			$n2values['地場産品類型'] = "{$n2values['地場産品類型']}|{$n2values['類型該当理由']}";
+		}
 
 		// preg_matchで判定
 		$data = match ( 1 ) {
@@ -143,7 +159,8 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 			preg_match( '/^発送期日$/', $val ) => $n2values['配送期間'],// 発送期日種別が任意入力の場合はお礼の品の発送期日情報を1,000文字以内で入力
 			preg_match( '/アレルギー：([^（]*)/u', $val, $m ) => in_array( $m[1], $n2values['アレルゲン'], true ) ? 1 : 2,// アレルギー品目がありの場合は半角数字の1、なしの場合は半角数字の2、未確認の場合は半角数字の3
 			preg_match( '/アレルギー特記事項/', $val ) => $n2values['アレルゲン注釈'],// アレルギーに関する注意情報を1,000文字以内で入力
-			preg_match( '/地場産品類型番号/', $val )  => $n2values['地場産品類型'] ? "{$n2values['地場産品類型']}|{$n2values['類型該当理由']}" : '',// 設定したい地場産品類型番号と、地場産品に該当する理由（100文字以内）を入力してください。地場産品類型番号と該当する理由のテキストを『 | 』で区切ってください。
+			// preg_match( '/地場産品類型番号/', $val )  => $n2values['地場産品類型'] ? in_array( $n2values['地場産品類型'], $applicable_reasons ) ? "{$n2values['地場産品類型']}|{$n2values['類型該当理由']}" : "{$n2values['地場産品類型']}|" : '',// 設定したい地場産品類型番号と、地場産品に該当する理由（100文字以内）を入力してください。地場産品類型番号と該当する理由のテキストを『 | 』で区切ってください。
+			preg_match( '/地場産品類型番号/', $val )  => $n2values['地場産品類型'],// 設定したい地場産品類型番号と、地場産品に該当する理由（100文字以内）を入力してください。地場産品類型番号と該当する理由のテキストを『 | 』で区切ってください。
 			preg_match( '/消費期限/', $val ) => $n2values['消費期限'],// 食品系の場合はなるべく消費期限を1,000文字以内で入力
 			preg_match( '/^（必須）.+?配送$/', $val ) => false !== strpos( $val, $n2values['発送方法'] ) ? 1 : 0,// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
 			preg_match( '/^（必須）((包装|のし)対応)$/', $val, $m ) => false !== strpos( '有り', $n2values[ $m[1] ] ) ? 1 : 0,// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
@@ -180,7 +197,6 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 			$this->add_error( $n2values['id'], "「{$name}」がありません。" );
 		}
 		// 文字数制限エラー
-		$len       = mb_strlen( $value );// $valueの文字数
 		$maxlength = array(
 			40   => 'キャッチコピー',
 			64   => 'サイト表示事業者名',
@@ -189,6 +205,10 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 			1000 => '^説明$|^容量$|^申込期日$|^発送期日$|アレルギー特記事項|消費期限',
 		);
 		foreach ( $maxlength as $max => $pattern ) {
+			$len = match ( $pattern ) {
+				'地場産品類型番号' => mb_strlen( preg_replace( '/.*?\|/u', '', $value ) ),// パイプ前を削除
+				default => mb_strlen( $value ),
+			};
 			if ( preg_match( "/{$pattern}/", $name ) && $len > $max ) {
 				$over = $len - $max;
 				$this->add_error( $n2values['id'], "<div title='{$value}'>「{$name}」の文字数が{$over}文字多いです。</div>" );
@@ -205,6 +225,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 	protected function special_str_convert( $str ) {
 		global $n2;
 		$str = str_replace( array_keys( $n2->special_str_convert ), array_values( $n2->special_str_convert ), $str );
+		$str = preg_replace( '/\r\n?|\n/', "\r\n", $str );
 		/**
 		 * [hook] n2_item_export_furusato_choice_special_str_convert
 		 */

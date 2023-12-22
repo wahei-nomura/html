@@ -140,7 +140,6 @@ class N2_Setmenu {
 				'tooles.php',
 				'upload.php',
 			);
-	
 		}
 		if ( in_array( $pagenow, $hide_pages, true ) ) {
 			wp_safe_redirect( admin_url( 'edit.php' ) );
@@ -156,9 +155,15 @@ class N2_Setmenu {
 	 * @param string $url デフォルトURL
 	 */
 	public function change_site_icon( $url ) {
-		$name      = end( explode( '/', get_home_url() ) );
-		$n2_active = get_option( 'n2_settings' )['N2']['稼働中'] ?? 0;
-		return $n2_active ? "https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_{$name}.png" : $url;
+		$home_url_arr   = explode( '/', get_home_url() );
+		$name           = end( $home_url_arr );
+		$n2_active      = get_option( 'n2_settings' )['N2']['稼働中'] ?? 0;
+		$town_icon_name = match ( $name ) {
+			'f422142-minamishimabara' => 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_f422142-minamisimabara.png',
+			'f424111-shinkamigoto'    => "https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_{$name}.jpg",
+			default                   => "https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_{$name}.png",
+		};
+		return $n2_active ? $town_icon_name : $url;
 	}
 	/**
 	 * 管理画面左上のロゴ変更

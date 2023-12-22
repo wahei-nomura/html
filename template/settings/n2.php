@@ -82,4 +82,21 @@ $settings = array(
 			</label>
 		</td>
 	</tr>
+	<tr>
+		<th>類型該当理由を表示する地場産品類型</th>
+		<td>
+			<?php $typology = array_filter( array_keys( array_filter( $n2->custom_field['スチームシップ用']['地場産品類型']['option'] ) ) ); ?>
+			<?php foreach ( $typology as $key => $value ) { ?>
+				<label style="display:block;margin-bottom:1rem;">
+					<input type="checkbox"
+						name="n2_settings[N2][理由表示地場産品類型][]"
+						value="<?php echo esc_attr( $value ); ?>"
+						<?php checked( ! empty( $n2->settings['N2']['理由表示地場産品類型'] ) && in_array( (string) $value, $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>>
+					<?php echo esc_html( $value ); ?>
+				</label>
+				<?php
+			}
+			?>
+		</td>
+	</tr>
 </table>

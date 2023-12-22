@@ -22,7 +22,7 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 	 * @var array
 	 */
 	public $settings = array(
-		'filename'      => 'n2_export_ledghome.csv',
+		'filename'      => 'ledghome.csv',
 		'delimiter'     => ',',
 		'charset'       => 'sjis-win',
 		'header_string' => '',
@@ -37,7 +37,7 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 			'定期便子' => '通常',
 			default => $this->data['params']['type'],
 		};
-		$this->settings['filename'] = "{$this->data['params']['type']}.csv";
+		$this->settings['filename'] = "ledghome_{$this->data['params']['type']}.csv";
 		/**
 		 * [hook] n2_item_export_ledghome_set_header
 		 */
@@ -70,6 +70,15 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 	 * @return $value
 	 */
 	public function check_error( $value, $name, $n2values ) {
+		// エラー未生成で必須漏れ
+		if ( ! isset( $this->data['error'][ $n2values['id'] ] ) && $n2values['_n2_required'] ) {
+			// Ledghomeに不要な項目を削除
+			$del      = array( 'アレルゲン' );
+			$required = array_filter( $n2values['_n2_required'], fn( $n ) => ! in_array( $n, $del, true ) );
+			foreach ( $required as $v ) {
+				$this->add_error( $n2values['id'], "NEONENG項目：「{$v}」が空欄です。" );
+			}
+		}
 		/**
 		 * [hook] n2_item_export_ledghome_check_error
 		 */
@@ -86,6 +95,8 @@ class N2_Item_Export_Ledghome extends N2_Item_Export_Base {
 	 * @return string $str 置換後の文字列
 	 */
 	protected function special_str_convert( $str ) {
+		global $n2;
+		$str = str_replace( array_keys( $n2->special_str_convert ), array_values( $n2->special_str_convert ), $str );
 		/**
 		 * [hook] n2_item_export_ledghome_special_str_convert
 		 */

@@ -129,7 +129,7 @@ abstract class N2_RMS_Base_API {
 	 * APIを実行するサムシング
 	 */
 	private static function call() {
-		$method = static::$data['params']['call'] ?? '';
+		$method      = static::$data['params']['call'] ?? '';
 		$is_callable = is_callable( array( 'static', $method ) );
 		static::check_fatal_error( $is_callable, "未定義のmethodです: {$method}" );
 		$arguments = static::$data['params'];
@@ -165,7 +165,7 @@ abstract class N2_RMS_Base_API {
 	 */
 	public static function request_multiple( $requests, $options = array() ) {
 		$requests = array_map(
-			function( $request ) {
+			function ( $request ) {
 				$request['headers'] = array(
 					...$request['headers'] ?? array(),
 					...static::$data['header'],
@@ -353,7 +353,7 @@ abstract class N2_RMS_Base_API {
 		$tmp_name = $files['tmp_name'];
 
 		// 一時ディレクトリ作成
-		$tmp  = wp_tempnam( __CLASS__, get_theme_file_path() . '/' );
+		$tmp = wp_tempnam( __CLASS__, get_theme_file_path() . '/' );
 		unlink( $tmp );
 		mkdir( $tmp );
 		foreach ( $tmp_name as $k => $file ) {
@@ -366,7 +366,7 @@ abstract class N2_RMS_Base_API {
 			$files['tmp_name'][ $k ] = $local_file;
 		}
 		return array(
-			'files' => $files,
+			'files'    => $files,
 			'tmp_path' => $tmp,
 		);
 	}
