@@ -11,6 +11,7 @@ export default ($:any = jQuery) => {
 	const hypernavi_generator = () => {
 		$('.interface-complementary-area.edit-post-sidebar .components-panel').html('<iframe id="n2-hypernavi" src="edit.php?post_type=post">');
 		$('#n2-hypernavi').on('load', e => {
+			$(e.target).contents().find('[href$="post-new.php"]').attr('target', '_parent');
 			$(e.target).contents().find('.row-title').on('click', async e => {
 				e.preventDefault();
 				const id = $(e.target).parents('tr').attr('id').replace(/[^0-9]/g, '');
