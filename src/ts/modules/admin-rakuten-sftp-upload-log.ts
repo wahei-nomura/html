@@ -2,6 +2,17 @@ import axios from 'axios';
 import Vue from 'vue/dist/vue.min';
 import {mapState,mapActions} from 'vuex/dist/vuex.min';
 
+
+class UploadPoppoverDate {
+	success   = [];
+	error     = [];
+	diff      = null;
+	rms       = null;
+	rmsOrigin = null;
+	unique    = null;
+	id        = null;
+}
+
 export default Vue.extend({
 	async created(){
 		await this.updateSFTPLog();
@@ -9,6 +20,7 @@ export default Vue.extend({
 	data() {
 		return {
 			linkIndex: null,
+			linkData : new UploadPoppoverDate(),
 			logTable: {
 				転送モード: {
 					th: {
@@ -46,7 +58,6 @@ export default Vue.extend({
 			popover: {
 				'アップロード': {
 					display: '',
-					id     : null,
 				}
 			},
 		};
@@ -83,8 +94,6 @@ export default Vue.extend({
 			})
 			return await Promise.all(requests).then(responses=>{
 				return responses.reduce((obj,res)=>{
-					console.log(res);
-					
 					if(res.data.manageNumber) {
 						obj[res.data.manageNumber] = res.data?.images?.map(image=>image.location) ?? [];
 					}
@@ -97,7 +106,6 @@ export default Vue.extend({
 				},{});
 			});
 		},
-
 		diffImageItems (log, images) {
 			const diffItemNumbers = Object.keys(images).map(manageNumber=>{
 				// 明らかに配列の長さが違う場合は必要
@@ -128,40 +136,26 @@ export default Vue.extend({
 		async linkImage2RMS ( log ) {
 			// N2 更新用
 			const updateLog = structuredClone(log);
-			const rmsImages = await this.getRmsItemImages(updateLog);
-
-			console.log(rmsImages);
+			if ( ! this.linkData.id || this.linkData.id !== log.id ) {
+				this.popover.アップロード.display = '情報取得中...';
+				if ( ! await this.setLinkData(log) ) {
+					this.popover.アップロード.display ='取得に失敗しました'
+					return
+				}
+				this.linkData.id = log.id;
+			}
 			
-
-			// 更新の必要性を確認
-			const updateItems = this.diffImageItems(updateLog,rmsImages);
-			if(! Object.keys(updateItems).length){
+			
+			if(! Object.keys(this.linkData.diff).length){
 				alert('更新不要です');
 				return;
 			};
 
 			// 確認用メッセージ作成
-			let confirmMessage = [];
-			Object.keys(updateItems).forEach(manageNumber=>{
-				if ( updateItems[manageNumber].add ){
-					confirmMessage.push('【追加】' + manageNumber);
-					confirmMessage = [...confirmMessage,...updateItems[manageNumber].add];
-				}
-				if (updateItems[manageNumber].remove){
-					confirmMessage.push('【解除】' + manageNumber);
-					confirmMessage = [...confirmMessage,...updateItems[manageNumber].remove];
-				}
-			});
-			if(! confirmMessage.length){
-				alert('更新不要です');
-				return;
-			};
-			if (!confirm('以下の内容で更新しますか？\n'+ confirmMessage.join('\n'))){
-				return
-			}
+			
 
 			// RMS更新用
-			const itemPatchRequests = Object.keys(updateItems).map(manageNumber => {
+			const itemPatchRequests = Object.keys(this.linkData.diff).map(manageNumber => {
 				const formData = new FormData();
 				formData.append('manageNumber', manageNumber);
 				formData.append('n2nonce', this.n2nonce);
@@ -191,7 +185,7 @@ export default Vue.extend({
 				// id削除
 				delete updateLog.id, updateLog.display;
 				// 画像用revision追加
-				updateLog.RMS商品画像.変更前 = rmsImages;
+				updateLog.RMS商品画像.変更前 = this.linkData.rmsOrigin;
 				updateLog.RMS商品画像.変更後 = updateLog.アップロード.data;
 				formData.append('post_content', JSON.stringify(updateLog));
 				await axios.post(
@@ -200,6 +194,7 @@ export default Vue.extend({
 				);
 				// 最新情報に更新
 				await this.updateSFTPLog()
+				this.linkData.id = null;
 				alert('更新完了しました！')
 			})
 		},
@@ -215,32 +210,35 @@ export default Vue.extend({
 				'_blank'
 			)
 		},
-		async formatUploadLogs(log){
-			this.popover.アップロード.id = null;
+		async setLinkData(log){
+			this.linkData = new UploadPoppoverDate();
 			// status(転送成功|転送失敗)用
 			const logToObj = (arr,status) => {
-				return arr.filter(d=> d.includes(status)).toSorted().reduce((obj,d)=>{
-					d = d.replace(`${status}:`,'');
-					const manageNumber = d.match(/([0-4]{1}[0-9]{1}[a-z]{4}[0-9]{3}|[a-z]{2,4}[0-9]{2,3})/)[0];
+				arr = arr.filter(d=> d.status.includes(status));
+				if (!arr.length) return {};
+				return arr.reduce((obj,d)=>{
+					const manageNumber = d.context.match(/([0-4]{1}[0-9]{1}[a-z]{4}[0-9]{3}|[a-z]{2,4}[0-9]{2,3})/)[0];
 					if ( ! obj[manageNumber] ) obj[manageNumber] = [];
 					obj[manageNumber] = [...obj[manageNumber],d];
 					return obj;
 				},{});
 			};
 			// フォルダ作成ログは除外する
-			const errorLog = logToObj(log.アップロード.log,'転送失敗');
-			const succesLog = logToObj(log.アップロード.log,'転送成功');
-			const succesKeys = Object.keys(succesLog);
-			if (!succesKeys.length ) {
-				this.popover.アップロード.display = '';
-				return;
-			}
+			this.linkData.error = logToObj(log.アップロード.log,'失敗');
+			this.linkData.success = logToObj(log.アップロード.log,'成功');
+			
+			const succesItems = Object.keys(this.linkData.success);
 			// 改変用にディープコピー
 			const updateLog = structuredClone(log);
-			let rmsImages = await this.getRmsItemImages(updateLog);
+			this.linkData.rmsOrigin = await this.getRmsItemImages(updateLog);
+
+			if( ! Object.keys(this.linkData.rmsOrigin).length ) {
+				return false;
+			}
+
 			// 更新の必要性を確認
-			let diffImages = this.diffImageItems(updateLog,rmsImages);
-			diffImages = Object.keys(diffImages).reduce((obj,manageNumber)=>{
+			const diffImages = this.diffImageItems(updateLog,this.linkData.rmsOrigin);
+			this.linkData.diff = Object.keys(diffImages).reduce((obj,manageNumber)=>{
 				obj[manageNumber] = {};
 				if (diffImages[manageNumber].add) obj[manageNumber].add = diffImages[manageNumber].add.map( image => {
 					const arr = image.split('/');
@@ -252,34 +250,77 @@ export default Vue.extend({
 				});
 				return obj
 			},{});
-			rmsImages = Object.keys(rmsImages).reduce((obj,manageNumber)=>{
-				obj[manageNumber] = rmsImages[manageNumber].map( image => {
+			this.linkData.rms = Object.keys(this.linkData.rmsOrigin).reduce((obj,manageNumber)=>{
+				obj[manageNumber] = this.linkData.rmsOrigin[manageNumber].map( image => {
 					const arr = image.split('/');
 					return arr[arr.length-1];
 				});
 				return obj
 			},{});
-			this.popover.アップロード.display = succesKeys.map(manageNumber => {
-				const unique = Array.from(
+			this.linkData.unique = succesItems.reduce((obj,manageNumber) => {
+				obj[manageNumber] = Array.from(
 					new Set([
-						...(succesLog[manageNumber] ?? []),
-						...(errorLog[manageNumber] ?? []),
-						...(rmsImages[manageNumber] ?? []),
-						...(diffImages[manageNumber]?.add ?? []),
-						...(diffImages[manageNumber]?.remove ?? []),
+						...(this.linkData.success?.[manageNumber]?.map((x:any)=>x.context) ?? []),
+						...(this.linkData.error?.[manageNumber]?.map((x:any)=>x.context) ?? []),
+						...(this.linkData.rms?.[manageNumber] ?? []),
+						...(this.linkData.diff?.[manageNumber]?.add ?? []),
+						...(this.linkData.diff?.[manageNumber]?.remove ?? []),
 					]).values()
-				);
-				return unique.map(image=>{
-					const row = [];
-					if(succesLog[manageNumber]?.includes(image)) row.push('転送成功:');
-					if(errorLog[manageNumber]?.includes(image)) row.push('転送失敗:');
-					row.push(image);
-					if(diffImages[manageNumber]?.add?.includes(image) ) row.push('<span class="ms-1 text-primary">追加</span>');
-					if(diffImages[manageNumber]?.remove?.includes(image)) row.push('<span class="ms-1 text-danger">解除</span>');
+				).sort();
+				return obj;
+			},{});
+			return true;
+		},
+		async formatUploadLogs(log){
+			if ( log.RMS商品画像.変更後 ) {
+				this.popover.アップロード.display = Object.keys(log.RMS商品画像.変更後).map(manageNumber=>{
+					const unique = Array.from(
+						new Set([
+							...(log.RMS商品画像.変更後[manageNumber]),
+							...(log.RMS商品画像.変更前[manageNumber] ?? []),
+						]).values()
+					).sort();
+					
+					return unique.map(image => {
+						const row = [];
+						const imagePathArr = image.split('/');
+						const imageName = imagePathArr[imagePathArr.length -1 ];
+
+						if ( log.RMS商品画像.変更前[manageNumber] && ! log.RMS商品画像.変更前[manageNumber].includes(image) ) row.push( '追加成功' );
+						if ( log.RMS商品画像.変更後[manageNumber] && ! log.RMS商品画像.変更後[manageNumber].includes(image) ) row.push( '解除成功' );
+
+						const preLog = log.アップロード.log.filter(x=>x.context.includes(imageName));
+						if ( !row.length && preLog.length ) row.push( preLog[0].status );
+						row.push(imageName)
+						
+						return row.join(' ');
+					}).join('<br>');
+				}).join('<br>');
+				this.linkData.id = log.id;
+				return;
+			}
+
+			// 更新
+			if ( ! ( this.linkData.id && this.linkData.id == log.id ) ) {
+				this.popover.アップロード.display = '情報取得中...';
+				if ( ! await this.setLinkData(log) ) {
+					return this.popover.アップロード.display ='取得に失敗しました'
+				}
+				this.linkData.id = log.id;
+			}
+			this.popover.アップロード.display = Object.keys(this.linkData.unique).map(manageNumber => {
+				return this.linkData.unique[manageNumber].toSorted().map(image=>{
+					let row = [];
+					const success = this.linkData.success?.[manageNumber]?.filter(x=>x.context === image ) ?? [];
+					if(success.length) row = [...row, success[0].status,success[0].context];
+					const error = this.linkData.error?.[manageNumber]?.filter(x=>x.context === image ) ?? [];
+					if(error.length) row = [...row, error[0].status,error[0].context];
+					if(!row.length) row.push(image)
+					if(this.linkData.diff[manageNumber]?.add?.includes(image) ) row.push('<span class="ms-1 text-primary">追加</span>');
+					if(this.linkData.diff[manageNumber]?.remove?.includes(image)) row.push('<span class="ms-1 text-danger">解除</span>');
 					return row.join(' ');
 				}).join('<br>')
 			}).join('<br>');
-			this.popover.アップロード.id = log.id;
 		},
 	},
 	template:`
@@ -288,7 +329,7 @@ export default Vue.extend({
 			popover="auto" id="popover-upload"
 			style="width: 80%; max-height: 80%; overflow-y: scroll;"
 			v-html="popover.アップロード.display"
-			:class="{loading:!popover.アップロード.id}"
+			:class="{loading:!linkData.id}"
 		>
 		</div>
 	<table class="table align-middle lh-1 text-center">
@@ -317,7 +358,7 @@ export default Vue.extend({
 						<template v-else-if="meta==='RMS連携' && log.転送モード==='img_upload'">
 							<button
 								@click="setLink(log)"
-								:disabled="! log?.アップロード.data"
+								:disabled="! log?.アップロード.data || log.RMS商品画像.変更後"
 								type="button" class="btn btn-sm btn-secondary"
 							>
 								<span :class="{'spinner-border spinner-border-sm':linkIndex===log.id}"></span>
@@ -327,7 +368,7 @@ export default Vue.extend({
 						<template v-else-if="meta==='RMS連携履歴' && log.転送モード==='img_upload'">
 							<button
 								@click="displayHistory(log)"
-								:disabled="! log.RMS商品画像.変更後 || !Object.keys(log.RMS商品画像.変更後).length"
+								:disabled="! log.RMS商品画像.変更後"
 								type="button" class="btn btn-sm btn-outline-warning"
 							>
 								時を見る

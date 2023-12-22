@@ -510,26 +510,16 @@ class N2_Rakuten_SFTP {
 		$this->check_fatal_error( $this->data['params']['update'] ?? '', wp_json_encode( $data, JSON_UNESCAPED_UNICODE ) );
 
 		// 最新情報に更新
-		$item_api               = new N2_RMS_Item_API();
-		$rms_images             = array_map(
+		$item_api   = new N2_RMS_Item_API();
+		$rms_images = array_map(
 			fn ( $item_code ) => array_map(
 				fn( $image ) => $image['location'],
 				$item_api->items_get( $item_code )['images'],
 			),
 			array_keys( $data['RMS商品画像']['変更後'] ),
 		);
-		$rms_images             = array_combine( array_keys( $data['RMS商品画像']['変更後'] ), $rms_images );
-		$data['RMS商品画像']['変更後'] = $data['RMS商品画像']['変更前'];
-		$data['RMS商品画像']['変更前'] = $rms_images;
-
-		$post = array(
-			'ID'           => $revision->post_parent,
-			'post_status'  => $revision->post_status,
-			'post_type'    => $this->data['post_type'],
-			'post_title'   => $revision->post_title,
-			'post_content' => wp_json_encode( $data, JSON_UNESCAPED_UNICODE ),
-		);
-		foreach ( $data['RMS商品画像']['変更後'] as $item_code => $path_arr ) {
+		$rms_images = array_combine( array_keys( $data['RMS商品画像']['変更後'] ), $rms_images );
+		foreach ( $data['RMS商品画像']['変更前'] as $item_code => $path_arr ) {
 			if ( empty( array_diff( $path_arr, $rms_images[ $item_code ] ) ) &&
 				empty( array_diff( $rms_images[ $item_code ], $path_arr ) )
 			) {
@@ -546,12 +536,24 @@ class N2_Rakuten_SFTP {
 			);
 			$this->data['log'][ $item_code ] = $item_api->items_patch( $item_code, wp_json_encode( $body ) );
 		}
+
 		if ( empty( $this->data['log'] ) ) {
 			$this->data['log'] = array(
 				'message' => '更新不要です',
 			);
 			return;
 		}
+
+		// 更新情報をリセット
+		$data['RMS商品画像']['変更後'] = null;
+		unset( $data['RMS商品画像']['変更前'] );
+		$post   = array(
+			'ID'           => $revision->post_parent,
+			'post_status'  => $revision->post_status,
+			'post_type'    => $this->data['post_type'],
+			'post_title'   => $revision->post_title,
+			'post_content' => wp_json_encode( $data, JSON_UNESCAPED_UNICODE ),
+		);
 		$author = $this->get_userid_by_usermeta( 'last_name', $data['事業者コード'] ?? '' );
 		if ( $author ) {
 			$post['post_author'] = $author;
