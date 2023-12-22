@@ -18,7 +18,7 @@ export default (target: string, $: any = jQuery) => {
 		$("#n2-darkmode-toggler").on('click',()=>{
 			$('body').toggleClass('n2-darkmode');
 			$('#n2-darkmode-toggler').toggleClass('is-pressed');
-			document.cookie = window['n2'].cookie['n2-darkmode'] ? 'n2-darkmode=true; max-age=0' : 'n2-darkmode=true';
+			document.cookie = ! $('body').hasClass('n2-darkmode') ? 'n2-darkmode=true; max-age=0' : 'n2-darkmode=true';
 		});
 	})
 }
