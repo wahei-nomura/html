@@ -28,18 +28,6 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 		'charset'       => 'sjis',
 		'header_string' => '', // 基本は自動設定、falseでヘッダー文字列無し
 	);
-	/**
-	 * RMS
-	 *
-	 * @var array
-	 */
-	protected $rms = array(
-		'header'       => null,
-		'cabinet'      => array(),
-		'use_api'      => null,
-		'ignore_error' => false,
-		'image_error'  => false,
-	);
 
 	/**
 	 * constructor
@@ -77,7 +65,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 
 		// 商品画像をあらかじめ取得
 		$sku_list = array_map(
-			function( $item ) {
+			function ( $item ) {
 				return mb_strtolower( $item['返礼品コード'] );
 			},
 			$this->data['n2data'],
@@ -153,7 +141,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 			$data[ $id ] = array_map( null, ...$data[ $id ] );
 			// 複数行のレベルについて次元削除
 			$data[ $id ] = array_map(
-				function( $row ) {
+				function ( $row ) {
 					return array( $row[0], ...$row[1], $row[2] );
 				},
 				$data[ $id ],
@@ -210,7 +198,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 			preg_match( '/^PC用商品説明文$/', $val )  => $this->pc_item_description( $n2values ),
 			preg_match( '/^スマートフォン用商品説明文$/', $val )  => $this->sp_item_description( $n2values ),
 			preg_match( '/^PC用販売説明文$/', $val )  => $this->pc_sales_description( $n2values ),
-			preg_match( '/(?<=商品画像タイプ)[0-9]{1,}/', $val, $match ) & ( $match[0] - 1 < count( array_filter( explode( ' ', $this->get_img_urls( $n2values ) ) ) ) )  => 'CABINET',
+			preg_match( '/(?<=商品画像タイプ)[0-9]{1,}/', $val, $match ) => isset( $match[0] ) && ( $match[0] - 1 < count( array_filter( explode( ' ', $this->get_img_urls( $n2values ) ) ) ) ) ? 'CABINET' : '',
 			preg_match( '/(?<=商品画像パス)[0-9]{1,}/', $val, $match )  => $this->get_relative_img_path( $n2values, $match[0] - 1 ),
 			default => '',
 		};
@@ -237,10 +225,10 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 			$name   = array_shift( $select );
 			$data[] = match ( 1 ) {
 				preg_match( '/^商品管理番号（商品URL）$/', $val )  => mb_strtolower( $n2values['返礼品コード'] ),
-				preg_match( '/^選択肢タイプ$/', $val ) => 's',// s：セレクトボックス　c：チェックボックス　f：フリーテキスト　i：項目選択肢別在庫　全角・大文字を半角に自動的に変換。
-				preg_match( '/^商品オプション項目名$/', $val ) => $name,// 255byteまで。
-				preg_match( '/(?<=商品オプション選択肢)[0-9]{1,}/', $val, $match ) => $select[ $match[0] - 1 ] ?? '',// 32byteまで。
-				preg_match( '/^商品オプション選択必須$/', $val ) => 1,// 空欄可。0：選択必須としない 1：選択必須とする
+				preg_match( '/^選択肢タイプ$/', $val ) => 's', // s：セレクトボックス　c：チェックボックス　f：フリーテキスト　i：項目選択肢別在庫　全角・大文字を半角に自動的に変換。
+				preg_match( '/^商品オプション項目名$/', $val ) => $name, // 255byteまで。
+				preg_match( '/(?<=商品オプション選択肢)[0-9]{1,}/', $val, $match ) => $select[ $match[0] - 1 ] ?? '', // 32byteまで。
+				preg_match( '/^商品オプション選択必須$/', $val ) => 1, // 空欄可。0：選択必須としない 1：選択必須とする
 				default => '',
 			};
 		}
@@ -267,6 +255,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 			preg_match( '/^販売価格$/', $val )  => $n2values['寄附金額'],
 			preg_match( '/^のし対応$/', $val )  =>  ( '有り' === $n2values['のし対応'] ) ? 1 : '',
 			preg_match( '/^在庫数$/', $val )  => 0,
+			preg_match( '/^在庫あり時納期管理番号$/', $val )  => $n2values['楽天納期情報'],
 			preg_match( '/^送料$/', $val )  => 1,
 			preg_match( '/^カタログIDなしの理由$/', $val )  => 5,
 			preg_match( '/^代引料$/', $val )  => 1,
@@ -291,27 +280,19 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 		$hook = current_filter();
 		$fnc  = str_replace( mb_strtolower( get_class( $this ) ) . '_', '', $hook );
 
-		// 存在する画像ファイルだけの配列を生成する
-		$exist_images = function () use ( $n2values, $name ) {
-			return array_filter(
-				$this->make_img_urls( $n2values ),
-				fn( $image ) => in_array( $image, explode( ' ', $n2values[ $name ] ), true ),
-			);
-		};
-
 		// レベル毎のエラー
 		switch ( $fnc ) {
 			case 'walk_item_values':
 				/**
 				 * 画像エラー
 				 */
-				$images = match ( $name ) {
-					'商品画像URL' => $exist_images(),
-					default => false,
-				};
-
-				if ( false !== $images ) {
-					$max_index = end( array_keys( $images ) );
+				if ( 'SKU画像パス' === $name ) {
+					$images          = array_filter(
+						$this->make_img_urls( $n2values ),
+						fn( $image ) => in_array( $image, explode( ' ', $n2values['商品画像URL'] ), true ),
+					);
+					$image_index_arr = array_keys( $images );
+					$max_index       = end( $image_index_arr );
 					for ( $index = 0; $index <= $max_index; $index++ ) {
 						$gift_code = mb_strtolower( $n2values['返礼品コード'] );
 						$image     = $gift_code . ( 0 !== $index ? '-' . $index : '' ) . '.jpg';
@@ -321,7 +302,6 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 						}
 					}
 				}
-
 				break;
 			case 'walk_option_values':
 				break;

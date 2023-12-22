@@ -29,6 +29,9 @@ global $n2;
 		<span id="n2-admin-post-list-tool-close" class="dashicons dashicons-no-alt" @click="document.getElementById('n2-admin-post-list-tool').hidePopover()"></span>
 	</div>
 	<div id="n2-admin-post-list-tool-content">
+		<div v-if="item._n2_required && item._n2_required.length" id="n2-admin-post-list-tool-content-required">
+			最低必須漏れ：　{{item._n2_required.join('、')}}
+		</div>
 		<table class="widefat striped">
 			<tr>
 				<th>返礼品名</th>

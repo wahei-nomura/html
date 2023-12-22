@@ -12,9 +12,15 @@ global $n2;
 	<div id="n2-checked-posts-header">
 		<span v-text="`${ids.length} 件選択中`"></span>
 		<span class="dashicons dashicons-no-alt" @click="active = ! active"></span>
-		<ul id="n2-checked-posts-actions">
+		<ul
+			id="n2-checked-posts-actions"
+			@mouseleave="focusHover ? null : set_hover_list()"
+		>
 			<?php if ( current_user_can( 'ss_crew' ) ) : ?>
-			<li>
+			<li
+				@mouseenter="set_hover_list('エクスポート')"
+				:class="{'is-hover': 'エクスポート'=== hover_list}"
+			>
 				エクスポート
 				<div class="childs">
 					<form method="post" action="admin-ajax.php" target="_blank">
@@ -28,6 +34,7 @@ global $n2;
 							<template v-if="n2.settings.N2.出品ポータル.includes('楽天')">
 								<template v-if="n2.settings.楽天.SKU">
 									<label><input type="radio" name="action" value="n2_item_export_rakuten_sku" v-model="fd.action"> 楽天</label>
+									<label><input type="radio" name="action" value="n2_item_export_rakuten_cat" v-model="fd.action"> 楽天 [ item-cat.csv ]</label>
 								</template>
 								<template v-else>
 									<label><input type="radio" name="action" value="n2_item_export_rakuten" v-model="fd.action"> 楽天 [ item.csv ]</label>
@@ -55,7 +62,11 @@ global $n2;
 				</div>
 			</li>
 			<?php endif; ?>
-			<li style="padding: 0;">
+			<li
+				style="padding: 0;"
+				@mouseenter="set_hover_list('印刷')"
+				:class="{'is-hover': '印刷'=== hover_list}"
+			>
 				<form method="post" action="admin-ajax.php" target="_blank">
 					<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
 					<input type="hidden" name="action" value="n2_print_out">
@@ -66,16 +77,33 @@ global $n2;
 					<button>印刷</button>
 				</form>
 			</li>
-			<li style="padding: 0;" v-if="items.filter(v=>v.商品画像 && v.商品画像.length).length">
-				<form method="post" action="admin-ajax.php">
-					<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
-					<input type="hidden" name="action" value="n2_download_images_by_id">
-					<input type="hidden" name="ids" :value="ids.join(',')">
-					<button>画像ダウンロード</button>
-				</form>
+			<li
+				v-if="items.filter(v=>v.商品画像 && v.商品画像.length).length"
+				@mouseenter="set_hover_list('画像ダウンロード')"
+				:class="{'is-hover': '画像ダウンロード'=== hover_list}"
+			>
+				画像ダウンロード
+				<div class="childs">
+					<form method="post" action="admin-ajax.php">
+						<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
+						<input type="hidden" name="action" value="n2_download_images_by_id">
+						<input type="hidden" name="ids" :value="ids.join(',')">
+						<div style="margin-bottom: 1em;">
+							<span>モード選択 ：　</span>
+							<label><input type="checkbox" name="type[]" value="フルサイズ" checked> フルサイズ</label>
+							<label v-if="n2.settings.N2.出品ポータル.includes('楽天')"><input type="checkbox" name="type[]" value="楽天"> 楽天（700×700）</label>
+							<label v-if="n2.settings.N2.出品ポータル.includes('ふるさとチョイス')"><input type="checkbox" name="type[]" value="チョイス"> チョイス（700×435）</label>
+						</div>
+						<button>画像ダウンロード</button>
+					</form>
+				</div>
 			</li>
 			<?php if ( current_user_can( 'ss_crew' ) || current_user_can( 'local-government' ) ) : ?>
-			<li>
+			<li
+				@mouseleave="focusHover ? null : set_hover_list()"
+				@mouseenter="set_hover_list('情報変更')"
+				:class="{'is-hover': '情報変更'=== hover_list}"
+			>
 				情報変更
 				<div class="childs">
 					<form method="post" action="admin-ajax.php" onsubmit="if ( ! confirm('本当に変更してよろしいですか？') ) return false;">
@@ -97,12 +125,16 @@ global $n2;
 						</div>
 						<div style="margin-bottom: 1em;">
 							<span>ユーザー変更 ：　</span>
-							<select name="change_author">
-								<option value="">選択してください</option>
-								<?php foreach ( get_users( 'role=jigyousya' ) as $user ) : ?>
-									<option value="<?php echo $user->ID; ?>"><?php echo $user->display_name; ?></option>
-								<?php endforeach; ?>
-							</select>
+							<input type="hidden" name="change_author" :value="change_author_id()">
+							<input
+								type="text" list="author_list"
+								@focus="focusHover = true"
+								@blur="focusHover = false"
+								v-model="change_author_name"
+								:disabled="!users.length">
+							<datalist id="author_list" style="position:relative;">
+								<option v-for="user in users" :value="user.display_name"></option>
+							</datalist>
 						</div>
 						<button>変更</button>
 						<div style="margin-top: 1em;">

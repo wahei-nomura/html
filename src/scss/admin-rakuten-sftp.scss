@@ -1,0 +1,11 @@
+#popover-upload.loading {
+	animation: 1s ease-in-out infinite poppover-loading;
+}
+@keyframes poppover-loading {
+	0%, 100% {
+		background: gray;
+	}
+	50% {
+		background: white;
+	}
+}

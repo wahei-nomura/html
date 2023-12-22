@@ -50,6 +50,19 @@ class N2_Item_Export_Base {
 	public function __construct() {
 		add_filter( mb_strtolower( get_class( $this ) ) . '_walk_values', array( $this, 'check_error' ), 10, 3 );
 		add_action( 'wp_ajax_' . mb_strtolower( get_class( $this ) ), array( $this, 'export' ) );
+		add_filter( mb_strtolower( get_class( $this ) ) . '_filename', array( $this, 'add_town_to_filename' ) );
+	}
+
+	/**
+	 * ファイル名に自治体名を追加する
+	 * @param  string $filename filename
+	 * @return string
+	 */
+	public function add_town_to_filename( $filename ) {
+		global $n2;
+		preg_match( '/\.(tsv|csv)/', $filename, $match );
+		$extensions = $match[0];
+		return str_replace( $extensions, "_{$n2->town}{$extensions}", $filename );
 	}
 
 	/**
@@ -128,6 +141,7 @@ class N2_Item_Export_Base {
 			'事業者名',
 			'ステータス',
 			...$this->data['n2field'],
+			'_n2_required',
 		);
 		foreach ( N2_Items_API::get_items() as $v ) {
 			// fieldを絞る
@@ -154,12 +168,13 @@ class N2_Item_Export_Base {
 	protected function set_header() {
 		// n2dataをもとに配列を作成
 		$header = reset( $this->data['n2data'] );
-		unset( $header['id'], $header['ステータス'] );
-		$this->data['header'] = array_keys( $header );
+		$header = array_keys( $header );
+		// アンダースコアで始まるものを排除
+		$header = array_filter( $header, fn( $v ) => ! preg_match( '/^_/', $v ) );
 		/**
 		 * [hook] n2_item_export_base_set_header
 		 */
-		$this->data['header'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_header', $this->data['header'] );
+		$this->data['header'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_header', $header );
 	}
 
 	/**
@@ -364,7 +379,6 @@ class N2_Item_Export_Base {
 	 * ダウンロード
 	 */
 	private function download() {
-		global $n2;
 		/**
 		 * [hook] n2_item_export_base_charset
 		 */
@@ -372,7 +386,7 @@ class N2_Item_Export_Base {
 		/**
 		 * [hook] n2_item_export_base_filename
 		 */
-		$filename = apply_filters( mb_strtolower( get_class( $this ) ) . '_filename', $n2->town . $this->settings['filename'] );
+		$filename = apply_filters( mb_strtolower( get_class( $this ) ) . '_filename', $this->settings['filename'] );
 		/**
 		 * [hook] n2_item_export_base_download_add_btn
 		 */
@@ -459,14 +473,21 @@ class N2_Item_Export_Base {
 
 	/**
 	 * デバッグ用
-	 *
-	 * @param floot $time 開始時刻
+	 */
+	private function json() {
+		header( 'Content-Type: application/json; charset=utf-8' );
+		echo wp_json_encode( $this->data, JSON_UNESCAPED_UNICODE );
+		exit;
+	}
+
+	/**
+	 * デバッグ用
 	 */
 	private function debug() {
 		$this->set_header_string();
 		$this->set_data_string();
-		header( 'Content-Type: application/json; charset=utf-8' );
 		$time = microtime( true ) - $this->data['time']['start'];
+		echo '<style>body{margin:0;}</style><pre style="background: black;color: white;">';
 		print_r( '実行結果: ' . $time . '秒 ' ); // 実行時間を出力する
 		print_r( $this->settings );
 		print_r( $this->data );
