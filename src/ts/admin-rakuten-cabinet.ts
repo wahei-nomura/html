@@ -23,7 +23,7 @@ jQuery( async function($){
 	}
 
 	window['n2'].vue = new Vue({
-		el: '#ss-cabinet',
+		el: '#n2-cabinet',
 		components :{
 			App,
 			Modals,
@@ -61,7 +61,7 @@ jQuery( async function($){
 			]),
 		},
 		template: `
-		<div id="ss-cabinet" class="container-fluid">
+		<div id="n2-cabinet" class="container-fluid">
 			<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
 			<App/>
 			<Modals/>

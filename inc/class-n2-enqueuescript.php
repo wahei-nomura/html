@@ -45,6 +45,7 @@ class N2_Enqueuescript {
 			'toplevel_page_n2_crew_setup_menu' => 'admin-setup',
 			'toplevel_page_n2_rakuten_menu' => 'admin-rakuten-upload',
 			mb_strtolower( rawurlencode( '楽天_page_n2_rakuten_menu_rms-cabinet' ) ) => 'admin-rakuten-cabinet',
+			mb_strtolower( rawurlencode( '楽天_page_n2_rakuten_menu_sftp-explorer' ) ) => 'admin-rakuten-explorer',
 			'profile.php', 'user-edit.php' => 'admin-user-profile',
 			'user-new.php' => 'admin-user-new',
 			'users.php' => 'admin-users',

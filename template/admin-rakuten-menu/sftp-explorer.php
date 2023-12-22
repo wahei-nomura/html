@@ -71,14 +71,13 @@ function array_flatten( $arr ) {
 	return iterator_to_array( $iterator, false );
 }
 
-$tree = build_tree( $args['dirlist'], '' );
-
-// フラット化
-echo '<pre>';
-var_dump( $tree );
-echo '</pre><br>';
+// $tree = build_tree( $args['dirlist'], '' );
 
 ?>
+<div id="ss-sftp-explorer">
+	<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
+</div>
+
 <h3>SFTPサーバー</h3>
 <div class="row border-top border-dark" style="height: calc(100vh - 205px);">
 	<aside id="n2_sftp_explorer__left-aside" class="col-3">
@@ -89,7 +88,7 @@ echo '</pre><br>';
 					<span data-path="/">root</span>
 					<input type="checkbox">
 				</label>
-				<?php build_tree_ul_element( $tree ); ?>
+				<?php # build_tree_ul_element( $tree ); ?>
 			</li>
 		</ul>
 	</aside>
