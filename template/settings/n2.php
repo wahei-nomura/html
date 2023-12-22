@@ -19,7 +19,7 @@ $settings = array(
 		<td>
 			<input type="hidden" name="n2_settings[N2][稼働中]">
 			<label>
-				<input type="checkbox" name="n2_settings[N2][稼働中]" value="1" <?php checked( $n2->settings['N2']['稼働中'] ?? '' ); ?> <?php wp_readonly( $n2->settings['N2']['稼働中'] && 'administrator' !== $n2->current_user->roles[0] ); ?><?php echo $n2->settings['N2']['稼働中'] && 'administrator' !== $n2->current_user->roles[0] ? ' onclick="return false;"' : ''; ?>> N2稼働中
+				<input type="checkbox" name="n2_settings[N2][稼働中]" value="1" <?php checked( $n2->settings['N2']['稼働中'] ?? '' ); ?> <?php wp_readonly( ! $n2->settings_access ); ?><?php echo ! $n2->settings_access ? ' onclick="return false;"' : ''; ?>> N2稼働中
 			</label>
 		</td>
 	</tr>
@@ -28,7 +28,7 @@ $settings = array(
 		<td>
 			<?php foreach ( $settings['LedgHOME'] as $name => $label ) : ?>
 			<label style="margin: 0 2em 0 0;">
-				<input type="radio" name="n2_settings[N2][LedgHOME]" value="<?php echo $name; ?>" <?php checked( $n2->settings['N2']['LedgHOME'] ?? '', $name ); ?> <?php wp_readonly( $n2->settings['N2']['稼働中'] && 'administrator' !== $n2->current_user->roles[0] ); ?><?php echo $n2->settings['N2']['稼働中'] && 'administrator' !== $n2->current_user->roles[0] ? ' onclick="return false;"' : ''; ?>> <?php echo $label; ?>
+				<input type="radio" name="n2_settings[N2][LedgHOME]" value="<?php echo $name; ?>" <?php checked( $n2->settings['N2']['LedgHOME'] ?? '', $name ); ?> <?php wp_readonly( ! $n2->settings_access ); ?><?php echo ! $n2->settings_access ? ' onclick="return false;"' : ''; ?>> <?php echo $label; ?>
 			</label>
 			<?php endforeach; ?>
 		</td>
@@ -38,7 +38,7 @@ $settings = array(
 		<td>
 			<?php foreach ( $args->data['商品タイプ'] as $v ) : ?>
 			<label style="margin: 0 2em 0 0;">
-				<input type="checkbox" name="n2_settings[N2][商品タイプ][]" value="<?php echo $v; ?>" <?php checked( in_array( $v, $n2->settings['N2']['商品タイプ'], true ) ); ?> <?php wp_readonly( $n2->settings['N2']['稼働中'] && 'administrator' !== $n2->current_user->roles[0] ); ?><?php echo $n2->settings['N2']['稼働中'] && 'administrator' !== $n2->current_user->roles[0] ? ' onclick="return false;"' : ''; ?>> <?php echo $v; ?>
+				<input type="checkbox" name="n2_settings[N2][商品タイプ][]" value="<?php echo $v; ?>" <?php checked( in_array( $v, $n2->settings['N2']['商品タイプ'], true ) ); ?> <?php wp_readonly( ! $n2->settings_access ); ?><?php echo ! $n2->settings_access ? ' onclick="return false;"' : ''; ?>> <?php echo $v; ?>
 			</label>
 			<?php endforeach; ?>
 			<input type="hidden" name="n2_settings[N2][商品タイプ][]">
@@ -49,7 +49,7 @@ $settings = array(
 		<td>
 			<?php foreach ( $args->portal_sites as $portal ) : ?>
 			<label style="margin: 0 2em 0 0;">
-				<input type="checkbox" name="n2_settings[N2][出品ポータル][]" value="<?php echo esc_attr( $portal ); ?>" <?php checked( in_array( $portal, $n2->settings['N2']['出品ポータル'], true ) ); ?> <?php wp_readonly( $n2->settings['N2']['稼働中'] && 'administrator' !== $n2->current_user->roles[0] ); ?><?php echo $n2->settings['N2']['稼働中'] && 'administrator' !== $n2->current_user->roles[0] ? ' onclick="return false;"' : ''; ?>> <?php echo $portal; ?>
+				<input type="checkbox" name="n2_settings[N2][出品ポータル][]" value="<?php echo esc_attr( $portal ); ?>" <?php checked( in_array( $portal, $n2->settings['N2']['出品ポータル'], true ) ); ?> <?php wp_readonly( ! $n2->settings_access ); ?><?php echo ! $n2->settings_access ? ' onclick="return false;"' : ''; ?>> <?php echo $portal; ?>
 			</label>
 			<?php endforeach; ?>
 			<input type="hidden" name="n2_settings[N2][出品ポータル][]">
@@ -60,7 +60,7 @@ $settings = array(
 		<td>
 			<input type="hidden" name="n2_settings[N2][自治体確認]">
 			<label>
-				<input type="checkbox" name="n2_settings[N2][自治体確認]" value="1" <?php checked( $n2->settings['N2']['自治体確認'] ); ?> <?php wp_readonly( $n2->settings['N2']['稼働中'] && 'administrator' !== $n2->current_user->roles[0] ); ?><?php echo $n2->settings['N2']['稼働中'] && 'administrator' !== $n2->current_user->roles[0] ? ' onclick="return false;"' : ''; ?>> 自治体確認する
+				<input type="checkbox" name="n2_settings[N2][自治体確認]" value="1" <?php checked( $n2->settings['N2']['自治体確認'] ); ?> <?php wp_readonly( ! $n2->settings_access ); ?><?php echo ! $n2->settings_access ? ' onclick="return false;"' : ''; ?>> 自治体確認する
 			</label>
 		</td>
 	</tr>
@@ -69,7 +69,7 @@ $settings = array(
 		<td>
 			<input type="hidden" name="n2_settings[N2][提供事業者名]">
 			<label>
-				<input type="checkbox" name="n2_settings[N2][提供事業者名]" value="1" <?php checked( $n2->settings['N2']['提供事業者名'] ); ?> <?php wp_readonly( $n2->settings['N2']['稼働中'] && 'administrator' !== $n2->current_user->roles[0] ); ?><?php echo $n2->settings['N2']['稼働中'] && 'administrator' !== $n2->current_user->roles[0] ? ' onclick="return false;"' : ''; ?>> 提供事業者名を入力可能にする
+				<input type="checkbox" name="n2_settings[N2][提供事業者名]" value="1" <?php checked( $n2->settings['N2']['提供事業者名'] ); ?> <?php wp_readonly( ! $n2->settings_access ); ?><?php echo ! $n2->settings_access ? ' onclick="return false;"' : ''; ?>> 提供事業者名を入力可能にする
 			</label>
 		</td>
 	</tr>

@@ -23,7 +23,7 @@ $hide = array(
 		<th>カテゴリー</th>
 		<td>
 			<p>※改行区切りでカテゴリーを記入</p>
-			<textarea name="n2_settings[LedgHOME][カテゴリー]" rows="10" style="width: 100%;" <?php wp_readonly( $n2->settings['N2']['稼働中'] && 'administrator' !== $n2->current_user->roles[0] ); ?>><?php echo esc_attr( $n2->settings['LedgHOME']['カテゴリー'] ); ?></textarea>
+			<textarea name="n2_settings[LedgHOME][カテゴリー]" rows="10" style="width: 100%;" <?php wp_readonly( ! $n2->settings_access ); ?>><?php echo esc_attr( $n2->settings['LedgHOME']['カテゴリー'] ); ?></textarea>
 		</td>
 	</tr>
 	<tr <?php echo $hide['ledghome']; ?>>
@@ -31,7 +31,7 @@ $hide = array(
 		<td>
 			<?php foreach ( $settings['送料'] as $v ) : ?>
 			<label style="margin: 0 2em 0 0;">
-				<input type="radio" name="n2_settings[LedgHOME][送料]" value="<?php echo $v; ?>" <?php checked( $n2->settings['LedgHOME']['送料'], $v ); ?> <?php wp_readonly( $n2->settings['N2']['稼働中'] && 'administrator' !== $n2->current_user->roles[0] ); ?><?php echo $n2->settings['N2']['稼働中'] && 'administrator' !== $n2->current_user->roles[0] ? ' onclick="return false;"' : ''; ?>> <?php echo $v; ?>
+				<input type="radio" name="n2_settings[LedgHOME][送料]" value="<?php echo $v; ?>" <?php checked( $n2->settings['LedgHOME']['送料'], $v ); ?> <?php wp_readonly( ! $n2->settings_access ); ?><?php echo ! $n2->settings_access ? ' onclick="return false;"' : ''; ?>> <?php echo $v; ?>
 			</label>
 			<?php endforeach; ?>
 		</td>
@@ -41,10 +41,10 @@ $hide = array(
 		<td>
 			<?php foreach ( $settings['送料反映'] as $v ) : ?>
 			<label style="margin: 0 2em 0 0;">
-				<input type="checkbox" name="n2_settings[LedgHOME][送料反映][]" value="<?php echo $v; ?>" <?php checked( in_array( $v, $n2->settings['LedgHOME']['送料反映'] ?? array(), true ) ); ?> <?php wp_readonly( $n2->settings['N2']['稼働中'] && 'administrator' !== $n2->current_user->roles[0] ); ?><?php echo $n2->settings['N2']['稼働中'] && 'administrator' !== $n2->current_user->roles[0] ? ' onclick="return false;"' : ''; ?>> <?php echo $v; ?>
+				<input type="checkbox" name="n2_settings[LedgHOME][送料反映][]" value="<?php echo $v; ?>" <?php checked( in_array( $v, $n2->settings['LedgHOME']['送料反映'] ?? array(), true ) ); ?> <?php wp_readonly( ! $n2->settings_access ); ?><?php echo ! $n2->settings_access ? ' onclick="return false;"' : ''; ?>> <?php echo $v; ?>
 			</label>
 			<?php endforeach; ?>
-			<input type="hidden" name="n2_settings[LedgHOME][送料反映][]" <?php wp_readonly( $n2->settings['N2']['稼働中'] && 'administrator' !== $n2->current_user->roles[0] ); ?><?php echo $n2->settings['N2']['稼働中'] && 'administrator' !== $n2->current_user->roles[0] ? ' onclick="return false;"' : ''; ?>>
+			<input type="hidden" name="n2_settings[LedgHOME][送料反映][]" <?php wp_readonly( ! $n2->settings_access ); ?><?php echo ! $n2->settings_access ? ' onclick="return false;"' : ''; ?>>
 		</td>
 	</tr>
 	<tr <?php echo $hide['ledghome']; ?>>
@@ -52,7 +52,7 @@ $hide = array(
 		<td>
 			<?php foreach ( $settings['その他経費'] as $v ) : ?>
 			<label style="margin: 0 2em 0 0;">
-				<input type="radio" name="n2_settings[LedgHOME][その他経費]" value="<?php echo $v; ?>" <?php checked( $n2->settings['LedgHOME']['その他経費'], $v ); ?> <?php wp_readonly( $n2->settings['N2']['稼働中'] && 'administrator' !== $n2->current_user->roles[0] ); ?><?php echo $n2->settings['N2']['稼働中'] && 'administrator' !== $n2->current_user->roles[0] ? ' onclick="return false;"' : ''; ?>> <?php echo $v; ?>
+				<input type="radio" name="n2_settings[LedgHOME][その他経費]" value="<?php echo $v; ?>" <?php checked( $n2->settings['LedgHOME']['その他経費'], $v ); ?> <?php wp_readonly( ! $n2->settings_access ); ?><?php echo ! $n2->settings_access ? ' onclick="return false;"' : ''; ?>> <?php echo $v; ?>
 			</label>
 			<?php endforeach; ?>
 		</td>
@@ -62,7 +62,7 @@ $hide = array(
 		<td>
 			<?php foreach ( $settings['価格'] as $v ) : ?>
 			<label style="margin: 0 2em 0 0;">
-				<input type="radio" name="n2_settings[LedgHOME][価格]" value="<?php echo $v; ?>" <?php checked( $n2->settings['LedgHOME']['価格'], $v ); ?> <?php wp_readonly( $n2->settings['N2']['稼働中'] && 'administrator' !== $n2->current_user->roles[0] ); ?><?php echo $n2->settings['N2']['稼働中'] && 'administrator' !== $n2->current_user->roles[0] ? ' onclick="return false;"' : ''; ?>> <?php echo $v; ?>
+				<input type="radio" name="n2_settings[LedgHOME][価格]" value="<?php echo $v; ?>" <?php checked( $n2->settings['LedgHOME']['価格'], $v ); ?> <?php wp_readonly( ! $n2->settings_access ); ?><?php echo ! $n2->settings_access ? ' onclick="return false;"' : ''; ?>> <?php echo $v; ?>
 			</label>
 			<?php endforeach; ?>
 		</td>
@@ -70,7 +70,7 @@ $hide = array(
 	<tr <?php echo $hide['ledghome']; ?>>
 		<th>自動出荷依頼予約日（定期便）</th>
 		<td>
-			<input type="number" step="1" max="31" min="1" name="n2_settings[LedgHOME][自動出荷依頼予約日]" value="<?php echo $n2->settings['LedgHOME']['自動出荷依頼予約日'] ?? ''; ?>" <?php wp_readonly( $n2->settings['N2']['稼働中'] && 'administrator' !== $n2->current_user->roles[0] ); ?>>
+			<input type="number" step="1" max="31" min="1" name="n2_settings[LedgHOME][自動出荷依頼予約日]" value="<?php echo $n2->settings['LedgHOME']['自動出荷依頼予約日'] ?? ''; ?>" <?php wp_readonly( ! $n2->settings_access ); ?>>
 		</td>
 	</tr>
 </table>

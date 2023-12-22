@@ -395,6 +395,8 @@ class N2 {
 		}
 		$this->settings['寄附金額・送料']['送料'] = $delivery_fee;
 
+		// N2設定操作の可否
+		$this->settings_access = ( $this->settings['N2']['稼働中'] && 'administrator' !== $this->current_user->roles[0] ) ? false : true;
 		// カスタムフィールド
 		{
 			$this->custom_field = yaml_parse_file( get_theme_file_path( 'config/custom-field.yml' ) );
