@@ -1,8 +1,11 @@
+##### このYAMLの記述ルール #####
+# アンダースコア始まり：N2エクスポートに出力されたくないもの
+# typeなし：カスタムフィールドに出力されたくないもの
+
 自治体用:
     自治体確認:
         type: radio
         value: 未
-        v-model: 自治体確認
         v-if: n2.settings.N2.自治体確認
         option:
             - 未
@@ -21,7 +24,6 @@
     総務省申請:
         type: radio
         value: 未
-        v-model: 総務省申請
         option:
             未: 未
             不要: 不要
@@ -45,7 +47,6 @@
         description: "[事業者コード3桁アルファベット大文字][3桁数字]で構成"
         placeholder: 例）AAA000
         required: required
-        :value: 返礼品コード
         "@focus": set_info($event.target)
         "@change": "force_half_size_text($event, 'uppercase', '返礼品コード')"
     LH表示名:
@@ -67,7 +68,6 @@
         type: checkbox
         value: []
         description: この返礼品を出品しないポータルサイトがあればチェックを入れてください。
-        v-model: 出品禁止ポータル
         v-if: "!商品タイプ.includes('eチケット')"
         option:
             - ふるさとチョイス
@@ -78,7 +78,6 @@
         type: checkbox
         value: []
         description: ふるさとチョイスオンライン決済限定に反映されます。
-        v-model: オンライン決済限定
         v-if: "!出品禁止ポータル.includes('ふるさとチョイス')"
         option:
             - 限定
@@ -91,7 +90,6 @@
         type: rakuten-genreid
         label: 楽天ジャンルID
         min: 0
-        v-model: 全商品ディレクトリID
         v-if: "!出品禁止ポータル.includes('楽天') && !商品タイプ.includes('eチケット')"
         description: 必ず、ID（6桁の数字）が見えるようになるまで黒いボタンを押していってください。
     商品属性:
@@ -104,26 +102,25 @@
     楽天SPAカテゴリー:
         portal: 楽天
         type: rakuten-spa-category
-        v-model: 楽天SPAカテゴリー
         v-if: "!出品禁止ポータル.includes('楽天') && tmp.楽天SPA対応  && !商品タイプ.includes('eチケット')"
         style: 'width: 100%;'
         rows: auto
         "@focus": set_info($event.target);get_spa_category();auto_fit_tetxarea($event.target)
         "@input": auto_fit_tetxarea($event.target)
+    楽天カテゴリー:
+        portal: 楽天
+        type: rakuten-category
+        v-if: "!出品禁止ポータル.includes('楽天')"
+        rows: auto
+        style: 'display: none;'
+
     楽天納期情報:
         portal: 楽天
         type: select
         label: 楽天納期
-        v-model: 楽天納期情報
         v-if: "!出品禁止ポータル.includes('楽天')"
         ':option': tmp.楽天納期情報
-    楽天カテゴリー:
-        portal: 楽天
-        type: rakuten-category
-        v-model: 楽天カテゴリー
-        v-if: "!出品禁止ポータル.includes('楽天')"
-        rows: auto
-        style: 'display: none;'
+
 # ▲ =========== 楽天専用のフィールド ==========
 
     検索キーワード:
@@ -134,11 +131,29 @@
         v-if: "!商品タイプ.includes('eチケット')"
         "@focus": set_info($event.target)
         "@input": auto_fit_tetxarea($event.target)
+
+    社内共有事項:
+        type: textarea
+        description: この商品に関して社内共有すべきことがあればここに記入。
+        style: 'width: 100%;'
+        rows: auto
+        "@focus": set_info($event.target)
+        "@input": auto_fit_tetxarea($event.target)
+
+    類型該当理由:
+        label: ポータル表示用類型該当理由
+        type: textarea
+        style: 'width: 100%;'
+        description: ポータルに表示されるので、公開して良い情報なのか確認して下さい。
+        maxlength : 300
+        "@focus": set_info($event.target);
+        "@input": auto_fit_tetxarea($event.target)
+
+事業者用:
     地場産品類型:
         type: select
-        v-model: 地場産品類型
-        "@focus": set_info($event.target)
-        "@change": update_applicable_reason()
+        ':description': n2.custom_field.事業者用.地場産品類型.option[地場産品類型]
+        "@mouseover": set_info($event.target);
         option:
             '': 選択して下さい
             1 : 1.当該地方団体の区域内において生産されたもの。
@@ -155,31 +170,24 @@
             8ハ : 8ハ：都道府県が当該都道府県の区域内の複数の市区町村において地域資源として相当程度認識されているもの及び当該市区町村を認定し、当該地域資源を当該市区町村がそれぞれ返礼品等とするもの。
             9 : 9.震災、風水害、落雷、火災その他これらに類する災害により甚大な被害を受けたことにより、その被害を受ける前に提供していた前各号のいずれかに該当する返礼品等を提供することができなくなった場合において、当該返礼品等を代替するものとして提供するもの。
             99 : 99.前各号のいずれかに該当する返礼品等とのみ交換させるために提供するもの。
-    類型該当理由:
+    総務省提出用類型該当理由:
         type: textarea
         style: 'width: 100%;'
-        maxlength : 100
-        v-model: 類型該当理由
-        description: 上記、地場産品類型に該当する理由を書いてください。
-        placeholder: 例）〇〇県が認定した返礼品であるため。
-        "@focus": set_info($event.target)
+        ':description': n2.custom_field.事業者用._類型該当理由info.description[地場産品類型] ?? `地場産品類型「${地場産品類型}」に該当する理由を書いてください。`
+        ':placeholder': n2.custom_field.事業者用._類型該当理由info.placeholder[地場産品類型] ?? `例）${n2.town}が認定した返礼品であるため。`
+        insert-placeholder: true
+        "@focus": set_info($event.target);
         "@input": auto_fit_tetxarea($event.target)
-
-    # 事業者確認:
-    #     type: checkbox
-    #     option:
-    #         - 確認済み
-
-    社内共有事項:
-        type: textarea
-        description: この商品に関して社内共有すべきことがあればここに記入。
-        style: 'width: 100%;'
-        rows: auto
-        "@focus": set_info($event.target)
-        "@input": auto_fit_tetxarea($event.target)
-
-
-事業者用:
+    # 地場産品類型に該当する理由の注意書きと例文（あえてtypeなしにしてカスタムフィールドとしては出力させない）
+    _類型該当理由info:
+        description: 
+            1: 区域内で生産された農畜産物もしくは水産物の名称をご記載ください。<div class="text-danger fw-bold">※農畜産物/水産物のみを選んでください。また区域内の原材料を用いて区域外で製造・加工等の工程を行ったものは類型2となります。</div>
+            2: 区域内で生産された原材料とその原材料が返礼品に占める重量や付加価値の割合をご記載ください。<div class="text-danger fw-bold">※返礼品の重量や付加価値の半分以上が該当原材料によるものである記載が必要。</div>
+            3: 区域内で行われた工程の詳細（完成品に至る一連の工程のどの部分を行っているか）をご記載ください。<div class="text-danger fw-bold">※返礼品の重量や付加価値の半分以上が区域内で行われる工程によるものである記載が必要。</div>
+        placeholder:
+            1: 例）区域内で生産された牛肉であるため。
+            2: 例）区域内で生産された牛肉（原材料名を記載）が価格の70％以上を占めるため。
+            3: 例）区域外で生産された豚肉を、区域内において切断・調理・袋詰めまでの加工に係る全行程を行うことにより、仕入れ時の価格の2倍以上の付加価値が生じているため。
     定期便:
         type : select
         value: 1
@@ -200,7 +208,6 @@
             24: ２４回定期便
             36: ３６回定期便
             48: ４８回定期便
-        v-model: 定期便
         "@change": auto_adjust_price()
     寄附金額:
         type: hidden
@@ -242,6 +249,7 @@
         【特徴】全国の皆さまの食卓へ「美味しさ」と「安心」をお届けするべく、原材料にはとてもこだわっています。
 
         【その他】真空パックにてお届けします。温める際は十分に注意して、湯銭してください。'
+        insert-placeholder: true
         description : '【メリット】この返礼品を申し込むことで、寄附者が得られる恩恵やハッピーをお書きください。<br>【実績】この返礼品の良さを裏付ける「実績」「口コミ」「施策」等をお書きください。<br>【アドバンテージ】その他の商品よりも特に優れている「こだわり」や「強み」をお書きください。<br>【特徴】返礼品や事業者様の「特徴」「説明」「想い」をお書きください。<br>【その他】上記以外で伝えたいことがあれば、お書きください。'
         "@focus": set_info($event.target);
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
@@ -273,13 +281,11 @@
     商品タイプ:
         type : checkbox
         value: []
-        v-model: 商品タイプ
         option : 
             - 食品
         "@change": "check_handling_method();check_tax()"
     税率:
         type : radio
-        v-model: 税率
         description : 返礼品の税率を%なしの数値のみで入力してください。未入力の場合は初期値「10」となります。
         option:
             - 8
@@ -290,7 +296,6 @@
     アレルギー有無確認:
         type : checkbox
         value: ['アレルギー品目あり']
-        v-model: アレルギー有無確認
         v-if: 商品タイプ.some(v=>['食品','酒'].includes(v))
         option :
             - アレルギー品目あり
@@ -298,7 +303,6 @@
         type : checkbox
         v-if: 商品タイプ.some(v=>['食品','酒'].includes(v)) && アレルギー有無確認.filter(v=>v).length
         required: required
-        v-model: アレルゲン
         option :
             - 卵
             - 乳
@@ -361,7 +365,6 @@
     電子レンジ対応:
         type: radio
         value: ○
-        v-model: 電子レンジ対応
         v-if: "商品タイプ.includes('やきもの') && !商品タイプ.includes('eチケット')"
         option:
             ○: 対応
@@ -370,7 +373,6 @@
     オーブン対応:
         type: radio
         value: ○
-        v-model: オーブン対応
         v-if: "商品タイプ.includes('やきもの') && !商品タイプ.includes('eチケット')"
         option:
             ○: 対応
@@ -379,7 +381,6 @@
     食洗機対応:
         type: radio
         value: ○
-        v-model: 食洗機対応
         v-if: "商品タイプ.includes('やきもの') && !商品タイプ.includes('eチケット')"
         option:
             ○: 対応
@@ -433,7 +434,6 @@
             - 常温
             - 冷蔵
             - 冷凍
-        v-model: 発送方法
     発送サイズ:
         type : select
         required: required
@@ -475,7 +475,6 @@
                 label: ゆうパケット厚さ3cm
                 v-if: 発送方法=='常温'&&n2.settings['寄附金額・送料'].送料.ゆうパケット厚さ3cm
             その他: その他
-        v-model: 発送サイズ
         "@change": check_handling_method
     _送料: # 隠し送料
         type: hidden
@@ -505,7 +504,6 @@
             - 精密機器
             - 水濡厳禁
         v-if: "!isNaN(発送サイズ||'未選択')"
-        v-model: 取り扱い方法
         '@click': 'if (取り扱い方法.filter(v=>v).length == 2 ) { $event.target.checked = false; set_info($event.target) }'
     配送伝票表示名:
         type : text
@@ -535,7 +533,6 @@
         type: datalists
         placeholder: 例）〇〇商店
         v-if: n2.settings.N2.提供事業者名
-        v-model: 提供事業者名
         option: []
     備考欄:
         type: textarea

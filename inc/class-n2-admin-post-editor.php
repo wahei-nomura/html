@@ -155,7 +155,9 @@ class N2_Admin_Post_Editor {
 			<?php foreach ( $custom_field as $field => $detail ) : ?>
 			<?php
 				unset( $detail['portal'] );
-				$detail['name'] = sprintf( 'n2field[%s]', $detail['name'] ?? $field );
+				// 強制 v-model
+				$detail['v-model'] = $detail['v-model'] ?? sprintf( '$data["%s"]', $detail['name'] ?? $field );
+				$detail['name']    = sprintf( 'n2field[%s]', $detail['name'] ?? $field );
 				// hiddenタイプはそのまま出力
 				if ( 'hidden' === $detail['type'] ) {
 					get_template_part( "template/forms/{$detail['type']}", null, $detail );
