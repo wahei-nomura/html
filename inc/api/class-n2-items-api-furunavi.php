@@ -23,13 +23,21 @@ class N2_Items_API_Furunavi extends N2_Portal_Item_Data {
 	public $post_title = 'ふるなび';
 
 	/**
+	 * 検索キーワード（自治体名）
+	 *
+	 * @var array
+	 */
+	public $keyword = '';
+
+	/**
 	 * APIデータのアップデート
 	 */
 	public function update() {
 		global $n2;
-		$url    = 'https://furunavi.jp/get_product_list.ashx?';
-		$params = array(
-			'keyword'  => $n2->town,
+		$url           = 'https://furunavi.jp/get_product_list.ashx?';
+		$this->keyword = preg_match( '/(都|道|府|県)$/', $n2->town, $m ) ? "{$n2->town}（{$m[0]}庁）" : $n2->town;
+		$params        = array(
+			'keyword'  => $this->keyword,
 			'pagesize' => 100,
 			'pageno'   => 1,
 		);
@@ -76,7 +84,7 @@ class N2_Items_API_Furunavi extends N2_Portal_Item_Data {
 	public function array_format( $v ) {
 		global $n2;
 		// 自治体のものだけにデータの浄化
-		$v = array_values( array_filter( $v, fn( $d ) => $d['MunicipalName'] === $n2->town && 0 !== $d['Stock'] ) );
+		$v = array_values( array_filter( $v, fn( $d ) => preg_match( "/{$this->keyword}$/", "{$d['PrefectureName']}{$d['MunicipalName']}" ) && 0 !== $d['Stock'] ) );
 		$v = array_map(
 			function( $d ) use ( $n2 ) {
 				preg_match( "/\[{$n2->regex['item_code']['strict']}\]/", $d['ProductName'], $m );

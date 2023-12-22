@@ -21,19 +21,19 @@ class N2_RMS_Items_API extends N2_RMS_Base_API {
 	 * 商品を登録・削除してから本機能の検索情報に反映されるまで、最大24時間かかります。
 	 * 削除済みの商品が検索結果に含まれる場合、「manageNumber」のみが返却されます。
 	 *
-	 * @param string $offset ジャンルID
-	 * @param string $hits 商品属性ID
-	 * @param string $is_item_stockout 商品属性ID
+	 * @param array $params パラメータ
 	 * @return array
 	 */
-	public static function search( $offset = 0, $hits = 100, $is_item_stockout = 'false' ) {
-		$params = array(
-			'offset'         => $offset, // 0～10000
-			'hits'           => ( $hits < 1 || $hits > 100 ) ? 100 : $hits, // 1〜100（N2では0以下で全件取得、100以上も対応）
-			'isItemStockout' => $is_item_stockout,
+	public static function search( $params = array() ) {
+		$default        = array(
+			'offset' => 0,
+			'hits'   => 100,
 		);
-		$url    = static::$settings['endpoint'] . '/2.0/items/search?';
-		$data   = wp_remote_get( $url . http_build_query( $params ), array( 'headers' => static::$data['header'] ) );
+		$params         = wp_parse_args( $params, $default );
+		$hits           = $params['hits'];
+		$params['hits'] = ( $hits < 1 || $hits > 100 ) ? 100 : $hits; // 1〜100（N2では0以下で全件取得、100以上も対応）
+		$url            = static::$settings['endpoint'] . '/2.0/items/search?';
+		$data           = wp_remote_get( $url . http_build_query( $params ), array( 'headers' => static::$data['header'] ) );
 
 		if ( is_wp_error( $data ) ) {
 			return array();

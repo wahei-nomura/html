@@ -39,8 +39,15 @@ class N2_Items_API_Rakuten extends N2_Portal_Item_Data {
 			$this->exit( '[RMS Shop API] url取得失敗' );
 		}
 		$this->shop_code = $shop['url'];
+		// パラメータ指定
+		$params = array(
+			'offset'         => 0,
+			'hits'           => -1,
+			'isItemStockout' => 'false',
+			'isHiddenItem'   => 'false',
+		);
 		// 返礼品データ取得
-		$items = N2_RMS_Items_API::search( 0, -1 );
+		$items = N2_RMS_Items_API::search( $params );
 		if ( ! isset( $items['results'] ) ) {
 			$this->exit( '[RMS Items API] 返礼品データ取得失敗' );
 		}
@@ -56,16 +63,31 @@ class N2_Items_API_Rakuten extends N2_Portal_Item_Data {
 	 * @param array $v RMSAPIから取得した生配列
 	 */
 	public function array_format( $v ) {
+		$item = $v['item'];
+		$ids  = array( (string) $item['itemNumber'], (string) $item['manageNumber'], 'normal-inventory' );
 		return array(
-			'goods_g_num' => $v['item']['itemNumber'],
-			'goods_name'  => $v['item']['title'],
-			'goods_price' => $v['item']['variants'][ $v['item']['manageNumber'] ]['standardPrice'] ?? array_values( $v['item']['variants'] )[0]['standardPrice'],
-			'insert_date' => $v['item']['created'],
-			'updated'     => $v['item']['updated'],
-			'url'         => "https://item.rakuten.co.jp/{$this->shop_code}/{$v['item']['manageNumber']}",
-			'image'       => 'CABINET' === $v['item']['images'][0]['type']
-				? "https://image.rakuten.co.jp/{$this->shop_code}/cabinet{$v['item']['images'][0]['location']}"
-				: "https://www.rakuten.ne.jp/gold/{$this->shop_code}{$v['item']['images'][0]['location']}",
+			'goods_g_num' => $item['itemNumber'],
+			'goods_name'  => $item['title'],
+			/**
+			 * 1. variantsのキーがちゃんと返礼品コード（ちゃんと価格取れる）
+			 * 2. variantsのmerchantDefinedSkuIdが返礼品コード（ちゃんと価格取れる）
+			 * 3. variantsのmerchantDefinedSkuIdが返礼品コード_なんちゃら（前半部分の返礼品コードで照合して価格は1個目）
+			 * 4. variantsのmerchantDefinedSkuIdが返礼品コード_なんちゃらで価格違うのある（前半部分の返礼品コードで照合して価格は1個目なので違うのとれることもある）
+			 * 5. variantsのキーも返礼品コードじゃないしmerchantDefinedSkuIdが無い（もうしらん1個目の価格）
+			 */
+			'goods_price' => array_values(
+				array_filter(
+					$item['variants'],
+					fn( $d, $k ) => ! isset( $d['merchantDefinedSkuId'] ) || in_array( (string) $k, $ids, true ) || in_array( (string) preg_split( '/[^A-Za-z0-9]/', $d['merchantDefinedSkuId'] )[0], $ids, true ),
+					ARRAY_FILTER_USE_BOTH
+				)
+			)[0]['standardPrice'],
+			'insert_date' => $item['created'],
+			'updated'     => $item['updated'],
+			'url'         => "https://item.rakuten.co.jp/{$this->shop_code}/{$item['manageNumber']}",
+			'image'       => 'CABINET' === $item['images'][0]['type']
+				? "https://image.rakuten.co.jp/{$this->shop_code}/cabinet{$item['images'][0]['location']}"
+				: "https://www.rakuten.ne.jp/gold/{$this->shop_code}{$item['images'][0]['location']}",
 		);
 	}
 }

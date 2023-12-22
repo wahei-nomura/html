@@ -19,7 +19,7 @@ $radio_count = 0;
 			<?php endforeach; ?>
 		</div>
 		<div class="mb-2 input-group">
-			<input class="form-control" name="<?php echo esc_attr( $args['file'] ); ?>" type="file" multiple="multiple" style="padding: 0.375rem 0.75rem;">
+			<input class="form-control" id="ss-sftp" name="<?php echo esc_attr( $args['file'] ); ?>" type="file" multiple="multiple" style="padding: 0.375rem 0.75rem;">
 			<input type="submit" class="btn btn-outline-secondary" value="楽天に転送する">
 		</div>
 	</form>

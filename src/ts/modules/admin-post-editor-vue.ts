@@ -39,7 +39,7 @@ export default ($: any = jQuery) => {
 		save_as_pending.append_button("#n2-save-post");// スチームシップへ送信
 		this.寄附金額 = await this.calc_donation(this.価格,this.送料,this.定期便);
 		this.get_rakuten_category();
-		this.get_rakuten_delvdate();
+		await this.get_rakuten_delvdate();
 		this.control_submit();
 		// 発送サイズ・発送方法をダブル監視
 		this.$watch(

@@ -245,14 +245,15 @@ class N2_Setmenu {
 	 */
 	public function add_loginbookmark() {
 		global $n2;
-		add_menu_page( 'ブックマークURL', 'ブックマークURL', '', 'add_bookmark', array( $this, 'display_addbookmark' ), 'dashicons-admin-site-alt2' );
+		$user_roles = $n2->current_user->roles['0'];
+		add_menu_page( 'ブックマークURL', 'ブックマークURL', $user_roles, 'add_bookmark', array( $this, 'display_addbookmark' ), 'dashicons-admin-site-alt2' );
 	}
 	/**
 	 * ログインブックマーク表示
 	 */
 	public function display_addbookmark() {
 		$site_details = get_blog_details();
-		$bookmark_url = str_replace( '//', '//ss:ss@', wp_login_url() ) . '?auth=ss:ss'; 
+		$bookmark_url = str_replace( '//', '//ss:ss@', str_replace( '?', '', wp_login_url() ) ) . '/?auth=ss:ss';
 		$html         = '<div class = "wrap">';
 		$html        .= '<h1 id="copyTarget"> ログインページブックマーク用URL </h1>';
 		$html        .= '<p>以下のリンクをブックマーク登録してください(ブックマークバーにドラッグドロップでも登録できます)。</p>';

@@ -537,6 +537,8 @@
         v-if: n2.settings.N2.提供事業者名
         v-model: 提供事業者名
         option: []
+    備考欄:
+        type: textarea
     商品画像:
         type : item-image
         value: []
