@@ -34,6 +34,8 @@ export default ($:any = jQuery) => {
 				for ( const k in n2.vue.$data ) {
 					n2.vue.$data[k] = data[k] ?? n2.vue.$data[k];
 				}
+				$('title').text(data.タイトル);
+				$('#n2-view-history-id').val(id);
 			});
 		});
 	}
