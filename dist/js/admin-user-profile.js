@@ -15,7 +15,7 @@
   \**************************************/
 /***/ (() => {
 
-eval("jQuery(function ($) {\n    $('.user-user-login-wrap .description').html('<p>ユーザー名を変更したい思いが強ければきっと変更できるでしょう。</p>');\n    var count = 0;\n    $('.user-user-login-wrap').on('click', function (e) {\n        count++;\n        if (count == 10) {\n            $('#user_login').removeAttr('disabled');\n        }\n    });\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/admin-user-profile.ts?");
+eval("jQuery(function ($) {\n    $('.user-user-login-wrap .description').html('<p>ユーザー名を変更したい思いが強ければきっと変更できるでしょう。</p>');\n    var count = 0;\n    $('#user_login').css('pointer-events', 'none');\n    $('.user-user-login-wrap').on('click', function (e) {\n        count++;\n        if (count == 10) {\n            $('#user_login').removeAttr('disabled').css('pointer-events', 'auto');\n            ;\n        }\n    });\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/admin-user-profile.ts?");
 
 /***/ })
 
