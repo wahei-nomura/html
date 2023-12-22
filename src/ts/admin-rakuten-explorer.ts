@@ -1,7 +1,7 @@
 import Vue from 'vue/dist/vue.min';
 // import store from './modules/admin-rakuten-menu/explorer-store';
-import LeftAside from './modules/admin-rakuten-menu/explorer-left-aside';
-import Main from './modules/admin-rakuten-menu/explorer-main';
+import LeftAside from './modules/admin-rakuten-menu/sftp-explorer-left-aside';
+import Main from './modules/admin-rakuten-menu/sftp-explorer-main';
 // import store from './modules/admin-rakuten-menu/explorer-store';
 
 Vue.config.devtools = true;
