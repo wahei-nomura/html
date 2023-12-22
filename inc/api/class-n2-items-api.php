@@ -31,7 +31,7 @@ class N2_Items_API {
 	 */
 	public function __construct() {
 		// post_contentに必要なデータを全部ぶっこむ
-		add_action( 'wp_insert_post_data', array( $this, 'insert_post_data' ), 20, 4 );
+		add_action( 'wp_insert_post_data', array( $this, 'insert_post_data' ), 10, 4 );
 		add_filter( 'posts_results', array( $this, 'add_required_posts' ), 10, 2 );// 取得時に最低必要事項確認フラグ注入（取得が遅くなる）
 		add_action( 'wp_ajax_n2_items_api', array( $this, 'api' ) );
 		add_action( 'wp_ajax_nopriv_n2_items_api', array( $this, 'api' ) );
@@ -260,10 +260,12 @@ class N2_Items_API {
 
 		// n2fieldのカスタムフィールド全取得
 		foreach ( $meta_input as $key => $meta ) {
-			// 値が配列の場合、空は削除
-			if ( is_array( $meta ) ) {
-				$meta = array_filter( $meta, fn( $v ) => $v );
-			}
+			$meta = match ( true ) {
+				// 値が配列の場合、空は削除
+				is_array( $meta ) => array_filter( $meta, fn( $v ) => $v ),
+				// それ以外は文字列型で保存
+				default => (string) $meta,
+			};
 			$post_content[ $key ] = $meta;
 		}
 		$data['post_content'] = addslashes( wp_json_encode( $post_content, JSON_UNESCAPED_UNICODE ) );
