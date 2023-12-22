@@ -74,7 +74,7 @@ function array_flatten( $arr ) {
 // $tree = build_tree( $args['dirlist'], '' );
 
 ?>
-<div id="ss-sftp-explorer">
+<div id="n2-sftp-explorer">
 	<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
 </div>
 

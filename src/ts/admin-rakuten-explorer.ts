@@ -8,7 +8,7 @@ Vue.config.devtools = true;
 
 jQuery( async function($){	
 	window['n2'].vue = new Vue({
-		el: '#ss-sftp-explorer',
+		el: '#n2-sftp-explorer',
 		created() {
 			const n2nonce = $('input[name="n2nonce"]').val();
 		},
@@ -17,7 +17,7 @@ jQuery( async function($){
 			LeftAside,
 		},
 		template: `
-		<div id="ss-sftp" class="container mt-4 mb-4">
+		<div id="n2-sftp-explorer" class="container mt-4 mb-4">
 			<LeftAside/>
 			<Main/>
 		</div>
