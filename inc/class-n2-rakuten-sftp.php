@@ -27,10 +27,14 @@ class N2_Rakuten_SFTP {
 	 * @var array
 	 */
 	public $settings = array(
-		'upload'    => 'アップロード',
-		'error-log' => 'エラーログ',
-		'client'    => 'CABINET',
-		'explorer'    => 'エクスプローラー',
+		'main_menu' => 'n2_rakuten_menu',
+		'sub_menu'  => array(
+			'sftp-upload'    => 'アップロード',
+			'sftp-error-log' => 'エラーログ',
+			'sftp-explorer'  => 'エクスプローラー',
+			'rms-cabinet'    => 'CABINET',
+		),
+		'template'  => 'template/admin-rakuten-menu',
 	);
 
 	/**
@@ -78,16 +82,15 @@ class N2_Rakuten_SFTP {
 	public function add_menu() {
 		global $n2, $wp_filesystem;
 		if ( isset( $n2->settings['楽天'] ) ) {
-			add_menu_page( '楽天SFTP', '楽天SFTP', 'ss_crew', 'n2_rakuten_sftp', array( $this, 'display_ui' ), 'dashicons-admin-site-alt3' );
-
-			foreach ( $this->settings as $page => $name ) {
+			add_menu_page( '楽天', '楽天', 'ss_crew', $this->settings['main_menu'], array( $this, 'display_ui' ), 'dashicons-admin-site-alt3' );
+			foreach ( $this->settings['sub_menu'] as $page => $name ) {
 				// 設定テンプレートの存在を確認して、ない場合は破棄してスキップする
-				if ( ! $wp_filesystem->exists( get_theme_file_path( "template/admin-menu/sftp-{$page}.php" ) ) ) {
-					unset( $this->settings[ $page ] );
+				if ( ! $wp_filesystem->exists( get_theme_file_path( "{$this->settings['template']}/{$page}.php" ) ) ) {
+					unset( $this->settings['sub_menu'][ $page ] );
 					continue;
 				}
 				$menu_slug = $this->create_menu_slug( $page );
-				add_submenu_page( 'n2_rakuten_sftp', $name, $name, 'ss_crew', $menu_slug, array( $this, 'display_ui' ) );
+				add_submenu_page( $this->settings['main_menu'], $name, $name, 'ss_crew', $menu_slug, array( $this, 'display_ui' ) );
 				register_setting( $menu_slug, $menu_slug );
 			}
 		}
@@ -100,7 +103,7 @@ class N2_Rakuten_SFTP {
 	 * @param string $page ページ
 	 */
 	private function create_menu_slug( $page ) {
-		return 'n2_rakuten_sftp' . ( 'upload' === $page ? '' : "_{$page}" );
+		return $this->settings['main_menu'] . ( array_keys( $this->settings['sub_menu'] )[0] === $page ? '' : "_{$page}" );
 	}
 
 	/**
@@ -113,25 +116,25 @@ class N2_Rakuten_SFTP {
 			'contents' => '',
 			'args'     => null,
 		);
-		foreach ( $this->settings as $page => $name ) {
+		foreach ( $this->settings['sub_menu'] as $page => $name ) {
 			$menu_slug    = $this->create_menu_slug( $page );
 			$html['nav'] .= sprintf( '<a href="?page=%s" class="nav-tab%s">%s</a>', $menu_slug, $menu_slug === $template ? ' nav-tab-active' : '', $name );
 			if ( $menu_slug === $template ) {
 				$args = match ( $page ) {
-					'error-log' => $this->error_log_args(),
-					'upload'    => $this->upload_args(),
-					'explorer'  => $this->explorer_args(),
+					'sftp-error-log' => $this->error_log_args(),
+					'sftp-upload'    => $this->upload_args(),
+					'sftp-explorer'  => $this->explorer_args(),
 					default     => null,
 				};
 				ob_start();
-				get_template_part( 'template/admin-menu/sftp', $page, $args );
+				get_template_part( "{$this->settings['template']}/{$page}", '', $args );
 				$html['contents'] = ob_get_clean();
 			}
 		}
 		?>
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 		<div class="wrap">
-			<h1>楽天SFTP</h1>
+			<h1>楽天</h1>
 			<div id="crontrol-header">
 				<nav class="nav-tab-wrapper"><?php echo $html['nav']; ?></nav>
 			</div>
