@@ -73,15 +73,4 @@ $settings = array(
 			</label>
 		</td>
 	</tr>
-	<tr>
-		<th>該当理由をポータルに表示する地場産品類型</th>
-		<td>
-			<?php foreach ( array_filter( array_keys( $n2->custom_field['事業者用']['地場産品類型']['option'] ) ) as $value ) : ?>
-			<label style="display: inline-block; margin: 0 2em 1em 0;">
-				<input type="checkbox" name="n2_settings[N2][理由表示地場産品類型][]" value="<?php echo esc_attr( $value ); ?>"<?php checked( in_array( (string) $value, $n2->settings['N2']['理由表示地場産品類型'], true ) ); ?>>
-				<?php echo $value; ?>
-			</label>
-			<?php endforeach; ?>
-		</td>
-	</tr>
 </table>

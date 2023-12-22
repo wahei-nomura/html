@@ -109,13 +109,7 @@
         rows: auto
         "@focus": set_info($event.target);get_spa_category();auto_fit_tetxarea($event.target)
         "@input": auto_fit_tetxarea($event.target)
-    楽天納期情報:
-        portal: 楽天
-        type: select
-        label: 楽天納期
-        v-model: 楽天納期情報
-        v-if: "!出品禁止ポータル.includes('楽天')"
-        ':option': RMSAPI.楽天納期情報
+
     楽天カテゴリー:
         portal: 楽天
         type: rakuten-category
@@ -123,6 +117,15 @@
         v-if: "!出品禁止ポータル.includes('楽天')"
         rows: auto
         style: 'display: none;'
+
+    楽天納期情報:
+        portal: 楽天
+        type: select
+        label: 楽天納期
+        v-model: 楽天納期情報
+        v-if: "!出品禁止ポータル.includes('楽天')"
+        ':option': RMSAPI.楽天納期情報
+
 # ▲ =========== 楽天専用のフィールド ==========
 
     検索キーワード:
@@ -134,12 +137,6 @@
         "@focus": set_info($event.target)
         "@input": auto_fit_tetxarea($event.target)
 
-
-    # 事業者確認:
-    #     type: checkbox
-    #     option:
-    #         - 確認済み
-
     社内共有事項:
         type: textarea
         description: この商品に関して社内共有すべきことがあればここに記入。
@@ -148,6 +145,15 @@
         "@focus": set_info($event.target)
         "@input": auto_fit_tetxarea($event.target)
 
+    類型該当理由:
+        label: ポータル表示用類型該当理由
+        type: textarea
+        style: 'width: 100%;'
+        description: ポータルに表示されるので、公開して良い情報なのか確認して下さい。
+        maxlength : 300
+        v-model: 類型該当理由
+        "@focus": set_info($event.target);
+        "@input": auto_fit_tetxarea($event.target)
 
 事業者用:
     地場産品類型:
@@ -171,11 +177,10 @@
             8ハ : 8ハ：都道府県が当該都道府県の区域内の複数の市区町村において地域資源として相当程度認識されているもの及び当該市区町村を認定し、当該地域資源を当該市区町村がそれぞれ返礼品等とするもの。
             9 : 9.震災、風水害、落雷、火災その他これらに類する災害により甚大な被害を受けたことにより、その被害を受ける前に提供していた前各号のいずれかに該当する返礼品等を提供することができなくなった場合において、当該返礼品等を代替するものとして提供するもの。
             99 : 99.前各号のいずれかに該当する返礼品等とのみ交換させるために提供するもの。
-    類型該当理由:
+    総務省提出用類型該当理由:
         type: textarea
         style: 'width: 100%;'
-        maxlength : 300
-        v-model: 類型該当理由
+        v-model: 総務省提出用類型該当理由
         ':description': n2.custom_field.事業者用.類型該当理由info.description[地場産品類型] ?? `地場産品類型「${地場産品類型}」に該当する理由を書いてください。`
         ':placeholder': n2.custom_field.事業者用.類型該当理由info.placeholder[地場産品類型] ?? `例）${n2.town}が認定した返礼品であるため。`
         insert-placeholder: true
