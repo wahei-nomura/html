@@ -32,5 +32,25 @@ export default new Vuex.Store({
 				return res;
 			});
 		},
+		async sftp({state},data){
+			console.log(data);
+			
+			const params = {
+				action: 'n2_rakuten_sftp_explorer',
+				n2nonce: state.n2nonce,
+				...data,
+			};
+			const formData = new FormData();
+			for (const key in params) {
+				formData.append( key, params[key]);
+			}
+			return await axios.post( 
+				`${window['n2'].ajaxurl}`,
+				formData,
+			).then(res=>{
+				console.log(res)
+				return res;
+			});
+		},
 	},
 });

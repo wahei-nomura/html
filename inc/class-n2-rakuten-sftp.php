@@ -68,6 +68,7 @@ class N2_Rakuten_SFTP {
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 		add_action( 'wp_ajax_n2_rakuten_sftp_upload_to_rakuten', array( $this, 'upload_to_rakuten' ) );
+		add_action( 'wp_ajax_n2_rakuten_sftp_explorer', array( $this, 'explorer' ) );
 		add_action( 'init', array( $this, 'register_post_type' ) );
 	}
 	/**
@@ -220,6 +221,28 @@ class N2_Rakuten_SFTP {
 			$args['logs']
 		);
 		return $args;
+	}
+
+	/**
+	 * エラーログ
+	 */
+	public function error_log() {
+		$this->connect();
+		check_fatal_error( $this->data['connect'], '接続エラー' );
+		$error_dir = 'ritem/logs';
+		$logs      = $this->sftp->dirlist( $error_dir );
+		return array_map(
+			function ( $log ) use ( $args ) {
+				$contents = $this->sftp->get_contents( "{$error_dir}/{$log['name']}" );
+				$contents = htmlspecialchars( mb_convert_encoding( $contents, 'utf-8', 'sjis' ) );
+				return array(
+					'name'     => $log['name'],
+					'time'     => wp_date( 'Y M d', $log['lastmodunix'] ),
+					'contents' => $contents,
+				);
+			},
+			array_reverse( $logs )
+		);
 	}
 
 	/**
@@ -445,34 +468,42 @@ class N2_Rakuten_SFTP {
 	 * https://developer.wordpress.org/reference/classes/wp_filesystem_ssh2/
 	 * エクスプローラー操作一覧
 	 */
-	protected function explorer() {
+	public function explorer() {
 		$this->check_fatal_error( $this->connect(), 'パスワードが違います' );
 		$this->set_params();
+
+		$data = array( 'error' => '未定義' );
 
 		switch ( $this->data['params']['judge'] ) {
 			case 'mkdir':
 				$this->check_fatal_error( $this->data['params']['path'], 'pathが未設定です' );
-				$this->sftp->mkdir( $this->data['params']['path'] );
+				$data = $this->sftp->mkdir( $this->data['params']['path'] );
 				break;
 			case 'delete':
 				$this->check_fatal_error( $this->data['params']['path'], 'pathが未設定です' );
-				$this->sftp->delete( $this->data['params']['path'] );
+				$data = $this->sftp->delete( $this->data['params']['path'] );
 				break;
 			case 'move':
 				$this->check_fatal_error( $this->data['params']['source'], 'sourceが未設定です' );
 				$this->check_fatal_error( $this->data['params']['destination'], 'destinationが未設定です' );
-				$this->sftp->move( $this->data['params']['source'], $this->data['params']['destination'], true ); // overwrite = true
+				$data = $this->sftp->move( $this->data['params']['source'], $this->data['params']['destination'], true ); // overwrite = true
 				break;
 			case 'get_contents':
 				$this->check_fatal_error( $this->data['params']['file'], 'fileが未設定です' );
-				$this->sftp->get_contents( $this->data['params']['file'] );
+				$data = $this->sftp->get_contents( $this->data['params']['file'] );
 				break;
 			case 'put_contents':
 				$this->check_fatal_error( $this->data['params']['file'], 'fileが未設定です' );
 				$this->check_fatal_error( $this->data['params']['contents'], 'contentsが未設定です' );
-				$this->sftp->put_contents( $this->data['params']['file'], $this->data['params']['contents'] );
+				$data = $this->sftp->put_contents( $this->data['params']['file'], $this->data['params']['contents'] );
+				break;
+			case 'dirlist':
+				$this->check_fatal_error( $this->data['params']['path'], 'pathが未設定です' );
+				$data = $this->sftp->dirlist( $this->data['params']['path'] );
 				break;
 		}
+		echo wp_json_encode( $data, JSON_UNESCAPED_UNICODE );
+		exit;
 	}
 
 	/**
