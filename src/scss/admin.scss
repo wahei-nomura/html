@@ -154,7 +154,10 @@
 }
 /* N2設定触らせなくする(select,radio,checkbox) */
 .n2-setting-form{
-	select[readonly],input[type="radio"][readonly],input[type="checkbox"][readonly]{
+	input[readonly]{
+		pointer-events: none;
+	}
+	select[readonly],input[type="radio"][readonly],input[type="checkbox"][readonly], textarea[readonly]{
         pointer-events:none;
     }
 }

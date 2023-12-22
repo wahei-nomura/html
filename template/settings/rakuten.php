@@ -11,7 +11,7 @@ global $n2;
 	<tr>
 		<th>SKU対応</th>
 		<td>
-			<label>
+			<label <?php echo ! $n2->settings_access ? 'style="pointer-events:none;"' : ''; ?>>
 				<input type="checkbox" name="n2_settings[楽天][SKU]" value="1" <?php checked( $n2->settings['楽天']['SKU'] ?? '' ); ?> <?php wp_readonly( ! $n2->settings_access ); ?><?php echo ! $n2->settings_access ? ' onclick="return false;"' : ''; ?>> SKU対応済
 			</label>
 		</td>
@@ -31,7 +31,7 @@ global $n2;
 	<tr>
 		<th>楽天SPA</th>
 		<td>
-			<label>
+			<label <?php echo ! $n2->settings_access ? 'style="pointer-events:none;"' : ''; ?>>
 				<input type="checkbox" name="n2_settings[楽天][楽天SPA]" value="1" <?php checked( $n2->settings['楽天']['楽天SPA'] ?? '' ); ?> <?php wp_readonly( ! $n2->settings_access ); ?><?php echo ! $n2->settings_access ? ' onclick="return false;"' : ''; ?>> 楽天SPA
 			</label>
 		</td>

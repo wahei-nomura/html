@@ -30,7 +30,7 @@ $hide = array(
 		<th>送料</th>
 		<td>
 			<?php foreach ( $settings['送料'] as $v ) : ?>
-			<label style="margin: 0 2em 0 0;">
+			<label style="margin: 0 2em 0 0; <?php echo ! $n2->settings_access ? 'pointer-events:none;' : ''; ?>">
 				<input type="radio" name="n2_settings[LedgHOME][送料]" value="<?php echo $v; ?>" <?php checked( $n2->settings['LedgHOME']['送料'], $v ); ?> <?php wp_readonly( ! $n2->settings_access ); ?><?php echo ! $n2->settings_access ? ' onclick="return false;"' : ''; ?>> <?php echo $v; ?>
 			</label>
 			<?php endforeach; ?>
@@ -40,7 +40,7 @@ $hide = array(
 		<th>送料反映</th>
 		<td>
 			<?php foreach ( $settings['送料反映'] as $v ) : ?>
-			<label style="margin: 0 2em 0 0;">
+			<label style="margin: 0 2em 0 0; <?php echo ! $n2->settings_access ? 'pointer-events:none;' : ''; ?>">
 				<input type="checkbox" name="n2_settings[LedgHOME][送料反映][]" value="<?php echo $v; ?>" <?php checked( in_array( $v, $n2->settings['LedgHOME']['送料反映'] ?? array(), true ) ); ?> <?php wp_readonly( ! $n2->settings_access ); ?><?php echo ! $n2->settings_access ? ' onclick="return false;"' : ''; ?>> <?php echo $v; ?>
 			</label>
 			<?php endforeach; ?>
@@ -51,7 +51,7 @@ $hide = array(
 		<th>その他経費</th>
 		<td>
 			<?php foreach ( $settings['その他経費'] as $v ) : ?>
-			<label style="margin: 0 2em 0 0;">
+			<label style="margin: 0 2em 0 0; <?php echo ! $n2->settings_access ? 'pointer-events:none;' : ''; ?>">
 				<input type="radio" name="n2_settings[LedgHOME][その他経費]" value="<?php echo $v; ?>" <?php checked( $n2->settings['LedgHOME']['その他経費'], $v ); ?> <?php wp_readonly( ! $n2->settings_access ); ?><?php echo ! $n2->settings_access ? ' onclick="return false;"' : ''; ?>> <?php echo $v; ?>
 			</label>
 			<?php endforeach; ?>
@@ -61,7 +61,7 @@ $hide = array(
 		<th>価格</th>
 		<td>
 			<?php foreach ( $settings['価格'] as $v ) : ?>
-			<label style="margin: 0 2em 0 0;">
+			<label style="margin: 0 2em 0 0; <?php echo ! $n2->settings_access ? 'pointer-events:none;' : ''; ?>">
 				<input type="radio" name="n2_settings[LedgHOME][価格]" value="<?php echo $v; ?>" <?php checked( $n2->settings['LedgHOME']['価格'], $v ); ?> <?php wp_readonly( ! $n2->settings_access ); ?><?php echo ! $n2->settings_access ? ' onclick="return false;"' : ''; ?>> <?php echo $v; ?>
 			</label>
 			<?php endforeach; ?>

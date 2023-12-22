@@ -11,10 +11,10 @@ global $n2;
 	<tr>
 		<th>送料を寄附金額計算に含める</th>
 		<td>
-			<label style="margin: 0 2em 0 0;">
+			<label style="margin: 0 2em 0 0; <?php echo ! $n2->settings_access ? 'pointer-events:none;' : ''; ?>">
 				<input type="radio" name="n2_settings[寄附金額・送料][送料乗数]" value="0" <?php checked( $n2->settings['寄附金額・送料']['送料乗数'] ?? 0, 0 ); ?> <?php wp_readonly( ! $n2->settings_access ); ?><?php echo ! $n2->settings_access ? ' onclick="return false;"' : ''; ?>> 含めない
 			</label>
-			<label style="margin: 0 2em 0 0;">
+			<label style="margin: 0 2em 0 0; <?php echo ! $n2->settings_access ? 'pointer-events:none;' : ''; ?>">
 				<input type="radio" name="n2_settings[寄附金額・送料][送料乗数]" value="1" <?php checked( $n2->settings['寄附金額・送料']['送料乗数'] ?? 0, 1 ); ?> <?php wp_readonly( ! $n2->settings_access ); ?><?php echo ! $n2->settings_access ? ' onclick="return false;"' : ''; ?>> 含める
 				（価格が <input type="number" step="100" min="0" style="width: 6em;" name="n2_settings[寄附金額・送料][送料加算分岐点]" value="<?php echo esc_attr( $n2->settings['寄附金額・送料']['送料加算分岐点'] ); ?>" <?php wp_readonly( ! $n2->settings_access ); ?>> 円未満に限る）
 			</label>
@@ -37,7 +37,7 @@ global $n2;
 		<th>価格の端数の自動調整</th>
 		<td>
 			<?php foreach ( array( '調整しない', '1回毎に調整する', '総額で調整する' ) as $v ) : ?>
-			<label style="margin: 0 2em 0 0;">
+			<label style="margin: 0 2em 0 0; <?php echo ! $n2->settings_access ? 'pointer-events:none;' : ''; ?>">
 				<input type="radio" name="n2_settings[寄附金額・送料][自動価格調整]" value="<?php echo $v; ?>" <?php checked( $n2->settings['寄附金額・送料']['自動価格調整'] ?? '調整しない', $v ); ?> <?php wp_readonly( ! $n2->settings_access ); ?><?php echo ! $n2->settings_access ? ' onclick="return false;"' : ''; ?>> <?php echo $v; ?>
 			</label>
 			<?php endforeach; ?>
@@ -48,7 +48,7 @@ global $n2;
 		<td>
 			<p style="margin-bottom: 1em;">
 				<input type="hidden" name="n2_settings[寄附金額・送料][税込送料]" <?php wp_readonly( ! $n2->settings_access ); ?>>
-				<label>
+				<label <?php echo ! $n2->settings_access ? 'style="pointer-events:none;"' : ''; ?>>
 					<input type="checkbox" name="n2_settings[寄附金額・送料][税込送料]" value="1" <?php checked( $n2->settings['寄附金額・送料']['税込送料'] ?? '' ); ?> <?php wp_readonly( ! $n2->settings_access ); ?><?php echo ! $n2->settings_access ? ' onclick="return false;"' : ''; ?>> 税込送料　<small>↓税込送料の場合は全て税込で入力</samll>
 				</label>
 			</p>
@@ -69,10 +69,10 @@ global $n2;
 	<tr>
 		<th>レターパック</th>
 		<td>
-			<label style="margin: 0 2em 0 0;">
+			<label style="margin: 0 2em 0 0; <?php echo ! $n2->settings_access ? 'pointer-events:none;' : ''; ?>">
 				<input type="checkbox" name="n2_settings[寄附金額・送料][送料][レターパックライト]" value="370" <?php checked( $n2->settings['寄附金額・送料']['送料']['レターパックライト'] ?? '', 370 ); ?> <?php wp_readonly( ! $n2->settings_access ); ?><?php echo ! $n2->settings_access ? ' onclick="return false;"' : ''; ?>> レターパックライト
 			</label>
-			<label>
+			<label <?php echo ! $n2->settings_access ? 'style="pointer-events:none;"' : ''; ?>>
 				<input type="checkbox" name="n2_settings[寄附金額・送料][送料][レターパックプラス]" value="520" <?php checked( $n2->settings['寄附金額・送料']['送料']['レターパックプラス'] ?? '', 520 ); ?> <?php wp_readonly( ! $n2->settings_access ); ?><?php echo ! $n2->settings_access ? ' onclick="return false;"' : ''; ?>> レターパックプラス
 			</label>
 		</td>
