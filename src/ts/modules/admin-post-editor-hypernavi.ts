@@ -15,7 +15,12 @@ export default ($:any = jQuery) => {
 			$(e.target).contents().find('.row-title').on('click', async e => {
 				e.preventDefault();
 				const id = $(e.target).parents('tr').attr('id').replace(/[^0-9]/g, '');
-				console.log(id);
+				// オートセーブの制御（疑似移動した際にオートセーブ発火するのを防ぐ）
+				const autosave = id != wp.data.select('core/editor').getCurrentPostId()
+					? 'lockPostAutosaving' // lock
+					: 'unlockPostAutosaving';
+				wp.data.dispatch( 'core/editor' )[autosave]( 'n2-hypernavi-lock' );
+				// データ取得
 				let data = await $.ajax({
 					url: n2.ajaxurl,
 					data: {
@@ -25,18 +30,23 @@ export default ($:any = jQuery) => {
 				});
 				// dataの浄化
 				data = set_default_meta($, data.items[0]);
-				console.log(data)
-				const p = {
+				console.log(id,data)
+				const post = {
 					id,
 					title: data.タイトル,
 					status: data.ステータス,
 				}
-				wp.data.dispatch('core/editor').editPost(p);
+				wp.data.dispatch('core/editor').editPost(post);
 				for ( const k in n2.vue.$data ) {
 					n2.vue.$data[k] = data[k] ?? n2.vue.$data[k];
 				}
-				$('title').text(data.タイトル);
-				$('#n2-view-history-id').val(id);
+				// ↓　N2オートセーブ（タイトルのみでほぼ無意味なので、contentの中のmetaで復旧するようにしたら使える）
+				// window.sessionStorage.setItem(`wp-autosave-block-editor-post-${id}`, JSON.stringify({
+				// 	post_title: wp.data.select( 'core/editor' ).getEditedPostAttribute('title'),
+				// 	content: wp.data.select( 'core/editor' ).getEditedPostContent(),
+				// }));
+				$('title').text(data.タイトル);// タイトル変更
+				$('#n2-view-history-id').val(id);// 履歴変更
 			});
 		});
 	}
