@@ -114,7 +114,7 @@ class N2_Product_List_Print {
 													break;
 												case '価格（税込）':
 													$td = $p['価格'];
-													$td = number_format( $td );
+													$td = '' !== $td ? number_format( $td ) : '<span style="color:#f00;font-weight:bold;">未設定</span>';
 													break;
 												case '送料':
 													if ( ! $td ) {
