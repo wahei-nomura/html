@@ -42,7 +42,7 @@ class N2_RMS_Shop_API extends N2_RMS_Base_API {
 		$url    = static::$settings['endpoint'] . '/1.0/shop/delvdateMaster';
 		$data   = wp_remote_get( $url, array( 'headers' => static::$data['header'] ) );
 		$result = (array) simplexml_load_string( $data['body'] )->result->delvdateMasterList;
-		$master = $result['delvdateMaster'];
+		$master = $result['delvdateMaster'] ?? array();
 		usort( $master, fn( $a, $b ) => (int) $a->delvdateNumber > (int) $b->delvdateNumber ? 1 : -1 );
 		return $master;
 	}
