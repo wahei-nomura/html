@@ -4,23 +4,6 @@ import FolderTree from './sftp-explorer-folder-tree';
 
 export default Vue.extend({
 	name: 'LeftAside',
-	async created(){
-		const dirlist = await this.sftpRequest({
-			judge: 'dirlist',
-			path: '/',
-		}).then(res=>res.data)
-		this.$store.commit('SFTP',{dirlist});
-	},
-	methods:{
-		...mapActions([
-			'sftpRequest'
-		])
-	},
-	data(){
-		return {
-			dirlist:null,
-		}
-	},
 	computed:{
 		...mapState([
 			'sftp'
