@@ -124,7 +124,6 @@ class N2_Rakuten_SFTP {
 				$args = match ( $page ) {
 					'sftp-error-log' => $this->error_log_args(),
 					'sftp-upload'    => $this->upload_args(),
-					'sftp-explorer'  => $this->explorer_args(),
 					default     => null,
 				};
 				ob_start();
