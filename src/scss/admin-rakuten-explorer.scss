@@ -3,6 +3,9 @@
 }
 .n2-tree-node {
 	position: relative;
+	label {
+		display: inline;
+	}
 }
 .has-child{
 	&:before {

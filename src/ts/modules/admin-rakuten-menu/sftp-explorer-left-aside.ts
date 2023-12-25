@@ -1,12 +1,17 @@
 import Vue from 'vue/dist/vue.min';
-import {mapState,mapGetters,mapActions} from 'vuex/dist/vuex.min';
+import {mapState,mapGetters,mapActions,mapMutations} from 'vuex/dist/vuex.min';
 import FolderTree from './sftp-explorer-folder-tree';
 
 export default Vue.extend({
 	name: 'LeftAside',
 	computed:{
 		...mapState([
-			'sftp'
+			'sftp',
+		]),
+	},
+	methods:{
+		...mapMutations([
+			'SET_CURRENT_DIR',
 		]),
 	},
 	components:{
@@ -19,11 +24,11 @@ export default Vue.extend({
 				<label v-if="sftp.dirlist" class="has-child">
 					<input type="checkbox" checked>
 				</label>
-				<label data-path="/">
+				<label data-path="/" @click="SET_CURRENT_DIR({path:'/', children:sftp.dirlist})">
 					<span class="dashicons dashicons-open-folder"></span>
 					<span>root</span>
 				</label>
-				<FolderTree v-if="" :children="sftp.dirlist" />
+				<FolderTree v-if="sftp.dirlist" :children="sftp.dirlist" />
 			</li>
 		</ul>
 	</aside>

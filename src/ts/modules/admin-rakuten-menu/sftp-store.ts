@@ -13,6 +13,10 @@ export default new Vuex.Store({
 		sftp:{
 			dirlist: null,
 		},
+		currentDir:{
+			path:null,
+			children:null,
+		},
 	},
 	mutations: {
 		SET_N2NONCE(state, n2nonce:string){
@@ -26,7 +30,11 @@ export default new Vuex.Store({
 		},
 		SFTP(state, res){
 			state.sftp = {...state.sftp, ...res};
-		}
+		},
+		SET_CURRENT_DIR(state, payload){
+			const {path,children} = payload;
+			state.currentDir = {path,children};
+		},
 	},
 	actions: {
 		async updateSFTPLog ({commit}) {

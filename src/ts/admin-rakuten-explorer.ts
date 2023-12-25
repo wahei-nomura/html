@@ -10,6 +10,8 @@ jQuery( async function($){
 	window['n2'].vue = new Vue({
 		el: '#n2-sftp-explorer',
 		async created() {
+
+			this.offset = $('#n2-sftp-explorer').offset();
 			const n2nonce = $('input[name="n2nonce"]').val();
 			this.$store.commit('SET_N2NONCE',n2nonce);
 
@@ -28,11 +30,20 @@ jQuery( async function($){
 		},
 		data:{
 			loading: true,
+			offset:{
+				top: null,
+				left:null,
+			},
 		},
 		computed:{
 			...mapState([
 				'sftp'
 			]),
+			offsetHeight(){
+				let top = 0;
+				if( this.offset.top !== null ) top = this.offset.top + 80;
+				return `height: calc(100vh - ${top}px);`
+			},
 		},
 		methods:{
 			...mapActions([
@@ -45,7 +56,7 @@ jQuery( async function($){
 			LeftAside,
 		},
 		template: `
-		<div id="n2-sftp-explorer" class="row">
+		<div id="n2-sftp-explorer" class="row" :style="offsetHeight">
 			<template v-if="loading &&  sftp.dirlist === null ">
 				<div class="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center">
 					<span class="spinner-border text-primary" role="status"></span>

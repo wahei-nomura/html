@@ -1,5 +1,5 @@
 import Vue from 'vue/dist/vue.min';
-import {mapState,mapActions} from 'vuex/dist/vuex.min';
+import {mapState,mapActions,mapMutations} from 'vuex/dist/vuex.min';
 import FolderTree from './sftp-explorer-folder-tree';
 
 export default Vue.extend({
@@ -26,6 +26,9 @@ export default Vue.extend({
 		FolderTree
 	},
 	methods:{
+		...mapMutations([
+			'SET_CURRENT_DIR',
+		]),
 		/**
 		 * サブディレクトリ判定用
 		 * @param files array|object
@@ -47,14 +50,14 @@ export default Vue.extend({
 			<label class="has-child">
 				<input type="checkbox">
 			</label>
-			<label :data-path="path+'/'+dir" @click="setCurrentFiles(meta)">
+			<label :data-path="path+'/'+dir" @click="SET_CURRENT_DIR({path:path+'/'+dir,children:meta.files})">
 				<span class="dashicons dashicons-open-folder"></span>
 				<span>{{dir}}</span>
 			</label>
 			<FolderTree :children="meta.files" :path="path + '/' + dir">
 		</template>
 		<template v-else>
-			<label :data-path="path+'/'+dir" @click="setCurrentFiles(meta)">
+			<label :data-path="path+'/'+dir" @click="SET_CURRENT_DIR({path:path+'/'+dir,children:meta.files})">
 				<span class="dashicons dashicons-open-folder"></span>
 				<span>{{dir}}</span>
 			</label>
