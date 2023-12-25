@@ -4,25 +4,27 @@
 .n2-tree-node {
 	position: relative;
 }
-.n2-tree-node > label:not(:has(:checked))~ul {
-	display: none;
-}
-.n2-tree-node > label > span:not(.dashicons):before {
-	border: 2px solid #000;
-	border-left: none;
-	border-top: none;
-	content: "";
-	position: absolute;
-	left: -10px;
-	top: 0%;
-	transform: translate(-50%,100%) rotate(-45deg);
-	transition: .2s;
-	width: 9px;
-	height: 9px;
-}
-.n2-tree-node > label > [type="checkbox"] {
-	display: none;
-}
-.n2-tree-node > label:has(:checked) > span:not(.dashicons):before {
-	transform: translate(-50%,100%) rotate(45deg);
+.has-child{
+	&:before {
+		border: 2px solid #000;
+		border-left: none;
+		border-top: none;
+		content: "";
+		position: absolute;
+		left: -10px;
+		top: 0%;
+		transform: translate(-50%,100%) rotate(-45deg);
+		transition: .2s;
+		width: 9px;
+		height: 9px;
+	}
+	& > [type="checkbox"] {
+		display: none;
+	}
+	&:not(:has(:checked))~ul {
+		display: none;
+	}
+	&:has(:checked)::before {
+		transform: translate(-50%,100%) rotate(45deg);
+	}
 }

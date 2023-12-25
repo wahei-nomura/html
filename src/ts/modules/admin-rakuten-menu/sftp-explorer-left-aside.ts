@@ -13,8 +13,19 @@ export default Vue.extend({
 		FolderTree,
 	},
 	template:`
-	<aside class="col-3">
-		<FolderTree v-if="sftp.dirlist" :children="sftp.dirlist" />
+	<aside>
+		<ul class="n2-tree-parent">
+			<li class="n2-tree-node">
+				<label v-if="sftp.dirlist" class="has-child">
+					<input type="checkbox" checked>
+				</label>
+				<label data-path="/">
+					<span class="dashicons dashicons-open-folder"></span>
+					<span>root</span>
+				</label>
+				<FolderTree v-if="" :children="sftp.dirlist" />
+			</li>
+		</ul>
 	</aside>
 	`,
 });

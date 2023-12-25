@@ -35,23 +35,28 @@ export default Vue.extend({
 			if( Array.isArray(files) ) return false;
 			return 0 < Object.keys(files).filter(file=>files[file].type==='d').length
 		},
+		setCurrentFiles(meta){
+			console.log(meta);
+		},
 	},
 	template: `
 	<ul class="n2-tree-parent">
 	<template v-for="(meta,dir) in children">
 		<li class="n2-tree-node" v-if="meta.type==='d'">
 		<template v-if="meta.files && hasDirChildren(meta.files)">
-			<label>
+			<label class="has-child">
+				<input type="checkbox">
+			</label>
+			<label :data-path="path+'/'+dir" @click="setCurrentFiles(meta)">
 				<span class="dashicons dashicons-open-folder"></span>
 				<span>{{dir}}</span>
-				<input type="checkbox">
 			</label>
 			<FolderTree :children="meta.files" :path="path + '/' + dir">
 		</template>
 		<template v-else>
-			<label>
+			<label :data-path="path+'/'+dir" @click="setCurrentFiles(meta)">
 				<span class="dashicons dashicons-open-folder"></span>
-				{{dir}}
+				<span>{{dir}}</span>
 			</label>
 		</template>
 		</li>

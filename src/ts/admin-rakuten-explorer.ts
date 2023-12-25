@@ -1,10 +1,8 @@
 import Vue from 'vue/dist/vue.min';
-
+import { mapActions, mapState } from 'vuex/dist/vuex.min';
 import store from './modules/admin-rakuten-menu/sftp-store';
 import LeftAside from './modules/admin-rakuten-menu/sftp-explorer-left-aside';
 import Main from './modules/admin-rakuten-menu/sftp-explorer-main';
-import { mapActions, mapState } from 'vuex';
-// import store from './modules/admin-rakuten-menu/explorer-store';
 
 Vue.config.devtools = true;
 
@@ -47,7 +45,7 @@ jQuery( async function($){
 			LeftAside,
 		},
 		template: `
-		<div id="n2-sftp-explorer" class="row border-top border-dark">
+		<div id="n2-sftp-explorer" class="row">
 			<template v-if="loading &&  sftp.dirlist === null ">
 				<div class="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center">
 					<span class="spinner-border text-primary" role="status"></span>
@@ -58,8 +56,8 @@ jQuery( async function($){
 				<span class="text-danger">SFTP接続エラー<span>
 			</template>
 			<template v-else>
-				<LeftAside class="col-3"/>
-				<Main class="col-9 border-start border-dark"/>
+				<LeftAside class="col-3 p-3"/>
+				<Main class="col-9 p-3 border-start border-dark"/>
 			</template>
 		</div>
 		`,
