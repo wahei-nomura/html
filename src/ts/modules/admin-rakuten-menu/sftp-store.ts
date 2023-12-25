@@ -6,17 +6,27 @@ Vue.use(Vuex);
 export default new Vuex.Store({
 	state:{
 		n2nonce: null,
+		n2referer: null,
 		sftpLog : {
 			items: [],
+		},
+		sftp:{
+			dirlist: null,
 		},
 	},
 	mutations: {
 		SET_N2NONCE(state, n2nonce:string){
 			state.n2nonce = n2nonce;
 		},
+		SET_N2REFERER(state, n2referer:string){
+			state.n2referer = n2referer;
+		},
 		SET_SFTP_LOG(state, log:[]){
 			state.sftpLog = log;
 		},
+		SFTP(state, res){
+			state.sftp = {...state.sftp, ...res};
+		}
 	},
 	actions: {
 		async updateSFTPLog ({commit}) {
@@ -32,7 +42,7 @@ export default new Vuex.Store({
 				return res;
 			});
 		},
-		async sftp({state},data){
+		async sftpRequest({state},data){
 			console.log(data);
 			
 			const params = {

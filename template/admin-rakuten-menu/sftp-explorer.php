@@ -71,58 +71,10 @@ function array_flatten( $arr ) {
 	return iterator_to_array( $iterator, false );
 }
 
-// $tree = build_tree( $args['dirlist'], '' );
+$tree = build_tree( $args['dirlist'], '' );
 
 ?>
 <div id="n2-sftp-explorer">
-	<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
+	<?php wp_nonce_field( 'n2nonce', 'n2nonce' ); ?>
 </div>
 
-<h3>SFTPサーバー</h3>
-<div class="row border-top border-dark" style="height: calc(100vh - 205px);">
-	<aside id="n2_sftp_explorer__left-aside" class="col-3">
-		<ul class="n2-tree-parent">
-			<li class="n2-tree-node">
-				<label>
-					<span class="dashicons dashicons-open-folder"></span>
-					<span data-path="/">root</span>
-					<input type="checkbox">
-				</label>
-				<?php # build_tree_ul_element( $tree ); ?>
-			</li>
-		</ul>
-	</aside>
-	<main class="col-9 border-start border-dark">
-		main
-	</main>
-</div>
-<style>
-	.n2-tree-parent {
-		padding-left: 1rem;
-	}
-	.n2-tree-node {
-		position: relative;
-	}
-	.n2-tree-node > label:not(:has(:checked))~ul {
-		display: none;
-	}
-	.n2-tree-node > label > span:not(.dashicons):before {
-		border: 2px solid #000;
-		border-left: none;
-		border-top: none;
-		content: "";
-		position: absolute;
-		left: -10px;
-		top: 0%;
-		transform: translate(-50%,100%) rotate(-45deg);
-		transition: .2s;
-		width: 9px;
-		height: 9px;
-	}
-	.n2-tree-node > label > [type="checkbox"] {
-		display: none;
-	}
-	.n2-tree-node > label:has(:checked) > span:not(.dashicons):before {
-		transform: translate(-50%,100%) rotate(45deg);
-	}
-</style>

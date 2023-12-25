@@ -499,7 +499,7 @@ class N2_Rakuten_SFTP {
 				break;
 			case 'dirlist':
 				$this->check_fatal_error( $this->data['params']['path'], 'pathが未設定です' );
-				$data = $this->sftp->dirlist( $this->data['params']['path'] );
+				$data = $this->sftp->dirlist( $this->data['params']['path'], true, true );
 				break;
 		}
 		echo wp_json_encode( $data, JSON_UNESCAPED_UNICODE );
