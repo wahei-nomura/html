@@ -17,6 +17,11 @@ export default Vue.extend({
 		...mapState([
 			'currentDir',
 		]),
+		hasFile(){
+			const children = this.currentDir.children;
+			if( Array.isArray( children ) ) return false;
+			return Object.keys( children ).filter(key=>children[key].type ==='f').length > 0;
+		},
 	},
 	methods:{
 		handleClick(){
@@ -44,14 +49,21 @@ export default Vue.extend({
 					<th>最終更新日</th>
 				</tr>
 				</thead>
-			<tbody v-if="currentDir.children">
-				<tr v-for="(meta,child) in currentDir.children" v-if="meta.type ==='f'">
-					<template v-for="(label,th) in table.header" v-if="meta[th]">
-						<td v-if="th==='size'">{{formatSize(meta[th])}}</td>
-						<td v-else>{{meta[th]}}</td>
-					</template>
-					<td>{{meta.lastmod + ' ' + meta.time}}</td>
-				</tr>
+			<tbody>
+				<template v-if="currentDir.children && hasFile">
+					<tr v-for="(meta,child) in currentDir.children" v-if="meta.type ==='f'">
+						<template v-for="(label,th) in table.header" v-if="meta[th]">
+							<td v-if="th==='size'">{{formatSize(meta[th])}}</td>
+							<td v-else>{{meta[th]}}</td>
+						</template>
+						<td>{{meta.lastmod + ' ' + meta.time}}</td>
+					</tr>
+				</template>
+				<template v-else>
+					<tr>
+						<td colspan="3">no files<td>
+					</tr>
+				</template>
 			</tbody>
 		</table>
 		<div
