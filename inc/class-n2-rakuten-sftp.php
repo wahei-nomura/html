@@ -509,7 +509,7 @@ class N2_Rakuten_SFTP {
 		switch ( $this->data['params']['judge'] ) {
 			case 'mkdir':
 				$this->check_fatal_error( $this->data['params']['path'], 'pathが未設定です' );
-				$data = $this->sftp->mkdir( $this->data['params']['path'] );
+				$this->mkdir( $this->data['params']['path'] );
 				break;
 			case 'delete':
 				$this->check_fatal_error( $this->data['params']['path'], 'pathが未設定です' );
