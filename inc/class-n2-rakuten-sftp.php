@@ -549,11 +549,11 @@ class N2_Rakuten_SFTP {
 				break;
 			case 'dirlist':
 				$this->check_fatal_error( $this->data['params']['path'], 'pathが未設定です' );
-				$data = $this->sftp->dirlist( $this->data['params']['path'], true, true );
+				$this->data['log'] = $this->sftp->dirlist( $this->data['params']['path'], true, true );
 				break;
 		}
 		header( 'Content-Type: application/json; charset=utf-8' );
-		echo wp_json_encode( $data, JSON_UNESCAPED_UNICODE );
+		echo wp_json_encode( $this->data['log'], JSON_UNESCAPED_UNICODE );
 		exit;
 	}
 
