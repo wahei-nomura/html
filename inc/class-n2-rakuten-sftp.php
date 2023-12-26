@@ -440,6 +440,25 @@ class N2_Rakuten_SFTP {
 	}
 
 	/**
+	 * delete
+	 *
+	 * @param string $path path
+	 */
+	private function delete( $path ) {
+		$this->data['log'][] = match ( $this->sftp->delete( $path ) ) {
+			true => array(
+				'status'  => '削除',
+				'context' => $path,
+			),
+			default => array(
+				'status'  => 'エラー',
+				'context' => "{$path} の削除に失敗しました",
+			),
+		};
+	}
+
+
+	/**
 	 * log output
 	 */
 	public function log_output() {
@@ -513,7 +532,7 @@ class N2_Rakuten_SFTP {
 				break;
 			case 'delete':
 				$this->check_fatal_error( $this->data['params']['path'], 'pathが未設定です' );
-				$data = $this->sftp->delete( $this->data['params']['path'] );
+				$this->delete( $this->data['params']['path'] );
 				break;
 			case 'move':
 				$this->check_fatal_error( $this->data['params']['source'], 'sourceが未設定です' );
