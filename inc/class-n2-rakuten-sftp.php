@@ -442,19 +442,21 @@ class N2_Rakuten_SFTP {
 	/**
 	 * delete
 	 *
-	 * @param string $path path
+	 * @param array $paths paths
 	 */
-	private function delete( $path ) {
-		$this->data['log'][] = match ( $this->sftp->delete( $path ) ) {
-			true => array(
-				'status'  => '削除',
-				'context' => $path,
-			),
-			default => array(
-				'status'  => 'エラー',
-				'context' => "{$path} の削除に失敗しました",
-			),
-		};
+	private function delete( $paths ) {
+		foreach ( $paths as $path ) {
+			$this->data['log'][] = match ( $this->sftp->delete( $path ) ) {
+				true => array(
+					'status'  => '削除',
+					'context' => $path,
+				),
+				default => array(
+					'status'  => 'エラー',
+					'context' => "{$path} の削除に失敗しました",
+				),
+			};
+		}
 	}
 
 	/**
