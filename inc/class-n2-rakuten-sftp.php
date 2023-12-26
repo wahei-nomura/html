@@ -457,6 +457,26 @@ class N2_Rakuten_SFTP {
 		};
 	}
 
+	/**
+	 * move
+	 *
+	 * @param string  $source 　　　path
+	 * @param string  $destination path
+	 * @param boolean $overwrite   overwrite
+	 */
+	private function move( $source, $destination, $overwrite = false ) {
+		$this->data['log'][] = match ( $this->sftp->move( $source, $destination, $overwrite ) ) {
+			true => array(
+				'status'  => '移動',
+				'context' => $destination,
+			),
+			default => array(
+				'status'  => 'エラー',
+				'context' => "{$source} → {$destination} の移動に失敗しました",
+			),
+		};
+	}
+
 
 	/**
 	 * log output
@@ -537,7 +557,8 @@ class N2_Rakuten_SFTP {
 			case 'move':
 				$this->check_fatal_error( $this->data['params']['source'], 'sourceが未設定です' );
 				$this->check_fatal_error( $this->data['params']['destination'], 'destinationが未設定です' );
-				$data = $this->sftp->move( $this->data['params']['source'], $this->data['params']['destination'], true ); // overwrite = true
+				$overwrite = (bool) $this->data['params']['overwrite'] ?? false;
+				$this->move( $this->data['params']['source'], $this->data['params']['destination'], $overwrite );
 				break;
 			case 'get_contents':
 				$this->check_fatal_error( $this->data['params']['file'], 'fileが未設定です' );
