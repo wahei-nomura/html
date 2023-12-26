@@ -7,24 +7,33 @@ export default Vue.extend({
 	computed:{
 		...mapState([
 			'sftp',
+			'currentDir',
 		]),
 	},
 	methods:{
 		...mapMutations([
 			'SET_CURRENT_DIR',
 		]),
+		mkdir(){
+			console.log('click');
+		},
 	},
 	components:{
 		FolderTree,
 	},
 	template:`
 	<aside>
+		<nav class="mb-3 d-flex justify-content-around">
+			<div class="btn btn-outline-secondary btn-sm" @click="mkdir">新規作成</div>
+		</nav>
 		<ul class="n2-tree-parent">
 			<li class="n2-tree-node">
 				<label v-if="sftp.dirlist" class="has-child">
 					<input type="checkbox" checked>
 				</label>
-				<label data-path="/" @click="SET_CURRENT_DIR({path:'/', children:sftp.dirlist})">
+				<label data-path="/" :class="{active:'/' === currentDir.path }"
+					@click="SET_CURRENT_DIR({path:'/', children:sftp.dirlist})"
+				>
 					<span class="dashicons dashicons-open-folder"></span>
 					<span>root</span>
 				</label>

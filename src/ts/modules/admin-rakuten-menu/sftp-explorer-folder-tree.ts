@@ -19,6 +19,11 @@ export default Vue.extend({
 
 		};
 	},
+	computed:{
+		...mapState([
+			'currentDir',
+		]),
+	},
 	created(){
 		console.log('mounted',this.children);
 	},
@@ -50,14 +55,20 @@ export default Vue.extend({
 			<label class="has-child">
 				<input type="checkbox">
 			</label>
-			<label :data-path="path+'/'+dir" @click="SET_CURRENT_DIR({path:path+'/'+dir,children:meta.files})">
+			<label
+				:data-path="path+'/'+dir" :class="{active:path+'/'+dir ===currentDir.path }"
+				@click="SET_CURRENT_DIR({path:path+'/'+dir,children:meta.files})"
+			>
 				<span class="dashicons dashicons-open-folder"></span>
 				<span>{{dir}}</span>
 			</label>
 			<FolderTree :children="meta.files" :path="path + '/' + dir">
 		</template>
 		<template v-else>
-			<label :data-path="path+'/'+dir" @click="SET_CURRENT_DIR({path:path+'/'+dir,children:meta.files})">
+			<label
+				:data-path="path+'/'+dir" :class="{active:path+'/'+dir ===currentDir.path }"
+				@click="SET_CURRENT_DIR({path:path+'/'+dir,children:meta.files})"
+			>
 				<span class="dashicons dashicons-open-folder"></span>
 				<span>{{dir}}</span>
 			</label>

@@ -5,6 +5,9 @@
 	position: relative;
 	label {
 		display: inline;
+		&.active{
+			background: #0082;
+		}
 	}
 }
 .has-child{
