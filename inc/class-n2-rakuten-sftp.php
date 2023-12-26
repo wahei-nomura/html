@@ -443,7 +443,7 @@ class N2_Rakuten_SFTP {
 		if ( $this->sftp->mkdir( $path ) ) {
 			$this->data['log'][] = array(
 				'status'  => '作成',
-				'context' => $remote_dir,
+				'context' => $path,
 			);
 		}
 	}
