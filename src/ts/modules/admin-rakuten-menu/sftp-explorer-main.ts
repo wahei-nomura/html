@@ -31,7 +31,7 @@ export default Vue.extend({
 			'SET_CURRENT_FILE',
 		]),
 		handleFileAreaClick(){
-			console.log('click');
+			this.$refs.file.click();
 		},
 		handleFileAreaChange(){
 			console.log('change');
