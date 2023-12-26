@@ -314,19 +314,10 @@ class N2_Rakuten_SFTP {
 			}
 
 			// 商品画像の場合
-			if ( $this->sftp->mkdir( $remote_dir ) ) {
-				$this->data['log'][] = array(
-					'status'  => '作成',
-					'context' => $remote_dir,
-				);
-			}
+			$this->mkdir( $remote_dir );
 			$remote_dir .= $m[1];
-			if ( $this->sftp->mkdir( $remote_dir ) ) {
-				$this->data['log'][] = array(
-					'status'  => '作成',
-					'context' => $remote_dir,
-				);
-			}
+			$this->mkdir( $remote_dir );
+
 			$remote_file         = "{$remote_dir}/{$name[$k]}";
 			$image_data          = file_get_contents( "{$tmp}/{$name[$k]}" );
 			$uploaded            = $this->sftp->put_contents( $remote_file, $image_data );
