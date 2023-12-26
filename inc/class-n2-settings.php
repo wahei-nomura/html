@@ -91,6 +91,7 @@ class N2_Settings {
 	 * 統一のUI
 	 */
 	public function ui() {
+		global $n2;
 		$template = $_GET['page'];
 		$html     = array(
 			'nav'      => '',
@@ -109,7 +110,7 @@ class N2_Settings {
 			$html['contents'] .= sprintf( '<div style="display: %s;padding: 3em 0;">%s</div>', $menu_slug === $template ? 'block' : 'none', ob_get_clean() );
 		}
 		?>
-		<div class="wrap">
+		<div class="wrap n2-setting-form">
 			<h1><span class="dashicons dashicons-admin-settings" style="transform: scale(2) translateY(.1em);"></span>　N2設定</h1>
 			<form method="post" action="options.php">
 				<?php settings_fields( 'n2_settings' ); ?>
