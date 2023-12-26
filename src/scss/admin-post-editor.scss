@@ -170,6 +170,7 @@ body.n2-darkmode{
 				}
 				.components-panel{
 					height: 100%;
+					background: #efefef;
 					#n2-hypernavi{
 						min-width: 100%;
 						height: 100%;
@@ -193,6 +194,16 @@ body.n2-darkmode{
 					float: none;
 					text-align: left;
 					width: 100%;
+				}
+			}
+		}
+	}
+	&.administrator {
+		#editor{
+			.interface-interface-skeleton__sidebar{
+				.components-panel{
+					background: linear-gradient(45deg, rgba(139,0,0,0.9), rgba(139,0,0,0.8)), url(https://www.suruga-ya.jp/database/pics_light/game/g8868169.jpg);
+					background-size: cover;
 				}
 			}
 		}
