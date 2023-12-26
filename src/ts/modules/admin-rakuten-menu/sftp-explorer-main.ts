@@ -81,7 +81,7 @@ export default Vue.extend({
 				judge:'delete',
 			};
 			target.forEach((_,i)=>{
-				formData[`path[${i}]`] = target[i];
+				formData[`paths[${i}]`] = target[i];
 			});
 			await this.sftpRequest(formData).then(async res=>{
 				console.log(res);

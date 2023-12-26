@@ -553,8 +553,8 @@ class N2_Rakuten_SFTP {
 				$this->mkdir( $this->data['params']['path'] );
 				break;
 			case 'delete':
-				$this->check_fatal_error( $this->data['params']['path'], 'pathが未設定です' );
-				$this->delete( $this->data['params']['path'] );
+				$this->check_fatal_error( $this->data['params']['paths'], 'pathsが未設定です' );
+				$this->delete( $this->data['params']['paths'] );
 				break;
 			case 'move':
 				$this->check_fatal_error( $this->data['params']['source'], 'sourceが未設定です' );
@@ -563,8 +563,8 @@ class N2_Rakuten_SFTP {
 				$this->move( $this->data['params']['source'], $this->data['params']['destination'], $overwrite );
 				break;
 			case 'get_contents':
-				$this->check_fatal_error( $this->data['params']['file'], 'fileが未設定です' );
-				$data = $this->sftp->get_contents( $this->data['params']['file'] );
+				$this->check_fatal_error( $this->data['params']['files'], 'filesが未設定です' );
+				$data = $this->sftp->get_contents( $this->data['params']['files'] );
 				break;
 			case 'put_contents':
 				$this->check_fatal_error( $this->data['params']['path'], 'pathが未設定です' );
