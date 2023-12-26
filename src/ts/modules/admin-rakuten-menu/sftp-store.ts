@@ -54,7 +54,7 @@ export default new Vuex.Store({
 				return res;
 			});
 		},
-		async sftpRequest({state},data,config={}){
+		async sftpRequest({state},{data,config}){
 			const params = {
 				action: 'n2_rakuten_sftp_explorer',
 				n2nonce: state.n2nonce,
@@ -73,5 +73,26 @@ export default new Vuex.Store({
 				return res;
 			});
 		},
+		async refleshDir({commit,dispatch},currentPath) {
+			// 一覧
+			dispatch('sftpRequest',{data:{
+				judge: 'dirlist',
+				path: '/',
+			}}).then(res=>{
+				const dirlist = res.data;
+				commit('SFTP',{dirlist});
+			});
+			// current
+			dispatch('sftpRequest',{data:{
+				judge: 'dirlist',
+				path: currentPath,
+			}}).then(res=>{
+				const children = res.data;
+				commit('SET_CURRENT_DIR',{
+					path: currentPath,
+					children,
+				});
+			});
+		}
 	},
 });

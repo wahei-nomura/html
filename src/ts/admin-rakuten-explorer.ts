@@ -17,10 +17,10 @@ jQuery( async function($){
 
 			const n2referer = $('input[name="_wp_http_referer"]').val();
 			this.$store.commit('SET_N2REFERER',n2referer);
-			this.sftpRequest({
+			this.sftpRequest({data:{
 				judge: 'dirlist',
 				path: '/',
-			}).then(res=>{
+			}}).then(res=>{
 				const dirlist = res.data;
 				this.$store.commit('SFTP',{dirlist});
 				this.$store.commit('SET_CURRENT_DIR',{

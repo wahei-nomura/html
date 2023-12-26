@@ -32,6 +32,7 @@ export default Vue.extend({
 		]),
 		...mapActions([
 			'sftpRequest',
+			'refleshDir',
 		]),
 		handleFileAreaClick(){
 			this.$refs.file.click();
@@ -50,56 +51,59 @@ export default Vue.extend({
 					'Content-Type': 'multipart/form-data'
 				},
 			};
-			const formData = {
+			const data = {
 				judge:'put_contents',
 				path: this.currentDir.path,
 			};
 			Object.keys(files).forEach(i=>{
-				formData[`sftp_file[${i}]`] = files[i];
+				data[`sftp_file[${i}]`] = files[i];
 			});
 
-			await this.sftpRequest(formData,config).then(async res=>{
+			await this.sftpRequest({data,config}).then( res=>{
 				console.log(res);
-				return await this.sftpRequest({
-					judge: 'dirlist',
-					path: '/',
-				})
-			}).then(res=>{
-				const dirlist = res.data;
-				this.$store.commit('SFTP',{dirlist});
-				this.$store.commit('SET_CURRENT_DIR',{
-					path: '/',
-					children: dirlist,
-				});
+				this.refleshDir(this.currentDir.path);
 			});
 		},
 		async deleteFiles(){
 			const target = Object.entries(this.selectedFile)
 				.filter(([_,value])=>value)
 				.map(([file,_])=>`${this.currentDir.path}/${file}`);
-			const formData = {
+			const data = {
 				judge:'delete',
 			};
 			target.forEach((_,i)=>{
-				formData[`paths[${i}]`] = target[i];
+				data[`paths[${i}]`] = target[i];
 			});
-			await this.sftpRequest(formData).then(async res=>{
+			await this.sftpRequest({data}).then(res=>{
 				console.log(res);
-				return await this.sftpRequest({
-					judge: 'dirlist',
-					path: '/',
-				})
-			}).then(res=>{
-				const dirlist = res.data;
-				this.$store.commit('SFTP',{dirlist});
-				this.$store.commit('SET_CURRENT_DIR',{
-					path: '/',
-					children: dirlist,
-				});
+				this.refleshDir(this.currentDir.path);
 			});
 		},
 		async downloadFiles(){
-			console.log('delete');
+			const target = Object.entries(this.selectedFile)
+				.filter(([_,value])=>value)
+				.map(([file,_])=>file);
+			const data = {
+				judge:'download',
+				path: this.currentDir.path,
+			};
+			const config = {
+				responseType:'blob',
+			};
+			target.forEach((_,i)=>{
+				data[`files[${i}]`] = target[i];
+			});
+			// 一覧
+			await this.sftpRequest({data,config}).then( res => {
+				const url = URL.createObjectURL(res.data);
+				// `<a>`タグを作成し、ダウンロードリンクとして使用します。
+				const a = document.createElement('a');
+				a.href = url;
+				a.download = 'test' + '.zip';  // ダウンロードされるファイル名を指定します。
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+			});
 		},
 		handleFileAreaDrop(){
 			console.log('drop');
@@ -138,8 +142,6 @@ export default Vue.extend({
 	<main class="d-flex flex-column justify-content-between">
 		<div>
 			<nav class="navbar navbar-light bg-light px-2 position-sticky top-0 start-0 align-items-strech">
-				<div class="navbar-brand" id="current-direcotry">root</div>
-				<div class="navbar-text me-auto" id="file-count">0件</div>
 				<div class="d-flex ms-auto">
 					<div class="d-flex align-items-center">
 								選択したファイルを

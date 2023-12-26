@@ -426,6 +426,34 @@ class N2_Rakuten_SFTP {
 	}
 
 	/**
+	 * Download
+	 */
+	private function download() {
+
+		$tmp_zip_uri = stream_get_meta_data( tmpfile() )['uri'];
+		$zip         = new ZipArchive();
+		$zip->open( $tmp_zip_uri, ZipArchive::CREATE );
+		$zip_name = 'sftp';
+
+		foreach ( $this->data['params']['files'] as $file ) {
+			$file_path = "{$this->data['params']['path']}/{$file}";
+			$zip->addFromString( "{$zip_name}/{$file}", $this->sftp->get_contents( $file_path ) );
+		}
+		$zip->close();
+
+		header( 'Content-Type: application/zip' );
+		header( 'Content-Transfer-Encoding: Binary' );
+		header( 'Content-Length: ' . filesize( $tmp_zip_uri ) );
+		header( "Content-Disposition:attachment; filename = {$zip_name}" );
+		while ( ob_get_level() ) {
+			ob_end_clean(); // 出力バッファの無効化
+		}
+		// 出力処理
+		readfile( $tmp_zip_uri );
+		exit;
+	}
+
+	/**
 	 * mkdir
 	 *
 	 * @param string $path path
@@ -562,9 +590,10 @@ class N2_Rakuten_SFTP {
 				$overwrite = (bool) $this->data['params']['overwrite'] ?? false;
 				$this->move( $this->data['params']['source'], $this->data['params']['destination'], $overwrite );
 				break;
-			case 'get_contents':
+			case 'download':
+				$this->check_fatal_error( $this->data['params']['path'], 'pathが未設定です' );
 				$this->check_fatal_error( $this->data['params']['files'], 'filesが未設定です' );
-				$data = $this->sftp->get_contents( $this->data['params']['files'] );
+				$this->download();
 				break;
 			case 'put_contents':
 				$this->check_fatal_error( $this->data['params']['path'], 'pathが未設定です' );
