@@ -42,8 +42,10 @@ export default ($: any = jQuery) => {
 		};
 		this.商品属性 = JSON.stringify( this.商品属性 || [] );
 		this.寄附金額 = await this.calc_donation(this.価格,this.送料,this.定期便);
-		this.get_rakuten_category();
-		await this.get_rakuten_delvdate();
+		if (n2.settings.N2.出品ポータル.includes('楽天')) {
+			this.get_rakuten_category();
+			await this.get_rakuten_delvdate();
+		}
 		this.control_submit();
 		// 発送サイズ・発送方法をダブル監視
 		this.$watch(
