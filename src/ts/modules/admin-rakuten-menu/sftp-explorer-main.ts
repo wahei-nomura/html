@@ -52,12 +52,54 @@ export default Vue.extend({
 			};
 			const formData = {
 				judge:'put_contents',
+				path: this.currentDir.path,
 			};
 			Object.keys(files).forEach(i=>{
 				formData[`sftp_file[${i}]`] = files[i];
 			});
 
-			this.sftpRequest(formData,config);
+			await this.sftpRequest(formData,config).then(async res=>{
+				console.log(res);
+				return await this.sftpRequest({
+					judge: 'dirlist',
+					path: '/',
+				})
+			}).then(res=>{
+				const dirlist = res.data;
+				this.$store.commit('SFTP',{dirlist});
+				this.$store.commit('SET_CURRENT_DIR',{
+					path: '/',
+					children: dirlist,
+				});
+			});
+		},
+		async deleteFiles(){
+			const target = Object.entries(this.selectedFile)
+				.filter(([_,value])=>value)
+				.map(([file,_])=>`${this.currentDir.path}/${file}`);
+			const formData = {
+				judge:'delete',
+			};
+			target.forEach((_,i)=>{
+				formData[`path[${i}]`] = target[i];
+			});
+			await this.sftpRequest(formData).then(async res=>{
+				console.log(res);
+				return await this.sftpRequest({
+					judge: 'dirlist',
+					path: '/',
+				})
+			}).then(res=>{
+				const dirlist = res.data;
+				this.$store.commit('SFTP',{dirlist});
+				this.$store.commit('SET_CURRENT_DIR',{
+					path: '/',
+					children: dirlist,
+				});
+			});
+		},
+		async downloadFiles(){
+			console.log('delete');
 		},
 		handleFileAreaDrop(){
 			console.log('drop');
@@ -94,32 +136,51 @@ export default Vue.extend({
 	},
 	template:`
 	<main class="d-flex flex-column justify-content-between">
-		<table class="table table-hover">
-			<thead>
-				<tr>
-					<th><input type="checkbox" v-model="selectAll"></th>
-					<th v-for="(label,th) in table.header">{{label}}</th>
-					<th>最終更新日</th>
-				</tr>
-				</thead>
-			<tbody>
-				<template v-if="currentDir.children && hasFiles">
-					<tr v-for="(meta,child) in currentDir.children" v-if="meta.type ==='f'" @click="SET_CURRENT_FILE(meta)">
-						<td><input type="checkbox" v-model="selectedFile[meta.name]"></td>
-						<template v-for="(label,th) in table.header" v-if="meta[th]">
-							<td v-if="th==='size'">{{formatSize(meta[th])}}</td>
-							<td v-else>{{meta[th]}}</td>
-						</template>
-						<td>{{meta.lastmod + ' ' + meta.time}}</td>
-					</tr>
-				</template>
-				<template v-else>
+		<div>
+			<nav class="navbar navbar-light bg-light px-2 position-sticky top-0 start-0 align-items-strech">
+				<div class="navbar-brand" id="current-direcotry">root</div>
+				<div class="navbar-text me-auto" id="file-count">0件</div>
+				<div class="d-flex ms-auto">
+					<div class="d-flex align-items-center">
+								選択したファイルを
+						<div
+							class="btn btn-outline-secondary rounded-pill px-4 py-0"
+							@click="deleteFiles"
+						>削除</div>
+						<div
+							class="btn btn-outline-secondary rounded-pill px-4 py-0"
+							@click="downloadFiles"
+						>DL</div>
+					</div>
+				</div>
+			</nav>
+			<table class="table table-hover">
+				<thead>
 					<tr>
-						<td colspan="3">no files<td>
+						<th><input type="checkbox" v-model="selectAll"></th>
+						<th v-for="(label,th) in table.header">{{label}}</th>
+						<th>最終更新日</th>
 					</tr>
-				</template>
-			</tbody>
-		</table>
+					</thead>
+				<tbody>
+					<template v-if="currentDir.children && hasFiles">
+						<tr v-for="(meta,child) in currentDir.children" v-if="meta.type ==='f'" @click="SET_CURRENT_FILE(meta)">
+							<td><input type="checkbox" v-model="selectedFile[meta.name]"></td>
+							<template v-for="(label,th) in table.header" v-if="meta[th]">
+								<td v-if="th==='size'">{{formatSize(meta[th])}}</td>
+								<td v-else>{{meta[th]}}</td>
+							</template>
+							<td>{{meta.lastmod + ' ' + meta.time}}</td>
+						</tr>
+					</template>
+					<template v-else>
+						<tr>
+							<td colspan="3">no files<td>
+						</tr>
+					</template>
+				</tbody>
+			</table>
+		</div>
 		<div
 			@click="handleFileAreaClick" @drop.prevent="handleFileAreaDrop" @dragover.prevent
 			class="dragable-area p-5 mt-3 border border-5 text-center w-100 position-sticky bottom-0 end-0 bg-light"
