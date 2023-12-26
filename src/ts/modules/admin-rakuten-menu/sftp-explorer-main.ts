@@ -11,26 +11,32 @@ export default Vue.extend({
 					size: 'サイズ',
 				},
 			},
+			selectedFile:{},
+			selectAll:false,
 		}
 	},
 	computed:{
 		...mapState([
 			'currentDir',
+			'currentFile',
 		]),
-		hasFile(){
+		hasFiles(){
 			const children = this.currentDir.children;
 			if( Array.isArray( children ) ) return false;
 			return Object.keys( children ).filter(key=>children[key].type ==='f').length > 0;
 		},
 	},
 	methods:{
-		handleClick(){
+		...mapMutations([
+			'SET_CURRENT_FILE',
+		]),
+		handleFileAreaClick(){
 			console.log('click');
 		},
-		handleChange(){
+		handleFileAreaChange(){
 			console.log('change');
 		},
-		handleDrop(){
+		handleFileAreaDrop(){
 			console.log('drop');
 		},
 		formatSize(byte){
@@ -40,18 +46,43 @@ export default Vue.extend({
 			else 				 return ((byte >> 27) / 8).toFixed(1) + 'GB';
 		},
 	},
+	watch:{
+		currentDir(newDir,oldDir){
+			if(JSON.stringify(newDir) !== JSON.stringify(oldDir)){
+				const children = newDir.children;
+				// 初期化
+				if( Array.isArray( children ) ) this.selectedFile = {};
+				else this.selectedFile = Object.keys( children ).filter(key=>children[key].type ==='f').reduce((obj,key)=>{
+					if(key)	obj[key] = false;
+					return obj;
+				},{});
+				this.SET_CURRENT_FILE(null);
+			}
+		},
+		selectAll(newVal,_){
+			this.selectedFile = Object.keys(this.selectedFile).reduce((obj,key)=>{
+				if(key)	obj[key] = newVal;
+				return obj;
+			},{});
+			if ( ! newVal ) {
+				this.SET_CURRENT_FILE(null);
+			}
+		}
+	},
 	template:`
 	<main class="d-flex flex-column justify-content-between">
-		<table class="table">
+		<table class="table table-hover">
 			<thead>
 				<tr>
+					<th><input type="checkbox" v-model="selectAll"></th>
 					<th v-for="(label,th) in table.header">{{label}}</th>
 					<th>最終更新日</th>
 				</tr>
 				</thead>
 			<tbody>
-				<template v-if="currentDir.children && hasFile">
-					<tr v-for="(meta,child) in currentDir.children" v-if="meta.type ==='f'">
+				<template v-if="currentDir.children && hasFiles">
+					<tr v-for="(meta,child) in currentDir.children" v-if="meta.type ==='f'" @click="SET_CURRENT_FILE(meta)">
+						<td><input type="checkbox" v-model="selectedFile[meta.name]"></td>
 						<template v-for="(label,th) in table.header" v-if="meta[th]">
 							<td v-if="th==='size'">{{formatSize(meta[th])}}</td>
 							<td v-else>{{meta[th]}}</td>
@@ -67,12 +98,12 @@ export default Vue.extend({
 			</tbody>
 		</table>
 		<div
-			@click="handleClick" @drop.prevent="handleDrop" @dragover.prevent
+			@click="handleFileAreaClick" @drop.prevent="handleFileAreaDrop" @dragover.prevent
 			class="dragable-area p-5 mt-3 border border-5 text-center w-100 position-sticky bottom-0 end-0 bg-light"
 		>
 			ファイルをドラッグ&ドロップで転送する
 			<form style="display:none;">
-				<input ref=file @change="handleChange" type="file" multiple="multiple" class="d-none">
+				<input ref=file @change="handleFileAreaChange" type="file" multiple="multiple" class="d-none">
 			</form>
 		</div>
 	</main>

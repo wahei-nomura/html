@@ -17,6 +17,7 @@ export default new Vuex.Store({
 			path:null,
 			children:null,
 		},
+		currentFile: null,
 	},
 	mutations: {
 		SET_N2NONCE(state, n2nonce:string){
@@ -34,6 +35,9 @@ export default new Vuex.Store({
 		SET_CURRENT_DIR(state, payload){
 			const {path,children} = payload;
 			state.currentDir = {path,children};
+		},
+		SET_CURRENT_FILE(state, payload){
+			state.currentFile = payload;
 		},
 	},
 	actions: {
