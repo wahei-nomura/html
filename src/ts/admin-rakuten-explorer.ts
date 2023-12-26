@@ -23,6 +23,10 @@ jQuery( async function($){
 			}).then(res=>{
 				const dirlist = res.data;
 				this.$store.commit('SFTP',{dirlist});
+				this.$store.commit('SET_CURRENT_DIR',{
+					path: '/',
+					children: dirlist,
+				});
 			})
 			setTimeout(()=>{
 				this.loading = false;
