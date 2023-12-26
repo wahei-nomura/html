@@ -220,7 +220,7 @@
     キャッチコピー:
         type : text
         description : こだわりやポイントを端的にご記載ください。
-        maxlength : 30
+        maxlength : 40
         v-if: "!商品タイプ.includes('eチケット')"
         placeholder: 例）○○にて金賞受賞！溢れる肉汁をご堪能ください！
         style: 'width: 100%'
