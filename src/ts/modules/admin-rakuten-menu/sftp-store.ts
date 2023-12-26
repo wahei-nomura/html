@@ -54,9 +54,7 @@ export default new Vuex.Store({
 				return res;
 			});
 		},
-		async sftpRequest({state},data){
-			console.log(data);
-			
+		async sftpRequest({state},data,config={}){
 			const params = {
 				action: 'n2_rakuten_sftp_explorer',
 				n2nonce: state.n2nonce,
@@ -69,6 +67,7 @@ export default new Vuex.Store({
 			return await axios.post( 
 				`${window['n2'].ajaxurl}`,
 				formData,
+				config,
 			).then(res=>{
 				console.log(res)
 				return res;

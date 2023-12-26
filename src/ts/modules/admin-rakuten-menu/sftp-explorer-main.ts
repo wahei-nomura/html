@@ -30,11 +30,34 @@ export default Vue.extend({
 		...mapMutations([
 			'SET_CURRENT_FILE',
 		]),
+		...mapActions([
+			'sftpRequest',
+		]),
 		handleFileAreaClick(){
 			this.$refs.file.click();
 		},
 		handleFileAreaChange(){
 			console.log('change');
+			const files = this.$refs.file.files
+			if ( ! files.length ) {
+				return;
+			}
+			this.upload(files);
+		},
+		async upload(files){
+			const config = {
+				headers: {
+					'Content-Type': 'multipart/form-data'
+				},
+			};
+			const formData = {
+				judge:'put_contents',
+			};
+			Object.keys(files).forEach(i=>{
+				formData[`sftp_file[${i}]`] = files[i];
+			});
+
+			this.sftpRequest(formData,config);
 		},
 		handleFileAreaDrop(){
 			console.log('drop');

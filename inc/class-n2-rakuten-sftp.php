@@ -406,13 +406,55 @@ class N2_Rakuten_SFTP {
 	}
 
 	/**
+	 * アップロード
+	 */
+	private function upload() {
+		$this->set_files();
+		$name     = $this->data['files']['name'];
+		$type     = $this->data['files']['type'];
+		$tmp_name = $this->data['files']['tmp_name'];
+		foreach ( $tmp_name as $k => $file ) {
+			$remote_file         = "{$this->data['params']['path']}/{$name[ $k ]}";
+			$file_data           = file_get_contents( $file );
+			$uploaded            = $this->sftp->put_contents( $remote_file, $file_data );
+			$this->data['log'][] = match ( $uploaded ) {
+				true => array(
+					'status'  => '転送成功',
+					'context' => $this->data['files']['name'][ $k ],
+				),
+				default => array(
+					'status'  => '転送失敗',
+					'context' => $this->data['files']['name'][ $k ],
+				),
+			};
+			if ( $uploaded ) {
+				$this->n2data[ $this->data['files']['name'][ $k ] ][] = $this->data['files']['name'][ $k ];
+			}
+		}
+		$this->insert_post();
+	}
+
+	/**
+	 * mkdir
+	 *
+	 * @param string $path path
+	 */
+	private function mkdir( $path ) {
+		if ( $this->sftp->mkdir( $path ) ) {
+			$this->data['log'][] = array(
+				'status'  => '作成',
+				'context' => $remote_dir,
+			);
+		}
+	}
+
+	/**
 	 * log output
 	 */
 	public function log_output() {
 		$data = array(
 			'log' => $this->data['log'],
 		);
-		header( 'Content-Type: application/json; charset=utf-8' );
 		echo wp_json_encode( $data, JSON_UNESCAPED_UNICODE );
 		exit;
 	}
@@ -492,15 +534,15 @@ class N2_Rakuten_SFTP {
 				$data = $this->sftp->get_contents( $this->data['params']['file'] );
 				break;
 			case 'put_contents':
-				$this->check_fatal_error( $this->data['params']['file'], 'fileが未設定です' );
-				$this->check_fatal_error( $this->data['params']['contents'], 'contentsが未設定です' );
-				$data = $this->sftp->put_contents( $this->data['params']['file'], $this->data['params']['contents'] );
+				$this->check_fatal_error( $this->data['params']['path'], 'pathが未設定です' );
+				$this->upload();
 				break;
 			case 'dirlist':
 				$this->check_fatal_error( $this->data['params']['path'], 'pathが未設定です' );
 				$data = $this->sftp->dirlist( $this->data['params']['path'], true, true );
 				break;
 		}
+		header( 'Content-Type: application/json; charset=utf-8' );
 		echo wp_json_encode( $data, JSON_UNESCAPED_UNICODE );
 		exit;
 	}
