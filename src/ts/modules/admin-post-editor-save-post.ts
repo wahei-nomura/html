@@ -22,10 +22,10 @@ export default (target: string, $: any = jQuery) => {
 			data.tmp = _.cloneDeep( n2.saved_post.tmp ?? {} );
 			data.tmp.post_title = wp.data.select('core/editor').getEditedPostAttribute('title');
 			data.tmp.post_status = wp.data.select('core/editor').getEditedPostAttribute('status');
-			let diff = ! _.isEqualWith(n2.saved_post, data, (a,b)=>{ if(a==b) return true } );// 型無視して比較
+			n2.editor_diff = ! _.isEqualWith(n2.saved_post, data, (a,b)=>{ if(a==b) return true } );// 型無視して比較
 			// 総務省申請理由がない場合は保存させない
-			diff = '不要' == data.総務省申請 && ! data.総務省申請不要理由 ? false : diff;
-			if ( diff ){
+			n2.editor_diff = '不要' == data.総務省申請 && ! data.総務省申請不要理由 ? false : n2.editor_diff;
+			if ( n2.editor_diff ){
 				$('#n2-save-post').attr('class', btn_class.save).find('span').attr('class', '');
 				$(window).on('beforeunload', () => '' );
 			} else {
