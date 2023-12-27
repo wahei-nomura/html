@@ -422,7 +422,6 @@ class N2_Rakuten_SFTP {
 				$this->n2data[ $this->data['files']['name'][ $k ] ][] = $this->data['files']['name'][ $k ];
 			}
 		}
-		$this->insert_post();
 	}
 
 	/**
@@ -441,6 +440,7 @@ class N2_Rakuten_SFTP {
 		}
 		$zip->close();
 
+
 		header( 'Content-Type: application/zip' );
 		header( 'Content-Transfer-Encoding: Binary' );
 		header( 'Content-Length: ' . filesize( $tmp_zip_uri ) );
@@ -450,6 +450,12 @@ class N2_Rakuten_SFTP {
 		}
 		// 出力処理
 		readfile( $tmp_zip_uri );
+
+		$this->data['log'] = array(
+			'status'  => 'DL成功',
+			'context' => $destination,
+		);
+		$this->insert_post();
 		exit;
 	}
 
@@ -573,8 +579,6 @@ class N2_Rakuten_SFTP {
 		$this->check_fatal_error( $this->connect(), 'パスワードが違います' );
 		$this->set_params();
 
-		$data = array( 'error' => '未定義' );
-
 		switch ( $this->data['params']['judge'] ) {
 			case 'mkdir':
 				$this->check_fatal_error( $this->data['params']['path'], 'pathが未設定です' );
@@ -595,7 +599,7 @@ class N2_Rakuten_SFTP {
 				$this->check_fatal_error( $this->data['params']['files'], 'filesが未設定です' );
 				$this->download();
 				break;
-			case 'put_contents':
+			case 'upload':
 				$this->check_fatal_error( $this->data['params']['path'], 'pathが未設定です' );
 				$this->upload();
 				break;
@@ -603,7 +607,10 @@ class N2_Rakuten_SFTP {
 				$this->check_fatal_error( $this->data['params']['path'], 'pathが未設定です' );
 				$this->data['log'] = $this->sftp->dirlist( $this->data['params']['path'], true, true );
 				break;
+			default:
+				$this->check_fatal_error( false, '未定義です' );
 		}
+		$this->insert_post();
 		header( 'Content-Type: application/json; charset=utf-8' );
 		echo wp_json_encode( $this->data['log'], JSON_UNESCAPED_UNICODE );
 		exit;
