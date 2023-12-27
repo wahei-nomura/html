@@ -21,19 +21,3 @@ export const ajaxUrl = (window): string => {
 export const homeUrl = (window): string => {
 	return window.tmp_path.home_url;
 };
-
-/**
- * Jsで値渡しするときの関数
- * @param value コピー対象のブツ
- * @param toString オブジェクト以外の型をstringに
- * @returns コピーされたブツ
- */
-export const copy = ( value, toString = false ) => {
-	return JSON.parse( JSON.stringify( value, (k,v) => toString && typeof v != 'object' ? v.toString() : v ) );
-// 	_.cloneDeepWith(val, v => _.isObject(v) ? v : v.toString() );
-// 	_.cloneDeepWith(val, v=> { if(!_.isObject(v)) { return v.toString() } } );
-// var obj = {a:{b:{c:1,d:2}}}
-// var	oth = {a:{b:{c:1,d:'2'}}}
-// _.isEqualWith(obj,oth,(a,b)=>{ if(a==b) return true } );
-// _.isEqualWith(obj,oth,(a,b)=>a==b );
-} 
