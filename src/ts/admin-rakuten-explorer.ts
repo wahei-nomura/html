@@ -19,12 +19,12 @@ jQuery( async function($){
 			this.$store.commit('SET_N2REFERER',n2referer);
 			this.sftpRequest({data:{
 				judge: 'dirlist',
-				path: '/',
+				path: '',
 			}}).then(res=>{
 				const dirlist = res.data;
 				this.$store.commit('SFTP',{dirlist});
 				this.$store.commit('SET_CURRENT_DIR',{
-					path: '/',
+					path: '',
 					children: dirlist,
 				});
 			})

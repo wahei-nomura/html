@@ -480,15 +480,14 @@ class N2_Rakuten_SFTP {
 	 */
 	private function delete( $paths, $recursive = false ) {
 		foreach ( $paths as $path ) {
-			$target              = end( explode( '/', $path ) );
 			$this->data['log'][] = match ( $this->sftp->delete( $path, $recursive ) ) {
 				true => array(
-					'status'  => '削除',
-					'context' => $target,
+					'status'  => '削除成功',
+					'context' => $path,
 				),
 				default => array(
-					'status'  => 'エラー',
-					'context' => "{$target} の削除に失敗しました",
+					'status'  => '削除失敗',
+					'context' => "{$path}",
 				),
 			};
 		}
@@ -504,12 +503,12 @@ class N2_Rakuten_SFTP {
 	private function move( $source, $destination, $overwrite = false ) {
 		$this->data['log'][] = match ( $this->sftp->move( $source, $destination, $overwrite ) ) {
 			true => array(
-				'status'  => '移動',
-				'context' => $destination,
+				'status'  => '移動完了',
+				'context' => "{$source} → {$destination}",
 			),
 			default => array(
-				'status'  => 'エラー',
-				'context' => "{$source} → {$destination} の移動に失敗しました",
+				'status'  => '移動失敗',
+				'context' => "{$source} → {$destination}",
 			),
 		};
 	}
@@ -607,8 +606,7 @@ class N2_Rakuten_SFTP {
 				$this->upload();
 				break;
 			case 'dirlist':
-				$this->check_fatal_error( $this->data['params']['path'], 'pathが未設定です' );
-				$data = $this->sftp->dirlist( $this->data['params']['path'], true, true );
+				$data = $this->sftp->dirlist( $this->data['params']['path'] ?? '', true, true );
 				header( 'Content-Type: application/json; charset=utf-8' );
 				echo wp_json_encode( $data, JSON_UNESCAPED_UNICODE );
 				exit;

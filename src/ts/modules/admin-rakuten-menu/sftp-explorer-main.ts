@@ -44,6 +44,7 @@ export default Vue.extend({
 				return;
 			}
 			this.upload(files);
+			this.$refs.file.value = null;
 		},
 		async upload(files){
 			const config = {
@@ -66,6 +67,8 @@ export default Vue.extend({
 			});
 		},
 		async deleteFiles(){
+			if(!confirm('選択中のファイルを削除します。続けますか？')) return;
+			if(!confirm('本当に削除しますか？この操作は元に戻せません。')) return;
 			const target = Object.entries(this.selectedFile)
 				.filter(([_,value])=>value)
 				.map(([file,_])=>`${this.currentDir.path}/${file}`);
