@@ -18,19 +18,13 @@ export default (target: string, $: any = jQuery) => {
 		if( 'n2-save-post' === $(e.target).attr('id') ) return;
 		setTimeout(()=>{
 			// 差分チェック
-			const fd = $('form').serializeArray();
 			const data = _.cloneDeep( n2.vue.$data );
 			data.tmp = _.cloneDeep( n2.saved_post.tmp ?? {} );
 			data.tmp.post_title = wp.data.select('core/editor').getEditedPostAttribute('title');
 			data.tmp.post_status = wp.data.select('core/editor').getEditedPostAttribute('status');
 			let diff = ! _.isEqualWith(n2.saved_post, data, (a,b)=>{ if(a==b) return true } );// 型無視して比較
-			console.log('saved',n2.saved_post)
-			console.log('data',data)
-			diff = wp.data.select('core/editor').getEditedPostAttribute('title') ? diff : true;
 			// 総務省申請理由がない場合は保存させない
-			if ( fd.filter( v=>v.name.match(/総務省申請不要理由/) && !v.value ).length ) {
-				diff = false;
-			}
+			diff = '不要' == data.総務省申請 && ! data.総務省申請不要理由 ? false : diff;
 			if ( diff ){
 				$('#n2-save-post').attr('class', btn_class.save).find('span').attr('class', '');
 				$(window).on('beforeunload', () => '' );
@@ -38,7 +32,7 @@ export default (target: string, $: any = jQuery) => {
 				$('#n2-save-post').attr('class', btn_class.saved).find('span').attr('class', 'dashicons dashicons-saved me-2');
 				$(window).off('beforeunload');
 			}
-		},100)
+		},1)
 	});
 	// ターゲットDOMが生成されてから
 	$(target).ready(() => {
