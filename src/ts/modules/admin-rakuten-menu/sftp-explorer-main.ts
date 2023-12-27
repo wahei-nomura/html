@@ -48,7 +48,7 @@ export default Vue.extend({
 			this.$refs.file.value = null;
 		},
 		async upload(files){
-			this.SET_LOADING({is:true,status:'UL中...'});
+			this.SET_LOADING({is:true,status:'転送中...'});
 			const config = {
 				headers: {
 					'Content-Type': 'multipart/form-data'
@@ -122,6 +122,9 @@ export default Vue.extend({
 				this.SET_LOADING({is:false,status:'DL完了'});
 			});
 		},
+		async reflesh(){
+			this.refleshDir(this.currentDir.path);
+		},
 		handleFileAreaDrop(){
 			console.log('drop');
 		},
@@ -159,6 +162,11 @@ export default Vue.extend({
 	<main class="d-flex flex-column justify-content-between">
 		<div>
 			<nav class="navbar navbar-light bg-light px-2 position-sticky top-0 start-0 align-items-strech">
+				<div class="btn btn-outline-secondary rounded-pill px-4 py-0"
+					@click="reflesh"
+				>
+					更新
+				</div>
 				<div class="d-flex ms-auto">
 					<div class="d-flex align-items-center gap-2">
 						<span>選択したファイルを</span>
