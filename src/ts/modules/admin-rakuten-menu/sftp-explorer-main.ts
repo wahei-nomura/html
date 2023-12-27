@@ -98,8 +98,15 @@ export default Vue.extend({
 				const url = URL.createObjectURL(res.data);
 				// `<a>`タグを作成し、ダウンロードリンクとして使用します。
 				const a = document.createElement('a');
+				const timestamp = new Date().toLocaleDateString('sv-SE',{
+					year: 'numeric',
+					month: '2-digit',
+					day: '2-digit',
+					hour: '2-digit',
+					minute: '2-digit',
+				});
 				a.href = url;
-				a.download = 'test' + '.zip';  // ダウンロードされるファイル名を指定します。
+				a.download = `【${window['n2'].town}】楽天SFTP_${timestamp}.zip`;  // ダウンロードされるファイル名を指定します。
 				document.body.appendChild(a);
 				a.click();
 				document.body.removeChild(a);
