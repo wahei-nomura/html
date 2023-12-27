@@ -1,6 +1,6 @@
-import {set_default_meta} from "./admin-post-editor-get-meta";
 import _ from 'lodash';
-
+import {set_default_meta} from "./admin-post-editor-get-meta";
+import {save_button_toggler} from "./admin-post-editor-save-post"
 /**
  * 爆速ナビを追加
  *
@@ -50,6 +50,7 @@ export default ($:any = jQuery) => {
 				n2.vue.$data.tmp.post_title = post.title;
 				n2.vue.$data.tmp.post_status = post.status;
 				n2.saved_post = _.cloneDeep(n2.vue.$data);
+				save_button_toggler();
 				// ↓　N2オートセーブ（タイトルのみでほぼ無意味なので、contentの中のmetaで復旧するようにしたら使える）
 				// window.sessionStorage.setItem(`wp-autosave-block-editor-post-${id}`, JSON.stringify({
 				// 	post_title: wp.data.select( 'core/editor' ).getEditedPostAttribute('title'),
