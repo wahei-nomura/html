@@ -13,6 +13,7 @@ export default Vue.extend({
 			},
 			selectedFile:{},
 			selectAll:false,
+			currentFileContens: '',
 		}
 	},
 	computed:{
@@ -24,6 +25,11 @@ export default Vue.extend({
 			const children = this.currentDir.children;
 			if( Array.isArray( children ) ) return false;
 			return Object.keys( children ).filter(key=>children[key].type ==='f').length > 0;
+		},
+		splitFileContens(){
+			if( !this.currentFileContens) return;
+			return this.currentFileContens.trim().replace(/,/g,'\t');
+			// return this.csv2arr(this.currentFileContens)
 		},
 	},
 	methods:{
@@ -125,6 +131,15 @@ export default Vue.extend({
 		async reflesh(){
 			this.refleshDir(this.currentDir.path);
 		},
+		async getContents(){
+			const data = {
+				judge: 'get_contents',
+				path: `${this.currentDir.path}/${this.currentFile.name}`
+			};
+			this.currentFileContens = await this.sftpRequest({data}).then(res=>{
+				return res.data
+			});
+		},
 		handleFileAreaDrop(){
 			console.log('drop');
 		},
@@ -133,6 +148,15 @@ export default Vue.extend({
 			if( byte >> 20 < 1 ) return ((byte >> 7) / 8).toFixed(1) + 'KB';
 			if( byte >> 30 < 1 ) return ((byte >> 17) / 8).toFixed(1) + 'MB';
 			else 				 return ((byte >> 27) / 8).toFixed(1) + 'GB';
+		},
+		csv2arr(str: string){
+			const arr = str.split(/("\n)/g);
+			return arr.map((val, index) => {
+				if (!val) {
+					return '';
+				}
+				return val.replace(/"/g, "").split(/,/);
+			}).filter(x=> x && x[0] !== '\n');
 		},
 	},
 	watch:{
@@ -160,6 +184,12 @@ export default Vue.extend({
 	},
 	template:`
 	<main class="d-flex flex-column justify-content-between">
+		<div popover id="popover-file-contents" class="p-4"
+			 style="width: 80%; height: 80%; overflow:hidden;"
+		>
+			<textarea class="w-100 h-100" v-text="splitFileContens">
+			</textarea>
+		</div>
 		<div>
 			<nav class="navbar navbar-light bg-light px-2 position-sticky top-0 start-0 align-items-strech">
 				<div class="btn btn-outline-secondary rounded-pill px-4 py-0"
@@ -193,10 +223,18 @@ export default Vue.extend({
 					</thead>
 				<tbody>
 					<template v-if="currentDir.children && hasFiles">
-						<tr v-for="(meta,child) in currentDir.children" v-if="meta.type ==='f'" @click="SET_CURRENT_FILE(meta)">
+						<tr v-for="(meta,child) in currentDir.children" v-if="meta.type ==='f'">
 							<td><input type="checkbox" v-model="selectedFile[meta.name]"></td>
 							<template v-for="(label,th) in table.header" v-if="meta[th]">
 								<td v-if="th==='size'">{{formatSize(meta[th])}}</td>
+								<td v-else-if="th==='name' && meta[th].includes('.csv')">
+									<button class="btn btn-info btn-sm text-light"
+										 @click="SET_CURRENT_FILE(meta); getContents()"
+										 popovertarget="popover-file-contents"
+									>
+										{{meta[th]}}
+									</button>
+								</td>
 								<td v-else>{{meta[th]}}</td>
 							</template>
 							<td>{{meta.lastmod + ' ' + meta.time}}</td>
