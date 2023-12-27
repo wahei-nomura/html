@@ -15,7 +15,10 @@ export default Vue.extend({
 			'SET_CURRENT_DIR',
 		]),
 		mkdir(){
-			console.log('click');
+			console.log('mkDir');
+		},
+		dlDir(){
+			console.log('dlDir');
 		},
 	},
 	components:{
@@ -25,6 +28,7 @@ export default Vue.extend({
 	<aside>
 		<nav class="mb-3 d-flex justify-content-around">
 			<div class="btn btn-outline-secondary btn-sm" @click="mkdir">新規作成</div>
+			<div class="btn btn-outline-danger btn-sm" @click="dlDir">削除</div>
 		</nav>
 		<ul class="n2-tree-parent">
 			<li class="n2-tree-node">

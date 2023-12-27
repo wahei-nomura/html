@@ -62,6 +62,7 @@ export default Vue.extend({
 			await this.sftpRequest({data,config}).then( res=>{
 				console.log(res);
 				this.refleshDir(this.currentDir.path);
+				this.selectAll = false;
 			});
 		},
 		async deleteFiles(){
@@ -77,6 +78,7 @@ export default Vue.extend({
 			await this.sftpRequest({data}).then(res=>{
 				console.log(res);
 				this.refleshDir(this.currentDir.path);
+				this.selectAll = false;
 			});
 		},
 		async downloadFiles(){
@@ -153,7 +155,7 @@ export default Vue.extend({
 					<div class="d-flex align-items-center">
 								選択したファイルを
 						<div
-							class="btn btn-outline-secondary rounded-pill px-4 py-0"
+							class="btn btn-outline-danger rounded-pill px-4 py-0"
 							@click="deleteFiles"
 						>削除</div>
 						<div
