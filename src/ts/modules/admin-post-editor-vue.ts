@@ -207,27 +207,27 @@ export default ($: any = jQuery) => {
 			res = JSON.parse(res);
 			let attr = res.genre.attributes;
 			attr = mandatoryFlg ? attr.filter( v => v.properties.rmsMandatoryFlg ) : attr;
-			if ( this.商品属性.length ) {
-				const values = {}
-				for( const v of this.商品属性 ) {
-					values[v.nameJa] = {
-						value: v.value ?? '',
-						unitValue: v.unitValue ?? null,
-					};
-				}
-				attr = attr.map(v=>{
-					if ( values[v.nameJa] ) {
-						v.value = values[v.nameJa].value;
-						v.unitValue = values[v.nameJa].unitValue;
-					}
-					return v;
-				});
+			this.商品属性 = this.商品属性 || attr;
+			// 既存の値を退避
+			const values = {}
+			for( const v of this.商品属性 ) {
+				values[v.nameJa] = {
+					value: v.value ?? '',
+					unitValue: v.unitValue ?? null,
+				};
 			}
+			// 既存の値を戻す
+			attr = attr.map(v=>{
+				if ( values[v.nameJa] ) {
+					v.value = values[v.nameJa].value;
+					v.unitValue = values[v.nameJa].unitValue;
+				}
+				return v;
+			});
 			this.商品属性 = attr;
 			this.tmp.商品属性アニメーション = false;
 		},
 		set_rms_attributes_value(index, value) {
-			console.log('set_rms_attributes_value!!!')
 			const attributes = this.商品属性;
 			attributes[index].value = value;
 			this.商品属性 = attributes;
