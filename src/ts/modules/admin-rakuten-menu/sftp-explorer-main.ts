@@ -52,7 +52,7 @@ export default Vue.extend({
 				},
 			};
 			const data = {
-				judge:'put_contents',
+				judge:'upload',
 				path: this.currentDir.path,
 			};
 			Object.keys(files).forEach(i=>{

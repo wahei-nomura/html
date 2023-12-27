@@ -68,10 +68,7 @@ export default new Vuex.Store({
 				`${window['n2'].ajaxurl}`,
 				formData,
 				config,
-			).then(res=>{
-				console.log(res)
-				return res;
-			});
+			);
 		},
 		async refleshDir({commit,dispatch},currentPath) {
 			// 一覧
