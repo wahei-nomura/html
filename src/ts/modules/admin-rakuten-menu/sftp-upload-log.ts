@@ -30,10 +30,18 @@ export default Vue.extend({
 						icon: {
 							img_upload: 'dashicons dashicons-format-gallery',
 							csv_upload: 'dashicons dashicons-media-spreadsheet',
+							upload: 'dashicons dashicons-upload',
+							download: 'dashicons dashicons-download',
+							delete: 'dashicons dashicons-trash',
+							mkdir: 'dashicons dashicons-plus',
 						},
 						value: {
-							img_upload: '商品画像',
-							csv_upload: '商品CSV',
+							img_upload: ' キャビアップ',
+							csv_upload: 'CSV転送',
+							upload: 'アップロード',
+							download: 'ダウンロード',
+							delete: '削除',
+							mkdir: 'フォルダ作成',
 						},
 					},
 				},
@@ -272,6 +280,15 @@ export default Vue.extend({
 			return true;
 		},
 		async formatUploadLogs(log){
+			if (log.アップロード.転送モード !== 'img_upload') {
+				this.popover.アップロード.display = log.アップロード.log.map((l)=>{
+					return `${l.status} ${l.context}`;
+				}).join('<br>');
+				this.linkData.id = log.id;
+				return;
+			}
+
+			// キャビアップのみ別処理
 			if ( log.RMS商品画像.変更後 ) {
 				this.popover.アップロード.display = Object.keys(log.RMS商品画像.変更後).map(manageNumber=>{
 					const unique = Array.from(

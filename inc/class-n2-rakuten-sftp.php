@@ -437,6 +437,10 @@ class N2_Rakuten_SFTP {
 		foreach ( $this->data['params']['files'] as $file ) {
 			$file_path = "{$this->data['params']['path']}/{$file}";
 			$zip->addFromString( "{$zip_name}/{$file}", $this->sftp->get_contents( $file_path ) );
+			$this->data['log'][] = array(
+				'status'  => 'DL成功',
+				'context' => $file,
+			);
 		}
 		$zip->close();
 
@@ -451,10 +455,6 @@ class N2_Rakuten_SFTP {
 		// 出力処理
 		readfile( $tmp_zip_uri );
 
-		$this->data['log'] = array(
-			'status'  => 'DL成功',
-			'context' => $destination,
-		);
 		$this->insert_post();
 		exit;
 	}
@@ -480,14 +480,15 @@ class N2_Rakuten_SFTP {
 	 */
 	private function delete( $paths ) {
 		foreach ( $paths as $path ) {
+			$target              = end( explode( '/', $path) );
 			$this->data['log'][] = match ( $this->sftp->delete( $path ) ) {
 				true => array(
 					'status'  => '削除',
-					'context' => $path,
+					'context' => $target,
 				),
 				default => array(
 					'status'  => 'エラー',
-					'context' => "{$path} の削除に失敗しました",
+					'context' => "{$target} の削除に失敗しました",
 				),
 			};
 		}
