@@ -28,7 +28,7 @@ class N2_Chrome_Checker {
 		global $is_chrome;
 		$this->is_not_chrome = ! $is_chrome;
 		add_filter( 'login_message', array( $this, 'chrome_checker_login' ) );
-		add_action( 'admin_notices', array( $this, 'chrome_checker_admin' ) );
+		add_action( 'admin_init', array( $this, 'chrome_checker_admin' ) );
 	}
 
 	/**
