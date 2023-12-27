@@ -2,7 +2,6 @@ import get_meta from "./admin-post-editor-get-meta";
 import _ from 'lodash';
 const $ = jQuery;
 const n2 = window['n2'];
-const wp = window['wp'];
 const btn_class = {
 	save: 'btn btn-sm btn-dark d-flex align-items-center px-4',
 	saved: 'btn btn-sm btn-outeline-dark d-flex align-items-center disabled'
@@ -14,6 +13,7 @@ const btn_class = {
  * @param string target 返礼品の保存を追加する要素のセレクタ名
  */
 export default (target: string) => {
+	const wp = window['wp'];
 	$('body').on('click keyup', e => {
 		if( 'n2-save-post' === $(e.target).attr('id') ) return;
 		setTimeout(save_button_toggler,1);
@@ -75,6 +75,7 @@ export default (target: string) => {
 };
 
 export const save_button_toggler = () => {
+	const wp = window['wp'];
 	// 差分チェック
 	const data = _.cloneDeep( n2.vue.$data );
 	data.tmp = _.cloneDeep( n2.saved_post.tmp ?? {} );

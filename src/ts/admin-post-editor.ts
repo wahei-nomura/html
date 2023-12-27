@@ -14,7 +14,6 @@ import editor_vue from "./modules/admin-post-editor-vue";
 import status_control from "./modules/admin-post-editor-status-control";
 jQuery( $ => {
 	loading_view.add('#wpwrap');// ローディング
-	const n2 = window['n2'];
 	i18n();// 翻訳
 	setTimeout(()=>{
 		title_counter();// タイトルカウンター
