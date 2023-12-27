@@ -21,3 +21,13 @@ export const ajaxUrl = (window): string => {
 export const homeUrl = (window): string => {
 	return window.tmp_path.home_url;
 };
+
+/**
+ * Jsで値渡しするときの関数
+ * @param value コピー対象のブツ
+ * @param toString オブジェクト以外の型をstringに
+ * @returns コピーされたブツ
+ */
+export const copy = ( value, toString = false ) => {
+	return JSON.parse( JSON.stringify( value, (k,v) => toString && typeof v != 'object' ? v.toString() : v ) );
+} 

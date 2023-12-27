@@ -1,4 +1,6 @@
 import {set_default_meta} from "./admin-post-editor-get-meta";
+import {copy} from "./functions";
+
 /**
  * 爆速ナビを追加
  *
@@ -15,6 +17,7 @@ export default ($:any = jQuery) => {
 			$(e.target).contents().find('.row-title').on('click', async e => {
 				e.preventDefault();
 				const id = $(e.target).parents('tr').attr('id').replace(/[^0-9]/g, '');
+				$('#n2-view-history-id').val(id);// 履歴変更
 				// オートセーブの制御（疑似移動した際にオートセーブ発火するのを防ぐ）
 				const autosave = id != wp.data.select('core/editor').getCurrentPostId()
 					? 'lockPostAutosaving' // lock
@@ -37,16 +40,20 @@ export default ($:any = jQuery) => {
 					status: data.ステータス,
 				}
 				wp.data.dispatch('core/editor').editPost(post);
+				$('title').text(post.title);// タイトル変更
 				for ( const k in n2.vue.$data ) {
 					n2.vue.$data[k] = data[k] ?? n2.vue.$data[k];
 				}
+				n2.vue.$data.tmp.post_title = post.title;
+				n2.vue.$data.tmp.post_status = post.status;
+				n2.saved_post = copy(n2.vue.$data, true);
+				console.log(typeof n2.vue.$data.寄附金額)
 				// ↓　N2オートセーブ（タイトルのみでほぼ無意味なので、contentの中のmetaで復旧するようにしたら使える）
 				// window.sessionStorage.setItem(`wp-autosave-block-editor-post-${id}`, JSON.stringify({
 				// 	post_title: wp.data.select( 'core/editor' ).getEditedPostAttribute('title'),
 				// 	content: wp.data.select( 'core/editor' ).getEditedPostContent(),
 				// }));
-				$('title').text(data.タイトル);// タイトル変更
-				$('#n2-view-history-id').val(id);// 履歴変更
+
 			});
 		});
 	}

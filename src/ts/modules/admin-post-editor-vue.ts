@@ -2,6 +2,7 @@ import Vue from 'vue/dist/vue.min'
 import draggable from 'vuedraggable'
 import loading_view from "./loading-view";
 import save_as_pending from "./admin-post-editor-save-as-pending-post"
+import {copy} from "./functions";
 
 /**
  * カスタムフィールドをVueで制御
@@ -20,7 +21,8 @@ export default ($: any = jQuery) => {
 	data['_force_watch'] = 1;// 外部から変更して強制でwatchをFire
 	// ※保存に必要ないデータは全部tmpへ（APIデータ・フラグなど）
 	data['tmp'] = {
-		media: false,
+		post_title: '',
+		post_status: '',
 		current_user: n2.current_user.roles[0],
 		number_format: true,// ３桁区切りカンマ用
 		寄附金額自動計算値: '',
@@ -33,6 +35,9 @@ export default ($: any = jQuery) => {
 		楽天ジャンルID: [],
 	};
 	const created = async function() {
+		this.tmp.post_title = wp.data.select('core/editor').getCurrentPostAttribute('title');
+		this.tmp.post_status = wp.data.select('core/editor').getCurrentPostAttribute('status');
+
 		// ローディング削除
 		loading_view.show('#wpwrap', 500);
 
@@ -72,8 +77,8 @@ export default ($: any = jQuery) => {
 		$('textarea[rows="auto"]').each((k,v)=>{
 			this.auto_fit_tetxarea(v)
 		});
-		// 投稿のメタ情報を全保存
-		n2.saved_post = JSON.stringify($('form').serializeArray());
+		// 保存の判定に使う
+		n2.saved_post = copy(this.$data, true);
 		// 「進む」「戻る」の制御をデフォルトに戻す
 		wp.data.dispatch( 'core/keyboard-shortcuts' ).unregisterShortcut('core/editor/undo');
 		wp.data.dispatch( 'core/keyboard-shortcuts' ).unregisterShortcut('core/editor/redo');
@@ -150,30 +155,30 @@ export default ($: any = jQuery) => {
 		},
 		// メディアアップローダー関連
 		add_media(){
-			if ( this.tmp.media ) {
-				this.tmp.media.open();
+			if ( n2.media ) {
+				n2.media.open();
 				return;
 			}
 			// N1の画像データにはnoncesが無い
-			this.tmp.media = wp.media({
+			n2.media = wp.media({
 				title: "商品画像", 
 				multiple: "add",
 				library: {type: "image"},
 			});
-			this.tmp.media.on( 'open', () => {
+			n2.media.on( 'open', () => {
 				// N2のものだけに
-				console.log(this.tmp.media)
+				console.log(n2.media)
 				const add =  n2.vue.商品画像.filter( v => v.nonces );
-				this.tmp.media.state().get('selection').add( add.map( v => wp.media.attachment(v.id) ) );
+				n2.media.state().get('selection').add( add.map( v => wp.media.attachment(v.id) ) );
 			});
-			this.tmp.media.on( 'select close', () => {
-				this.tmp.media.state().get('selection').forEach( img => {
+			n2.media.on( 'select close', () => {
+				n2.media.state().get('selection').forEach( img => {
 					if ( ! n2.vue.商品画像.find( v => v.id == img.attributes.id ) ) {
 						n2.vue.商品画像.push( img.attributes );
 					}
 				})
 			});
-			this.tmp.media.open();
+			n2.media.open();
 		},
 		// 楽天の全商品ディレクトリID取得
 		async get_genreid(){
@@ -222,6 +227,7 @@ export default ($: any = jQuery) => {
 			this.tmp.商品属性アニメーション = false;
 		},
 		set_rms_attributes_value(index, value) {
+			console.log('set_rms_attributes_value!!!')
 			const attributes = this.商品属性;
 			attributes[index].value = value;
 			this.商品属性 = attributes;

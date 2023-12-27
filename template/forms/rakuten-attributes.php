@@ -10,9 +10,7 @@ $defaults = array(
 	'style' => 'width: 100%; height: 10em;',
 );
 $args     = wp_parse_args( $args, $defaults );
-$value    = $args['value'] ?? '';
-unset( $args['value'] );
-$attr = '';
+$attr     = '';
 foreach ( $args as $k => $v ) {
 	$v     = esc_attr( $v );// エスケープしないとバグる
 	$attr .= " {$k}=\"{$v}\"";
@@ -35,32 +33,32 @@ foreach ( $args as $k => $v ) {
 			<td class="border-0">
 				<template v-if="v.dataType === 'STRING'">
 					<template v-if="v.properties.rmsInputMethod === 'SELECTIVE'">
-						<select :value="v.value || ''" @change="set_rms_attributes_value(k,$event.target.value)">
+						<select :value="v.value || ''" @input="set_rms_attributes_value(k,$event.target.value)">
 							<option v-for="v in v.dictionaryValues" :value="v.nameJa">{{ v.nameJa }}</option>
 						</select>
 					</template>
 					<template v-else>
 						<input type="text" :maxlength="v.maxLength" :value="v.value || ''" 
-						@change="set_rms_attributes_value(k,$event.target.value)" placeholder="値">
+						@input="set_rms_attributes_value(k,$event.target.value)" placeholder="値">
 					</template>
 				</template>
 				<template v-else-if="v.dataType === 'NUMBER'">
 					<input type="number" min="0" :value="v.value || ''" 
-					@change="set_rms_attributes_value(k,$event.target.value)" placeholder="値">
+					@input="set_rms_attributes_value(k,$event.target.value)" placeholder="値">
 				</template>
 				<template v-else-if="v.dataType === 'DATE'">
 					<input type="date" :value="v.value || ''" 
-					@change="set_rms_attributes_value(k,$event.target.value)" placeholder="値">
+					@input="set_rms_attributes_value(k,$event.target.value)" placeholder="値">
 				</template>
 				<template v-else>
 					<input type="text" :value="v.value || ''" 
-					@change="set_rms_attributes_value(k,$event.target.value)" placeholder="値">
+					@input="set_rms_attributes_value(k,$event.target.value)" placeholder="値">
 				</template>
 			</td>
 			<td class="border-0">
 				<template v-if="v.unit || v.unitValue || v.unitValue === ''">
 					<input class="w-25" :list="`unit-list-${k}`" v-model="v.unitValue"
-					@change="set_rms_attributes_unit(k,$event.target.value)" placeholder="単位">
+					@input="set_rms_attributes_unit(k,$event.target.value)" placeholder="単位">
 					<datalist :id="`unit-list-${k}`">
 						<option v-for="unit in get_units(v)">{{ unit }}</option>
 					</datalist>

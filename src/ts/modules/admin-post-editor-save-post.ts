@@ -1,4 +1,5 @@
 import get_meta from "./admin-post-editor-get-meta";
+import {copy} from "./functions";
 
 /**
  * 返礼品の保存
@@ -17,12 +18,17 @@ export default (target: string, $: any = jQuery) => {
 		if( 'n2-save-post' === $(e.target).attr('id') ) return;
 		setTimeout(()=>{
 			// 差分チェック
-			const editor = wp.data.select('core/editor');
+			console.log(typeof n2.vue.$data.寄附金額)
+
 			const fd = $('form').serializeArray();
-			let diff = n2.saved_post != JSON.stringify(fd);
-			diff = diff || editor.getEditedPostAttribute('status') != editor.getCurrentPostAttribute('status');
-			diff = diff || editor.getEditedPostAttribute('title') != editor.getCurrentPostAttribute('title');
-			diff = editor.getEditedPostAttribute('title') ? diff : true;
+			const data = copy( n2.vue.$data, true );
+			data.tmp = copy( n2.saved_post.tmp ?? {}, true );
+			data.tmp.post_title = wp.data.select('core/editor').getEditedPostAttribute('title');
+			data.tmp.post_status = wp.data.select('core/editor').getEditedPostAttribute('status');
+			let diff = JSON.stringify(n2.saved_post) != JSON.stringify(data);
+			console.log('saved',n2.saved_post)
+			console.log('data',data)
+			diff = wp.data.select('core/editor').getEditedPostAttribute('title') ? diff : true;
 			// 総務省申請理由がない場合は保存させない
 			if ( fd.filter( v=>v.name.match(/総務省申請不要理由/) && !v.value ).length ) {
 				diff = false;
@@ -68,7 +74,7 @@ export default (target: string, $: any = jQuery) => {
 						$(window).off('beforeunload');
 						$('#n2-save-post').attr('class', btn_class.saved).find('span').attr('class', 'dashicons dashicons-saved me-2');
 						// 現状のカスタム投稿データを保持
-						n2.saved_post = JSON.stringify($('form').serializeArray());
+						n2.saved_post = copy(n2.vue.$data, true);
 					},
 					reason => {
 						console.log( '保存失敗', reason );
