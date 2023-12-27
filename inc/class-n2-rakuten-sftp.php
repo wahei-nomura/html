@@ -521,6 +521,7 @@ class N2_Rakuten_SFTP {
 		$data = array(
 			'log' => $this->data['log'],
 		);
+		header( 'Content-Type: application/json; charset=utf-8' );
 		echo wp_json_encode( $data, JSON_UNESCAPED_UNICODE );
 		exit;
 	}
@@ -605,15 +606,15 @@ class N2_Rakuten_SFTP {
 				break;
 			case 'dirlist':
 				$this->check_fatal_error( $this->data['params']['path'], 'pathが未設定です' );
-				$this->data['log'] = $this->sftp->dirlist( $this->data['params']['path'], true, true );
-				break;
+				$data = $this->sftp->dirlist( $this->data['params']['path'], true, true );
+				header( 'Content-Type: application/json; charset=utf-8' );
+				echo wp_json_encode( $data, JSON_UNESCAPED_UNICODE );
+				exit;
 			default:
 				$this->check_fatal_error( false, '未定義です' );
 		}
 		$this->insert_post();
-		header( 'Content-Type: application/json; charset=utf-8' );
-		echo wp_json_encode( $this->data['log'], JSON_UNESCAPED_UNICODE );
-		exit;
+		$this->log_output();
 	}
 
 	/**
