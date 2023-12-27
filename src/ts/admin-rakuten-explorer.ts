@@ -23,17 +23,17 @@ jQuery( async function($){
 			}}).then(res=>{
 				const dirlist = res.data;
 				this.$store.commit('SFTP',{dirlist});
+				this.$store.commit('SET_LOADING',{is:false,status:'接続完了'});
 				this.$store.commit('SET_CURRENT_DIR',{
 					path: '',
 					children: dirlist,
 				});
 			})
 			setTimeout(()=>{
-				this.loading = false;
+				this.$store.commit('SET_LOADING',{is:false,status:'接続エラー'});
 			},8000);
 		},
 		data:{
-			loading: true,
 			offset:{
 				top: null,
 				left:null,
@@ -41,7 +41,8 @@ jQuery( async function($){
 		},
 		computed:{
 			...mapState([
-				'sftp'
+				'sftp',
+				'loading',
 			]),
 			offsetHeight(){
 				let top = 0;
@@ -60,17 +61,15 @@ jQuery( async function($){
 			LeftAside,
 		},
 		template: `
-		<div id="n2-sftp-explorer" class="row" :style="offsetHeight">
-			<template v-if="loading &&  sftp.dirlist === null ">
-				<div class="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center">
-					<span class="spinner-border text-primary" role="status"></span>
-					<span class="ms-2 text-primary">接続中</span>
-				</div>
-			</template>
-			<template v-else-if="! loading && sftp.dirlist === null ">
+		<div id="n2-sftp-explorer" class="row position-relative" :style="offsetHeight">
+			<template v-if="! loading.is && sftp.dirlist === null ">
 				<span class="text-danger">SFTP接続エラー<span>
 			</template>
 			<template v-else>
+				<div id="loading" v-if="loading.is" class="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center">
+					<span class="spinner-border text-primary" role="status"></span>
+					<span class="ms-2 text-primary">{{loading.status}}</span>
+				</div>
 				<LeftAside class="col-3 p-3"/>
 				<Main class="col-9 p-3 border-start border-dark"/>
 			</template>

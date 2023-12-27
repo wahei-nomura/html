@@ -29,6 +29,7 @@ export default Vue.extend({
 	methods:{
 		...mapMutations([
 			'SET_CURRENT_FILE',
+			'SET_LOADING',
 		]),
 		...mapActions([
 			'sftpRequest',
@@ -47,6 +48,7 @@ export default Vue.extend({
 			this.$refs.file.value = null;
 		},
 		async upload(files){
+			this.SET_LOADING({is:true,status:'UL中...'});
 			const config = {
 				headers: {
 					'Content-Type': 'multipart/form-data'
@@ -69,6 +71,7 @@ export default Vue.extend({
 		async deleteFiles(){
 			if(!confirm('選択中のファイルを削除します。続けますか？')) return;
 			if(!confirm('本当に削除しますか？この操作は元に戻せません。')) return;
+			this.SET_LOADING({is:true,status:'削除中...'});
 			const target = Object.entries(this.selectedFile)
 				.filter(([_,value])=>value)
 				.map(([file,_])=>`${this.currentDir.path}/${file}`);
@@ -98,6 +101,7 @@ export default Vue.extend({
 			target.forEach((_,i)=>{
 				data[`files[${i}]`] = target[i];
 			});
+			this.SET_LOADING({is:true,status:'DL中...'});
 			// 一覧
 			await this.sftpRequest({data,config}).then( res => {
 				const url = URL.createObjectURL(res.data);
@@ -115,6 +119,7 @@ export default Vue.extend({
 				document.body.appendChild(a);
 				a.click();
 				document.body.removeChild(a);
+				this.SET_LOADING({is:false,status:'DL完了'});
 			});
 		},
 		handleFileAreaDrop(){
@@ -155,16 +160,18 @@ export default Vue.extend({
 		<div>
 			<nav class="navbar navbar-light bg-light px-2 position-sticky top-0 start-0 align-items-strech">
 				<div class="d-flex ms-auto">
-					<div class="d-flex align-items-center">
-								選択したファイルを
-						<div
-							class="btn btn-outline-danger rounded-pill px-4 py-0"
-							@click="deleteFiles"
-						>削除</div>
-						<div
-							class="btn btn-outline-secondary rounded-pill px-4 py-0"
+					<div class="d-flex align-items-center gap-2">
+						<span>選択したファイルを</span>
+						<div class="btn btn-outline-secondary rounded-pill px-4 py-0"
 							@click="downloadFiles"
-						>DL</div>
+						>
+							DL
+						</div>
+						<div class="btn btn-outline-danger rounded-pill px-4 py-0"
+							@click="deleteFiles"
+						>
+							削除
+						</div>
 					</div>
 				</div>
 			</nav>
@@ -189,14 +196,13 @@ export default Vue.extend({
 					</template>
 					<template v-else>
 						<tr>
-							<td colspan="3">no files<td>
+							<td colspan="4" class="text-center">no files<td>
 						</tr>
 					</template>
 				</tbody>
 			</table>
 		</div>
-		<div
-			@click="handleFileAreaClick" @drop.prevent="handleFileAreaDrop" @dragover.prevent
+		<div @click="handleFileAreaClick" @drop.prevent="handleFileAreaDrop" @dragover.prevent
 			class="dragable-area p-5 mt-3 border border-5 text-center w-100 position-sticky bottom-0 end-0 bg-light"
 		>
 			ファイルをドラッグ&ドロップで転送する

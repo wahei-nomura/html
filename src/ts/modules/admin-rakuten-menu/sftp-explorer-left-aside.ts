@@ -18,6 +18,7 @@ export default Vue.extend({
 	methods:{
 		...mapMutations([
 			'SET_CURRENT_DIR',
+			'SET_LOADING',
 		]),
 		...mapActions([
 			'sftpRequest',
@@ -35,6 +36,7 @@ export default Vue.extend({
 				judge:'mkdir',
 				path: newDir,
 			};
+			this.SET_LOADING({is:true,status:`${this.mkdirName} 作成中...`});
 			this.sftpRequest({data}).then(res=>{
 				console.log(res);
 				this.refleshDir(newDir);
@@ -44,6 +46,7 @@ export default Vue.extend({
 			console.log('dlDir');
 			if(!confirm('選択中のフォルダ内は全て削除されます。続けますか？')) return;
 			if(!confirm('本当に削除しますか？この操作は元に戻せません。')) return;
+			this.SET_LOADING({is:true,status:`${this.currentDir.path} 削除中...`});
 			const data = {
 				judge:'delete',
 				recursive: true,
@@ -59,9 +62,7 @@ export default Vue.extend({
 	},
 	template:`
 	<aside>
-		<div
-			popover id="popover-mkdir"
-			class="p-4"
+		<div popover id="popover-mkdir" class="p-4"
 			style="width: 80%; max-height: 80%;"
 		>
 			<div><h4>新規作成</h4></div>
@@ -70,8 +71,7 @@ export default Vue.extend({
 				<input v-model="mkdirName" @input="filterAlphanumeric" type="text" class="form-control" placehodler="directoryName" name="directoryName">
 			</div>
 			<div class="d-flex pb-2">
-				<button
-					@click="mkdir"
+				<button @click="mkdir"
 					:class="{disabled:!mkdirName}"
 					class="btn btn-secondary flex-fill" type="submit"
 					data-bs-dismiss="modal"
@@ -80,13 +80,14 @@ export default Vue.extend({
 				>フォルダを作成</button>
 			</div>
 		</div>
-		<nav class="mb-3 d-flex justify-content-around">
-			<button
-				type="button"
+		<nav class="mb-3 d-flex justify-content-center gap-4">
+			<button	type="button"
 				class="btn btn-outline-secondary btn-sm"
 				popovertarget="popover-mkdir"
-			>新規作成</button>
-			<div class="btn btn-outline-danger btn-sm" @click="dlDir">削除</div>
+			>
+				新規作成
+			</button>
+			<div class="btn btn-outline-danger btn-sm" @click="dlDir">　削除　</div>
 		</nav>
 		<ul class="n2-tree-parent">
 			<li class="n2-tree-node">

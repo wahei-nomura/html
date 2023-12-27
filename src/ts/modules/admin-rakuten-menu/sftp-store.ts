@@ -7,6 +7,10 @@ export default new Vuex.Store({
 	state:{
 		n2nonce: null,
 		n2referer: null,
+		loading: {
+			status: '接続中...',
+			is: true,
+		},
 		sftpLog : {
 			items: [],
 		},
@@ -25,6 +29,12 @@ export default new Vuex.Store({
 		},
 		SET_N2REFERER(state, n2referer:string){
 			state.n2referer = n2referer;
+		},
+		SET_LOADING(state, {is,status}){
+			state.loading = {
+				is,
+				status,
+			};
 		},
 		SET_SFTP_LOG(state, log:[]){
 			state.sftpLog = log;
@@ -54,7 +64,7 @@ export default new Vuex.Store({
 				return res;
 			});
 		},
-		async sftpRequest({state},{data,config}){
+		async sftpRequest({state,commit},{data,config}){
 			const params = {
 				action: 'n2_rakuten_sftp_explorer',
 				n2nonce: state.n2nonce,
@@ -71,25 +81,31 @@ export default new Vuex.Store({
 			);
 		},
 		async refleshDir({commit,dispatch},currentPath) {
-			// 一覧
-			dispatch('sftpRequest',{data:{
-				judge: 'dirlist',
-				path: '/',
-			}}).then(res=>{
-				const dirlist = res.data;
-				commit('SFTP',{dirlist});
-			});
-			// current
-			dispatch('sftpRequest',{data:{
-				judge: 'dirlist',
-				path: currentPath,
-			}}).then(res=>{
-				const children = res.data;
-				commit('SET_CURRENT_DIR',{
+			commit('SET_LOADING',{is:true,status:'更新中...'});
+			const promises = [
+				// 一覧
+				dispatch('sftpRequest',{data:{
+					judge: 'dirlist',
+					path: '/',
+				}}).then(res=>{
+					const dirlist = res.data;
+					commit('SFTP',{dirlist});
+				}),
+				// current
+				dispatch('sftpRequest',{data:{
+					judge: 'dirlist',
 					path: currentPath,
-					children,
-				});
-			});
+				}}).then(res=>{
+					const children = res.data;
+					commit('SET_CURRENT_DIR',{
+						path: currentPath,
+						children,
+					});
+				}),
+			];
+			Promise.all(promises).then(res=>{
+				commit('SET_LOADING',{is:false,status:'更新完了'});
+			})
 		}
 	},
 });
