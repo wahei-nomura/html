@@ -14,11 +14,28 @@ export default Vue.extend({
 		...mapMutations([
 			'SET_CURRENT_DIR',
 		]),
-		mkdir(){
+		...mapActions([
+			'sftpRequest',
+			'refleshDir',
+		]),
+		async mkdir(){
 			console.log('mkDir');
+			const data = {
+				judge:'mkdir',
+				path: ''
+			};
+			this.sftpRequest({data})
 		},
 		dlDir(){
 			console.log('dlDir');
+			const data = {
+				judge:'delete',
+				recursive: true,
+				'paths[]': this.currentDir.path,
+			};
+			this.sftpRequest({data}).then(res=>{
+				this.refleshDir('/');
+			});
 		},
 	},
 	components:{

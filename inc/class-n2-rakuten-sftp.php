@@ -478,10 +478,10 @@ class N2_Rakuten_SFTP {
 	 *
 	 * @param array $paths paths
 	 */
-	private function delete( $paths ) {
+	private function delete( $paths, $recursive = false ) {
 		foreach ( $paths as $path ) {
-			$target              = end( explode( '/', $path) );
-			$this->data['log'][] = match ( $this->sftp->delete( $path ) ) {
+			$target              = end( explode( '/', $path ) );
+			$this->data['log'][] = match ( $this->sftp->delete( $path, $recursive ) ) {
 				true => array(
 					'status'  => '削除',
 					'context' => $target,
@@ -580,6 +580,8 @@ class N2_Rakuten_SFTP {
 	public function explorer() {
 		$this->check_fatal_error( $this->connect(), 'パスワードが違います' );
 		$this->set_params();
+		$recursive = (bool) $this->data['params']['recursive'] ?? false;
+		$overwrite = (bool) $this->data['params']['overwrite'] ?? false;
 
 		switch ( $this->data['params']['judge'] ) {
 			case 'mkdir':
@@ -588,12 +590,11 @@ class N2_Rakuten_SFTP {
 				break;
 			case 'delete':
 				$this->check_fatal_error( $this->data['params']['paths'], 'pathsが未設定です' );
-				$this->delete( $this->data['params']['paths'] );
+				$this->delete( $this->data['params']['paths'], $recursive );
 				break;
 			case 'move':
 				$this->check_fatal_error( $this->data['params']['source'], 'sourceが未設定です' );
 				$this->check_fatal_error( $this->data['params']['destination'], 'destinationが未設定です' );
-				$overwrite = (bool) $this->data['params']['overwrite'] ?? false;
 				$this->move( $this->data['params']['source'], $this->data['params']['destination'], $overwrite );
 				break;
 			case 'download':
