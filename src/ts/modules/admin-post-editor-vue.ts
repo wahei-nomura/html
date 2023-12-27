@@ -2,7 +2,7 @@ import Vue from 'vue/dist/vue.min'
 import draggable from 'vuedraggable'
 import loading_view from "./loading-view";
 import save_as_pending from "./admin-post-editor-save-as-pending-post"
-import {copy} from "./functions";
+import _ from 'lodash';
 
 /**
  * カスタムフィールドをVueで制御
@@ -78,7 +78,7 @@ export default ($: any = jQuery) => {
 			this.auto_fit_tetxarea(v)
 		});
 		// 保存の判定に使う
-		n2.saved_post = copy(this.$data, true);
+		n2.saved_post = _.cloneDeep(this.$data);
 		// 「進む」「戻る」の制御をデフォルトに戻す
 		wp.data.dispatch( 'core/keyboard-shortcuts' ).unregisterShortcut('core/editor/undo');
 		wp.data.dispatch( 'core/keyboard-shortcuts' ).unregisterShortcut('core/editor/redo');

@@ -1,5 +1,5 @@
 import {set_default_meta} from "./admin-post-editor-get-meta";
-import {copy} from "./functions";
+import _ from 'lodash';
 
 /**
  * 爆速ナビを追加
@@ -46,7 +46,7 @@ export default ($:any = jQuery) => {
 				}
 				n2.vue.$data.tmp.post_title = post.title;
 				n2.vue.$data.tmp.post_status = post.status;
-				n2.saved_post = copy(n2.vue.$data, true);
+				n2.saved_post = _.cloneDeep(n2.vue.$data);
 				console.log(typeof n2.vue.$data.寄附金額)
 				// ↓　N2オートセーブ（タイトルのみでほぼ無意味なので、contentの中のmetaで復旧するようにしたら使える）
 				// window.sessionStorage.setItem(`wp-autosave-block-editor-post-${id}`, JSON.stringify({

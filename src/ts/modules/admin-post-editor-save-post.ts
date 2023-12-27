@@ -1,5 +1,5 @@
 import get_meta from "./admin-post-editor-get-meta";
-import {copy} from "./functions";
+import _ from 'lodash';
 
 /**
  * 返礼品の保存
@@ -18,14 +18,12 @@ export default (target: string, $: any = jQuery) => {
 		if( 'n2-save-post' === $(e.target).attr('id') ) return;
 		setTimeout(()=>{
 			// 差分チェック
-			console.log(typeof n2.vue.$data.寄附金額)
-
 			const fd = $('form').serializeArray();
-			const data = copy( n2.vue.$data, true );
-			data.tmp = copy( n2.saved_post.tmp ?? {}, true );
+			const data = _.cloneDeep( n2.vue.$data );
+			data.tmp = _.cloneDeep( n2.saved_post.tmp ?? {} );
 			data.tmp.post_title = wp.data.select('core/editor').getEditedPostAttribute('title');
 			data.tmp.post_status = wp.data.select('core/editor').getEditedPostAttribute('status');
-			let diff = JSON.stringify(n2.saved_post) != JSON.stringify(data);
+			let diff = ! _.isEqualWith(n2.saved_post, data, (a,b)=>{ if(a==b) return true } );// 型無視して比較
 			console.log('saved',n2.saved_post)
 			console.log('data',data)
 			diff = wp.data.select('core/editor').getEditedPostAttribute('title') ? diff : true;
@@ -74,7 +72,7 @@ export default (target: string, $: any = jQuery) => {
 						$(window).off('beforeunload');
 						$('#n2-save-post').attr('class', btn_class.saved).find('span').attr('class', 'dashicons dashicons-saved me-2');
 						// 現状のカスタム投稿データを保持
-						n2.saved_post = copy(n2.vue.$data, true);
+						n2.saved_post = _.cloneDeep(n2.vue.$data);
 					},
 					reason => {
 						console.log( '保存失敗', reason );
