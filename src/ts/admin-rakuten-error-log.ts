@@ -61,6 +61,9 @@ jQuery( async function($){
 					this.SET_LOADING({is:false,status:'取得完了'});
 				});
 			},
+			formatDate(date){
+				return new Date(date).toLocaleDateString('sv-SE');
+			},
 		},
 		async created(){
 			this.offset = $('#n2-sftp-error-log').offset();
@@ -98,7 +101,7 @@ jQuery( async function($){
 			<template v-else>
 				<table class="widefat striped" style="margin: 2em 0;">
 					<tr v-for="[name,log] in Object.entries(sftp.dirlist).reverse()">
-					<td>{{log.time}}</td>
+					<td>{{formatDate(log.lastmodunix*1000)}}</td>
 					<td>
 						<button type="button" popovertarget="popover-file-contents" class="button button-primary"
 							@click="getContents(log.name)"
