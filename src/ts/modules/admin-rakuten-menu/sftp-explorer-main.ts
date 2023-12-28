@@ -20,6 +20,7 @@ export default Vue.extend({
 		...mapState([
 			'currentDir',
 			'currentFile',
+			'loading',
 		]),
 		hasFiles(){
 			const children = this.currentDir.children;
@@ -144,11 +145,13 @@ export default Vue.extend({
 			this.refleshDir(this.currentDir.path);
 		},
 		async getContents(){
+			this.SET_LOADING({is:true,status:'取得中...'});
 			const data = {
 				judge: 'get_contents',
 				path: `${this.currentDir.path}/${this.currentFile.name}`
 			};
 			this.currentFileContens = await this.sftpRequest({data}).then(res=>{
+				this.SET_LOADING({is:false,status:'取得完了'});
 				return res.data
 			});
 		},
@@ -195,6 +198,7 @@ export default Vue.extend({
 	<main class="d-flex flex-column justify-content-between">
 		<div popover id="popover-file-contents" class="p-4"
 			 style="width: 80%; height: 80%; overflow:hidden;"
+			 v-show="!loading.is"
 		>
 			<textarea class="w-100 h-100" v-text="splitFileContens">
 			</textarea>
