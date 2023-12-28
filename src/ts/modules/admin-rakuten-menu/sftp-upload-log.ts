@@ -289,7 +289,7 @@ export default Vue.extend({
 			return true;
 		},
 		async formatUploadLogs(log){
-			if (log.アップロード.転送モード !== 'img_upload') {
+			if (log.転送モード !== 'img_upload') {
 				this.popover.アップロード.display = log.アップロード.log.map((l)=>{
 					return `${l.status} ${l.context}`;
 				}).join('<br>');
