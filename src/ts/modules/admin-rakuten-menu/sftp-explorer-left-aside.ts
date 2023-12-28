@@ -7,6 +7,14 @@ export default Vue.extend({
 	data(){
 		return {
 			mkdirName: '',
+			skipDeletePath: [
+				'',
+				'/csv',
+				'/images',
+				'/download',
+				'/cabinet',
+				'/ritem',
+			],
 		}
 	},
 	computed:{
@@ -42,9 +50,12 @@ export default Vue.extend({
 				this.refleshDir(newDir);
 			})
 		},
-		dlDir(){
-			console.log('dlDir');
-			if(!confirm('選択中のフォルダ内は全て削除されます。続けますか？')) return;
+		dldir(){
+			if(this.skipDeletePath.includes(this.currentDir.path)) {
+				alert(`${this.currentDir.path || 'root'}は削除対象外です`)
+				return;
+			}
+			if(!confirm(`${this.currentDir.path}内は全て削除されます。続けますか？`)) return;
 			if(!confirm('本当に削除しますか？この操作は元に戻せません。')) return;
 			this.SET_LOADING({is:true,status:`${this.currentDir.path} 削除中...`});
 			const data = {
@@ -87,7 +98,9 @@ export default Vue.extend({
 			>
 				新規作成
 			</button>
-			<div class="btn btn-outline-danger btn-sm" @click="dlDir">　削除　</div>
+			<div class="btn btn-outline-danger btn-sm" @click="dldir"
+				 :class="{disabled:skipDeletePath.includes(currentDir.path)}"
+			>　削除　</div>
 		</nav>
 		<ul class="n2-tree-parent">
 			<li class="n2-tree-node">
