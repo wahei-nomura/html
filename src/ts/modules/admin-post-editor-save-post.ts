@@ -51,6 +51,9 @@ export default (target: string) => {
 						$('#n2-save-post').attr('class', btn_class.saved).find('span').attr('class', 'dashicons dashicons-saved me-2');
 						// 現状のカスタム投稿データを保持
 						n2.saved_post = _.cloneDeep(n2.vue.$data);
+						n2.saved_post.tmp.post_title = wp.data.select('core/editor').getEditedPostAttribute('title');
+						n2.saved_post.tmp.post_status = wp.data.select('core/editor').getEditedPostAttribute('status');
+						n2.editor_diff = false;
 					},
 					reason => {
 						console.log( '保存失敗', reason );

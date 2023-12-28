@@ -11,7 +11,7 @@ export default ($:any = jQuery) => {
 	const wp = window['wp'];
 	// 一覧ページを突っ込む
 	const hypernavi_generator = () => {
-		$('.interface-complementary-area.edit-post-sidebar .components-panel').html('<iframe id="n2-hypernavi" src="edit.php?post_type=post">');
+		$('.interface-complementary-area.edit-post-sidebar .components-panel').prepend('<iframe id="n2-hypernavi" src="edit.php?post_type=post">');
 		$('#n2-hypernavi').on('load', e => {
 			$(e.target).contents().find('[href$="post-new.php"]').attr('target', '_parent');
 			$(e.target).contents().find('.row-title').on('click', async e => {
