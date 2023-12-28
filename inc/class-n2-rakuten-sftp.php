@@ -29,9 +29,9 @@ class N2_Rakuten_SFTP {
 	public $settings = array(
 		'main_menu' => 'n2_rakuten_menu',
 		'sub_menu'  => array(
-			'sftp-upload'    => 'アップロード',
-			'sftp-error-log' => 'エラーログ',
-			'sftp-explorer'  => 'エクスプローラー',
+			'sftp-explorer'  => 'SFTP',
+			'sftp-upload'    => 'SFTPログ',
+			'sftp-error-log' => 'SFTPエラーログ',
 			'rms-cabinet'    => 'CABINET',
 		),
 		'template'  => 'template/admin-rakuten-menu',
