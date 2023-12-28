@@ -152,6 +152,13 @@ class N2 {
 	);
 
 	/**
+	 * 一時ファイル
+	 *
+	 * @var array
+	 */
+	public $tmp = array();
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
