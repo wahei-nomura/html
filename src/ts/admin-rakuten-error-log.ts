@@ -81,7 +81,6 @@ jQuery( async function($){
 			setTimeout(()=>{
 				this.SET_LOADING({is:false,status:'接続エラー'});
 			},8000);
-			
 		},
 		store,
 		template:`
@@ -98,7 +97,7 @@ jQuery( async function($){
 			</template>
 			<template v-else>
 				<table class="widefat striped" style="margin: 2em 0;">
-					<tr v-for="(log,name) in sftp.dirlist">
+					<tr v-for="[name,log] in Object.entries(sftp.dirlist).reverse()">
 					<td>{{log.time}}</td>
 					<td>
 						<button type="button" popovertarget="popover-file-contents" class="button button-primary"
