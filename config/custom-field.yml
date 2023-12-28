@@ -283,14 +283,12 @@
         value: []
         option : 
             - 食品
-        "@change": "check_handling_method();check_tax()"
+        "@change": "check_handling_method();check_tax();"
     税率:
         type : radio
-        description : 返礼品の税率を%なしの数値のみで入力してください。未入力の場合は初期値「10」となります。
         option:
-            - 8
-            - 10
-        "@focus": set_info($event.target)
+            8: 8%
+            10: 10%
 
 # ▼ =========== 食品専用のフィールド ==========
     アレルギー有無確認:
