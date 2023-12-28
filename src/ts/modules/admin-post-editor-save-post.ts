@@ -35,7 +35,7 @@ export default (target: string) => {
 			}
 			$('#n2-save-post span').attr('class', 'spinner-border spinner-border-sm me-2');
 			// フォーカス外して保存した場合にVueの$watchが発火しないので強制$watch
-			n2.vue.$data._force_watch++;
+			n2.tmp.vue.$data._force_watch++;
 			// フォーカス外さずそのまま保存した場合にVueの$watchの発火が間に合わないのでresolveを待つ
 			new Promise( resolve => {
 				n2.tmp.save_post_promise_resolve = resolve;
@@ -50,7 +50,7 @@ export default (target: string) => {
 						$(window).off('beforeunload');
 						$('#n2-save-post').attr('class', btn_class.saved).find('span').attr('class', 'dashicons dashicons-saved me-2');
 						// 現状のカスタム投稿データを保持
-						n2.tmp.saved = _.cloneDeep(n2.vue.$data);
+						n2.tmp.saved = _.cloneDeep(n2.tmp.vue.$data);
 						n2.tmp.saved.tmp.post_title = wp.data.select('core/editor').getEditedPostAttribute('title');
 						n2.tmp.saved.tmp.post_status = wp.data.select('core/editor').getEditedPostAttribute('status');
 						n2.tmp.diff = false;
@@ -80,7 +80,7 @@ export default (target: string) => {
 export const save_button_toggler = () => {
 	const wp = window['wp'];
 	// 差分チェック
-	const data = _.cloneDeep( n2.vue.$data );
+	const data = _.cloneDeep( n2.tmp.vue.$data );
 	data.tmp = _.cloneDeep( n2.tmp.saved.tmp ?? {} );
 	data.tmp.post_title = wp.data.select('core/editor').getEditedPostAttribute('title');
 	data.tmp.post_status = wp.data.select('core/editor').getEditedPostAttribute('status');

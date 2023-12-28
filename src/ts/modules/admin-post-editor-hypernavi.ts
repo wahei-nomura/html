@@ -44,12 +44,12 @@ export default ($:any = jQuery) => {
 				}
 				wp.data.dispatch('core/editor').editPost(post);
 				$('title').text(post.title);// タイトル変更
-				for ( const k in n2.vue.$data ) {
-					n2.vue.$data[k] = data[k] ?? n2.vue.$data[k];
+				for ( const k in n2.tmp.vue.$data ) {
+					n2.tmp.vue.$data[k] = data[k] ?? n2.tmp.vue.$data[k];
 				}
-				n2.vue.$data.tmp.post_title = post.title;
-				n2.vue.$data.tmp.post_status = post.status;
-				n2.tmp.saved = _.cloneDeep(n2.vue.$data);
+				n2.tmp.vue.$data.tmp.post_title = post.title;
+				n2.tmp.vue.$data.tmp.post_status = post.status;
+				n2.tmp.saved = _.cloneDeep(n2.tmp.vue.$data);
 				save_button_toggler();
 				// ↓　N2オートセーブ（タイトルのみでほぼ無意味なので、contentの中のmetaで復旧するようにしたら使える）
 				// window.sessionStorage.setItem(`wp-autosave-block-editor-post-${id}`, JSON.stringify({

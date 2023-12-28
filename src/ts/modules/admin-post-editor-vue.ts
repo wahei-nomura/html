@@ -168,13 +168,13 @@ export default ($: any = jQuery) => {
 			n2.media.on( 'open', () => {
 				// N2のものだけに
 				console.log(n2.media)
-				const add =  n2.vue.商品画像.filter( v => v.nonces );
+				const add =  n2.tmp.vue.商品画像.filter( v => v.nonces );
 				n2.media.state().get('selection').add( add.map( v => wp.media.attachment(v.id) ) );
 			});
 			n2.media.on( 'select close', () => {
 				n2.media.state().get('selection').forEach( img => {
-					if ( ! n2.vue.商品画像.find( v => v.id == img.attributes.id ) ) {
-						n2.vue.商品画像.push( img.attributes );
+					if ( ! n2.tmp.vue.商品画像.find( v => v.id == img.attributes.id ) ) {
+						n2.tmp.vue.商品画像.push( img.attributes );
 					}
 				})
 			});
@@ -365,7 +365,7 @@ export default ($: any = jQuery) => {
 				return;
 			}
 			delete cat.values[0];
-			n2.vue.tmp.楽天SPAカテゴリー = cat.values.map( (v,k) => {
+			n2.tmp.vue.tmp.楽天SPAカテゴリー = cat.values.map( (v,k) => {
 				if ( ! v.length ) return
 				v.forEach((e,i) => {
 					v[i] = e || cat.values[k-1][i];
@@ -387,7 +387,7 @@ export default ($: any = jQuery) => {
 		},
 		clearRakutenCategory(e,index){
 			e.preventDefault();
-			n2.vue.楽天カテゴリー = this.楽天カテゴリーselected.filter((_,i)=>i!==index).join('\n')
+			n2.tmp.vue.楽天カテゴリー = this.楽天カテゴリーselected.filter((_,i)=>i!==index).join('\n')
 		},
 		// 楽天納期
 		async get_rakuten_delvdate(){
@@ -416,7 +416,7 @@ export default ($: any = jQuery) => {
 
 	// メタボックスが生成されてから
 	$('.edit-post-layout__metaboxes').ready(()=>{
-		n2.vue = new Vue({
+		n2.tmp.vue = new Vue({
 			el: '.edit-post-layout__metaboxes',
 			data,
 			created,
