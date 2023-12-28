@@ -11,7 +11,7 @@ jQuery( async function($){
 			return {
 				errorLog:{
 					dir: 'ritem/logs',
-					csv:[],
+					name: '',
 				},
 				offset:{
 					top: null,
@@ -29,6 +29,9 @@ jQuery( async function($){
 				if( this.offset.top !== null ) top = this.offset.top + 80;
 				return `height: calc(100vh - ${top}px);`
 			},
+			errorLogContents(){
+				return this.sftp.get_contents[this.errorLog.name];
+			},
 		},
 		methods:{
 			...mapActions([
@@ -40,8 +43,23 @@ jQuery( async function($){
 				'SET_N2REFERER',
 				'SET_LOADING',
 			]),
-			getCsvErrorLogs(){
-				this.errorLog.csv = [];
+			async getContents(name){
+				this.errorLog.name = name;
+				const get_contents = this.sftp.get_contents;
+				// 取得済みならキャッシュ利用
+				if(get_contents[name]){
+					return;
+				}
+				this.SET_LOADING({is:true,status:'取得中...'});
+				const data = {
+					judge: 'get_contents',
+					path: `${this.errorLog.dir}/${this.errorLog.name}`
+				};
+				await this.sftpRequest({data}).then(res=>{
+					get_contents[name] = res.data;
+					this.SFTP({get_contents});
+					this.SET_LOADING({is:false,status:'取得完了'});
+				});
 			},
 		},
 		async created(){
@@ -67,7 +85,7 @@ jQuery( async function($){
 		},
 		store,
 		template:`
-		<div id="n2-sftp-error-log" class="row position-relative" :style="offsetHeight">
+		<div id="n2-sftp-error-log" class="position-relative" :style="offsetHeight">
 			<div id="loading" v-if="loading.is" class="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center">
 				<span class="spinner-border text-primary" role="status"></span>
 				<span class="ms-2 text-primary">{{loading.status}}</span>
@@ -83,14 +101,22 @@ jQuery( async function($){
 					<tr v-for="(log,name) in sftp.dirlist">
 					<td>{{log.time}}</td>
 					<td>
-						<button type="button" :popovertarget="log.name" class="button button-primary">エラー内容を見る</button>
-						<div popover="auto" :id="log.name" style="width: 80%; max-height: 80%; overflow-y: scroll;">
-							<pre>{{log.contents}}</pre>
-						</div>
+						<button type="button" popovertarget="popover-file-contents" class="button button-primary"
+							@click="getContents(log.name)"
+						>
+							エラー内容を見る
+						</button>
 					</td>
 					<td>{{errorLog.dir + '/' + log.name}}</td>
 					</tr>
 				</table>
+				<div popover id="popover-file-contents" class="p-4"
+					style="width: 80%; height: 80%; overflow:hidden;"
+					v-show="!loading.is"
+				>
+					<textarea class="w-100 h-100" v-text="errorLogContents">
+					</textarea>
+				</div>
 			</template>
 		</div>
 		`,
