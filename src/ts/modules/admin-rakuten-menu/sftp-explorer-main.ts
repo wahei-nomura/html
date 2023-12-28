@@ -44,8 +44,15 @@ export default Vue.extend({
 		handleFileAreaClick(){
 			this.$refs.file.click();
 		},
-		handleFileAreaChange(){
-			console.log('change');
+		handleFileDrop(e){
+			const files =  e.dataTransfer.files;
+			if ( ! files.length ) {
+				return;
+			}
+			this.upload(files);
+			this.$refs.file.value = null;
+		},
+		handleFileChange(){
 			const files = this.$refs.file.files
 			if ( ! files.length ) {
 				return;
@@ -139,9 +146,6 @@ export default Vue.extend({
 			this.currentFileContens = await this.sftpRequest({data}).then(res=>{
 				return res.data
 			});
-		},
-		handleFileAreaDrop(){
-			console.log('drop');
 		},
 		formatSize(byte){
 			if( byte >> 10 < 1 ) return byte.toFixed(1) + 'B';
@@ -248,12 +252,12 @@ export default Vue.extend({
 				</tbody>
 			</table>
 		</div>
-		<div @click="handleFileAreaClick" @drop.prevent="handleFileAreaDrop" @dragover.prevent
+		<div @click="handleFileAreaClick" @drop.prevent="handleFileDrop" @dragover.prevent
 			class="dragable-area p-5 mt-3 border border-5 text-center w-100 position-sticky bottom-0 end-0 bg-light"
 		>
 			ファイルをドラッグ&ドロップで転送する
 			<form style="display:none;">
-				<input ref=file @change="handleFileAreaChange" type="file" multiple="multiple" class="d-none">
+				<input ref=file @change="handleFileChange" type="file" multiple="multiple" class="d-none">
 			</form>
 		</div>
 	</main>
