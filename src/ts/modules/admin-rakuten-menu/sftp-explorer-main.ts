@@ -31,6 +31,11 @@ export default Vue.extend({
 			return this.currentFileContens.trim().replace(/,/g,'\t');
 			// return this.csv2arr(this.currentFileContens)
 		},
+		isSelectedFile(){
+			return Object.entries(this.selectedFile).some(([_,selected])=>{
+				return selected;
+			});
+		},
 	},
 	methods:{
 		...mapMutations([
@@ -205,11 +210,13 @@ export default Vue.extend({
 					<div class="d-flex align-items-center gap-2">
 						<span>選択したファイルを</span>
 						<div class="btn btn-outline-secondary rounded-pill px-4 py-0"
+							:class="{disabled:!isSelectedFile}"
 							@click="downloadFiles"
 						>
 							DL
 						</div>
 						<div class="btn btn-outline-danger rounded-pill px-4 py-0"
+							:class="{disabled:!isSelectedFile}"
 							@click="deleteFiles"
 						>
 							削除
