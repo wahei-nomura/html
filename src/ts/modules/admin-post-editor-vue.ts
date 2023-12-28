@@ -68,8 +68,8 @@ export default ($: any = jQuery) => {
 				this.送料 = newVal.発送サイズ != oldVal.発送サイズ ? '' : this.送料 ;// 事業者に隠すため送料の初期化
 				this.送料 = n2.settings['寄附金額・送料']['送料'][size.join('_')] || this.送料;// 送料設定されていない場合は送料をそのまま
 				this.寄附金額 = await this.calc_donation(newVal.価格,this.送料,newVal.定期便);
-				if ( n2.save_post_promise_resolve ) {
-					n2.save_post_promise_resolve('resolve');
+				if ( n2.tmp.save_post_promise_resolve ) {
+					n2.tmp.save_post_promise_resolve('resolve');
 				}
 			},
 		);
@@ -77,12 +77,12 @@ export default ($: any = jQuery) => {
 		$('textarea[rows="auto"]').each((k,v)=>{
 			this.auto_fit_tetxarea(v)
 		});
+		this.check_tax(); 
 		// 保存の判定に使う
-		n2.saved_post = _.cloneDeep(this.$data);
+		n2.tmp.saved = _.cloneDeep(this.$data);
 		// 「進む」「戻る」の制御をデフォルトに戻す
 		wp.data.dispatch( 'core/keyboard-shortcuts' ).unregisterShortcut('core/editor/undo');
 		wp.data.dispatch( 'core/keyboard-shortcuts' ).unregisterShortcut('core/editor/redo');
-		this.check_tax(); 
 	};
 	const methods = {
 		// 地場産品類型に応じて類型該当理由の注意書きを修正

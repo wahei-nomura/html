@@ -38,7 +38,7 @@ export default (target: string) => {
 			n2.vue.$data._force_watch++;
 			// フォーカス外さずそのまま保存した場合にVueの$watchの発火が間に合わないのでresolveを待つ
 			new Promise( resolve => {
-				n2.save_post_promise_resolve = resolve;
+				n2.tmp.save_post_promise_resolve = resolve;
 			}).then(()=>{
 				// カスタムフィールドの保存
 				const meta = get_meta();
@@ -50,10 +50,10 @@ export default (target: string) => {
 						$(window).off('beforeunload');
 						$('#n2-save-post').attr('class', btn_class.saved).find('span').attr('class', 'dashicons dashicons-saved me-2');
 						// 現状のカスタム投稿データを保持
-						n2.saved_post = _.cloneDeep(n2.vue.$data);
-						n2.saved_post.tmp.post_title = wp.data.select('core/editor').getEditedPostAttribute('title');
-						n2.saved_post.tmp.post_status = wp.data.select('core/editor').getEditedPostAttribute('status');
-						n2.editor_diff = false;
+						n2.tmp.saved = _.cloneDeep(n2.vue.$data);
+						n2.tmp.saved.tmp.post_title = wp.data.select('core/editor').getEditedPostAttribute('title');
+						n2.tmp.saved.tmp.post_status = wp.data.select('core/editor').getEditedPostAttribute('status');
+						n2.tmp.diff = false;
 					},
 					reason => {
 						console.log( '保存失敗', reason );
@@ -81,13 +81,13 @@ export const save_button_toggler = () => {
 	const wp = window['wp'];
 	// 差分チェック
 	const data = _.cloneDeep( n2.vue.$data );
-	data.tmp = _.cloneDeep( n2.saved_post.tmp ?? {} );
+	data.tmp = _.cloneDeep( n2.tmp.saved.tmp ?? {} );
 	data.tmp.post_title = wp.data.select('core/editor').getEditedPostAttribute('title');
 	data.tmp.post_status = wp.data.select('core/editor').getEditedPostAttribute('status');
-	n2.editor_diff = ! _.isEqualWith(n2.saved_post, data, (a,b)=>{ if(a==b) return true } );// 型無視して比較
+	n2.tmp.diff = ! _.isEqualWith(n2.tmp.saved, data, (a,b)=>{ if(a==b) return true } );// 型無視して比較
 	// 総務省申請理由がない場合は保存させない
-	n2.editor_diff = '不要' == data.総務省申請 && ! data.総務省申請不要理由 ? false : n2.editor_diff;
-	if ( n2.editor_diff ){
+	n2.tmp.diff = '不要' == data.総務省申請 && ! data.総務省申請不要理由 ? false : n2.tmp.diff;
+	if ( n2.tmp.diff ){
 		$('#n2-save-post').attr('class', btn_class.save).find('span').attr('class', '');
 		$(window).on('beforeunload', () => '' );
 	} else {

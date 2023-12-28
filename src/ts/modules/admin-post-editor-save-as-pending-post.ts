@@ -46,7 +46,7 @@ const append_button = (target: string, $: any = jQuery) => {
 			n2.vue.$data._force_watch++;
 			// フォーカス外さずそのまま保存した場合にVueのwatchが発火しないのでresolveを待つ
 			new Promise( resolve => {
-				n2.save_post_promise_resolve = resolve;
+				n2.tmp.save_post_promise_resolve = resolve;
 			}).then(()=>{
 				// カスタムフィールドの保存
 				const meta = get_meta();

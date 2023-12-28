@@ -16,7 +16,7 @@ export default ($:any = jQuery) => {
 			$(e.target).contents().find('[href$="post-new.php"]').attr('target', '_parent');
 			$(e.target).contents().find('.row-title').on('click', async e => {
 				e.preventDefault();
-				if ( n2.editor_diff && ! confirm( '保存せずに移動すると編集したデータは失われます。本当に移動しますか？' ) ) {
+				if ( n2.tmp.diff && ! confirm( '保存せずに移動すると編集したデータは失われます。本当に移動しますか？' ) ) {
 					return;
 				}
 				const id = $(e.target).parents('tr').attr('id').replace(/[^0-9]/g, '');
@@ -49,7 +49,7 @@ export default ($:any = jQuery) => {
 				}
 				n2.vue.$data.tmp.post_title = post.title;
 				n2.vue.$data.tmp.post_status = post.status;
-				n2.saved_post = _.cloneDeep(n2.vue.$data);
+				n2.tmp.saved = _.cloneDeep(n2.vue.$data);
 				save_button_toggler();
 				// ↓　N2オートセーブ（タイトルのみでほぼ無意味なので、contentの中のmetaで復旧するようにしたら使える）
 				// window.sessionStorage.setItem(`wp-autosave-block-editor-post-${id}`, JSON.stringify({
