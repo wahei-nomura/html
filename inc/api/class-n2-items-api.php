@@ -262,7 +262,7 @@ class N2_Items_API {
 		foreach ( $meta_input as $key => $meta ) {
 			$meta = match ( true ) {
 				// 値が配列の場合、空は削除
-				is_array( $meta ) => array_filter( $meta, fn( $v ) => $v ),
+				is_array( $meta ) => array_values( array_filter( $meta, fn( $v ) => $v ) ),
 				// それ以外は文字列型で保存
 				default => (string) $meta,
 			};
