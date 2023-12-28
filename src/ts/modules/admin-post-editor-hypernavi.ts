@@ -69,9 +69,7 @@ export default ($:any = jQuery) => {
 		// 	content: wp.data.select( 'core/editor' ).getEditedPostContent(),
 		// }));
 	};
-	window.addEventListener("popstate", (e) => {
-		change_data(e.state.id);
-	});
+	window.addEventListener("popstate", e => change_data(e.state.id) );
 	$('.interface-complementary-area.edit-post-sidebar .components-panel').ready(() => {
 		$(".interface-complementary-area.edit-post-sidebar .components-panel").ready(hypernavi_generator);
 		$('.interface-pinned-items button').on('click', () => {
