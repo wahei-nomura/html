@@ -50,6 +50,10 @@ export default ($:any = jQuery) => {
 				n2.tmp.vue.$data.tmp.post_title = post.title;
 				n2.tmp.vue.$data.tmp.post_status = post.status;
 				n2.tmp.saved = _.cloneDeep(n2.tmp.vue.$data);
+				// url変更
+				const url = new URL( location.href );
+				url.searchParams.set('post', id);
+				history.pushState(null, null, url);
 				save_button_toggler();
 				// ↓　N2オートセーブ（タイトルのみでほぼ無意味なので、contentの中のmetaで復旧するようにしたら使える）
 				// window.sessionStorage.setItem(`wp-autosave-block-editor-post-${id}`, JSON.stringify({
