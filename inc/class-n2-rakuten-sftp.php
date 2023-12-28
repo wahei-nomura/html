@@ -122,7 +122,6 @@ class N2_Rakuten_SFTP {
 			$html['nav'] .= sprintf( '<a href="?page=%s" class="nav-tab%s">%s</a>', $menu_slug, $menu_slug === $template ? ' nav-tab-active' : '', $name );
 			if ( $menu_slug === $template ) {
 				$args = match ( $page ) {
-					'sftp-error-log' => $this->error_log_args(),
 					'sftp-upload'    => $this->upload_args(),
 					default     => null,
 				};
@@ -612,7 +611,7 @@ class N2_Rakuten_SFTP {
 				echo wp_json_encode( $data, JSON_UNESCAPED_UNICODE );
 				exit;
 			case 'dirlist':
-				$data = $this->sftp->dirlist( $this->data['params']['path'] ?? '', true, true );
+				$data = $this->sftp->dirlist( $this->data['params']['path'] ?? '', true, $recursive );
 				header( 'Content-Type: application/json; charset=utf-8' );
 				echo wp_json_encode( $data, JSON_UNESCAPED_UNICODE );
 				exit;
