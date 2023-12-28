@@ -16,6 +16,7 @@ export default new Vuex.Store({
 		},
 		sftp:{
 			dirlist: null,
+			get_contents:{},
 		},
 		currentDir:{
 			path:null,
@@ -87,6 +88,7 @@ export default new Vuex.Store({
 				dispatch('sftpRequest',{data:{
 					judge: 'dirlist',
 					path: '/',
+					recursive: true,
 				}}).then(res=>{
 					const dirlist = res.data;
 					commit('SFTP',{dirlist});
@@ -95,6 +97,7 @@ export default new Vuex.Store({
 				dispatch('sftpRequest',{data:{
 					judge: 'dirlist',
 					path: currentPath,
+					recursive: true,
 				}}).then(res=>{
 					const children = res.data;
 					commit('SET_CURRENT_DIR',{

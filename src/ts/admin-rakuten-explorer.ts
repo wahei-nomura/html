@@ -10,16 +10,16 @@ jQuery( async function($){
 	window['n2'].vue = new Vue({
 		el: '#n2-sftp-explorer',
 		async created() {
-
 			this.offset = $('#n2-sftp-explorer').offset();
 			const n2nonce = $('input[name="n2nonce"]').val();
 			this.$store.commit('SET_N2NONCE',n2nonce);
-
 			const n2referer = $('input[name="_wp_http_referer"]').val();
 			this.$store.commit('SET_N2REFERER',n2referer);
+
 			this.sftpRequest({data:{
 				judge: 'dirlist',
 				path: '',
+				recursive: true,
 			}}).then(res=>{
 				const dirlist = res.data;
 				this.$store.commit('SFTP',{dirlist});
