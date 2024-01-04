@@ -493,7 +493,6 @@ class N2_Rakuten_SFTP {
 			'アップロード' => array(
 				'data' => $this->n2data,
 				'log'  => $this->data['log'],
-				'date' => $now,
 			),
 			'転送モード'  => $judge,
 		);
