@@ -74,8 +74,11 @@ class N2_Dashboard {
 	 */
 	public function add_widgets() {
 		global $n2;
+		$async_function = function () {
+			echo '読み込み中です...';
+		};
 		if ( current_user_can( 'ss_crew' ) ) {
-			wp_add_dashboard_widget( 'custom_help_widget', '返礼率規定オーバーリスト', array( $this, 'dashboard_text' ) );
+			wp_add_dashboard_widget( 'custom_help_widget', '返礼率規定オーバーリスト', $async_function );
 		}
 		if ( '1' === $n2->settings['N2']['自治体確認'] ) {
 			wp_add_dashboard_widget( 'jichitai_widget', '自治体チェック未リスト', array( $this, 'dashboard_jichitai_check_list' ) );
