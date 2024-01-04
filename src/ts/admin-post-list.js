@@ -3,20 +3,14 @@ import post_list_tool from "./modules/admin-post-list-tool";
 
 const n2 = window['n2'];
 jQuery( $ => {
-	//デフォルトの一括操作ツールを非表示
-	$('.bulkactions').hide();
 	// 検索フィールドにプレースホルダー
 	$('#post-search-input').attr('placeholder','キーワード検索');
 	//キーワードを変更したときにページ1にする
-	$('#search-submit').on('submit', () => {
+	$('#search-submit').on('click', () => {
 		if ( n2.query.query.paged === $('#current-page-selector').val() ) {
 			$('#current-page-selector').val(1);
 		}
 	});
-	//商品が一覧になかったらページ1に戻る
-	if ($('.no-items').length) {
-		location.href = location.href.replace(/paged=(\d+)/, 'paged=1');
-	}
 	save_post_ids($);
 	post_list_tool($);
 	if ( ! n2.settings['寄附金額・送料']['除数'] || ! n2.settings['寄附金額・送料']['送料']['0101'] ) {
