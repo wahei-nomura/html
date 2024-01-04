@@ -84,7 +84,7 @@ export default Vue.extend({
 				const formData = new FormData();
 				formData.append('manageNumber', manageNumber);
 				formData.append('n2nonce', this.n2nonce);
-				formData.append('action', 'n2_rms_item_api_ajax');
+				formData.append('action', 'n2_rms_items_api_ajax');
 				formData.append('call', 'items_get');
 				formData.append('mode', 'json');
 				return axios.post(
@@ -159,7 +159,7 @@ export default Vue.extend({
 				const formData = new FormData();
 				formData.append('manageNumber', manageNumber);
 				formData.append('n2nonce', this.n2nonce);
-				formData.append('action', 'n2_rms_item_api_ajax');
+				formData.append('action', 'n2_rms_items_api_ajax');
 				formData.append('call', 'items_patch');
 				formData.append('mode', 'json');
 				const images = updateLog.アップロード.data[manageNumber].map(path=>{

@@ -555,7 +555,7 @@ class N2_Rakuten_SFTP {
 		$this->check_fatal_error( $this->data['params']['update'] ?? '', wp_json_encode( $data, JSON_UNESCAPED_UNICODE ) );
 
 		// 最新情報に更新
-		$item_api   = new N2_RMS_Item_API();
+		$item_api   = new N2_RMS_Items_API();
 		$rms_images = array_map(
 			fn ( $item_code ) => array_map(
 				fn( $image ) => $image['location'],
