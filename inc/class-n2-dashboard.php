@@ -21,6 +21,7 @@ class N2_Dashboard {
 		add_action( 'wp_dashboard_setup', array( $this, 'remove_widgets' ) );
 		add_action( 'wp_dashboard_setup', array( $this, 'add_widgets' ) );
 		add_action( 'wp_dashboard_setup', array( $this, 'add_jichitai_widgets' ) );
+		add_action( 'admin_print_scripts', array( $this, 'disable_admin_notices' ) );
 	}
 
 	/**
@@ -46,6 +47,25 @@ class N2_Dashboard {
 		remove_menu_page( 'wp-mail-smtp' );
 
 		remove_action( 'welcome_panel', 'wp_welcome_panel' );
+	}
+	/**
+	 * disable_admin_notices
+	 * ダッシュボードの通知抹消
+	 *
+	 * @return void
+	 */
+	public function disable_admin_notices() {
+		global $wp_filter;
+		if ( is_user_admin() ) {
+			if ( isset( $wp_filter['user_admin_notices'] ) ) {
+				unset( $wp_filter['user_admin_notices'] );
+			}
+		} elseif ( isset( $wp_filter['admin_notices'] ) ) {
+			unset( $wp_filter['admin_notices'] );
+		}
+		if ( isset( $wp_filter['all_admin_notices'] ) ) {
+			unset( $wp_filter['all_admin_notices'] );
+		}
 	}
 	/**
 	 * add_widgets

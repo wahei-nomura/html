@@ -24,7 +24,12 @@ export default ($: any = jQuery) => {
 	data['寄附金額自動計算値'] = '';
 	data['media'] = false;
 	data['number_format'] = true;// ３桁区切りカンマ用
+	data['商品属性アニメーション'] = false;
+	data['RMSAPI'] = {};
 	const created = async function() {
+		// ローディング削除
+		loading_view.show('#wpwrap', 500);
+
 		save_as_pending.append_button("#n2-save-post");// スチームシップへ送信
 		this.全商品ディレクトリID = {
 			text: this.全商品ディレクトリID,
@@ -35,8 +40,12 @@ export default ($: any = jQuery) => {
 			group: '',
 			list: [],
 		};
-		
+		this.商品属性 = JSON.stringify( this.商品属性 || [] );
 		this.寄附金額 = await this.calc_donation(this.価格,this.送料,this.定期便);
+		if (n2.settings.N2.出品ポータル.includes('楽天')) {
+			this.get_rakuten_category();
+			await this.get_rakuten_delvdate();
+		}
 		this.control_submit();
 		// 発送サイズ・発送方法をダブル監視
 		this.$watch(
@@ -55,13 +64,6 @@ export default ($: any = jQuery) => {
 			async function(newVal, oldVal) {
 				// 保存ボタン
 				this.control_submit();
-				// タグIDのリセット
-				if ( newVal.全商品ディレクトリID != oldVal.全商品ディレクトリID && this.タグID.text.length ) {
-					if ( confirm('全商品ディレクトリIDが変更されます。\nそれに伴い入力済みのタグIDをリセットしなければ楽天で地味にエラーがでます。\n\nタグIDをリセットしてよろしいでしょうか？') ) {
-						this.タグID.list = [];
-						this.タグID.text = '';
-					}
-				}
 				// 寄附金額の算出
 				const size = [
 					newVal.発送サイズ,
@@ -81,19 +83,27 @@ export default ($: any = jQuery) => {
 		});
 		// 投稿のメタ情報を全保存
 		n2.saved_post = JSON.stringify($('form').serializeArray());
-		// ローディング削除
-		loading_view.show('#wpwrap', 500);
 		// 「進む」「戻る」の制御をデフォルトに戻す
 		wp.data.dispatch( 'core/keyboard-shortcuts' ).unregisterShortcut('core/editor/undo');
 		wp.data.dispatch( 'core/keyboard-shortcuts' ).unregisterShortcut('core/editor/redo');
+		this.check_tax(); 
 	};
 	const methods = {
+		// 地場産品類型に応じて類型該当理由の注意書きを修正
+		update_applicable_reason() {
+			let info = n2.custom_field['スチームシップ用']['類型該当理由']['description'] + '<br>※記入例：' + n2.settings['N2']['類型該当理由注意書き'][this.地場産品類型];
+			if(undefined !== n2.settings['N2']['類型該当理由注意書き'][this.地場産品類型]){
+				$('#類型該当理由').find('.n2-fields-value').data('description',info);
+				$('#類型該当理由').find('.n2-field-description').find('.alert-primary').html(info);
+			}
+		},
 		// 説明文・テキストカウンター
 		set_info(target) {
+			let description_text = $(target).parents('.n2-fields-value').data('description');
 			$(target).parents('.n2-fields-value').find('.d-none').removeClass('d-none');
 			const info = [
 				$(target).parents('.n2-fields-value').data('description') && ! document.cookie.match(/n2-zenmode/) 
-					? `<div class="alert alert-primary mb-2">${$(target).parents('.n2-fields-value').data('description')}</div>`
+					? `<div class="alert alert-primary mb-2">${description_text}</div>`
 					: '',
 				$(target).attr('maxlength')
 					? `文字数：${($(target).val() as any).length} / ${$(target).attr('maxlength')}`
@@ -185,6 +195,52 @@ export default ($: any = jQuery) => {
 			};
 			this.全商品ディレクトリID.list = await $.ajax(settings);
 		},
+		// 楽天の商品属性を取得
+		async insert_rms_attributes( mandatoryFlg = false ) {
+			const attributesUrl = {
+				url: n2.ajaxurl,
+				data: {
+					action: 'n2_rms_navigation_api_ajax',
+					mode: 'json',
+					call: 'genres_attributes_dictionary_values_get',
+					genreId: this.全商品ディレクトリID.text || '0',
+				},
+			};
+			this.商品属性アニメーション = true;
+			this.商品属性 = await $.ajax(attributesUrl).then( (res) => {
+				return JSON.parse(res);
+			}).then( (res) => {
+				const attributes = res.genre.attributes;
+				return mandatoryFlg ? attributes.filter( v => v.properties.rmsMandatoryFlg ) : attributes;
+			}).then( (attributes) => {
+				return attributes.map( v => {
+					const before = this.商品属性parse.filter( value => value.nameJa === v.nameJa );
+					v.value = before.length ? (before[0].value || '') : '' ;
+					v.unitValue = before.length ? (before[0].unitValue || null) : null ;
+					return v;
+				})
+			}).then( (attributes) => {
+				return JSON.stringify(attributes);
+			}).catch( (e) => {
+				alert('属性情報を取得できませんでした。ジャンルIDが正しいことを確認してください。') 
+				console.log(e.message);
+				return JSON.stringify([]);
+			})
+			this.商品属性アニメーション = false;
+		},
+		set_rms_attributes_value(index, value) {
+			const attributes = JSON.parse(this.商品属性);
+			attributes[index].value = value;
+			this.商品属性 = JSON.stringify(attributes);
+		},
+		set_rms_attributes_unit(index, unitValue) {
+			const attributes = JSON.parse(this.商品属性);
+			attributes[index].unitValue = unitValue;
+			this.商品属性 = JSON.stringify(attributes);
+		},
+		get_units(v) {
+			return v.unit ? [v.unit, ...v.subUnits] : [];
+		},
 		// タグIDと楽天SPAカテゴリーで利用
 		update_textarea(id, target = 'タグID', delimiter = '/', maxrow = null){
 			// 重複削除
@@ -205,9 +261,10 @@ export default ($: any = jQuery) => {
 			}, 10 )
 		},
 		// 楽天カテゴリで利用
-		update_textarea_by_selected_option( event, target = '楽天カテゴリー', delimiter = '\n' ) {
+		update_textarea_by_selected_option( event, index, target = '楽天カテゴリー', delimiter = '\n' ) {
+			this.clearRakutenCategory(event,index);
 			this.update_textarea( event.target.value, target, delimiter, 5);
-			event.target.value = ''
+			event.target.value = '';
 		},
 		// 寄附金額計算
 		async calc_donation(price, delivery_fee, subscription) {
@@ -250,6 +307,14 @@ export default ($: any = jQuery) => {
 				if ( confirm( '取り扱い方法を「ビン・ワレモノ」「下積み禁止」に設定しますか？') ) {
 					this.取り扱い方法 =  ['ビン・ワレモノ', '下積み禁止'];
 				}
+			}
+		},
+		check_tax(){
+			if ( "" !== n2.custom_field['事業者用']['税率'].value ) return; // 既に設定済なら動かさない
+			if ( this.商品タイプ.includes('食品') ) {
+				this.税率 = '8';
+			}else{
+				this.税率 = '10';
 			}
 		},
 		// スチームシップへ送信ボタンの制御
@@ -312,7 +377,6 @@ export default ($: any = jQuery) => {
 		},
 		// 楽天カテゴリー
 		async get_rakuten_category(){
-
 			n2.vue.楽天カテゴリー.list = await $.ajax({
 				url: n2.ajaxurl,
 				data:{
@@ -321,10 +385,38 @@ export default ($: any = jQuery) => {
 					mode:'json',
 				}
 			});
-		}
+		},
+		clearRakutenCategory(e,index){
+			e.preventDefault();
+			n2.vue.楽天カテゴリー.text = this.楽天カテゴリーselected.filter((_,i)=>i!==index).join('\n')
+		},
+		// 楽天納期
+		async get_rakuten_delvdate(){
+			this.$set(this.RMSAPI, '楽天納期情報', {} );
+			this.$set(this.RMSAPI.楽天納期情報, '', '選択して下さい' );
+			let res = await $.ajax({
+				url: n2.ajaxurl,
+				data:{
+					action:'n2_rms_shop_api_ajax',
+					call:'delvdate_master_get',
+					mode:'json',
+				}
+			});
+			for ( const v of res ) {
+				this.$set(this.RMSAPI.楽天納期情報, v.delvdateNumber, `[${v.delvdateNumber}] ${v.delvdateCaption}` );
+			}
+		},
 	};
 	const components = {
 		draggable,
+	};
+	const computed = {
+		商品属性parse() {
+			return JSON.parse(this.商品属性);
+		},
+		楽天カテゴリーselected(){
+			return this.楽天カテゴリー.text.split('\n').filter(x=>x);
+		}
 	};
 
 	// メタボックスが生成されてから
@@ -335,6 +427,7 @@ export default ($: any = jQuery) => {
 			created,
 			methods,
 			components,
+			computed,
 		});
 	});
 };

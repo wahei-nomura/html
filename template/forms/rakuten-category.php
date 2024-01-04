@@ -18,17 +18,18 @@ foreach ( $args as $k => $v ) {
 ?>
 <textarea <?php echo $attr; ?>><?php echo $value; ?></textarea>
 <div v-if="楽天カテゴリー.list.length" style="width:100%">
-	<input
-		type="text"
-		list="n2-rakuten-category"
-		style="width:100%;"
-		placeholder="ここをクリックまたは入力すると現在登録されているカテゴリーが選択出来ます。"
-		@change="update_textarea_by_selected_option($event, '楽天カテゴリー', '\n')"
-	>
-	<datalist id="n2-rakuten-category">
-		<option
-			v-for="v in 楽天カテゴリー.list"
-			v-text="v"
-		></option>
-	</datalist>
+	<template v-for="index in [...Array(5).keys()]" :key="'楽天カテゴリー'+index">
+	<div class="d-flex mb-1 input-group flex-nowrap w-100">
+		<span class="input-group-text justify-content-center" style="width:40px">{{index+1}}</span>
+		<select @change="update_textarea_by_selected_option(event,index)" class="flex-grow-1">
+			<option v-text=""></option>
+			<option
+				v-for="v in 楽天カテゴリー.list"
+				v-text="v"
+				:selected="v === 楽天カテゴリーselected?.[index]?? ''"
+			></option>
+		</select>
+		<div @click="clearRakutenCategory(event,index)" class="btn btn-dark">クリア</div>
+	</div>
+	</template>
 </div>

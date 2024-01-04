@@ -24,9 +24,10 @@ class N2_Setmenu {
 		add_action( 'admin_init', array( $this, 'not_edit_user' ) );
 		add_filter( 'get_site_icon_url', array( $this, 'change_site_icon' ) );
 		add_action( 'admin_head', array( $this, 'my_custom_logo' ) );
-		add_action( 'admin_bar_menu', array( $this, 'remove_admin_bar_menus' ), 999 );
+		add_action( 'admin_bar_menu', array( $this, 'change_admin_bar_menus' ), 999 );
 		add_action( 'admin_head', array( $this, 'remove_help_tabs' ) );// ヘルプ削除
 		add_filter( 'admin_footer_text', '__return_false' );// 「WordPress のご利用ありがとうございます。」を削除
+		add_action( 'admin_menu', array( $this, 'add_loginbookmark' ) );
 	}
 
 	/**
@@ -155,14 +156,16 @@ class N2_Setmenu {
 	 * @param string $url デフォルトURL
 	 */
 	public function change_site_icon( $url ) {
-		$home_url_arr   = explode( '/', get_home_url() );
-		$name           = end( $home_url_arr );
+		$name           = end( explode( '/', get_home_url() ) );
 		$n2_active      = get_option( 'n2_settings' )['N2']['稼働中'] ?? 0;
-		$town_icon_name = match ( $name ) {
-			'f422142-minamishimabara' => 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_f422142-minamisimabara.png',
-			'f424111-shinkamigoto'    => "https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_{$name}.jpg",
-			default                   => "https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_{$name}.png",
-		};
+		$town_icon_name = "https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_{$name}.png";
+		if ( 'f422142-minamishimabara' === $name ) {
+			$town_icon_name = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_f422142-minamisimabara.png';
+		} elseif ( 'f424111-shinkamigoto' === $name ) {
+			$town_icon_name = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_f424111-shinkamigoto.jpg';
+		} elseif ( 'f212041-tajimi' === $name ) {
+			$town_icon_name = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_f212041-tajimi.jpg';
+		}
 		return $n2_active ? $town_icon_name : $url;
 	}
 	/**
@@ -178,7 +181,7 @@ class N2_Setmenu {
 	 *
 	 * @param array $wp_admin_bar 管理バーの項目を格納
 	 */
-	public function remove_admin_bar_menus( $wp_admin_bar ) {
+	public function change_admin_bar_menus( $wp_admin_bar ) {
 		global $n2;
 		$wp_admin_bar->remove_menu( 'wp-logo' ); // WordPressロゴ.
 		$wp_admin_bar->remove_menu( 'comments' );     // コメント
@@ -208,6 +211,26 @@ class N2_Setmenu {
 		if ( ! current_user_can( 'administrator' ) && ! current_user_can( 'ss-crew' ) ) {
 			$wp_admin_bar->remove_menu( 'my-sites' ); // 参加サイト.
 		}
+		// adminerのリンク調整
+		$wp_adminer = $wp_admin_bar->get_node( 'wp_adminer' );
+		if ( $wp_adminer ) {
+			$href = $wp_adminer->href;
+			// サブメニュー追加
+			$wp_adminer->parent = 'wp_adminer';
+			foreach ( explode( '|', 'posts|postmeta|options' ) as $v ) {
+				$wp_adminer->id    = "wp_adminer_{$v}";
+				$wp_adminer->title = "wp_{$n2->site_id}_{$v}";
+				$wp_adminer->href  = "{$href}?username=&select=wp_{$n2->site_id}_{$v}";
+				$wp_admin_bar->add_menu( $wp_adminer );
+			}
+			// ユーザー系
+			foreach ( explode( '|', 'users|usermeta' ) as $v ) {
+				$wp_adminer->id    = "wp_adminer_{$v}";
+				$wp_adminer->title = "wp_{$v}";
+				$wp_adminer->href  = "{$href}?username=&select=wp_{$v}";
+				$wp_admin_bar->add_menu( $wp_adminer );
+			}
+		}
 	}
 	/**
 	 * ヘルプタブ非表示 @yamasaki
@@ -215,5 +238,42 @@ class N2_Setmenu {
 	public function remove_help_tabs() {
 		global $current_screen;
 		$current_screen->remove_help_tabs();
+	}
+	/**
+	 * ログインブックマークページ
+	 */
+	public function add_loginbookmark() {
+		global $n2;
+		$user_roles = $n2->current_user->roles['0'];
+		add_menu_page( 'ブックマークURL', 'ブックマークURL', $user_roles, 'add_bookmark', array( $this, 'display_addbookmark' ), 'dashicons-admin-site-alt2' );
+	}
+	/**
+	 * ログインブックマーク表示
+	 */
+	public function display_addbookmark() {
+		$site_details = get_blog_details();
+		$bookmark_url = str_replace( '//', '//ss:ss@', str_replace( '?', '', wp_login_url() ) ) . '/?auth=ss:ss';
+		$html         = '<div class = "wrap">';
+		$html        .= '<h1 id="copyTarget"> ログインページブックマーク用URL </h1>';
+		$html        .= '<p>以下のリンクをブックマーク登録してください(ブックマークバーにドラッグドロップでも登録できます)。</p>';
+		$html        .= '<a onclick="copyToClipboard()" id="bookmarkLink" href="' . $bookmark_url . '" class="pressthis-bookmarklet" style="padding:.5rem;">' . $site_details->blogname . 'ログイン</a>';
+		$html        .= '</div>';
+		echo $html;
+		?>
+		<script>
+			function copyToClipboard() {
+				event.preventDefault();
+				// コピー対象をJavaScript上で変数として定義する
+				let copyTarget = document.getElementById("bookmarkLink");
+				let copyLink = copyTarget.getAttribute('href');
+				navigator.clipboard.writeText(copyLink);
+				// 選択しているテキストをクリップボードにコピーする
+				document.execCommand("Copy");
+
+				// コピーをお知らせする
+				alert("URLをコピーしました : " + copyLink);
+			}
+		</script>
+		<?php
 	}
 }

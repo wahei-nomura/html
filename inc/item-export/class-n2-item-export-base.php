@@ -55,7 +55,8 @@ class N2_Item_Export_Base {
 
 	/**
 	 * ファイル名に自治体名を追加する
-	 * @param  string $filename filename
+	 *
+	 * @param string $filename filename
 	 * @return string
 	 */
 	public function add_town_to_filename( $filename ) {
@@ -183,6 +184,7 @@ class N2_Item_Export_Base {
 	protected function set_data() {
 		$data = array();
 		$this->check_fatal_error( $this->data['header'], 'ヘッダーが正しくセットされていません' );
+		// データをセットする
 		foreach ( $this->data['n2data'] as $key => $values ) {
 			$id = $values['id'];
 			// ヘッダーをセット
@@ -214,6 +216,25 @@ class N2_Item_Export_Base {
 	protected function walk_values( &$val, $index, $n2values ) {
 		// 最終的に入る項目の値（文字列）
 		$data = $n2values[ $val ] ?: '';
+		// 商品属性だけ階層が深くなっているので必要なデータだけ掘りだして格納
+		$data = match ( $val ) {
+			'商品属性' => is_array( $data )
+			? implode(
+				"\n",
+				array_map(
+					fn( $v ) => sprintf(
+						'%s%s：%s%s',
+						$v['nameJa'],
+						$v['properties']['rmsMandatoryFlg'] ? '*' : '',
+						$v['value'],
+						! empty( $v['unitValue'] ) ? '：' . $v['unitValue'] : ''
+					),
+					$data
+				)
+			)
+			: '',
+			default => $data,
+		};
 		if ( is_array( $data ) ) {
 			// |で連結
 			$data = implode( '|', $data );
@@ -457,8 +478,10 @@ class N2_Item_Export_Base {
 	 * スプレットシートに値貼り付け用
 	 */
 	private function spreadsheet() {
-		$this->settings['delimiter']     = "\t";// タブを強制
 		$this->settings['header_string'] = $this->settings['header_string'] ?: '';// ヘッダーを強制
+		// タブを強制
+		$this->settings['header_string'] = str_replace( $this->settings['delimiter'], "\t", $this->settings['header_string'] );
+		$this->settings['delimiter']     = "\t";
 		$this->set_header_string();
 		$this->set_data_string();
 		// データを文字列に

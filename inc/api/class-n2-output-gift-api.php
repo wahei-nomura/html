@@ -146,7 +146,6 @@ class N2_Output_Gift_API {
 			'電子レンジ対応',
 			'オーブン対応',
 			'食洗機対応',
-			'やきもの',
 		);
 
 		// 実際に存在するキーと出力が期待されるキーとを比較し、不足しているキーがあれば、そのキーとその値（空文字）をdataに追加
@@ -192,6 +191,7 @@ class N2_Output_Gift_API {
 			}
 			$results['data'][ $meta_key ] = $meta_value;
 		}
+		$results['data']['商品タイプ'] = implode( ",", array_filter( unserialize( $results['data']['商品タイプ'] ) ) );
 
 		// 結果をJSON形式に変換して出力
 		header( 'Content-Type: application/json' );
@@ -228,53 +228,34 @@ class N2_Output_Gift_API {
 		}
 
 		// テーブルから情報を取得するSQLクエリを準備
-		$gift_query = <<<SELECT_SQL
-		SELECT
-			posts.post_title as title,
-			posts.post_type,
-			posts.post_status,
-			postmeta.meta_key,
-			postmeta.meta_value
-		FROM
-			wp_{$site_id}_posts as posts
-		INNER JOIN
-			wp_{$site_id}_postmeta as postmeta
-		ON
-			posts.id = postmeta.post_id
-		WHERE
-			posts.post_type = 'post' AND
-			posts.post_status != 'trash' AND
-			postmeta.meta_key in (
-				'寄附金額',
-				'地場産品類型',
-				'類型該当理由',
-				'返礼品コード',
-				'消費期限',
-				'賞味期限',
-				'説明文',
-				'電子レンジ対応',
-				'オーブン対応',
-				'食洗機対応',
-				'内容量・規格等',
-				'発送方法',
-				'定期便',
-				'包装対応',
-				'のし対応',
-				'配送期間',
-				'やきもの'
-				)
-		AND
-			posts.id in (
+		// 返礼品情報を取得するSQLクエリを準備
+				$gift_query = <<<SELECT_SQL
 				SELECT
-					post_id
+					posts.post_title as title,
+					posts.post_type,
+					posts.post_status,
+					postmeta.meta_key,
+					postmeta.meta_value
 				FROM
-					wp_{$site_id}_postmeta
+					wp_{$site_id}_posts as posts
+				INNER JOIN
+					wp_{$site_id}_postmeta as postmeta
+				ON
+					posts.id = postmeta.post_id
 				WHERE
-					meta_key = '返礼品コード'
-				AND
-				    meta_value = %s
-			);
-		SELECT_SQL;
+					posts.post_type = 'post' AND
+					posts.post_status != 'trash' AND
+					posts.id in (
+						SELECT
+							post_id
+						FROM
+							wp_{$site_id}_postmeta
+						WHERE
+							meta_key = '返礼品コード'
+						AND
+							meta_value = %s
+					);
+				SELECT_SQL;
 
 		// サニタイズした返礼品コードをクエリの「%s」の部分に入れてクエリを完成させる
 		$gift_query = $wpdb->prepare( $gift_query, $sku );
@@ -318,7 +299,7 @@ class N2_Output_Gift_API {
 			'包装対応',
 			'のし対応',
 			'配送期間',
-			'やきもの',
+			'商品タイプ',
 		);
 
 		// 実際に存在するキーと出力が期待されるキーとを比較し、不足しているキーがあれば、そのキーとその値（空文字）をdataに追加
@@ -365,6 +346,30 @@ class N2_Output_Gift_API {
 			}
 			$results['data'][ $meta_key ] = $meta_value;
 		}
+		// 非ログインの時APIに出力したい項目を絞るためのキー配列
+		$keys = array(
+			'title',
+			'寄附金額',
+			'賞味期限',
+			'消費期限',
+			'類型該当理由を表示する',
+			'類型該当理由',
+			'説明文',
+			'商品タイプ',
+			'電子レンジ対応',
+			'オーブン対応',
+			'食洗機対応',
+			'内容量・規格等',
+			'発送方法',
+			'定期便',
+			'包装対応',
+			'のし対応',
+			'配送期間',
+		);
+
+		$results['data'] = array_intersect_key( $results['data'], array_flip( $keys ) );
+
+		$results['data']['商品タイプ'] = implode( ",", array_filter( unserialize( $results['data']['商品タイプ'] ) ) );
 
 		// 結果をJSON形式に変換して出力
 		header( 'Content-Type: application/json' );

@@ -287,7 +287,7 @@ export default new Vuex.Store({
 			},
 		){
 			state.selectedFiles.forEach((fileId:string, i:number) => {
-				data.formData[`fileId[${i}]`] = fileId;
+				data.formData[`fileIds[${i}]`] = fileId;
 			});
 			return dispatch('ajaxPostMulti',data).then((resp)=>{
 				dispatch('updateFiles', state.selectedFolder);

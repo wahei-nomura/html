@@ -61,6 +61,9 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 				// ヘッダー文字列変更
 				add_filter( 'n2_item_export_lhcloud_set_header_string', fn() => $lh_setting['csv_header_string']['定期便（子謝礼品）リスト'] );
 				break;
+			case '税率リスト':
+				$this->settings['header_string'] = 'LedgHOMEクラウド 謝礼品税区分・税率リスト' . PHP_EOL;
+				break;
 		}
 
 		/**
@@ -92,6 +95,7 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 		// ループ回数
 		$loop = match ( $params['type'] ) {
 			'謝礼品リスト' => $n2values['定期便'],
+			'税率リスト' => 1,
 			default => $n2values['定期便'] > 1 ? 1 : 0,
 		};
 		for ( $i = 1; $i <= $loop; $i++ ) {
@@ -100,29 +104,32 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 			// データ配列
 			$data[ $i ] = match ( $val ) {
 				'謝礼品番号', '定期便番号' => $item_code,
-				'取扱年度' => $is_e_ticket ? '2023' : '',// 謎の2023
-				'謝礼品名', '定期便名' => "{$item_code} " . ( $n2values['LH表示名'] ?: $n2values['タイトル'] ),// LH表示名 > タイトル
+				'取扱年度' => $is_e_ticket ? '2023' : '', // 謎の2023
+				'謝礼品名', '定期便名' => "{$item_code} " . ( $n2values['LH表示名'] ?: $n2values['タイトル'] ), // LH表示名 > タイトル
 				'定期便種別' => '回数',
-				'配送名称' => "{$item_code} " . ( $n2values['配送伝票表示名'] ?: $n2values['タイトル'] ),// 配送伝票表示名 > タイトル
-				'特設サイト名称' => $is_e_ticket ? "{$item_code} " . ( $n2values['配送伝票表示名'] ?: $n2values['タイトル'] ) : '',// eチケット
+				'配送名称' => "{$item_code} " . ( $n2values['配送伝票表示名'] ?: $n2values['タイトル'] ), // 配送伝票表示名 > タイトル
+				'特設サイト名称' => $is_e_ticket ? "{$item_code} " . ( $n2values['配送伝票表示名'] ?: $n2values['タイトル'] ) : '', // eチケット
 				'事業者' => $n2values['事業者名'],
 				'謝礼品カテゴリー' => $n2values['LHカテゴリー'],
 				'セット内容' => $n2values['内容量・規格等'],
 				'謝礼品紹介文' => $n2values['説明文'],
 				'ステータス' => '受付中',
 				'状態' => '表示',
-				'寄附設定金額' => $i > 1 ? 0 : $n2values['寄附金額'],// 定期便の場合は１回目のみ
+				'寄附設定金額' => $i > 1 ? 0 : $n2values['寄附金額'], // 定期便の場合は１回目のみ
 				'価格（税込み）' => match ( $lh_setting['価格'] ) {
-					'定期便初回に全額をまとめて登録' => $i > 1 ? '' : (int) $n2values['価格'] * (int) $n2values['定期便'],
+					'定期便初回に全額をまとめて登録' => $i > 1 ? 0 : (int) $n2values['価格'] * (int) $n2values['定期便'],
 					default => $n2values['価格'] ?: 0,
 				},
 				'その他経費' => match ( $lh_setting['その他経費'] ) {
 					'ヤマト以外の送料を登録' => $is_yamato ? '' : $n2values['送料'],
-					'ヤマト以外の送料を登録（定期便の場合は1回目に総額）' => $is_yamato || $i > 1 ? '' : (int) $n2values['送料'] * (int) $n2values['定期便'],
+					'ヤマト以外の送料を登録（定期便の場合は1回目に総額）' => match ( $i ) {
+						1 => $is_yamato ? '' : (int) $n2values['送料'] * (int) $n2values['定期便'],
+						default => $is_yamato ? '' : 0,
+					},
 					default => '',
 				},
 				'送料' => match ( $lh_setting['送料'] ) {
-					'ヤマト以外は送料を空欄で登録' => $is_yamato ? $n2values['送料'] : 0,// 土岐カオスなのでやっつけたい By わかちゃん
+					'ヤマト以外は送料を空欄で登録' => $is_yamato ? $n2values['送料'] : 0, // 土岐カオスなのでやっつけたい By わかちゃん
 					'送料は空欄で登録' => '',
 					default => $n2values['送料'],
 				},
@@ -165,6 +172,8 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 				'10月日' => 10 <= $n2values['定期便'] ? $lh_setting['自動出荷依頼予約日'] : '',
 				'11月日' => 11 <= $n2values['定期便'] ? $lh_setting['自動出荷依頼予約日'] : '',
 				'12月日' => 12 <= $n2values['定期便'] ? $lh_setting['自動出荷依頼予約日'] : '',
+				'税区分' => '内税', // 税率リスト用
+				'税率' => $n2values['税率'] ?: ( ! empty( $n2values['商品タイプ'] ) && in_array( '食品', $n2values['商品タイプ'], true ) ? 8 : 10 ), // 税率リスト用、税率が入力されてたらその数値を、なければ初期値8を出力
 				default => '',
 			};
 		}
@@ -193,7 +202,7 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 			// エラー未生成で必須漏れ
 			if ( ! isset( $this->data['error'][ $n2values['id'] ] ) && $n2values['_n2_required'] ) {
 				// LHcloudに不要な項目を削除
-				$del      = array( 'アレルゲン' );
+				$del      = array( 'アレルゲン', '全商品ディレクトリID', '商品属性' );
 				$required = array_filter( $n2values['_n2_required'], fn( $n ) => ! in_array( $n, $del, true ) );
 				foreach ( $required as $v ) {
 					$this->add_error( $n2values['id'], "NEONENG項目：「{$v}」が空欄です。" );

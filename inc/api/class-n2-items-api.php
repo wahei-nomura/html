@@ -31,7 +31,7 @@ class N2_Items_API {
 	 */
 	public function __construct() {
 		// post_contentに必要なデータを全部ぶっこむ
-		add_action( 'wp_insert_post_data', array( $this, 'insert_post_data' ), 20, 4 );
+		add_action( 'wp_insert_post_data', array( $this, 'insert_post_data' ), 10, 4 );
 		add_filter( 'posts_results', array( $this, 'add_required_posts' ), 10, 2 );// 取得時に最低必要事項確認フラグ注入（取得が遅くなる）
 		add_action( 'wp_ajax_n2_items_api', array( $this, 'api' ) );
 		add_action( 'wp_ajax_nopriv_n2_items_api', array( $this, 'api' ) );
@@ -53,10 +53,12 @@ class N2_Items_API {
 
 	/**
 	 * パラメータのセット
+	 *
+	 * @param array $params パラメータ
 	 */
-	public static function set_params() {
+	public static function set_params( $params ) {
 		global $n2;
-		$params = $_GET;
+		$params = $params ?: $_GET;
 		// $_POSTを$paramsで上書き
 		if ( wp_verify_nonce( $_POST['n2nonce'] ?? '', 'n2nonce' ) ) {
 			$params = wp_parse_args( $params, $_POST );
@@ -65,6 +67,7 @@ class N2_Items_API {
 		$defaults = array(
 			'suppress_filters' => false,
 			'post_status'      => 'any',
+			'post_type'        => 'post',
 			'numberposts'      => -1,
 			'mode'             => 'json',
 			'n2_active_flag'   => $n2->settings['N2']['稼働中'],
@@ -74,18 +77,29 @@ class N2_Items_API {
 	}
 
 	/**
-	 * N2データのみ取得
+	 * データ取得
+	 *
+	 * @param array $params パラメータ
 	 */
-	public static function get_items() {
-		self::set_params();
+	public static function get_items( $params = array() ) {
+		$params = wp_parse_args( $params );
+		self::set_params( $params );
 		$posts = get_posts( self::$data['params'] );
-		// post_contentのみにする
 		$posts = array_map(
 			function ( $v ) {
 				$post_content = json_decode( $v->post_content, true );
-				// idを混ぜ込む
-				$post_content['id'] = $v->ID;
-				return $post_content;
+				if ( 'post' === self::$data['params']['post_type'] ) {
+					// idを混ぜ込む
+					$post_content['id'] = $v->ID;
+					return $post_content;
+				} else {
+					return array(
+						'ID'           => $v->ID,
+						'post_title'   => $v->post_title,
+						'post_date'    => $v->post_date,
+						'post_content' => $post_content,
+					);
+				}
 			},
 			$posts
 		);
@@ -99,14 +113,14 @@ class N2_Items_API {
 	/**
 	 * json
 	 */
-	private function json() {
+	public function json() {
 		echo wp_json_encode( self::$data, JSON_UNESCAPED_UNICODE );
 	}
 
 	/**
 	 * デバッグ用
 	 */
-	private function debug() {
+	public function debug() {
 		print_r( self::$data );
 	}
 
@@ -147,7 +161,7 @@ class N2_Items_API {
 			exit;
 		}
 		$params = self::$data['params'];
-		wp_trash_post( $params['id'] );
+		wp_trash_post( $params['p'] );
 		if ( isset( $_SERVER['HTTP_REFERER'] ) ) {
 			wp_safe_redirect( $_SERVER['HTTP_REFERER'] );
 		}
@@ -162,7 +176,7 @@ class N2_Items_API {
 			exit;
 		}
 		$params = self::$data['params'];
-		wp_untrash_post( $params['id'] );
+		wp_untrash_post( $params['p'] );
 		if ( isset( $_SERVER['HTTP_REFERER'] ) ) {
 			wp_safe_redirect( $_SERVER['HTTP_REFERER'] );
 		}
@@ -177,7 +191,7 @@ class N2_Items_API {
 			exit;
 		}
 		$params = self::$data['params'];
-		$post   = get_post( $params['id'] );
+		$post   = get_post( $params['p'] );
 		$meta   = json_decode( $post->post_content, true );
 		unset(
 			$meta['タイトル'],
@@ -191,7 +205,9 @@ class N2_Items_API {
 			$meta['配送伝票表示名'],
 			$meta['寄附金額固定'],
 			$meta['_neng_id'],
-			$meta['_edit_lock']
+			$meta['_edit_lock'],
+			$meta['_n2_required'],
+			$meta['自治体確認'],
 		);
 		$postarr = array(
 			'post_title'  => "（コピー） {$post->post_title}",
@@ -244,10 +260,12 @@ class N2_Items_API {
 
 		// n2fieldのカスタムフィールド全取得
 		foreach ( $meta_input as $key => $meta ) {
-			// 値が配列の場合、空は削除
-			if ( is_array( $meta ) ) {
-				$meta = array_filter( $meta, fn( $v ) => $v );
-			}
+			$meta = match ( true ) {
+				// 値が配列の場合、空は削除
+				is_array( $meta ) => array_filter( $meta, fn( $v ) => $v ),
+				// それ以外は文字列型で保存
+				default => (string) $meta,
+			};
 			$post_content[ $key ] = $meta;
 		}
 		$data['post_content'] = addslashes( wp_json_encode( $post_content, JSON_UNESCAPED_UNICODE ) );
@@ -261,18 +279,25 @@ class N2_Items_API {
 	 * @param array $meta メタデータ
 	 */
 	public function check_required( $meta ) {
+		global $n2;
 		// 最低必要事項
 		$required = array( '返礼品コード', '価格', '寄附金額' );
 		// eチケット以外なのに送料なし
 		if ( isset( $meta['商品タイプ'] ) && ! in_array( 'eチケット', $meta['商品タイプ'], true ) ) {
 			$required[] = '送料';
-		}
-		// アレルギーあるのにアレルゲンなし
-		if (
-			! empty( array_filter( (array) ( $meta['アレルギー有無確認'] ?? array() ) ) )
-			&& empty( array_filter( (array) ( $meta['アレルゲン'] ?? array() ) ) )
-		) {
-			$required[] = 'アレルゲン';
+
+			// 楽天なのにジャンルID or 商品属性なし
+			if ( in_array( '楽天', $n2->settings['N2']['出品ポータル'], true ) && ! in_array( '楽天', (array) ( $meta['出品禁止ポータル'] ?? '' ), true ) ) {
+				array_push( $required, '全商品ディレクトリID', '商品属性' );
+			}
+
+			// アレルギーあるのにアレルゲンなし
+			if (
+				! empty( array_filter( (array) ( $meta['アレルギー有無確認'] ?? array() ) ) )
+				&& empty( array_filter( (array) ( $meta['アレルゲン'] ?? array() ) ) )
+			) {
+				$required[] = 'アレルゲン';
+			}
 		}
 		// 最低必要事項の調査（数値に関しては0は許したい）
 		$check_required = array_filter(

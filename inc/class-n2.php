@@ -129,6 +129,29 @@ class N2 {
 	public $query;
 
 	/**
+	 * 正規表現
+	 *
+	 * @var array
+	 */
+	public $regex = array(
+		'item_code' => array(
+			/**
+			 * 厳格モード（ただし全体マッチ以外は使いにくい）
+			 * [1] 返礼品コード全体にマッチ
+			 */
+			'strict' => '([0-4]{1}[0-9]{1}[A-Z]{4}[0-9]{3}|[A-Z]{2,4}[0-9]{2,3})',
+			/**
+			 * ノーマルモード（厳格モードより正しくないがほぼ大丈夫であり、マッチパターンも多い）
+			 * [1] 返礼品コード全体にマッチ
+			 * [2] 事業者コードにマッチ
+			 * [3] 県の場合県コード（数字）にマッチ
+			 * [4] 返礼品番号にマッチ
+			 */
+			'normal' => '((([0-9]{0,2})[A-Z]{2,4})([0-9]{2,3}))',
+		),
+	);
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -302,6 +325,11 @@ class N2 {
 				yaml_parse_file( get_theme_file_path( 'config/portal-setting.yml' ) )
 			),
 		);
+		// 無駄な空の設定を排除
+		$this->settings = array_map(
+			fn( $v ) => array_map( fn( $a ) => is_array( $a ) ? array_filter( $a ) : $a, $v ),
+			$this->settings
+		);
 
 		// アクセス中のIP
 		$this->ip_address = $_SERVER['REMOTE_ADDR'];
@@ -320,13 +348,16 @@ class N2 {
 		$this->blog_prefix = $wpdb->get_blog_prefix();
 		$this->site_id     = get_current_blog_id();
 		$this->town        = get_bloginfo( 'name' );
-		$home_url_array    = explode( '/', get_home_url() );
-		$jichitai_name     = end( $home_url_array );
-		$this->logo        = match ( $jichitai_name ) {
-			'f422142-minamishimabara' => 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_f422142-minamisimabara.png',
-			'f424111-shinkamigoto'    => "https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_{$jichitai_name}.jpg",
-			default                   => "https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_{$jichitai_name}.png",
-		};
+		$jichitai_name     = end( explode( '/', get_home_url() ) );
+		if ( 'f424111-shinkamigoto' === $jichitai_name ) {
+			$this->logo = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_' . end( explode( '/', get_home_url() ) ) . '.jpg';
+		} elseif ( 'f422142-minamishimabara' === $jichitai_name ) {
+			$this->logo = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_f422142-minamisimabara.png';
+		} elseif ( 'f212041-tajimi' === $jichitai_name ) {
+			$this->logo = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_f212041-tajimi.jpg';
+		} else {
+			$this->logo = 'https://event.rakuten.co.jp/furusato/_pc/img/area/ico/ico_' . end( explode( '/', get_home_url() ) ) . '.png';
+		}
 		$this->ajaxurl = admin_url( 'admin-ajax.php' );
 		$this->cookie  = $_COOKIE;
 
@@ -364,32 +395,34 @@ class N2 {
 		}
 		$this->settings['寄附金額・送料']['送料'] = $delivery_fee;
 
+		// N2設定操作の可否
+		$this->settings_access = ( $this->settings['N2']['稼働中'] && ( isset( $this->current_user->roles[0] ) && 'administrator' !== $this->current_user->roles[0] ) ) ? false : true;
 		// カスタムフィールド
 		{
 			$this->custom_field = yaml_parse_file( get_theme_file_path( 'config/custom-field.yml' ) );
 			// 出品しないポータルの場合はカスタムフィールドを削除
-			foreach ( $this->custom_field as $key => $custom_field ) {
-				foreach ( $custom_field as $name => $value ) {
-					if ( isset( $value['portal'] ) && ! in_array( $value['portal'], $this->settings['N2']['出品ポータル'], true ) ) {
-						unset( $this->custom_field[ $key ][ $name ] );
-					}
+		foreach ( $this->custom_field as $key => $custom_field ) {
+			foreach ( $custom_field as $name => $value ) {
+				if ( isset( $value['portal'] ) && ! in_array( $value['portal'], $this->settings['N2']['出品ポータル'], true ) ) {
+					unset( $this->custom_field[ $key ][ $name ] );
 				}
 			}
+		}
 				// 出品禁止ポータルから削除
-			foreach ( $this->custom_field['スチームシップ用']['出品禁止ポータル']['option'] as $index => $option ) {
-				if ( ! in_array( $option, $this->settings['N2']['出品ポータル'], true ) ) {
-					unset( $this->custom_field['スチームシップ用']['出品禁止ポータル']['option'][ $index ] );
-				}
+		foreach ( $this->custom_field['スチームシップ用']['出品禁止ポータル']['option'] as $index => $option ) {
+			if ( ! in_array( $option, $this->settings['N2']['出品ポータル'], true ) ) {
+				unset( $this->custom_field['スチームシップ用']['出品禁止ポータル']['option'][ $index ] );
 			}
+		}
 				// 商品タイプの選択肢制御
 				$this->custom_field['事業者用']['商品タイプ']['option'] = array_filter( $this->settings['N2']['商品タイプ'] );
-			if ( empty( $this->custom_field['事業者用']['商品タイプ']['option'] ) ) {
-				$this->custom_field['事業者用']['商品タイプ']['type'] = 'hidden';
-			}
+		if ( empty( $this->custom_field['事業者用']['商品タイプ']['option'] ) ) {
+			$this->custom_field['事業者用']['商品タイプ']['type'] = 'hidden';
+		}
 				// オンライン決済限定の制御
-			if ( empty( $this->settings['ふるさとチョイス']['オンライン決済限定'] ) ) {
-				unset( $this->custom_field['スチームシップ用']['オンライン決済限定'] );
-			}
+		if ( empty( $this->settings['ふるさとチョイス']['オンライン決済限定'] ) ) {
+			unset( $this->custom_field['スチームシップ用']['オンライン決済限定'] );
+		}
 			// LHカテゴリーの設定値を配列化
 			$lh_category = $this->settings['LedgHOME']['カテゴリー'];
 			$lh_category = preg_split( '/\r\n|\r|\n/', trim( $lh_category ) );

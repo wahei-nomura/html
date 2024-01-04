@@ -11,14 +11,14 @@ global $n2;
 <div popover id="n2-admin-post-list-tool" :class="`n2-admin-post-list-tool ${item.ステータス}`" v-if="HTMLElement.prototype.hasOwnProperty('popover')">
 	<div id="n2-admin-post-list-tool-header">
 		<ul>
-			<li v-if="'trash' === item.ステータス" @click="confirm('ゴミ箱から復元します。よろしいですか？') ? location.href=`admin-ajax.php?action=n2_items_api&mode=untrash&id=${id}` : 0">ゴミ箱から復元</li>
+			<li v-if="'trash' === item.ステータス" @click="confirm('ゴミ箱から復元します。よろしいですか？') ? location.href=`admin-ajax.php?action=n2_items_api&mode=untrash&p=${id}` : 0">ゴミ箱から復元</li>
 			<template v-else>
 				<li @click="location.href=`post.php?post=${id}&action=edit`"><span class="dashicons dashicons-edit"></span> 編集</li>
-				<li @click="confirm('返礼品を複製します。よろしいですか？') ? location.href=`admin-ajax.php?action=n2_items_api&mode=copy&id=${id}` : 0">
+				<li @click="confirm('返礼品を複製します。よろしいですか？') ? location.href=`admin-ajax.php?action=n2_items_api&mode=copy&p=${id}` : 0">
 					<span class="dashicons dashicons-admin-page"></span> 複製
 				</li>
 				<!-- ある権限かつあるステータスの場合はできないでいい -->
-				<li v-if="!('draft' !== item.ステータス && 'jigyousya' === n2.current_user.roles[0])" @click="confirm('ゴミ箱に入れます。よろしいですか？') ? location.href=`admin-ajax.php?action=n2_items_api&mode=delete&id=${id}` : 0">
+				<li v-if="!('draft' !== item.ステータス && 'jigyousya' === n2.current_user.roles[0])" @click="confirm('ゴミ箱に入れます。よろしいですか？') ? location.href=`admin-ajax.php?action=n2_items_api&mode=delete&p=${id}` : 0">
 					<span class="dashicons dashicons-trash"></span> 削除
 				</li>
 				<li v-if="'jigyousya' !== n2.current_user.roles[0]" @click="window.open(`admin-ajax.php?action=n2_post_history_api&post_id=${id}&type=table`, '_blank')">
@@ -30,7 +30,7 @@ global $n2;
 	</div>
 	<div id="n2-admin-post-list-tool-content">
 		<div v-if="item._n2_required && item._n2_required.length" id="n2-admin-post-list-tool-content-required">
-			最低必須漏れ：　{{item._n2_required.join('、')}}
+			最低必須漏れ：　{{item._n2_required.join('、').replace('全商品ディレクトリID', '楽天ジャンルID')}}
 		</div>
 		<table class="widefat striped">
 			<tr>
@@ -41,7 +41,16 @@ global $n2;
 				<tr v-if="item[name]">
 					<th style="text-align: left;">{{name}}</th>
 					<td style="text-align: left;">
-						<div v-if="Array.isArray(item[name])">{{item[name].join(', ')}}</div>
+						<div v-if="Array.isArray(item[name])">
+							<template v-if="'商品属性' === name">
+								<div v-for="{nameJa, value, unitValue, properties} in item[name]">
+									{{nameJa}}{{properties.rmsMandatoryFlg ? '*' : ''}}：{{value}}{{ unitValue ? '：' + unitValue : '' }}
+								</div>
+							</template>
+							<template v-else>
+								{{item[name].join(', ')}}
+							</template>
+						</div>
 						<div v-else v-html="item[name].toString().replace(/\r\n|\r|\n/g,'<br>')"></div>
 					</td>
 				</tr>
