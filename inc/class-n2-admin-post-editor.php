@@ -51,8 +51,8 @@ class N2_Admin_Post_Editor {
 		$persisted_preferences['core/edit-post'] = array(
 			'welcomeGuide'               => false,
 			'showBlockBreadcrumbs'       => false,
-			'isPublishSidebarEnabled'    => false,
-			'isComplementaryAreaVisible' => false,
+			'isPublishSidebarEnabled'    => true,
+			'isComplementaryAreaVisible' => true,
 		);
 		$persisted_preferences['_modified']      = gmdate( 'c' );
 		update_user_meta( $n2->current_user->ID, "{$n2->blog_prefix}persisted_preferences", $persisted_preferences );
@@ -155,7 +155,9 @@ class N2_Admin_Post_Editor {
 			<?php foreach ( $custom_field as $field => $detail ) : ?>
 			<?php
 				unset( $detail['portal'] );
-				$detail['name'] = sprintf( 'n2field[%s]', $detail['name'] ?? $field );
+				// 強制 v-model
+				$detail['v-model'] = $detail['v-model'] ?? sprintf( '$data["%s"]', $detail['name'] ?? $field );
+				$detail['name']    = sprintf( 'n2field[%s]', $detail['name'] ?? $field );
 				// hiddenタイプはそのまま出力
 				if ( 'hidden' === $detail['type'] ) {
 					get_template_part( "template/forms/{$detail['type']}", null, $detail );

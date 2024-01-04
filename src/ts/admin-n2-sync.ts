@@ -62,7 +62,7 @@ jQuery($=>{
 	};
 	// メタボックスが生成されてから
 	$('#n2sync').ready(()=>{
-		n2.vue = new Vue({
+		n2.tmp.vue = new Vue({
 			el: '#n2sync',
 			data,
 			created,

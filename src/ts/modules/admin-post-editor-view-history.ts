@@ -9,7 +9,15 @@ export default (target: string, $:any = jQuery) => {
 	$(target).ready(() => {
 		if ( window['n2'].current_user.roles.includes('jigyousya') || window['n2'].current_user.roles.includes('local-government') ) return
 		// 履歴ボタン配置
-		$(target).prepend(`<a class="btn btn-sm btn-outline-secondary d-flex align-items-center" title="変更履歴を見る（仮）" href="${window['n2'].ajaxurl}?action=n2_post_history_api&post_id=${window['wp'].data.select('core/editor').getCurrentPostId()}&type=table&order=desc" target="_blank">履歴を見る</a>`);
+		$(target).prepend(`
+		<form method="get" action="${window['n2'].ajaxurl}" target="_blank">
+			<input type="hidden" name="action" value="n2_post_history_api">
+			<input type="hidden" name="type" value="table">
+			<input type="hidden" name="order" value="desc">
+			<input id="n2-view-history-id" type="hidden" name="post_id" value="${window['wp'].data.select('core/editor').getCurrentPostId()}">
+			<button class="btn btn-sm btn-outline-secondary d-flex align-items-center" title="履歴を見る">履歴を見る</button>
+		</form>
+		`);
 		
 	})
 }
