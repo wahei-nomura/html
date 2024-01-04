@@ -14,6 +14,7 @@ export default ($:any = jQuery) => {
 		$('.interface-complementary-area.edit-post-sidebar .components-panel').prepend('<iframe id="n2-hypernavi" src="edit.php?post_type=post">');
 		$('#n2-hypernavi').on('load', e => {
 			$(e.target).contents().find('[href$="post-new.php"]').attr('target', '_parent');
+			$(e.target).contents().find(`#post-${wp.data.select('core/editor').getCurrentPostId()}`).addClass('is-active')
 			$(e.target).contents().find('.row-title').on('click', async e => {
 				e.preventDefault();
 				const id = $(e.target).parents('tr').attr('id').replace(/[^0-9]/g, '');
@@ -62,6 +63,8 @@ export default ($:any = jQuery) => {
 		n2.tmp.vue.$data.tmp.post_title = post.title;
 		n2.tmp.vue.$data.tmp.post_status = post.status;
 		n2.tmp.saved = _.cloneDeep(n2.tmp.vue.$data);
+		$('#n2-hypernavi').contents().find('#the-list > tr').removeClass('is-active');
+		$('#n2-hypernavi').contents().find(`#post-${id}`).addClass('is-active')
 		save_button_toggler();
 		// ↓　N2オートセーブ（タイトルのみでほぼ無意味なので、contentの中のmetaで復旧するようにしたら使える）
 		// window.sessionStorage.setItem(`wp-autosave-block-editor-post-${id}`, JSON.stringify({
