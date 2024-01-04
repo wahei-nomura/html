@@ -20,7 +20,6 @@ class N2_Dashboard {
 	public function __construct() {
 		add_action( 'wp_dashboard_setup', array( $this, 'remove_widgets' ) );
 		add_action( 'wp_dashboard_setup', array( $this, 'add_widgets' ) );
-		add_action( 'wp_dashboard_setup', array( $this, 'add_jichitai_widgets' ) );
 		add_action( 'admin_print_scripts', array( $this, 'disable_admin_notices' ) );
 	}
 
@@ -74,8 +73,12 @@ class N2_Dashboard {
 	 * @return void
 	 */
 	public function add_widgets() {
+		global $n2;
 		if ( current_user_can( 'ss_crew' ) ) {
 			wp_add_dashboard_widget( 'custom_help_widget', '返礼率規定オーバーリスト', array( $this, 'dashboard_text' ) );
+		}
+		if ( '1' === $n2->settings['N2']['自治体確認'] ) {
+			wp_add_dashboard_widget( 'jichitai_widget', '自治体チェック未リスト', array( $this, 'dashboard_jichitai_check_list' ) );
 		}
 	}
 	/**
@@ -122,18 +125,7 @@ class N2_Dashboard {
 
 		wp_reset_postdata();
 	}
-	/**
-	 * add_jichitai_widgets
-	 * ダッシュボードに項目追加
-	 *
-	 * @return void
-	 */
-	public function add_jichitai_widgets() {
-		global $n2;
-		if ( '1' === $n2->settings['N2']['自治体確認'] ) {
-			wp_add_dashboard_widget( 'jichitai_widget', '自治体チェック未リスト', array( $this, 'dashboard_jichitai_check_list' ) );
-		}
-	}
+
 	/**
 	 * dashboard_jichitai_check_list
 	 * ダッシュボードウィジェットに追加する自治体チェック未リスト
