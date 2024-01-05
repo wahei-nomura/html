@@ -379,7 +379,7 @@ export default Vue.extend({
 									popovertargetaction="show"
 									@click="formatUploadLogs(log)"
 								>
-									{{log.post_date}}
+									{{log.post_content.アップロード.date || log.post_date}}
 								</button>
 							</template>
 							<template v-else-if="meta==='RMS連携' && log.post_content.転送モード==='img_upload'">
