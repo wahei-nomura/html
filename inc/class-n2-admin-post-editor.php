@@ -46,13 +46,14 @@ class N2_Admin_Post_Editor {
 	public function remove_editor_support() {
 		global $n2;
 		$persisted_preferences = get_user_meta( $n2->current_user->ID, "{$n2->blog_prefix}persisted_preferences", true ) ?: array();
-
+		// ハイパーナビ使うかどうか（事業者に開放するときは「true」に変更）
+		$enable_hypernavi = ! in_array( 'jigyousya', $n2->current_user->roles ?? array(), true );
 		// 設定の強制
 		$persisted_preferences['core/edit-post'] = array(
 			'welcomeGuide'               => false,
 			'showBlockBreadcrumbs'       => false,
-			'isPublishSidebarEnabled'    => true,
-			'isComplementaryAreaVisible' => true,
+			'isPublishSidebarEnabled'    => $enable_hypernavi,
+			'isComplementaryAreaVisible' => $enable_hypernavi,
 		);
 		$persisted_preferences['_modified']      = gmdate( 'c' );
 		update_user_meta( $n2->current_user->ID, "{$n2->blog_prefix}persisted_preferences", $persisted_preferences );
