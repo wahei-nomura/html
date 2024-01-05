@@ -13,7 +13,8 @@ export default ($:any = jQuery) => {
 	const hypernavi_generator = () => {
 		$('.interface-complementary-area.edit-post-sidebar .components-panel').prepend('<iframe id="n2-hypernavi" src="edit.php?post_type=post">');
 		$('#n2-hypernavi').on('load', e => {
-			$(e.target).contents().find('[href$="post-new.php"]').attr('target', '_parent');
+			// 親フレームで開きたい
+			$(e.target).contents().find('[href$="post-new.php"],#wp-admin-bar-logout a').attr('target', '_parent');
 			$(e.target).contents().find(`#post-${wp.data.select('core/editor').getCurrentPostId()}`).addClass('is-active')
 			$(e.target).contents().find('.row-title').on('click', async e => {
 				e.preventDefault();
