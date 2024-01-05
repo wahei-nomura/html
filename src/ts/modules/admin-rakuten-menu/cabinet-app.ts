@@ -1,9 +1,9 @@
 import Vue from 'vue/dist/vue.min';
 import Vuex,{mapActions,mapMutations} from 'vuex/dist/vuex.min';
-import Main from './admin-rakuten-cabinet-main'
-import Header from './admin-rakuten-cabinet-header'
-import LeftAside from './admin-rakuten-cabinet-left-aside'
-import RightAside from './admin-rakuten-cabinet-right-aside'
+import Main from './cabinet-main'
+import Header from './cabinet-header'
+import LeftAside from './cabinet-left-aside'
+import RightAside from './cabinet-right-aside'
 
 Vue.use(Vuex);
 	

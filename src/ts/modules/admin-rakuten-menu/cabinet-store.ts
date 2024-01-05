@@ -1,7 +1,7 @@
 import Vue from 'vue/dist/vue.min';
 import Vuex from 'vuex/dist/vuex.min';
 import axios,{ AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
-import { cabinetFolder,cabinetImage } from './admin-rakuten-cabinet-interface';
+import { cabinetFolder,cabinetImage } from './cabinet-interface';
 
 Vue.use(Vuex);
 export default new Vuex.Store({

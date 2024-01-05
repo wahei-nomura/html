@@ -27,9 +27,14 @@ class N2_Rakuten_SFTP {
 	 * @var array
 	 */
 	public $settings = array(
-		'upload'    => 'アップロード',
-		'error-log' => 'エラーログ',
-		'client'    => 'CABINET',
+		'main_menu' => 'n2_rakuten_menu',
+		'sub_menu'  => array(
+			'sftp-explorer'  => 'SFTP',
+			'sftp-upload'    => 'SFTPログ',
+			'sftp-error-log' => 'SFTPエラーログ',
+			'rms-cabinet'    => 'CABINET',
+		),
+		'template'  => 'template/admin-rakuten-menu',
 	);
 
 	/**
@@ -63,6 +68,7 @@ class N2_Rakuten_SFTP {
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 		add_action( 'wp_ajax_n2_rakuten_sftp_upload_to_rakuten', array( $this, 'upload_to_rakuten' ) );
+		add_action( 'wp_ajax_n2_rakuten_sftp_explorer', array( $this, 'explorer' ) );
 		add_action( 'init', array( $this, 'register_post_type' ) );
 	}
 	/**
@@ -77,16 +83,15 @@ class N2_Rakuten_SFTP {
 	public function add_menu() {
 		global $n2, $wp_filesystem;
 		if ( isset( $n2->settings['楽天'] ) ) {
-			add_menu_page( '楽天SFTP', '楽天SFTP', 'ss_crew', 'n2_rakuten_sftp', array( $this, 'display_ui' ), 'dashicons-admin-site-alt3' );
-
-			foreach ( $this->settings as $page => $name ) {
+			add_menu_page( '楽天', '楽天', 'ss_crew', $this->settings['main_menu'], array( $this, 'display_ui' ), 'dashicons-admin-site-alt3' );
+			foreach ( $this->settings['sub_menu'] as $page => $name ) {
 				// 設定テンプレートの存在を確認して、ない場合は破棄してスキップする
-				if ( ! $wp_filesystem->exists( get_theme_file_path( "template/admin-menu/sftp-{$page}.php" ) ) ) {
-					unset( $this->settings[ $page ] );
+				if ( ! $wp_filesystem->exists( get_theme_file_path( "{$this->settings['template']}/{$page}.php" ) ) ) {
+					unset( $this->settings['sub_menu'][ $page ] );
 					continue;
 				}
 				$menu_slug = $this->create_menu_slug( $page );
-				add_submenu_page( 'n2_rakuten_sftp', $name, $name, 'ss_crew', $menu_slug, array( $this, 'display_ui' ) );
+				add_submenu_page( $this->settings['main_menu'], $name, $name, 'ss_crew', $menu_slug, array( $this, 'display_ui' ) );
 				register_setting( $menu_slug, $menu_slug );
 			}
 		}
@@ -99,7 +104,7 @@ class N2_Rakuten_SFTP {
 	 * @param string $page ページ
 	 */
 	private function create_menu_slug( $page ) {
-		return 'n2_rakuten_sftp' . ( 'upload' === $page ? '' : "_{$page}" );
+		return $this->settings['main_menu'] . ( array_keys( $this->settings['sub_menu'] )[0] === $page ? '' : "_{$page}" );
 	}
 
 	/**
@@ -112,24 +117,23 @@ class N2_Rakuten_SFTP {
 			'contents' => '',
 			'args'     => null,
 		);
-		foreach ( $this->settings as $page => $name ) {
+		foreach ( $this->settings['sub_menu'] as $page => $name ) {
 			$menu_slug    = $this->create_menu_slug( $page );
 			$html['nav'] .= sprintf( '<a href="?page=%s" class="nav-tab%s">%s</a>', $menu_slug, $menu_slug === $template ? ' nav-tab-active' : '', $name );
 			if ( $menu_slug === $template ) {
 				$args = match ( $page ) {
-					'error-log' => $this->error_log_args(),
-					'upload'    => $this->upload_args(),
+					'sftp-upload'    => $this->upload_args(),
 					default     => null,
 				};
 				ob_start();
-				get_template_part( 'template/admin-menu/sftp', $page, $args );
+				get_template_part( "{$this->settings['template']}/{$page}", '', $args );
 				$html['contents'] = ob_get_clean();
 			}
 		}
 		?>
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 		<div class="wrap">
-			<h1>楽天SFTP</h1>
+			<h1>楽天</h1>
 			<div id="crontrol-header">
 				<nav class="nav-tab-wrapper"><?php echo $html['nav']; ?></nav>
 			</div>
@@ -175,6 +179,20 @@ class N2_Rakuten_SFTP {
 	}
 
 	/**
+	 * SFTP EXPLORER　ARGS
+	 */
+	public function explorer_args() {
+		$args = array();
+		$this->connect();
+		$args['connect'] = $this->data['connect'];
+		if ( ! $args['connect'] ) {
+			return $args;
+		}
+		$args['dirlist'] = $this->sftp->dirlist( '/', true, true );
+		return $args;
+	}
+
+	/**
 	 * エラーログテンプレート用の変数
 	 */
 	public function error_log_args() {
@@ -201,6 +219,28 @@ class N2_Rakuten_SFTP {
 			$args['logs']
 		);
 		return $args;
+	}
+
+	/**
+	 * エラーログ
+	 */
+	public function error_log() {
+		$this->connect();
+		check_fatal_error( $this->data['connect'], '接続エラー' );
+		$error_dir = 'ritem/logs';
+		$logs      = $this->sftp->dirlist( $error_dir );
+		return array_map(
+			function ( $log ) use ( $args ) {
+				$contents = $this->sftp->get_contents( "{$error_dir}/{$log['name']}" );
+				$contents = htmlspecialchars( mb_convert_encoding( $contents, 'utf-8', 'sjis' ) );
+				return array(
+					'name'     => $log['name'],
+					'time'     => wp_date( 'Y M d', $log['lastmodunix'] ),
+					'contents' => $contents,
+				);
+			},
+			array_reverse( $logs )
+		);
 	}
 
 	/**
@@ -273,26 +313,16 @@ class N2_Rakuten_SFTP {
 			}
 
 			// 商品画像の場合
-			if ( $this->sftp->mkdir( $remote_dir ) ) {
-				$this->data['log'][] = array(
-					'status'  => '作成',
-					'context' => $remote_dir,
-				);
-			}
+			$this->mkdir( $remote_dir );
+
 			// 事業者コードでフォルダ作成
 			$remote_dir .= $m[1];
-			if ( $this->sftp->mkdir( $remote_dir ) ) {
-				$this->data['log'][] = array(
-					'status'  => '作成',
-					'context' => $remote_dir,
-				);
-			}
+			$this->mkdir( $remote_dir );
+
 			// 数字でサブフォルダ作成
 			if ( (int) $m[2] >= 100 ) {
 				$remote_dir .= "/{$m[2][0]}";
-				if ( $this->sftp->mkdir( $remote_dir ) ) {
-					$this->data['log'][] = "{$remote_dir}を作成\n";
-				}
+				$this->mkdir( $remote_dir );
 			}
 			$remote_file         = "{$remote_dir}/{$name[$k]}";
 			$image_data          = file_get_contents( "{$tmp}/{$name[$k]}" );
@@ -376,6 +406,124 @@ class N2_Rakuten_SFTP {
 	}
 
 	/**
+	 * アップロード
+	 */
+	private function upload() {
+		$this->set_files();
+		$name     = $this->data['files']['name'];
+		$type     = $this->data['files']['type'];
+		$tmp_name = $this->data['files']['tmp_name'];
+		foreach ( $tmp_name as $k => $file ) {
+			$remote_file         = "{$this->data['params']['path']}/{$name[ $k ]}";
+			$file_data           = file_get_contents( $file );
+			$uploaded            = $this->sftp->put_contents( $remote_file, $file_data );
+			$this->data['log'][] = match ( $uploaded ) {
+				true => array(
+					'status'  => '転送成功',
+					'context' => $this->data['files']['name'][ $k ],
+				),
+				default => array(
+					'status'  => '転送失敗',
+					'context' => $this->data['files']['name'][ $k ],
+				),
+			};
+			if ( $uploaded ) {
+				$this->n2data[ $this->data['files']['name'][ $k ] ][] = $this->data['files']['name'][ $k ];
+			}
+		}
+	}
+
+	/**
+	 * Download
+	 */
+	private function download() {
+
+		$tmp_zip_uri = stream_get_meta_data( tmpfile() )['uri'];
+		$zip         = new ZipArchive();
+		$zip->open( $tmp_zip_uri, ZipArchive::CREATE );
+		$zip_name = 'sftp';
+
+		foreach ( $this->data['params']['files'] as $file ) {
+			$file_path = "{$this->data['params']['path']}/{$file}";
+			$zip->addFromString( "{$zip_name}/{$file}", $this->sftp->get_contents( $file_path ) );
+			$this->data['log'][] = array(
+				'status'  => 'DL成功',
+				'context' => $file,
+			);
+		}
+		$zip->close();
+
+
+		header( 'Content-Type: application/zip' );
+		header( 'Content-Transfer-Encoding: Binary' );
+		header( 'Content-Length: ' . filesize( $tmp_zip_uri ) );
+		header( "Content-Disposition:attachment; filename = {$zip_name}" );
+		while ( ob_get_level() ) {
+			ob_end_clean(); // 出力バッファの無効化
+		}
+		// 出力処理
+		readfile( $tmp_zip_uri );
+
+		$this->insert_post();
+		exit;
+	}
+
+	/**
+	 * mkdir
+	 *
+	 * @param string $path path
+	 */
+	private function mkdir( $path ) {
+		if ( $this->sftp->mkdir( $path ) ) {
+			$this->data['log'][] = array(
+				'status'  => '作成',
+				'context' => $path,
+			);
+		}
+	}
+
+	/**
+	 * delete
+	 *
+	 * @param array $paths paths
+	 */
+	private function delete( $paths, $recursive = false ) {
+		foreach ( $paths as $path ) {
+			$this->data['log'][] = match ( $this->sftp->delete( $path, $recursive ) ) {
+				true => array(
+					'status'  => '削除成功',
+					'context' => $path,
+				),
+				default => array(
+					'status'  => '削除失敗',
+					'context' => "{$path}",
+				),
+			};
+		}
+	}
+
+	/**
+	 * move
+	 *
+	 * @param string  $source 　　　path
+	 * @param string  $destination path
+	 * @param boolean $overwrite   overwrite
+	 */
+	private function move( $source, $destination, $overwrite = false ) {
+		$this->data['log'][] = match ( $this->sftp->move( $source, $destination, $overwrite ) ) {
+			true => array(
+				'status'  => '移動完了',
+				'context' => "{$source} → {$destination}",
+			),
+			default => array(
+				'status'  => '移動失敗',
+				'context' => "{$source} → {$destination}",
+			),
+		};
+	}
+
+
+	/**
 	 * log output
 	 */
 	public function log_output() {
@@ -454,6 +602,57 @@ class N2_Rakuten_SFTP {
 	}
 
 	/**
+	 * https://developer.wordpress.org/reference/classes/wp_filesystem_ssh2/
+	 * エクスプローラー操作一覧
+	 */
+	public function explorer() {
+		$this->check_fatal_error( $this->connect(), 'パスワードが違います' );
+		$this->set_params();
+		$recursive = (bool) $this->data['params']['recursive'] ?? false;
+		$overwrite = (bool) $this->data['params']['overwrite'] ?? false;
+
+		switch ( $this->data['params']['judge'] ) {
+			case 'mkdir':
+				$this->check_fatal_error( $this->data['params']['path'], 'pathが未設定です' );
+				$this->mkdir( $this->data['params']['path'] );
+				break;
+			case 'delete':
+				$this->check_fatal_error( $this->data['params']['paths'], 'pathsが未設定です' );
+				$this->delete( $this->data['params']['paths'], $recursive );
+				break;
+			case 'move':
+				$this->check_fatal_error( $this->data['params']['source'], 'sourceが未設定です' );
+				$this->check_fatal_error( $this->data['params']['destination'], 'destinationが未設定です' );
+				$this->move( $this->data['params']['source'], $this->data['params']['destination'], $overwrite );
+				break;
+			case 'download':
+				$this->check_fatal_error( $this->data['params']['path'], 'pathが未設定です' );
+				$this->check_fatal_error( $this->data['params']['files'], 'filesが未設定です' );
+				$this->download();
+				break;
+			case 'upload':
+				$this->check_fatal_error( $this->data['params']['path'], 'pathが未設定です' );
+				$this->upload();
+				break;
+			case 'get_contents':
+				$this->check_fatal_error( $this->data['params']['path'], 'pathが未設定です' );
+				$data = $this->sftp->get_contents( $this->data['params']['path'] );
+				header( 'Content-Type: application/json; charset=utf-8' );
+				echo wp_json_encode( $data, JSON_UNESCAPED_UNICODE );
+				exit;
+			case 'dirlist':
+				$data = $this->sftp->dirlist( $this->data['params']['path'] ?? '', true, $recursive );
+				header( 'Content-Type: application/json; charset=utf-8' );
+				echo wp_json_encode( $data, JSON_UNESCAPED_UNICODE );
+				exit;
+			default:
+				$this->check_fatal_error( false, '未定義です' );
+		}
+		$this->insert_post();
+		$this->log_output();
+	}
+
+	/**
 	 * rakuten_auto_update
 	 */
 	public function rakuten_auto_update() {
@@ -487,12 +686,14 @@ class N2_Rakuten_SFTP {
 	 */
 	public function insert_post() {
 		global $n2;
-		$now                            = wp_date( 'Y M d h:i:s A' );
+		$timezone                       = new DateTimeZone( 'Asia/Tokyo' );
+		$now                            = wp_date( 'Y M d h:i:s A', null, $timezone );
 		$judge                          = $this->data['params']['judge'];
 		$post_content                   = array(
 			'アップロード' => array(
 				'data' => $this->n2data,
 				'log'  => $this->data['log'],
+				'date' => $now,
 			),
 			'転送モード'  => $judge,
 		);

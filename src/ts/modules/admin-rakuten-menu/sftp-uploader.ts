@@ -1,7 +1,7 @@
 import axios, {AxiosResponse} from 'axios';
 import Vue from 'vue/dist/vue.min';
 import {mapState,mapActions} from 'vuex/dist/vuex.min';
-import { SftpUploadData } from './admin-rakuten-sftp-interface';
+import { SftpUploadData } from './sftp-upload-interface';
 
 export default Vue.extend({
 	data():SftpUploadData{
