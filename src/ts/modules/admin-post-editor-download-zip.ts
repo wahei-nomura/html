@@ -6,6 +6,7 @@
  */
 export default (target: string, $: any = jQuery) => {
 	const n2 = window['n2'];
+	if ( n2.current_user.roles.includes('jigyousya') ) return;
 	// ターゲットDOMが生成されてから
 	$(target).ready(() => {
 		$(target).append(`<div id="n2-download-zip" class="components-button has-icon" title="ZIPダウンロード"><span class="dashicons dashicons-media-archive"></span></div>`);

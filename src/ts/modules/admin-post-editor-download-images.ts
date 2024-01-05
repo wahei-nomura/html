@@ -6,6 +6,7 @@
  */
 export default (target: string, $: any = jQuery ) => {
 	const n2 = window['n2'];
+	if ( n2.current_user.roles.includes('jigyousya') ) return;
 	// ターゲットDOMが生成されてから
 	$(target).ready(() => {
 		$(target).append('<div id="n2-download-images" class="components-button has-icon" title="画像一括ダウンロード"><span class="dashicons dashicons-images-alt2"></span></div>');
