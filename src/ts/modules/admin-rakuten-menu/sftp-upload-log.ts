@@ -156,11 +156,14 @@ export default Vue.extend({
 			const updateLog = structuredClone(log.post_content);
 			if ( ! this.linkData.id || this.linkData.id !== log.ID ) {
 				this.popover.アップロード.display = '情報取得中...';
-				if ( ! await this.setLinkData(log) ) {
-					this.popover.アップロード.display ='取得に失敗しました'
-					return
-				}
 				this.linkData.id = log.ID;
+			}
+			if ( ! await this.setLinkData(log) ) {
+				this.popover.アップロード.display = log.post_content.アップロード.log.map((l)=>{
+					return `${l.status} ${l.context}`;
+				}).join('<br>');
+				this.linkData.id = log.ID;
+				return;
 			}
 			
 			
@@ -330,10 +333,14 @@ export default Vue.extend({
 			// 更新
 			if ( ! ( this.linkData.id && this.linkData.id == log.ID ) ) {
 				this.popover.アップロード.display = '情報取得中...';
-				if ( ! await this.setLinkData(log) ) {
-					return this.popover.アップロード.display ='取得に失敗しました'
-				}
 				this.linkData.id = log.ID;
+			}
+			if ( ! await this.setLinkData(log) ) {
+				this.popover.アップロード.display = log.post_content.アップロード.log.map((l)=>{
+					return `${l.status} ${l.context}`;
+				}).join('<br>');
+				this.linkData.id = log.ID;
+				return;
 			}
 			this.popover.アップロード.display = Object.keys(this.linkData.unique).map(manageNumber => {
 				return this.linkData.unique[manageNumber].toSorted().map(image=>{
@@ -416,7 +423,7 @@ export default Vue.extend({
 			</tbody>
 		</table>
 		<div id="n2-sftp-upload-log-view-more" class="btn btn-sm btn-info position-fixed bottom-0 end-0"
-			@click="viewLogMore" v-show="!settings.showLog.more"
+			@click="viewLogMore" v-show="!settings.showLog.more" v-if="sftpLog.items.length > settings.showLog.limit"
 		>
 			もっと見る
 		</div>
