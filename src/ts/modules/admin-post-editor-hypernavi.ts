@@ -34,7 +34,8 @@ export default ($:any = jQuery) => {
 		if ( n2.tmp.diff && ! confirm( '保存せずに移動すると編集したデータは失われます。本当に移動しますか？' ) ) {
 			return;
 		}
-		$('#n2-view-history-id').val(id);// 履歴変更
+		// 履歴変更
+		$('#n2-post-id').val(id);
 		// オートセーブの制御（疑似移動した際にオートセーブ発火するのを防ぐ）
 		const autosave = id != wp.data.select('core/editor').getCurrentPostId()
 			? 'lockPostAutosaving' // lock
@@ -50,7 +51,7 @@ export default ($:any = jQuery) => {
 		});
 		// dataの浄化
 		data = set_default_meta($, data.items[0]);
-		console.log(id,data)
+		console.log(id,data);
 		const post = {
 			id,
 			title: data.タイトル,
@@ -64,8 +65,13 @@ export default ($:any = jQuery) => {
 		n2.tmp.vue.$data.tmp.post_title = post.title;
 		n2.tmp.vue.$data.tmp.post_status = post.status;
 		n2.tmp.saved = _.cloneDeep(n2.tmp.vue.$data);
+		// 迷子防止
 		$('#n2-hypernavi').contents().find('#the-list > tr').removeClass('is-active');
 		$('#n2-hypernavi').contents().find(`#post-${id}`).addClass('is-active')
+		// 画像DL＆N1ZIPDLの制御
+		$('#n2-download-images,#n2-download-zip').hide();
+		if ( data.商品画像.length ) $('#n2-download-images').show();
+		if ( data.N1zip ) $('#n2-download-zip').show();
 		save_button_toggler();
 		// ↓　N2オートセーブ（タイトルのみでほぼ無意味なので、contentの中のmetaで復旧するようにしたら使える）
 		// window.sessionStorage.setItem(`wp-autosave-block-editor-post-${id}`, JSON.stringify({
