@@ -382,7 +382,8 @@ class N2_Rakuten_SFTP {
 				);
 				continue;
 			}
-			$file_data           = file_get_contents( $file );
+			$remote_file = 'ritem/batch/' . $name[ $k ];
+			$file_data   = file_get_contents( $file );
 			// 削除エラーチェック
 			if ( str_contains( $name[ $k ], 'item-delete' ) ) {
 				$this->check_fatal_error( ! $this->count_item_delete_row( $file_data ), '商品削除する行が含まれているため、アップロードを中止しました' );
