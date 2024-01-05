@@ -32,7 +32,6 @@ class N2_Admin_Post_List {
 		add_action( 'init', array( $this, 'change_postlabel' ) );// 投稿のラベル変更
 		add_action( 'pre_get_posts', array( $this, 'pre_get_author_posts' ) );// 事業者権限だと自分の投稿のみに
 		add_filter( 'wp_count_posts', array( $this, 'adjust_count_post' ), 10, 3 );// 事業者アカウントの投稿数の調整
-		add_filter( 'post_class', array( $this, 'add_post_class' ) );
 		add_action( 'admin_footer-edit.php', array( $this, 'save_post_ids_ui' ) );// 投稿ID保持＆一括ツールUI
 		add_filter( 'manage_posts_columns', array( $this, 'manage_posts_columns' ), 10, 2 );// カラム調整
 		add_filter( 'manage_edit-post_sortable_columns', array( $this, 'manage_posts_sortable_columns' ) );// ソート可能なカラムの調整
@@ -98,21 +97,6 @@ class N2_Admin_Post_List {
 	}
 
 	/**
-	 * 一覧のtrにn2-readyクラス（準備が整っているのか判定）付与
-	 *
-	 * @param string[] $classes   An array of post class names.
-	 */
-	public function add_post_class( $classes ) {
-		$meta     = json_decode( get_the_content(), true );
-		$required = $meta['_n2_required'] ?? 1;
-		// 準備OKかどうか
-		if ( empty( $required ) ) {
-			$classes[] = 'n2-ready';
-		}
-		return $classes;
-	}
-
-	/**
 	 * 投稿ID保持＆一括ツールUI
 	 */
 	public function save_post_ids_ui() {
@@ -120,20 +104,6 @@ class N2_Admin_Post_List {
 			get_template_part( 'template/admin-post-list/save-post-ids' );
 		}
 		get_template_part( 'template/admin-post-list/tool' );
-	}
-
-	/**
-	 * カラムヘッダーをソート時にアイコン表示
-	 *
-	 * @param string $param_name orderbyのgetパラメータ
-	 * @return string iconタグ
-	 */
-	private function judging_icons_order( $param_name ) {
-		if ( ( isset( $_GET['orderby'] ) && $param_name !== $_GET['orderby'] ) || empty( $_GET['order'] ) ) {
-			return;
-		}
-
-		return 'asc' === $_GET['order'] ? '<span class="dashicons dashicons-arrow-up"></span>' : '<span class="dashicons dashicons-arrow-down"></span>';
 	}
 
 	/**
@@ -145,7 +115,13 @@ class N2_Admin_Post_List {
 	 */
 	public function manage_posts_columns( $columns, $post_type ) {
 		if ( 'post' === $post_type ) {
+			global $n2;
 			unset( $columns['title'], $columns['author'], $columns['date'] );
+			$columns['status_government'] = '<span title="総務省申請">総</span>';
+			if ( $n2->settings['N2']['自治体確認'] ) {
+				$columns['status_local'] = '<span title="自治体確認">自</span>';
+			}
+			$columns['tool']            = '';
 			$columns['title']           = '返礼品名';
 			$columns['code']            = 'コード';
 			$columns['author']          = '事業者名';
@@ -183,26 +159,86 @@ class N2_Admin_Post_List {
 	 * @param int    $post_id 投稿ID
 	 */
 	public function manage_posts_custom_column( $column_name, $post_id ) {
-		$meta       = json_decode( get_the_content(), true );
-		$meta['id'] = $post_id;
-		// サムネイル
-		$thumbnail = ! empty( $meta['商品画像'] )
-			? ( $meta['商品画像'][0]['sizes']['thumbnail']['url'] ?? $meta['商品画像'][0]['sizes']['thumbnail'] )
-			: false;
-		// 返礼率
-		$rate = N2_Donation_Amount_API::calc_return_rate( $meta );
-		// html生成
-		$html = match ( $column_name ) {
-			'modified' => get_the_modified_date( 'y年 m/d' ) . '<br>' . get_the_modified_date( 'H:i:s' ),
+		// デフォルト
+		$defaults = array(
+			'id'    => $post_id,
+			'総務省申請' => '未',
+			'自治体確認' => '未',
+		);
+		// メタデータ
+		$meta = json_decode( get_the_content(), true );
+		$meta = wp_parse_args( $meta, $defaults );
+
+		// 出力
+		echo match ( $column_name ) {
+
+			// 総務省申請ステータス
+			'status_government' => ( function() use ( $meta ) {
+				$title = empty( $meta['総務省申請不要理由'] ) ? $meta['総務省申請'] : "{$meta['総務省申請']}: {$meta['総務省申請不要理由']}";
+				$s     = '未' === $meta['総務省申請'] ? '未 OR  -総務省申請' : $meta['総務省申請'];
+				$icon  = "<a href='?s=総務省申請:{$s}' class='dashicons %s'  title='{$title}'></a>";
+				return match ( $meta['総務省申請'] ) {
+					'未' => sprintf( $icon, 'dashicons-minus' ),
+					'不要' => sprintf( $icon, 'dashicons-yes' ),
+					'申請前' => sprintf( $icon, 'dashicons-arrow-right-alt' ),
+					'申請中' => sprintf( $icon, 'dashicons-hourglass' ),
+					'差戻' =>  sprintf( $icon, 'dashicons-undo' ),
+					'却下' => sprintf( $icon, 'dashicons-dismiss' ),
+					'承認済' => sprintf( $icon, 'dashicons-yes-alt' ),
+					default => '',
+				};
+			} )(),
+
+			// 自治体確認ステータス
+			'status_local' => ( function() use ( $meta ) {
+				$s    = '未' === $meta['自治体確認'] ? '未 OR  -自治体確認' : $meta['自治体確認'];
+				$icon = "<a href='?s=自治体確認:{$s}' class='dashicons %s'  title='{$meta['自治体確認']}'></a>";
+				return match ( $meta['自治体確認'] ) {
+					'未' => sprintf( $icon, 'dashicons-minus' ),
+					'確認中' => sprintf( $icon, 'dashicons-hourglass' ),
+					'却下' => sprintf( $icon, 'dashicons-dismiss' ),
+					'承諾' => sprintf( $icon, 'dashicons-yes-alt' ),
+					default => '',
+				};
+			} )(),
+
+			// ツール
+			'tool' => ( function() use ( $meta ) {
+				$class = empty( $meta['_n2_required'] ?? 1 ) ? 'n2-ready' : '';
+				return "<div class='n2-admin-post-list-tool-open {$class}' data-id='{$meta['id']}'></div>";
+			} )(),
+
+			// 返礼品コード
 			'code' => $meta['返礼品コード'] ?? "<div onclick='navigator.clipboard.writeText({$post_id});' title='{$post_id}'>-</div>",
-			'subscription' => ( $meta['定期便'] ?? 1 ) > 1 ? "{$meta['定期便']}<small>回</small>" : '-',
+
+			// 画像
+			'thumbnail' => ( function() use ( $meta ) {
+				$thumbnail = ! empty( $meta['商品画像'] )
+				? ( $meta['商品画像'][0]['sizes']['thumbnail']['url'] ?? $meta['商品画像'][0]['sizes']['thumbnail'] )
+				: false;
+				return $thumbnail ? "<img src='{$thumbnail}' class='n2-admin-post-list-tool-open'>" : '<div class="empty-thumbnail">-</div>';
+			} )(),
+
+			// 価格
 			'price' => number_format( (int) ( $meta['価格'] ?? 0 ) ) . '<small>円</small>',
+
+			// 寄附金額
 			'donation-amount' => number_format( (int) ( $meta['寄附金額'] ?? 0 ) ) . '<small>円</small>',
-			'rate' => sprintf( $rate > 30 ? '<span style="color:red;">%s<small>%s</small></span>' : '%s<small>%s</small>', $rate, '%' ),
-			'thumbnail' => $thumbnail ? "<img src='{$thumbnail}'>" : '<div class="empty-thumbnail">-</div>',
+
+			// 返礼率
+			'rate' => ( function() use ( $meta ) {
+				$rate = N2_Donation_Amount_API::calc_return_rate( $meta );
+				return sprintf( $rate > 30 ? '<span style="color:red;">%s<small>%s</small></span>' : '%s<small>%s</small>', $rate, '%' );
+			} )(),
+
+			// 定期便
+			'subscription' => ( $meta['定期便'] ?? 1 ) > 1 ? "{$meta['定期便']}<small>回</small>" : '-',
+
+			// 更新日
+			'modified' => get_the_modified_date( 'y年 m/d' ) . '<br>' . get_the_modified_date( 'H:i:s' ),
+
 			default => '',
 		};
-		echo $html;
 	}
 
 	/**

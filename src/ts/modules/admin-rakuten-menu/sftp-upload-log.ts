@@ -90,18 +90,17 @@ export default Vue.extend({
 			this.settings.showLog.more = true;
 		},
 		async setLink(log){
-			this.linkIndex = log.id;
+			this.linkIndex = log.ID;
 			await this.linkImage2RMS(log);
 			this.linkIndex = null;
 		},
 		async getRmsItemImages(log){
-
 			// RMSから返礼品情報を取得
 			const requests = Object.keys(log.アップロード.data).map(manageNumber=>{
 				const formData = new FormData();
 				formData.append('manageNumber', manageNumber);
 				formData.append('n2nonce', this.n2nonce);
-				formData.append('action', 'n2_rms_item_api_ajax');
+				formData.append('action', 'n2_rms_items_api_ajax');
 				formData.append('call', 'items_get');
 				formData.append('mode', 'json');
 				return axios.post(
@@ -124,6 +123,8 @@ export default Vue.extend({
 			});
 		},
 		diffImageItems (log, images) {
+			console.log(log);
+			
 			const diffItemNumbers = Object.keys(images).map(manageNumber=>{
 				// 明らかに配列の長さが違う場合は必要
 				if(log.アップロード.data[manageNumber]?.length !== images[manageNumber]?.length) {
@@ -152,14 +153,14 @@ export default Vue.extend({
 		},
 		async linkImage2RMS ( log ) {
 			// N2 更新用
-			const updateLog = structuredClone(log);
-			if ( ! this.linkData.id || this.linkData.id !== log.id ) {
+			const updateLog = structuredClone(log.post_content);
+			if ( ! this.linkData.id || this.linkData.id !== log.ID ) {
 				this.popover.アップロード.display = '情報取得中...';
 				if ( ! await this.setLinkData(log) ) {
 					this.popover.アップロード.display ='取得に失敗しました'
 					return
 				}
-				this.linkData.id = log.id;
+				this.linkData.id = log.ID;
 			}
 			
 			
@@ -176,7 +177,7 @@ export default Vue.extend({
 				const formData = new FormData();
 				formData.append('manageNumber', manageNumber);
 				formData.append('n2nonce', this.n2nonce);
-				formData.append('action', 'n2_rms_item_api_ajax');
+				formData.append('action', 'n2_rms_items_api_ajax');
 				formData.append('call', 'items_patch');
 				formData.append('mode', 'json');
 				const images = updateLog.アップロード.data[manageNumber].map(path=>{
@@ -198,9 +199,9 @@ export default Vue.extend({
 				formData.append('n2nonce', this.n2nonce);
 				formData.append('action', this.action);
 				formData.append('judge', 'update_post' );
-				formData.append('post_id', updateLog.id );
+				formData.append('post_id', log.ID );
 				// id削除
-				delete updateLog.id, updateLog.display;
+				delete updateLog.display;
 				// 画像用revision追加
 				updateLog.RMS商品画像.変更前 = this.linkData.rmsOrigin;
 				updateLog.RMS商品画像.変更後 = updateLog.アップロード.data;
@@ -218,7 +219,7 @@ export default Vue.extend({
 		async displayHistory(log){
 			const param   = new URLSearchParams({
 				action: 'n2_post_history_api',
-				post_id: log.id,
+				post_id: log.ID,
 				type: 'table',
 				post_type: 'n2_sftp',
 			}).toString();
@@ -241,12 +242,12 @@ export default Vue.extend({
 				},{});
 			};
 			// フォルダ作成ログは除外する
-			this.linkData.error = logToObj(log.アップロード.log,'失敗');
-			this.linkData.success = logToObj(log.アップロード.log,'成功');
+			this.linkData.error = logToObj(log.post_content.アップロード.log,'失敗');
+			this.linkData.success = logToObj(log.post_content.アップロード.log,'成功');
 			
 			const succesItems = Object.keys(this.linkData.success);
 			// 改変用にディープコピー
-			const updateLog = structuredClone(log);
+			const updateLog = structuredClone(log.post_content);
 			this.linkData.rmsOrigin = await this.getRmsItemImages(updateLog);
 
 			if( ! Object.keys(this.linkData.rmsOrigin).length ) {
@@ -289,21 +290,21 @@ export default Vue.extend({
 			return true;
 		},
 		async formatUploadLogs(log){
-			if (log.転送モード !== 'img_upload') {
-				this.popover.アップロード.display = log.アップロード.log.map((l)=>{
+			if (log.post_content.転送モード !== 'img_upload') {
+				this.popover.アップロード.display = log.post_content.アップロード.log.map((l)=>{
 					return `${l.status} ${l.context}`;
 				}).join('<br>');
 				this.linkData.id = log.id;
 				return;
 			}
 
-			// キャビアップのみ別処理
-			if ( log.RMS商品画像.変更後 ) {
-				this.popover.アップロード.display = Object.keys(log.RMS商品画像.変更後).map(manageNumber=>{
+			//  キャビアップのみ別処理
+			if ( log.post_content.RMS商品画像.変更後 ) {
+				this.popover.アップロード.display = Object.keys(log.post_content.RMS商品画像.変更後).map(manageNumber=>{
 					const unique = Array.from(
 						new Set([
-							...(log.RMS商品画像.変更後[manageNumber]),
-							...(log.RMS商品画像.変更前[manageNumber] ?? []),
+							...(log.post_content.RMS商品画像.変更後[manageNumber]),
+							...(log.post_content.RMS商品画像.変更前[manageNumber] ?? []),
 						]).values()
 					).sort();
 					
@@ -312,27 +313,27 @@ export default Vue.extend({
 						const imagePathArr = image.split('/');
 						const imageName = imagePathArr[imagePathArr.length -1 ];
 
-						if ( log.RMS商品画像.変更前[manageNumber] && ! log.RMS商品画像.変更前[manageNumber].includes(image) ) row.push( '追加成功' );
-						if ( log.RMS商品画像.変更後[manageNumber] && ! log.RMS商品画像.変更後[manageNumber].includes(image) ) row.push( '解除成功' );
+						if ( log.post_content.RMS商品画像.変更前[manageNumber] && ! log.post_content.RMS商品画像.変更前[manageNumber].includes(image) ) row.push( '追加成功' );
+						if ( log.post_content.RMS商品画像.変更後[manageNumber] && ! log.post_content.RMS商品画像.変更後[manageNumber].includes(image) ) row.push( '解除成功' );
 
-						const preLog = log.アップロード.log.filter(x=>x.context.includes(imageName));
+						const preLog = log.post_content.アップロード.log.filter(x=>x.context.includes(imageName));
 						if ( !row.length && preLog.length ) row.push( preLog[0].status );
 						row.push(imageName)
 						
 						return row.join(' ');
 					}).join('<br>');
 				}).join('<br>');
-				this.linkData.id = log.id;
+				this.linkData.id = log.ID;
 				return;
 			}
 
 			// 更新
-			if ( ! ( this.linkData.id && this.linkData.id == log.id ) ) {
+			if ( ! ( this.linkData.id && this.linkData.id == log.ID ) ) {
 				this.popover.アップロード.display = '情報取得中...';
 				if ( ! await this.setLinkData(log) ) {
 					return this.popover.アップロード.display ='取得に失敗しました'
 				}
-				this.linkData.id = log.id;
+				this.linkData.id = log.ID;
 			}
 			this.popover.アップロード.display = Object.keys(this.linkData.unique).map(manageNumber => {
 				return this.linkData.unique[manageNumber].toSorted().map(image=>{
@@ -369,7 +370,7 @@ export default Vue.extend({
 			</thead>
 			<tbody>
 				<template v-if="sftpLog.items.length">
-					<tr v-for="(log,index) in sftpLog.items" v-if="settings.showLog.more || index < settings.showLog.limit">
+					<tr v-for="log in sftpLog.items">
 						<td v-for="(col,meta) in logTable">
 							<template v-if="meta === 'アップロード'">
 								<button
@@ -378,31 +379,31 @@ export default Vue.extend({
 									popovertargetaction="show"
 									@click="formatUploadLogs(log)"
 								>
-									{{log.アップロード.date}}
+									{{log.post_date}}
 								</button>
 							</template>
-							<template v-else-if="meta==='RMS連携' && log.転送モード==='img_upload'">
+							<template v-else-if="meta==='RMS連携' && log.post_content.転送モード==='img_upload'">
 								<button
 									@click="setLink(log)"
-									:disabled="! log?.アップロード.data || log.RMS商品画像.変更後"
+									:disabled="! log.post_content?.アップロード.data || log.post_content.RMS商品画像.変更後"
 									type="button" class="btn btn-sm btn-secondary"
 								>
-									<span :class="{'spinner-border spinner-border-sm':linkIndex===log.id}"></span>
+									<span :class="{'spinner-border spinner-border-sm':linkIndex===log.ID}"></span>
 									商品ページ画像への追加・解除
 								</button>
 							</template>
-							<template v-else-if="meta==='RMS連携履歴' && log.転送モード==='img_upload'">
+							<template v-else-if="meta==='RMS連携履歴' && log.post_content.転送モード==='img_upload'">
 								<button
 									@click="displayHistory(log)"
-									:disabled="! log.RMS商品画像.変更後"
+									:disabled="! log.post_content.RMS商品画像.変更後"
 									type="button" class="btn btn-sm btn-outline-warning"
 								>
 									時を見る
 								</button>
 							</template>
 							<template v-else>
-								<span :class="col.td?.icon?.[log.転送モード] ?? col.td?.icon ?? ''"></span>
-								{{col.td?.value?.[log.転送モード] ?? col.td?.value ?? log[meta] ?? ''}}
+								<span :class="col.td?.icon?.[log.post_content.転送モード] ?? col.td?.icon ?? ''"></span>
+								{{col.td?.value?.[log.post_content.転送モード] ?? col.td?.value ?? log[meta] ?? ''}}
 							</template>
 						</td>
 					</tr>

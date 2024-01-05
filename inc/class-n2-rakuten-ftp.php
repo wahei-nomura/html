@@ -174,7 +174,7 @@ class N2_Rakuten_FTP {
 					}
 					ftp_close( $conn_id );
 				} else {
-					echo 'パスワードが違います';
+					echo 'パスワードが違います。パスワードの有効期限が切れていないかRMSでご確認ください。';
 					}
 				exec( "rm -Rf {$tmp}" );
 			} else {
@@ -209,7 +209,7 @@ class N2_Rakuten_FTP {
 					}
 					ftp_close( $conn_id );
 				} else {
-					echo 'パスワードが違います';
+					echo 'パスワードが違います。パスワードの有効期限が切れていないかRMSでご確認ください。';
 				}
 			} else {
 				echo 'ファイルをセットしてください。';

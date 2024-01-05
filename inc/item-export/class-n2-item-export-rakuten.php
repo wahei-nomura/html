@@ -50,6 +50,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		parent::__construct();
 		add_filter( mb_strtolower( get_class( $this ) ) . '_download_add_btn', array( $this, 'add_download_btn' ) );
 		add_filter( mb_strtolower( get_class( $this ) ) . '_download_str', array( $this, 'change_download_str' ), 10, 2 );
+		$this->caution_url = $this->get_pottery_caution_url();
 	}
 
 	/**
@@ -302,11 +303,16 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		global $n2;
 		$img_dir   = rtrim( $n2->settings['楽天']['商品画像ディレクトリ'], '/' );
 		$gift_code = mb_strtolower( $n2values['返礼品コード'] );
-		preg_match( '/[0-9]{0,2}[A-Z]{2,4}/', $n2values['返礼品コード'], $m ); // 事業者コード
-		$business_code = mb_strtolower( $m[0] );
+		preg_match( '/([0-9]{0,2}[A-Z]{2,4})([0-9]{2,3})/', $n2values['返礼品コード'], $m ); // 事業者コード
+		$business_code = mb_strtolower( $m[1] );
 		// GOLD（ne.jp）とキャビネット（co.jp）を判定してキャビネットは事業者コードディレクトリを追加
 		if ( ! preg_match( '/ne\.jp/', $img_dir ) ) {
-			$img_dir .= "/{$business_code}";// キャビネットの場合事業者コード追加
+			// キャビネットの場合事業者コード追加
+			$img_dir .= "/{$business_code}";
+			// サブフォルダ追加
+			if ( (int) $m[2] >= 100 ) {
+				$img_dir .= "/{$m[2][0]}";
+			}
 		}
 		$result = array();
 		for ( $i = 0; $i < 20; ++$i ) {
@@ -371,7 +377,13 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			);
 			$result   = array_filter( $result, fn( $r ) => $r );
 		}
-
+		$n2_settings     = $n2->settings;
+		$rakuten_dir_def = $n2_settings['楽天']['商品画像ディレクトリ']; // 画像ディレクトリ取得
+		$rakuten_dir     = str_replace( '/item', '', $rakuten_dir_def ); // 基本フォルダ直下にやきもの注意書きを置くのでitemを削る
+		if ( in_array( 'やきもの', $n2values['商品タイプ'], true ) && ! in_array( $rakuten_dir . $this->caution_url, $result, true ) ) {
+			$result   = array_slice( $result, 0, 19, true );
+			$result[] = $rakuten_dir . $this->caution_url;
+		}
 		// ========戻り値判定========
 		switch ( $return_type ) {
 			// 文字列を返却
@@ -411,6 +423,12 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			?>
 			<?php $this->get_img_urls( $n2values, 'html' ); ?>
 			<?php echo nl2br( $n2values['説明文'] ); ?><br><br>
+			<?php
+			// 商品タイプごとの注意書きを追加
+			foreach ( array_filter( $n2values['商品タイプ'] ) as $type ) {
+				echo nl2br( $n2->settings['注意書き'][ $type ] ) . '<br>';
+			}
+			?>
 			<?php if ( $n2values['地場産品類型'] && $n2values['類型該当理由'] && in_array( $n2values['地場産品類型'], $applicable_reasons, true ) ) : ?>
 				<br><br>
 				<!-- 見出付しボックス --><table border="2" width="100%" cellspacing="0" cellpadding="15" bordercolor="#B71C1C">
@@ -517,6 +535,12 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			?>
 			<?php $this->get_img_urls( $n2values, 'html' ); ?>
 			<?php echo nl2br( $n2values['説明文'] ); ?><br><br>
+			<?php
+			// 商品タイプごとの注意書きを追加
+			foreach ( array_filter( $n2values['商品タイプ'] ) as $type ) {
+				echo nl2br( $n2->settings['注意書き'][ $type ] ) . '<br>';
+			}
+			?>
 			<?php if ( $n2values['地場産品類型'] && $n2values['類型該当理由'] && in_array( $n2values['地場産品類型'], $applicable_reasons, true ) ) : ?>
 				<br><br>
 				<!-- 見出付しボックス --><table border="2" width="100%" cellspacing="0" cellpadding="15" bordercolor="#B71C1C">
@@ -699,5 +723,22 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 		<?php $html_function(); ?>
 		<?php
 		return rtrim( str_replace( "\t", '', ob_get_clean() ), PHP_EOL );
+	}
+	/**
+	 * やきもの注意書き画像のURL作成
+	 *
+	 * @return string
+	 */
+	public function get_pottery_caution_url() {
+		$siteurl     = site_url();
+		$ex_siteurl  = explode( '/', $siteurl ); // 自治体ローマ字取得(N2URLから取得)
+		$ex_towncode = explode( '-', end( $ex_siteurl ) );
+		$townname    = $ex_towncode[1]; // 自治体ローマ字
+		$caution_url = $townname . '_yaki_r.jpg'; // 自治体ローマ字 + 固定文字(_yaki_r) + .jpg
+		/**
+		 * [hook] n2_item_export_base_get_pottery_caution_url
+		 */
+		$caution_url = apply_filters( mb_strtolower( get_class( $this ) ) . '_get_pottery_caution_url', $caution_url );
+		return $caution_url;
 	}
 }

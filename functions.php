@@ -15,7 +15,6 @@ add_action(
 		$GLOBALS['n2'] = new N2();
 	}
 );
-
 /**
  * Require inc
  */
@@ -26,6 +25,7 @@ $incs = array(
 	'class-n2-settings',
 	'class-n2-rakuten-sftp',
 	'class-n2-setmenu',
+	'class-n2-custom-query',
 	'class-n2-admin-post-editor',
 	'class-n2-admin-post-list',
 	'class-n2-setusers',
@@ -46,24 +46,19 @@ $incs = array(
 	'api/class-n2-rms-category-api',
 	'api/class-n2-rms-navigation-api',
 	'api/class-n2-rms-shop-api',
-	'api/class-n2-rms-item-api',
+	'api/class-n2-rms-items-api',
 	'class-n2-chonbo',
 	'api/class-n2-output-gift-api',
 	'api/class-n2-post-history-api',
 	'api/class-n2-users-api',
+	'class-n2-chrome-checker',
 	'api/class-n2-items-api',
+	'api/class-n2-blogs-api',
 	'api/class-n2-multi-url-request-api',
 	'class-n2-change-allergen',
 	'class-n2-change-sku-firstaid',
+	'class-n2-portal-item-data',
 );
-
-// （仮）とりあえず、長崎市のみチョンボAPIを有効化
-if ( '長崎市' === get_bloginfo( 'name' ) ) {
-	$incs[] = 'api/class-n2-furusato-choice-items-api';
-	$incs[] = 'api/class-n2-rakuten-items-api';
-	$incs[] = 'api/class-n2-furunavi-items-api';
-	$incs[] = 'api/class-n2-ana-items-api';
-}
 
 foreach ( $incs as $name ) {
 	require_once get_theme_file_path( "/inc/{$name}.php" );

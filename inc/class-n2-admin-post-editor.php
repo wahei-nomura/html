@@ -46,13 +46,14 @@ class N2_Admin_Post_Editor {
 	public function remove_editor_support() {
 		global $n2;
 		$persisted_preferences = get_user_meta( $n2->current_user->ID, "{$n2->blog_prefix}persisted_preferences", true ) ?: array();
-
+		// ハイパーナビ使うかどうか（事業者に開放するときは「true」に変更）
+		$enable_hypernavi = ! in_array( 'jigyousya', $n2->current_user->roles ?? array(), true );
 		// 設定の強制
 		$persisted_preferences['core/edit-post'] = array(
 			'welcomeGuide'               => false,
 			'showBlockBreadcrumbs'       => false,
-			'isPublishSidebarEnabled'    => false,
-			'isComplementaryAreaVisible' => false,
+			'isPublishSidebarEnabled'    => $enable_hypernavi,
+			'isComplementaryAreaVisible' => $enable_hypernavi,
 		);
 		$persisted_preferences['_modified']      = gmdate( 'c' );
 		update_user_meta( $n2->current_user->ID, "{$n2->blog_prefix}persisted_preferences", $persisted_preferences );
@@ -149,26 +150,15 @@ class N2_Admin_Post_Editor {
 	 */
 	public function show_customfields( $post, $metabox ) {
 		global $n2;
-		if ( in_array( '楽天', $n2->settings['N2']['出品ポータル'] ) ) {
-			// 楽天納期(楽天APIから取得)
-			$delvdate_api  = new N2_RMS_Shop_API();
-			$delvdate_data = match ( $delvdate_api->connect() ) {
-				true => $delvdate_api->delvdate_master_get(),
-				default => array(),
-			};
-			foreach ( $delvdate_data as $delvdate_data_item ) {
-				$delv_no      = (int) $delvdate_data_item->delvdateNumber;
-				$delv_caption = $delvdate_data_item->delvdateCaption;
-				$n2->custom_field['スチームシップ用']['楽天納期情報']['option'][ $delv_no ] = $delv_no . ':' . $delv_caption;
-			}
-		}
 		$custom_field = array_filter( $n2->custom_field[ $metabox['id'] ], fn( $v ) => isset( $v['type'] ) );
 		?>
 		<div class="n2-fields fs-6">
 			<?php foreach ( $custom_field as $field => $detail ) : ?>
 			<?php
 				unset( $detail['portal'] );
-				$detail['name'] = sprintf( 'n2field[%s]', $detail['name'] ?? $field );
+				// 強制 v-model
+				$detail['v-model'] = $detail['v-model'] ?? sprintf( '$data["%s"]', $detail['name'] ?? $field );
+				$detail['name']    = sprintf( 'n2field[%s]', $detail['name'] ?? $field );
 				// hiddenタイプはそのまま出力
 				if ( 'hidden' === $detail['type'] ) {
 					get_template_part( "template/forms/{$detail['type']}", null, $detail );
@@ -178,6 +168,9 @@ class N2_Admin_Post_Editor {
 			<div id="<?php echo $field; ?>" class="n2-fields-list d-flex flex-wrap border-bottom p-3" v-if="<?php echo $detail['v-if'] ?? ''; ?>">
 				<div class="n2-fields-title col-12 mb-1 col-sm-3 mb-sm-0 d-flex align-items-center">
 					<?php echo ! empty( $detail['label'] ) ? $detail['label'] : $field; ?>
+					<?php if ( isset( $detail['required'] ) ) : ?>
+					<span class="badge bg-danger ms-2">必須</span>
+					<?php endif; ?>
 				</div>
 				<div class="n2-fields-value col-12 col-sm-9 gap-2 d-flex flex-wrap" data-description="<?php echo $detail['description'] ?? ''; ?>">
 				<?php

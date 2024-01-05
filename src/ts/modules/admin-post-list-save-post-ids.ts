@@ -93,13 +93,16 @@ export default ($: any = jQuery) => {
 				});
 			},
 			async set_users() {
-				this.users = await $.ajax({
+				this.users = JSON.parse( await $.ajax({
 					url: n2.ajaxurl,
 					data: {
 						action: 'n2_users_api',
-						role: 'jigyousya',
+						role__in: [
+							'jigyousya',
+							'local-government'
+						],
 					},
-				}).then(res=> JSON.parse(res));
+				}));
 			},
 			set_hover_list(list_name=''){
 				this.hover_list = list_name;

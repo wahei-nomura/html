@@ -81,8 +81,7 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 			$variation                               = $values['バリエーション項目名定義'] ?? ''; // keyを仮に設定
 			$variation                               = array_filter( explode( '|', $variation ) );
 			$this->data['sku']['max']['variation']   = max( $this->data['sku']['max']['variation'] ?? 0, count( $variation ) );
-			$attribute                               = $values['商品属性'] ?? ''; // keyを仮に設定
-			$attribute                               = array_filter( explode( '|', $attribute ) );
+			$attribute                               = ! empty( $values['商品属性'] ) ? $values['商品属性'] : array(); // keyを仮に設定
 			$this->data['sku']['max']['attribute']   = max( $this->data['sku']['max']['attribute'] ?? 0, count( $attribute ) );
 		}
 
@@ -120,11 +119,56 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 	}
 
 	/**
+	 * 商品属性必須だけど空のジャンルIDをセットするための変数
+	 *
+	 * @var array $attr_ids
+	 */
+	public $empty_attr_ids = array();
+
+	/**
+	 * 商品属性が必須なのに入ってない返礼品のジャンルIDをメンバ変数にセットする関数
+	 */
+	protected function set_ids() {
+		// キャッシュのための配列
+		$attr_ids = array();
+		// 商品属性が空の返礼品のジャンルIDを集める
+		foreach ( $this->data['n2data'] as $values ) {
+			if ( empty( $values['商品属性'] ) ) {
+				$attr_ids[] = $values['全商品ディレクトリID'];
+			}
+		}
+		// 重複削除
+		$attr_ids = array_unique( $attr_ids );
+		// 商品属性必須のジャンルIDを絞る
+		foreach ( $attr_ids as $attr_id ) {
+			$response = N2_RMS_Navigation_API::genres_attributes_get( $attr_id );
+			if ( ! 200 === $response['response']['code'] ) {
+				echo 'NavigationAPIから情報取得できませんでした';
+				exit;
+			}
+			$body = $response['body'];
+			$flg  = json_decode( $body )->genre->attributes ?? array();
+			$flg  = array_map(
+				fn( $v ) =>
+				$v->properties->rmsMandatoryFlg,
+				$flg
+			);
+			// 必須ではないものを削除する
+			if ( ! in_array( true, $flg, true ) ) {
+				$empty_attr_ids = array_values( array_diff( $attr_ids, array( $attr_id ) ) );
+			}
+			$this->empty_attr_ids = $empty_attr_ids ?? $attr_ids;
+		}
+	}
+
+	/**
 	 * 楽天用の内容を配列で作成
 	 */
 	protected function set_data() {
 		global $n2;
 		$data = array();
+		// 商品属性が必須なのに入ってないジャンルIDをメンバ変数にセットする
+		$this->set_ids();
 
 		$this->check_fatal_error( $this->data['sku']['header'] && $this->data['header'], 'ヘッダーが設定されていません' );
 
@@ -146,7 +190,6 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 				},
 				$data[ $id ],
 			);
-
 			$data[ $id ] = array_combine( $this->data['header'], $data[ $id ] );
 		}
 		/**
@@ -170,7 +213,6 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 	protected function walk_values( &$val, $index, $n2values ) {
 		$is_callable = is_callable( array( $this, "walk_${val}_values" ) );
 		$this->check_fatal_error( $is_callable, '未定義のレベルです' );
-
 		$header = $this->data['header'];
 		array_walk( $header, array( $this, "walk_${val}_values" ), $n2values );
 		$val = $header;
@@ -246,8 +288,8 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 	 * @param array  $n2values n2dataのループ中の値
 	 */
 	protected function walk_sku_values( &$val, $index, $n2values ) {
-
 		global $n2;
+		$n2values['商品属性'] = is_array( $n2values['商品属性'] ) ? array_values( array_filter( $n2values['商品属性'], fn( $v ) => $v['value'] ) ) : array();
 		// preg_matchで判定
 		$data = match ( 1 ) {
 			preg_match( '/^商品管理番号（商品URL）$/', $val )  => mb_strtolower( $n2values['返礼品コード'] ),
@@ -259,6 +301,9 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 			preg_match( '/^送料$/', $val )  => 1,
 			preg_match( '/^カタログIDなしの理由$/', $val )  => 5,
 			preg_match( '/^代引料$/', $val )  => 1,
+			preg_match( '/(?<=商品属性（項目）)[0-9]{1,}/', $val, $m )  => $n2values['商品属性'][ $m[0] - 1 ]['nameJa'],
+			preg_match( '/(?<=商品属性（値）)[0-9]{1,}/', $val, $m )  => $n2values['商品属性'][ $m[0] - 1 ]['value'],
+			preg_match( '/(?<=商品属性（単位）)[0-9]{1,}/', $val, $m )  => $n2values['商品属性'][ $m[0] - 1 ]['unitValue'],
 			default => '',
 		};
 		/**
@@ -301,6 +346,13 @@ class N2_Item_Export_Rakuten_SKU extends N2_Item_Export_Rakuten {
 							$this->add_error( $n2values['id'], "商品画像を先にアップロードしてください！ {$image}" );
 						}
 					}
+				}
+				if ( 'ジャンルID' === $name ) {
+					if ( empty( $n2values['全商品ディレクトリID'] ) ) {
+						$this->add_error( $n2values['id'], '楽天ジャンルIDが空です。' );
+					} // elseif ( empty( $n2values['商品属性'] ) && in_array( $n2values['全商品ディレクトリID'], $this->empty_attr_ids, true ) ) {
+						// $this->add_error( $n2values['id'], '商品属性が空です。' );
+					// }
 				}
 				break;
 			case 'walk_option_values':

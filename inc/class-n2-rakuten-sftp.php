@@ -49,7 +49,7 @@ class N2_Rakuten_SFTP {
 		'n2data'           => array(),
 		'error'            => array(),
 		'log'              => array(),
-		'rakuten_csv_name' => array( 'normal-item', 'item-cat' ),
+		'rakuten_csv_name' => array( 'normal-item', 'item-cat', 'item-delete' ),
 		'extensions'       => '.csv',
 		'insert_post'      => null,
 		'post_type'        => 'n2_sftp',
@@ -264,7 +264,7 @@ class N2_Rakuten_SFTP {
 	 * @return void
 	 */
 	public function upload_to_rakuten() {
-		$this->check_fatal_error( $this->connect(), 'パスワードが違います' );
+		$this->check_fatal_error( $this->connect(), 'パスワードが違います。パスワードの有効期限が切れていないかRMSでご確認ください。' );
 		$this->set_params();
 		$this->{$this->data['params']['judge']}();
 		$this->log_output();
@@ -314,8 +314,16 @@ class N2_Rakuten_SFTP {
 
 			// 商品画像の場合
 			$this->mkdir( $remote_dir );
+
+			// 事業者コードでフォルダ作成
 			$remote_dir .= $m[1];
 			$this->mkdir( $remote_dir );
+
+			// 数字でサブフォルダ作成
+			if ( (int) $m[2] >= 100 ) {
+				$remote_dir .= "/{$m[2][0]}";
+				$this->mkdir( $remote_dir );
+			}
 
 			$remote_file         = "{$remote_dir}/{$name[$k]}";
 			$image_data          = file_get_contents( "{$tmp}/{$name[$k]}" );
@@ -375,8 +383,11 @@ class N2_Rakuten_SFTP {
 				);
 				continue;
 			}
-			$remote_file         = "ritem/batch/{$name[ $k ]}";
 			$file_data           = file_get_contents( $file );
+			// 削除エラーチェック
+			if ( str_contains( $name[ $k ], 'item-delete' ) ) {
+				$this->check_fatal_error( ! $this->count_item_delete_row( $file_data ), '商品削除する行が含まれているため、アップロードを中止しました' );
+			}
 			$uploaded            = $this->sftp->put_contents( $remote_file, $file_data );
 			$this->data['log'][] = match ( $uploaded ) {
 				true => array(
@@ -525,6 +536,26 @@ class N2_Rakuten_SFTP {
 		exit;
 	}
 
+	/**
+	 * 商品管理番号のみか判定
+	 * ※商品管理番号（商品URL）のみの行があると、商品自体が削除されますのでご注意ください。
+	 *
+	 * @param string $csv_content csv content
+	 */
+	public function count_item_delete_row( $csv_content ) {
+		$rows            = array_map( fn( $row ) => explode( ',', $row ), preg_split( "/\r\n|\n/", $csv_content ) );
+		$header          = array_shift( $rows );
+		$item_code_index = array_search( '商品管理番号（商品URL）', $header, true );
+		// 商品管理番号（商品URL）のみの行をカウント
+		return array_reduce(
+			$rows,
+			function ( $carry, $row ) use ( $item_code_index ) {
+				$carry += $row[ $item_code_index ] && count( array_filter( $row ) ) === 1;
+				return $carry;
+			}
+		);
+	}
+
 
 	/**
 	 * 各パラメータ配列の作成
@@ -623,11 +654,25 @@ class N2_Rakuten_SFTP {
 	}
 
 	/**
+	 * rakuten_auto_update
+	 */
+	public function rakuten_auto_update() {
+		global $n2;
+		$img_dir = rtrim( $n2->settings['楽天']['商品画像ディレクトリ'], '/' );
+		?>
+		<div id="ss-rakuten-auto-update">
+			<input id="n2nonce" type="hidden" name="n2nonce" value="<?php echo esc_attr( wp_create_nonce( 'n2nonce' ) ); ?>">
+			<input id="n2nonce" type="hidden" name="imgDir" value="<?php echo esc_attr( $img_dir ); ?>">
+			Loading...
+		</div>
+		<?php
+	}
+
+	/**
 	 * カスタム投稿を追加
 	 */
 	public function register_post_type() {
 		$args = array(
-			'label'    => 'sftp_log',
 			'public'   => false,
 			'supports' => array(
 				'title',
@@ -648,7 +693,6 @@ class N2_Rakuten_SFTP {
 			'アップロード' => array(
 				'data' => $this->n2data,
 				'log'  => $this->data['log'],
-				'date' => $now,
 			),
 			'転送モード'  => $judge,
 		);
@@ -710,7 +754,7 @@ class N2_Rakuten_SFTP {
 		$this->check_fatal_error( $this->data['params']['update'] ?? '', wp_json_encode( $data, JSON_UNESCAPED_UNICODE ) );
 
 		// 最新情報に更新
-		$item_api   = new N2_RMS_Item_API();
+		$item_api   = new N2_RMS_Items_API();
 		$rms_images = array_map(
 			fn ( $item_code ) => array_map(
 				fn( $image ) => $image['location'],
