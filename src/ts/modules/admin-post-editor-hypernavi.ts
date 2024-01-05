@@ -14,7 +14,7 @@ export default ($:any = jQuery) => {
 		$('.interface-complementary-area.edit-post-sidebar .components-panel').prepend('<iframe id="n2-hypernavi" src="edit.php?post_type=post">');
 		$('#n2-hypernavi').on('load', e => {
 			// 親フレームで開きたい
-			$(e.target).contents().find('[href$="post-new.php"],#wp-admin-bar-logout a').attr('target', '_parent');
+			$(e.target).contents().find('#wp-admin-bar-root-default a,#menu-dashboard a[href="my-sites.php"],[href$="post-new.php"],#wp-admin-bar-logout a').attr('target', '_parent');
 			$(e.target).contents().find(`#post-${wp.data.select('core/editor').getCurrentPostId()}`).addClass('is-active')
 			$(e.target).contents().find('.row-title').on('click', async e => {
 				e.preventDefault();
