@@ -72,7 +72,7 @@ jQuery( async function($){
 
 			const n2referer = $('input[name="_wp_http_referer"]').val();
 			this.SET_N2REFERER(n2referer);
-			
+
 			this.sftpRequest({data:{
 				judge: 'dirlist',
 				path: this.errorLog.dir,
@@ -98,7 +98,7 @@ jQuery( async function($){
 			<template v-if="Array.isArray(sftp.dirlist)">
 				<span>エラーログはありません</span>
 			</template>
-			<template v-else>
+			<template v-else-if="sftp?.dirlist">
 				<table class="widefat striped" style="margin: 2em 0;">
 					<tr v-for="[name,log] in Object.entries(sftp.dirlist).reverse()">
 					<td>{{formatDate(log.lastmodunix*1000)}}</td>
