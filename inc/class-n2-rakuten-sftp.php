@@ -324,7 +324,6 @@ class N2_Rakuten_SFTP {
 				$remote_dir .= "/{$m[2][0]}";
 				$this->mkdir( $remote_dir );
 			}
-
 			$remote_file         = "{$remote_dir}/{$name[$k]}";
 			$image_data          = file_get_contents( "{$tmp}/{$name[$k]}" );
 			$uploaded            = $this->sftp->put_contents( $remote_file, $image_data );
@@ -694,7 +693,7 @@ class N2_Rakuten_SFTP {
 			'アップロード' => array(
 				'data' => $this->n2data,
 				'log'  => $this->data['log'],
-				'date' => $now
+				'date' => $now,
 			),
 			'転送モード'  => $judge,
 		);
