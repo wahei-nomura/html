@@ -67,6 +67,11 @@ export default Vue.extend({
 				alert(`ファイル名に指定のワード(${this.modeProp[type].name.join(',')})が含まれていません`);
 				return
 			}
+			const hasDeleteCSV = files.filter(file=>file.name.indexOf( 'item-delete') !== -1 ).length;
+			if ( hasDeleteCSV && ! confirm( 'item-delete.csv が選択されています。続けますか？' ) ) {
+				this.resetFiles();
+				return;
+			}
 			this.files = files;
 		},
 		resetFiles():void{
