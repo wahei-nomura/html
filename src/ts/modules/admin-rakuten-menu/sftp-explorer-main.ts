@@ -161,6 +161,17 @@ export default Vue.extend({
 			if( byte >> 30 < 1 ) return ((byte >> 17) / 8).toFixed(1) + 'MB';
 			else 				 return ((byte >> 27) / 8).toFixed(1) + 'GB';
 		},
+		formatUnixTimestampToJST(lastmodunix){
+			const date = new Date(lastmodunix * 1000);
+			return date.toLocaleDateString('ja-JP',{
+				year: 'numeric',
+				month: '2-digit',
+				day: '2-digit',
+				hour: '2-digit',
+				minute: '2-digit',
+				second: '2-digit',
+			})
+		},
 		csv2arr(str: string){
 			const arr = str.split(/("\n)/g);
 			return arr.map((val, index) => {
@@ -252,7 +263,7 @@ export default Vue.extend({
 								</td>
 								<td v-else>{{meta[th]}}</td>
 							</template>
-							<td>{{meta.lastmod + ' ' + meta.time}}</td>
+							<td>{{formatUnixTimestampToJST(meta.lastmodunix)}}</td>
 						</tr>
 					</template>
 					<template v-else>
