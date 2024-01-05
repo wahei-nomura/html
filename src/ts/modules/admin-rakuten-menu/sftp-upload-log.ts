@@ -294,7 +294,7 @@ export default Vue.extend({
 				this.popover.アップロード.display = log.post_content.アップロード.log.map((l)=>{
 					return `${l.status} ${l.context}`;
 				}).join('<br>');
-				this.linkData.id = log.id;
+				this.linkData.id = log.ID;
 				return;
 			}
 
