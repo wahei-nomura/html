@@ -30,10 +30,18 @@ export default Vue.extend({
 						icon: {
 							img_upload: 'dashicons dashicons-format-gallery',
 							csv_upload: 'dashicons dashicons-media-spreadsheet',
+							upload: 'dashicons dashicons-upload',
+							download: 'dashicons dashicons-download',
+							delete: 'dashicons dashicons-trash',
+							mkdir: 'dashicons dashicons-plus',
 						},
 						value: {
-							img_upload: '商品画像',
-							csv_upload: '商品CSV',
+							img_upload: ' キャビアップ',
+							csv_upload: 'CSV転送',
+							upload: 'アップロード',
+							download: 'ダウンロード',
+							delete: '削除',
+							mkdir: 'フォルダ作成',
 						},
 					},
 				},
@@ -60,6 +68,12 @@ export default Vue.extend({
 					display: '',
 				}
 			},
+			settings:{
+				showLog:{
+					more:false,
+					limit: 20,
+				}
+			},
 		};
 	},
 	computed:{
@@ -72,6 +86,9 @@ export default Vue.extend({
 		...mapActions([
 			'updateSFTPLog'
 		]),
+		viewLogMore(){
+			this.settings.showLog.more = true;
+		},
 		async setLink(log){
 			this.linkIndex = log.ID;
 			await this.linkImage2RMS(log);
@@ -273,6 +290,15 @@ export default Vue.extend({
 			return true;
 		},
 		async formatUploadLogs(log){
+			if (log.post_content.転送モード !== 'img_upload') {
+				this.popover.アップロード.display = log.post_content.アップロード.log.map((l)=>{
+					return `${l.status} ${l.context}`;
+				}).join('<br>');
+				this.linkData.id = log.id;
+				return;
+			}
+
+			//  キャビアップのみ別処理
 			if ( log.post_content.RMS商品画像.変更後 ) {
 				this.popover.アップロード.display = Object.keys(log.post_content.RMS商品画像.変更後).map(manageNumber=>{
 					const unique = Array.from(
@@ -333,62 +359,67 @@ export default Vue.extend({
 			:class="{loading:!linkData.id}"
 		>
 		</div>
-	<table class="table align-middle lh-1 text-center">
-		<thead>
-			<tr>
-				<th v-for="(col,meta) in logTable">
-					<span :class="col.th?.icon"></span>
-					{{meta}}
-				</th>
-			</tr>
-		</thead>
-		<tbody>
-			<template v-if="sftpLog.items.length">
-				<tr v-for="log in sftpLog.items">
-					<td v-for="(col,meta) in logTable">
-						<template v-if="meta === 'アップロード'">
-							<button
-								type="button" class="btn btn-sm btn-outline-info"
-								popovertarget="popover-upload"
-								popovertargetaction="show"
-								@click="formatUploadLogs(log)"
-							>
-								{{log.post_date}}
-							</button>
-						</template>
-						<template v-else-if="meta==='RMS連携' && log.post_content.転送モード==='img_upload'">
-							<button
-								@click="setLink(log)"
-								:disabled="! log.post_content?.アップロード.data || log.post_content.RMS商品画像.変更後"
-								type="button" class="btn btn-sm btn-secondary"
-							>
-								<span :class="{'spinner-border spinner-border-sm':linkIndex===log.ID}"></span>
-								商品ページ画像への追加・解除
-							</button>
-						</template>
-						<template v-else-if="meta==='RMS連携履歴' && log.post_content.転送モード==='img_upload'">
-							<button
-								@click="displayHistory(log)"
-								:disabled="! log.post_content.RMS商品画像.変更後"
-								type="button" class="btn btn-sm btn-outline-warning"
-							>
-								時を見る
-							</button>
-						</template>
-						<template v-else>
-							<span :class="col.td?.icon?.[log.post_content.転送モード] ?? col.td?.icon ?? ''"></span>
-							{{col.td?.value?.[log.post_content.転送モード] ?? col.td?.value ?? log[meta] ?? ''}}
-						</template>
-					</td>
-				</tr>
-			</template>
-			<template v-else>
+		<table class="table align-middle lh-1 text-center">
+			<thead>
 				<tr>
-					<td :colspan="Object.keys(logTable).length">アップロードログはありません</td>
+					<th v-for="(col,meta) in logTable">
+						<span :class="col.th?.icon"></span>
+						{{meta}}
+					</th>
 				</tr>
-			</template>
-		</tbody>
-	</table>
+			</thead>
+			<tbody>
+				<template v-if="sftpLog.items.length">
+					<tr v-for="log in sftpLog.items">
+						<td v-for="(col,meta) in logTable">
+							<template v-if="meta === 'アップロード'">
+								<button
+									type="button" class="btn btn-sm btn-outline-info"
+									popovertarget="popover-upload"
+									popovertargetaction="show"
+									@click="formatUploadLogs(log)"
+								>
+									{{log.post_content.アップロード.date || log.post_date}}
+								</button>
+							</template>
+							<template v-else-if="meta==='RMS連携' && log.post_content.転送モード==='img_upload'">
+								<button
+									@click="setLink(log)"
+									:disabled="! log.post_content?.アップロード.data || log.post_content.RMS商品画像.変更後"
+									type="button" class="btn btn-sm btn-secondary"
+								>
+									<span :class="{'spinner-border spinner-border-sm':linkIndex===log.ID}"></span>
+									商品ページ画像への追加・解除
+								</button>
+							</template>
+							<template v-else-if="meta==='RMS連携履歴' && log.post_content.転送モード==='img_upload'">
+								<button
+									@click="displayHistory(log)"
+									:disabled="! log.post_content.RMS商品画像.変更後"
+									type="button" class="btn btn-sm btn-outline-warning"
+								>
+									時を見る
+								</button>
+							</template>
+							<template v-else>
+								<span :class="col.td?.icon?.[log.post_content.転送モード] ?? col.td?.icon ?? ''"></span>
+								{{col.td?.value?.[log.post_content.転送モード] ?? col.td?.value ?? log[meta] ?? ''}}
+							</template>
+						</td>
+					</tr>
+				</template>
+				<template v-else>
+					<tr>
+						<td :colspan="Object.keys(logTable).length">アップロードログはありません</td>
+					</tr>
+				</template>
+			</tbody>
+		</table>
+		<div id="n2-sftp-upload-log-view-more" class="btn btn-sm btn-info position-fixed bottom-0 end-0"
+			@click="viewLogMore" v-show="!settings.showLog.more"
+		>
+			もっと見る
+		</div>
 	</div>
 	`,
 });
