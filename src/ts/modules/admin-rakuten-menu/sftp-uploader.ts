@@ -11,7 +11,7 @@ export default Vue.extend({
 				'text/csv': {
 					mode:'csv_upload',
 					icon: 'dashicons dashicons-media-spreadsheet',
-					name: ['normal-item', 'item-cat'],
+					name: ['normal-item', 'item-cat', 'item-delete'],
 				},
 				'image/jpeg': {
 					mode:'img_upload',
@@ -64,7 +64,7 @@ export default Vue.extend({
 			// ファイル名判定
 			if (this.modeProp[type]?.name && ! files.every((file : File)=> this.modeProp[type].name.some( name => file.name.includes(name) ) ) ) {
 				this.resetFiles();
-				alert('ファイル名に指定のワード(normal-item,item-cat)が含まれていません');
+				alert(`ファイル名に指定のワード(${this.modeProp[type].name.join(',')})が含まれていません`);
 				return
 			}
 			this.files = files;
