@@ -272,14 +272,17 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	 * @var string $targetFolderId  targetFolderId
 	 */
 	public static function files_move( $fileIds, $currentFolderId, $targetFolderId) {
-
 		// 　必須項目を確認
 		static::check_fatal_error( ! empty( $fileIds ), 'ファイルIdが設定されていません。' );
+		$result = array(
+			'insert' => null,
+			'delete' => null,
+		);
 
 		// 必要なfileのみに絞る
 		$files = array_filter(
 			static::files_get( $currentFolderId ),
-			fn ( $file ) => in_array( (string) $file->FileId, $fileIds ),
+			fn ( $file ) => in_array( $file->FileId->__toString(), $fileIds ),
 		);
 		// indexを振り直す
 		$files = array_values( $files );
@@ -291,9 +294,9 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 
 		$requests  = array_map(
 			fn( $file ) => array(
-				'url'     => (string) $file->FileUrl,
+				'url'     => $file->FileUrl->__toString(),
 				'options' => array(
-					'filename' => $tmp . '/' . basename( (string) $file->FileUrl ),
+					'filename' => $tmp . '/' . basename( $file->FileUrl->__toString() ),
 				),
 			),
 			$files,
@@ -301,7 +304,6 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 
 		// 初期化
 		$files = array();
-
 		// insertするfileをstatic::$data['file']に設定する
 		foreach ( N2_Multi_URL_Request_API::request_multiple( $requests ) as $index => $response ) {
 			if ( ! is_a( $response, 'WpOrg\Requests\Response' ) || $response->status_code !== 200 ) {
@@ -315,8 +317,9 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			$files['size'][ $index ]     = filesize( $filename );
 		}
 
-		$insert_error = array_filter(
-			static::file_insert( $files, $targetFolderId, $tmp ),
+		$result['insert'] = static::file_insert( $files, $targetFolderId, $tmp );
+		$insert_error     = array_filter(
+			$result['insert'],
 			fn ( $res ) => $res->status_code !== 200,
 		);
 		// 失敗した場合は移動前のファイルを残す
@@ -325,7 +328,10 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			fn ( $key ) => ! in_array( $key, array_keys( $insert_error ) ),
 			ARRAY_FILTER_USE_KEY,
 		);
-		return static::file_delete( $fileIds );
+		if ( ! empty( $fileIds ) ) {
+			$result['delete'] = static::file_delete( $fileIds );
+		}
+		return $result;
 	}
 
 	/**
@@ -336,7 +342,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	public static function file_delete( $fileIds ) {
 		static::check_fatal_error( ! empty( $fileIds ), 'ファイルIdが設定されていません。' );
 		$requests = array_map(
-			function ( $file_id ) use ( $url ) {
+			function ( $file_id ) {
 				$xml_request_body = new SimpleXMLElement( '<?xml version="1.0" encoding="UTF-8"?><request></request>' );
 				$request          = array(
 					'fileDeleteRequest' => array(
