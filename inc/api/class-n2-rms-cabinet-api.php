@@ -201,7 +201,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	 * @var array  $files    files
 	 * @var string $folderId folderId
 	 */
-	public static function file_insert( $files, $folderId, $tmp_path = null ) {
+	public static function file_insert( $files, $folderId, $tmp_path = null, $overwrite = false ) {
 		static::check_fatal_error( ! empty( $files['tmp_name'] ), 'ファイルをセットしてください。' );
 
 		$requests = array();
@@ -227,7 +227,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 						'filePath'  => preg_replace( '/\.[^.]+$/', '.jpg', $file_name ),
 						'fileName'  => preg_replace( '/\.[^.]+$/', '', $file_name ),
 						'folderId'  => $folderId,
-						'overWrite' => 'true',
+						'overWrite' => $overwrite,
 					),
 				),
 			);
@@ -401,22 +401,22 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 
 		$target_files = array_filter(
 			static::trashbox_files_get(),
-			fn ( $file ) => in_array( (string) $file->FileId, $fileIds, true ),
+			fn ( $file ) => in_array( $file->FileId->__toString(), $fileIds, true ),
 		);
 		$folders      = static::folders_get();
 		$requests     = array_map(
 			function ( $file ) use ( $folders ) {
 				$xml_request_body = new SimpleXMLElement( '<?xml version="1.0" encoding="UTF-8"?><request></request>' );
 				$foleder_index    = array_search(
-					$file->FolderPath,
-					array_column( $folders, 'FolderPath' ),
-					true,
+					$file->FolderPath->__toString(),
+					array_column( $folders, 'FolderPath', 0 ),
+					false,
 				);
 				$xml_array        = array(
 					'fileRevertRequest' => array(
 						'file' => array(
-							'fileId'   => $file->FileId,
-							'folderId' => $folders[ $foleder_index ]->FolderId,
+							'fileId'   => $file->FileId->__toString(),
+							'folderId' => $folders[ $foleder_index ]->FolderId->__toString(),
 						),
 					),
 				);
