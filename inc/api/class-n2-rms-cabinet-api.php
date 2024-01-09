@@ -201,7 +201,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	 * @var array  $files    files
 	 * @var string $folderId folderId
 	 */
-	public static function file_insert( $files, $folderId, $tmp_path = null, $overwrite = false ) {
+	public static function file_insert( $files, $folderId, $tmp_path = null, $overwrite = true ) {
 		static::check_fatal_error( ! empty( $files['tmp_name'] ), 'ファイルをセットしてください。' );
 
 		$requests = array();
@@ -271,7 +271,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	 * @var string $currentFolderId currentFolderId
 	 * @var string $targetFolderId  targetFolderId
 	 */
-	public static function files_move( $fileIds, $currentFolderId, $targetFolderId) {
+	public static function files_move( $fileIds, $currentFolderId, $targetFolderId, $overwrite = true ) {
 		// 　必須項目を確認
 		static::check_fatal_error( ! empty( $fileIds ), 'ファイルIdが設定されていません。' );
 		$result = array(
@@ -317,7 +317,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			$files['size'][ $index ]     = filesize( $filename );
 		}
 
-		$result['insert'] = static::file_insert( $files, $targetFolderId, $tmp );
+		$result['insert'] = static::file_insert( $files, $targetFolderId, $tmp, $overwrite );
 		$insert_error     = array_filter(
 			$result['insert'],
 			fn ( $res ) => $res->status_code !== 200,

@@ -223,6 +223,7 @@ jQuery( async function($){
 				formData.append('n2nonce',this.n2nonce);
 				formData.append('action',this.actions.rms.cabinet);
 				formData.append('call','files_move');
+				formData.append('overwrite','false');
 				formData.append('targetFolderId',folderID);
 
 				formData.append('currentFolderId',images[0].FolderId);
