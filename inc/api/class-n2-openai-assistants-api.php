@@ -1,6 +1,7 @@
 <?php
 /**
  * OpenAI Assistants API
+ * ※現在開発中
  *
  * @package neoneng
  */
