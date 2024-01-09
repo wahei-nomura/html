@@ -15,6 +15,9 @@ body.n2-darkmode{
 		filter: invert(100%);
 	}
 }
+.edit-post-visual-editor h1 {	
+	font-family: var(--n2-clear-font-family);
+}
 .post-type-post{
 	#wpadminbar{
 		display: none;
@@ -63,6 +66,11 @@ body.n2-darkmode{
 					}
 					button{
 						display: none;
+					}
+					.interface-pinned-items{
+						button{
+							display: block;
+						}
 					}
 					#n2-save-post {
 						margin-right: 1em;
@@ -149,14 +157,30 @@ body.n2-darkmode{
 				padding: 0;
 			}
 			&__sidebar,&__secondary-sidebar{
+				border: none;
+				.interface-complementary-area{
+					width: 800px;
+					height: 100%;
+					overflow: hidden;
+				}
 				.edit-post-sidebar__panel-tabs,
-				.components-panel__body-title{
+				.components-panel__body-title,
+				.components-panel__body{
 					display: none;
+				}
+				.components-panel{
+					height: 100%;
+					background: #efefef;
+					#n2-hypernavi{
+						min-width: 100%;
+						height: 100%;
+					}
 				}
 			}
 			&__notices{
 				display: none;
 			}
+
 		}
 	}
 	.media-sidebar{
@@ -170,6 +194,16 @@ body.n2-darkmode{
 					float: none;
 					text-align: left;
 					width: 100%;
+				}
+			}
+		}
+	}
+	&.administrator {
+		#editor{
+			.interface-interface-skeleton__sidebar{
+				.components-panel{
+					background: linear-gradient(45deg, rgba(139,0,0,0.9), rgba(139,0,0,0.8)), url(https://www.suruga-ya.jp/database/pics_light/game/g8868169.jpg);
+					background-size: cover;
 				}
 			}
 		}

@@ -5,8 +5,11 @@ const n2 = window['n2'];
 jQuery( $ => {
 	// 検索フィールドにプレースホルダー
 	$('#post-search-input').attr('placeholder','キーワード検索');
+	//キーワードを変更したときにページ1にする
 	$('#search-submit').on('click', () => {
-		$('#current-page-selector').val(1);
+		if ( n2.query.query.paged === $('#current-page-selector').val() ) {
+			$('#current-page-selector').val(1);
+		}
 	});
 	save_post_ids($);
 	post_list_tool($);

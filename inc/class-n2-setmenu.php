@@ -141,7 +141,6 @@ class N2_Setmenu {
 				'tooles.php',
 				'upload.php',
 			);
-
 		}
 		if ( in_array( $pagenow, $hide_pages, true ) ) {
 			wp_safe_redirect( admin_url( 'edit.php' ) );

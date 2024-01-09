@@ -1,0 +1,14 @@
+#popover-upload.loading {
+	animation: 1s ease-in-out infinite poppover-loading;
+}
+#n2-sftp-upload-log-view-more {
+	transform: translate( -20px, -40px );
+}
+@keyframes poppover-loading {
+	0%, 100% {
+		background: gray;
+	}
+	50% {
+		background: white;
+	}
+}

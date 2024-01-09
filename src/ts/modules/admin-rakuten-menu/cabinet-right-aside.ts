@@ -70,6 +70,11 @@ export default Vue.extend({
 			},1000);
 		}
     },
+	beforeDestroy(){
+		if( this.activeTimer ) {
+			clearTimeout(this.activeTimer);
+		}
+	},
 	template:`
 		<aside v-if="!isTrashBox" id="right-aside" class="col-3 pt-3" :class="{'d-none': !focusFile || isTrashBox}">
 			<div>

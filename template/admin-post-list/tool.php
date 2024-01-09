@@ -13,8 +13,8 @@ global $n2;
 		<ul>
 			<li v-if="'trash' === item.ステータス" @click="confirm('ゴミ箱から復元します。よろしいですか？') ? location.href=`admin-ajax.php?action=n2_items_api&mode=untrash&p=${id}` : 0">ゴミ箱から復元</li>
 			<template v-else>
-				<li @click="location.href=`post.php?post=${id}&action=edit`"><span class="dashicons dashicons-edit"></span> 編集</li>
-				<li @click="confirm('返礼品を複製します。よろしいですか？') ? location.href=`admin-ajax.php?action=n2_items_api&mode=copy&p=${id}` : 0">
+				<li @click="window.open(`post.php?post=${id}&action=edit`, '_parent')"><span class="dashicons dashicons-edit"></span> 編集</li>
+				<li @click="confirm('返礼品を複製します。よろしいですか？') ? window.open(`admin-ajax.php?action=n2_items_api&mode=copy&p=${id}`, '_parent') : 0">
 					<span class="dashicons dashicons-admin-page"></span> 複製
 				</li>
 				<!-- ある権限かつあるステータスの場合はできないでいい -->

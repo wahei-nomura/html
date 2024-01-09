@@ -67,7 +67,6 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			$result           = (array) $result->folders;
 			return $result['folder'];
 		};
-
 		$folders          = $response_folders( $response );
 		if ( $folder_all_count <= $limit ) {
 			return $folders;

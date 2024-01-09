@@ -9,13 +9,13 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./src/ts/admin-no-n2-caution.ts":
-/*!***************************************!*\
-  !*** ./src/ts/admin-no-n2-caution.ts ***!
-  \***************************************/
+/***/ "./src/ts/admin-index.ts":
+/*!*******************************!*\
+  !*** ./src/ts/admin-index.ts ***!
+  \*******************************/
 /***/ (() => {
 
-eval("jQuery(function ($) {\n    /**\n     * n2_active_flagがfalseの時に注意文を出す\n     */\n    var n2 = window['n2'];\n    var cautionBox = $('<a class=\"no_active_caution\" onclick=\"this.remove()\">N2未稼働 更新作業はN1で行って下さい</a>');\n    if (!n2.settings['N2']['稼働中']) {\n        $('#wpwrap').append(cautionBox);\n    }\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/admin-no-n2-caution.ts?");
+eval("jQuery(function ($) {\n    $.ajax({\n        url: \"\".concat(window['n2'].ajaxurl, \"?action=n2_dashboard_custom_help_widget_text\")\n    }).then(function (res) {\n        $('#custom_help_widget .inside').html(res);\n    });\n    $.ajax({\n        url: \"\".concat(window['n2'].ajaxurl, \"?action=n2_dashboard_jichitai_widget_text\")\n    }).then(function (res) {\n        $('#jichitai_widget .inside').html(res);\n    });\n});\n\n\n//# sourceURL=webpack://neo-neng/./src/ts/admin-index.ts?");
 
 /***/ })
 
@@ -26,7 +26,7 @@ eval("jQuery(function ($) {\n    /**\n     * n2_active_flagがfalseの時に注�
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module can't be inlined because the eval devtool is used.
 /******/ 	var __webpack_exports__ = {};
-/******/ 	__webpack_modules__["./src/ts/admin-no-n2-caution.ts"]();
+/******/ 	__webpack_modules__["./src/ts/admin-index.ts"]();
 /******/ 	
 /******/ })()
 ;
