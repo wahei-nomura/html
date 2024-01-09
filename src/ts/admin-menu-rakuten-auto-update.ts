@@ -20,6 +20,9 @@ jQuery( async function($){
 	}
 
 	const methods = {
+		showLogContent(postContent){
+			this.showContents = postContent
+		},
 		async update(){
 			const confirmMessage = [
 				'以下の内容で更新を開始しますか？',
@@ -72,7 +75,7 @@ jQuery( async function($){
 					const image_path = this.make_image_path(item.manageNumber);
 
 					// CABINET移動
-					this.counts.img[isStockout] += await this.imageMove(item.manageNumber,image_path,post_id)
+					this.counts.img[isStockout] += await this.imageMove(item.manageNumber,image_path,post_id, isStockout)
 					let img_patch_log = [];
 
 					// 商品画像
@@ -198,7 +201,7 @@ jQuery( async function($){
 				formData,
 			);
 		},
-		async imageMove(manageNumber:string, path, post_id){
+		async imageMove(manageNumber:string, path, post_id, isStockout:string){
 			const oldPath = path.old.replace(`/${manageNumber}`,'');
 			const newPath = path.new.replace(`/${manageNumber}`,'');
 			return await this.imageSearch(manageNumber).then( async res=>{
@@ -212,7 +215,6 @@ jQuery( async function($){
 				const folderID = await this.getFolderId(manageNumber, path, post_id)
 				return {folderID,images};
 			}).then( ({folderID,images})=>{
-				console.log(folderID,images);
 				
 				const formData = new FormData();
 				images.map( image => {
@@ -232,8 +234,10 @@ jQuery( async function($){
 					return {res:res.data,images}
 				})
 			}).then((res)=>{
-				this.addLog(`${manageNumber}: moved cabinet files`,JSON.stringify(res),post_id);
-				return res.images.length;
+				const errorLog = res.res.insert?.filter(l=>l.status_code !== 200)?.length || 0
+					+ res.res.delete?.filter(l=>l.status_code !== 200)?.length || 0;
+				this.addLog(`${manageNumber}: cabinet logs`,JSON.stringify(res),post_id);
+				return res.images.length - errorLog;
 			}).catch(err=>{
 				this.addLog(`${manageNumber}: ${err.message}`,"",post_id);
 				return 0;
@@ -299,6 +303,7 @@ jQuery( async function($){
 		},
 		async addLog(title, postContent, parent_id = "0" ) {
 			console.log(title,postContent)
+			this.logs.push({title,postContent})
 			const formData = new FormData();
 			formData.append('n2nonce',this.n2nonce);
 			formData.append('action', this.actions.log);
@@ -350,7 +355,9 @@ jQuery( async function($){
 						stay: {},
 					},
 					img:{},
-				}
+				},
+				logs: [],
+				showContents: null,
 			};
 		},
 		created(){
@@ -360,7 +367,30 @@ jQuery( async function($){
 		methods,
 		template: `
 		<div id="ss-rakuten-auto-update" class="container-fluid">
+			<div
+				popover="auto" id="popover-cabi-renho"
+				style="width: 80%; max-height: 80%; overflow-y: scroll;"
+				v-html="showContents" v-show="showContents"
+			>
+			</div>
 			<button @click=update>更新する</button>
+			<table class="table">
+				<tbody>
+					<tr v-for="l in logs">
+						<td>
+							<button
+								type="button" class="btn btn-sm btn-outline-info"
+								popovertarget="popover-cabi-renho"
+								popovertargetaction="show"
+								@click="showLogContent(l.postContent)"
+								:class="{disabled:!l.postContent}"
+							>
+								{{l.title}}
+							</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
 		</div>
 		`
 	});
