@@ -274,11 +274,8 @@ jQuery( async function($){
 			formData.append('action',this.actions.rms.items);
 			formData.append('call','search');
 			formData.append('mode','json');
-			const params = {
-				hits: -1,
-				is_item_stockout: isStockout,
-			};
-			formData.append('params', JSON.stringify(params));
+			formData.append('params[hits]', "-1");
+			formData.append('params[isItemStockout]', isStockout);
 			return await axios.post(
 				window['n2'].ajaxurl,
 				formData,
