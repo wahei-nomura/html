@@ -25,8 +25,8 @@ class N2_OpenAI_Chat_API extends N2_OpenAI_Base_API {
 		global $n2;
 
 		// もし引数がなかったらURLパラメータから変数生成
-		$usecase      = empty( $usecase ) ? ( isset( static::$data['params']['usecase'] ) ? static::$data['params']['usecase'] : '' ) : $usecase;
-		$user_message = empty( $user_message ) ? ( isset( static::$data['params']['user_message'] ) ? static::$data['params']['user_message'] : '' ) : $user_message;
+		$usecase      = empty( $usecase ) ? ( static::$data['params']['usecase'] ?? '' ) : $usecase;
+		$user_message = empty( $user_message ) ? ( static::$data['params']['user_message'] ?? '' ) : $user_message;
 
 		// openai_template設定を取得
 		$openai_template = $n2->openai_template[ $usecase ];
