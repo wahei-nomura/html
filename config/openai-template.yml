@@ -11,13 +11,13 @@
     model: gpt-3.5-turbo-1106
     temperature: 0.5
     max_tokens: 200
-    system_message: 
+    system_message: あなたは汎用的アシスタントです。ユーザーの質問に対しstep by stepで考え、応答してください。
 
-# アシスタント:
-#     model: gpt-3.5-turbo-1106
-#     temperature: 0.5
-#     max_tokens: 300
-#     system_message:
+説明文アシスタント:
+    model: gpt-3.5-turbo-1106
+    temperature: 0.5
+    max_tokens: 1000
+    system_message: あなたは優秀な販促ライターです。以下の項目を元に、購買意欲が掻き立てられる例文を900文字程度で書いてください。
 
 # 地場産品ジェネレーター:
 #     model: gpt-3.5-turbo-1106
