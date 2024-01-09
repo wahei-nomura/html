@@ -270,8 +270,11 @@ jQuery( async function($){
 			formData.append('action',this.actions.rms.items);
 			formData.append('call','search');
 			formData.append('mode','json');
-			formData.append('hits', '-1');
-			formData.append('is_item_stockout',isStockout);
+			const params = {
+				hits: -1,
+				is_item_stockout: isStockout,
+			};
+			formData.append('params', JSON.stringify(params));
 			return await axios.post(
 				window['n2'].ajaxurl,
 				formData,
@@ -334,7 +337,7 @@ jQuery( async function($){
 						cabinet:'n2_rms_cabinet_api_ajax',
 						items: 'n2_rms_items_api_ajax',
 					},
-					log: 'n2_rakuten_sftp_insert_log_post',
+					log: 'n2_rakuten_sftp_insert_cabi_renho_log',
 				},
 				itemCount: 0,
 				items: [],

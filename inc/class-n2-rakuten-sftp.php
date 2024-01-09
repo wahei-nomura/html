@@ -33,6 +33,7 @@ class N2_Rakuten_SFTP {
 			'sftp-upload'    => 'SFTPログ',
 			'sftp-error-log' => 'SFTPエラーログ',
 			'rms-cabinet'    => 'CABINET',
+			'cabinet-renho'  => 'キャビ蓮舫',
 		),
 		'template'  => 'template/admin-rakuten-menu',
 	);
@@ -68,6 +69,7 @@ class N2_Rakuten_SFTP {
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 		add_action( 'wp_ajax_n2_rakuten_sftp_upload_to_rakuten', array( $this, 'upload_to_rakuten' ) );
+		add_action( 'wp_ajax_n2_rakuten_sftp_insert_cabi_renho_log', array( $this, 'insert_cabi_renho_log' ) );
 		add_action( 'wp_ajax_n2_rakuten_sftp_explorer', array( $this, 'explorer' ) );
 		add_action( 'init', array( $this, 'register_post_type' ) );
 	}
@@ -654,7 +656,7 @@ class N2_Rakuten_SFTP {
 	}
 
 	/**
-	 * rakuten_auto_update
+	 * キャビ蓮舫用
 	 */
 	public function rakuten_auto_update() {
 		global $n2;
@@ -680,6 +682,45 @@ class N2_Rakuten_SFTP {
 			),
 		);
 		register_post_type( $this->data['post_type'], $args );
+
+		// キャビ蓮舫用カスタム投稿
+		register_post_type( 'rakuten_auto_update', $args );
+	}
+
+	/**
+	 * キャビ蓮舫用カスタム投稿
+	 */
+	public function insert_cabi_renho_log() {
+		global $n2;
+		$this->check_fatal_error( wp_verify_nonce( $_POST['n2nonce'] ?? '', 'n2nonce' ), '不正なパラメータ' );
+		$this->data['params'] = $this->data['params'] ?: $_POST;
+		$this->check_fatal_error( isset( $this->data['params']['title'] ), 'titleがありません' );
+		$this->check_fatal_error( isset( $this->data['params']['post_content'] ), 'post_contentがありません' );
+
+		$now       = date_i18n( 'Y M d h:i:s A' );
+		$default   = array(
+			'ID'           => $this->data['params']['post_id'] ?? 0,
+			'post_author'  => $n2->current_user->ID,
+			'post_status'  => 'pending',
+			'post_type'    => 'rakuten_auto_update',
+			'post_title'   => "[$now]: {$this->data['params']['title']}",
+			'post_content' => wp_json_encode( $this->data['params']['post_content'], JSON_UNESCAPED_UNICODE ),
+		);
+		$insert_id = wp_insert_post( $default );
+		// 初回はリビジョン作成
+		if ( ! ( $this->data['params']['post_id'] ?? 0 ) ) {
+			$this->data['params']['post_id'] = $insert_id;
+			$this->insert_cabi_renho_log();
+			return;
+		}
+		header( 'Content-Type: application/json; charset=utf-8' );
+		echo wp_json_encode(
+			array(
+				'id'      => $insert_id,
+				'message' => 'insert',
+			)
+		);
+		exit;
 	}
 
 	/**

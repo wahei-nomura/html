@@ -49,6 +49,7 @@ class N2_Enqueuescript {
 			mb_strtolower( rawurlencode( '楽天_page_n2_rakuten_menu_rms-cabinet' ) ) => 'admin-rakuten-cabinet',
 			mb_strtolower( rawurlencode( '楽天_page_n2_rakuten_menu_sftp-upload' ) ) => 'admin-rakuten-upload',
 			mb_strtolower( rawurlencode( '楽天_page_n2_rakuten_menu_sftp-error-log' ) ) => 'admin-rakuten-error-log',
+			mb_strtolower( rawurlencode( '楽天_page_n2_rakuten_menu_cabinet-renho' ) ) => 'admin-menu-rakuten-auto-update',
 			'profile.php', 'user-edit.php' => 'admin-user-profile',
 			'user-new.php' => 'admin-user-new',
 			'users.php' => 'admin-users',
