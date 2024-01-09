@@ -126,7 +126,7 @@ class N2 {
 	 *
 	 * @var array
 	 */
-	public $gpt_template;
+	public $openai_template;
 
 	/**
 	 * query（ログイン時のみ）
@@ -377,7 +377,7 @@ class N2 {
 		$this->product_list_print = yaml_parse_file( get_theme_file_path( 'config/n2-product-list-print.yml' ) );
 
 		// GPTテンプレート
-		$this->gpt_template = yaml_parse_file( get_theme_file_path( 'config/gpt-template.yml' ) );
+		$this->openai_template = yaml_parse_file( get_theme_file_path( 'config/gpt-template.yml' ) );
 
 		// 文字列変換
 		$this->special_str_convert = yaml_parse_file( get_theme_file_path( 'config/special-str-convert.yml' ) );
