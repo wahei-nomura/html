@@ -67,9 +67,11 @@ class N2_OpenAI_Chat_API extends N2_OpenAI_Base_API {
 			'body'    => wp_json_encode( $request_body ),
 		);
 
-		// OpenAI APIへのリクエスト実行
+		// OpenAI APIへのリクエスト実行、最終的にメッセージだけを返すように：string
 		$response = wp_remote_request( $url, $request );
+		$response = json_decode( $response['body'] );
+		$response = $response->choices[0]->message->content;
 
-		return json_decode( $response['body'] );
+		return $response;
 	}
 }
