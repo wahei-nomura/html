@@ -505,6 +505,10 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			<?php if ( $n2values['楽天SPAカテゴリー'] ) : ?>
 				<br><br><?php echo nl2br( $n2values['楽天SPAカテゴリー'] ); ?><br>
 			<?php endif; ?>
+			<?php
+				echo $n2->settings['注意書き']['共通']
+					. str_replace( '\"', '""', $n2->settings['楽天']['説明文追加html'] ?? '' );
+			?>
 			<?php if ( $n2values['地場産品類型'] && $n2values['類型該当理由'] && in_array( $n2values['地場産品類型'], $applicable_reasons, true ) ) : ?>
 				<br><br>
 				<!-- 見出付しボックス --><table border="2" width="100%" cellspacing="0" cellpadding="15" bordercolor="#B71C1C">
