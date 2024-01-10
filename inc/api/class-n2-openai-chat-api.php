@@ -65,6 +65,7 @@ class N2_OpenAI_Chat_API extends N2_OpenAI_Base_API {
 			'method'  => 'POST',
 			'headers' => static::$data['header'],
 			'body'    => wp_json_encode( $request_body ),
+			'timeout' => 120,
 		);
 
 		// OpenAI APIへのリクエスト実行、最終的にメッセージだけを返すように：string
