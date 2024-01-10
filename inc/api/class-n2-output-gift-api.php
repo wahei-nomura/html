@@ -197,9 +197,11 @@ class N2_Output_Gift_API {
 		// 商品タイプごとの注意書きを抽出するためにarrayを作成
 		$checker = explode( ',', $results['data']['商品タイプ'] );
 
+		// 初期化
+		$results['data']['注意書き'] = '';
 		// 商品タイプごとの注意書き抽出してresultsに結合
 		foreach ( $n2->settings['注意書き'] as $key => $value ) {
-			if ( '共通' === $key || in_array( $key, $checker, true ) ) {
+			if ( ! empty( $value ) && ( '共通' === $key || in_array( $key, $checker, true ) ) ) {
 				$results['data']['注意書き'] .= PHP_EOL . $value;
 			}
 		}
@@ -387,9 +389,11 @@ class N2_Output_Gift_API {
 		// 商品タイプごとの注意書きを抽出するためにarrayを作成
 		$checker = explode( ',', $results['data']['商品タイプ'] );
 
+		// 初期化
+		$results['data']['注意書き'] = '';
 		// 商品タイプごとの注意書き抽出してresultsに結合
 		foreach ( $n2->settings['注意書き'] as $key => $value ) {
-			if ( '共通' === $key || in_array( $key, $checker, true ) ) {
+			if ( ! empty( $value ) && ( '共通' === $key || in_array( $key, $checker, true ) ) ) {
 				$results['data']['注意書き'] .= PHP_EOL . $value;
 			}
 		}
