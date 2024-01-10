@@ -341,8 +341,35 @@ export default ($: any = jQuery) => {
 			const textarea = $(target).parents('.n2-fields-value').find('textarea');
 			let text = textarea.val();
 			// 後にここで事業者用のテンプレートがあるか確認してゴニョゴニョする
-			text += n2.custom_field.事業者用.説明文.placeholder
+			text += n2.custom_field.事業者用.説明文.placeholder;
 			textarea.val(text);
+		},
+		// 説明文の例文を生成するためのエンドポイント生成
+		async generate_example_description(target) {
+			console.log('START');
+			const textarea = $(target).parents('.n2-fields-value').find('textarea');
+			let text = textarea.val();
+			let prompt = '以下の項目をもとに、ECサイトにおいて購買意欲が掻き立てられる商品紹介文を900文字程度で書いてください。\n### 項目\n'
+			prompt = prompt + text;
+			console.log(prompt);
+			const opt = {
+				url: n2.ajaxurl,
+				data: {
+					action: 'n2_openai_chat_api',
+					mode: 'json',
+					call: 'chat',
+					usecase: '説明文アシスタント',
+					user_message: prompt,
+				},
+			};
+			try {
+				let res = await $.ajax(opt);
+				textarea.val(res);
+				console.log('END');
+			} catch (error) {
+				console.error("Ajax request failed: ", error);
+				// ここでエラーメッセージを適切に処理する
+			}
 		},
 		// 楽天SPAカテゴリー取得
 		async get_spa_category() {
@@ -415,7 +442,6 @@ export default ($: any = jQuery) => {
 			return this.楽天カテゴリー.split('\n').filter(x=>x);
 		}
 	};
-
 	// メタボックスが生成されてから
 	$('.edit-post-layout__metaboxes').ready(()=>{
 		n2.tmp.vue = new Vue({
