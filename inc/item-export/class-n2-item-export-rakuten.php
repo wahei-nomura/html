@@ -550,10 +550,10 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			?>
 			<?php $this->make_itemtable( $n2values, false ); ?>
 			<?php if ( $n2values['検索キーワード'] ) : ?>
-				<br><br><?php echo nl2br( $n2values['検索キーワード'] ); ?>
+				<br><br><?php echo nl2br( $n2values['検索キーワード'] ); ?><br>
 			<?php endif; ?>
 			<?php if ( $n2values['楽天SPAカテゴリー'] ) : ?>
-				<br><br><?php echo nl2br( $n2values['楽天SPAカテゴリー'] ); ?>
+				<br><br><?php echo nl2br( $n2values['楽天SPAカテゴリー'] ); ?><br>
 			<?php endif ?>
 			<?php
 				echo $n2->settings['注意書き']['共通']
