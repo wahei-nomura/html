@@ -154,7 +154,7 @@ class N2_Output_Gift_API {
 		foreach ( $missing_keys as $missing_key ) {
 			// N2設定の「類型該当理由を表示する地場産品類型」に応じて類型該当理由を出力するか判定するサムシング
 			if ( '類型該当理由を表示する' === $missing_key ) {
-				if ( in_array( $local_product_data, $applicable_reasons ) ) {
+				if ( in_array( $local_product_data, $applicable_reasons, true ) ) {
 					$data[] = array(
 						'title'      => $data[0]['title'],
 						'meta_key'   => $missing_key,
@@ -191,7 +191,18 @@ class N2_Output_Gift_API {
 			}
 			$results['data'][ $meta_key ] = $meta_value;
 		}
-		$results['data']['商品タイプ'] = implode( ",", array_filter( unserialize( $results['data']['商品タイプ'] ) ) );
+
+		// オブジェクトから商品タイプの文字列だけ抽出して結合
+		$results['data']['商品タイプ'] = implode( ',', array_filter( unserialize( $results['data']['商品タイプ'] ) ) );
+		// 商品タイプごとの注意書きを抽出するためにarrayを作成
+		$checker = explode( ',', $results['data']['商品タイプ'] );
+
+		// 商品タイプごとの注意書き抽出してresultsに結合
+		foreach ( $n2->settings['注意書き'] as $key => $value ) {
+			if ( '共通' === $key || in_array( $key, $checker, true ) ) {
+				$results['data']['注意書き'] .= PHP_EOL . $value;
+			}
+		}
 
 		// 結果をJSON形式に変換して出力
 		header( 'Content-Type: application/json' );
@@ -300,6 +311,7 @@ class N2_Output_Gift_API {
 			'のし対応',
 			'配送期間',
 			'商品タイプ',
+			'検索キーワード',
 		);
 
 		// 実際に存在するキーと出力が期待されるキーとを比較し、不足しているキーがあれば、そのキーとその値（空文字）をdataに追加
@@ -308,7 +320,7 @@ class N2_Output_Gift_API {
 		foreach ( $missing_keys as $missing_key ) {
 			// N2設定の「類型該当理由を表示する地場産品類型」に応じて類型該当理由を出力するか判定するサムシング
 			if ( '類型該当理由を表示する' === $missing_key ) {
-				if ( in_array( $local_product_data, $applicable_reasons ) ) {
+				if ( in_array( $local_product_data, $applicable_reasons, true ) ) {
 					$data[] = array(
 						'title'      => $data[0]['title'],
 						'meta_key'   => $missing_key,
@@ -365,11 +377,22 @@ class N2_Output_Gift_API {
 			'包装対応',
 			'のし対応',
 			'配送期間',
+			'検索キーワード',
 		);
 
 		$results['data'] = array_intersect_key( $results['data'], array_flip( $keys ) );
 
-		$results['data']['商品タイプ'] = implode( ",", array_filter( unserialize( $results['data']['商品タイプ'] ) ) );
+		// オブジェクトから商品タイプの文字列だけ抽出して結合
+		$results['data']['商品タイプ'] = implode( ',', array_filter( unserialize( $results['data']['商品タイプ'] ) ) );
+		// 商品タイプごとの注意書きを抽出するためにarrayを作成
+		$checker = explode( ',', $results['data']['商品タイプ'] );
+
+		// 商品タイプごとの注意書き抽出してresultsに結合
+		foreach ( $n2->settings['注意書き'] as $key => $value ) {
+			if ( '共通' === $key || in_array( $key, $checker, true ) ) {
+				$results['data']['注意書き'] .= PHP_EOL . $value;
+			}
+		}
 
 		// 結果をJSON形式に変換して出力
 		header( 'Content-Type: application/json' );
