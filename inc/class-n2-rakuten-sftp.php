@@ -87,6 +87,10 @@ class N2_Rakuten_SFTP {
 		if ( isset( $n2->settings['楽天'] ) ) {
 			add_menu_page( '楽天', '楽天', 'ss_crew', $this->settings['main_menu'], array( $this, 'display_ui' ), 'dashicons-admin-site-alt3' );
 			foreach ( $this->settings['sub_menu'] as $page => $name ) {
+				if ( ! current_user_can( 'administrator' ) && 'cabinet-renho' === $page ) {
+					unset( $this->settings['sub_menu'][ $page ] );
+					continue;
+				}
 				// 設定テンプレートの存在を確認して、ない場合は破棄してスキップする
 				if ( ! $wp_filesystem->exists( get_theme_file_path( "{$this->settings['template']}/{$page}.php" ) ) ) {
 					unset( $this->settings['sub_menu'][ $page ] );
