@@ -430,6 +430,9 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			}
 			?>
 			<?php $this->make_itemtable( $n2values, false ); ?><br><br>
+			<?php if ( $n2values['検索キーワード'] ) : ?>
+				<br><br><?php echo nl2br( $n2values['検索キーワード'] ); ?><br>
+			<?php endif; ?>
 			<?php
 				echo $n2->settings['注意書き']['共通']
 					. apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $n2values['id'], 'PC用販売説明文' )
