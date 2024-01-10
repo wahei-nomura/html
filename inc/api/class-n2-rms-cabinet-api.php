@@ -335,6 +335,58 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	}
 
 	/**
+	 * ファイルコピー（南島原用）
+	 * 公式には存在しない
+	 *
+	 * @var array  $fileIds          fileIds
+	 * @var string $currentFolderId currentFolderId
+	 * @var string $targetFolderId  targetFolderId
+	 */
+	public static function files_copy( $fileIds, $currentFolderId, $targetFolderId, $overwrite = true ) {
+		// 　必須項目を確認
+		static::check_fatal_error( ! empty( $fileIds ), 'ファイルIdが設定されていません。' );
+
+		// 必要なfileのみに絞る
+		$files = array_filter(
+			static::files_get( $currentFolderId ),
+			fn ( $file ) => in_array( $file->FileId->__toString(), $fileIds ),
+		);
+		// indexを振り直す
+		$files = array_values( $files );
+
+		// 一時ディレクトリ作成
+		$tmp = wp_tempnam( __CLASS__, get_theme_file_path() . '/' );
+		unlink( $tmp );
+		mkdir( $tmp );
+
+		$requests  = array_map(
+			fn( $file ) => array(
+				'url'     => $file->FileUrl->__toString(),
+				'options' => array(
+					'filename' => $tmp . '/' . basename( $file->FileUrl->__toString() ),
+				),
+			),
+			$files,
+		);
+
+		// 初期化
+		$files = array();
+		// insertするfileをstatic::$data['file']に設定する
+		foreach ( N2_Multi_URL_Request_API::request_multiple( $requests ) as $index => $response ) {
+			if ( ! is_a( $response, 'WpOrg\Requests\Response' ) || $response->status_code !== 200 ) {
+				continue;
+			}
+			$filename                    = $requests[ $index ]['options']['filename'];
+			$files['name'][ $index ]     = basename( $filename );
+			$files['type'][ $index ]     = mime_content_type( $filename );
+			$files['tmp_name'][ $index ] = $filename;
+			$files['error'][ $index ]    = 0;
+			$files['size'][ $index ]     = filesize( $filename );
+		}
+		return static::file_insert( $files, $targetFolderId, $tmp, $overwrite );
+	}
+
+	/**
 	 * ファイル削除
 	 *
 	 * @var array $fileIds fileIds

@@ -222,7 +222,8 @@ jQuery( async function($){
 				});
 				formData.append('n2nonce',this.n2nonce);
 				formData.append('action',this.actions.rms.cabinet);
-				formData.append('call','files_move');
+				if (this.isMinashiba) formData.append('call','files_copy');
+				else formData.append('call','files_move');
 				formData.append('overwrite','false');
 				formData.append('targetFolderId',folderID);
 
@@ -356,11 +357,13 @@ jQuery( async function($){
 				},
 				logs: [],
 				showContents: null,
+				isMinashiba: false,
 			};
 		},
 		created(){
 			this.n2nonce = $('input[name="n2nonce"]').val();
 			this.imgDir = $('input[name="imgDir"]').val();
+			this.isMinashiba = location.href.includes('f422142-minamishimabara');
 		},
 		methods,
 		template: `
