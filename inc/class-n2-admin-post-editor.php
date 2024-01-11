@@ -50,10 +50,10 @@ class N2_Admin_Post_Editor {
 		$enable_hypernavi = true;// ! in_array( 'jigyousya', $n2->current_user->roles ?? array(), true );
 		// 設定の強制
 		$persisted_preferences['core/edit-post'] = array(
-			'welcomeGuide'               => false,
-			'showBlockBreadcrumbs'       => false,
-			'isPublishSidebarEnabled'    => $enable_hypernavi,
-			'isComplementaryAreaVisible' => $enable_hypernavi,
+			...$persisted_preferences['core/edit-post'],
+			'welcomeGuide'            => false,
+			'showBlockBreadcrumbs'    => false,
+			'isPublishSidebarEnabled' => $enable_hypernavi,
 		);
 		$persisted_preferences['_modified']      = gmdate( 'c' );
 		update_user_meta( $n2->current_user->ID, "{$n2->blog_prefix}persisted_preferences", $persisted_preferences );
