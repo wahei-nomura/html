@@ -158,10 +158,16 @@ body.n2-darkmode{
 			}
 			&__sidebar,&__secondary-sidebar{
 				border: none;
+				@include media-breakpoint-down(sm) {
+					top: 50%;
+				}
 				.interface-complementary-area{
 					width: 800px;
 					height: 100%;
 					overflow: hidden;
+					@include media-breakpoint-down(sm) {
+						width: 100%;
+					}
 				}
 				.edit-post-sidebar__panel-tabs,
 				.components-panel__body-title,
