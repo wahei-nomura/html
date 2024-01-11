@@ -153,14 +153,32 @@ body.n2-darkmode{
 		}
 		.interface-interface-skeleton{
 			top: 0;
+			@include media-breakpoint-down(sm) {
+				&.is-sidebar-opened{
+					.interface-interface-skeleton{
+						&__body{
+							position: relative;
+						}
+						&__content{
+							position: absolute;
+							bottom: 300px;
+							top: 0;
+							left: 0;
+							right: 0;
+						}
+						&__sidebar{
+							top: auto;
+							height: 300px;
+							box-shadow: 0 10px 20px;
+						}
+					}
+				}
+			}
 			&__body{
 				padding: 0;
 			}
 			&__sidebar,&__secondary-sidebar{
 				border: none;
-				@include media-breakpoint-down(sm) {
-					top: 50%;
-				}
 				.interface-complementary-area{
 					width: 800px;
 					height: 100%;
@@ -170,6 +188,7 @@ body.n2-darkmode{
 					}
 				}
 				.edit-post-sidebar__panel-tabs,
+				.components-panel__header,
 				.components-panel__body-title,
 				.components-panel__body{
 					display: none;
