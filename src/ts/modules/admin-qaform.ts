@@ -24,7 +24,7 @@ jQuery(function($){
 		'text-decoration':'none',
 	});
 
-	if(n2.current_user.roles[0] !== 'administrator') {
+	if( n2.current_user.roles[0] !== 'administrator' && window == window.parent ) {
 		$('#wpwrap').append(formLink);
 	}
 })

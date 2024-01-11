@@ -35,7 +35,7 @@ class N2_Items_API {
 		add_filter( 'posts_results', array( $this, 'add_required_posts' ), 10, 2 );// 取得時に最低必要事項確認フラグ注入（取得が遅くなる）
 		add_action( 'wp_ajax_n2_items_api', array( $this, 'api' ) );
 		add_action( 'wp_ajax_nopriv_n2_items_api', array( $this, 'api' ) );
-		add_action( 'profile_update', array( $this, 'update_api_from_user' ) );
+		add_action( 'profile_update', array( $this, 'update_api_from_user' ), 10, 3 );
 	}
 
 	/**
@@ -262,7 +262,7 @@ class N2_Items_API {
 		foreach ( $meta_input as $key => $meta ) {
 			$meta = match ( true ) {
 				// 値が配列の場合、空は削除
-				is_array( $meta ) => array_filter( $meta, fn( $v ) => $v ),
+				is_array( $meta ) => array_values( array_filter( $meta, fn( $v ) => $v ) ),
 				// それ以外は文字列型で保存
 				default => (string) $meta,
 			};
@@ -343,10 +343,16 @@ class N2_Items_API {
 	/**
 	 * 事業者名更新時にAPI側もアップデート
 	 *
-	 * @param int $user_id ユーザーID
+	 * @param int     $user_id       User ID.
+	 * @param WP_User $old_user_data Object containing user's data prior to update.
+	 * @param array   $userdata      The raw array of data passed to wp_insert_user().
 	 */
-	public function update_api_from_user( $user_id ) {
+	public function update_api_from_user( $user_id, $old_user_data, $userdata ) {
 		global $n2;
+		// 返礼品ページのユーザー設定変更で発火してほしくない
+		if ( $old_user_data->data->display_name === $userdata['display_name'] ) {
+			return;
+		}
 		$args = array(
 			'body'      => array(
 				'action' => 'n2_items_api',

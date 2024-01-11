@@ -1,0 +1,41 @@
+#loading {
+	z-index: 1;
+	background: #fff8;
+}
+
+.n2-tree-parent {
+	padding-left: 1rem;
+}
+.n2-tree-node {
+	position: relative;
+	label {
+		display: inline;
+		&.active{
+			background: #0082;
+		}
+	}
+}
+.has-child{
+	&:before {
+		border: 2px solid #000;
+		border-left: none;
+		border-top: none;
+		content: "";
+		position: absolute;
+		left: -10px;
+		top: 0%;
+		transform: translate(-50%,100%) rotate(-45deg);
+		transition: .2s;
+		width: 9px;
+		height: 9px;
+	}
+	& > [type="checkbox"] {
+		display: none;
+	}
+	&:not(:has(:checked))~ul {
+		display: none;
+	}
+	&:has(:checked)::before {
+		transform: translate(-50%,100%) rotate(45deg);
+	}
+}

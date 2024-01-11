@@ -4,6 +4,7 @@
  * @param any $ JQuery
  */
 export default ($:any = jQuery) => {
+	const n2 = window['n2'];
 	const wp = window['wp'];
 	// タイトル文字数カウンター
 	$('.editor-post-title__input').ready(function () {
