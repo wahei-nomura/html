@@ -50,7 +50,6 @@ class N2_Admin_Post_Editor {
 		$enable_hypernavi = true;// ! in_array( 'jigyousya', $n2->current_user->roles ?? array(), true );
 		// 設定の強制
 		$persisted_preferences['core/edit-post'] = array(
-			...$persisted_preferences['core/edit-post'],
 			'welcomeGuide'            => false,
 			'showBlockBreadcrumbs'    => false,
 			'isPublishSidebarEnabled' => $enable_hypernavi,

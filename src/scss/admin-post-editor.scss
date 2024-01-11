@@ -180,12 +180,9 @@ body.n2-darkmode{
 			&__sidebar,&__secondary-sidebar{
 				border: none;
 				.interface-complementary-area{
-					width: 800px;
+					width: auto;
 					height: 100%;
 					overflow: hidden;
-					@include media-breakpoint-down(sm) {
-						width: 100%;
-					}
 				}
 				.edit-post-sidebar__panel-tabs,
 				.components-panel__header,
@@ -196,9 +193,37 @@ body.n2-darkmode{
 				.components-panel{
 					height: 100%;
 					background: #efefef;
+					padding-left: 3px;
+					position: relative;
+					cursor: ew-resize;
+					&.is-resizing{
+						&::before{
+							content: "";
+							position: absolute;
+							top: 0;
+							bottom: 0;
+							left: 0;
+							right: 0;
+							background-color: rgba(0,0,0,.2);
+						}
+					}
+					&:hover{
+						background: #555 !important;
+					}
+					@include media-breakpoint-down(sm) {
+						padding-left: 0;
+					}
 					#n2-hypernavi{
 						min-width: 100%;
 						height: 100%;
+						z-index: 1;
+						max-width: 80vw;
+						min-width: 300px;
+						width: 803px;
+						@include media-breakpoint-down(sm) {
+							max-width: 100%;
+							min-width: 100%;
+						}
 					}
 				}
 			}
