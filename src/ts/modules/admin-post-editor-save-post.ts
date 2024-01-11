@@ -51,6 +51,7 @@ export default (target: string) => {
 						n2.tmp.saved.tmp.post_title = wp.data.select('core/editor').getEditedPostAttribute('title');
 						n2.tmp.saved.tmp.post_status = wp.data.select('core/editor').getEditedPostAttribute('status');
 						n2.tmp.diff = false;
+						$('#n2-hypernavi').attr('src',$('#n2-hypernavi').attr('src'))
 					},
 					reason => {
 						console.log( '保存失敗', reason );

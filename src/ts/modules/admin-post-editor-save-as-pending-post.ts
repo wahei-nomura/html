@@ -75,7 +75,7 @@ const append_button = (target: string, $: any = jQuery) => {
 				wp.data.dispatch('core/editor').savePost().then(()=>{
 					$('#n2-save-as-pending span').attr('class', 'dashicons dashicons-saved me-2');
 					$(window).off('beforeunload');
-					location.reload();
+					$('#n2-hypernavi').attr('src',$('#n2-hypernavi').attr('src'))
 				});
 			});
 		});
