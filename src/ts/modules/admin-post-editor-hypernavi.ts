@@ -67,7 +67,7 @@ export default ($:any = jQuery) => {
 		n2.tmp.saved = _.cloneDeep(n2.tmp.vue.$data);
 		// 迷子防止
 		$('#n2-hypernavi').contents().find('#the-list > tr').removeClass('is-active');
-		$('#n2-hypernavi').contents().find(`#post-${id}`).addClass('is-active')
+		$('#n2-hypernavi').contents().find(`#post-${id}`).addClass('is-active');
 		// 画像DL＆N1ZIPDLの制御
 		$('#n2-download-images,#n2-download-zip').hide();
 		if ( data.商品画像.length ) $('#n2-download-images').show();

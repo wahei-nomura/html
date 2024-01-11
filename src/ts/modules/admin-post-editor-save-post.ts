@@ -20,16 +20,13 @@ export default (target: string) => {
 	});
 	// ターゲットDOMが生成されてから
 	$(target).ready(() => {
-		const editor = wp.data.select('core/editor');
-		const status = editor.getEditedPostAttribute("status");
-		if ( n2.current_user.roles.includes('jigyousya') && ! status.match(/draft/) ) return
 		// 保存ボタン配置
-		const button = 'auto-draft' == status
+		const button = 'auto-draft' == wp.data.select('core/editor').getEditedPostAttribute('status')
 			? `<div id="n2-save-post" class="${btn_class.save}" title="保存"><span></span>保存</div>`
 			: `<div id="n2-save-post" class="${btn_class.saved}" title="保存"><span class="dashicons dashicons-saved me-2"></span>保存</div>`;
 		$(target).prepend(button);
 		$('#n2-save-post').on('click', () => {
-			if ( ! editor.getEditedPostAttribute("title") ) {
+			if ( ! wp.data.select('core/editor').getEditedPostAttribute('title') ) {
 				alert('保存するには返礼品の名前を入力してください');
 				return;
 			}
@@ -78,6 +75,8 @@ export default (target: string) => {
 };
 
 export const save_button_toggler = () => {
+	// 保存ボタン無しの場合は何もしない
+	if( $('#n2-save-post').hasClass('d-none') ) return;
 	const wp = window['wp'];
 	// 差分チェック
 	const data = _.cloneDeep( n2.tmp.vue.$data );
