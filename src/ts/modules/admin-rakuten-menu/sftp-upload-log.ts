@@ -333,7 +333,6 @@ export default Vue.extend({
 			// 更新
 			if ( ! ( this.linkData.id && this.linkData.id == log.ID ) ) {
 				this.popover.アップロード.display = '情報取得中...';
-				this.linkData.id = log.ID;
 			}
 			if ( ! await this.setLinkData(log) ) {
 				this.popover.アップロード.display = log.post_content.アップロード.log.map((l)=>{
@@ -342,6 +341,7 @@ export default Vue.extend({
 				this.linkData.id = log.ID;
 				return;
 			}
+			this.linkData.id = log.ID;
 			this.popover.アップロード.display = Object.keys(this.linkData.unique).map(manageNumber => {
 				return this.linkData.unique[manageNumber].toSorted().map(image=>{
 					let row = [];
