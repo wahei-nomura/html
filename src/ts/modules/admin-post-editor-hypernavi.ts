@@ -40,7 +40,7 @@ export default ($:any = jQuery) => {
 			.on('load', e => {
 				// 親フレームで開きたい
 				$(e.target).contents().find('#wp-admin-bar-root-default a,#menu-dashboard a[href="my-sites.php"],[href$="post-new.php"],#wp-admin-bar-logout a').attr('target', '_parent');
-				$(e.target).contents().find(`#post-${wp.data.select('core/editor').getCurrentPostId()}`).addClass('is-active')
+				$(e.target).contents().find(`#post-${$('#n2-post-id').val()}`).addClass('is-active');
 				$(e.target).contents().find('.row-title').on('click', async e => {
 					e.preventDefault();
 					const id = $(e.target).parents('tr').attr('id').replace(/[^0-9]/g, '');
