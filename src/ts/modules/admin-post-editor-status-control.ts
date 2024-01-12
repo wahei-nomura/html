@@ -62,6 +62,7 @@ export default ($:any = jQuery) => {
 			.on('click', e => {
 				const level = Math.ceil( e.offsetX*4 /$('#n2-progress').width() );
 				wp.data.dispatch('core/editor').editPost({ status: statuses[level].status });
+				wp.data.select('core/editor').getPostEdits().status = statuses[level].status;
 			});
 
 	});
