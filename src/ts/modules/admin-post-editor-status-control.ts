@@ -46,51 +46,23 @@ export default ($:any = jQuery) => {
 	$(".edit-post-layout__metaboxes").ready(() => {
 		// プログレスバー
 		$('.edit-post-header').before('<div id="n2-progress" class="progress rounded-0" style="height: 1.5em;width: 100%;"><div></div></div>');
-		n2.post_status = wp.data.select("core/editor").getEditedPostAttribute("status");
-
-		// 事業者
-		if ( n2.current_user.roles.includes('jigyousya') ) {
-			$('.editor-post-switch-to-draft, .interface-pinned-items').hide();
-			if ( ! n2.post_status.match(/draft/) ) {
-				$('#normal-sortables, .editor-post-title').addClass('pe-none')
-					.find('input,textarea,select').addClass('border-0');
-				$('.interface-interface-skeleton__content').on('click', ()=>{
-					const alert_message = () :string =>{
-						switch (n2.current_user.roles[0]) {
-							case 'jigyousya':
-								return 'スチームシップに送信後の編集はできません。';
-							default:
-								return 'このアカウントの権限では編集はできません';
-						}
-					}
-					alert(alert_message());
-				});
-				wp.data.dispatch( 'core/editor' ).lockPostSaving( 'n2-lock' );
-			}
-		}
-		else {
-			$('#n2-progress')
-				.css({cursor: 'pointer',height: '2.5em'})
-				.on('mousemove', e => {
-					const level = Math.ceil( e.clientX*4 /$('#n2-progress').width() );
-					$('#n2-progress').attr('title', `「${statuses[level].label}」に変更`)
-				})
-				.on('click', e => {
-					const level = Math.ceil( e.offsetX*4 /$('#n2-progress').width() );
-					wp.data.dispatch('core/editor').editPost({ status: statuses[level].status });
-				});
-	}
-
 		// ステータスの更新
 		wp.data.subscribe(()=>{
-			n2.post_status = wp.data.select("core/editor").getEditedPostAttribute("status");
-			const status = statuses.find( v => v.status === n2.post_status );
+			const status = statuses.find( v => v.status === wp.data.select('core/editor').getEditedPostAttribute('status') );
 			$('#n2-progress > *').text(status.label).attr( 'class', status.class );
-			// レビュー待ち　かつ　事業者ログイン
-			if ( n2.post_status == 'pending' && n2.current_user.roles.includes('jigyousya') ) {
-				$('#normal-sortables, .editor-post-title').addClass('pe-none')
-					.find('input,textarea,select').addClass('border-0');
-			}
 		});
+		// 事業者はこれ以上何もしない
+		if ( n2.current_user.roles.includes('jigyousya') ) return;
+		$('#n2-progress')
+			.css({cursor: 'pointer',height: '2.5em'})
+			.on('mousemove', e => {
+				const level = Math.ceil( e.clientX*4 /$('#n2-progress').width() );
+				$('#n2-progress').attr('title', `「${statuses[level].label}」に変更`)
+			})
+			.on('click', e => {
+				const level = Math.ceil( e.offsetX*4 /$('#n2-progress').width() );
+				wp.data.dispatch('core/editor').editPost({ status: statuses[level].status });
+			});
+
 	});
 };
