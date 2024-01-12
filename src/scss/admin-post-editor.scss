@@ -196,6 +196,7 @@ body.n2-darkmode{
 					padding-left: 3px;
 					position: relative;
 					cursor: ew-resize;
+					transition: all .5s;
 					&.is-resizing{
 						&::before{
 							content: "";
@@ -208,7 +209,22 @@ body.n2-darkmode{
 						}
 					}
 					&:hover{
-						background: #555 !important;
+						background: #5DA0E7;
+						animation: rx_78_2 5s infinite linear;
+						@keyframes rx_78_2{
+							0%{
+								background: #5DA0E7;
+							}
+							33%{
+								background: #F9C13A;
+							}
+							66%{
+								background: #E9423A;
+							}
+							100%{
+								background: #5DA0E7;
+							}
+						}
 					}
 					@include media-breakpoint-down(sm) {
 						padding-left: 0;
