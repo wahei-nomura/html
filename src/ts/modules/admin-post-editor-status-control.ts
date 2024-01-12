@@ -62,6 +62,7 @@ export default ($:any = jQuery) => {
 			.on('click', e => {
 				const level = Math.ceil( e.offsetX*4 /$('#n2-progress').width() );
 				wp.data.dispatch('core/editor').editPost({ status: statuses[level].status });
+				// 最初に入室した返礼品のステータスが永久欠番になって爆速ナビで移動後のステータスをそれにできなくなるのを強引に防ぐ
 				wp.data.select('core/editor').getPostEdits().status = statuses[level].status;
 			});
 
