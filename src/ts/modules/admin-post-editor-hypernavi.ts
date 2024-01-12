@@ -59,6 +59,7 @@ export default ($:any = jQuery) => {
 		if ( n2.tmp.diff && ! confirm( '保存せずに移動すると編集したデータは失われます。本当に移動しますか？' ) ) {
 			return;
 		}
+		n2.tmp.diff = false;
 		// 履歴変更
 		$('#n2-post-id').val(id);
 		// オートセーブの制御（疑似移動した際にオートセーブ発火するのを防ぐ）
