@@ -44,18 +44,17 @@ class N2_Admin_Post_Editor {
 	 * 詳細ページ内で余分な項目を削除している
 	 */
 	public function remove_editor_support() {
+		if ( ! is_admin() ) {
+			return;
+		}
 		global $n2;
 		$persisted_preferences = get_user_meta( $n2->current_user->ID, "{$n2->blog_prefix}persisted_preferences", true ) ?: array();
-		// ハイパーナビ使うかどうか（事業者に開放するときは「true」に変更）
-		$enable_hypernavi = true;// ! in_array( 'jigyousya', $n2->current_user->roles ?? array(), true );
+		// 設定取得
+		$edit = &$persisted_preferences['core/edit-post'];
 		// 設定の強制
-		$persisted_preferences['core/edit-post'] = array(
-			'welcomeGuide'               => false,
-			'showBlockBreadcrumbs'       => false,
-			'isPublishSidebarEnabled'    => $enable_hypernavi,
-			'isComplementaryAreaVisible' => $persisted_preferences['core/edit-post']['isComplementaryAreaVisible'] ?? $enable_hypernavi,
-		);
-		$persisted_preferences['_modified']      = gmdate( 'c' );
+		$edit['welcomeGuide']            = false;
+		$edit['showBlockBreadcrumbs']    = false;
+		$edit['isPublishSidebarEnabled'] = true;
 		update_user_meta( $n2->current_user->ID, "{$n2->blog_prefix}persisted_preferences", $persisted_preferences );
 
 		// カスタムフィールドの表示をOFFに
