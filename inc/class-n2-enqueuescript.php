@@ -145,7 +145,7 @@ class N2_Enqueuescript {
 	public function check_chrome() {
 		global $is_chrome;
 		if ( ! $is_chrome ) {
-			echo '<div class="message" style="margin-top: 15px; padding: 20px; border-left-color: #FFF; color: #9c2c34; font-weight: bold;"><p>Google Chromeでの閲覧を推奨しています！</p></div>';
+			echo '<div class="message not_chrome_caution" onclick="this.remove()"><div class="frame-title caution">CAUTION</div><p>Google Chromeでの閲覧を推奨しています！</p></div>';
 		}
 	}
 }
