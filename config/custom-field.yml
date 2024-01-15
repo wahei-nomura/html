@@ -145,7 +145,7 @@
         type: textarea
         style: 'width: 100%;'
         description: ポータルに表示されるので、公開して良い情報なのか確認して下さい。
-        maxlength : 300
+        maxlength: 300
         "@focus": set_info($event.target);
         "@input": auto_fit_tetxarea($event.target)
 
@@ -156,27 +156,28 @@
         "@mouseover": set_info($event.target);
         option:
             '': 選択して下さい
-            1 : 1.当該地方団体の区域内において生産されたもの。
-            2 : 2.当該地方団体の区域内において返礼品等の原材料の主要な部分が生産されたもの。
-            3 : 3.当該地方団体の区域内において返礼品等の製造、加工その他の工程のうち主要な部分を行うことにより相応の付加価値が生じているもの。
-            3（精米） : 3（精米）.地場産品基準第3号ただし書に規定する、当該地方団体が属する都道府県の区域内において生産された玄米を原材料として、当該地方団体の区域内において精白したもの。
-            3（熟成肉） : 3（熟成肉）.地場産品基準第3号ただし書に規定する、当該地方団体が属する都道府県の区域内において生産された食肉を原材料として、当該地方団体の区域内において熟成したもの。
-            4 : 4.返礼品等を提供する市区町村の区域内において生産されたものであって、近隣の他の市区町村の区域内において生産されたものと混在したもの。
-            5 : 5.地方団体の広報の目的で生産された当該地方団体のキャラクターグッズ、オリジナルグッズその他これらに類するものであって、形状、名称その他の特徴から当該地方団体の独自の返礼品等であることが明白なもの。
-            6 : 6.前各号に該当する返礼品等と当該返礼品等との間に関連性のあるものとを合わせて提供するものであって、当該返礼品等が主要な部分を占めるもの。
-            7 : 7.当該地方団体の区域内において提供される役務その他これに準ずるものであって、当該役務の主要な部分が当該地方団体に相当程度関連性のあるもの。
-            8イ : 8イ：市区町村が近隣の他の市区町村と共同でこれらの市区町村の区域内において前各号のいずれかに該当するものを共通の返礼品等とするもの。
-            8ロ : 8ロ：都道府県が当該都道府県の区域内の複数の市区町村と連携し、<br>当該連携する市区町村の区域内において前各号のいずれかに該当するものを当該都道府県及び当該市区町村の共通の返礼品等とするもの。
-            8ハ : 8ハ：都道府県が当該都道府県の区域内の複数の市区町村において地域資源として相当程度認識されているもの及び当該市区町村を認定し、当該地域資源を当該市区町村がそれぞれ返礼品等とするもの。
-            9 : 9.震災、風水害、落雷、火災その他これらに類する災害により甚大な被害を受けたことにより、その被害を受ける前に提供していた前各号のいずれかに該当する返礼品等を提供することができなくなった場合において、当該返礼品等を代替するものとして提供するもの。
-            99 : 99.前各号のいずれかに該当する返礼品等とのみ交換させるために提供するもの。
+            1: 1.当該地方団体の区域内において生産されたもの。
+            2: 2.当該地方団体の区域内において返礼品等の原材料の主要な部分が生産されたもの。
+            3: 3.当該地方団体の区域内において返礼品等の製造、加工その他の工程のうち主要な部分を行うことにより相応の付加価値が生じているもの。
+            3（精米）: 3（精米）.地場産品基準第3号ただし書に規定する、当該地方団体が属する都道府県の区域内において生産された玄米を原材料として、当該地方団体の区域内において精白したもの。
+            3（熟成肉）: 3（熟成肉）.地場産品基準第3号ただし書に規定する、当該地方団体が属する都道府県の区域内において生産された食肉を原材料として、当該地方団体の区域内において熟成したもの。
+            4: 4.返礼品等を提供する市区町村の区域内において生産されたものであって、近隣の他の市区町村の区域内において生産されたものと混在したもの。
+            5: 5.地方団体の広報の目的で生産された当該地方団体のキャラクターグッズ、オリジナルグッズその他これらに類するものであって、形状、名称その他の特徴から当該地方団体の独自の返礼品等であることが明白なもの。
+            6: 6.前各号に該当する返礼品等と当該返礼品等との間に関連性のあるものとを合わせて提供するものであって、当該返礼品等が主要な部分を占めるもの。
+            7: 7.当該地方団体の区域内において提供される役務その他これに準ずるものであって、当該役務の主要な部分が当該地方団体に相当程度関連性のあるもの。
+            8イ: 8イ：市区町村が近隣の他の市区町村と共同でこれらの市区町村の区域内において前各号のいずれかに該当するものを共通の返礼品等とするもの。
+            8ロ: 8ロ：都道府県が当該都道府県の区域内の複数の市区町村と連携し、<br>当該連携する市区町村の区域内において前各号のいずれかに該当するものを当該都道府県及び当該市区町村の共通の返礼品等とするもの。
+            8ハ: 8ハ：都道府県が当該都道府県の区域内の複数の市区町村において地域資源として相当程度認識されているもの及び当該市区町村を認定し、当該地域資源を当該市区町村がそれぞれ返礼品等とするもの。
+            9: 9.震災、風水害、落雷、火災その他これらに類する災害により甚大な被害を受けたことにより、その被害を受ける前に提供していた前各号のいずれかに該当する返礼品等を提供することができなくなった場合において、当該返礼品等を代替するものとして提供するもの。
+            99: 99.前各号のいずれかに該当する返礼品等とのみ交換させるために提供するもの。
     総務省提出用類型該当理由:
         type: textarea
         style: 'width: 100%;'
-        ':description': n2.custom_field.事業者用._類型該当理由info.description[地場産品類型] ?? `地場産品類型「${地場産品類型}」に該当する理由を書いてください。`
-        ':placeholder': n2.custom_field.事業者用._類型該当理由info.placeholder[地場産品類型] ?? `例）${n2.town}が認定した返礼品であるため。`
+        rows: auto
+        ':description': (n2.custom_field.事業者用._類型該当理由info.description[地場産品類型] || `地場産品類型${地場産品類型}に該当する理由を書いてください`).replace('区域',n2.town)
+        ':placeholder': (n2.custom_field.事業者用._類型該当理由info.placeholder[地場産品類型] || '例）区域が認定した返礼品であるため。').replace('区域',n2.town)
         insert-placeholder: true
-        "@focus": set_info($event.target);
+        "@focus": set_info($event.target);auto_fit_tetxarea($event.target);
         "@input": auto_fit_tetxarea($event.target)
     # 地場産品類型に該当する理由の注意書きと例文（あえてtypeなしにしてカスタムフィールドとしては出力させない）
     _類型該当理由info:
@@ -189,10 +190,10 @@
             2: 例）区域内で生産された牛肉（原材料名を記載）が価格の70％以上を占めるため。
             3: 例）区域外で生産された豚肉を、区域内において切断・調理・袋詰めまでの加工に係る全行程を行うことにより、仕入れ時の価格の2倍以上の付加価値が生じているため。
     定期便:
-        type : select
+        type: select
         value: 1
         v-if: "!商品タイプ.includes('eチケット')"
-        option :
+        option:
             1: 定期便では無い
             2: ２回定期便
             3: ３回定期便
@@ -214,8 +215,8 @@
         :value: 寄附金額
         v-if: tmp.current_user == 'jigyousya'
     価格:
-        type : price
-        label : 価格（税込）
+        type: price
+        label: 価格（税込）
         required: required
         placeholder: 例）1000
         description: '商品価格を税込でご記載ください。<br>※寄附金額は自動で算出しますので、入力不要です。<br>※定期便の場合、<b>1回分の価格</b>をご記載ください。'
@@ -226,18 +227,18 @@
         "@change": "force_half_size_text($event, 'number', '価格');auto_adjust_price()"
     価格総額: # N2エクスポートに入れるために必須
     キャッチコピー:
-        type : text
-        description : こだわりやポイントを端的にご記載ください。
-        maxlength : 40
+        type: text
+        description: こだわりやポイントを端的にご記載ください。
+        maxlength: 40
         v-if: "!商品タイプ.includes('eチケット')"
         placeholder: 例）○○にて金賞受賞！溢れる肉汁をご堪能ください！
         style: 'width: 100%'
         "@focus": set_info($event.target)
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
     説明文:
-        type : textarea
+        type: textarea
         rows: auto
-        maxlength : 900
+        maxlength: 900
         placeholder: '例）
 
         【メリット】ほおばると口の中に肉汁があふれ出し、思わず笑顔がこぼれるハンバーグです。
@@ -250,58 +251,58 @@
 
         【その他】真空パックにてお届けします。温める際は十分に注意して、湯銭してください。'
         insert-placeholder: true
-        description : '【メリット】この返礼品を申し込むことで、寄附者が得られる恩恵やハッピーをお書きください。<br>【実績】この返礼品の良さを裏付ける「実績」「口コミ」「施策」等をお書きください。<br>【アドバンテージ】その他の商品よりも特に優れている「こだわり」や「強み」をお書きください。<br>【特徴】返礼品や事業者様の「特徴」「説明」「想い」をお書きください。<br>【その他】上記以外で伝えたいことがあれば、お書きください。'
+        description: '【メリット】この返礼品を申し込むことで、寄附者が得られる恩恵やハッピーをお書きください。<br>【実績】この返礼品の良さを裏付ける「実績」「口コミ」「施策」等をお書きください。<br>【アドバンテージ】その他の商品よりも特に優れている「こだわり」や「強み」をお書きください。<br>【特徴】返礼品や事業者様の「特徴」「説明」「想い」をお書きください。<br>【その他】上記以外で伝えたいことがあれば、お書きください。'
         "@focus": set_info($event.target);
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
     内容量・規格等:
-        type : textarea
-        maxlength : 1000
+        type: textarea
+        maxlength: 1000
         rows: auto
-        description : 内容量、数量、サイズ、重さなど詳しくお書きください。
+        description: 内容量、数量、サイズ、重さなど詳しくお書きください。
         "@focus": set_info($event.target)
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
     原料原産地:
-        type : text
-        maxlength : 50
+        type: text
+        maxlength: 50
         v-if: "!商品タイプ.includes('eチケット')"
-        description : 主要となる原料の主要原産地を記載ください。
+        description: 主要となる原料の主要原産地を記載ください。
         placeholder: 例）〇〇県産
         style: 'width: 100%'
         "@focus": set_info($event.target)
         "@input": set_info($event.target)
     加工地:
-        type : text
-        maxlength : 50
+        type: text
+        maxlength: 50
         v-if: "!商品タイプ.includes('eチケット')"
-        description : 加工食品の加工地（製造地）を記載ください。
+        description: 加工食品の加工地（製造地）を記載ください。
         placeholder: 例）〇〇県〇〇市
         style: 'width: 100%'
         "@focus": set_info($event.target)
         "@input": set_info($event.target)
     商品タイプ:
-        type : checkbox
+        type: checkbox
         value: []
-        option : 
+        option: 
             - 食品
         "@change": "check_handling_method();check_tax();"
     税率:
-        type : radio
+        type: radio
         option:
             8: 8%
             10: 10%
 
 # ▼ =========== 食品専用のフィールド ==========
     アレルギー有無確認:
-        type : checkbox
+        type: checkbox
         value: ['アレルギー品目あり']
         v-if: 商品タイプ.some(v=>['食品','酒'].includes(v))
-        option :
+        option:
             - アレルギー品目あり
     アレルゲン:
-        type : checkbox
+        type: checkbox
         v-if: 商品タイプ.some(v=>['食品','酒'].includes(v)) && アレルギー有無確認.filter(v=>v).length
         required: required
-        option :
+        option:
             - 卵
             - 乳
             - 小麦
@@ -340,19 +341,19 @@
         "@focus": set_info($event.target)
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
     賞味期限:
-        type : textarea
-        placeholder : 例）配送から５日間
-        maxlength : 200
+        type: textarea
+        placeholder: 例）配送から５日間
+        maxlength: 200
         rows: auto
         style: 'width: 100%;'
         v-if: "商品タイプ.some(v=>['食品','酒'].includes(v)) && !商品タイプ.includes('eチケット')"
         "@focus": set_info($event.target)
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
     消費期限:
-        type : textarea
-        placeholder : 例）冷凍庫９０日間
+        type: textarea
+        placeholder: 例）冷凍庫９０日間
         style: 'width: 100%;'
-        maxlength : 200
+        maxlength: 200
         rows: auto
         v-if: "商品タイプ.some(v=>['食品','酒'].includes(v)) && !商品タイプ.includes('eチケット')"
         "@focus": set_info($event.target)
@@ -385,8 +386,8 @@
             △: 対応（備考あり）
             ×: 非対応
     対応機器備考:
-        type : textarea
-        description : 電子レンジ・オーブン・食洗機対応のいずれかで「備考あり」を選択した場合は必ずお書きください。
+        type: textarea
+        description: 電子レンジ・オーブン・食洗機対応のいずれかで「備考あり」を選択した場合は必ずお書きください。
         v-if: "商品タイプ.includes('やきもの') && !商品タイプ.includes('eチケット')"
         placeholder: 例）2～3分程の電子レンジ使用は可能です。
         style: 'width: 100%;'
@@ -395,21 +396,21 @@
 # ▲ =========== やきもの専用のフィールド ==========
 
     申込期間:
-        type : text
-        placeholder : 例）通年4月〜6月など
+        type: text
+        placeholder: 例）通年4月〜6月など
         style: 'width: 100%'
     配送期間:
-        type : textarea
-        description : 配送までにかかる最大納期を入力ください。「即納」表記は避けていただき、最短でも1週間前後で入力をお願いいたします。
-        maxlength : 200
+        type: textarea
+        description: 配送までにかかる最大納期を入力ください。「即納」表記は避けていただき、最短でも1週間前後で入力をお願いいたします。
+        maxlength: 200
         v-if: "!商品タイプ.includes('eチケット')"
         placeholder: 例）入金確認後1ヶ月以内にお届けいたします。
         style: 'width: 100%;'
         "@focus": set_info($event.target)
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
     限定数量:
-        type : text
-        placeholder : 例）指定なし
+        type: text
+        placeholder: 例）指定なし
     包装対応:
         type: radio
         value: 無し
@@ -425,18 +426,18 @@
             - 無し
             - 有り
     発送方法:
-        type : radio
+        type: radio
         value: 常温
         v-if: "!商品タイプ.includes('eチケット')"
-        option :
+        option:
             - 常温
             - 冷蔵
             - 冷凍
     発送サイズ:
-        type : select
+        type: select
         required: required
         v-if: "!商品タイプ.includes('eチケット')"
-        option :
+        option:
             '': 未選択
             '0100':
                 label: ヤマト 宅急便コンパクト
@@ -480,7 +481,7 @@
         :value: "!商品タイプ.includes('eチケット') ? 送料 : 0"
         required: required
     送料: # 実質その他用送料
-        type : text
+        type: text
         name: 送料
         label: 送料
         description: 発送サイズ「その他」を選択の場合は必須項目です
@@ -491,10 +492,10 @@
         "@focus": set_info($event.target)
         "@change": "force_half_size_text($event, 'number', '送料')"
     取り扱い方法:
-        type : checkbox
+        type: checkbox
         value: []
-        description : 配送時の取り扱い方法で該当するものを選択してください（２つまで）。
-        option :
+        description: 配送時の取り扱い方法で該当するものを選択してください（２つまで）。
+        option:
             - ビン・ワレモノ
             - 天地無用
             - 下積み禁止
@@ -504,17 +505,17 @@
         v-if: "!isNaN(発送サイズ||'未選択')"
         '@click': 'if (取り扱い方法.filter(v=>v).length == 2 ) { $event.target.checked = false; set_info($event.target) }'
     配送伝票表示名:
-        type : text
-        description : 配送伝票に表示したい自社での品番・名称等がある場合はご記入ください。<br>※特に記載がない場合は、返礼品名の最初の20文字が伝票へ記載されます。
-        maxlength : 17
-        placeholder : 17文字以内
+        type: text
+        description: 配送伝票に表示したい自社での品番・名称等がある場合はご記入ください。<br>※特に記載がない場合は、返礼品名の最初の20文字が伝票へ記載されます。
+        maxlength: 17
+        placeholder: 17文字以内
         style: 'width: 17em;'
         "@focus": set_info($event.target)
         "@input": set_info($event.target)
     LHカテゴリー:
         label: カテゴリー
-        type : select
-        option :
+        type: select
+        option:
             - 未選択
             - 肉
             - 魚貝類
@@ -535,9 +536,9 @@
     備考欄:
         type: textarea
     商品画像:
-        type : item-image
+        type: item-image
         value: []
-        label : 商品画像（8枚以上推奨）
-        description : 画像を複数選択、またはアップロードしてください。画像は可能であれば8枚以上を推奨いたします。
+        label: 商品画像（8枚以上推奨）
+        description: 画像を複数選択、またはアップロードしてください。画像は可能であれば8枚以上を推奨いたします。
     N1zip:
         type: hidden
