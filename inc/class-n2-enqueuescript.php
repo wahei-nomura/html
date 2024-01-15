@@ -23,7 +23,9 @@ class N2_Enqueuescript {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_front_script' ) );
 		add_filter( 'admin_body_class', array( $this, 'add_admin_body_class' ) );
 		add_action( 'admin_footer', array( $this, 'noscript' ) );
+		add_action( 'admin_footer', array( $this, 'check_chrome' ) );
 		add_action( 'wp_footer', array( $this, 'noscript' ) );
+		add_action( 'in_admin_header', array( $this, 'forcelogout_review_nodisplay' ), 90 );
 	}
 
 	/**
@@ -49,6 +51,7 @@ class N2_Enqueuescript {
 			mb_strtolower( rawurlencode( '楽天_page_n2_rakuten_menu_rms-cabinet' ) ) => 'admin-rakuten-cabinet',
 			mb_strtolower( rawurlencode( '楽天_page_n2_rakuten_menu_sftp-upload' ) ) => 'admin-rakuten-upload',
 			mb_strtolower( rawurlencode( '楽天_page_n2_rakuten_menu_sftp-error-log' ) ) => 'admin-rakuten-error-log',
+			mb_strtolower( rawurlencode( '楽天_page_n2_rakuten_menu_cabinet-renho' ) ) => 'admin-menu-rakuten-auto-update',
 			'profile.php', 'user-edit.php' => 'admin-user-profile',
 			'user-new.php' => 'admin-user-new',
 			'users.php' => 'admin-users',
@@ -137,5 +140,26 @@ class N2_Enqueuescript {
 		メール：info@steamship.co.jp
 		</pre>
 		</noscript>";
+	}
+	/**
+	 * chromeでない場合警告を出す
+	 *
+	 * @return void
+	 */
+	public function check_chrome() {
+		global $is_chrome;
+		if ( ! $is_chrome ) {
+			echo '<div class="message not_chrome_caution" onclick="this.remove()"><div class="frame-title caution">CAUTION</div><p>Google Chromeでの閲覧を推奨しています！</p></div>';
+		}
+	}
+	/**
+	 * WPForce_logoutのレビュー依頼広告(ユーザー一覧に表示)を非表示にする
+	 *
+	 * @return void
+	 */
+	public function forcelogout_review_nodisplay() {
+		if ( is_plugin_active( 'wp-force-logout/wp-force-logout.php' ) ) {
+			update_option( 'wpfl_review_notice_dismissed', 'yes' );
+		}
 	}
 }

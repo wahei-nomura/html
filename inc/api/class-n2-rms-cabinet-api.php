@@ -201,7 +201,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	 * @var array  $files    files
 	 * @var string $folderId folderId
 	 */
-	public static function file_insert( $files, $folderId, $tmp_path = null ) {
+	public static function file_insert( $files, $folderId, $tmp_path = null, $overwrite = true ) {
 		static::check_fatal_error( ! empty( $files['tmp_name'] ), 'ファイルをセットしてください。' );
 
 		$requests = array();
@@ -227,7 +227,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 						'filePath'  => preg_replace( '/\.[^.]+$/', '.jpg', $file_name ),
 						'fileName'  => preg_replace( '/\.[^.]+$/', '', $file_name ),
 						'folderId'  => $folderId,
-						'overWrite' => 'true',
+						'overWrite' => $overwrite,
 					),
 				),
 			);
@@ -271,15 +271,18 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	 * @var string $currentFolderId currentFolderId
 	 * @var string $targetFolderId  targetFolderId
 	 */
-	public static function files_move( $fileIds, $currentFolderId, $targetFolderId) {
-
+	public static function files_move( $fileIds, $currentFolderId, $targetFolderId, $overwrite = true ) {
 		// 　必須項目を確認
 		static::check_fatal_error( ! empty( $fileIds ), 'ファイルIdが設定されていません。' );
+		$result = array(
+			'insert' => null,
+			'delete' => null,
+		);
 
 		// 必要なfileのみに絞る
 		$files = array_filter(
 			static::files_get( $currentFolderId ),
-			fn ( $file ) => in_array( (string) $file->FileId, $fileIds ),
+			fn ( $file ) => in_array( $file->FileId->__toString(), $fileIds ),
 		);
 		// indexを振り直す
 		$files = array_values( $files );
@@ -291,9 +294,9 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 
 		$requests  = array_map(
 			fn( $file ) => array(
-				'url'     => (string) $file->FileUrl,
+				'url'     => $file->FileUrl->__toString(),
 				'options' => array(
-					'filename' => $tmp . '/' . basename( (string) $file->FileUrl ),
+					'filename' => $tmp . '/' . basename( $file->FileUrl->__toString() ),
 				),
 			),
 			$files,
@@ -301,7 +304,6 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 
 		// 初期化
 		$files = array();
-
 		// insertするfileをstatic::$data['file']に設定する
 		foreach ( N2_Multi_URL_Request_API::request_multiple( $requests ) as $index => $response ) {
 			if ( ! is_a( $response, 'WpOrg\Requests\Response' ) || $response->status_code !== 200 ) {
@@ -315,8 +317,9 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			$files['size'][ $index ]     = filesize( $filename );
 		}
 
-		$insert_error = array_filter(
-			static::file_insert( $files, $targetFolderId, $tmp ),
+		$result['insert'] = static::file_insert( $files, $targetFolderId, $tmp, $overwrite );
+		$insert_error     = array_filter(
+			$result['insert'],
 			fn ( $res ) => $res->status_code !== 200,
 		);
 		// 失敗した場合は移動前のファイルを残す
@@ -325,7 +328,62 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 			fn ( $key ) => ! in_array( $key, array_keys( $insert_error ) ),
 			ARRAY_FILTER_USE_KEY,
 		);
-		return static::file_delete( $fileIds );
+		if ( ! empty( $fileIds ) ) {
+			$result['delete'] = static::file_delete( $fileIds );
+		}
+		return $result;
+	}
+
+	/**
+	 * ファイルコピー（南島原用）
+	 * 公式には存在しない
+	 *
+	 * @var array  $fileIds          fileIds
+	 * @var string $currentFolderId currentFolderId
+	 * @var string $targetFolderId  targetFolderId
+	 */
+	public static function files_copy( $fileIds, $currentFolderId, $targetFolderId, $overwrite = true ) {
+		// 　必須項目を確認
+		static::check_fatal_error( ! empty( $fileIds ), 'ファイルIdが設定されていません。' );
+
+		// 必要なfileのみに絞る
+		$files = array_filter(
+			static::files_get( $currentFolderId ),
+			fn ( $file ) => in_array( $file->FileId->__toString(), $fileIds ),
+		);
+		// indexを振り直す
+		$files = array_values( $files );
+
+		// 一時ディレクトリ作成
+		$tmp = wp_tempnam( __CLASS__, get_theme_file_path() . '/' );
+		unlink( $tmp );
+		mkdir( $tmp );
+
+		$requests  = array_map(
+			fn( $file ) => array(
+				'url'     => $file->FileUrl->__toString(),
+				'options' => array(
+					'filename' => $tmp . '/' . basename( $file->FileUrl->__toString() ),
+				),
+			),
+			$files,
+		);
+
+		// 初期化
+		$files = array();
+		// insertするfileをstatic::$data['file']に設定する
+		foreach ( N2_Multi_URL_Request_API::request_multiple( $requests ) as $index => $response ) {
+			if ( ! is_a( $response, 'WpOrg\Requests\Response' ) || $response->status_code !== 200 ) {
+				continue;
+			}
+			$filename                    = $requests[ $index ]['options']['filename'];
+			$files['name'][ $index ]     = basename( $filename );
+			$files['type'][ $index ]     = mime_content_type( $filename );
+			$files['tmp_name'][ $index ] = $filename;
+			$files['error'][ $index ]    = 0;
+			$files['size'][ $index ]     = filesize( $filename );
+		}
+		return static::file_insert( $files, $targetFolderId, $tmp, $overwrite );
 	}
 
 	/**
@@ -336,7 +394,7 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 	public static function file_delete( $fileIds ) {
 		static::check_fatal_error( ! empty( $fileIds ), 'ファイルIdが設定されていません。' );
 		$requests = array_map(
-			function ( $file_id ) use ( $url ) {
+			function ( $file_id ) {
 				$xml_request_body = new SimpleXMLElement( '<?xml version="1.0" encoding="UTF-8"?><request></request>' );
 				$request          = array(
 					'fileDeleteRequest' => array(
@@ -401,22 +459,22 @@ class N2_RMS_Cabinet_API extends N2_RMS_Base_API {
 
 		$target_files = array_filter(
 			static::trashbox_files_get(),
-			fn ( $file ) => in_array( (string) $file->FileId, $fileIds, true ),
+			fn ( $file ) => in_array( $file->FileId->__toString(), $fileIds, true ),
 		);
 		$folders      = static::folders_get();
 		$requests     = array_map(
 			function ( $file ) use ( $folders ) {
 				$xml_request_body = new SimpleXMLElement( '<?xml version="1.0" encoding="UTF-8"?><request></request>' );
 				$foleder_index    = array_search(
-					$file->FolderPath,
-					array_column( $folders, 'FolderPath' ),
-					true,
+					$file->FolderPath->__toString(),
+					array_column( $folders, 'FolderPath', 0 ),
+					false,
 				);
 				$xml_array        = array(
 					'fileRevertRequest' => array(
 						'file' => array(
-							'fileId'   => $file->FileId,
-							'folderId' => $folders[ $foleder_index ]->FolderId,
+							'fileId'   => $file->FileId->__toString(),
+							'folderId' => $folders[ $foleder_index ]->FolderId->__toString(),
 						),
 					),
 				);
