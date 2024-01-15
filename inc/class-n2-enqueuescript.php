@@ -25,6 +25,7 @@ class N2_Enqueuescript {
 		add_action( 'admin_footer', array( $this, 'noscript' ) );
 		add_action( 'admin_footer', array( $this, 'check_chrome' ) );
 		add_action( 'wp_footer', array( $this, 'noscript' ) );
+		add_action( 'in_admin_header', array( $this, 'forcelogout_review_nodisplay' ), 90 );
 	}
 
 	/**
@@ -146,6 +147,16 @@ class N2_Enqueuescript {
 		global $is_chrome;
 		if ( ! $is_chrome ) {
 			echo '<div class="message not_chrome_caution" onclick="this.remove()"><div class="frame-title caution">CAUTION</div><p>Google Chromeでの閲覧を推奨しています！</p></div>';
+		}
+	}
+	/**
+	 * WPForce_logoutのレビュー依頼広告(ユーザー一覧に表示)を非表示にする
+	 *
+	 * @return void
+	 */
+	public function forcelogout_review_nodisplay() {
+		if ( is_plugin_active( 'wp-force-logout/wp-force-logout.php' ) ) {
+			update_option( 'wpfl_review_notice_dismissed', 'yes' );
 		}
 	}
 }
