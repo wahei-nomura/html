@@ -173,7 +173,7 @@ class N2_Admin_Post_Editor {
 				</div>
 				<div class="n2-fields-value col-12 col-sm-9 gap-2 d-flex flex-wrap">
 					<?php if ( ! empty( $detail['maxlength'] ) || ! empty( $detail[':description'] ) || ! empty( $detail['description'] ) ) : ?>
-					<div class="n2-field-description small lh-base col-12 d-flex flex-wrap justify-content-between" v-if="info['<?php echo $field; ?>']">
+					<div class="n2-field-description small lh-base col-12 d-flex flex-wrap justify-content-between" v-if="tmp.info['<?php echo $field; ?>']">
 						<?php if ( ! empty( $detail[':description'] ) || ! empty( $detail['description'] ) ) : ?>
 							<!-- 説明文 -->
 							<div class="alert alert-primary mb-2 col-12" v-html="<?php echo $detail[':description'] ?? "`{$detail['description']}`" ?? ''; ?>"></div>

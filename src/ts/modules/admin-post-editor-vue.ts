@@ -25,6 +25,7 @@ export default ($: any = jQuery) => {
 		post_status: '',
 		current_user: n2.current_user.roles[0],
 		number_format: true,// ３桁区切りカンマ用
+		info: {},
 		寄附金額自動計算値: '',
 		寄附金額チェッカー: '',
 		商品属性アニメーション: false,
@@ -89,7 +90,7 @@ export default ($: any = jQuery) => {
 	const methods = {
 		// 説明文・テキストカウンター
 		set_info(target) {
-			this.$set( this.info, target.name.match(/\[(.*?)\]/)[1], true)
+			this.$set( this.tmp.info, target.name.match(/\[(.*?)\]/)[1], true)
 		},
 		// 強制半角数字入力
 		force_half_size_text($event, type, target) {
