@@ -89,6 +89,21 @@ $bp: 782px;
 			&.status-private{
 				background: linear-gradient(to right, $dark 7px, rgba($dark, 0.4) 7px, rgba($dark, 0.4) 100%);
 			}
+			&.is-active{
+				z-index: 1;
+				animation: activeRed 3s infinite;
+				@keyframes activeRed {
+					0%{
+						box-shadow: 0 0 2px 2px red;
+					}
+					50%{
+						box-shadow: 0 0 20px 2px red;
+					}
+					100%{
+						box-shadow: 0 0 2px 2px red;
+					}
+				}
+			}
 		}
 		.check-column{
 			@media screen and (max-width: $bp) {
@@ -376,15 +391,16 @@ body.is_safari{
 					padding: 0 1em;
 					&.is-hover{
 						background-color: darken( $header-bg, 5% );
-						.childs{
-							display: block;
-							position: absolute;
-							left: 0;
+						.childs{							
 							background-color: darken( $header-bg, 5% );
-							white-space: nowrap;
-							padding: 3em;
-							cursor: initial;
+							cursor: auto;
+							display: block;
+							left: 0;
 							line-height: 2;
+							padding: 3em;
+							position: fixed;
+							white-space: normal;
+							margin: 0 50px;
 							label{
 								line-height: 1em;
 								padding: 1em;

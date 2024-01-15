@@ -20,8 +20,10 @@ foreach ( $args as $k => $v ) {
 	$v     = esc_attr( $v );// エスケープしないとバグる
 	$attr .= " {$k}=\"{$v}\"";
 }
-foreach ( $option as $k => $v ) :
-	?>
+?>
+<!-- 全チェック外しも保存するために必須 -->
+<input type="hidden" name="<?php echo $name; ?>[]">
+<?php foreach ( $option as $k => $v ) : ?>
 <label style="<?php echo $style; ?>">
 	<input
 		type="checkbox"
@@ -33,5 +35,3 @@ foreach ( $option as $k => $v ) :
 	<span v-text="`<?php echo $v; ?>`"></sapn>
 </label>
 <?php endforeach; ?>
-<!-- 全チェック外しも保存するために必須 -->
-<input type="hidden" name="<?php echo $name; ?>[]">

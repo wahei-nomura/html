@@ -1,62 +1,41 @@
 import get_meta from "./admin-post-editor-get-meta";
-
+import _ from 'lodash';
+const $:any = jQuery;
+const n2 = window['n2'];
+const btn_class = {
+	save: 'btn btn-sm btn-dark d-flex align-items-center px-4',
+	saved: 'btn btn-sm btn-outeline-dark d-flex align-items-center disabled'
+}
 /**
  * 返礼品の保存
  * 
  * @param $ jQuery
  * @param string target 返礼品の保存を追加する要素のセレクタ名
  */
-export default (target: string, $: any = jQuery) => {
-	const n2 = window['n2'];
+export default (target: string) => {
 	const wp = window['wp'];
-	const btn_class = {
-		save: 'btn btn-sm btn-dark d-flex align-items-center px-4',
-		saved: 'btn btn-sm btn-outeline-dark d-flex align-items-center disabled'
-	}
 	$('body').on('click keyup', e => {
 		if( 'n2-save-post' === $(e.target).attr('id') ) return;
-		setTimeout(()=>{
-			// 差分チェック
-			const editor = wp.data.select('core/editor');
-			const fd = $('form').serializeArray();
-			let diff = n2.saved_post != JSON.stringify(fd);
-			diff = diff || editor.getEditedPostAttribute('status') != editor.getCurrentPostAttribute('status');
-			diff = diff || editor.getEditedPostAttribute('title') != editor.getCurrentPostAttribute('title');
-			diff = editor.getEditedPostAttribute('title') ? diff : true;
-			// 総務省申請理由がない場合は保存させない
-			if ( fd.filter( v=>v.name.match(/総務省申請不要理由/) && !v.value ).length ) {
-				diff = false;
-			}
-			if ( diff ){
-				$('#n2-save-post').attr('class', btn_class.save).find('span').attr('class', '');
-				$(window).on('beforeunload', () => '' );
-			} else {
-				$('#n2-save-post').attr('class', btn_class.saved).find('span').attr('class', 'dashicons dashicons-saved me-2');
-				$(window).off('beforeunload');
-			}
-		},100)
+		setTimeout(save_button_toggler,1);
 	});
 	// ターゲットDOMが生成されてから
 	$(target).ready(() => {
-		const editor = wp.data.select('core/editor');
-		const status = editor.getEditedPostAttribute("status");
-		if ( n2.current_user.roles.includes('jigyousya') && ! status.match(/draft/) ) return
 		// 保存ボタン配置
-		const button = 'auto-draft' == status
+		const button = 'auto-draft' == wp.data.select('core/editor').getEditedPostAttribute('status')
 			? `<div id="n2-save-post" class="${btn_class.save}" title="保存"><span></span>保存</div>`
 			: `<div id="n2-save-post" class="${btn_class.saved}" title="保存"><span class="dashicons dashicons-saved me-2"></span>保存</div>`;
 		$(target).prepend(button);
 		$('#n2-save-post').on('click', () => {
-			if ( ! editor.getEditedPostAttribute("title") ) {
+			if ( ! wp.data.select('core/editor').getEditedPostAttribute('title') ) {
 				alert('保存するには返礼品の名前を入力してください');
 				return;
 			}
 			$('#n2-save-post span').attr('class', 'spinner-border spinner-border-sm me-2');
 			// フォーカス外して保存した場合にVueの$watchが発火しないので強制$watch
-			n2.vue.$data._force_watch++;
+			n2.tmp.vue.$data._force_watch++;
 			// フォーカス外さずそのまま保存した場合にVueの$watchの発火が間に合わないのでresolveを待つ
 			new Promise( resolve => {
-				n2.save_post_promise_resolve = resolve;
+				n2.tmp.save_post_promise_resolve = resolve;
 			}).then(()=>{
 				// カスタムフィールドの保存
 				const meta = get_meta();
@@ -68,7 +47,11 @@ export default (target: string, $: any = jQuery) => {
 						$(window).off('beforeunload');
 						$('#n2-save-post').attr('class', btn_class.saved).find('span').attr('class', 'dashicons dashicons-saved me-2');
 						// 現状のカスタム投稿データを保持
-						n2.saved_post = JSON.stringify($('form').serializeArray());
+						n2.tmp.saved = _.cloneDeep(n2.tmp.vue.$data);
+						n2.tmp.saved.tmp.post_title = wp.data.select('core/editor').getEditedPostAttribute('title');
+						n2.tmp.saved.tmp.post_status = wp.data.select('core/editor').getEditedPostAttribute('status');
+						n2.tmp.diff = false;
+						$("#n2-hypernavi").get(0).contentWindow.location.reload();
 					},
 					reason => {
 						console.log( '保存失敗', reason );
@@ -89,5 +72,26 @@ export default (target: string, $: any = jQuery) => {
 				);
 			});
 		});
-	})
-}
+	});
+};
+
+export const save_button_toggler = () => {
+	// 保存ボタン無しの場合は何もしない
+	if( $('#n2-save-post').hasClass('d-none') ) return;
+	const wp = window['wp'];
+	// 差分チェック
+	const data = _.cloneDeep( n2.tmp.vue.$data );
+	data.tmp = _.cloneDeep( n2.tmp.saved.tmp ?? {} );
+	data.tmp.post_title = wp.data.select('core/editor').getEditedPostAttribute('title');
+	data.tmp.post_status = wp.data.select('core/editor').getEditedPostAttribute('status');
+	n2.tmp.diff = ! _.isEqualWith(n2.tmp.saved, data, (a,b)=>{ if(a==b) return true } );// 型無視して比較
+	// 総務省申請理由がない場合は保存させない
+	n2.tmp.diff = '不要' == data.総務省申請 && ! data.総務省申請不要理由 ? false : n2.tmp.diff;
+	if ( n2.tmp.diff ){
+		$('#n2-save-post').attr('class', btn_class.save).find('span').attr('class', '');
+		$(window).on('beforeunload', () => '' );
+	} else {
+		$('#n2-save-post').attr('class', btn_class.saved).find('span').attr('class', 'dashicons dashicons-saved me-2');
+		$(window).off('beforeunload');
+	}
+};

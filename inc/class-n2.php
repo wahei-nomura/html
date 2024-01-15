@@ -152,6 +152,13 @@ class N2 {
 	);
 
 	/**
+	 * 一時ファイル
+	 *
+	 * @var array
+	 */
+	public $tmp = array();
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -189,19 +196,6 @@ class N2 {
 							'寄附金額固定', '商品画像' => array(),
 							default => 'checkbox' === ( $v['type'] ?? false ) ? array() : '',
 						};
-					}
-					// ====== 特殊フィールド系 ======
-					if ( '楽天SPAカテゴリー' === $name && is_string( $value ) ) {
-						$value = array(
-							'text' => $value,
-							'list' => array(),
-						);
-					}
-					if ( '楽天カテゴリー' === $name && is_string( $value ) ) {
-						$value = array(
-							'text' => $value,
-							'list' => array(),
-						);
 					}
 					$this->custom_field[ $id ][ $name ]['value'] = $value;
 				}
