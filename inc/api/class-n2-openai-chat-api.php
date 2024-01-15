@@ -44,10 +44,7 @@ class N2_OpenAI_Chat_API extends N2_OpenAI_Base_API {
 		$messages        = array_filter( array( $system_message, $user_message ) );
 
 		// Chatへのメッセージ無しだったら処理を停止する
-		if ( empty( $messages ) ) {
-			echo 'メッセージが空です。';
-			exit;
-		}
+		static::check_fatal_error( $messages, 'メッセージが空です' );
 
 		// リクエストエンドポイント
 		$url = static::$settings['endpoint'] . '/chat/completions';
