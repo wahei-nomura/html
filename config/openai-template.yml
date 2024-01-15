@@ -1,49 +1,20 @@
 # 【基本】
 # model      : 必須。使用モデル（gpt-4-1106-preview, gpt-3.5-turbo-1106など）
 # temperature: 任意。温度感。創造度を0~1のfloatで指定。これが少ないほど機械的に、多いほど創造的になる。
-# max_tokens : 任意。トークン数の上限。大体文字数x0.9=トークン数。なので1000トークン=900文字。モデルごとにトークンで課金されるので登録推奨。
+# max_tokens : 任意。トークン数の上限。大体文字数x0.9=トークン数。なので1000トークン=約900文字。このトークン量で課金されるので上限登録推奨。
 # system     : 任意。GPTに提供したい前情報。どのように振舞って欲しいかを文章で定義する。
 #
 # [他にも色々](https://platform.openai.com/docs/api-reference/chat/create)
 
 # =========== Chat Completions ===========
-テストプロンプト:
+テストアシスタント:
     model: gpt-3.5-turbo-1106
     temperature: 0.5
     max_tokens: 200
-    system_message: あなたは汎用的アシスタントです。ユーザーの質問に対しstep by stepで考え、応答してください。
+    system_message: あなたは汎用アシスタントです。ユーザーの質問に対し要件をstep by stepで分解して整理した上で、丁寧に応答してください。
 
 説明文アシスタント:
     model: gpt-3.5-turbo-1106
     temperature: 0.5
     max_tokens: 1000
     system_message: あなたは優秀な販促ライターです。以下の項目をもとに、購買意欲が掻き立てられる商品紹介の例文を900文字程度で書いてください。
-
-# 地場産品ジェネレーター:
-#     model: gpt-3.5-turbo-1106
-#     temperature: 0.7
-#     max_tokens: 1000
-#     system_message: | 
-#         下記フォーマットに倣って、地場産品基準該当理由を出力して下さい。
-#         ### フォーマット
-#         佐賀県佐賀市にてエキス状の原料に、ローズオイル等を加え独自のローズブレンドベースを作成し、
-#         小城市の友桝飲料において、更に他材料を加え調合し、味を調え充填用の原液作成し、
-#         製造ラインにて充填加熱殺菌処理、3日後に菌検査を行い、判定結果後出荷している
-
-# コンテンツ生成:
-#   model: text-davinci-003
-#   temperature: 0.5
-#   max_tokens: 300
-#   system_message: |
-#       次のトピックに基づいて記事を生成してください。
-#       トピック: {topic}
-#       キーワード: {keywords}
-
-# データ分析:
-#   model: text-davinci-003
-#   temperature: 0.3
-#   max_tokens: 100
-#   system_message: |
-#       次のデータに基づいて分析を行い、洞察を提供してください。
-#       データ: {data}
-      
