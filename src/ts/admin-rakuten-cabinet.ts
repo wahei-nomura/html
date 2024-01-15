@@ -1,8 +1,9 @@
 import Vue from 'vue/dist/vue.min';
-import Modals from './modules/admin-menu-cabinet-modals';
-import store from './modules/admin-menu-cabinet-store'
-import App from './modules/admin-menu-cabinet-app'
+import Modals from './modules/admin-rakuten-menu/cabinet-modals';
+import store from './modules/admin-rakuten-menu/cabinet-store'
+import App from './modules/admin-rakuten-menu/cabinet-app'
 import axios from 'axios';
+import { mapState } from 'vuex';
 
 jQuery( async function($){
 	// 接続確認
@@ -22,7 +23,7 @@ jQuery( async function($){
 	}
 
 	window['n2'].vue = new Vue({
-		el: '#ss-cabinet',
+		el: '#n2-cabinet',
 		components :{
 			App,
 			Modals,
@@ -32,8 +33,35 @@ jQuery( async function($){
 			const n2nonce = $('input[name="n2nonce"]').val();
 			this.$store.commit('SET_N2NONCE',n2nonce)
 		},
+		data() {
+			return {
+				timer: null,
+			}
+		},
+		beforeDestroy() {
+			if ( this.timer ) {
+				clearTimeout(this.timer);
+			}
+		},
+		watch: {
+			isLoading(newVal, _){
+				if ( this.timer ) {
+					clearTimeout(this.timer);
+				}
+				if ( newVal ) {
+					this.timer = setTimeout(()=>{
+						document.getElementById('ss-cabinet').innerText = 'RMS CABINETに接続できませんでした。';
+					},5000);
+				}
+			},
+		},
+		computed: {
+			...mapState([
+				'isLoading',
+			]),
+		},
 		template: `
-		<div id="ss-cabinet" class="container-fluid">
+		<div id="n2-cabinet" class="container-fluid">
 			<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
 			<App/>
 			<Modals/>

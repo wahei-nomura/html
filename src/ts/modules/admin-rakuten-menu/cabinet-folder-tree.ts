@@ -1,9 +1,7 @@
 import Vue from 'vue/dist/vue.min';
-import Vuex,{mapState} from 'vuex/dist/vuex.min';
-import FolderTree from './admin-menu-cabinet-folder-tree';
-import { mapActions } from 'vuex';
+import {mapState,mapActions} from 'vuex/dist/vuex.min';
+import FolderTree from './cabinet-folder-tree';
 
-Vue.use(Vuex);
 export default Vue.extend({
     name: 'FolderTree',
 	props: {

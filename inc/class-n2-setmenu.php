@@ -52,6 +52,7 @@ class N2_Setmenu {
 		$name                      = '返礼品';
 		$menu[5][0]                = $name;
 		$submenu['edit.php'][5][0] = $name . '一覧';
+		$menu[5][6]                = 'dashicons-media-document';
 	}
 
 	/**
@@ -141,7 +142,6 @@ class N2_Setmenu {
 				'tooles.php',
 				'upload.php',
 			);
-
 		}
 		if ( in_array( $pagenow, $hide_pages, true ) ) {
 			wp_safe_redirect( admin_url( 'edit.php' ) );

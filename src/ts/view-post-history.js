@@ -40,7 +40,7 @@ jQuery( $ => {
 		},
 	};
 	$('#n2-history').ready(()=>{
-		n2.vue = new Vue({
+		n2.tmp.vue = new Vue({
 			el: '#n2-history',
 			data,
 			created,

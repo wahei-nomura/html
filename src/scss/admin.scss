@@ -122,7 +122,7 @@
 	right: 0;
 	border-radius: 10px;
 	margin: auto;
-	z-index: 999999;
+	z-index: 99998;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -151,4 +151,45 @@
 			display: none;
 		}
 	}
+}
+/* N2設定触らせなくする(select,radio,checkbox) */
+.n2-setting-form{
+	input[readonly]{
+		pointer-events: none;
+	}
+	select[readonly],input[type="radio"][readonly],input[type="checkbox"][readonly], textarea[readonly]{
+        pointer-events:none;
+    }
+}
+/* chromeじゃない場合の注意ポップアップ */
+.not_chrome_caution{
+	width: 20rem;
+	padding: 10px 20px 0;
+	border: 3px solid #aaa;
+	position: relative;
+	border-radius: 3px;
+	background-color: #fff;
+	position: absolute;
+	margin: auto;
+	top: 10px;
+	left: 10rem;
+	z-index: 99999;
+	cursor: pointer;
+}
+.frame-title {
+	position: absolute;
+	top: -13px;
+	left: 20px;
+	padding: 0 5px;
+	background-color: #fff;
+	font-size: .75rem;
+}
+.caution {
+	background-color: #9c2c34;
+	border: 2px solid #9c2c34;
+	color: #fff;
+	border-radius: 3px;
+}
+.frame-red {
+	border-color: #ff4500;
 }

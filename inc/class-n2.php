@@ -152,6 +152,13 @@ class N2 {
 	);
 
 	/**
+	 * 一時ファイル
+	 *
+	 * @var array
+	 */
+	public $tmp = array();
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -189,19 +196,6 @@ class N2 {
 							'寄附金額固定', '商品画像' => array(),
 							default => 'checkbox' === ( $v['type'] ?? false ) ? array() : '',
 						};
-					}
-					// ====== 特殊フィールド系 ======
-					if ( '楽天SPAカテゴリー' === $name && is_string( $value ) ) {
-						$value = array(
-							'text' => $value,
-							'list' => array(),
-						);
-					}
-					if ( '楽天カテゴリー' === $name && is_string( $value ) ) {
-						$value = array(
-							'text' => $value,
-							'list' => array(),
-						);
 					}
 					$this->custom_field[ $id ][ $name ]['value'] = $value;
 				}
@@ -395,32 +389,34 @@ class N2 {
 		}
 		$this->settings['寄附金額・送料']['送料'] = $delivery_fee;
 
+		// N2設定操作の可否
+		$this->settings_access = ( $this->settings['N2']['稼働中'] && ( isset( $this->current_user->roles[0] ) && 'administrator' !== $this->current_user->roles[0] ) ) ? false : true;
 		// カスタムフィールド
 		{
 			$this->custom_field = yaml_parse_file( get_theme_file_path( 'config/custom-field.yml' ) );
 			// 出品しないポータルの場合はカスタムフィールドを削除
-			foreach ( $this->custom_field as $key => $custom_field ) {
-				foreach ( $custom_field as $name => $value ) {
-					if ( isset( $value['portal'] ) && ! in_array( $value['portal'], $this->settings['N2']['出品ポータル'], true ) ) {
-						unset( $this->custom_field[ $key ][ $name ] );
-					}
+		foreach ( $this->custom_field as $key => $custom_field ) {
+			foreach ( $custom_field as $name => $value ) {
+				if ( isset( $value['portal'] ) && ! in_array( $value['portal'], $this->settings['N2']['出品ポータル'], true ) ) {
+					unset( $this->custom_field[ $key ][ $name ] );
 				}
 			}
+		}
 				// 出品禁止ポータルから削除
-			foreach ( $this->custom_field['スチームシップ用']['出品禁止ポータル']['option'] as $index => $option ) {
-				if ( ! in_array( $option, $this->settings['N2']['出品ポータル'], true ) ) {
-					unset( $this->custom_field['スチームシップ用']['出品禁止ポータル']['option'][ $index ] );
-				}
+		foreach ( $this->custom_field['スチームシップ用']['出品禁止ポータル']['option'] as $index => $option ) {
+			if ( ! in_array( $option, $this->settings['N2']['出品ポータル'], true ) ) {
+				unset( $this->custom_field['スチームシップ用']['出品禁止ポータル']['option'][ $index ] );
 			}
+		}
 				// 商品タイプの選択肢制御
 				$this->custom_field['事業者用']['商品タイプ']['option'] = array_filter( $this->settings['N2']['商品タイプ'] );
-			if ( empty( $this->custom_field['事業者用']['商品タイプ']['option'] ) ) {
-				$this->custom_field['事業者用']['商品タイプ']['type'] = 'hidden';
-			}
+		if ( empty( $this->custom_field['事業者用']['商品タイプ']['option'] ) ) {
+			$this->custom_field['事業者用']['商品タイプ']['type'] = 'hidden';
+		}
 				// オンライン決済限定の制御
-			if ( empty( $this->settings['ふるさとチョイス']['オンライン決済限定'] ) ) {
-				unset( $this->custom_field['スチームシップ用']['オンライン決済限定'] );
-			}
+		if ( empty( $this->settings['ふるさとチョイス']['オンライン決済限定'] ) ) {
+			unset( $this->custom_field['スチームシップ用']['オンライン決済限定'] );
+		}
 			// LHカテゴリーの設定値を配列化
 			$lh_category = $this->settings['LedgHOME']['カテゴリー'];
 			$lh_category = preg_split( '/\r\n|\r|\n/', trim( $lh_category ) );

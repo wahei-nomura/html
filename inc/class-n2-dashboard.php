@@ -20,7 +20,9 @@ class N2_Dashboard {
 	public function __construct() {
 		add_action( 'wp_dashboard_setup', array( $this, 'remove_widgets' ) );
 		add_action( 'wp_dashboard_setup', array( $this, 'add_widgets' ) );
-		add_action( 'wp_dashboard_setup', array( $this, 'add_jichitai_widgets' ) );
+		add_action( 'wp_ajax_n2_dashboard_custom_help_widget_text', array( $this, 'custom_help_widget_text' ) );
+		add_action( 'wp_ajax_n2_dashboard_jichitai_widget_text', array( $this, 'jichitai_widget_text' ) );
+		add_action( 'admin_print_scripts', array( $this, 'disable_admin_notices' ) );
 	}
 
 	/**
@@ -48,14 +50,40 @@ class N2_Dashboard {
 		remove_action( 'welcome_panel', 'wp_welcome_panel' );
 	}
 	/**
+	 * disable_admin_notices
+	 * ダッシュボードの通知抹消
+	 *
+	 * @return void
+	 */
+	public function disable_admin_notices() {
+		global $wp_filter;
+		if ( is_user_admin() ) {
+			if ( isset( $wp_filter['user_admin_notices'] ) ) {
+				unset( $wp_filter['user_admin_notices'] );
+			}
+		} elseif ( isset( $wp_filter['admin_notices'] ) ) {
+			unset( $wp_filter['admin_notices'] );
+		}
+		if ( isset( $wp_filter['all_admin_notices'] ) ) {
+			unset( $wp_filter['all_admin_notices'] );
+		}
+	}
+	/**
 	 * add_widgets
 	 * ダッシュボードに項目追加
 	 *
 	 * @return void
 	 */
 	public function add_widgets() {
+		global $n2;
+		$async_function = function () {
+			echo '読み込み中です...';
+		};
 		if ( current_user_can( 'ss_crew' ) ) {
-			wp_add_dashboard_widget( 'custom_help_widget', '返礼率規定オーバーリスト', array( $this, 'dashboard_text' ) );
+			wp_add_dashboard_widget( 'custom_help_widget', '返礼率規定オーバーリスト', $async_function );
+		}
+		if ( '1' === $n2->settings['N2']['自治体確認'] ) {
+			wp_add_dashboard_widget( 'jichitai_widget', '自治体チェック未リスト', $async_function );
 		}
 	}
 	/**
@@ -64,7 +92,7 @@ class N2_Dashboard {
 	 *
 	 * @return void
 	 */
-	public function dashboard_text() {
+	public function custom_help_widget_text() {
 		$args = array(
 			'post_type'      => 'post',
 			'posts_per_page' => -1,
@@ -99,28 +127,17 @@ class N2_Dashboard {
 		} else {
 			echo '<p>返礼率が規定を超えている返礼品はありません。</p>';
 		}
-
 		wp_reset_postdata();
+		exit;
 	}
+
 	/**
-	 * add_jichitai_widgets
-	 * ダッシュボードに項目追加
-	 *
-	 * @return void
-	 */
-	public function add_jichitai_widgets() {
-		global $n2;
-		if ( '1' === $n2->settings['N2']['自治体確認'] ) {
-			wp_add_dashboard_widget( 'jichitai_widget', '自治体チェック未リスト', array( $this, 'dashboard_jichitai_check_list' ) );
-		}
-	}
-	/**
-	 * dashboard_jichitai_check_list
+	 * jichitai_widget_text
 	 * ダッシュボードウィジェットに追加する自治体チェック未リスト
 	 *
 	 * @return void
 	 */
-	public function dashboard_jichitai_check_list() {
+	public function jichitai_widget_text() {
 		$args = array(
 			'post_type'      => 'post',
 			'posts_per_page' => -1,
@@ -171,5 +188,6 @@ class N2_Dashboard {
 		}
 
 		wp_reset_postdata();
+		exit;
 	}
 }

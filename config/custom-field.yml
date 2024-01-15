@@ -6,7 +6,6 @@
     自治体確認:
         type: radio
         value: 未
-        v-model: 自治体確認
         v-if: n2.settings.N2.自治体確認
         option:
             - 未
@@ -25,7 +24,6 @@
     総務省申請:
         type: radio
         value: 未
-        v-model: 総務省申請
         option:
             未: 未
             不要: 不要
@@ -49,7 +47,6 @@
         description: "[事業者コード3桁アルファベット大文字][3桁数字]で構成"
         placeholder: 例）AAA000
         required: required
-        :value: 返礼品コード
         "@focus": set_info($event.target)
         "@change": "force_half_size_text($event, 'uppercase', '返礼品コード')"
     LH表示名:
@@ -61,8 +58,8 @@
         description: 寄附金額を手動入力したい場合はチェックボックスにチェックを入れてください。<br>チェックが入っていない場合は寄附金額は自動計算されます。
         placeholder: 例）10000
         style: "width: 12em"
-        "@focus": "set_info($event.target);number_format=false"
-        "@blur": "number_format=true"
+        "@focus": "set_info($event.target);tmp.number_format=false"
+        "@blur": "tmp.number_format=true"
         :value: 寄附金額
         "@change": "force_half_size_text($event, 'number', '寄附金額');calc_donation(価格, 送料, 定期便)"
     寄附金額固定:  # N2エクスポートに入れるために必須
@@ -71,7 +68,6 @@
         type: checkbox
         value: []
         description: この返礼品を出品しないポータルサイトがあればチェックを入れてください。
-        v-model: 出品禁止ポータル
         v-if: "!商品タイプ.includes('eチケット')"
         option:
             - ふるさとチョイス
@@ -82,7 +78,6 @@
         type: checkbox
         value: []
         description: ふるさとチョイスオンライン決済限定に反映されます。
-        v-model: オンライン決済限定
         v-if: "!出品禁止ポータル.includes('ふるさとチョイス')"
         option:
             - 限定
@@ -95,29 +90,26 @@
         type: rakuten-genreid
         label: 楽天ジャンルID
         min: 0
-        v-model: 全商品ディレクトリID.text
         v-if: "!出品禁止ポータル.includes('楽天') && !商品タイプ.includes('eチケット')"
         description: 必ず、ID（6桁の数字）が見えるようになるまで黒いボタンを押していってください。
     商品属性:
         portal: 楽天
         type: rakuten-attributes
-        v-model: 商品属性
-        v-if: "!出品禁止ポータル.includes('楽天') && !商品タイプ.includes('eチケット') && 全商品ディレクトリID.text"
+        v-model: JSON.stringify(商品属性)
+        ':value': JSON.stringify(商品属性)
+        v-if: "!出品禁止ポータル.includes('楽天') && !商品タイプ.includes('eチケット') && 全商品ディレクトリID"
         description: 少なくとも必須の商品属性は必ず取得し、保存してください。必須の商品属性が無かった場合は、任意入力になります。
     楽天SPAカテゴリー:
         portal: 楽天
         type: rakuten-spa-category
-        v-model: 楽天SPAカテゴリー.text
-        v-if: "!出品禁止ポータル.includes('楽天') && 楽天SPA  && !商品タイプ.includes('eチケット')"
+        v-if: "!出品禁止ポータル.includes('楽天') && tmp.楽天SPA対応  && !商品タイプ.includes('eチケット')"
         style: 'width: 100%;'
         rows: auto
         "@focus": set_info($event.target);get_spa_category();auto_fit_tetxarea($event.target)
         "@input": auto_fit_tetxarea($event.target)
-
     楽天カテゴリー:
         portal: 楽天
         type: rakuten-category
-        v-model: 楽天カテゴリー.text
         v-if: "!出品禁止ポータル.includes('楽天')"
         rows: auto
         style: 'display: none;'
@@ -126,9 +118,8 @@
         portal: 楽天
         type: select
         label: 楽天納期
-        v-model: 楽天納期情報
         v-if: "!出品禁止ポータル.includes('楽天')"
-        ':option': RMSAPI.楽天納期情報
+        ':option': tmp.楽天納期情報
 
 # ▲ =========== 楽天専用のフィールド ==========
 
@@ -136,7 +127,7 @@
         type: textarea
         description: 商品名や説明文に入っていないキーワードをスペース区切りで書いてください。
         placeholder: 例）はちみつ 蜂蜜 お歳暮 お中元
-        style: 'width: 100%;'
+        style: 'width: 100%;min-height: 2em;'
         v-if: "!商品タイプ.includes('eチケット')"
         "@focus": set_info($event.target)
         "@input": auto_fit_tetxarea($event.target)
@@ -220,12 +211,11 @@
             24: ２４回定期便
             36: ３６回定期便
             48: ４８回定期便
-        v-model: 定期便
         "@change": auto_adjust_price()
     寄附金額:
         type: hidden
         :value: 寄附金額
-        v-if: current_user == 'jigyousya'
+        v-if: tmp.current_user == 'jigyousya'
     価格:
         type : price
         label : 価格（税込）
@@ -234,14 +224,14 @@
         description: '商品価格を税込でご記載ください。<br>※寄附金額は自動で算出しますので、入力不要です。<br>※定期便の場合、<b>1回分の価格</b>をご記載ください。'
         style: 'width: 7em'
         :value: 価格
-        "@focus": "set_info($event.target);number_format=false"
-        "@blur": "number_format=true"
+        "@focus": "set_info($event.target);tmp.number_format=false"
+        "@blur": "tmp.number_format=true"
         "@change": "force_half_size_text($event, 'number', '価格');auto_adjust_price()"
     価格総額: # N2エクスポートに入れるために必須
     キャッチコピー:
         type : text
         description : こだわりやポイントを端的にご記載ください。
-        maxlength : 30
+        maxlength : 40
         v-if: "!商品タイプ.includes('eチケット')"
         placeholder: 例）○○にて金賞受賞！溢れる肉汁をご堪能ください！
         style: 'width: 100%'
@@ -295,24 +285,19 @@
     商品タイプ:
         type : checkbox
         value: []
-        v-model: 商品タイプ
         option : 
             - 食品
-        "@change": "check_handling_method();check_tax()"
+        "@change": "check_handling_method();check_tax();"
     税率:
         type : radio
-        v-model: 税率
-        description : 返礼品の税率を%なしの数値のみで入力してください。未入力の場合は初期値「10」となります。
         option:
-            - 8
-            - 10
-        "@focus": set_info($event.target)
+            8: 8%
+            10: 10%
 
 # ▼ =========== 食品専用のフィールド ==========
     アレルギー有無確認:
         type : checkbox
         value: ['アレルギー品目あり']
-        v-model: アレルギー有無確認
         v-if: 商品タイプ.some(v=>['食品','酒'].includes(v))
         option :
             - アレルギー品目あり
@@ -320,7 +305,6 @@
         type : checkbox
         v-if: 商品タイプ.some(v=>['食品','酒'].includes(v)) && アレルギー有無確認.filter(v=>v).length
         required: required
-        v-model: アレルゲン
         option :
             - 卵
             - 乳
@@ -383,7 +367,6 @@
     電子レンジ対応:
         type: radio
         value: ○
-        v-model: 電子レンジ対応
         v-if: "商品タイプ.includes('やきもの') && !商品タイプ.includes('eチケット')"
         option:
             ○: 対応
@@ -392,7 +375,6 @@
     オーブン対応:
         type: radio
         value: ○
-        v-model: オーブン対応
         v-if: "商品タイプ.includes('やきもの') && !商品タイプ.includes('eチケット')"
         option:
             ○: 対応
@@ -401,7 +383,6 @@
     食洗機対応:
         type: radio
         value: ○
-        v-model: 食洗機対応
         v-if: "商品タイプ.includes('やきもの') && !商品タイプ.includes('eチケット')"
         option:
             ○: 対応
@@ -455,7 +436,6 @@
             - 常温
             - 冷蔵
             - 冷凍
-        v-model: 発送方法
     発送サイズ:
         type : select
         required: required
@@ -497,7 +477,6 @@
                 label: ゆうパケット厚さ3cm
                 v-if: 発送方法=='常温'&&n2.settings['寄附金額・送料'].送料.ゆうパケット厚さ3cm
             その他: その他
-        v-model: 発送サイズ
         "@change": check_handling_method
     _送料: # 隠し送料
         type: hidden
@@ -527,7 +506,6 @@
             - 精密機器
             - 水濡厳禁
         v-if: "!isNaN(発送サイズ||'未選択')"
-        v-model: 取り扱い方法
         '@click': 'if (取り扱い方法.filter(v=>v).length == 2 ) { $event.target.checked = false; set_info($event.target) }'
     配送伝票表示名:
         type : text
@@ -557,7 +535,6 @@
         type: datalists
         placeholder: 例）〇〇商店
         v-if: n2.settings.N2.提供事業者名
-        v-model: 提供事業者名
         option: []
     備考欄:
         type: textarea

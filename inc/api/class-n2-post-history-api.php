@@ -37,6 +37,7 @@ class N2_Post_History_API {
 		$action = $args['action'] ?? false;
 		$type   = $args['type'] ?? 'json';
 		$post   = $args['post_id'] ?? get_posts( $args )[0];
+		$post_type = str_replace( '_', '-', $args['post_type'] ?? 'post' );
 
 		// リビジョンを整形（投稿タイプによってメソッド変更）
 		$get_history_diff = match ( $post->post_type ) {
@@ -56,7 +57,7 @@ class N2_Post_History_API {
 						echo '履歴がありません';
 						exit;
 					}
-					$name = 'portal_item_data' === $post->post_type ? 'portal-item' : 'post';
+					$name = 'portal_item_data' === $post->post_type ? 'portal-item' : $post_type;
 					get_template_part( "template/admin-ajax/view-{$name}-history", null, $diff );
 					break;
 				default:

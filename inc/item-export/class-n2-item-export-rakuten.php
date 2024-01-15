@@ -429,6 +429,15 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 				echo nl2br( $n2->settings['注意書き'][ $type ] ) . '<br>';
 			}
 			?>
+			<?php $this->make_itemtable( $n2values, false ); ?><br><br>
+			<?php if ( $n2values['検索キーワード'] ) : ?>
+				<br><br><?php echo nl2br( $n2values['検索キーワード'] ); ?><br>
+			<?php endif; ?>
+			<?php
+				echo $n2->settings['注意書き']['共通']
+					. apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $n2values['id'], 'PC用販売説明文' )
+					. str_replace( '\"', '""', $n2->settings['楽天']['説明文追加html'] ?? '' );
+			?>
 			<?php if ( $n2values['地場産品類型'] && $n2values['類型該当理由'] && in_array( $n2values['地場産品類型'], $applicable_reasons, true ) ) : ?>
 				<br><br>
 				<!-- 見出付しボックス --><table border="2" width="100%" cellspacing="0" cellpadding="15" bordercolor="#B71C1C">
@@ -436,12 +445,6 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 				<?php echo nl2br( $n2values['類型該当理由'] ); ?>
 				</td></tr></table><!-- /見出し付ボックス -->
 			<?php endif; ?>
-			<?php $this->make_itemtable( $n2values, false ); ?><br><br>
-			<?php
-				echo $n2->settings['注意書き']['共通']
-					. apply_filters( 'n2_item_export_rakuten_porcelain_text', '', $n2values['id'], 'PC用販売説明文' )
-					. str_replace( '\"', '""', $n2->settings['楽天']['説明文追加html'] ?? '' );
-			?>
 			<?php
 		};
 		// ========戻り値判定========
@@ -502,6 +505,10 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			<?php if ( $n2values['楽天SPAカテゴリー'] ) : ?>
 				<br><br><?php echo nl2br( $n2values['楽天SPAカテゴリー'] ); ?><br>
 			<?php endif; ?>
+			<?php
+				echo $n2->settings['注意書き']['共通']
+					. str_replace( '\"', '""', $n2->settings['楽天']['説明文追加html'] ?? '' );
+			?>
 			<?php if ( $n2values['地場産品類型'] && $n2values['類型該当理由'] && in_array( $n2values['地場産品類型'], $applicable_reasons, true ) ) : ?>
 				<br><br>
 				<!-- 見出付しボックス --><table border="2" width="100%" cellspacing="0" cellpadding="15" bordercolor="#B71C1C">
@@ -541,6 +548,17 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 				echo nl2br( $n2->settings['注意書き'][ $type ] ) . '<br>';
 			}
 			?>
+			<?php $this->make_itemtable( $n2values, false ); ?>
+			<?php if ( $n2values['検索キーワード'] ) : ?>
+				<br><br><?php echo nl2br( $n2values['検索キーワード'] ); ?><br>
+			<?php endif; ?>
+			<?php if ( $n2values['楽天SPAカテゴリー'] ) : ?>
+				<br><br><?php echo nl2br( $n2values['楽天SPAカテゴリー'] ); ?><br>
+			<?php endif ?>
+			<?php
+				echo $n2->settings['注意書き']['共通']
+					. str_replace( '\"', '""', $n2->settings['楽天']['説明文追加html'] ?? '' );
+			?>
 			<?php if ( $n2values['地場産品類型'] && $n2values['類型該当理由'] && in_array( $n2values['地場産品類型'], $applicable_reasons, true ) ) : ?>
 				<br><br>
 				<!-- 見出付しボックス --><table border="2" width="100%" cellspacing="0" cellpadding="15" bordercolor="#B71C1C">
@@ -548,17 +566,6 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 				<?php echo nl2br( $n2values['類型該当理由'] ); ?>
 				</td></tr></table><!-- /見出し付ボックス -->
 			<?php endif; ?>
-			<?php $this->make_itemtable( $n2values, false ); ?>
-			<?php if ( $n2values['検索キーワード'] ) : ?>
-				<br><br><?php echo nl2br( $n2values['検索キーワード'] ); ?>
-			<?php endif; ?>
-			<?php if ( $n2values['楽天SPAカテゴリー'] ) : ?>
-				<br><br><?php echo nl2br( $n2values['楽天SPAカテゴリー'] ); ?>
-			<?php endif ?>
-			<?php
-				echo $n2->settings['注意書き']['共通']
-					. str_replace( '\"', '""', $n2->settings['楽天']['説明文追加html'] ?? '' );
-			?>
 			<?php
 		};
 		// ========戻り値判定========

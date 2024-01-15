@@ -9,11 +9,11 @@ import darkmode_toggler from "./modules/darkmode-toggler";
 import download_images from "./modules/admin-post-editor-download-images";
 import download_zip from "./modules/admin-post-editor-download-zip";
 import mokuji_generator from "./modules/admin-post-editor-mokuji-generator";
+import hypernavi from "./modules/admin-post-editor-hypernavi";
 import editor_vue from "./modules/admin-post-editor-vue";
 import status_control from "./modules/admin-post-editor-status-control";
 jQuery( $ => {
 	loading_view.add('#wpwrap');// ローディング
-	const n2 = window['n2'];
 	i18n();// 翻訳
 	setTimeout(()=>{
 		title_counter();// タイトルカウンター
@@ -24,6 +24,7 @@ jQuery( $ => {
 		download_images(".edit-post-header-toolbar__left");// 画像一括ダウンロード
 		download_zip(".edit-post-header-toolbar__left");// N1zipダウンロード
 		mokuji_generator();// 目次生成
+		hypernavi();// ナビ生成
 		editor_vue();// カスタムフィールドをVueで制御
 		status_control();// ステータスコントロール
 	}, 100);
