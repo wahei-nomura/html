@@ -183,18 +183,13 @@ export default Vue.extend({
 				formData.append('action', 'n2_rms_items_api_ajax');
 				formData.append('call', 'items_patch');
 				formData.append('mode', 'json');
-				const images = updateLog.アップロード.data[manageNumber].sort(
-					(a,b) => {
-						const imageRegex = new RegExp( window['n2'].regex.item_code.strict + '(\\-[0-9]{1,2})*', 'g' )
-						const imageA = a.toUpperCase().match(imageRegex);
-						const imageB = b.toUpperCase().match(imageRegex);
-						return imageA >= imageB ? 1 : -1;
-					}
-				).map(path=>{
-					return {
-						type: 'CABINET',
-						location: path,
-					};
+				const images = updateLog.アップロード.data[manageNumber]
+					.toSorted(this.sortImage)
+					.map(path=>{
+						return {
+							type: 'CABINET',
+							location: path,
+						};
 				});
 				formData.append('body',JSON.stringify({images}));
 				return axios.post(
@@ -300,6 +295,7 @@ export default Vue.extend({
 			return true;
 		},
 		async formatUploadLogs(log){
+			// キャビアップ以外
 			if (log.post_content.転送モード !== 'img_upload') {
 				this.popover.アップロード.display = log.post_content.アップロード.log.map((l)=>{
 					return `${l.status} ${l.context}`;
@@ -308,16 +304,16 @@ export default Vue.extend({
 				return;
 			}
 
-			//  キャビアップのみ別処理
+			//  キャビアップ連携済み
 			if ( log.post_content.RMS商品画像.変更後 ) {
-				this.popover.アップロード.display = Object.keys(log.post_content.RMS商品画像.変更後).map(manageNumber=>{
+				const keys : any = Object.keys(log.post_content.RMS商品画像.変更後)
+				this.popover.アップロード.display = keys.map(manageNumber=>{
 					const unique = Array.from(
 						new Set([
 							...(log.post_content.RMS商品画像.変更後[manageNumber]),
 							...(log.post_content.RMS商品画像.変更前[manageNumber] ?? []),
 						]).values()
-					).sort();
-					
+					).sort(this.sortImage);
 					return unique.map(image => {
 						const row = [];
 						const imagePathArr = image.split('/');
@@ -342,7 +338,9 @@ export default Vue.extend({
 				this.popover.アップロード.display = '情報取得中...';
 			}
 			if ( ! await this.setLinkData(log) ) {
-				this.popover.アップロード.display = log.post_content.アップロード.log.map((l)=>{
+				this.popover.アップロード.display = log.post_content.アップロード.log.toSorted(
+					(a,b)=> this.sortImage(a.context,b.context)
+				).map((l)=>{
 					return `${l.status} ${l.context}`;
 				}).join('<br>');
 				this.linkData.id = log.ID;
@@ -350,7 +348,7 @@ export default Vue.extend({
 			}
 			this.linkData.id = log.ID;
 			this.popover.アップロード.display = Object.keys(this.linkData.unique).map(manageNumber => {
-				return this.linkData.unique[manageNumber].toSorted().map(image=>{
+				return this.linkData.unique[manageNumber].toSorted(this.sortImage).map(image=>{
 					let row = [];
 					const success = this.linkData.success?.[manageNumber]?.filter(x=>x.context === image ) ?? [];
 					if(success.length) row = [...row, success[0].status,success[0].context];
@@ -363,6 +361,12 @@ export default Vue.extend({
 				}).join('<br>')
 			}).join('<br>');
 		},
+		sortImage(a:string,b:string){
+			const imageRegex = new RegExp( window['n2'].regex.item_code.strict + '(\\-)*([0-9]{1,2}|SKU)*', 'g' )
+			const imageA = a.toUpperCase().match(imageRegex);
+			const imageB = b.toUpperCase().match(imageRegex);
+			return imageA >= imageB ? 1 : -1;
+		}
 	},
 	template:`
 	<div>
