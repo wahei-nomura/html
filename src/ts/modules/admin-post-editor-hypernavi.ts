@@ -11,29 +11,55 @@ export default ($:any = jQuery) => {
 	const wp = window['wp'];
 	// 一覧ページを突っ込む
 	const hypernavi_generator = () => {
-		$('.interface-complementary-area.edit-post-sidebar .components-panel').prepend('<iframe id="n2-hypernavi" src="edit.php?post_type=post">');
-		$('#n2-hypernavi').on('load', e => {
-			// 親フレームで開きたい
-			$(e.target).contents().find('#wp-admin-bar-root-default a,#menu-dashboard a[href="my-sites.php"],[href$="post-new.php"],#wp-admin-bar-logout a').attr('target', '_parent');
-			$(e.target).contents().find(`#post-${wp.data.select('core/editor').getCurrentPostId()}`).addClass('is-active')
-			$(e.target).contents().find('.row-title').on('click', async e => {
-				e.preventDefault();
-				const id = $(e.target).parents('tr').attr('id').replace(/[^0-9]/g, '');
-				change_data(id);
-				// url変更
-				const url = new URL( location.href );
-				url.searchParams.set('post', id);
-				if ( url.href == location.href ) {
-					return;
-				}
-				history.pushState({id}, null, url);
+		$('.interface-complementary-area.edit-post-sidebar .components-panel')
+			// iframe埋め込み
+			.prepend('<iframe id="n2-hypernavi" src="edit.php?post_type=post">')
+			// リサイズ制御
+			.on('mousedown', () => {
+				if(n2.tmp._isResizing) return;
+				n2.tmp._isResizing = true;
+				$('#n2-hypernavi').parent().addClass('is-resizing');
 			});
-		});
+		// リサイズ制御
+		$('body')
+			.on('mousemove', e => {
+				if(!n2.tmp._isResizing) return;
+				const w = document.body.clientWidth - e.clientX;
+				$('#n2-hypernavi').width(w);
+				document.cookie = `n2-hypernavi-width=${w}`;
+				n2.cookie['n2-hypernavi-width'] = w;
+			})
+			.on('mouseup', () => {
+				if(!n2.tmp._isResizing) return;
+				n2.tmp._isResizing = false
+				$('#n2-hypernavi').parent().removeClass('is-resizing');
+			});
+		
+		$('#n2-hypernavi')
+			.width(n2.cookie['n2-hypernavi-width']||803)
+			.on('load', e => {
+				// 親フレームで開きたい
+				$(e.target).contents().find('#wp-admin-bar-root-default a,#menu-dashboard a[href="my-sites.php"],[href$="post-new.php"],#wp-admin-bar-logout a').attr('target', '_parent');
+				$(e.target).contents().find(`#post-${$('#n2-post-id').val()}`).addClass('is-active');
+				$(e.target).contents().find('.row-title').on('click', async e => {
+					e.preventDefault();
+					const id = $(e.target).parents('tr').attr('id').replace(/[^0-9]/g, '');
+					change_data(id);
+					// url変更
+					const url = new URL( location.href );
+					url.searchParams.set('post', id);
+					if ( url.href == location.href ) {
+						return;
+					}
+					history.pushState({id}, null, url);
+				});
+			});
 	};
 	const change_data = async (id) => {
 		if ( n2.tmp.diff && ! confirm( '保存せずに移動すると編集したデータは失われます。本当に移動しますか？' ) ) {
 			return;
 		}
+		n2.tmp.diff = false;
 		// 履歴変更
 		$('#n2-post-id').val(id);
 		// オートセーブの制御（疑似移動した際にオートセーブ発火するのを防ぐ）
@@ -67,7 +93,7 @@ export default ($:any = jQuery) => {
 		n2.tmp.saved = _.cloneDeep(n2.tmp.vue.$data);
 		// 迷子防止
 		$('#n2-hypernavi').contents().find('#the-list > tr').removeClass('is-active');
-		$('#n2-hypernavi').contents().find(`#post-${id}`).addClass('is-active')
+		$('#n2-hypernavi').contents().find(`#post-${id}`).addClass('is-active');
 		// 画像DL＆N1ZIPDLの制御
 		$('#n2-download-images,#n2-download-zip').hide();
 		if ( data.商品画像.length ) $('#n2-download-images').show();

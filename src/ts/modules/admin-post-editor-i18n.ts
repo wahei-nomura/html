@@ -5,6 +5,7 @@
  */
 export default () => {
 	window['wp'].i18n.setLocaleData( {
+		"Settings": ["爆速ナビ"],
 		"Submit for Review": ["スチームシップに送信"],
 		"Pending review": ["スチームシップ確認中"],
 		"Save as pending": ["スチームシップ確認中として保存"],

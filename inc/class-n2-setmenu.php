@@ -52,6 +52,7 @@ class N2_Setmenu {
 		$name                      = '返礼品';
 		$menu[5][0]                = $name;
 		$submenu['edit.php'][5][0] = $name . '一覧';
+		$menu[5][6]                = 'dashicons-media-document';
 	}
 
 	/**
