@@ -152,7 +152,7 @@
 事業者用:
     地場産品類型:
         type: select
-        ':description': n2.custom_field.事業者用.地場産品類型.option[地場産品類型]
+        ':description': n2.custom_field.事業者用.地場産品類型.option[地場産品類型].replace(/当該地方団体の区域|返礼品等を提供する市区町村の区域|当該地方団体/g,n2.town)
         "@mouseover": set_info($event.target);
         option:
             '': 選択して下さい
@@ -174,8 +174,8 @@
         type: textarea
         style: 'width: 100%;'
         rows: auto
-        ':description': (n2.custom_field.事業者用._類型該当理由info.description[地場産品類型] || `地場産品類型${地場産品類型}に該当する理由を書いてください`).replace('区域',n2.town)
-        ':placeholder': (n2.custom_field.事業者用._類型該当理由info.placeholder[地場産品類型] || '例）区域が認定した返礼品であるため。').replace('区域',n2.town)
+        ':description': (n2.custom_field.事業者用._類型該当理由info.description[地場産品類型] || `地場産品類型${地場産品類型}に該当する理由を書いてください`).replace(/区域/g,n2.town)
+        ':placeholder': (n2.custom_field.事業者用._類型該当理由info.placeholder[地場産品類型] || '例）区域が認定した返礼品であるため。').replace(/区域/g,n2.town)
         insert-placeholder: true
         "@focus": set_info($event.target);auto_fit_tetxarea($event.target);
         "@input": auto_fit_tetxarea($event.target)
