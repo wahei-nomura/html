@@ -183,7 +183,14 @@ export default Vue.extend({
 				formData.append('action', 'n2_rms_items_api_ajax');
 				formData.append('call', 'items_patch');
 				formData.append('mode', 'json');
-				const images = updateLog.アップロード.data[manageNumber].map(path=>{
+				const images = updateLog.アップロード.data[manageNumber].sort(
+					(a,b) => {
+						const imageRegex = new RegExp( window['n2'].regex.item_code.strict + '(\\-[0-9]{1,2})*', 'g' )
+						const imageA = a.toUpperCase().match(imageRegex);
+						const imageB = b.toUpperCase().match(imageRegex);
+						return imageA >= imageB ? 1 : -1;
+					}
+				).map(path=>{
 					return {
 						type: 'CABINET',
 						location: path,
