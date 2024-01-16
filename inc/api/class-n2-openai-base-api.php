@@ -42,6 +42,8 @@ abstract class N2_OpenAI_Base_API {
 	 */
 	public function __construct() {
 		add_action( 'wp_ajax_' . mb_strtolower( get_class( $this ) ), array( $this, 'ajax' ) );
+		// 初期化しとかないと継承先クラスのメソッドが使えない
+		$this->set_header();
 	}
 
 	/**
