@@ -18,20 +18,41 @@ class N2_Notification {
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		add_action( 'admin_menu', array( $this, 'add_menu' ) );
+		add_action( 'init', fn() => $this->create_posttype() );
 	}
 
 	/**
-	 * メニュー追加
+	 * カスタム投稿のページのリスト
 	 */
-	public function add_menu() {
-		add_menu_page( 'お知らせ', 'お知らせ', 'ss_crew', 'n2_notification', array( $this, 'display_page_read' ), 'dashicons-bell', 81 );
-	}
-
-	/**
-	 * 検索ページを表示
-	 */
-	public function display_page_read() {
-		get_template_part( "template/notification/read", null, $this );
+	function create_posttype() {
+		register_post_type(
+			'notification',
+			array(
+				'label' => 'お知らせ', // 管理画面上の表示（日本語でもOK）
+				'public' => true, // 管理画面に表示するかどうかの指定
+				'supports' => array(
+				),
+			)
+		);
+		register_taxonomy(
+			'notification-target-authority',
+			'notification',
+			array(
+				'label' => '表示対象のユーザー権限',
+				'hierarchical' => true,
+				'public' => true,
+				'show_in_rest' => true,
+			)
+		);
+		register_taxonomy(
+			'notification-target-region',
+			'notification',
+			array(
+				'label' => '表示対象の自治体',
+				'hierarchical' => true,
+				'public' => true,
+				'show_in_rest' => true,
+			)
+		);
 	}
 }
