@@ -273,7 +273,7 @@ class N2_Img_Download {
 	 * @return string new_file_path
 	 */
 	public function resize_and_crop_image_by_imagick( $file_path, $width = 700, $height = 700, $dpi = 72 ) {
-		$imagick         = new \Imagick( $file_path ); // tmp/phpRypcF8
+		$imagick         = new \Imagick( $file_path );
 		$original_width  = $imagick->getImageWidth();
 		$original_height = $imagick->getImageHeight();
 
