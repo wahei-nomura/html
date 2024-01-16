@@ -145,7 +145,7 @@ class N2_Img_Download {
 				foreach ( $dl_types as $type ) {
 					$img_url   = "{$img['url']}?id={$id}";
 					$type_info = array(
-						'dirname'     => "{$dirname}_{$type}",
+						'dirname'     => 'フルサイズ' === $type ? $dirname : "{$dirname}_{$type}",
 						'filename'    => "{$filename}-{$index}.{$extension}",
 						'description' => $img['description'] ?? '',
 						'tmp_uri'     => $info['フルサイズ'][ $img_url ]['tmp_uri'] ?? '',
@@ -182,6 +182,7 @@ class N2_Img_Download {
 					$requests[] = array(
 						'url'     => $img_url,
 						'options' => array(
+							// tmpファイルにボディを流し込むオプション(https://developer.wordpress.org/reference/classes/Requests/request/)
 							'filename' => $type_info['tmp_uri'],
 						),
 					);
@@ -192,7 +193,7 @@ class N2_Img_Download {
 			}
 		}
 		$description = array();
-		Requests::request_multiple( $requests, array( 'timeout' => 100 ) );
+		N2_Multi_URL_Request_API::request_multiple( $requests, array( 'timeout' => 100 ) );
 		foreach ( $dl_types as $type ) {
 			foreach ( $info[ $type ] as $i ) {
 				// DLした画像を必要ならリサイズ&トリミングする
