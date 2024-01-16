@@ -33,7 +33,7 @@ class N2_Enqueuescript {
 	 * @return void
 	 */
 	public function admin_enqueue_scripts( $hook_suffix ) {
-		global $n2;
+		global $n2, $post_type;
 		wp_enqueue_style( 'n2-google-font-PTmono', 'https://fonts.googleapis.com/css2?family=PT+Mono&display=swap', array(), 'PTMono' );
 		wp_enqueue_script( 'n2-admin', get_theme_file_uri( 'dist/js/admin.js' ), array( 'jquery', 'jquery-touch-punch' ), $n2->cash_buster, false );
 		wp_enqueue_style( 'n2-admin', get_theme_file_uri( 'dist/css/admin.css' ), array( 'n2-google-font-PTmono' ), $n2->cash_buster );
@@ -42,8 +42,16 @@ class N2_Enqueuescript {
 		wp_localize_script( 'n2-admin', 'tmp_path', $this->get_tmp_path() );
 		$name = match ( $hook_suffix ) {
 			'index.php' => 'admin-index',
-			'post.php', 'post-new.php' => 'admin-post-editor',
-			'edit.php' => 'admin-post-list',
+			// 投稿系（編集・新規追加）
+			'post.php', 'post-new.php' => match ( $post_type ) {
+				'post' => 'admin-post-editor',
+				default => '',
+			},
+			// 投稿系（一覧）
+			'edit.php' =>  match ( $post_type ) {
+				'post' => 'admin-post-list',
+				default => '',
+			},
 			'toplevel_page_n2_crew_setup_menu' => 'admin-setup',
 			'toplevel_page_n2_rakuten_menu' => 'admin-rakuten-explorer',
 			mb_strtolower( rawurlencode( '楽天_page_n2_rakuten_menu_rms-cabinet' ) ) => 'admin-rakuten-cabinet',
