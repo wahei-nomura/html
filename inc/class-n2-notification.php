@@ -78,7 +78,7 @@ class N2_Notification {
         add_meta_box(
             'user-privilege',
             'ユーザー権限',
-            [$this, 'display_customfields'], // コールバック関数を 'display_customfields' に変更
+            [$this, 'display_customfield_privilege'], // コールバック関数を 'display_customfields' に変更
             'notification', // 投稿タイプを 'notification' に変更
             'side', // 表示する位置を右に変更
             'default' // 優先度 
@@ -87,7 +87,7 @@ class N2_Notification {
         add_meta_box(
             'local-governments',
             '自治体',
-            [$this, 'display_customfields2'], // コールバック関数を 'display_customfields' に変更
+            [$this, 'display_customfield_region'], // コールバック関数を 'display_customfields' に変更
             'notification', // 投稿タイプを 'notification' に変更
             'side', // 表示する位置を右に変更
             'low' // 優先度 
@@ -95,12 +95,12 @@ class N2_Notification {
     }
 
     /**
-     * 入力欄作成（メタボックスの内容を表示）
+     * ユーザー権限の入力欄作成
      *
      * @param WP_Post $post post
      * @param array   $metabox メタボックスのデータ
      */
-    public function display_customfields( $post, $metabox ) {
+    public function display_customfield_privilege( $post, $metabox ) {
 		$privileges = array(
 			'SSクルー' => 'ss-crew',
 			'自治体' => 'local-government',
@@ -122,12 +122,12 @@ class N2_Notification {
         <?php
     }
 	/**
-     * 入力欄作成
+     * 自治体の入力欄作成
      *
      * @param WP_Post $post post
      * @param array   $metabox メタボックスのデータ
      */
-    public function display_customfields2( $post, $metabox ) {
+    public function display_customfield_region( $post, $metabox ) {
 		?>
 		<?php foreach ( get_sites() as $site ) : switch_to_blog( $site->blog_id ); ?>
 		<div>
