@@ -101,26 +101,23 @@ class N2_Notification {
      * @param array   $metabox メタボックスのデータ
      */
     public function display_customfield_privilege( $post, $metabox ) {
-		$privileges = array(
-			'SSクルー' => 'ss-crew',
-			'自治体' => 'local-government',
-			'事業者' => 'business person',
-		);
+		$roles = yaml_parse_file( get_theme_file_path( 'config/user-roles.yml' ) );
         ?>
-		<?php foreach ( $privileges as $label => $value ) : ?>
+		<?php foreach ( $roles as $display_name => $value ) : ?>
         <div class="">
             <label>
 				<input
 					type="checkbox"
 					name="user-privileges"
-					value="<?php echo $value; ?>"
+					value="<?php echo $value['role']; ?>"
 				/>
-				<span><?php echo $label; ?></span>
+				<span><?php echo $display_name; ?></span>
 			</label>
         </div>
 		<?php endforeach; ?>
         <?php
     }
+
 	/**
      * 自治体の入力欄作成
      *
@@ -128,8 +125,9 @@ class N2_Notification {
      * @param array   $metabox メタボックスのデータ
      */
     public function display_customfield_region( $post, $metabox ) {
+		$sites = get_sites();
 		?>
-		<?php foreach ( get_sites() as $site ) : switch_to_blog( $site->blog_id ); ?>
+		<?php foreach ( $sites as $site ) : switch_to_blog( $site->blog_id ); ?>
 		<div>
 			<label>
 				<input type="checkbox" name="local-government-checkbox[]" value="<?php echo esc_attr( $site->blog_id ); ?>">
