@@ -24,16 +24,23 @@ class N2_OpenAI_Chat_API extends N2_OpenAI_Base_API {
 	public static function chat( $usecase = '', $user_message = '' ) {
 		global $n2;
 
-		// もし引数がなかったらURLパラメータから変数生成
-		$usecase      = empty( $usecase ) ? (
-			static::$data['params']['usecase'] ?? static::check_fatal_error( static::$data['params']['usecase'], 'usecaseを指定してください' )
-			) : $usecase;
-		$user_message = empty( $user_message ) ? (
-			static::$data['params']['user_message'] ?? static::check_fatal_error( static::$data['params']['use_message'], 'user_messageを指定してください' )
-			) : $user_message;
+		// テンプレートを取得
+		$openai_template = $n2->openai_template;
 
-		// openai_template設定を取得
-		$openai_template = $n2->openai_template[ $usecase ];
+		// テンプレートからusecaseの名前を取得
+		$usecase_names = array_keys( $openai_template );
+
+		// usecaseがテンプレートに存在しなかったらエラーメッセージを返す
+		if ( ! in_array( $usecase, $usecase_names, true ) ) {
+			static::check_fatal_error( null, '正しいusecaseを指定してください' );
+		}
+		// user_message、つまりGPTへのプロンプトがなければエラーメッセージを返す
+		if ( empty( $user_message ) ) {
+			static::check_fatal_error( null, '正しいuser_messageを指定してください' );
+		}
+
+		// テンプレートから各設定項目を取得
+		$openai_template = $openai_template[ $usecase ];
 		$model           = $openai_template['model'] ?? 'gpt-3.5-turbo';
 		$temperature     = $openai_template['temperature'] ?? 0.5;
 		$max_tokens      = $openai_template['max_tokens'] ?? 1000;
