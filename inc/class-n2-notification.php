@@ -15,6 +15,12 @@ if ( class_exists( 'N2_Notification' ) ) {
  */
 class N2_Notification {
 	/**
+	 * カスタムフィールドのID
+	 */
+	const CUSTOMFIELD_ID_ROLE = 'notification-target-role';
+	const CUSTOMFIELD_ID_REGION = 'notification-target-region';
+
+	/**
 	 * コンストラクタ
 	 */
 	public function __construct() {
@@ -24,6 +30,8 @@ class N2_Notification {
 		add_filter( 'enter_title_here', [$this, 'change_title'] );
 		// お知らせの表示対象の入力欄を設定
 		add_action( 'add_meta_boxes', [$this, 'add_customfields'] );
+		// カスタムフィールドの入力を保存
+		add_action( 'save_post', [$this, 'save_customfields'], 10, 2 ); // 第四引数が必要!!
 	}
 
 	/**
@@ -76,7 +84,7 @@ class N2_Notification {
     public function add_customfields() {
         // ユーザー権限
         add_meta_box(
-            'user-privilege',
+            self::CUSTOMFIELD_ID_ROLE,
             'ユーザー権限',
             [$this, 'display_customfield_privilege'], // コールバック関数を 'display_customfields' に変更
             'notification', // 投稿タイプを 'notification' に変更
@@ -85,7 +93,7 @@ class N2_Notification {
         );
 		// 自治体
         add_meta_box(
-            'local-governments',
+            self::CUSTOMFIELD_ID_REGION,
             '自治体',
             [$this, 'display_customfield_region'], // コールバック関数を 'display_customfields' に変更
             'notification', // 投稿タイプを 'notification' に変更
@@ -101,17 +109,22 @@ class N2_Notification {
      * @param array   $metabox メタボックスのデータ
      */
     public function display_customfield_privilege( $post, $metabox ) {
-		$roles = yaml_parse_file( get_theme_file_path( 'config/user-roles.yml' ) );
+		// ユーザー権限マスタ
+		$user_roles = yaml_parse_file( get_theme_file_path( 'config/user-roles.yml' ) );
+		// この投稿を表示するユーザー権限
+		$post_roles = get_post_meta( $post->ID, self::CUSTOMFIELD_ID_ROLE, true ); // カンマ区切りの文字列で格納してある
+		$post_roles = explode(',', $post_roles); // 配列に戻す
         ?>
-		<?php foreach ( $roles as $display_name => $value ) : ?>
-        <div class="">
+		<?php foreach ( $user_roles as $role_display_name => $role_detail ) : ?>
+        <div>
             <label>
 				<input
 					type="checkbox"
-					name="user-privileges"
-					value="<?php echo $value['role']; ?>"
+					name="<?php echo $metabox['id']; ?>[]"
+					value="<?php echo $role_detail['role']; ?>"
+					<?php echo in_array($role_detail['role'], $post_roles) ? 'checked' : ''; ?>
 				/>
-				<span><?php echo $display_name; ?></span>
+				<span><?php echo $role_display_name; ?></span>
 			</label>
         </div>
 		<?php endforeach; ?>
@@ -125,16 +138,48 @@ class N2_Notification {
      * @param array   $metabox メタボックスのデータ
      */
     public function display_customfield_region( $post, $metabox ) {
+		// WPで管理している自治体のリスト
 		$sites = get_sites();
+		// この投稿を表示する自治体
+		$post_regions = get_post_meta( $post->ID, self::CUSTOMFIELD_ID_REGION, true ); // カンマ区切りの文字列で格納してある
+		$post_regions = explode(',', $post_regions); // 配列に戻す
 		?>
 		<?php foreach ( $sites as $site ) : switch_to_blog( $site->blog_id ); ?>
 		<div>
 			<label>
-				<input type="checkbox" name="local-government-checkbox[]" value="<?php echo esc_attr( $site->blog_id ); ?>">
-				<span><?php echo esc_html( get_bloginfo( 'name' ) ); ?></span>
+				<input
+					type="checkbox"
+					name="<?php echo $metabox['id']; ?>[]"
+					value="<?php echo $site->blog_id; ?>"
+					<?php echo in_array($site->blog_id, $post_regions) ? 'checked' : ''; ?>
+				/>
+				<span><?php echo get_bloginfo( 'name' ); ?></span>
 			</label>
 		</div>
 		<?php restore_current_blog(); endforeach; ?>
 		<?php
+    }
+
+    /**
+     * カスタムフィールドのデータを保存
+     *
+     * @param int     $post_id 投稿ID
+     * @param WP_Post $post 投稿オブジェクト
+     */
+    public function save_customfields( $post_id, $post ) {
+        // オートセーブの場合は何もしない
+        if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+            return;
+        }
+		// ユーザー権限
+        if ( isset( $_POST[self::CUSTOMFIELD_ID_ROLE] ) ) {
+			$role = join(',', array_map( 'sanitize_text_field', $_POST[self::CUSTOMFIELD_ID_ROLE] ));
+            update_post_meta( $post_id, self::CUSTOMFIELD_ID_ROLE, $role );
+        }
+		// 自治体
+        if ( isset( $_POST[self::CUSTOMFIELD_ID_REGION] ) ) {
+            $region = join(',', array_map( 'sanitize_text_field', $_POST[self::CUSTOMFIELD_ID_REGION] ));
+            update_post_meta( $post_id, self::CUSTOMFIELD_ID_REGION, $region );
+        }
     }
 }
