@@ -86,7 +86,7 @@ class N2_Notification {
         add_meta_box(
             self::CUSTOMFIELD_ID_ROLE,
             'ユーザー権限',
-            [$this, 'display_customfield_privilege'], // コールバック関数を 'display_customfields' に変更
+            [$this, 'display_customfield_roll'], // コールバック関数を 'display_customfields' に変更
             'notification', // 投稿タイプを 'notification' に変更
             'side', // 表示する位置を右に変更
             'default' // 優先度 
@@ -108,7 +108,7 @@ class N2_Notification {
      * @param WP_Post $post post
      * @param array   $metabox メタボックスのデータ
      */
-    public function display_customfield_privilege( $post, $metabox ) {
+    public function display_customfield_roll( $post, $metabox ) {
 		// ユーザー権限マスタ
 		$user_roles = yaml_parse_file( get_theme_file_path( 'config/user-roles.yml' ) );
 		// この投稿を表示するユーザー権限
@@ -173,13 +173,13 @@ class N2_Notification {
         }
 		// ユーザー権限
         if ( isset( $_POST[self::CUSTOMFIELD_ID_ROLE] ) ) {
-			$role = join(',', array_map( 'sanitize_text_field', $_POST[self::CUSTOMFIELD_ID_ROLE] ));
-            update_post_meta( $post_id, self::CUSTOMFIELD_ID_ROLE, $role );
+			$joined = join(',', array_map( 'sanitize_text_field', $_POST[self::CUSTOMFIELD_ID_ROLE] ));
+            update_post_meta( $post_id, self::CUSTOMFIELD_ID_ROLE, $joined );
         }
 		// 自治体
         if ( isset( $_POST[self::CUSTOMFIELD_ID_REGION] ) ) {
-            $region = join(',', array_map( 'sanitize_text_field', $_POST[self::CUSTOMFIELD_ID_REGION] ));
-            update_post_meta( $post_id, self::CUSTOMFIELD_ID_REGION, $region );
+            $joined = join(',', array_map( 'sanitize_text_field', $_POST[self::CUSTOMFIELD_ID_REGION] ));
+            update_post_meta( $post_id, self::CUSTOMFIELD_ID_REGION, $joined );
         }
     }
 }
