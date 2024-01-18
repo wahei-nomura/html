@@ -93,12 +93,16 @@ class N2_Items_API {
 					$post_content['id'] = $v->ID;
 					return $post_content;
 				} else {
-					return array(
+					$arr = array(
 						'ID'           => $v->ID,
 						'post_title'   => $v->post_title,
 						'post_date'    => $v->post_date,
-						'post_content' => $post_content ?? $v->post_content,
+						'post_content' => $post_content ?? get_the_content( null, false, $v ),
 					);
+					if ( self::$data['params']['get_post_meta'] ) {
+						$arr['post_meta'] = array_map( fn( $v ) => $v[0], get_post_meta( $v->ID ) );
+					}
+					return $arr;
 				}
 			},
 			$posts
