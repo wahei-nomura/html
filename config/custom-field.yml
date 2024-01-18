@@ -300,19 +300,11 @@
     商品タイプ:
         type: checkbox
         value: []
-<<<<<<< HEAD
         option: 
             - 食品
         "@change": "check_handling_method();check_tax();"
     税率:
         type: radio
-=======
-        option : 
-            - 食品
-        "@change": "check_handling_method();check_tax();"
-    税率:
-        type : radio
->>>>>>> v1.2
         option:
             8: 8%
             10: 10%
@@ -328,11 +320,7 @@
         type: checkbox
         v-if: 商品タイプ.some(v=>['食品','酒'].includes(v)) && アレルギー有無確認.filter(v=>v).length
         required: required
-<<<<<<< HEAD
         option:
-=======
-        option :
->>>>>>> v1.2
             - 卵
             - 乳
             - 小麦
