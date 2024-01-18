@@ -158,6 +158,7 @@ class N2_Img_Download {
 						true => $type_info['tmp_uri'] ?: stream_get_meta_data( tmpfile() )['uri'],
 						default => stream_get_meta_data( tmpfile() )['uri'],
 					};
+					// N1画像対応
 					if ( ! $image_attributes && ! $set_fullsize ) {
 						// フルサイズに変更
 						$type_bck                  = $type;
@@ -166,7 +167,7 @@ class N2_Img_Download {
 						$info[ $type ][ $img_url ] = $type_info;
 						// 元に戻す
 						$type                 = $type_bck;
-						$type_info['dirname'] = "{$dirname}_{$type}";
+						$type_info['dirname'] = 'フルサイズ' === $type ? $dirname : "{$dirname}_{$type}";
 					}
 					$img_url = match ( ! $image_attributes ) {
 						true => $img_url,
