@@ -36,26 +36,23 @@ class N2_OpenAI_Chat_API extends N2_OpenAI_Base_API {
 		}
 		// user_message、つまりGPTへのプロンプトがなければエラーメッセージを返す
 		if ( empty( $user_message ) ) {
-			static::check_fatal_error( null, '正しいuser_messageを指定してください' );
+			static::check_fatal_error( null, 'メッセージが空です' );
 		}
 
 		// テンプレートから各設定項目を取得
 		$openai_template = $openai_template[ $usecase ];
-		$model           = $openai_template['model'] ?? 'gpt-3.5-turbo';
+		$model           = $openai_template['model'] ?? 'gpt-3.5-turbo-1106';
 		$temperature     = $openai_template['temperature'] ?? 0.5;
 		$max_tokens      = $openai_template['max_tokens'] ?? 1000;
 		$system_message  = $openai_template['system_message'] ? array(
 			'role'    => 'system',
 			'content' => $openai_template['system_message'],
 		) : array();
-		$user_message    = $user_message ? array(
+		$user_message    = array(
 			'role'    => 'user',
 			'content' => $user_message,
-		) : array();
+		);
 		$messages        = array_filter( array( $system_message, $user_message ) );
-
-		// Chatへのメッセージ無しだったら処理を停止する
-		static::check_fatal_error( $messages, 'メッセージが空です' );
 
 		// リクエストエンドポイント
 		$url = static::$settings['endpoint'] . '/chat/completions';
