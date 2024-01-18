@@ -34,6 +34,9 @@ class N2_Notification {
 		add_action( 'save_post', [$this, 'save_customfields'], 10, 2 ); // 第四引数が必要!!
 		// リスト(表)のカラムの設定
 		add_filter( 'manage_posts_columns', [$this, 'manage_posts_columns'], 10, 2 );
+		// 投稿のステータスのラベルを修正
+		add_filter( 'gettext', array( $this, 'change_status' ) );
+		add_filter( 'ngettext', array( $this, 'change_status' ) );
 	}
 
 	/**
@@ -199,5 +202,22 @@ class N2_Notification {
 			$columns['date'] = '公開日時';
 		}
 		return $columns;
+	}
+
+	/**
+	 * 返礼品のページでの変更を戻す
+	 *
+	 * @param string $status ステータス
+	 * @return string $status ステータス
+	 */
+	public function change_status( $status ) {
+		$re = array(
+			'入力中' => '下書き',
+			'スチームシップ確認待ち' => 'レビュー待ち',
+			'ポータル登録準備中' => '公開済み',
+		);
+		// 変換
+		$status = str_replace( array_keys( $re ), $re, $status );
+		return $status;
 	}
 }
