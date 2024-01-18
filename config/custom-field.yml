@@ -235,9 +235,15 @@
         "@change": "force_half_size_text($event, 'number', '価格');auto_adjust_price()"
     価格総額: # N2エクスポートに入れるために必須
     キャッチコピー:
+<<<<<<< HEAD
         type: text
         description: こだわりやポイントを端的にご記載ください。
         maxlength: 40
+=======
+        type : text
+        description : こだわりやポイントを端的にご記載ください。
+        maxlength : 40
+>>>>>>> v1.2
         v-if: "!商品タイプ.includes('eチケット')"
         placeholder: 例）○○にて金賞受賞！溢れる肉汁をご堪能ください！
         style: 'width: 100%'
@@ -259,7 +265,11 @@
 
         【その他】真空パックにてお届けします。温める際は十分に注意して、湯銭してください。'
         insert-placeholder: true
+<<<<<<< HEAD
         description: '【メリット】この返礼品を申し込むことで、寄附者が得られる恩恵やハッピーをお書きください。<br>【実績】この返礼品の良さを裏付ける「実績」「口コミ」「施策」等をお書きください。<br>【アドバンテージ】その他の商品よりも特に優れている「こだわり」や「強み」をお書きください。<br>【特徴】返礼品や事業者様の「特徴」「説明」「想い」をお書きください。<br>【その他】上記以外で伝えたいことがあれば、お書きください。'
+=======
+        description : '【メリット】この返礼品を申し込むことで、寄附者が得られる恩恵やハッピーをお書きください。<br>【実績】この返礼品の良さを裏付ける「実績」「口コミ」「施策」等をお書きください。<br>【アドバンテージ】その他の商品よりも特に優れている「こだわり」や「強み」をお書きください。<br>【特徴】返礼品や事業者様の「特徴」「説明」「想い」をお書きください。<br>【その他】上記以外で伝えたいことがあれば、お書きください。'
+>>>>>>> v1.2
         "@focus": set_info($event.target);
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
     内容量・規格等:
@@ -290,11 +300,19 @@
     商品タイプ:
         type: checkbox
         value: []
+<<<<<<< HEAD
         option: 
             - 食品
         "@change": "check_handling_method();check_tax();"
     税率:
         type: radio
+=======
+        option : 
+            - 食品
+        "@change": "check_handling_method();check_tax();"
+    税率:
+        type : radio
+>>>>>>> v1.2
         option:
             8: 8%
             10: 10%
@@ -310,7 +328,11 @@
         type: checkbox
         v-if: 商品タイプ.some(v=>['食品','酒'].includes(v)) && アレルギー有無確認.filter(v=>v).length
         required: required
+<<<<<<< HEAD
         option:
+=======
+        option :
+>>>>>>> v1.2
             - 卵
             - 乳
             - 小麦
