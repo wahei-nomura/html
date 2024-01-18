@@ -97,7 +97,7 @@ class N2_Items_API {
 						'ID'           => $v->ID,
 						'post_title'   => $v->post_title,
 						'post_date'    => $v->post_date,
-						'post_content' => $post_content,
+						'post_content' => $post_content ?? $v->post_content,
 					);
 				}
 			},
