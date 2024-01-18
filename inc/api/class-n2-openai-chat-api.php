@@ -31,13 +31,9 @@ class N2_OpenAI_Chat_API extends N2_OpenAI_Base_API {
 		$usecase_names = array_keys( $openai_template );
 
 		// usecaseがテンプレートに存在しなかったらエラーメッセージを返す
-		if ( ! in_array( $usecase, $usecase_names, true ) ) {
-			static::check_fatal_error( null, '正しいusecaseを指定してください' );
-		}
+		static::check_fatal_error( in_array( $usecase, $usecase_names, true ), '正しいusecaseを指定してください' );
 		// user_message、つまりGPTへのプロンプトがなければエラーメッセージを返す
-		if ( empty( $user_message ) ) {
-			static::check_fatal_error( null, 'メッセージが空です' );
-		}
+		static::check_fatal_error( $user_message, 'メッセージが空です' );
 
 		// テンプレートから各設定項目を取得
 		$openai_template = $openai_template[ $usecase ];
