@@ -56,11 +56,12 @@ class N2_Notification {
 					'not_found' => '見つかりませんでした。',
 					'not_found_in_trash' => 'ゴミ箱にはありませんでした。',
 				),
-				'public' => true, // 管理画面に表示しサイト上にも表示する
+				'public' => false, // 管理画面に表示しサイト上にも表示する
+				'show_ui' => true,
 				'description' => '過去に犯した過ちを自分達で払拭しなくちゃ本当の未来は訪れない！だから、私は戦う！！', // 説明文
 				'hierarchicla' => false, // コンテンツを階層構造にするかどうか
 				'has_archive' => true,  // trueにすると投稿した記事の一覧ページを作成することができる
-				'show_in_rest' => false,  //新エディタ Gutenberg を有効化（REST API を有効化）
+				'show_in_rest' => true,  //新エディタ Gutenberg を有効化（REST API を有効化）
 				'menu_icon' => 'dashicons-bell', // 左ナビのアイコンをベルのアイコンに変更
 				'supports' => array(
 					'title',  //タイトル
