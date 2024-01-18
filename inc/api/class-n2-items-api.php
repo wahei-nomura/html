@@ -99,7 +99,7 @@ class N2_Items_API {
 						'post_date'    => $v->post_date,
 						'post_content' => $post_content ?? $v->post_content,
 					);
-					if ( self::$data['params']['get_post_meta'] ) {
+					if ( isset( self::$data['params']['get_post_meta'] ) ) {
 						$arr['post_meta'] = array_map( fn( $v ) => $v[0], get_post_meta( $v->ID ) );
 					}
 					return $arr;
