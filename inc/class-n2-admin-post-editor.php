@@ -256,10 +256,13 @@ class N2_Admin_Post_Editor {
 	 * @return Array $image_data 上に同じ
 	 */
 	public function image_compression( $image_data ) {
-		$imagick = new Imagick( $image_data['file'] );
-		// 写真拡張子取得
-		$file_extension = pathinfo( $image_data['file'], PATHINFO_EXTENSION );
-		$max_size       = 2000;
+		$type = explode( '/', $image_data['type'] );// image/pngなど
+		// 画像以外は処理必要なし
+		if ( 'image' !== $type[0] ) {
+			return $image_data;
+		}
+		$imagick  = new Imagick( $image_data['file'] );
+		$max_size = 2000;
 
 		// width heightリサイズ
 		if ( $imagick->getImageGeometry()['width'] > $max_size || $imagick->getImageGeometry()['height'] > $max_size ) {
@@ -267,7 +270,7 @@ class N2_Admin_Post_Editor {
 		}
 
 		// png
-		if ( 'png' === $file_extension ) {
+		if ( 'png' === $type[1] ) {
 			$png_file = escapeshellarg( $image_data['file'] );
 			exec( "pngquant --ext .png {$png_file} --force --quality 50-80" );
 		} else {
