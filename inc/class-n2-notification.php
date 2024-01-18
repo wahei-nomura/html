@@ -32,6 +32,8 @@ class N2_Notification {
 		add_action( 'add_meta_boxes', [$this, 'add_customfields'] );
 		// カスタムフィールドの入力を保存
 		add_action( 'save_post', [$this, 'save_customfields'], 10, 2 ); // 第四引数が必要!!
+		// リスト(表)のカラムの設定
+		add_filter( 'manage_posts_columns', [$this, 'manage_posts_columns'], 10, 2 );
 	}
 
 	/**
@@ -60,6 +62,7 @@ class N2_Notification {
 				'supports' => array(
 					'title',  //タイトル
 					'editor',  //本文の編集機能
+					'publish', // 公開日時の設定を有効にする
 				),
 			)
 		);
@@ -182,4 +185,19 @@ class N2_Notification {
             update_post_meta( $post_id, self::CUSTOMFIELD_ID_REGION, $joined );
         }
     }
+
+	/**
+	 * カラム調整
+	 *
+	 * @param array  $columns カラム名の配列
+	 * @param string $post_type 投稿タイプ
+	 * @return array $columns
+	 */
+	public function manage_posts_columns( $columns, $post_type ) {
+		if ($post_type === 'notification') {
+			$columns['title'] = 'タイトル';
+			$columns['date'] = '公開日時';
+		}
+		return $columns;
+	}
 }
