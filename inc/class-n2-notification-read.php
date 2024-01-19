@@ -37,11 +37,12 @@ class N2_Notification_Read {
 	}
 
 	public function display_page() {
+		// コンポーネントをタグにとして出力する時は小文字のケバブケースで書かないと認識されないよー
 		?>
 		<div class="wrap">
 			<h1 class="wp-heading-inline">お知らせ</h1>
 			<div id="app">
-				<unko></unko>
+				<notification-list />
 			</div>
 		</div>
 		<?php
