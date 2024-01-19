@@ -1,6 +1,6 @@
 <?php
 /**
- * お知らせ
+ * お知らせ(管理用)
  *
  * @package neoneng
  */
@@ -43,11 +43,16 @@ class N2_Notification {
 	 * カスタム投稿とタクソノミーの設定
 	 */
 	function create_posttype() {
+		global $n2;
+		// 管理者でメインサイトを選択しているときだけ表示
+		$is_admin = in_array('administrator', $n2->current_user->roles);
+		$is_main_site = get_site()->blog_id == 1;
+		$is_show_ui = $is_admin && $is_main_site;
 		// カスタム投稿
 		register_post_type(
 			'notification',
 			array(
-				'label' => 'お知らせ',
+				'label' => 'お知らせ(管理用)',
 				'labels' => array(  //管理画面に表示されるラベルの文字を指定
 					'add_new' => '新規追加',
 					'edit_item' => '編集',
@@ -56,8 +61,8 @@ class N2_Notification {
 					'not_found' => '見つかりませんでした。',
 					'not_found_in_trash' => 'ゴミ箱にはありませんでした。',
 				),
-				'public' => false, // 管理画面に表示しサイト上にも表示する
-				'show_ui' => true,
+				'public' => false, // サイト上では非表示
+				'show_ui' => $is_show_ui, // 管理画面では表示
 				'description' => '過去に犯した過ちを自分達で払拭しなくちゃ本当の未来は訪れない！だから、私は戦う！！', // 説明文
 				'hierarchicla' => false, // コンテンツを階層構造にするかどうか
 				'has_archive' => true,  // trueにすると投稿した記事の一覧ページを作成することができる
