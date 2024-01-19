@@ -476,6 +476,14 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			}
 			?>
 			<?php echo nl2br( $n2values['内容量・規格等'] ); ?><br>
+			<?php if ( $n2values['電子レンジ対応'] || $n2values['オーブン対応'] || $n2values['食洗機対応'] ) : ?>
+				<br><br>【対応機器】<br>
+				<?php echo '電子レンジ' . $n2values['電子レンジ対応'] . ' / オーブン' . $n2values['オーブン対応'] . ' / 食器洗浄機' . $n2values['食洗機対応']; ?><br>
+			<?php endif; ?>
+			<?php if ( $n2values['対応機器備考'] ) : ?>
+				<br><br>【対応機器備考】<br>
+				※<?php echo nl2br( $n2values['対応機器備考'] ); ?><br>
+			<?php endif; ?>
 			<?php if ( $n2values['賞味期限'] ) : ?>
 				<br>【賞味期限】<br><?php echo nl2br( $n2values['賞味期限'] ); ?><br>
 			<?php endif; ?>
@@ -490,14 +498,6 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			<?php if ( $n2values['加工地'] ) : ?>
 				<br><br>【加工地】<br>
 				<?php echo nl2br( $n2values['加工地'] ); ?><br>
-			<?php endif; ?>
-			<?php if ( $n2values['電子レンジ対応'] || $n2values['オーブン対応'] || $n2values['食洗機対応'] ) : ?>
-				<br><br>【対応機器】<br>
-				<?php echo '電子レンジ' . $n2values['電子レンジ対応'] . ' / オーブン' . $n2values['オーブン対応'] . ' / 食器洗浄機' . $n2values['食洗機対応']; ?><br>
-			<?php endif; ?>
-			<?php if ( $n2values['対応機器備考'] ) : ?>
-				<br><br>【対応機器備考】<br>
-				※<?php echo nl2br( $n2values['対応機器備考'] ); ?><br>
 			<?php endif; ?>
 			<?php if ( $n2values['検索キーワード'] ) : ?>
 				<br><br><?php echo nl2br( $n2values['検索キーワード'] ); ?><br>
@@ -653,6 +653,10 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			'内容量'     => array(
 				'td' => nl2br( $n2values['内容量・規格等'] ),
 			),
+			'対応機器'    => array(
+				'td'        => $pottery_display_str,
+				'condition' => $pottery_display_str,
+			),
 			'原料原産地'   => array(
 				'td'        => nl2br( $n2values['原料原産地'] ),
 				'condition' => $n2values['原料原産地'],
@@ -681,10 +685,6 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			),
 			'提供事業者'   => array(
 				'td' => $this->get_author_name( $n2values ),
-			),
-			'対応機器'    => array(
-				'td'        => $pottery_display_str,
-				'condition' => $pottery_display_str,
 			),
 		);
 

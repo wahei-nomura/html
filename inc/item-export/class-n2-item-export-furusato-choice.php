@@ -105,9 +105,9 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 		{
 			$n2values['内容量・規格等'] = array(
 				$n2values['内容量・規格等'],
+				...$warning,
 				$n2values['原料原産地'] ? "【原料原産地】\n{$n2values['原料原産地']}" : '',
 				$n2values['加工地'] ? "【加工地】\n{$n2values['加工地']}" : '',
-				...$warning,
 			);
 			// 空要素削除して連結
 			$n2values['内容量・規格等'] = implode( "\n\n", array_filter( $n2values['内容量・規格等'] ) );
