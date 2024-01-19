@@ -58,7 +58,8 @@ $incs = array(
 	'class-n2-change-allergen',
 	'class-n2-change-sku-firstaid',
 	'class-n2-portal-item-data',
-	'class-n2-notification'
+	'class-n2-notification',
+	'class-n2-notification-read',
 );
 
 foreach ( $incs as $name ) {

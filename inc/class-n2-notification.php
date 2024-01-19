@@ -43,9 +43,8 @@ class N2_Notification {
 	 * カスタム投稿とタクソノミーの設定
 	 */
 	function create_posttype() {
-		global $n2;
 		// 管理者でメインサイトを選択しているときだけ表示
-		$is_admin = in_array('administrator', $n2->current_user->roles);
+		$is_admin = current_user_can( 'administrator' );
 		$is_main_site = get_site()->blog_id == 1;
 		$is_show_ui = $is_admin && $is_main_site;
 		// カスタム投稿
