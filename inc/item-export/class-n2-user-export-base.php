@@ -103,7 +103,7 @@ class N2_User_Export_Base {
 	 * ヘッダー配列の作成（基本的に拡張で上書きする）
 	 */
 	protected function set_header() {
-		$header = ['user_login', 'user_email', 'user_pass', 'first_name', 'last_name', 'display_name', 'role'];
+		$header = ['user_login', 'user_email', 'user_pass', 'nickname', 'first_name', 'last_name', 'display_name', 'role'];
 		/**
 		 * [hook] n2_user_export_base_set_header
 		 */
@@ -122,6 +122,7 @@ class N2_User_Export_Base {
 			$user_values['user_login'] = $values->data->user_login;
 			$user_values['user_email'] = $values->data->user_pass;
 			$user_values['user_pass'] = $values->data->user_email;
+			$user_values['nickname'] = $meta_users['nickname'];
 			$user_values['first_name'] = $meta_users['first_name'];
 			$user_values['last_name'] = $meta_users['last_name'];
 			$user_values['display_name'] = $values->data->display_name;
