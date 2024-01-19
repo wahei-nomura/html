@@ -53,7 +53,7 @@ class N2_Enqueuescript {
 				default => '',
 			},
 			// お知らせ(閲覧用)
-			'n2_notification_read' => 'n2-notification-read',
+			'toplevel_page_n2_notification_read' => 'n2-notification-read',
 			'toplevel_page_n2_crew_setup_menu' => 'admin-setup',
 			'toplevel_page_n2_rakuten_menu' => 'admin-rakuten-explorer',
 			mb_strtolower( rawurlencode( '楽天_page_n2_rakuten_menu_rms-cabinet' ) ) => 'admin-rakuten-cabinet',
