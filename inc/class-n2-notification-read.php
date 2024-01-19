@@ -40,7 +40,9 @@ class N2_Notification_Read {
 		?>
 		<div class="wrap">
 			<h1 class="wp-heading-inline">お知らせ</h1>
-			<div></div>
+			<div id="app">
+				<unko></unko>
+			</div>
 		</div>
 		<?php
 	}
