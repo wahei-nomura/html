@@ -433,4 +433,32 @@ class N2 {
 			$this->$key = apply_filters( "n2_vars_{$key}", $value );
 		}
 	}
+
+	/**
+	 * 管理している自治体(サイト)のblog_idと名前を返す
+	 * 
+	 * return $regions array
+	 */
+	public static function get_regions() {
+		$regions = [];
+		foreach (get_sites() as $site) {
+			switch_to_blog($site->blog_id);
+			$regions[$site->blog_id] = [
+				// 自治体名以外も紐付けたくなるかもしれないから連想配列にしておきます
+				'name' => get_bloginfo('name'),
+			];
+		}
+		restore_current_blog();
+		return $regions;
+	}
+
+	/**
+	 * ユーザー権限のマスターを取得
+	 * 
+	 * return $roles array
+	 */
+	public static function get_roles() {
+		$roles = yaml_parse_file(get_theme_file_path('config/user-roles.yml'));
+		return $roles;
+	}
 }

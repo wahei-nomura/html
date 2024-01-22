@@ -123,8 +123,7 @@ class N2_Notification {
 		// ユーザー権限マスタ
 		$user_roles = yaml_parse_file( get_theme_file_path( 'config/user-roles.yml' ) );
 		// この投稿を表示するユーザー権限
-		$post_roles = get_post_meta( $post->ID, self::CUSTOMFIELD_ID_ROLE, true ); // カンマ区切りの文字列で格納してある
-		$post_roles = explode(',', $post_roles); // 配列に戻す
+		$post_roles = get_post_meta( $post->ID, self::CUSTOMFIELD_ID_ROLE, true );
         ?>
 		<?php foreach ( $user_roles as $role_display_name => $role_detail ) : ?>
         <div>
@@ -133,7 +132,7 @@ class N2_Notification {
 					type="checkbox"
 					name="<?php echo $metabox['id']; ?>[]"
 					value="<?php echo $role_detail['role']; ?>"
-					<?php echo in_array($role_detail['role'], $post_roles) ? 'checked' : ''; ?>
+					<?php echo is_array($post_roles) && in_array($role_detail['role'], $post_roles) ? 'checked' : ''; ?>
 				/>
 				<span><?php echo $role_display_name; ?></span>
 			</label>
@@ -153,7 +152,6 @@ class N2_Notification {
 		$sites = get_sites();
 		// この投稿を表示する自治体
 		$post_regions = get_post_meta( $post->ID, self::CUSTOMFIELD_ID_REGION, true ); // カンマ区切りの文字列で格納してある
-		$post_regions = explode(',', $post_regions); // 配列に戻す
 		?>
 		<?php foreach ( $sites as $site ) : switch_to_blog( $site->blog_id ); ?>
 		<div>
@@ -162,7 +160,7 @@ class N2_Notification {
 					type="checkbox"
 					name="<?php echo $metabox['id']; ?>[]"
 					value="<?php echo $site->blog_id; ?>"
-					<?php echo in_array($site->blog_id, $post_regions) ? 'checked' : ''; ?>
+					<?php echo is_array($post_regions) && in_array($site->blog_id, $post_regions) ? 'checked' : ''; ?>
 				/>
 				<span><?php echo get_bloginfo( 'name' ); ?></span>
 			</label>
@@ -184,13 +182,13 @@ class N2_Notification {
         }
 		// ユーザー権限
         if ( isset( $_POST[self::CUSTOMFIELD_ID_ROLE] ) ) {
-			$joined = join(',', array_map( 'sanitize_text_field', $_POST[self::CUSTOMFIELD_ID_ROLE] ));
-            update_post_meta( $post_id, self::CUSTOMFIELD_ID_ROLE, $joined );
+			$sanitized = array_map('sanitize_text_field', $_POST[self::CUSTOMFIELD_ID_ROLE]);
+            update_post_meta( $post_id, self::CUSTOMFIELD_ID_ROLE, $sanitized);
         }
 		// 自治体
         if ( isset( $_POST[self::CUSTOMFIELD_ID_REGION] ) ) {
-            $joined = join(',', array_map( 'sanitize_text_field', $_POST[self::CUSTOMFIELD_ID_REGION] ));
-            update_post_meta( $post_id, self::CUSTOMFIELD_ID_REGION, $joined );
+			$sanitized = array_map('sanitize_text_field', $_POST[self::CUSTOMFIELD_ID_REGION]);
+            update_post_meta( $post_id, self::CUSTOMFIELD_ID_REGION, $sanitized);
         }
     }
 

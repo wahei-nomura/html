@@ -37,12 +37,22 @@ class N2_Notification_Read {
 	}
 
 	public function display_page() {
+		global $n2;
+		// 自治体とユーザー権限のリスト
+		$roles = $n2->get_roles();
+		array_walk($roles, fn(&$value) => $value = $value['role']);
+		$regions = $n2->get_regions();
+		$roles = json_encode($roles, JSON_UNESCAPED_UNICODE);
+		$regions = json_encode($regions, JSON_UNESCAPED_UNICODE);
 		// コンポーネントをタグにとして出力する時は小文字のケバブケースで書かないと認識されないよー
 		?>
 		<div class="wrap">
 			<h1 class="wp-heading-inline">お知らせ</h1>
 			<div id="app">
-				<notification-list />
+				<notification-list
+					:all-rolls="<?php echo esc_attr($roles); ?>"
+					:all-regions="<?php echo esc_attr($regions); ?>"
+				/>
 			</div>
 		</div>
 		<?php

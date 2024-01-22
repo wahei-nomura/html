@@ -1,0 +1,26 @@
+{
+	"params": {
+		"suppress_filters": false,
+		"post_status": "any",
+		"post_type": "notification",
+		"numberposts": -1,
+		"mode": "json",
+		"n2_active_flag": "1",
+		"action": "n2_items_api",
+		"get_post_meta": ""
+	},
+	"items": [
+		{
+			"ID": 27,
+			"post_title": "ほげええええ",
+			"post_date": "2024-01-22 16:30:33",
+			"post_content": "<!-- wp:paragraph -->\n<p>すっげええええ</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:list -->\n<ul><!-- wp:list-item -->\n<li>a</li>\n<!-- /wp:list-item -->\n\n<!-- wp:list-item -->\n<li>b</li>\n<!-- /wp:list-item -->\n\n<!-- wp:list-item -->\n<li>c</li>\n<!-- /wp:list-item --></ul>\n<!-- /wp:list -->",
+			"post_meta": {
+				"_edit_lock": false,
+				"_edit_last": false,
+				"notification-target-role": ["local-government", "jigyousya"],
+				"notification-target-region": ["1", "2", "3"]
+			}
+		}
+	]
+}
