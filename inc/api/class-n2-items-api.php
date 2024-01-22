@@ -69,6 +69,7 @@ class N2_Items_API {
 			'post_status'      => 'any',
 			'post_type'        => 'post',
 			'numberposts'      => -1,
+			'fields'           => 'ids',
 			'mode'             => 'json',
 			'n2_active_flag'   => $n2->settings['N2']['稼働中'],
 		);
@@ -85,24 +86,26 @@ class N2_Items_API {
 		$params = wp_parse_args( $params );
 		self::set_params( $params );
 		$posts = get_posts( self::$data['params'] );
-		$posts = array_map(
-			function ( $v ) {
-				$post_content = json_decode( $v->post_content, true );
-				if ( 'post' === self::$data['params']['post_type'] ) {
-					// idを混ぜ込む
-					$post_content['id'] = $v->ID;
-					return $post_content;
-				} else {
-					return array(
-						'ID'           => $v->ID,
-						'post_title'   => $v->post_title,
-						'post_date'    => $v->post_date,
-						'post_content' => $post_content,
-					);
+		foreach ( $posts as $k => $p ) {
+			$v = is_object( $p ) ? $p : get_post( $p );
+			// post_content jsonデコード
+			$post_content = json_decode( $v->post_content, true );
+			if ( 'post' === self::$data['params']['post_type'] ) {
+				// idを混ぜ込む
+				$post_content['id'] = $v->ID;
+				$posts[ $k ]        = $post_content;
+			} else {
+				$posts[ $k ] = array(
+					'ID'           => $v->ID,
+					'post_title'   => $v->post_title,
+					'post_date'    => $v->post_date,
+					'post_content' => $post_content ?? $v->post_content,
+				);
+				if ( self::$data['params']['get_post_meta'] ) {
+					$posts[ $k ]['post_meta'] = array_map( fn( $v ) => $v[0], get_post_meta( $v->ID ) );
 				}
-			},
-			$posts
-		);
+			}
+		}
 		$posts = array_filter( $posts );
 		/**
 		 * [hook] n2_items_api_get_items
