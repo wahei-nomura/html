@@ -69,7 +69,7 @@ class N2_Items_API {
 			'post_status'      => 'any',
 			'post_type'        => 'post',
 			'numberposts'      => -1,
-			'fields'           => 'ids',
+			'fields'           => 'ids', // メモリ節約のため基本IDのみ取得してからループ
 			'mode'             => 'json',
 			'n2_active_flag'   => $n2->settings['N2']['稼働中'],
 		);
@@ -141,7 +141,9 @@ class N2_Items_API {
 		 *  [hook] n2_items_api_before_update
 		 */
 		do_action( 'n2_items_api_before_update', $params );
-		foreach ( get_posts( $params ) as $post ) {
+		foreach ( get_posts( $params ) as $p ) {
+			$post = is_object( $p ) ? $p : get_post( $p );
+			// ステータス・事業者変更
 			$post->post_status = ! empty( $params['change_status'] ) ? $params['change_status'] : $post->post_status;
 			$post->post_author = ! empty( $params['change_author'] ) ? $params['change_author'] : $post->post_author;
 			/**
