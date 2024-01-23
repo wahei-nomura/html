@@ -22,10 +22,9 @@ class N2_OpenAI_Chat_API extends N2_OpenAI_Base_API {
 	 * @param string $user_message パラメータ
 	 */
 	public static function chat( $usecase = '', $user_message = '' ) {
-		global $n2;
 
 		// テンプレートを取得
-		$openai_template = $n2->openai_template;
+		$openai_template = static::get_template();
 
 		// テンプレートからusecaseの名前を取得
 		$usecase_names = array_keys( $openai_template );

@@ -89,6 +89,14 @@ abstract class N2_OpenAI_Base_API {
 	}
 
 	/**
+	 * テンプレート取得する関数
+	 */
+	protected static function get_template() {
+		global $n2;
+		return $n2->openai_template;
+	}
+
+	/**
 	 * APIを実行するサムシング
 	 */
 	private static function call() {
