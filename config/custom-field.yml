@@ -272,7 +272,7 @@
     原料原産地:
         type: text
         maxlength: 50
-        v-if: "!商品タイプ.includes('eチケット')"
+        v-if: 商品タイプ.every(v=>!v.match(/チケット/))
         description: 主要となる原料の主要原産地を記載ください。
         placeholder: 例）〇〇県産
         style: 'width: 100%'
@@ -281,7 +281,7 @@
     加工地:
         type: text
         maxlength: 50
-        v-if: "!商品タイプ.includes('eチケット')"
+        v-if: 商品タイプ.every(v=>!v.match(/チケット/))
         description: 加工食品の加工地（製造地）を記載ください。
         placeholder: 例）〇〇県〇〇市
         style: 'width: 100%'
@@ -303,12 +303,12 @@
     アレルギー有無確認:
         type: checkbox
         value: ['アレルギー品目あり']
-        v-if: 商品タイプ.some(v=>['食品','酒'].includes(v))
+        v-if: 商品タイプ.some(v=>v.match(/食品|酒/))
         option:
             - アレルギー品目あり
     アレルゲン:
         type: checkbox
-        v-if: 商品タイプ.some(v=>['食品','酒'].includes(v)) && アレルギー有無確認.filter(v=>v).length
+        v-if: 商品タイプ.some(v=>v.match(/食品|酒/)) && アレルギー有無確認.filter(v=>v).length
         required: required
         option:
             - 卵
@@ -345,7 +345,7 @@
         description: アレルゲンに関連する注釈があれば入力してください。
         rows: auto
         style: 'width: 100%;height: 2em;'
-        v-if: 商品タイプ.some(v=>['食品','酒'].includes(v))
+        v-if: 商品タイプ.some(v=>v.match(/食品|酒/))
         "@focus": set_info($event.target)
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
     賞味期限:
@@ -354,16 +354,18 @@
         maxlength: 200
         rows: auto
         style: 'width: 100%;'
-        v-if: "商品タイプ.some(v=>['食品','酒'].includes(v)) && !商品タイプ.includes('eチケット')"
+        v-if: 商品タイプ.some(v=>v.match(/食品|酒/)) && 商品タイプ.every(v=>!v.match(/チケット/))
         "@focus": set_info($event.target)
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
     消費期限:
+        label: "{{商品タイプ.every(v=>!v.match(/チケット/)) ? '消費期限' : '有効期限'}}"
         type: textarea
-        placeholder: 例）冷凍庫９０日間
+        ":placeholder": 商品タイプ.every(v=>!v.match(/チケット/)) ? '例）冷凍庫９０日間':'例）発行日より１年間'
+        insert-placeholder: true
         style: 'width: 100%;'
         maxlength: 200
         rows: auto
-        v-if: "商品タイプ.some(v=>['食品','酒'].includes(v)) && !商品タイプ.includes('eチケット')"
+        v-if: 商品タイプ.some(v=>v.match(/食品|酒/))
         "@focus": set_info($event.target)
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
 # ▲ =========== 食品専用のフィールド ==========
@@ -372,7 +374,7 @@
     電子レンジ対応:
         type: radio
         value: ○
-        v-if: "商品タイプ.includes('やきもの') && !商品タイプ.includes('eチケット')"
+        v-if: 商品タイプ.includes('やきもの') && 商品タイプ.every(v=>!v.match(/チケット/))
         option:
             ○: 対応
             △: 対応（備考あり）
@@ -380,7 +382,7 @@
     オーブン対応:
         type: radio
         value: ○
-        v-if: "商品タイプ.includes('やきもの') && !商品タイプ.includes('eチケット')"
+        v-if: 商品タイプ.includes('やきもの') && 商品タイプ.every(v=>!v.match(/チケット/))
         option:
             ○: 対応
             △: 対応（備考あり）
@@ -388,7 +390,7 @@
     食洗機対応:
         type: radio
         value: ○
-        v-if: "商品タイプ.includes('やきもの') && !商品タイプ.includes('eチケット')"
+        v-if: 商品タイプ.includes('やきもの') && 商品タイプ.every(v=>!v.match(/チケット/))
         option:
             ○: 対応
             △: 対応（備考あり）
@@ -396,7 +398,7 @@
     対応機器備考:
         type: textarea
         description: 電子レンジ・オーブン・食洗機対応のいずれかで「備考あり」を選択した場合は必ずお書きください。
-        v-if: "商品タイプ.includes('やきもの') && !商品タイプ.includes('eチケット')"
+        v-if: 商品タイプ.includes('やきもの') && 商品タイプ.every(v=>!v.match(/チケット/))
         placeholder: 例）2～3分程の電子レンジ使用は可能です。
         style: 'width: 100%;'
         "@focus": set_info($event.target)
@@ -411,7 +413,7 @@
         type: textarea
         description: 配送までにかかる最大納期を入力ください。「即納」表記は避けていただき、最短でも1週間前後で入力をお願いいたします。
         maxlength: 200
-        v-if: "!商品タイプ.includes('eチケット')"
+        v-if: 商品タイプ.every(v=>!v.match(/チケット/))
         placeholder: 例）入金確認後1ヶ月以内にお届けいたします。
         style: 'width: 100%;'
         "@focus": set_info($event.target)
