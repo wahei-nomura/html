@@ -363,7 +363,7 @@ class N2_Item_Export_Base {
 		?>
 		<table class="table table-striped">
 			<thead>
-				<tr><th>返礼品コード (※無い場合はid)</th><th>エラー内容</th></tr>
+				<tr><th>返礼品コード (※無い場合はID)</th><th>エラー内容</th></tr>
 			</thead>
 			<?php echo $html; ?>
 		</table>
@@ -471,12 +471,12 @@ class N2_Item_Export_Base {
 				<button id="download" class="btn btn-success px-5">エラーが無い返礼品のみダウンロードする</button>
 			</form>
 			<?php if ( ! empty( $add_btn ) ) : ?>  
-				<?php foreach ( $add_btn as $btn ) : ?>
+			<?php foreach ( $add_btn as $btn ) : ?>
 			<form method="post" class="p-3 m-0">
 				<input type="hidden" name="option" value="<?php echo esc_attr( $btn['id'] ); ?>">
 				<input type="hidden" name="action" value="<?php echo esc_attr( mb_strtolower( get_class( $this ) ) ); ?>">
 				<input type="hidden" name="n2nonce" value="<?php echo esc_attr( $n2nonce ); ?>">
-					<?php foreach ( $includes as $include ) : ?>
+				<?php foreach ( $includes as $include ) : ?>
 					<input type="hidden" name="include[]" value="<?php echo esc_attr( $include ); ?>">
 				<?php endforeach; ?>
 				<button id="<?php echo $btn['id']; ?>" class="btn px-5 <?php echo $btn['class']; ?>"><?php echo $btn['text']; ?></button>
