@@ -1,72 +1,86 @@
 import Vue from "vue";
-import axios from "axios";
 
-const NotificationPost = {
+/**
+ * 投稿のリスト表示
+ */
+const PostList = {
 	props: {
 		post: Object,
 	},
-	data() {
-		return {};
-	},
+	emits: ["open"],
 	template: `
 		<div>
-			<span>{{ post.post_title }}</span>
+			<span @click="$emit('open')">{{ post.post_title }}</span>
 			<span>{{ post.post_date }}</span>
 		</div>
 	`,
 };
 
-const RootComponent = {
+/**
+ * 個別の投稿を表示
+ */
+const PostModal = {
 	props: {
-		allRolls: Object,
-		allRegions: Object,
+		post: Object,
 	},
-	components: {
-		NotificationPost,
-	},
+	emits: ["close"],
 	data() {
-		return {
-			posts: [],
-			targetRolls: this.getAllRollValues(),
-			targetRegions: this.getAllRegionKeys(),
-		};
-	},
-	methods: {
-		getAllRollValues() {
-			return Object.values(this.allRolls);
-		},
-		getAllRegionKeys() {
-			return Object.keys(this.allRegions);
-		},
-	},
-	computed: {
-		searchUrl() {
-			return `${window.n2.ajaxurl}?action=n2_items_api&post_type=notification&get_post_meta`;
-		},
-	},
-	created() {
-		axios.get(this.searchUrl).then((response) => {
-			console.log(response.data.items);
-			this.posts = response.data.items;
-		});
+		return {};
 	},
 	template: `
-		<div>
+		<div v-if="post" @click.self="$emit('close')">
+			<!-- Background Layer -->
+			(ここは背景)
 			<div>
-				({{ posts.length }})
+				<!-- Content Layer -->
+				<h1>{{ post.post_title }}</h1>
+				<div v-html="post.post_content"></div>
 			</div>
-			<NotificationPost v-for="p in posts" :key="p.ID" :post="p" />
 		</div>
 	`,
 };
 
-// ここは#app内で<NotificationList />を使えるようにするだけ
+const N2NotificationRead = {
+	props: {
+		/**
+		 * カスタム投稿の配列
+		 * WP_Post[]
+		 */
+		customPosts: Array,
+	},
+	components: { PostList, PostModal },
+	data() {
+		return {
+			/**
+			 * モーダルの内容
+			 * WP_Post
+			 */
+			modalContent: undefined,
+		};
+	},
+	methods: {
+		openModal(wpPost) {
+			this.modalContent = wpPost;
+		},
+		closeModal() {
+			this.modalContent = undefined;
+		},
+	},
+	template: `
+		<div>
+			<div v-if="customPosts.length === 0"> お知らせはありません </div>
+			<PostList v-for="p in customPosts" :key="p.ID" :post="p" @open="openModal(p)" />
+			<PostModal :post="modalContent" @close="closeModal()" />
+		</div>
+	`,
+};
+
 window.addEventListener("DOMContentLoaded", () => {
 	// eslint-disable-next-line no-new
 	new Vue({
 		el: "#app",
 		components: {
-			NotificationList: RootComponent,
+			N2NotificationRead,
 		},
 	});
 });

@@ -38,17 +38,13 @@ class N2_Notification_Read {
 
 	public function display_page() {
 		$posts = self::get_notifications(get_site()->blog_id);
-		n2_log($posts);
+		$posts = json_encode($posts, JSON_UNESCAPED_UNICODE);
 		?>
 		<div class="wrap">
 			<h1 class="wp-heading-inline">お知らせ</h1>
 			<p>過去のNENGシステムに関するお知らせをこのページから確認できます。</p>
-			<div>
-				<?php foreach($posts as $p): ?>
-				<div>
-					<div><?php echo $p->ID; ?></div>
-				</div>
-				<?php endforeach; ?>
+			<div id="app">
+				<n2-notification-read :custom-posts="<?php echo esc_attr($posts); ?>"  />
 			</div>
 		</div>
 		<?php
