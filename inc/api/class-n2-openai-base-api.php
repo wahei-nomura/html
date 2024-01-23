@@ -122,6 +122,7 @@ abstract class N2_OpenAI_Base_API {
 			case 'debug': // デバッグモード
 				header( 'Content-Type: application/json; charset=utf-8' );
 				print_r( static::$data['params'] );
+				print_r( static::get_template() );
 				print_r( static::$data['response'] );
 				exit;
 			case 'json': // json出力
