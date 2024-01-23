@@ -37,24 +37,51 @@ class N2_Notification_Read {
 	}
 
 	public function display_page() {
-		global $n2;
-		// 自治体とユーザー権限のリスト
-		$roles = $n2->get_roles();
-		array_walk($roles, fn(&$value) => $value = $value['role']);
-		$regions = $n2->get_regions();
-		$roles = json_encode($roles, JSON_UNESCAPED_UNICODE);
-		$regions = json_encode($regions, JSON_UNESCAPED_UNICODE);
-		// コンポーネントをタグにとして出力する時は小文字のケバブケースで書かないと認識されないよー
+		$posts = self::get_notifications(get_site()->blog_id);
 		?>
 		<div class="wrap">
 			<h1 class="wp-heading-inline">お知らせ</h1>
 			<div id="app">
-				<notification-list
-					:all-rolls="<?php echo esc_attr($roles); ?>"
-					:all-regions="<?php echo esc_attr($regions); ?>"
-				/>
+				
 			</div>
 		</div>
 		<?php
+	}
+
+	private static function get_notifications($current_blod_id) {
+		global $n2;
+		switch_to_blog(1); // メインサイトからのみ投稿してる
+		$items = get_posts([
+			'post_type' => 'notification',
+			'post_status' => 'publish', // 公開中のみ
+			'numberposts' => -1, // 全て
+		]);
+		$items = array_map(function($item) use($n2, $current_blod_id) {
+			// カスタムフィールドの値を取得
+			$meta = array_map(
+				fn($v) => maybe_unserialize($v[0]),
+				get_post_meta($item->ID)
+			);
+			// 自治体フィルター
+			$has_target_region = in_array(
+				$current_blod_id,
+				$meta['notification-target-region']
+			);
+			if (!$has_target_region) return false;
+			// 権限フィルター
+			if (!is_admin()) {
+				$has_target_role = in_array(
+					$n2->current_user->roles[0],
+					$meta['notification-target-role']
+				);
+				if (!$has_target_role) return false;
+			}
+			$item->post_meta = $meta;
+			return $item;
+		}, $items);
+		$items = array_filter($items);
+		$items = array_values($items);
+		restore_current_blog(); // 戻す
+		return $items;
 	}
 }
