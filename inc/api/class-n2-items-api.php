@@ -116,7 +116,7 @@ class N2_Items_API {
 						'post_content' => $post_content ?? $v->post_content,
 					);
 					if ( self::$data['params']['get_post_meta'] ) {
-						$posts[ $k ]['post_meta'] = array_map( fn( $v ) => $v[0], get_post_meta( $v->ID ) );
+						$posts[ $k ]['post_meta'] = array_map( fn( $v ) => maybe_unserialize( $v[0] ), get_post_meta( $v->ID ) );
 					}
 				}
 			}
