@@ -48,6 +48,7 @@ class N2_User_Export_Base {
 		add_filter( mb_strtolower( get_class( $this ) ) . '_walk_values', array( $this, 'check_error' ), 10, 3 );
 		add_action( 'wp_ajax_' . mb_strtolower( get_class( $this ) ), array( $this, 'export' ) );
 		add_filter( mb_strtolower( get_class( $this ) ) . '_filename', array( $this, 'add_town_to_filename' ) );
+		add_action( 'admin_footer-users.php', array( $this, 'user_export_ui' ) );// ユーザー一覧のフッターにUI表示
 	}
 
 	/**
@@ -103,7 +104,9 @@ class N2_User_Export_Base {
 	 * ヘッダー配列の作成（基本的に拡張で上書きする）
 	 */
 	protected function set_header() {
-		$header = ['user_login', 'user_email', 'user_pass', 'nickname', 'first_name', 'last_name', 'display_name', 'role'];
+		$params = $this->data['params'];
+		$type   = $params['type'] ?? 'all_user';
+		$header = ['id', 'ログインアカウント名', 'メールアドレス', 'パスワード', '事業者名', '事業者コード', 'ポータルサイトでの表示名', '権限'];
 		/**
 		 * [hook] n2_user_export_base_set_header
 		 */
@@ -114,19 +117,26 @@ class N2_User_Export_Base {
 	 * 内容を配列で作成
 	 */
 	protected function set_data() {
-		$users = get_users();
+		$users  = get_users();
+		$params = $this->data['params'];
+		$type   = $params['type'] ?? 'all_user';
 		// データをセットする
 		foreach ( $users as $key => $values ) {
 			$id = $values->data->ID;
 			$meta_users = get_user_meta($id);
-			$user_values['user_login'] = $values->data->user_login;
-			$user_values['user_email'] = $values->data->user_pass;
-			$user_values['user_pass'] = $values->data->user_email;
-			$user_values['nickname'] = $meta_users['nickname'];
-			$user_values['first_name'] = $meta_users['first_name'];
-			$user_values['last_name'] = $meta_users['last_name'];
-			$user_values['display_name'] = $values->data->display_name;
-			$user_values['role'] = $values->roles;
+			if ( 'all_user' !== $type ) {
+				if ( $values->roles[0] !== $type ) { // 選択したユーザー権限以外はスキップ
+					continue;
+				}
+			}
+			$user_values['id'] = $id;
+			$user_values['ログインアカウント名'] = $values->data->user_login;
+			$user_values['メールアドレス'] = $values->data->user_email;
+			$user_values['パスワード'] = $values->data->user_pass;
+			$user_values['事業者名'] = $meta_users['first_name'];
+			$user_values['事業者コード'] = $meta_users['last_name'];
+			$user_values['ポータルサイトでの表示名'] = $values->data->display_name;
+			$user_values['権限'] = $values->roles;
 			// ヘッダーをセット
 			$data[ $id ] = $this->data['header'];
 			array_walk( $data[ $id ], array( $this, 'walk_values' ), $user_values );
@@ -156,25 +166,6 @@ class N2_User_Export_Base {
 	protected function walk_values( &$val, $index, $n2values ) {
 		// 最終的に入る項目の値（文字列）
 		$data = $n2values[ $val ] ?: '';
-		// 商品属性だけ階層が深くなっているので必要なデータだけ掘りだして格納
-		$data = match ( $val ) {
-			'商品属性' => is_array( $data )
-			? implode(
-				"\n",
-				array_map(
-					fn( $v ) => sprintf(
-						'%s%s：%s%s',
-						$v['nameJa'],
-						$v['properties']['rmsMandatoryFlg'] ? '*' : '',
-						$v['value'],
-						! empty( $v['unitValue'] ) ? '：' . $v['unitValue'] : ''
-					),
-					$data
-				)
-			)
-			: '',
-			default => $data,
-		};
 		if ( is_array( $data ) ) {
 			// |で連結
 			$data = implode( '|', $data );
@@ -456,5 +447,11 @@ class N2_User_Export_Base {
 		print_r( $this->data );
 		exit;
 	}
+	public function user_export_ui() {
+		if ( current_user_can( 'ss-crew' )) {
+			get_template_part( 'template/admin-users/user-list-export' );
+		}
+	}
+
 }
 

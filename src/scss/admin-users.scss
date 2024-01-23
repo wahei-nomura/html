@@ -1,0 +1,23 @@
+#n2-user-export{
+	background: #ffe1e1;
+    border: 1px solid #8b0000;
+    margin: 0 20px 40px 180px;
+	&-header{
+		font-size: 1.2rem;
+		background: #ffb0b0;
+		display: block;
+		padding: 0.5rem 1rem;
+	}
+	form{
+		padding: .5rem 1rem;
+		label{
+			margin-right: .5rem;
+		}
+	}
+}
+
+@media screen and (max-width: 768px){
+	#n2-user-export{
+		margin: 0 20px 40px 20px;
+	}
+}
