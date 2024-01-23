@@ -7,8 +7,8 @@
  */
 
 if ( class_exists( 'N2_RMS_Navigation_API' ) ) {
-   new N2_RMS_Navigation_API();
-   return;
+	new N2_RMS_Navigation_API();
+	return;
 }
 
 /**
