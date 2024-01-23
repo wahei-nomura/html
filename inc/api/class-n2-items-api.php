@@ -69,11 +69,24 @@ class N2_Items_API {
 			'post_status'      => 'any',
 			'post_type'        => 'post',
 			'numberposts'      => -1,
+			'fields'           => 'all',
 			'mode'             => 'json',
 			'n2_active_flag'   => $n2->settings['N2']['稼働中'],
 		);
 		// デフォルト値を$paramsで上書き
 		self::$data['params'] = wp_parse_args( $params, $defaults );
+	}
+
+	/**
+	 * メモリ節約のためにIDのみ取得
+	 *
+	 * @param array $params パラメータ
+	 */
+	public static function get_posts_ids( $params ) {
+		$params = wp_parse_args( $params );
+		// IDのみに強制
+		$params['fields'] = 'ids';
+		return get_posts( $params );
 	}
 
 	/**
@@ -84,25 +97,32 @@ class N2_Items_API {
 	public static function get_items( $params = array() ) {
 		$params = wp_parse_args( $params );
 		self::set_params( $params );
-		$posts = get_posts( self::$data['params'] );
-		$posts = array_map(
-			function ( $v ) {
+		$params = self::$data['params'];
+		if ( 'all' === self::$data['params']['fields'] ) {
+			$posts = self::get_posts_ids( $params );
+			foreach ( $posts as $k => $id ) {
+				$v = get_post( $id );
+				// post_content jsonデコード
 				$post_content = json_decode( $v->post_content, true );
 				if ( 'post' === self::$data['params']['post_type'] ) {
 					// idを混ぜ込む
 					$post_content['id'] = $v->ID;
-					return $post_content;
+					$posts[ $k ]        = $post_content;
 				} else {
-					return array(
+					$posts[ $k ] = array(
 						'ID'           => $v->ID,
 						'post_title'   => $v->post_title,
 						'post_date'    => $v->post_date,
-						'post_content' => $post_content,
+						'post_content' => $post_content ?? $v->post_content,
 					);
+					if ( self::$data['params']['get_post_meta'] ) {
+						$posts[ $k ]['post_meta'] = array_map( fn( $v ) => maybe_unserialize( $v[0] ), get_post_meta( $v->ID ) );
+					}
 				}
-			},
-			$posts
-		);
+			}
+		} else {
+			$posts = get_posts( $params );
+		}
 		$posts = array_filter( $posts );
 		/**
 		 * [hook] n2_items_api_get_items
@@ -138,7 +158,9 @@ class N2_Items_API {
 		 *  [hook] n2_items_api_before_update
 		 */
 		do_action( 'n2_items_api_before_update', $params );
-		foreach ( get_posts( $params ) as $post ) {
+		foreach ( self::get_posts_ids( $params ) as $id ) {
+			$post = get_post( $id );
+			// ステータス・事業者変更
 			$post->post_status = ! empty( $params['change_status'] ) ? $params['change_status'] : $post->post_status;
 			$post->post_author = ! empty( $params['change_author'] ) ? $params['change_author'] : $post->post_author;
 			/**

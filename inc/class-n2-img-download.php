@@ -145,7 +145,7 @@ class N2_Img_Download {
 				foreach ( $dl_types as $type ) {
 					$img_url   = "{$img['url']}?id={$id}";
 					$type_info = array(
-						'dirname'     => "{$dirname}_{$type}",
+						'dirname'     => 'フルサイズ' === $type ? $dirname : "{$dirname}_{$type}",
 						'filename'    => "{$filename}-{$index}.{$extension}",
 						'description' => $img['description'] ?? '',
 						'tmp_uri'     => $info['フルサイズ'][ $img_url ]['tmp_uri'] ?? '',
@@ -158,6 +158,7 @@ class N2_Img_Download {
 						true => $type_info['tmp_uri'] ?: stream_get_meta_data( tmpfile() )['uri'],
 						default => stream_get_meta_data( tmpfile() )['uri'],
 					};
+					// N1画像対応
 					if ( ! $image_attributes && ! $set_fullsize ) {
 						// フルサイズに変更
 						$type_bck                  = $type;
@@ -166,7 +167,7 @@ class N2_Img_Download {
 						$info[ $type ][ $img_url ] = $type_info;
 						// 元に戻す
 						$type                 = $type_bck;
-						$type_info['dirname'] = "{$dirname}_{$type}";
+						$type_info['dirname'] = 'フルサイズ' === $type ? $dirname : "{$dirname}_{$type}";
 					}
 					$img_url = match ( ! $image_attributes ) {
 						true => $img_url,
@@ -182,6 +183,7 @@ class N2_Img_Download {
 					$requests[] = array(
 						'url'     => $img_url,
 						'options' => array(
+							// tmpファイルにボディを流し込むオプション(https://developer.wordpress.org/reference/classes/Requests/request/)
 							'filename' => $type_info['tmp_uri'],
 						),
 					);
@@ -192,7 +194,7 @@ class N2_Img_Download {
 			}
 		}
 		$description = array();
-		Requests::request_multiple( $requests, array( 'timeout' => 100 ) );
+		N2_Multi_URL_Request_API::request_multiple( $requests, array( 'timeout' => 100 ) );
 		foreach ( $dl_types as $type ) {
 			foreach ( $info[ $type ] as $i ) {
 				// DLした画像を必要ならリサイズ&トリミングする

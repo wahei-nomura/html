@@ -35,19 +35,21 @@ class N2_Item_Export_Base {
 	 * @var array
 	 */
 	protected $data = array(
-		'params'  => array(),
-		'header'  => array(),
-		'n2field' => array(),
-		'n2data'  => array(),
-		'data'    => array(),
-		'error'   => array(),
-		'string'  => '',
+		'params'       => array(),
+		'memory_usage' => array(),
+		'header'       => array(),
+		'n2field'      => array(),
+		'n2data'       => array(),
+		'data'         => array(),
+		'error'        => array(),
+		'string'       => '',
 	);
 
 	/**
 	 * コンストラクタ
 	 */
 	public function __construct() {
+		$this->set_memory_usage( 'start' );
 		add_filter( mb_strtolower( get_class( $this ) ) . '_walk_values', array( $this, 'check_error' ), 10, 3 );
 		add_action( 'wp_ajax_' . mb_strtolower( get_class( $this ) ), array( $this, 'export' ) );
 		add_filter( mb_strtolower( get_class( $this ) ) . '_filename', array( $this, 'add_town_to_filename' ) );
@@ -83,6 +85,7 @@ class N2_Item_Export_Base {
 		$this->set_header();
 		$this->set_data();
 
+		// n2_log($this->data['memory_usage']);
 		$this->{$this->data['params']['mode']}();
 	}
 
@@ -104,6 +107,7 @@ class N2_Item_Export_Base {
 		);
 		// デフォルト値を$paramsで上書き
 		$this->data['params'] = wp_parse_args( $params, $defaults );
+		$this->set_memory_usage( 'set_params' );
 	}
 
 	/**
@@ -128,6 +132,7 @@ class N2_Item_Export_Base {
 		 * [hook] n2_item_export_base_set_n2field
 		 */
 		$this->data['n2field'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_n2field', $n2field );
+		$this->set_memory_usage( 'set_n2field' );
 	}
 
 	/**
@@ -161,6 +166,7 @@ class N2_Item_Export_Base {
 			$n2data
 		);
 		$this->data['n2data'] = $n2data;
+		$this->set_memory_usage( 'set_n2data' );
 	}
 
 	/**
@@ -176,6 +182,7 @@ class N2_Item_Export_Base {
 		 * [hook] n2_item_export_base_set_header
 		 */
 		$this->data['header'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_header', $header );
+		$this->set_memory_usage( 'set_header' );
 	}
 
 	/**
@@ -204,6 +211,7 @@ class N2_Item_Export_Base {
 		$data = array_values( $data );
 		// dataをセット
 		$this->data['data'] = array_filter( $data );// 空は削除
+		$this->set_memory_usage( 'set_data' );
 	}
 
 	/**
@@ -523,5 +531,22 @@ class N2_Item_Export_Base {
 		print_r( $this->data );
 		exit;
 	}
-}
 
+	/**
+	 * メモリ使用量のログ
+	 *
+	 * @param string $name 名前
+	 */
+	private function set_memory_usage( $name ) {
+		$memory = array(
+			'usage' => ceil( memory_get_usage() / ( 1024 * 1024 ) ) . 'MB',
+			'peak'  => ceil( memory_get_peak_usage() / ( 1024 * 1024 ) ) . 'MB',
+		);
+		// 記録
+		if ( $name ) {
+			$this->data['memory_usage'][ $name ] = $memory;
+		} else {
+			$this->data['memory_usage'][] = $memory;
+		}
+	}
+}

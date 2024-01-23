@@ -25,6 +25,7 @@ export default ($: any = jQuery) => {
 		post_status: '',
 		current_user: n2.current_user.roles[0],
 		number_format: true,// ３桁区切りカンマ用
+		info: {},
 		寄附金額自動計算値: '',
 		寄附金額チェッカー: '',
 		商品属性アニメーション: false,
@@ -87,34 +88,9 @@ export default ($: any = jQuery) => {
 		wp.data.dispatch( 'core/keyboard-shortcuts' ).unregisterShortcut('core/editor/redo');
 	};
 	const methods = {
-		// 地場産品類型に応じて類型該当理由の注意書きを修正
-		update_applicable_reason() {
-			let info = n2.custom_field['スチームシップ用']['類型該当理由']['description'] + '<br>※記入例：' + n2.settings['N2']['類型該当理由注意書き'][this.地場産品類型];
-			if(undefined !== n2.settings['N2']['類型該当理由注意書き'][this.地場産品類型]){
-				$('#類型該当理由').find('.n2-fields-value').data('description',info);
-				$('#類型該当理由').find('.n2-field-description').find('.alert-primary').html(info);
-			}
-		},
 		// 説明文・テキストカウンター
 		set_info(target) {
-			let description_text = $(target).parents('.n2-fields-value').data('description');
-			$(target).parents('.n2-fields-value').find('.d-none').removeClass('d-none');
-			const info = [
-				$(target).parents('.n2-fields-value').data('description') && ! document.cookie.match(/n2-zenmode/) 
-					? `<div class="alert alert-primary mb-2">${description_text}</div>`
-					: '',
-				$(target).attr('maxlength')
-					? `文字数：${($(target).val() as any).length} / ${$(target).attr('maxlength')}`
-					: '',
-			].filter( v => v );
-			if ( ! info.length ) return
-			if ( ! $(target).parents('.n2-fields-value').find('.n2-field-description').length ) {
-				$(target).parents('.n2-fields-value').prepend(`<div class="n2-field-description small lh-base col-12">${info.join('')}</div>`);
-			}
-			$(target).parents('.n2-fields-value').find('.n2-field-addition.d-none').removeClass('d-none');
-			if ( $(target).attr('maxlength') ) {
-				$(target).parents('.n2-fields-value').find('.n2-field-description').html(info.join(''));
-			}
+			this.$set( this.tmp.info, target.name.match(/\[(.*?)\]/)[1], true)
 		},
 		// 強制半角数字入力
 		force_half_size_text($event, type, target) {
@@ -336,13 +312,9 @@ export default ($: any = jQuery) => {
 		auto_fit_tetxarea(textarea){
 			$(textarea).height('auto').height($(textarea).get(0).scrollHeight);
 		},
-		// 説明文の例文を挿入
-		insert_example_description( target ) {
-			const textarea = $(target).parents('.n2-fields-value').find('textarea');
-			let text = textarea.val();
-			// 後にここで事業者用のテンプレートがあるか確認してゴニョゴニョする
-			text += n2.custom_field.事業者用.説明文.placeholder
-			textarea.val(text);
+		// プレースホルダーを挿入
+		insert_placeholder( field ) {
+			this.$data[field] += $(`[name="n2field[${field}]"]`).attr('placeholder').replace('例）', '');
 		},
 		// 楽天SPAカテゴリー取得
 		async get_spa_category() {

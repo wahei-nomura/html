@@ -63,6 +63,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 	 */
 	protected function walk_values( &$val, $index, $n2values ) {
 		global $n2;
+
 		$choice_settings = $n2->settings['ふるさとチョイス'];
 		$caution_name = $n2->town . '-注意書き.jpg'; // デフォルト注意書き
 		// 注意書き
@@ -116,6 +117,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 		// アレルゲン
 		{
 			$n2values['アレルゲン'] = (array) $n2values['アレルゲン'];
+			$n2values['アレルゲン'] = preg_replace( '/乳/', '乳成分', $n2values['アレルゲン'] );// ヘッダーの乳→乳成分の変更あり（1/17）、チョイスのみ
 			$n2values['アレルゲン'] = preg_replace( '/（.*?）/', '', $n2values['アレルゲン'] );// 不純物（カッコの部分）を削除
 		}
 
