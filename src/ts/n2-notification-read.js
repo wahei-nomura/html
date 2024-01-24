@@ -49,12 +49,12 @@ const PostModal = {
 		<MountingPortal v-if="post" mountTo="#wpwrap" append>
 			<div @click.self="$emit('close')" class="vue-modal">
 				<!-- Background Layer -->
-				<div class="vue-modal-content">
+				<article class="vue-modal-content">
 					<!-- Content Layer -->
 					<h1>{{ post.post_title }}</h1>
 					<div>{{ post.post_date }}</div>
-					<div v-html="post.post_content"></div>
-				</div>
+					<section v-html="post.post_content"></section>
+				</article>
 			</div>
 		</MountingPortal>
 	`,
@@ -104,7 +104,7 @@ const N2NotificationRead = {
 	},
 	template: `
 		<div>
-			<div v-if="customPosts.length === 0"> お知らせはありません </div>
+			<div>{{ customPosts.length }}件</div>
 			<PostList :posts="formattedPosts" @open="openModal" />
 			<PostModal :post="modalContent" @close="closeModal" />
 		</div>
