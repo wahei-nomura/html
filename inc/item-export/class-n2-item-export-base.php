@@ -498,11 +498,6 @@ class N2_Item_Export_Base {
 		?>
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
 		<title>スプレットシートに値貼り付け</title>
-		<?php
-		echo "<pre>";
-		echo var_dump($this);
-		echo "</pre>";
-		?>
 		<textarea class="form-control"style="height:100%"><?php echo esc_html( $this->settings['header_string'] . $this->data['string'] ); ?></textarea>
 		<?php
 		exit;
