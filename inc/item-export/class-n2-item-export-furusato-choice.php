@@ -44,7 +44,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 		// 取得
 		$res = wp_remote_get( $auth['url'], $args );
 		// TSVヘッダー本体
-		// $tsv_header = trim( $res['body'] );
+		$tsv_header = trim( $res['body'] );
 		// TSVヘッダー配列化
 		$this->data['header'] = explode( "\t", $tsv_header );
 		/**
