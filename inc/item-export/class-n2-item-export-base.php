@@ -117,6 +117,7 @@ class N2_Item_Export_Base {
 		global $n2;
 		$n2field = array(
 			...array_keys( $n2->custom_field['スチームシップ用'] ),
+			...array_keys( $n2->custom_field['自治体用']),
 			...array_keys( $n2->custom_field['事業者用'] ),
 		);
 		// 重複削除
@@ -497,6 +498,11 @@ class N2_Item_Export_Base {
 		?>
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
 		<title>スプレットシートに値貼り付け</title>
+		<?php
+		echo "<pre>";
+		echo var_dump($this);
+		echo "</pre>";
+		?>
 		<textarea class="form-control"style="height:100%"><?php echo esc_html( $this->settings['header_string'] . $this->data['string'] ); ?></textarea>
 		<?php
 		exit;
