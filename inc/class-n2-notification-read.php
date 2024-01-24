@@ -18,7 +18,10 @@ class N2_Notification_Read {
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		add_action( 'admin_menu', array( $this, 'add_menu' ) );
+		if (get_site()->blog_id != 1) {
+			// 自治体のページならナビゲーションに追加
+			add_action( 'admin_menu', array( $this, 'add_menu' ) );
+		}
 	}
 
 	/**
