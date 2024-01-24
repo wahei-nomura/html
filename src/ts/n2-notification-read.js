@@ -5,13 +5,23 @@ import Vue from "vue";
  */
 const PostList = {
 	props: {
-		post: Object,
+		/**
+		 * カスタム投稿の配列
+		 * WP_Post[]
+		 */
+		posts: Array,
 	},
 	emits: ["open"],
 	template: `
-		<div>
-			<span @click="$emit('open')">{{ post.post_title }}</span>
-			<span>{{ post.post_date }}</span>
+		<div class="vue-ul">
+			<div v-for="p in posts" :key="p.ID" class="vue-li">
+				<span class="vue-li-title" @click="$emit('open', p)">
+					{{ p.post_title }}
+				</span>
+				<span class="vue-li-date">
+					{{ p.post_date }}
+				</span>
+			</div>
 		</div>
 	`,
 };
@@ -21,19 +31,20 @@ const PostList = {
  */
 const PostModal = {
 	props: {
+		/**
+		 * モーダルの内容
+		 * WP_Post
+		 */
 		post: Object,
 	},
 	emits: ["close"],
-	data() {
-		return {};
-	},
 	template: `
-		<div v-if="post" @click.self="$emit('close')">
+		<div v-if="post" @click.self="$emit('close')" class="vue-modal">
 			<!-- Background Layer -->
-			(ここは背景)
-			<div>
+			<div class="vue-modal-content">
 				<!-- Content Layer -->
 				<h1>{{ post.post_title }}</h1>
+				<div>{{ post.post_date }}</div>
 				<div v-html="post.post_content"></div>
 			</div>
 		</div>
@@ -58,6 +69,15 @@ const N2NotificationRead = {
 			modalContent: undefined,
 		};
 	},
+	computed: {
+		// 日付の部分だけ日本語に変換
+		formattedPosts() {
+			return this.customPosts.map((p) => {
+				p.post_date = this.formatDate(p.post_date);
+				return p;
+			});
+		},
+	},
 	methods: {
 		openModal(wpPost) {
 			this.modalContent = wpPost;
@@ -65,12 +85,19 @@ const N2NotificationRead = {
 		closeModal() {
 			this.modalContent = undefined;
 		},
+		formatDate(dateString) {
+			const date = new Date(dateString);
+			const y = date.getFullYear();
+			const m = String(date.getMonth() + 1).padStart(2, "0");
+			const d = String(date.getDate()).padStart(2, "0");
+			return `${y}年${m}月${d}日`;
+		},
 	},
 	template: `
 		<div>
 			<div v-if="customPosts.length === 0"> お知らせはありません </div>
-			<PostList v-for="p in customPosts" :key="p.ID" :post="p" @open="openModal(p)" />
-			<PostModal :post="modalContent" @close="closeModal()" />
+			<PostList :posts="formattedPosts" @open="openModal" />
+			<PostModal :post="modalContent" @close="closeModal" />
 		</div>
 	`,
 };
