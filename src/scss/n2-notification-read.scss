@@ -49,10 +49,11 @@ $max-w: 760px;
 		background-color: $modal-bg;
 		backdrop-filter: blur(1px);
 		&-content {
+			overflow-y: scroll;
 			box-sizing: border-box;
 			max-width: $max-w;
 			height: calc(100vh - 80px);
-			padding: 20px;
+			padding: 30px 40px;
 			margin: 0 auto;
 			background-color: $white;
 		}
