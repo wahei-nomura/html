@@ -38,14 +38,14 @@ class N2_Notification_Read {
 				25
 			);
 		} else {
-			wp_redirect('edit.php?post_type=notification');
+			// wp_redirect('edit.php?post_type=notification');
 		}
 	}
 
 	public function custom_redirect_on_permission_error() {
 		// メインサイトには閲覧用ページがないから管理用のページにリダイレクト
 		if (get_site()->blog_id == 1) {
-			wp_redirect('/wp-admin/edit.php?post_type=notification');
+			// wp_redirect('/wp-admin/edit.php?post_type=notification');
 		}
 	}
 

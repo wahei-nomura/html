@@ -120,24 +120,29 @@ class N2_Notification {
      * @param array   $metabox メタボックスのデータ
      */
     public function display_customfield_roll( $post, $metabox ) {
+		global $pagenow;
 		// ユーザー権限マスタ
-		$user_roles = yaml_parse_file( get_theme_file_path( 'config/user-roles.yml' ) );
+		$all_roles = yaml_parse_file( get_theme_file_path( 'config/user-roles.yml' ) );
+		$role_names = array_keys($all_roles); // 表示名
+		$role_codes = array_map(fn($r) => $r['role'], $all_roles); // 値
+		$role_options = array_map(fn($name, $code) => [$code, $name], $role_names, $role_codes);
+		$role_options = json_encode($role_options, JSON_UNESCAPED_UNICODE);
 		// この投稿を表示するユーザー権限
-		$post_roles = get_post_meta( $post->ID, self::CUSTOMFIELD_ID_ROLE, true );
+		$is_new_post = $pagenow === 'post-new.php';
+		if ($is_new_post) {
+			$post_roles = $role_codes; // 新規追加なら全て選択でスタート
+		} else {
+			$post_roles = get_post_meta( $post->ID, self::CUSTOMFIELD_ID_ROLE, true);
+			$post_roles = json_encode($post_roles, JSON_UNESCAPED_UNICODE);
+		}
         ?>
-		<?php foreach ( $user_roles as $role_display_name => $role_detail ) : ?>
-        <div>
-            <label>
-				<input
-					type="checkbox"
-					name="<?php echo $metabox['id']; ?>[]"
-					value="<?php echo $role_detail['role']; ?>"
-					<?php echo is_array($post_roles) && in_array($role_detail['role'], $post_roles) ? 'checked' : ''; ?>
-				/>
-				<span><?php echo $role_display_name; ?></span>
-			</label>
-        </div>
-		<?php endforeach; ?>
+        <div id="notification-input-roles">
+			<custom-checkboxes
+				name="<?php echo esc_attr($metabox['id']); ?>[]"
+				:options="<?php echo esc_attr($role_options); ?>"
+				:initial="<?php echo esc_attr($post_roles); ?>"
+			/>
+		</div>
         <?php
     }
 

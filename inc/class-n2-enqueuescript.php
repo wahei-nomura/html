@@ -45,6 +45,7 @@ class N2_Enqueuescript {
 			// 投稿系（編集・新規追加）
 			'post.php', 'post-new.php' => match ( $post_type ) {
 				'post' => 'admin-post-editor',
+				'notification' => 'n2-notification',
 				default => '',
 			},
 			// 投稿系（一覧）
