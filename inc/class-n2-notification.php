@@ -176,20 +176,18 @@ class N2_Notification {
      * @param WP_Post $post 投稿オブジェクト
      */
     public function save_customfields( $post_id, $post ) {
-        // オートセーブの場合は何もしない
-        if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-            return;
-        }
 		// ユーザー権限
-        if ( isset( $_POST[self::CUSTOMFIELD_ID_ROLE] ) ) {
-			$sanitized = array_map('sanitize_text_field', $_POST[self::CUSTOMFIELD_ID_ROLE]);
-            update_post_meta( $post_id, self::CUSTOMFIELD_ID_ROLE, $sanitized);
-        }
+		update_post_meta(
+			$post_id,
+			self::CUSTOMFIELD_ID_ROLE,
+			$_POST[self::CUSTOMFIELD_ID_ROLE] ?? [] // チェックが入ってないと何も値が来ないから置換する
+		);
 		// 自治体
-        if ( isset( $_POST[self::CUSTOMFIELD_ID_REGION] ) ) {
-			$sanitized = array_map('sanitize_text_field', $_POST[self::CUSTOMFIELD_ID_REGION]);
-            update_post_meta( $post_id, self::CUSTOMFIELD_ID_REGION, $sanitized);
-        }
+		update_post_meta(
+			$post_id,
+			self::CUSTOMFIELD_ID_REGION,
+			$_POST[self::CUSTOMFIELD_ID_REGION] ?? []
+		);
     }
 
 	/**
