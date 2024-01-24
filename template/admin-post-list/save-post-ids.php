@@ -33,8 +33,6 @@ global $n2;
 						<!-- フォーマット選択 -->
 						<div style="margin-bottom: 1em;">
 							<span>フォーマット選択 ：　</span>
-							<!-- user -->
-							<label><input type="radio" name="action" value="n2_user_export_base" v-model="fd.action"> USER</label>
 							<!-- N2 -->
 							<label><input type="radio" name="action" value="n2_item_export_base" v-model="fd.action"> N2</label>
 							<!-- [LedgHOME] -->
