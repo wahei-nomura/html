@@ -183,6 +183,11 @@ export default ($: any = jQuery) => {
 			};
 			let res = await $.ajax(opt);
 			res = JSON.parse(res);
+			if ( ! res.genre ) {
+				alert('RMS APIに接続できません');
+				this.tmp.商品属性アニメーション = false;
+				return;
+			}
 			let attr = res.genre.attributes;
 			attr = mandatoryFlg ? attr.filter( v => v.properties.rmsMandatoryFlg ) : attr;
 			this.商品属性 = this.商品属性 || attr;
