@@ -103,6 +103,7 @@ class N2_Product_List_Print {
 									</tr>
 									<?php foreach ( $product_table_tr_list as $th => $val ) : ?>
 										<?php
+											n2_log( $product_table_tr_list );
 											$td = $p[ $val['meta_key'] ?? $th ] ?? '';           // meta_keyがnullだったら$thを適用
 											$td = nl2br( $td );                                  // \nを<br />に
 											$td = preg_replace( '@\t|\r|\n|@', '', $td );        // \t,\r,\nを''に
@@ -160,6 +161,9 @@ class N2_Product_List_Print {
 														$td = implode( '　', $td );
 														$td .= "<br>{$p['対応機器備考']}";
 													}
+													break;
+												case '備考欄':
+													$td .= '&nbsp';
 													break;
 											}
 											// styleあててる
