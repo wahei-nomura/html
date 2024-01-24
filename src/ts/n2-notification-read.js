@@ -51,9 +51,15 @@ const PostModal = {
 				<!-- Background Layer -->
 				<article class="vue-modal-content">
 					<!-- Content Layer -->
+					<div>
+						<button @click="$emit('close')">閉じる</button>
+					</div>
 					<h1>{{ post.post_title }}</h1>
 					<div>{{ post.post_date }}</div>
 					<section v-html="post.post_content"></section>
+					<div>
+						<button @click="$emit('close')">閉じる</button>
+					</div>
 				</article>
 			</div>
 		</MountingPortal>
