@@ -1,20 +1,20 @@
 <?php
 /**
- * class-n2-user-export-base.php
+ * class-n2-user-export.php
  * ユーザー情報エクスポート
  *
  * @package neoneng
  */
 
-if ( class_exists( 'N2_User_Export_Base' ) ) {
-	new N2_User_Export_Base();
+if ( class_exists( 'N2_User_Export' ) ) {
+	new N2_User_Export();
 	return;
 }
 
 /**
- * N2_User_Export_Base
+ * N2_User_Export
  */
-class N2_User_Export_Base {
+class N2_User_Export {
 
 	/**
 	 * 設定（基本的に拡張で上書きする）
@@ -108,7 +108,7 @@ class N2_User_Export_Base {
 		$type   = $params['type'] ?? 'all_user';
 		$header = ['id', 'ログインアカウント名', 'メールアドレス', 'パスワード', '事業者名', '事業者コード', 'ポータルサイトでの表示名', '権限'];
 		/**
-		 * [hook] n2_user_export_base_set_header
+		 * [hook] n2_user_export_set_header
 		 */
 		$this->data['header'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_header', $header );
 	}
@@ -146,7 +146,7 @@ class N2_User_Export_Base {
 			}
 		}
 		/**
-		 * [hook] n2_user_export_base_set_data
+		 * [hook] n2_user_export_set_data
 		 */
 		$data = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_data', $data );
 		// エラーは排除
@@ -171,7 +171,7 @@ class N2_User_Export_Base {
 			$data = implode( '|', $data );
 		}
 		/**
-		 * [hook] n2_user_export_base_walk_values
+		 * [hook] n2_user_export_walk_values
 		 *
 		 * @param string $data 項目値
 		 * @param string $val 項目名
@@ -191,7 +191,7 @@ class N2_User_Export_Base {
 			$this->settings['header_string'] .= '"' . implode( "\"{$this->settings['delimiter']}\"", $this->data['header'] ) . '"' . PHP_EOL;
 		}
 		/**
-		 * [hook] n2_user_export_base_set_header_string
+		 * [hook] n2_user_export_set_header_string
 		 */
 		$this->settings['header_string'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_header_string', $this->settings['header_string'] );
 	}
@@ -216,7 +216,7 @@ class N2_User_Export_Base {
 			}
 		}
 		/**
-		 * [hook] n2_user_export_base_set_data_string
+		 * [hook] n2_user_export_set_data_string
 		 */
 		$this->data['string'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_data_string', $str );
 	}
@@ -229,7 +229,7 @@ class N2_User_Export_Base {
 	 */
 	protected function special_str_convert( $str ) {
 		/**
-		 * [hook] n2_user_export_base_special_str_convert
+		 * [hook] n2_user_export_special_str_convert
 		 */
 		$str = apply_filters( mb_strtolower( get_class( $this ) ) . '_special_str_convert', $str );
 		return $str;
@@ -332,15 +332,15 @@ class N2_User_Export_Base {
 	 */
 	private function download() {
 		/**
-		 * [hook] n2_user_export_base_charset
+		 * [hook] n2_user_export_charset
 		 */
 		$charset = apply_filters( mb_strtolower( get_class( $this ) ) . '_charset', $this->settings['charset'] );
 		/**
-		 * [hook] n2_user_export_base_filename
+		 * [hook] n2_user_export_filename
 		 */
 		$filename = apply_filters( mb_strtolower( get_class( $this ) ) . '_filename', $this->settings['filename'] );
 		/**
-		 * [hook] n2_user_export_base_download_add_btn
+		 * [hook] n2_user_export_download_add_btn
 		 */
 		$add_btn = apply_filters( mb_strtolower( get_class( $this ) ) . '_download_add_btn', array() );
 
@@ -351,7 +351,7 @@ class N2_User_Export_Base {
 		$includes = filter_input( INPUT_POST, 'include', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
 
 		/**
-		 * [hook] n2_user_export_base_download_str
+		 * [hook] n2_user_export_download_str
 		 */
 		$str = apply_filters( mb_strtolower( get_class( $this ) ) . '_download_str', $str, $option );
 
@@ -448,7 +448,7 @@ class N2_User_Export_Base {
 		exit;
 	}
 	public function user_export_ui() {
-		if ( current_user_can( 'ss-crew' )) {
+		if ( current_user_can( 'administrator' )) {
 			get_template_part( 'template/admin-users/user-list-export' );
 		}
 	}

@@ -19,7 +19,7 @@ global $n2;
 		<span id="n2-user-export-header">ユーザーエクスポート</span>
 		<form method="post" action="admin-ajax.php" target="_blank">
 			<input type="hidden" name="n2nonce" value="<?php echo wp_create_nonce( 'n2nonce' ); ?>">
-			<input type="hidden" name="action" value="n2_user_export_base" v-model="fd.action">
+			<input type="hidden" name="action" value="n2_user_export" v-model="fd.action">
 			<!-- タイプ選択 -->
 			<div style="margin-bottom: 1em;" v-if="fd.action.match(/lhcloud|ledghome/)">
 				<label><input type="radio" name="type" value="jigyousya" checked>事業者</label>
