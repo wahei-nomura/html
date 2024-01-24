@@ -1,4 +1,11 @@
 import Vue from "vue";
+import MountingPortal from "portal-vue";
+
+/**
+ * https://v2.portal-vue.linusb.org/
+ * https://v2.portal-vue.linusb.org/guide/advanced.html#rendering-outside-of-the-vue-app
+ */
+Vue.use(MountingPortal);
 
 /**
  * 投稿のリスト表示
@@ -39,15 +46,17 @@ const PostModal = {
 	},
 	emits: ["close"],
 	template: `
-		<div v-if="post" @click.self="$emit('close')" class="vue-modal">
-			<!-- Background Layer -->
-			<div class="vue-modal-content">
-				<!-- Content Layer -->
-				<h1>{{ post.post_title }}</h1>
-				<div>{{ post.post_date }}</div>
-				<div v-html="post.post_content"></div>
+		<MountingPortal v-if="post" mountTo="#wpwrap" append>
+			<div @click.self="$emit('close')" class="vue-modal">
+				<!-- Background Layer -->
+				<div class="vue-modal-content">
+					<!-- Content Layer -->
+					<h1>{{ post.post_title }}</h1>
+					<div>{{ post.post_date }}</div>
+					<div v-html="post.post_content"></div>
+				</div>
 			</div>
-		</div>
+		</MountingPortal>
 	`,
 };
 

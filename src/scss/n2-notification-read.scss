@@ -4,7 +4,7 @@ $white: rgb(255, 255, 255);
 $gray: rgb(107 114 128);
 $pale-gray: rgb(229 231 235);
 $blue: rgb(59 130 246);
-$modal-bg: rgba(30, 30, 30, 0.5);
+$modal-bg: rgba(30, 30, 30, 0.7);
 
 $max-w: 760px;
 
@@ -37,14 +37,23 @@ $max-w: 760px;
 	}
 	// モーダル
 	&-modal {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		padding: 20px;
+		z-index: 100000;
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		box-sizing: border-box;
+		width: 100vw;
+		height: 100vh;
+		padding: 40px;
 		background-color: $modal-bg;
+		backdrop-filter: blur(1px);
 		&-content {
+			box-sizing: border-box;
 			max-width: $max-w;
+			height: calc(100vh - 80px);
 			padding: 20px;
+			margin: 0 auto;
 			background-color: $white;
 		}
 	}
