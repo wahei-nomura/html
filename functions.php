@@ -32,7 +32,6 @@ $incs = array(
 	'class-n2-dashboard',
 	'class-n2-enqueuescript',
 	'class-n2-sync',
-	'class-n2-front',
 	'class-n2-img-download',
 	'class-n2-all-town',
 	'class-n2-item-export',
