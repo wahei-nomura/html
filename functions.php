@@ -35,7 +35,6 @@ $incs = array(
 	'class-n2-img-download',
 	'class-n2-item-export',
 	'class-n2-user-profile',
-	'class-n2-semi-auto-data-importer',
 	'class-n2-chonbo',
 	'class-n2-rakuten-ftp',
 	'api/class-n2-donation-amount-api',
