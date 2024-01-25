@@ -436,6 +436,8 @@ class N2 {
 
 	/**
 	 * 管理している自治体(サイト)のblog_idと名前を返す
+	 * get_sites()と区別するためにget_regions()にしている
+	 * 現状お知らせだけで使ってます
 	 * 
 	 * return $regions array
 	 */
@@ -450,15 +452,5 @@ class N2 {
 		}
 		restore_current_blog();
 		return $regions;
-	}
-
-	/**
-	 * ユーザー権限のマスターを取得
-	 * 
-	 * return $roles array
-	 */
-	public static function get_roles() {
-		$roles = yaml_parse_file(get_theme_file_path('config/user-roles.yml'));
-		return $roles;
 	}
 }
