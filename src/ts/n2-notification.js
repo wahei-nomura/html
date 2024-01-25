@@ -49,12 +49,14 @@ const CustomCheckboxes = {
 	},
 	template: `
 		<div>
-			<label>
+			<label class="vue-checkbox-all">
 				<input v-model="isCheckedAll" type="checkbox" />
-				<span>すべて</span>
+				<span>
+					<slot name="label-all">すべて</slot>
+				</span>
 			</label>
 			<div v-for="[value, label] in options" :key="value">
-				<label>
+				<label class="vue-checkbox-each">
 					<input
 						v-model="checkedValue"
 						type="checkbox"
@@ -69,18 +71,16 @@ const CustomCheckboxes = {
 };
 
 window.addEventListener("DOMContentLoaded", () => {
-	// eslint-disable-next-line no-new
-	new Vue({
-		el: "#notification-input-roles", // ユーザー権限
-		components: {
-			CustomCheckboxes,
-		},
-	});
-	// eslint-disable-next-line no-new
-	// new Vue({
-	// 	el: "#notification-input-regions", // 自治体
-	// 	components: {
-	// 		CustomCheckboxes,
-	// 	},
-	// });
+	[
+		"#notification-input-roles", // ユーザー権限
+		"#notification-input-regions", // 自治体
+	].map(
+		(el) =>
+			new Vue({
+				el,
+				components: {
+					CustomCheckboxes,
+				},
+			})
+	);
 });

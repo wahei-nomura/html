@@ -121,27 +121,26 @@ class N2_Notification {
      */
     public function display_customfield_roll( $post, $metabox ) {
 		global $pagenow;
-		// ユーザー権限マスタ
-		$all_roles = yaml_parse_file( get_theme_file_path( 'config/user-roles.yml' ) );
-		$role_names = array_keys($all_roles); // 表示名
-		$role_codes = array_map(fn($r) => $r['role'], $all_roles); // 値
-		$role_options = array_map(fn($name, $code) => [$code, $name], $role_names, $role_codes);
-		$role_options = json_encode($role_options, JSON_UNESCAPED_UNICODE);
-		// この投稿を表示するユーザー権限
-		$is_new_post = $pagenow === 'post-new.php';
-		if ($is_new_post) {
-			$post_roles = $role_codes; // 新規追加なら全て選択でスタート
-		} else {
-			$post_roles = get_post_meta( $post->ID, self::CUSTOMFIELD_ID_ROLE, true);
-			$post_roles = json_encode($post_roles, JSON_UNESCAPED_UNICODE);
-		}
+		// チェックボックス生成用
+		$roles = yaml_parse_file( get_theme_file_path( 'config/user-roles.yml' ) );
+		$values = array_column($roles, 'role'); // 値
+		$labels = array_keys($roles); // 表示名
+		$options = array_map(fn($value, $label) => [$value, $label], $values, $labels);
+		$options = json_encode($options, JSON_UNESCAPED_UNICODE);
+		// 新規追加と編集で初期値の取り方が変化する
+		$initial = $pagenow === 'post-new.php'
+			? $values // 新規追加なら全て選択でスタート
+			: get_post_meta( $post->ID, self::CUSTOMFIELD_ID_ROLE, true);
+		$initial = json_encode($initial, JSON_UNESCAPED_UNICODE);
         ?>
         <div id="notification-input-roles">
 			<custom-checkboxes
 				name="<?php echo esc_attr($metabox['id']); ?>[]"
-				:options="<?php echo esc_attr($role_options); ?>"
-				:initial="<?php echo esc_attr($post_roles); ?>"
-			/>
+				:options="<?php echo esc_attr($options); ?>"
+				:initial="<?php echo esc_attr($initial); ?>"
+			>
+				<template #label-all>全てのユーザー権限</template>
+			</custom-checkboxes>
 		</div>
         <?php
     }
@@ -153,25 +152,30 @@ class N2_Notification {
      * @param array   $metabox メタボックスのデータ
      */
     public function display_customfield_region( $post, $metabox ) {
-		// WPで管理している自治体のリスト
-		$sites = get_sites();
-		// この投稿を表示する自治体
-		$post_regions = get_post_meta( $post->ID, self::CUSTOMFIELD_ID_REGION, true ); // カンマ区切りの文字列で格納してある
-		?>
-		<?php foreach ( $sites as $site ) : switch_to_blog( $site->blog_id ); ?>
-		<div>
-			<label>
-				<input
-					type="checkbox"
-					name="<?php echo $metabox['id']; ?>[]"
-					value="<?php echo $site->blog_id; ?>"
-					<?php echo is_array($post_regions) && in_array($site->blog_id, $post_regions) ? 'checked' : ''; ?>
-				/>
-				<span><?php echo get_bloginfo( 'name' ); ?></span>
-			</label>
+		global $n2;
+		global $pagenow;
+		// チェックボックス生成用
+		$regions = $n2->get_regions();
+		$values = array_keys($regions);
+		$labels = array_column($regions, 'name');
+		$options = array_map(fn($value, $label) => [$value, $label], $values, $labels);
+		$options = json_encode($options, JSON_UNESCAPED_UNICODE);
+		// 新規追加と編集で初期値の取り方が変化する
+		$initial = $pagenow === 'post-new.php'
+			? $values
+			: get_post_meta($post->ID, self::CUSTOMFIELD_ID_ROLE, true);
+		$initial = json_encode($initial, JSON_UNESCAPED_UNICODE);
+        ?>
+        <div id="notification-input-regions">
+			<custom-checkboxes
+				name="<?php echo esc_attr($metabox['id']); ?>[]"
+				:options="<?php echo esc_attr($options); ?>"
+				:initial="<?php echo esc_attr($initial); ?>"
+			>
+				<template #label-all>全ての自治体</template>
+			</custom-checkboxes>
 		</div>
-		<?php restore_current_blog(); endforeach; ?>
-		<?php
+        <?php
     }
 
     /**
