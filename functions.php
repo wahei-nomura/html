@@ -33,7 +33,6 @@ $incs = array(
 	'class-n2-enqueuescript',
 	'class-n2-sync',
 	'class-n2-img-download',
-	'class-n2-all-town',
 	'class-n2-item-export',
 	'class-n2-user-profile',
 	'class-n2-semi-auto-data-importer',
