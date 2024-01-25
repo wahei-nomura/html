@@ -175,7 +175,7 @@ class N2_Setmenu {
 	 * @return void
 	 */
 	public function my_custom_logo() {
-		echo '<style type="text/css">#wpadminbar #wp-admin-bar-wp-logo > .ab-item > .ab-icon:before { content: url(' . get_theme_file_uri( 'neo_neng_logo.svg' ) . ');}</style>';
+		echo '<style type="text/css">#wpadminbar #wp-admin-bar-wp-logo > .ab-item > .ab-icon:before { content: url(' . get_theme_file_uri( 'assets/svg/neo_neng_logo.svg' ) . ');}</style>';
 	}
 	/**
 	 * 管理画面のヘッダーメニューバーで不要なものを除去 @yamasaki
