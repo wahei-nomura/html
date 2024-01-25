@@ -48,8 +48,6 @@ $incs = array(
 	'api/class-n2-items-api',
 	'api/class-n2-blogs-api',
 	'api/class-n2-multi-url-request-api',
-	'class-n2-change-allergen',
-	'class-n2-change-sku-firstaid',
 	'class-n2-portal-item-data',
 	'api/class-n2-openai-base-api',
 	'api/class-n2-openai-chat-api',
