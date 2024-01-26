@@ -17,8 +17,11 @@ class N2_Notification {
 	/**
 	 * カスタムフィールドのID
 	 */
-	const CUSTOMFIELD_ID_ROLE = 'notification-target-role';
-	const CUSTOMFIELD_ID_REGION = 'notification-target-region';
+	const CUSTOMFIELD_ID_FORCE = 'notification-force';
+	const CUSTOMFIELD_ID_FORCE_TARGET = 'notification-force-target';
+	const CUSTOMFIELD_ID_FORCE_READ = 'notification-force-read';
+	const CUSTOMFIELD_ID_ROLES = 'notification-roles';
+	const CUSTOMFIELD_ID_REGIONS = 'notification-regions';
 
 	/**
 	 * コンストラクタ
@@ -93,25 +96,56 @@ class N2_Notification {
      * @return void
      */
     public function add_customfields() {
+		// 強制表示
+        add_meta_box(
+            self::CUSTOMFIELD_ID_FORCE, // カスタムフィールドID
+            '強制表示', // 表示名
+            [$this, 'display_customfield_force'], // コールバック
+            'notification', // 投稿タイプ
+            'side', // 表示位置
+            'default' // 優先度 
+        );
         // ユーザー権限
         add_meta_box(
-            self::CUSTOMFIELD_ID_ROLE,
+            self::CUSTOMFIELD_ID_ROLES,
             'ユーザー権限',
-            [$this, 'display_customfield_roll'], // コールバック関数を 'display_customfields' に変更
-            'notification', // 投稿タイプを 'notification' に変更
-            'side', // 表示する位置を右に変更
-            'default' // 優先度 
+            [$this, 'display_customfield_roll'],
+            'notification',
+            'side',
+            'default'
         );
 		// 自治体
         add_meta_box(
-            self::CUSTOMFIELD_ID_REGION,
+            self::CUSTOMFIELD_ID_REGIONS,
             '自治体',
-            [$this, 'display_customfield_region'], // コールバック関数を 'display_customfields' に変更
-            'notification', // 投稿タイプを 'notification' に変更
-            'side', // 表示する位置を右に変更
-            'low' // 優先度 
+            [$this, 'display_customfield_region'],
+            'notification',
+            'side',
+            'default'
         );
     }
+
+	public function display_customfield_force($post, $metabox) {
+		global $pagenow;
+		$is_checked = '';
+		if ($pagenow !== 'post-new.php') {
+			// 編集画面
+			$is_checked = get_post_meta($post->ID, self::CUSTOMFIELD_ID_FORCE, true) ? 'checked' : '';
+		}
+        ?>
+        <div>
+			<p>オンにすると表示対象のユーザーの画面に点滅するバーが表示されされます。</p>
+			<label>
+				<input
+					type="checkbox"
+					name="<?php echo esc_attr($metabox['id']); ?>"
+					<?php echo esc_attr($is_checked); ?>
+				/>
+				<span>表示を強制する</span>
+			<label>
+		</div>
+        <?php
+	}
 
     /**
      * ユーザー権限の入力欄作成
@@ -130,7 +164,7 @@ class N2_Notification {
 		// 新規追加と編集で初期値の取り方が変化する
 		$initial = $pagenow === 'post-new.php'
 			? $values // 新規追加なら全て選択でスタート
-			: get_post_meta( $post->ID, self::CUSTOMFIELD_ID_ROLE, true);
+			: get_post_meta( $post->ID, self::CUSTOMFIELD_ID_ROLES, true);
 		$initial = json_encode($initial, JSON_UNESCAPED_UNICODE);
         ?>
         <div id="notification-input-roles">
@@ -163,7 +197,7 @@ class N2_Notification {
 		// 新規追加と編集で初期値の取り方が変化する
 		$initial = $pagenow === 'post-new.php'
 			? $values
-			: get_post_meta($post->ID, self::CUSTOMFIELD_ID_ROLE, true);
+			: get_post_meta($post->ID, self::CUSTOMFIELD_ID_REGIONS, true);
 		$initial = json_encode($initial, JSON_UNESCAPED_UNICODE);
         ?>
         <div id="notification-input-regions">
@@ -185,17 +219,23 @@ class N2_Notification {
      * @param WP_Post $post 投稿オブジェクト
      */
     public function save_customfields( $post_id, $post ) {
+		// 強制表示
+		update_post_meta(
+			$post_id,
+			self::CUSTOMFIELD_ID_FORCE,
+			$_POST[self::CUSTOMFIELD_ID_FORCE] ? 1 : 0
+		);
 		// ユーザー権限
 		update_post_meta(
 			$post_id,
-			self::CUSTOMFIELD_ID_ROLE,
-			$_POST[self::CUSTOMFIELD_ID_ROLE] ?? [] // チェックが入ってないと何も値が来ないから置換する
+			self::CUSTOMFIELD_ID_ROLES,
+			$_POST[self::CUSTOMFIELD_ID_ROLES] ?? [] // チェックが入ってないと何も値が来ないから置換する
 		);
 		// 自治体
 		update_post_meta(
 			$post_id,
-			self::CUSTOMFIELD_ID_REGION,
-			$_POST[self::CUSTOMFIELD_ID_REGION] ?? []
+			self::CUSTOMFIELD_ID_REGIONS,
+			$_POST[self::CUSTOMFIELD_ID_REGIONS] ?? []
 		);
     }
 
