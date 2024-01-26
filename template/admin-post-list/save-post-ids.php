@@ -44,6 +44,8 @@ global $n2;
 								<label><input type="radio" name="action" value="n2_item_export_rakuten_sku" v-model="fd.action"> 楽天</label>
 								<label><input type="radio" name="action" value="n2_item_export_rakuten_cat" v-model="fd.action"> 楽天 [ item-cat.csv ]</label>
 							</template>
+							<!-- 総務省(地場産品) -->
+							<label><input type="radio" name="action" value="n2_item_export_jibasanpin" v-model="fd.action"> 地場産品(総務省提出用)</label>
 						</div>
 						<!-- タイプ選択 -->
 						<div style="margin-bottom: 1em;" v-if="fd.action.match(/lhcloud|ledghome/)">
