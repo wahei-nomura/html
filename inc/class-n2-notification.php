@@ -125,6 +125,12 @@ class N2_Notification {
         );
     }
 
+	/**
+	 * 強制表示の入力欄
+	 *
+     * @param WP_Post $post post
+     * @param array   $metabox メタボックスのデータ
+	 */
 	public function display_customfield_force($post, $metabox) {
 		global $pagenow;
 		$is_checked = '';
