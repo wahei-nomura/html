@@ -449,8 +449,8 @@ class N2 {
 				// 自治体名以外も紐付けたくなるかもしれないから連想配列にしておきます
 				'name' => get_bloginfo('name'),
 			];
+			restore_current_blog();
 		}
-		restore_current_blog();
 		return $regions;
 	}
 }
