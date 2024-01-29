@@ -145,16 +145,25 @@ export default ($: any = jQuery) => {
 			});
 			n2.media.on( 'open', () => {
 				// N2のものだけに
-				console.log(n2.media)
 				const add =  n2.tmp.vue.商品画像.filter( v => v.nonces );
+				// n2.media.state().reset();
 				n2.media.state().get('selection').add( add.map( v => wp.media.attachment(v.id) ) );
+				console.log(n2.media.state().get('selection'))
 			});
-			n2.media.on( 'select close', () => {
+			n2.media.on( 'close', () => {
+				const selected = [];
 				n2.media.state().get('selection').forEach( img => {
-					if ( ! n2.tmp.vue.商品画像.find( v => v.id == img.attributes.id ) ) {
+					if ( ! n2.tmp.vue.商品画像.find( v => v.id == img.id ) ) {
 						n2.tmp.vue.商品画像.push( img.attributes );
 					}
-				})
+					// 存在する画像のみ
+					if ( img.attributes.url ) {
+						selected.push( img.id );
+					}
+				});
+				// N1のものと、削除されていないものだけに絞る
+				n2.tmp.vue.商品画像 = n2.tmp.vue.商品画像.filter( v => ! v.nonces || selected.includes( v.id ) );
+				console.log(selected,n2.tmp.vue.商品画像);
 			});
 			n2.media.open();
 		},
