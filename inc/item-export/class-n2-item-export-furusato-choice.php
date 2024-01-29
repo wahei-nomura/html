@@ -89,6 +89,8 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 				$warning[ $type ] = wp_strip_all_tags( $n2->settings['注意書き'][ $type ] ?? '' );
 			}
 			$warning['共通'] = wp_strip_all_tags( $n2->settings['注意書き']['共通'] );
+			// 浄化
+			$warning = array_filter( array_values( $warning ) );
 		}
 		// 説明文
 		{
@@ -102,24 +104,12 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 
 		// 内容量・規格等
 		{
-			if ( in_array( 'やきもの', $n2values['商品タイプ'], true ) ) {
-				$n2values['内容量・規格等'] = array(
-					$n2values['内容量・規格等'],
-					$warning['やきもの対応機器'],
-					$n2values['原料原産地'] ? "【原料原産地】\n{$n2values['原料原産地']}" : '',
-					$n2values['加工地'] ? "【加工地】\n{$n2values['加工地']}" : '',
-					$warning['やきもの'] ? $warning['やきもの'] : '',
-					$warning['共通'] ? $warning['共通'] : '',
-				);
-			} else {
-				$n2values['内容量・規格等'] = array(
-					$n2values['内容量・規格等'],
-					$n2values['原料原産地'] ? "【原料原産地】\n{$n2values['原料原産地']}" : '',
-					$n2values['加工地'] ? "【加工地】\n{$n2values['加工地']}" : '',
-					$warning[ $type ] ? $warning[ $type ] : '',
-					$warning['共通'] ? $warning['共通'] : '',
-				);
-			}
+			$n2values['内容量・規格等'] = array(
+				$n2values['内容量・規格等'],
+				$n2values['原料原産地'] ? "【原料原産地】\n{$n2values['原料原産地']}" : '',
+				$n2values['加工地'] ? "【加工地】\n{$n2values['加工地']}" : '',
+				...$warning,
+			);
 			// 空要素削除して連結
 			$n2values['内容量・規格等'] = implode( "\n\n", array_filter( $n2values['内容量・規格等'] ) );
 		}
