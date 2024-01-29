@@ -150,6 +150,9 @@ export default ($: any = jQuery) => {
 			});
 			n2.media.on( 'close', () => {
 				const selected = [];
+				if ( ! n2.media.state().get('selection') ) {
+					return;
+				} 
 				n2.media.state().get('selection').forEach( img => {
 					if ( ! n2.tmp.vue.商品画像.find( v => v.id == img.id ) ) {
 						n2.tmp.vue.商品画像.push( img.attributes );
