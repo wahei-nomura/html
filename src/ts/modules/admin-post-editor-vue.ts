@@ -57,7 +57,6 @@ export default ($: any = jQuery) => {
 				for ( const name in this.$data ) {
 					data[name] = this.$data[name];
 				}
-				this.filter_image();
 				console.log('watching');
 				return data;
 			},
@@ -96,7 +95,8 @@ export default ($: any = jQuery) => {
 				img.src = this.商品画像[k].sizes.thumbnail.url ?? this.商品画像[k].sizes.thumbnail;
 				// 存在チェック
 				img.onerror = () => {
-					this.商品画像.splice(k,1);
+					console.log('NG',this.商品画像[k].url)
+					// this.商品画像.splice(k,1);
 				};
 			}
 		},
