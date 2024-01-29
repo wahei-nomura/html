@@ -146,9 +146,7 @@ export default ($: any = jQuery) => {
 			n2.media.on( 'open', () => {
 				// N2のものだけに
 				const add =  n2.tmp.vue.商品画像.filter( v => v.nonces );
-				// n2.media.state().reset();
 				n2.media.state().get('selection').add( add.map( v => wp.media.attachment(v.id) ) );
-				console.log(n2.media.state().get('selection'))
 			});
 			n2.media.on( 'close', () => {
 				const selected = [];
@@ -163,7 +161,6 @@ export default ($: any = jQuery) => {
 				});
 				// N1のものと、削除されていないものだけに絞る
 				n2.tmp.vue.商品画像 = n2.tmp.vue.商品画像.filter( v => ! v.nonces || selected.includes( v.id ) );
-				console.log(selected,n2.tmp.vue.商品画像);
 			});
 			n2.media.open();
 		},
