@@ -57,7 +57,8 @@ export default ($: any = jQuery) => {
 				for ( const name in this.$data ) {
 					data[name] = this.$data[name];
 				}
-				console.log('watching')
+				this.filter_image();
+				console.log('watching');
 				return data;
 			},
 			async function(newVal, oldVal) {
@@ -88,6 +89,17 @@ export default ($: any = jQuery) => {
 		wp.data.dispatch( 'core/keyboard-shortcuts' ).unregisterShortcut('core/editor/redo');
 	};
 	const methods = {
+		// 商品画像存在するものだけに
+		filter_image(){
+			for ( const k in this.商品画像 ) {
+				const img = new Image();
+				img.src = this.商品画像[k].sizes.thumbnail.url ?? this.商品画像[k].sizes.thumbnail;
+				// 存在チェック
+				img.onerror = () => {
+					this.商品画像.splice(k,1);
+				};
+			}
+		},
 		// 説明文・テキストカウンター
 		set_info(target) {
 			this.$set( this.tmp.info, target.name.match(/\[(.*?)\]/)[1], true)
@@ -145,25 +157,20 @@ export default ($: any = jQuery) => {
 			});
 			n2.media.on( 'open', () => {
 				// N2のものだけに
-				const add =  n2.tmp.vue.商品画像.filter( v => v.nonces );
+				const add =  this.商品画像.filter( v => v.nonces );
+				n2.media.state().reset();
 				n2.media.state().get('selection').add( add.map( v => wp.media.attachment(v.id) ) );
 			});
 			n2.media.on( 'close', () => {
 				const selected = [];
-				if ( ! n2.media.state().get('selection') ) {
-					return;
-				} 
 				n2.media.state().get('selection').forEach( img => {
-					if ( ! n2.tmp.vue.商品画像.find( v => v.id == img.id ) ) {
-						n2.tmp.vue.商品画像.push( img.attributes );
+					if ( ! this.商品画像.find( v => v.id == img.id ) ) {
+						this.商品画像.push( img.attributes );
 					}
-					// 存在する画像のみ
-					if ( img.attributes.url ) {
-						selected.push( img.id );
-					}
+					selected.push( img.id );
 				});
 				// N1のものと、削除されていないものだけに絞る
-				n2.tmp.vue.商品画像 = n2.tmp.vue.商品画像.filter( v => ! v.nonces || selected.includes( v.id ) );
+				this.商品画像 = this.商品画像.filter( v => ! v.nonces || selected.includes( v.id ) );
 			});
 			n2.media.open();
 		},
