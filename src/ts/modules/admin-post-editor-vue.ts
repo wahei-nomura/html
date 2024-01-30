@@ -88,18 +88,6 @@ export default ($: any = jQuery) => {
 		wp.data.dispatch( 'core/keyboard-shortcuts' ).unregisterShortcut('core/editor/redo');
 	};
 	const methods = {
-		// 商品画像存在するものだけに
-		filter_image(){
-			for ( const k in this.商品画像 ) {
-				const img = new Image();
-				img.src = this.商品画像[k].sizes.thumbnail.url ?? this.商品画像[k].sizes.thumbnail;
-				// 存在チェック
-				img.onerror = () => {
-					console.log('NG',this.商品画像[k].url)
-					// this.商品画像.splice(k,1);
-				};
-			}
-		},
 		// 説明文・テキストカウンター
 		set_info(target) {
 			this.$set( this.tmp.info, target.name.match(/\[(.*?)\]/)[1], true)
