@@ -85,7 +85,6 @@ class N2_Dashboard {
 		if ( '1' === $n2->settings['N2']['自治体確認'] ) {
 			wp_add_dashboard_widget( 'jichitai_widget', '自治体チェック未リスト', $async_function );
 		}
-		wp_add_dashboard_widget( 'notification_widget', 'お知らせ', $async_function );
 	}
 	/**
 	 * dashboard_text
