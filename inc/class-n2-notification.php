@@ -41,7 +41,6 @@ class N2_Notification {
 		// お知らせの表示対象の入力欄を設定
 		add_action( 'add_meta_boxes', [$this, 'add_customfields'] );
 		// カスタムフィールドの入力を保存
-		add_action( 'pre_post_update', [$this, 'pre_post_update'], 10, 2 ); // 第四引数が必要!!
 		add_action( 'save_post', [$this, 'save_customfields'], 10, 3 ); // 第四引数が必要!!
 		// リスト(表)のカラムの設定
 		add_filter( 'manage_posts_columns', [$this, 'manage_posts_columns'], 10, 4 );
@@ -226,34 +225,6 @@ class N2_Notification {
         <?php
     }
 
-	/**
-	 * どのデータを更新するのか決める
-	 *
-	 * @param int $post_id
-	 * @param array $data
-	 * @return void
-	 */
-	public function pre_post_update($post_id, $data) {
-		// 強制表示
-		$new_force = $_POST[self::CUSTOMFIELD_ID_FORCE] ? 1 : 0;
-		$prev_force = get_post_meta($post_id, self::CUSTOMFIELD_ID_FORCE, true);
-		if ($new_force != $prev_force) self::$post_meta['force'] = $new_force;
-		// ユーザー権限
-		$new_roles = $_POST[self::CUSTOMFIELD_ID_ROLES] ?? [];
-		$prev_roles = get_post_meta($post_id, self::CUSTOMFIELD_ID_ROLES, true);
-		$is_roles_chenged = self::has_array_diff($new_roles, $prev_roles);
-		if ($is_roles_chenged) self::$post_meta['roles'] = $new_roles;
-		// 自治体
-		$new_regions = $_POST[self::CUSTOMFIELD_ID_REGIONS] ?? [];
-		$prev_regions = get_post_meta($post_id, self::CUSTOMFIELD_ID_REGIONS, true);
-		$is_regions_changed = self::has_array_diff($new_regions, $prev_regions);
-		if ($is_regions_changed) self::$post_meta['regions'] = $new_regions;
-		// 強制表示のユーザーIDを取得
-		if ($is_roles_chenged || $is_regions_changed) {
-			
-		}
-	}
-
     /**
      * カスタムフィールドのデータを保存
      *
@@ -271,22 +242,6 @@ class N2_Notification {
 		$new_regions = $_POST[self::CUSTOMFIELD_ID_REGIONS] ?? [];
 		update_post_meta($post_id, self::CUSTOMFIELD_ID_REGIONS, $new_regions);
     }
-
-	/**
-	 * 2つの配列を比べてどちらかにしかない値が存在するかを返す
-	 *
-	 * @param Array $a
-	 * @param Array $b
-	 * @return boolean
-	 */
-	private static function has_array_diff($a, $b) {
-		$combined = array_merge($a, $b);
-		$counted = array_count_values($combined);
-		// n2_log([
-		// 	$a, $b, $combined
-		// ]);
-		return in_array(1, $counted);
-	}
 
 	/**
 	 * カラム調整

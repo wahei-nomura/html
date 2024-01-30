@@ -63,7 +63,7 @@ class N2_Notification_Read {
 		<?php
 	}
 
-	private static function get_notifications($current_blod_id) {
+	private static function get_notifications() {
 		global $n2;
 		switch_to_blog(1); // メインサイトからのみ投稿してる
 		$items = get_posts([
@@ -71,27 +71,21 @@ class N2_Notification_Read {
 			'post_status' => 'publish', // 公開中のみ
 			'numberposts' => -1, // 全て
 		]);
-		$items = array_map(function($item) use($n2, $current_blod_id) {
-			// カスタムフィールドの値を取得
-			$meta = array_map(
-				fn($v) => maybe_unserialize($v[0]),
-				get_post_meta($item->ID)
-			);
+		$items = array_map(function($item) use($n2) {
 			// 自治体フィルター
-			$has_target_region = in_array(
-				$current_blod_id,
-				$meta['notification-target-region']
-			);
-			if (!$has_target_region) return false;
+			$regiosn = get_post_meta($item->ID, 'notification-regions', true);
+			if (!in_array($n2->site_id, $regiosn)) return false;
 			// 権限フィルター
 			if (!is_admin()) {
-				$has_target_role = in_array(
-					$n2->current_user->roles[0],
-					$meta['notification-target-role']
-				);
-				if (!$has_target_role) return false;
+				$roles = get_post_meta($item->ID, 'notification-roles', true);
+				if (!in_array($n2->current_user->roles[0], $roles)) return false;
 			}
-			$item->post_meta = $meta;
+			// 強制表示
+			$force = get_post_meta($item->ID, 'notification-force', true);
+			$item->is_force = $force;
+			// 確認が必要か
+			$read = get_post_meta($item->ID, 'notification-read', true);
+			$item->is_read = is_array($read) ? in_array($n2->site_id, $read) : false;
 			return $item;
 		}, $items);
 		$items = array_filter($items);
