@@ -134,7 +134,6 @@ class N2_Item_Export_Base {
 	 * N2データ取得してセット
 	 */
 	private function set_n2data() {
-		global $n2;
 		$n2data = array();
 		$fields = array(
 			'id',
@@ -148,13 +147,7 @@ class N2_Item_Export_Base {
 		foreach ( N2_Items_API::get_items() as $v ) {
 			// fieldを絞る
 			foreach ( $fields as $key ) {
-				if ( strcmp( $key, '配送期間' ) === 0 ) {
-					if ( array_key_exists( 'レターパックライト', $n2->settings['寄附金額・送料']['送料'] ) || array_key_exists( 'レターパックプラス', $n2->settings['寄附金額・送料']['送料'] ) ) {
-						$n2data[ $v['id'] ][ $key ] = $v[ $key ] . "\n※レターパックにて発送いたします。日時指定はいただけませんので、あらかじめご了承ください。" ?? '';
-					}
-				} else {
-					$n2data[ $v['id'] ][ $key ] = $v[ $key ] ?? '';
-				}
+				$n2data[ $v['id'] ][ $key ] = $v[ $key ] ?? '';
 			}
 		}
 		/**
