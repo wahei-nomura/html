@@ -120,6 +120,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 					$n2values['加工地'] ? "【加工地】\n{$n2values['加工地']}" : '',
 					$warning['食品'] ? $warning['食品'] : '',
 					$warning['酒'] ? $warning['酒'] : '',
+					$warning['やきもの'] ? $warning['やきもの'] : '',
 					$warning['eチケット'] ? $warning['eチケット'] : '',
 					$warning['共通'] ? $warning['共通'] : '',
 				);
