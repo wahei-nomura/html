@@ -44,12 +44,20 @@ global $n2;
 								<label><input type="radio" name="action" value="n2_item_export_rakuten_sku" v-model="fd.action"> 楽天</label>
 								<label><input type="radio" name="action" value="n2_item_export_rakuten_cat" v-model="fd.action"> 楽天 [ item-cat.csv ]</label>
 							</template>
+							<!-- 総務省(地場産品) -->
+							<label><input type="radio" name="action" value="n2_item_export_jibasanpin" v-model="fd.action"> 地場産品(総務省提出用)</label>
 						</div>
 						<!-- タイプ選択 -->
 						<div style="margin-bottom: 1em;" v-if="fd.action.match(/lhcloud|ledghome/)">
 							<?php foreach ( (array) array_keys( $n2->settings['LedgHOME']['csv_header'] ) as $i => $v ) : ?>
 								<label><input type="radio" name="type" value="<?php echo $v; ?>" <?php echo ! $i ? 'checked' : ''; ?>> <?php echo $v; ?></label>
 							<?php endforeach; ?>
+							<!-- <label v-if="'download' === fd.mode"><input type="radio" name="type" value="3"> 3ファイル一括ダウンロード</label> -->
+						</div>
+						<div style="margin-bottom: 1em;" v-if="fd.action.match(/jibasanpin/)">
+						<span>出力項目選択 ：　</span>
+								<label><input type="radio" name="type" value="info" checked> 各情報</label>
+								<label><input type="radio" name="type" value="jibasan"> 地場産品関連</label>
 							<!-- <label v-if="'download' === fd.mode"><input type="radio" name="type" value="3"> 3ファイル一括ダウンロード</label> -->
 						</div>
 						<!-- モード選択 -->

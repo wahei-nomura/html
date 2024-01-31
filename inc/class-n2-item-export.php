@@ -27,6 +27,7 @@ class N2_Item_Export {
 			'class-n2-item-export-rakuten',
 			'class-n2-item-export-rakuten-sku',
 			'class-n2-item-export-rakuten-cat',
+			'class-n2-item-export-jibasanpin',
 			'class-n2-product-list-print',
 			'class-n2-user-export',
 		);
