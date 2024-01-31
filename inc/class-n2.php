@@ -484,7 +484,7 @@ class N2 {
 		// マップ
 		$posts = array_map(function($p) {
 			// 強制表示
-			$force = get_post_meta($p->ID, 'notification-force', true);
+			$force = (int) get_post_meta($p->ID, 'notification-force', true);
 			$p->is_force = $force;
 			// 確認が必要か
 			$read = get_post_meta($p->ID, 'notification-read', true);

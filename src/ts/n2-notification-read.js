@@ -86,9 +86,6 @@ window.addEventListener("DOMContentLoaded", () => {
 				modalContent: undefined,
 			};
 		},
-		created() {
-			console.log(Vue.prototype.$n2.notifications);
-		},
 		computed: {
 			// 日付の部分だけ日本語に変換
 			formattedPosts() {
@@ -97,6 +94,16 @@ window.addEventListener("DOMContentLoaded", () => {
 					p.post_date = this.formatDate(p.post_date);
 					return p;
 				});
+			},
+			// 分別
+			waketaPosts() {
+				const yomu = [];
+				const yoman = [];
+				this.formattedPosts.forEach((p) => {
+					console.log(p.is_force, p.is_read);
+					(p.is_force && !p.is_read ? yomu : yoman).push(p);
+				});
+				return { yomu, yoman };
 			},
 		},
 		watch: {},
@@ -117,8 +124,12 @@ window.addEventListener("DOMContentLoaded", () => {
 		},
 		template: `
 			<div>
-				<div>{{ formattedPosts.length }}件</div>
-				<PostList :posts="formattedPosts" @open="openModal" />
+				<div>{{ waketaPosts.yomu.length }}件</div>
+				<PostList :posts="waketaPosts.yomu" @open="openModal" />
+
+				<div>{{ waketaPosts.yoman.length }}件</div>
+				<PostList :posts="waketaPosts.yoman" @open="openModal" />
+
 				<PostModal :post="modalContent" @close="closeModal" />
 			</div>
 		`,
