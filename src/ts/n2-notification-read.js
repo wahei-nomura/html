@@ -7,6 +7,16 @@ import MountingPortal from "portal-vue";
  */
 Vue.use(MountingPortal);
 
+// n2をリアクティブな値として参照
+// あくまでもwindow.n2の値をコピーしているだけなので注意
+Vue.use({
+	install(Vue) {
+		Vue.prototype.$n2 = Vue.observable({
+			...window.n2,
+		});
+	},
+});
+
 /**
  * 投稿のリスト表示
  */
@@ -66,63 +76,51 @@ const PostModal = {
 	`,
 };
 
-const N2NotificationRead = {
-	props: {
-		/**
-		 * カスタム投稿の配列
-		 * WP_Post[]
-		 */
-		customPosts: Array,
-	},
-	components: { PostList, PostModal },
-	data() {
-		return {
-			/**
-			 * モーダルの内容
-			 * WP_Post
-			 */
-			modalContent: undefined,
-		};
-	},
-	computed: {
-		// 日付の部分だけ日本語に変換
-		formattedPosts() {
-			return this.customPosts.map((p) => {
-				p.post_date = this.formatDate(p.post_date);
-				return p;
-			});
-		},
-	},
-	methods: {
-		openModal(wpPost) {
-			this.modalContent = wpPost;
-		},
-		closeModal() {
-			this.modalContent = undefined;
-		},
-		formatDate(dateString) {
-			const date = new Date(dateString);
-			const y = date.getFullYear();
-			const m = String(date.getMonth() + 1).padStart(2, "0");
-			const d = String(date.getDate()).padStart(2, "0");
-			return `${y}年${m}月${d}日`;
-		},
-	},
-	template: `
-		<div>
-			<div>{{ customPosts.length }}件</div>
-			<PostList :posts="formattedPosts" @open="openModal" />
-			<PostModal :post="modalContent" @close="closeModal" />
-		</div>
-	`,
-};
-
 window.addEventListener("DOMContentLoaded", () => {
 	// eslint-disable-next-line no-new
 	new Vue({
 		el: "#app",
-		components: {
-			N2NotificationRead,
+		components: { PostList, PostModal },
+		data() {
+			return {
+				modalContent: undefined,
+			};
 		},
+		created() {
+			console.log(Vue.prototype.$n2.notifications);
+		},
+		computed: {
+			// 日付の部分だけ日本語に変換
+			formattedPosts() {
+				const notifications = Vue.prototype.$n2.notifications || [];
+				return notifications.map((p) => {
+					p.post_date = this.formatDate(p.post_date);
+					return p;
+				});
+			},
+		},
+		watch: {},
+		methods: {
+			openModal(wpPost) {
+				this.modalContent = wpPost;
+			},
+			closeModal() {
+				this.modalContent = undefined;
+			},
+			formatDate(dateString) {
+				const date = new Date(dateString);
+				const y = date.getFullYear();
+				const m = String(date.getMonth() + 1).padStart(2, "0");
+				const d = String(date.getDate()).padStart(2, "0");
+				return `${y}年${m}月${d}日`;
+			},
+		},
+		template: `
+			<div>
+				<div>{{ formattedPosts.length }}件</div>
+				<PostList :posts="formattedPosts" @open="openModal" />
+				<PostModal :post="modalContent" @close="closeModal" />
+			</div>
+		`,
 	});
 });

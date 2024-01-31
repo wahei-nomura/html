@@ -1,4 +1,4 @@
-#wpadminbar{
+#wpadminbar {
 	body.administrator & {
 		background-color: #8b0000;
 	}
@@ -7,13 +7,16 @@
 	}
 }
 :root {
-	--cutom-fonts: 'PT Mono'; //0,O 1,I,L,lが認識しやすいフォント
-	--n2-clear-font-family: var(--cutom-fonts),system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans","Liberation Sans",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+	--cutom-fonts: "PT Mono"; //0,O 1,I,L,lが認識しやすいフォント
+	--n2-clear-font-family: var(--cutom-fonts), system-ui, -apple-system,
+		"Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans",
+		Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+		"Segoe UI Symbol", "Noto Color Emoji";
 }
 #wpbody-content {
 	font-family: var(--n2-clear-font-family);
 }
-#wp-admin-bar{
+#wp-admin-bar {
 	&-my-sites {
 		.ab-sub-wrapper {
 			max-height: 80vh;
@@ -33,18 +36,18 @@
 					.ab-item {
 						display: block;
 						padding: 1em;
-						.blavatar{
+						.blavatar {
 							display: inline-block;
 							border-radius: 1rem;
 							font-size: 1.5rem !important;
 							margin: 0 8px 2px 0;
-							&::before{
+							&::before {
 								width: auto;
 								height: auto;
 								margin: 0;
 							}
 						}
-						img.blavatar{
+						img.blavatar {
 							width: 1.5rem;
 							height: 1.5rem;
 							background-color: white;
@@ -74,8 +77,8 @@
 			background-color: #9d2c30;
 		}
 	}
-	&-site-name{
-		&.n2-active{
+	&-site-name {
+		&.n2-active {
 			@keyframes activeFlash {
 				0% {
 					box-shadow: 0 0 1em white;
@@ -95,21 +98,21 @@
 			background-size: 2em 2em !important;
 			background-position: 0.2em center !important;
 			text-indent: 0 !important;
-			padding:  0 1em 0 2.5em !important;
-			.ab-item{
-				letter-spacing: .1em;
+			padding: 0 1em 0 2.5em !important;
+			.ab-item {
+				letter-spacing: 0.1em;
 				color: black !important;
 				background: none !important;
 				text-indent: 0 !important;
 				width: 100% !important;
-				&::before{
+				&::before {
 					display: none !important;
 				}
 			}
 		}
 	}
 }
-.no_active_caution{
+.no_active_caution {
 	width: 300px;
 	height: 50px;
 	font-size: 1rem;
@@ -126,9 +129,9 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	animation: flash .3s linear infinite;
+	animation: flash 0.3s linear infinite;
 	cursor: pointer;
-	&:hover{
+	&:hover {
 		color: #fff;
 	}
 }
@@ -145,19 +148,58 @@
 		background: #8b0000;
 	}
 }
-.local-government{
-	#adminmenu{
-		.wp-submenu{
+.local-government {
+	#adminmenu {
+		.wp-submenu {
 			display: none;
 		}
 	}
 }
 /* N2設定触らせなくする(select,radio,checkbox) */
-.n2-setting-form{
-	input[readonly]{
+.n2-setting-form {
+	input[readonly] {
 		pointer-events: none;
 	}
-	select[readonly],input[type="radio"][readonly],input[type="checkbox"][readonly], textarea[readonly]{
-        pointer-events:none;
-    }
+	select[readonly],
+	input[type="radio"][readonly],
+	input[type="checkbox"][readonly],
+	textarea[readonly] {
+		pointer-events: none;
+	}
+}
+
+.should-read-notification {
+	z-index: 2;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	box-sizing: border-box;
+	display: block;
+	width: 100%;
+	padding: 12px;
+	text-align: center;
+	background: linear-gradient(
+		240deg,
+		#00906a,
+		#62ceb2,
+		#0448a8,
+		#62ceb2,
+		#00906a
+	);
+	background-size: 1200% 1200%;
+	animation: GreenUniconeGradientAnimation 4s ease-in-out infinite;
+	&-text {
+		font-weight: bold;
+		color: gray;
+		mix-blend-mode: color-dodge;
+	}
+}
+
+@keyframes GreenUniconeGradientAnimation {
+	0% {
+		background-position: 10% 0%;
+	}
+	100% {
+		background-position: 91% 100%;
+	}
 }
