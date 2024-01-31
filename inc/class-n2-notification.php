@@ -23,13 +23,6 @@ class N2_Notification {
 	const CUSTOMFIELD_ID_ROLES = 'notification-roles';
 	const CUSTOMFIELD_ID_REGIONS = 'notification-regions';
 
-	// データの更新助ける
-	private static $post_meta = [
-		'force' => null,
-		'roles' => null,
-		'regions' => null,
-	];
-
 	/**
 	 * コンストラクタ
 	 */

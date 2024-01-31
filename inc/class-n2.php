@@ -129,6 +129,12 @@ class N2 {
 	public $query;
 
 	/**
+	 * お知らせ
+	 */
+	public $notifications;
+	public $notifications_should_read;
+
+	/**
 	 * 正規表現
 	 *
 	 * @var array
@@ -164,6 +170,7 @@ class N2 {
 	public function __construct() {
 		$this->set_vars();
 		$this->set_filters();
+		$this->set_notifications();
 		add_action( 'pre_get_posts', array( $this, 'add_post_data' ) );
 	}
 
@@ -452,5 +459,42 @@ class N2 {
 			restore_current_blog();
 		}
 		return $regions;
+	}
+
+	public function set_notifications() {
+		switch_to_blog(1); // メインサイトからのみ投稿してる
+		// 全てのお知らせを取得
+		$posts = get_posts([
+			'post_type' => 'notification',
+			'post_status' => 'publish', // 公開中のみ
+			'numberposts' => -1, // 全て
+		]);
+		// フィルター
+		$posts = array_filter($posts, function($p){
+			// 自治体フィルター
+			$regiosn = get_post_meta($p->ID, 'notification-regions', true);
+			if (!in_array($this->site_id, $regiosn)) return false;
+			// 権限フィルター
+			if (!is_admin()) {
+				$roles = get_post_meta($p->ID, 'notification-roles', true);
+				if (!in_array($this->current_user->roles[0], $roles)) return false;
+			}
+			return true;
+		});
+		// マップ
+		$posts = array_map(function($p) {
+			// 強制表示
+			$force = get_post_meta($p->ID, 'notification-force', true);
+			$p->is_force = $force;
+			// 確認が必要か
+			$read = get_post_meta($p->ID, 'notification-read', true);
+			$p->is_read = is_array($read) ? in_array($this->site_id, $read) : false;
+			return $p;
+		}, $posts);
+		$posts = array_values($posts);
+		$should_read = count(array_filter($posts, fn($p) => $p->is_force && !$p->is_read));
+		restore_current_blog(); // 戻す
+		$this->notifications = $posts;
+		$this->notifications_should_read = $should_read;
 	}
 }
