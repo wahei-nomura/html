@@ -69,24 +69,24 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 		{
 			$warning = array();
 			// やきものの対応機器
-		if ( in_array( 'やきもの', $n2values['商品タイプ'], true ) ) {
-			$warning['やきもの対応機器'] = array( '電子レンジ対応', 'オーブン対応', '食洗機対応' );
-			foreach ( $warning['やきもの対応機器'] as $key => $value ) {
-				$warning['やきもの対応機器'][ $key ] = $value . $n2values[ $value ];
+			if ( in_array( 'やきもの', $n2values['商品タイプ'], true ) ) {
+				$warning['やきもの対応機器'] = array( '電子レンジ対応', 'オーブン対応', '食洗機対応' );
+				foreach ( $warning['やきもの対応機器'] as $key => $value ) {
+					$warning['やきもの対応機器'][ $key ] = $value . $n2values[ $value ];
+				}
+				$warning['やきもの対応機器']  = implode( ' / ', $warning['やきもの対応機器'] );
+				$warning['やきもの対応機器'] .= "\n{$n2values['対応機器備考']}";
+				$siteurl              = site_url();
+				$rakuten_dir          = $n2->settings['楽天']['商品画像ディレクトリ']; // 画像ディレクトリ取得
+				$ex_siteurl           = explode( '/', $siteurl ); // 自治体ローマ字取得(N2URLから取得)
+				$ex_towncode          = explode( '-', end( $ex_siteurl ) );
+				$townname             = $ex_towncode[1]; // 自治体ローマ字
+				$caution_name         = $townname . '_yaki_c.jpg';
 			}
-			$warning['やきもの対応機器']  = implode( ' / ', $warning['やきもの対応機器'] );
-			$warning['やきもの対応機器'] .= "\n{$n2values['対応機器備考']}";
-			$siteurl              = site_url();
-			$rakuten_dir          = $n2->settings['楽天']['商品画像ディレクトリ']; // 画像ディレクトリ取得
-			$ex_siteurl           = explode( '/', $siteurl ); // 自治体ローマ字取得(N2URLから取得)
-			$ex_towncode          = explode( '-', end( $ex_siteurl ) );
-			$townname             = $ex_towncode[1]; // 自治体ローマ字
-			$caution_name         = $townname . '_yaki_c.jpg';
-		}
 			// 商品タイプごとの注意書きを追加
-		foreach ( array_filter( $n2values['商品タイプ'] ) as $type ) {
-			$warning[ $type ] = wp_strip_all_tags( $n2->settings['注意書き'][ $type ] ?? '' );
-		}
+			foreach ( array_filter( $n2values['商品タイプ'] ) as $type ) {
+				$warning[ $type ] = wp_strip_all_tags( $n2->settings['注意書き'][ $type ] ?? '' );
+			}
 			$warning['共通'] = wp_strip_all_tags( $n2->settings['注意書き']['共通'] );
 			// 浄化
 			$warning = array_filter( array_values( $warning ) );
@@ -99,10 +99,10 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 			);
 			// 空要素削除して連結
 			$n2values['説明文'] = implode( "\n\n", array_filter( $n2values['説明文'] ) );
-			}
+		}
 
-			// 内容量・規格等
-			{
+		// 内容量・規格等
+		{
 			$n2values['内容量・規格等'] = array(
 				$n2values['内容量・規格等'],
 				$n2values['原料原産地'] ? "【原料原産地】\n{$n2values['原料原産地']}" : '',
@@ -111,26 +111,26 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 			);
 			// 空要素削除して連結
 			$n2values['内容量・規格等'] = implode( "\n\n", array_filter( $n2values['内容量・規格等'] ) );
-			}
+		}
 
-			// アレルゲン
-			{
+		// アレルゲン
+		{
 			$n2values['アレルゲン'] = (array) $n2values['アレルゲン'];
 			$n2values['アレルゲン'] = preg_replace( '/（.*?）/', '', $n2values['アレルゲン'] );// 不純物（カッコの部分）を削除
-			}
+		}
 
-			// 賞味期限・消費期限
-			{
+		// 賞味期限・消費期限
+		{
 			$n2values['消費期限'] = array(
 				$n2values['賞味期限'] ? "【賞味期限】\n{$n2values['賞味期限']}" : '',
 				$n2values['消費期限'],
 			);
 			// 空要素削除して連結
 			$n2values['消費期限'] = implode( "\n\n【消費期限】\n", array_filter( $n2values['消費期限'] ) );
-			}
+		}
 
-			// 類型・該当理由
-			{
+		// 類型・該当理由
+		{
 			// ポータルに理由を表示する設定になっていない場合は空欄にする
 			if ( ! in_array( $n2values['地場産品類型'], $n2->settings['N2']['理由表示地場産品類型'] ?? array(), true ) ) {
 				$n2values['類型該当理由'] = '';
