@@ -105,7 +105,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 				$n2values['内容量・規格等'],
 				in_array( 'やきもの', $n2values['商品タイプ'], true ) && $warning['やきもの対応機器'] ? $warning['やきもの対応機器'] : '',
 				$n2values['原料原産地'] ? "【原料原産地】\n{$n2values['原料原産地']}" : '',
-				$n2values['加工地'] ? "加工地\n{$n2values['加工地']}" : '',
+				$n2values['加工地'] ? "【加工地】\n{$n2values['加工地']}" : '',
 				$warning['食品'] ? $warning['食品'] : '',
 				$warning['酒'] ? $warning['酒'] : '',
 				$warning['やきもの'] ? $warning['やきもの'] : '',
