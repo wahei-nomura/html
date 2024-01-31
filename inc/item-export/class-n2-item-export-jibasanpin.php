@@ -56,11 +56,13 @@ class N2_Item_Export_Jibasanpin extends N2_Item_Export_Base {
 		if ( '番号' === $val ) {
 			$jibasan_count = 0;
 			$args          = array(
-				'sort' => 'タイトル',
+				'orderby'  => 'meta_value',
+				'meta_key' => '返礼品コード',
+				'order'    => 'ASC',
 			);
 			foreach ( N2_Items_API::get_items( $args ) as $key => $v ) {
 				if ( $n2values['id'] === $v['id'] ) {
-					$jibasan_count = $key;
+					$jibasan_count = $key + 1;
 				}
 			}
 		}
