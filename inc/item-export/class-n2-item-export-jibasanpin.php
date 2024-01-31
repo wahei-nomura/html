@@ -72,7 +72,6 @@ class N2_Item_Export_Jibasanpin extends N2_Item_Export_Base {
 			preg_match( '/^品目名$/', $val ) => $n2values['タイトル'],
 			preg_match( '/^必要寄附金額$/', $val )  => $n2values['寄附金額'],
 			preg_match( '/^調達費用$/', $val )  => $n2values['価格'],
-			preg_match( '/^返礼割合$/', $val )  => '=IFERROR(I30/H30,"")' . $index,
 			preg_match( '/^地場産品基準$/', $val ) => $n2values['地場産品類型'],
 			preg_match( '/^類型該当理由$/', $val ) => $n2values['総務省提出用類型該当理由'],
 			default => '',
