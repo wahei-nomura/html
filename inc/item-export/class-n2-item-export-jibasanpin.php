@@ -25,19 +25,19 @@ class N2_Item_Export_Jibasanpin extends N2_Item_Export_Base {
 		'filename'      => 'jibasanpin.csv',
 		'delimiter'     => ',',
 		'charset'       => 'sjis',
-		'header_string' => '"総務省提出用地場産品リスト"' . PHP_EOL,
+		'header_string' => false,
 	);
-
+	public $jibasan_count;
 	/**
 	 * 地場産品CSVヘッダーを取得
 	 */
 	protected function set_header() {
 		global $n2;
-		$lh_setting = $n2->settings['地場産品'];
-		$params     = $this->data['params'];
-		$type       = $params['type'] ?? '謝礼品リスト';
-		// CSVヘッダー配列化
-		$this->data['header'] = $lh_setting['csv_header'];
+		$jibasanpin_setting = $n2->settings['地場産品'];
+		$params             = $this->data['params'];
+		$type               = $params['type'] ?? '';
+		// CSVヘッダー配列化トス
+		$this->data['header'] = $jibasanpin_setting['csv_header'][ $type ];
 		/**
 		 * [hook] n2_item_export_lhcloud_set_header
 		 */
@@ -53,41 +53,28 @@ class N2_Item_Export_Jibasanpin extends N2_Item_Export_Base {
 	 * @param array  $n2values n2dataのループ中の値
 	 */
 	protected function walk_values( &$val, $index, $n2values ) {
-		global $n2;
-		$params = $this->data['params'];
-		$data   = array();
-		// LH設定
-		$lh_setting = $n2->settings['LedgHOME'];
-		// 定期便の初期化
-		$n2values['定期便'] = $n2values['定期便'] ?: 1;
-		// eチケット判定
-		$is_e_ticket = in_array( 'eチケット', (array) $n2values['商品タイプ'], true );
-		// 発送サイズがヤマトか判定
-		$is_yamato = is_numeric( $n2values['発送サイズ'] );
-		// ループ回数
-		$loop = match ( $params['type'] ) {
-			'謝礼品リスト' => $n2values['定期便'],
-			'税率リスト' => 1,
-			default => $n2values['定期便'] > 1 ? 1 : 0,
-		};
-		for ( $i = 1; $i <= $loop; $i++ ) {
-			// 返礼品コード
-			$item_code = $n2values['返礼品コード'] . ( $loop > 1 ? "_{$i}/{$n2values['定期便']}" : '' );
-			// データ配列
-			$data[ $i ] = match ( $val ) {
-				'団体コード' => $index,
-				'都道府県' => $index,
-				'市区町村' => $index,
-				'番号' => $index + 1,
-				'品目名' => $n2values['タイトル'],
-				'必要寄附金額' => $n2values['寄附金額'],
-				'調達費用' => $lh_setting['価格'],
-				'返礼割合' => $index,
-				'地場産品基準' => $n2values['地場産品類型'],
-				'類型該当理由' => $n2values['類型該当理由'],
-				default => '',
-			};
+		if ( '番号' === $val ) {
+			$jibasan_count = 0;
+			$args          = array(
+				'sort' => 'タイトル',
+			);
+			foreach ( N2_Items_API::get_items( $args ) as $key => $v ) {
+				if ( $n2values['id'] === $v['id'] ) {
+					$jibasan_count = $key;
+				}
+			}
 		}
+		// preg_matchで判定
+		$data = match ( 1 ) {
+			preg_match( '/^番号$/', $val )  => $jibasan_count,
+			preg_match( '/^品目名$/', $val ) => $n2values['タイトル'],
+			preg_match( '/^必要寄附金額$/', $val )  => $n2values['寄附金額'],
+			preg_match( '/^調達費用$/', $val )  => $n2values['価格'],
+			preg_match( '/^返礼割合$/', $val )  => '=IFERROR(I30/H30,"")' . $index,
+			preg_match( '/^地場産品基準$/', $val ) => $n2values['地場産品類型'],
+			preg_match( '/^類型該当理由$/', $val ) => $n2values['総務省提出用類型該当理由'],
+			default => '',
+		};
 		/**
 		 * [hook] n2_item_export_lhcloud_walk_values
 		 */

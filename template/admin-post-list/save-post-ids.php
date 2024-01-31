@@ -54,6 +54,12 @@ global $n2;
 							<?php endforeach; ?>
 							<!-- <label v-if="'download' === fd.mode"><input type="radio" name="type" value="3"> 3ファイル一括ダウンロード</label> -->
 						</div>
+						<div style="margin-bottom: 1em;" v-if="fd.action.match(/jibasanpin/)">
+						<span>出力項目選択 ：　</span>
+								<label><input type="radio" name="type" value="info" checked> 各情報</label>
+								<label><input type="radio" name="type" value="jibasan"> 地場産品関連</label>
+							<!-- <label v-if="'download' === fd.mode"><input type="radio" name="type" value="3"> 3ファイル一括ダウンロード</label> -->
+						</div>
 						<!-- モード選択 -->
 						<div style="margin-bottom: 1em;">
 							<span>モード選択 ：　</span>
