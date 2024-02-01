@@ -54,21 +54,11 @@ class N2_Item_Export_Jibasanpin extends N2_Item_Export_Base {
 	 */
 	protected function walk_values( &$val, $index, $n2values ) {
 		if ( '番号' === $val ) {
-			$jibasan_count = 0;
-			$args          = array(
-				'orderby'  => 'meta_value',
-				'meta_key' => '返礼品コード',
-				'order'    => 'ASC',
-			);
-			foreach ( N2_Items_API::get_items( $args ) as $key => $v ) {
-				if ( $n2values['id'] === $v['id'] ) {
-					$jibasan_count = $key + 1;
-				}
-			}
+			$this->settings['num']++;
 		}
 		// preg_matchで判定
 		$data = match ( 1 ) {
-			preg_match( '/^番号$/', $val )  => $jibasan_count,
+			preg_match( '/^番号$/', $val )  => $this->settings['num'],
 			preg_match( '/^品目名$/', $val ) => $n2values['タイトル'],
 			preg_match( '/^必要寄附金額$/', $val )  => $n2values['寄附金額'],
 			preg_match( '/^調達費用$/', $val )  => $n2values['価格'],
