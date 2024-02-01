@@ -677,7 +677,10 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 				'td' => nl2br( $n2values['発送方法'] ),
 			),
 			'配送期日'    => array(
-				'td' => nl2br( $n2values['配送期間'] ),
+				'td' => match ( $n2values['発送サイズ'] ?? true ) {
+					'レターパックライト', 'レターパックプラス' => nl2br( "{$n2values['配送期間']}\n※レターパックにて発送いたします。日時指定はいただけませんので、あらかじめご了承ください。" ),
+					default => nl2br( $n2values['配送期間'] ),
+				},
 			),
 			'提供事業者'   => array(
 				'td' => $this->get_author_name( $n2values ),
