@@ -2,8 +2,8 @@
 
 $white: rgb(255, 255, 255);
 $dark-gray: rgb(17 24 39);
-$gray: rgb(107 114 128);
-$pale-gray: rgb(229 231 235);
+$gray: rgb(75 85 99);
+$pale-gray: rgb(209 213 219);
 $blue: rgb(59 130 246);
 $modal-bg: rgba(30, 30, 30, 0.7);
 
@@ -17,7 +17,7 @@ $max-w: 760px;
 	// タブ
 	&-tab {
 		display: flex;
-		gap: 10px;
+		gap: 8px;
 		margin-top: 10px;
 		margin-bottom: 40px;
 		&-button {
@@ -29,14 +29,16 @@ $max-w: 760px;
 			font-size: 16px;
 			font-weight: bold;
 			color: $gray;
+			background-color: $pale-gray;
 			&:hover {
-				transition: color 0.5s;
-				color: $dark-gray;
+				// transition: color 0.5s;
+				// color: $dark-gray;
 			}
 			&__selected {
-				color: $dark-gray;
+				color: $white;
+				background-color: $gray;
 				&::after {
-					content: "";
+					// content: "";
 					position: absolute;
 					bottom: 0;
 					left: 0;
@@ -53,7 +55,7 @@ $max-w: 760px;
 	}
 	&-li {
 		padding: 10px 0px 10px 20px;
-		border-left: 1px solid $dark-gray;
+		border-left: 4px solid $pale-gray;
 		margin-bottom: 32px;
 		&-header {
 			display: flex;
@@ -75,7 +77,7 @@ $max-w: 760px;
 				}
 			}
 			&-date {
-				color: $gray;
+				color: $dark-gray;
 			}
 		}
 		&-text {
