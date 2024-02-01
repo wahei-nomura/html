@@ -1,4 +1,4 @@
-import Vue from "vue";
+import Vue, { computed } from "vue";
 import MountingPortal from "portal-vue";
 
 /**
@@ -18,6 +18,34 @@ Vue.use({
 });
 
 /**
+ * タブ
+ */
+const PostTab = {
+	props: {
+		value: Boolean,
+	},
+	emits: ["input"],
+	template: `
+		<div class="vue-tab">
+			<button
+				type="button"
+				class="vue-tab-button"
+				@click="$emit('input', true)"
+				:class="{'vue-tab-button__selected': value}">
+				確認が必要なお知らせ
+			</button>
+			<button
+				type="button"
+				class="vue-tab-button"
+				@click="$emit('input', false)"
+				:class="{'vue-tab-button__selected': !value}">
+				過去のお知らせ
+			</button>
+		</div>
+	`,
+};
+
+/**
  * 投稿のリスト表示
  */
 const PostList = {
@@ -29,22 +57,30 @@ const PostList = {
 		posts: Array,
 	},
 	emits: ["open"],
+	methods: {
+		convertHTMLToPlainText(html) {
+			// DOMParserを使用してHTML文字列から新しいDOMを作成
+			const parser = new DOMParser();
+			const doc = parser.parseFromString(html, "text/html");
+			// documentElementのtextContentプロパティから平文を取得
+			return doc.documentElement.textContent;
+		},
+	},
 	template: `
 		<div class="vue-ul">
-			<template v-for="p in posts">
-				<div class="vue-li">
-					<span class="vue-li-title" @click="$emit('open', p)">
+			<div v-for="p in posts" :key="p.ID" class="vue-li">
+				<div class="vue-li-header">
+					<span class="vue-li-header-title" @click="$emit('open', p)">
 						{{ p.post_title }}
 					</span>
-					<span class="vue-li-date">
+					<span class="vue-li-header-date">
 						{{ p.post_date }}
 					</span>
 				</div>
-				<div>
-					<span>{{ p.is_read ? '既読' : '未読' }}</span>
-					<span>{{ p.is_force ? '強制表示' : '強制しない' }}</span>
+				<div class="vue-li-text">
+					{{ convertHTMLToPlainText(p.post_content) }}
 				</div>
-			</template>
+			</div>
 		</div>
 	`,
 };
@@ -92,9 +128,10 @@ window.addEventListener("DOMContentLoaded", () => {
 	// eslint-disable-next-line no-new
 	new Vue({
 		el: "#app",
-		components: { PostList, PostModal },
+		components: { PostTab, PostList, PostModal },
 		data() {
 			return {
+				tabValue: true,
 				modalContent: undefined,
 			};
 		},
@@ -112,10 +149,15 @@ window.addEventListener("DOMContentLoaded", () => {
 				const yomu = [];
 				const yoman = [];
 				this.formattedPosts.forEach((p) => {
-					console.log(p.is_force, p.is_read);
 					(p.is_force && !p.is_read ? yomu : yoman).push(p);
 				});
 				return { yomu, yoman };
+			},
+			// 表示する方のリスト
+			displayPosts() {
+				return this.tabValue
+					? this.waketaPosts.yomu
+					: this.waketaPosts.yoman;
 			},
 		},
 		watch: {},
@@ -135,13 +177,10 @@ window.addEventListener("DOMContentLoaded", () => {
 			},
 		},
 		template: `
-			<div>
-				<h2>確認が必要なお知らせ {{ waketaPosts.yomu.length }}件</h2>
-				<PostList :posts="waketaPosts.yomu" @open="openModal" />
-
-				<h2>それ以外 {{ waketaPosts.yoman.length }}件</h2>
-				<PostList :posts="waketaPosts.yoman" @open="openModal" />
-
+			<div class="vue-wrap">
+				<PostTab v-model="tabValue" />
+				<PostList v-if="displayPosts.length > 0" :posts="displayPosts" @open="openModal" />
+				<p v-else class="vue-zero">お知らせはありません</p>
 				<PostModal :post="modalContent" @close="closeModal" />
 			</div>
 		`,
