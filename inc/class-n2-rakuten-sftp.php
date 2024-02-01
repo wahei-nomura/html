@@ -389,7 +389,7 @@ class N2_Rakuten_SFTP {
 				continue;
 			}
 			$remote_file = 'ritem/batch/' . $name[ $k ];
-			$file_data   = file_get_contents( $file );
+			$file_data   = ( new WP_Filesystem_Direct( '' ) )->get_contents( $file );
 			// 削除エラーチェック
 			if ( str_contains( $name[ $k ], 'item-delete' ) ) {
 				$this->check_fatal_error( ! $this->count_item_delete_row( $file_data ), '商品削除する行が含まれているため、アップロードを中止しました' );
@@ -408,6 +408,7 @@ class N2_Rakuten_SFTP {
 			if ( $uploaded ) {
 				$this->n2data[ $this->data['files']['name'][ $k ] ][] = $this->data['files']['name'][ $k ];
 			}
+			wp_delete_file( $file );
 		}
 		$this->insert_post();
 	}
@@ -589,7 +590,10 @@ class N2_Rakuten_SFTP {
 	private function set_files() {
 		setlocale( LC_ALL, 'ja_JP.UTF-8' );
 		$this->check_fatal_error( $this->data['params']['judge'], '転送モードが設定されていません' );
-		$this->data['files'] = $_FILES['sftp_file'];
+		/**
+		 * [hook] n2_rakuten_sftp_set_files
+		 */
+		$this->data['files'] = apply_filters( mb_strtolower( get_called_class() ) . '_set_files' ,$_FILES['sftp_file'] );
 		$this->check_fatal_error( $this->data['files']['tmp_name'][0], 'ファイルをセットしてください。' );
 	}
 
