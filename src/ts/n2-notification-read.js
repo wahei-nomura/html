@@ -31,14 +31,20 @@ const PostList = {
 	emits: ["open"],
 	template: `
 		<div class="vue-ul">
-			<div v-for="p in posts" :key="p.ID" class="vue-li">
-				<span class="vue-li-title" @click="$emit('open', p)">
-					{{ p.post_title }}
-				</span>
-				<span class="vue-li-date">
-					{{ p.post_date }}
-				</span>
-			</div>
+			<template v-for="p in posts">
+				<div class="vue-li">
+					<span class="vue-li-title" @click="$emit('open', p)">
+						{{ p.post_title }}
+					</span>
+					<span class="vue-li-date">
+						{{ p.post_date }}
+					</span>
+				</div>
+				<div>
+					<span>{{ p.is_read ? '既読' : '未読' }}</span>
+					<span>{{ p.is_force ? '強制表示' : '強制しない' }}</span>
+				</div>
+			</template>
 		</div>
 	`,
 };
