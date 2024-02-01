@@ -18,8 +18,26 @@ class N2_Notification_Read {
 	 * コンストラクタ
 	 */
 	public function __construct() {
+		add_action( 'init', [$this, 'set_read']);
 		add_action( 'admin_init', array($this, 'custom_redirect_on_permission_error'));
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
+	}
+
+	public function set_read() {
+		$has_all_params = isset($_POST['user']) || isset($_POST['post']);
+		if (!$has_all_params) return;
+		switch_to_blog(1);
+		$wp_post = get_post((int)$_POST['post']);
+		if (!is_null($wp_post)) {
+			$notification_read = get_post_meta($wp_post->ID, 'notification-read', true);
+			if ($notification_read === '') $notification_read = [];
+			if (!in_array($_POST['user'], $notification_read)) {
+				$notification_read[] = $_POST['user'];
+				update_post_meta($wp_post->ID, 'notification-read', $notification_read);
+			}
+		}
+		restore_current_blog();
+		exit;
 	}
 
 	/**

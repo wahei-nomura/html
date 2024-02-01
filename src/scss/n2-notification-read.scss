@@ -12,14 +12,15 @@ $max-w: 760px;
 	// リスト
 	&-ul {
 		max-width: $max-w;
-		border-top: 1px solid $pale-gray;
+		border-top: 1px solid $gray;
+		margin-bottom: 60px;
 	}
 	&-li {
 		display: flex;
 		justify-content: space-between;
 		gap: 16px;
 		padding: 20px 4px;
-		border-bottom: 1px solid $pale-gray;
+		border-bottom: 1px solid $gray;
 		&-title {
 			flex: 1;
 			overflow: hidden;

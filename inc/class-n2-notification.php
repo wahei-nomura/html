@@ -18,8 +18,7 @@ class N2_Notification {
 	 * カスタムフィールドのID
 	 */
 	const CUSTOMFIELD_ID_FORCE = 'notification-force';
-	const CUSTOMFIELD_ID_FORCE_TARGET = 'notification-force-target';
-	const CUSTOMFIELD_ID_FORCE_READ = 'notification-force-read';
+	const CUSTOMFIELD_ID_READ = 'notification-read';
 	const CUSTOMFIELD_ID_ROLES = 'notification-roles';
 	const CUSTOMFIELD_ID_REGIONS = 'notification-regions';
 

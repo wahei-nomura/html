@@ -62,14 +62,20 @@ const PostModal = {
 				<article class="vue-modal-content">
 					<!-- Content Layer -->
 					<div>
-						<button @click="$emit('close')">閉じる</button>
+						<button type="button" @click="$emit('close')">閉じる</button>
 					</div>
-					<h1>{{ post.post_title }}</h1>
+					<h1>#{{ post.ID }} - {{ post.post_title }}</h1>
 					<div>{{ post.post_date }}</div>
 					<section v-html="post.post_content"></section>
-					<div>
-						<button @click="$emit('close')">閉じる</button>
-					</div>
+					<form method="post" action="">
+						<input type="hidden" name="user" :value="$n2.current_user.ID" />
+						<input type="hidden" name="post" :value="post.ID" />
+						<div>
+							<button>
+								確認しました！！！
+							</button>
+						</div>
+					</form>
 				</article>
 			</div>
 		</MountingPortal>
@@ -124,10 +130,10 @@ window.addEventListener("DOMContentLoaded", () => {
 		},
 		template: `
 			<div>
-				<div>{{ waketaPosts.yomu.length }}件</div>
+				<h2>確認が必要なお知らせ {{ waketaPosts.yomu.length }}件</h2>
 				<PostList :posts="waketaPosts.yomu" @open="openModal" />
 
-				<div>{{ waketaPosts.yoman.length }}件</div>
+				<h2>それ以外 {{ waketaPosts.yoman.length }}件</h2>
 				<PostList :posts="waketaPosts.yoman" @open="openModal" />
 
 				<PostModal :post="modalContent" @close="closeModal" />
