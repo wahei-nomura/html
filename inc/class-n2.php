@@ -484,7 +484,9 @@ class N2 {
 		// マップ
 		$posts = array_map(function($p) {
 			// 強制表示
+			// フラグが立っていても投稿日時がユーザーの登録より前なら強制表示はしない
 			$force = (int) get_post_meta($p->ID, 'notification-force', true);
+			$force &= strtotime($p->post_date) > strtotime($this->current_user->user_registered);
 			$p->is_force = $force;
 			// 確認が必要か
 			$read = get_post_meta($p->ID, 'notification-read', true);
