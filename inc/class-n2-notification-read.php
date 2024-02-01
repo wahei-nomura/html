@@ -46,23 +46,18 @@ class N2_Notification_Read {
 	 */
 	public function add_menu() {
 		global $n2;
-		// 自治体のページならナビゲーションに追加
-		if (get_site()->blog_id != 1) {
-			$label = $n2->notifications_should_read > 0
-				? "お知らせ ($n2->notifications_should_read)"
-				: 'お知らせ';
-			add_menu_page(
-				'お知らせ',
-				$label,
-				'ss_crew',
-				'n2_notification_read',
-				[$this, 'display_page'],
-				'dashicons-bell',
-				25
-			);
-		} else {
-			// wp_redirect('edit.php?post_type=notification');
-		}
+		$label = $n2->notifications_should_read > 0
+			? "お知らせ ($n2->notifications_should_read)"
+			: 'お知らせ';
+		add_menu_page(
+			'お知らせ',
+			$label,
+			'ss_crew',
+			'n2_notification_read',
+			[$this, 'display_page'],
+			'dashicons-bell',
+			25
+		);
 	}
 
 	public function custom_redirect_on_permission_error() {
@@ -76,7 +71,7 @@ class N2_Notification_Read {
 		?>
 		<div class="wrap">
 			<h1 class="wp-heading-inline">お知らせ</h1>
-			<p>NENGシステムに関するお知らせをこのページから確認できます。</p>
+			<!-- <p>NENGシステムに関するお知らせをこのページから確認できます。</p> -->
 			<div id="app">
 				<!-- この中はVueでよしなにやる -->
 			</div>
