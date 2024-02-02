@@ -109,14 +109,71 @@ $max-w: 760px;
 		padding: 40px;
 		background-color: $modal-bg;
 		backdrop-filter: blur(1px);
-		&-content {
+		&-inner {
 			overflow-y: scroll;
 			box-sizing: border-box;
-			max-width: $max-w;
+			max-width: 840px;
 			height: calc(100vh - 80px);
-			padding: 30px 40px;
+			padding: 30px 60px;
 			margin: 0 auto;
 			background-color: $white;
+		}
+		&-header {
+			margin-bottom: 20px;
+			&-btn {
+				position: relative;
+				left: 100%;
+				transform: translateX(-100%);
+				display: flex;
+				justify-content: end;
+				background-color: transparent;
+				font-size: 16px;
+			}
+			&-title {
+				font-size: 36px;
+				line-height: 44px;
+			}
+		}
+		&-content {
+			h2 {
+				font-size: 27px;
+			}
+			h3 {
+				font-size: 21px;
+			}
+			h4 {
+				font-size: 18px;
+			}
+			p {
+				font-size: 16px;
+				line-height: 26px;
+			}
+			ul {
+				font-size: 16px;
+				list-style-type: disc;
+			}
+			ol {
+				font-size: 16px;
+				list-style-type: decimal;
+			}
+			> ul,
+			> ol {
+				margin: 24px 0;
+			}
+			li {
+				margin: 10px 16px;
+			}
+		}
+		&-footer {
+			display: flex;
+			justify-content: center;
+			padding: 20px;
+			button {
+				padding: 6px 20px;
+				border-radius: 4px;
+				color: $white;
+				background-color: $blue;
+			}
 		}
 	}
 	// 0件で表示するテキスト

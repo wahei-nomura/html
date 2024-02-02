@@ -1,4 +1,4 @@
-import Vue, { computed } from "vue";
+import Vue from "vue";
 import MountingPortal from "portal-vue";
 
 /**
@@ -97,24 +97,38 @@ const PostModal = {
 		post: Object,
 	},
 	emits: ["close"],
+	computed: {
+		isShouldRead() {
+			return this.post.is_force && !this.post.is_read;
+		},
+	},
 	template: `
 		<MountingPortal v-if="post" mountTo="#wpwrap" append>
 			<div @click.self="$emit('close')" class="vue-modal">
 				<!-- Background Layer -->
-				<article class="vue-modal-content">
+				<article class="vue-modal-inner">
 					<!-- Content Layer -->
-					<div>
-						<button type="button" @click="$emit('close')">閉じる</button>
+					<div class="vue-modal-header">
+						<button class="vue-modal-header-btn" type="button" @click="$emit('close')">
+							<span class="dashicons dashicons-no-alt"></span>閉じる
+						</button>
+						<h1 class="vue-modal-header-title">
+							{{ post.post_title }}
+						</h1>
+						<div>
+							{{ post.post_date }}
+						</div>
 					</div>
-					<h1>#{{ post.ID }} - {{ post.post_title }}</h1>
-					<div>{{ post.post_date }}</div>
-					<section v-html="post.post_content"></section>
+					<section class="vue-modal-content" v-html="post.post_content"></section>
 					<form method="post" action="">
 						<input type="hidden" name="user" :value="$n2.current_user.ID" />
 						<input type="hidden" name="post" :value="post.ID" />
-						<div>
-							<button>
-								確認しました！！！
+						<div class="vue-modal-footer">
+							<button v-if="isShouldRead" type="submit">
+								確認しました！
+							</button>
+							<button v-else type="button" @click="$emit('close')">
+								閉じる
 							</button>
 						</div>
 					</form>
