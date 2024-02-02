@@ -18,14 +18,18 @@ $max-w: 760px;
 	&-tab {
 		display: flex;
 		gap: 8px;
+		padding: 6px;
+		border-radius: 6px;
 		margin-top: 10px;
 		margin-bottom: 40px;
+		background-color: $pale-gray;
 		&-button {
 			cursor: pointer;
 			position: relative;
 			flex: 1;
-			padding: 8px;
+			padding: 10px;
 			border: none;
+			border-radius: 4px;
 			font-size: 16px;
 			font-weight: bold;
 			color: $gray;
