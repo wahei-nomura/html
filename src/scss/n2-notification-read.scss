@@ -109,6 +109,10 @@ $max-w: 760px;
 		padding: 40px;
 		background-color: $modal-bg;
 		backdrop-filter: blur(1px);
+		button {
+			cursor: pointer;
+			border: none;
+		}
 		&-inner {
 			overflow-y: scroll;
 			box-sizing: border-box;
@@ -168,11 +172,23 @@ $max-w: 760px;
 			display: flex;
 			justify-content: center;
 			padding: 20px;
+			border-top: 1px solid $pale-gray;
+			margin-top: 40px;
 			button {
-				padding: 6px 20px;
+				width: 100%;
+				max-width: 200px;
+				padding: 8px 20px;
+				border: 2px solid $blue;
 				border-radius: 4px;
+				font-size: 16px;
+				font-weight: bold;
 				color: $white;
 				background-color: $blue;
+			}
+			button[type="button"] {
+				border-color: transparent;
+				color: $gray;
+				background-color: transparent;
 			}
 		}
 	}

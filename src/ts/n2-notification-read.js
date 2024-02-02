@@ -110,7 +110,7 @@ const PostModal = {
 					<!-- Content Layer -->
 					<div class="vue-modal-header">
 						<button class="vue-modal-header-btn" type="button" @click="$emit('close')">
-							<span class="dashicons dashicons-no-alt"></span>閉じる
+							閉じる
 						</button>
 						<h1 class="vue-modal-header-title">
 							{{ post.post_title }}
