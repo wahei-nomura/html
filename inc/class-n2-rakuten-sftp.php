@@ -180,20 +180,6 @@ class N2_Rakuten_SFTP {
 	}
 
 	/**
-	 * SFTP EXPLORER　ARGS
-	 */
-	public function explorer_args() {
-		$args = array();
-		$this->connect();
-		$args['connect'] = $this->data['connect'];
-		if ( ! $args['connect'] ) {
-			return $args;
-		}
-		$args['dirlist'] = $this->dirlist( '/', true, true );
-		return $args;
-	}
-
-	/**
 	 * キャビアップ
 	 */
 	public function img_upload() {
