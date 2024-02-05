@@ -198,57 +198,6 @@ class N2_Rakuten_SFTP {
 	}
 
 	/**
-	 * エラーログテンプレート用の変数
-	 */
-	public function error_log_args() {
-		$args = array();
-		$this->connect();
-		$args['connect'] = $this->data['connect'];
-
-		if ( ! $args['connect'] ) {
-			return $args;
-		}
-		$args['dir']  = 'ritem/logs';
-		$args['logs'] = $this->dirlist( $args['dir'] );
-		$args['logs'] = array_reverse( $args['logs'] );
-		$args['logs'] = array_map(
-			function ( $log ) use ( $args ) {
-				$contents = $this->get_contents( "{$args['dir']}/{$log['name']}" );
-				$contents = htmlspecialchars( mb_convert_encoding( $contents, 'utf-8', 'sjis' ) );
-				return array(
-					'name'     => $log['name'],
-					'time'     => wp_date( 'Y M d', $log['lastmodunix'] ),
-					'contents' => $contents,
-				);
-			},
-			$args['logs']
-		);
-		return $args;
-	}
-
-	/**
-	 * エラーログ
-	 */
-	public function error_log() {
-		$this->connect();
-		check_fatal_error( $this->data['connect'], '接続エラー' );
-		$error_dir = 'ritem/logs';
-		$logs      = $this->dirlist( $error_dir );
-		return array_map(
-			function ( $log ) use ( $args ) {
-				$contents = $this->sftp->get_contents( "{$error_dir}/{$log['name']}" );
-				$contents = htmlspecialchars( mb_convert_encoding( $contents, 'utf-8', 'sjis' ) );
-				return array(
-					'name'     => $log['name'],
-					'time'     => wp_date( 'Y M d', $log['lastmodunix'] ),
-					'contents' => $contents,
-				);
-			},
-			array_reverse( $logs )
-		);
-	}
-
-	/**
 	 * アップロードテンプレート用の変数
 	 */
 	public function upload_args() {
