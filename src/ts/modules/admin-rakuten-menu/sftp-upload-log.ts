@@ -351,8 +351,8 @@ export default Vue.extend({
 					const error = this.linkData.error?.[manageNumber]?.filter(x=>x.context === image ) ?? [];
 					if(error.length) row = [...row, error[0].status,error[0].context];
 					if(!row.length) row.push(image)
-					if(this.linkData.diff[manageNumber]?.add?.includes(image) ) row.push('<span class="ms-1 text-primary">追加</span>');
-					if(this.linkData.diff[manageNumber]?.remove?.includes(image)) row.push('<span class="ms-1 text-danger">解除</span>');
+					if(this.linkData.diff[manageNumber]?.add?.includes(image) ) row.push('<span class="ms-1 text-primary">追加予定</span>');
+					if(this.linkData.diff[manageNumber]?.remove?.includes(image)) row.push('<span class="ms-1 text-danger">解除予定</span>');
 					return row.join(' ');
 				}).join('<br>')
 			}).join('<br>');
