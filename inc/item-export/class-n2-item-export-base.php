@@ -353,7 +353,7 @@ class N2_Item_Export_Base {
 		$reward_code  = '';
 		$reward_codes = array();
 		foreach ( $this->data['n2data'] as $item ) {
-			$reward_codes[ $item['id'] ] = ( isset( $item['返礼品コード'] ) && '' !== $item['返礼品コード'] ) ? $item['返礼品コード'] : $item['id'] . '（返礼品コード無し）';
+			$reward_codes[ $item['id'] ] = ! empty( $item['返礼品コード'] ) ? $item['返礼品コード'] : $item['id'] . '（返礼品コード無し）';
 		}
 
 		foreach ( $this->data['error'] as $id => $errors ) {
