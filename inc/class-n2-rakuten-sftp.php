@@ -522,6 +522,13 @@ class N2_Rakuten_SFTP {
 			$params = wp_parse_args( $params, $_POST );
 		}
 
+		$default = array(
+			'mode' => 'json',
+		);
+
+		// $defaultを$paramsで上書き
+		$params = wp_parse_args( $default, $params );
+
 		/**
 		 * [hook] n2_rakuten_sftp_set_params
 		 */
@@ -588,7 +595,7 @@ class N2_Rakuten_SFTP {
 				break;
 			case 'upload':
 				$this->set_files();
-				$this->upload( $this->data['params']['path'], $this->data['params']['files'] );
+				$this->upload( $this->data['params']['path'], $this->data['files'] );
 				break;
 			case 'get_contents':
 				$this->data['log'] = $this->get_contents( $this->data['params']['path'] );
