@@ -527,7 +527,7 @@ class N2_Rakuten_SFTP {
 		);
 
 		// $defaultを$paramsで上書き
-		$params = wp_parse_args( $default, $params );
+		$params = wp_parse_args( $params, $default );
 
 		/**
 		 * [hook] n2_rakuten_sftp_set_params
