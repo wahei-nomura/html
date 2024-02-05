@@ -158,16 +158,11 @@ window.addEventListener("DOMContentLoaded", () => {
 					return p;
 				});
 			},
+			// 強制表示用
 			forceReadPosts() {
 				return [...this.formattedPosts].filter(
 					(p) => p.is_force && !p.is_read
 				);
-			},
-			// 表示する方のリスト
-			displayPosts() {
-				return this.tabValue
-					? this.forceReadPosts
-					: this.formattedPosts;
 			},
 		},
 		watch: {},
@@ -196,7 +191,7 @@ window.addEventListener("DOMContentLoaded", () => {
 					<p v-else class="vue-zero">確認が必要なお知らせはありません</p>
 				</template>
 				<template v-else>
-					<PostList v-if="forceReadPosts.length > 0" :posts="forceReadPosts" @open="openModal" />
+					<PostList v-if="formattedPosts.length > 0" :posts="formattedPosts" @open="openModal" />
 					<p v-else class="vue-zero">お知らせはありません</p>
 				</template>
 				<!-- モーダル -->
