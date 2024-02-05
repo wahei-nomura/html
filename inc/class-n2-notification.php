@@ -256,13 +256,16 @@ class N2_Notification {
 	 * @return array $columns
 	 */
 	public function manage_notification_columns($columns) {
-		$columns['title'] = 'タイトル';
-		$columns['date'] = '公開日時';
-		$columns['roles'] = '対象権限';
-		return $columns;
+		return [
+			'post_id' => 'ID',
+			'title' => 'タイトル',
+			'roles' => '対象権限',
+			'date' => '公開日時',
+		];
 	}
 	public function custom_notification_column( $column_name, $post_id ) {
 		echo match($column_name) {
+			'post_id' => $post_id,
 			'roles' => (function() use ($post_id) {
 				$options = self::get_role_options();
 				$options = array_column($options, 1, 0);
