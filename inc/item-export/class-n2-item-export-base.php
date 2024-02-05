@@ -591,7 +591,7 @@ class N2_Item_Export_Base {
 			);
 
 			// アップロード
-			$sftp->upload_to_rakuten();
+			$sftp->api();
 			exit;
 		}
 		?>

@@ -68,7 +68,7 @@ class N2_Rakuten_SFTP {
 	 */
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
-		add_action( 'wp_ajax_n2_rakuten_sftp_upload_to_rakuten', array( $this, 'upload_to_rakuten' ) );
+		add_action( 'wp_ajax_n2_rakuten_sftp_api', array( $this, 'api' ) );
 		add_action( 'wp_ajax_n2_rakuten_sftp_insert_cabi_renho_log', array( $this, 'insert_cabi_renho_log' ) );
 		add_action( 'wp_ajax_n2_rakuten_sftp_explorer', array( $this, 'explorer' ) );
 		add_action( 'init', array( $this, 'register_post_type' ) );
@@ -254,7 +254,7 @@ class N2_Rakuten_SFTP {
 	 */
 	public function upload_args() {
 		return array(
-			'action'    => 'n2_rakuten_sftp_upload_to_rakuten',
+			'action'    => 'n2_rakuten_sftp_api',
 			'radio'     => array(
 				'img_upload' => '商品画像',
 				'csv_upload' => '商品CSV',
@@ -269,7 +269,7 @@ class N2_Rakuten_SFTP {
 	 *
 	 * @return void
 	 */
-	public function upload_to_rakuten() {
+	public function api() {
 		$this->check_fatal_error( $this->connect(), 'パスワードが違います。パスワードの有効期限が切れていないかRMSでご確認ください。' );
 		$this->set_params();
 		$this->{$this->data['params']['judge']}();

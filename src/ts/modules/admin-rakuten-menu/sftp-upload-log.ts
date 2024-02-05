@@ -62,7 +62,7 @@ export default Vue.extend({
 					},
 				},
 			},
-			action: 'n2_rakuten_sftp_upload_to_rakuten',
+			action: 'n2_rakuten_sftp_api',
 			popover: {
 				'アップロード': {
 					display: '',

@@ -18,7 +18,7 @@ export default Vue.extend({
 					icon: 'dashicons dashicons-format-gallery',
 				},
 			},
-			action: 'n2_rakuten_sftp_upload_to_rakuten',
+			action: 'n2_rakuten_sftp_api',
 			files: [],
 			fileResetCount: 0,
 		}
