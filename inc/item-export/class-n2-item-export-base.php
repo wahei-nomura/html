@@ -572,6 +572,7 @@ class N2_Item_Export_Base {
 				function () {
 					return array(
 						'judge' => 'csv_upload',
+						'mode'  => 'text',
 					);
 				}
 			);

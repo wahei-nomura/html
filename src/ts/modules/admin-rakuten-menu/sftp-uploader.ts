@@ -90,6 +90,7 @@ export default Vue.extend({
 			formData.append( 'n2nonce', this.n2nonce);
 			formData.append( 'action', this.action);
 			formData.append( 'judge', this.uploadMode);
+			formData.append( 'mode', 'text');
 			for (let i = 0; i < files.length; i++) {
 				formData.append('sftp_file[]', files[i]);
 			}
@@ -101,12 +102,12 @@ export default Vue.extend({
 				formData,
 				{headers:headers}
 			).then((res)=>{
-				alert(res.data.log.message);
+				alert(res.data);
 				// ログ一覧の更新
 				this.updateSFTPLog();
 			}).catch(err=>{
 				console.error(err);
-				alert(err.response.data.message);
+				alert(err.response.data);
 			}).then(()=>{
 				this.uploading = false;
 				this.resetFiles();

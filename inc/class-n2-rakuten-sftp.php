@@ -273,6 +273,7 @@ class N2_Rakuten_SFTP {
 		$this->check_fatal_error( $this->connect(), 'パスワードが違います。パスワードの有効期限が切れていないかRMSでご確認ください。' );
 		$this->set_params();
 		$this->{$this->data['params']['judge']}();
+		$this->insert_post();
 		$this->log_output();
 	}
 
@@ -348,7 +349,6 @@ class N2_Rakuten_SFTP {
 			}
 		}
 		exec( "rm -Rf {$tmp}" );
-		$this->insert_post();
 	}
 
 	/**
@@ -410,7 +410,6 @@ class N2_Rakuten_SFTP {
 			}
 			wp_delete_file( $file );
 		}
-		$this->insert_post();
 	}
 
 	/**
@@ -538,9 +537,28 @@ class N2_Rakuten_SFTP {
 		$data = array(
 			'log' => $this->data['log'],
 		);
-		header( 'Content-Type: application/json; charset=utf-8' );
-		echo wp_json_encode( $data, JSON_UNESCAPED_UNICODE );
-		exit;
+		switch ( $this->data['params']['mode'] ) {
+			case 'text':
+				header( 'Content-Type: application/json; charset=utf-8' );
+				echo implode(
+					PHP_EOL,
+					array_reduce(
+						$data['log'],
+						function ( $messages, $log ) {
+							if ( isset( $log['status'] ) && isset( $log['context'] ) ) {
+								$messages = array( ...$messages, "{$log['status']} {$log['context']}" );
+							}
+							return $messages;
+						},
+						array()
+					)
+				);
+				exit;
+			default:
+				header( 'Content-Type: application/json; charset=utf-8' );
+				echo wp_json_encode( $data, JSON_UNESCAPED_UNICODE );
+				exit;
+		}
 	}
 
 	/**
@@ -736,10 +754,10 @@ class N2_Rakuten_SFTP {
 	 */
 	public function insert_post() {
 		global $n2;
-		$timezone                       = new DateTimeZone( 'Asia/Tokyo' );
-		$now                            = wp_date( 'Y M d h:i:s A', null, $timezone );
-		$judge                          = $this->data['params']['judge'];
-		$post_content                   = array(
+		$timezone     = new DateTimeZone( 'Asia/Tokyo' );
+		$now          = wp_date( 'Y M d h:i:s A', null, $timezone );
+		$judge        = $this->data['params']['judge'];
+		$post_content = array(
 			'アップロード' => array(
 				'data' => $this->n2data,
 				'log'  => $this->data['log'],
@@ -747,7 +765,10 @@ class N2_Rakuten_SFTP {
 			),
 			'転送モード'  => $judge,
 		);
-		$default                        = array(
+		if ( 'img_upload' === $judge ) {
+			$post_content['RMS商品画像']['変更後'] = null;
+		}
+		$default = array(
 			'ID'           => 0,
 			'post_author'  => $n2->current_user->ID,
 			'post_status'  => 'pending',
@@ -755,14 +776,7 @@ class N2_Rakuten_SFTP {
 			'post_title'   => "[$now] $judge",
 			'post_content' => wp_json_encode( $post_content, JSON_UNESCAPED_UNICODE ),
 		);
-		$post_content['RMS商品画像']['変更後'] = null;
-		// リビジョン生成用
-		$this->update_post(
-			array(
-				'post_id'      => wp_insert_post( $default ),
-				'post_content' => wp_json_encode( $post_content, JSON_UNESCAPED_UNICODE ),
-			),
-		);
+		wp_insert_post( $default );
 	}
 
 	/**
@@ -783,10 +797,7 @@ class N2_Rakuten_SFTP {
 		if ( $post->post_parent ) {
 			$update_post['post_parent'] = $post->post_parent;
 		}
-		$this->data['log'] = array(
-			'id'      => wp_update_post( $update_post ),
-			'message' => '更新完了！',
-		);
+		wp_update_post( $update_post );
 	}
 
 	/**
@@ -843,17 +854,14 @@ class N2_Rakuten_SFTP {
 		$data['RMS商品画像']['変更後'] = null;
 		unset( $data['RMS商品画像']['変更前'] );
 		$post   = array(
-			'ID'           => $revision->post_parent,
-			'post_status'  => $revision->post_status,
-			'post_type'    => $this->data['post_type'],
-			'post_title'   => $revision->post_title,
+			'post_id'      => $revision->post_parent,
 			'post_content' => wp_json_encode( $data, JSON_UNESCAPED_UNICODE ),
 		);
 		$author = $this->get_userid_by_usermeta( 'last_name', $data['事業者コード'] ?? '' );
 		if ( $author ) {
 			$post['post_author'] = $author;
 		}
-		wp_insert_post( $post );
+		$this->update_post( $post );
 	}
 
 	/**
