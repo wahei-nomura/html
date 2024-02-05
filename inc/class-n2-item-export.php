@@ -25,10 +25,11 @@ class N2_Item_Export {
 			'class-n2-item-export-ledghome',
 			'class-n2-item-export-lhcloud',
 			'class-n2-item-export-rakuten',
-			'class-n2-item-export-rakuten-select',
 			'class-n2-item-export-rakuten-sku',
 			'class-n2-item-export-rakuten-cat',
+			'class-n2-item-export-jibasanpin',
 			'class-n2-product-list-print',
+			'class-n2-user-export',
 		);
 		// フルパス生成
 		$files = array_map( fn( $v ) => get_theme_file_path( "/inc/item-export/{$v}.php" ), $files );

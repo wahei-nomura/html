@@ -65,7 +65,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 		global $n2;
 
 		$choice_settings = $n2->settings['ふるさとチョイス'];
-		$caution_name = $n2->town . '-注意書き.jpg'; // デフォルト注意書き
+		$caution_name    = $n2->town . '-注意書き.jpg'; // デフォルト注意書き
 		// 注意書き
 		{
 			$warning = array();
@@ -77,20 +77,18 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 				}
 				$warning['やきもの対応機器']  = implode( ' / ', $warning['やきもの対応機器'] );
 				$warning['やきもの対応機器'] .= "\n{$n2values['対応機器備考']}";
-				$siteurl = site_url();
-				$rakuten_dir = $n2->settings['楽天']['商品画像ディレクトリ']; // 画像ディレクトリ取得
-				$ex_siteurl  = explode( '/', $siteurl ); // 自治体ローマ字取得(N2URLから取得)
-				$ex_towncode     = explode( '-', end($ex_siteurl) );
-				$townname        = $ex_towncode[1]; // 自治体ローマ字
-				$caution_name = $townname . '_yaki_c.jpg';
+				$siteurl              = site_url();
+				$rakuten_dir          = $n2->settings['楽天']['商品画像ディレクトリ']; // 画像ディレクトリ取得
+				$ex_siteurl           = explode( '/', $siteurl ); // 自治体ローマ字取得(N2URLから取得)
+				$ex_towncode          = explode( '-', end( $ex_siteurl ) );
+				$townname             = $ex_towncode[1]; // 自治体ローマ字
+				$caution_name         = $townname . '_yaki_c.jpg';
 			}
 			// 商品タイプごとの注意書きを追加
 			foreach ( array_filter( $n2values['商品タイプ'] ) as $type ) {
 				$warning[ $type ] = wp_strip_all_tags( $n2->settings['注意書き'][ $type ] ?? '' );
 			}
 			$warning['共通'] = wp_strip_all_tags( $n2->settings['注意書き']['共通'] );
-			// 浄化
-			$warning = array_filter( array_values( $warning ) );
 		}
 		// 説明文
 		{
@@ -106,9 +104,14 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 		{
 			$n2values['内容量・規格等'] = array(
 				$n2values['内容量・規格等'],
+				in_array( 'やきもの', $n2values['商品タイプ'], true ) && $warning['やきもの対応機器'] ? $warning['やきもの対応機器'] : '',
 				$n2values['原料原産地'] ? "【原料原産地】\n{$n2values['原料原産地']}" : '',
 				$n2values['加工地'] ? "【加工地】\n{$n2values['加工地']}" : '',
-				...$warning,
+				$warning['食品'] ? $warning['食品'] : '',
+				$warning['酒'] ? $warning['酒'] : '',
+				$warning['やきもの'] ? $warning['やきもの'] : '',
+				$warning['eチケット'] ? $warning['eチケット'] : '',
+				$warning['共通'] ? $warning['共通'] : '',
 			);
 			// 空要素削除して連結
 			$n2values['内容量・規格等'] = implode( "\n\n", array_filter( $n2values['内容量・規格等'] ) );
@@ -150,41 +153,44 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 		// preg_matchで判定
 		$data = match ( 1 ) {
 			preg_match( '/^管理コード$/', $val )  => $n2values['返礼品コード'],
-			preg_match( '/^（必須）お礼の品名$/', $val ) => "{$n2values['タイトル']} [{$n2values['返礼品コード']}]",// * 200文字以内
-			preg_match( '/^サイト表示事業者名$/', $val )  => $this->get_author_name( $n2values ),// 64文字以内
-			preg_match( '/必要寄付金額$/', $val )  => $n2values['寄附金額'],// * 半角数字
+			preg_match( '/^（必須）お礼の品名$/', $val ) => "{$n2values['タイトル']} [{$n2values['返礼品コード']}]", // * 200文字以内
+			preg_match( '/^サイト表示事業者名$/', $val )  => $this->get_author_name( $n2values ), // 64文字以内
+			preg_match( '/必要寄付金額$/', $val )  => $n2values['寄附金額'], // * 半角数字
 			preg_match( '/（条件付き必須）ポイント$/', $val ) => match ( $choice_settings['ポイント導入'] ?? false ) {
 				'導入する' => $n2values['寄附金額'] * 0.3, // ポイントは寄附金額の3割で計算
 				default => '',
 			},
-			preg_match( '/^説明$/', $val )  => $n2values['説明文'],// 1,000文字以内
-			preg_match( '/^キャッチコピー$/', $val )  => $n2values['キャッチコピー'],// 40文字以内
-			preg_match( '/^容量$/', $val )  => $n2values['内容量・規格等'],// お礼の品の容量情報を1,000文字以内で入力
-			preg_match( '/(お礼の品|スライド)画像[1]*$/', $val ) => mb_strtolower( $n2values['返礼品コード'] ) . '.jpg',// お礼の品画像のファイル名
-			preg_match( '/スライド画像([2-8]{1})$/u', $val, $m ) => mb_strtolower( $n2values['返礼品コード'] ) . '-' . ( $m[1] - 1 ) . '.jpg',// スライド画像のファイル名を指定
-			preg_match( '/品梱包画像$/u', $val ) => $caution_name,// 〇〇(市|町|県)-注意書き.jpg || 自治体ローマ字_yaki_r.jpg (やきものの場合の注意書き)
-			preg_match( '/^申込期日$/', $val ) => $n2values['申込期間'],// お礼の品の申込期日情報を1,000文字以内で入力　〇〇(市|町|県)-注意書き.jpg
-			preg_match( '/^発送期日$/', $val ) => $n2values['配送期間'],// 発送期日種別が任意入力の場合はお礼の品の発送期日情報を1,000文字以内で入力
-			preg_match( '/アレルギー：([^（]*)/u', $val, $m ) => in_array( $m[1], $n2values['アレルゲン'], true ) ? 1 : 2,// アレルギー品目がありの場合は半角数字の1、なしの場合は半角数字の2、未確認の場合は半角数字の3
-			preg_match( '/アレルギー特記事項/', $val ) => $n2values['アレルゲン注釈'],// アレルギーに関する注意情報を1,000文字以内で入力
+			preg_match( '/^説明$/', $val )  => $n2values['説明文'], // 1,000文字以内
+			preg_match( '/^キャッチコピー$/', $val )  => $n2values['キャッチコピー'], // 40文字以内
+			preg_match( '/^容量$/', $val )  => $n2values['内容量・規格等'], // お礼の品の容量情報を1,000文字以内で入力
+			preg_match( '/(お礼の品|スライド)画像[1]*$/', $val ) => mb_strtolower( $n2values['返礼品コード'] ) . '.jpg', // お礼の品画像のファイル名
+			preg_match( '/スライド画像([2-8]{1})$/u', $val, $m ) => mb_strtolower( $n2values['返礼品コード'] ) . '-' . ( $m[1] - 1 ) . '.jpg', // スライド画像のファイル名を指定
+			preg_match( '/品梱包画像$/u', $val ) => $caution_name, // 〇〇(市|町|県)-注意書き.jpg || 自治体ローマ字_yaki_r.jpg (やきものの場合の注意書き)
+			preg_match( '/^申込期日$/', $val ) => $n2values['申込期間'], // お礼の品の申込期日情報を1,000文字以内で入力　〇〇(市|町|県)-注意書き.jpg
+			preg_match( '/^発送期日$/', $val ) => match ( $n2values['発送サイズ'] ?? true ) {
+				'レターパックライト', 'レターパックプラス' => "{$n2values['配送期間']}\n※レターパックにて発送いたします。日時指定はいただけませんので、あらかじめご了承ください。",
+				default => $n2values['配送期間'], // 発送期日種別が任意入力の場合はお礼の品の発送期日情報を1,000文字以内で入力
+			},
+			preg_match( '/アレルギー：([^（]*)/u', $val, $m ) => in_array( $m[1], $n2values['アレルゲン'], true ) ? 1 : 2, // アレルギー品目がありの場合は半角数字の1、なしの場合は半角数字の2、未確認の場合は半角数字の3
+			preg_match( '/アレルギー特記事項/', $val ) => $n2values['アレルゲン注釈'], // アレルギーに関する注意情報を1,000文字以内で入力
 			// preg_match( '/地場産品類型番号/', $val )  => $n2values['地場産品類型'] ? in_array( $n2values['地場産品類型'], $applicable_reasons ) ? "{$n2values['地場産品類型']}|{$n2values['類型該当理由']}" : "{$n2values['地場産品類型']}|" : '',// 設定したい地場産品類型番号と、地場産品に該当する理由（100文字以内）を入力してください。地場産品類型番号と該当する理由のテキストを『 | 』で区切ってください。
-			preg_match( '/地場産品類型番号/', $val )  => $n2values['地場産品類型'],// 設定したい地場産品類型番号と、地場産品に該当する理由（100文字以内）を入力してください。地場産品類型番号と該当する理由のテキストを『 | 』で区切ってください。
-			preg_match( '/消費期限/', $val ) => $n2values['消費期限'],// 食品系の場合はなるべく消費期限を1,000文字以内で入力
-			preg_match( '/^（必須）.+?配送$/', $val ) => false !== strpos( $val, $n2values['発送方法'] ) ? 1 : 0,// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
-			preg_match( '/^（必須）((包装|のし)対応)$/', $val, $m ) => false !== strpos( '有り', $n2values[ $m[1] ] ) ? 1 : 0,// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
-			preg_match( '/^（必須）定期配送対応$/', $val ) => $n2values['定期便'] > 1 ? 1 : 0,// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
-			preg_match( '/^（必須）(会員|チョイス)限定$/', $val ) => 0,// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
-			preg_match( '/^（必須）オンライン決済限定$/', $val ) => (int) in_array( '限定', (array) $n2values['オンライン決済限定'] ?? array(), true ),// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
-			preg_match( '/^（必須）配送業者$/', $val ) => $choice_settings['配送業者'] ?? 0,// * N2設定で選択した業者を設定。未設定の場合は0
-			preg_match( '/^（必須）配達時間指定$/', $val ) => $choice_settings['配達時間指定'] ?? 0,// * N2設定で「指定できる」を選択している場合は1、選択していないor「指定できない」を選択時は0
-			preg_match( '/^（必須）(発送|配達|配送).+$/', $val ) => 0,// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
-			preg_match( '/^（必須）容量単位$/', $val ) => 0,// * グラムは半角数字の0、キログラムは半角数字の1、ミリリットルは半角数字の2、リットルは半角数字の3
-			preg_match( '/^（必須）地域の生産者応援の品/', $val ) => 0,// * 適用する場合は半角数字の1、適用しない場合は半角数字の0
-			preg_match( '/^（必須）.*(有無|可否)$/', $val ) => 1,// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
-			preg_match( '/受付開始日時/', $val ) => gmdate( 'Y/m/d', strtotime( '+1 year' ) ) . ' 00:00',// 受付開始日時を設定することが出来ます。指定した場合、この日時以降でないと申込みできない
-			preg_match( '/還元率（\%）$/', $val ) => 30,// 対応する場合は半角数字の1、対応しない場合は半角数字の0
-			preg_match( '/^（必須）別送対応$/', $val ) => 1,// * 対応する場合は半角数字の1、対応しない場合は半角数字の0
-			preg_match( '/^（必須）カテゴリー$/', $val ) => 166,// 11/7よりカテゴリ入力が必須のため臨時対応。166(地域のお礼の品)をとりあえず設定
+			preg_match( '/地場産品類型番号/', $val )  => $n2values['地場産品類型'], // 設定したい地場産品類型番号と、地場産品に該当する理由（100文字以内）を入力してください。地場産品類型番号と該当する理由のテキストを『 | 』で区切ってください。
+			preg_match( '/消費期限/', $val ) => $n2values['消費期限'], // 食品系の場合はなるべく消費期限を1,000文字以内で入力
+			preg_match( '/^（必須）.+?配送$/', $val ) => false !== strpos( $val, $n2values['発送方法'] ) ? 1 : 0, // * 対応する場合は半角数字の1、対応しない場合は半角数字の0
+			preg_match( '/^（必須）((包装|のし)対応)$/', $val, $m ) => false !== strpos( '有り', $n2values[ $m[1] ] ) ? 1 : 0, // * 対応する場合は半角数字の1、対応しない場合は半角数字の0
+			preg_match( '/^（必須）定期配送対応$/', $val ) => $n2values['定期便'] > 1 ? 1 : 0, // * 対応する場合は半角数字の1、対応しない場合は半角数字の0
+			preg_match( '/^（必須）(会員|チョイス)限定$/', $val ) => 0, // * 対応する場合は半角数字の1、対応しない場合は半角数字の0
+			preg_match( '/^（必須）オンライン決済限定$/', $val ) => (int) in_array( '限定', (array) $n2values['オンライン決済限定'] ?? array(), true ), // * 対応する場合は半角数字の1、対応しない場合は半角数字の0
+			preg_match( '/^（必須）配送業者$/', $val ) => $choice_settings['配送業者'] ?? 0, // * N2設定で選択した業者を設定。未設定の場合は0
+			preg_match( '/^（必須）配達時間指定$/', $val ) => $choice_settings['配達時間指定'] ?? 0, // * N2設定で「指定できる」を選択している場合は1、選択していないor「指定できない」を選択時は0
+			preg_match( '/^（必須）(発送|配達|配送).+$/', $val ) => 0, // * 対応する場合は半角数字の1、対応しない場合は半角数字の0
+			preg_match( '/^（必須）容量単位$/', $val ) => 0, // * グラムは半角数字の0、キログラムは半角数字の1、ミリリットルは半角数字の2、リットルは半角数字の3
+			preg_match( '/^（必須）地域の生産者応援の品/', $val ) => 0, // * 適用する場合は半角数字の1、適用しない場合は半角数字の0
+			preg_match( '/^（必須）.*(有無|可否)$/', $val ) => 1, // * 対応する場合は半角数字の1、対応しない場合は半角数字の0
+			preg_match( '/受付開始日時/', $val ) => gmdate( 'Y/m/d', strtotime( '+1 year' ) ) . ' 00:00', // 受付開始日時を設定することが出来ます。指定した場合、この日時以降でないと申込みできない
+			preg_match( '/還元率（\%）$/', $val ) => 30, // 対応する場合は半角数字の1、対応しない場合は半角数字の0
+			preg_match( '/^（必須）別送対応$/', $val ) => 1, // * 対応する場合は半角数字の1、対応しない場合は半角数字の0
+			preg_match( '/^（必須）カテゴリー$/', $val ) => 166, // 11/7よりカテゴリ入力が必須のため臨時対応。166(地域のお礼の品)をとりあえず設定
 			default => '',
 		};
 		/**
@@ -217,7 +223,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 		);
 		foreach ( $maxlength as $max => $pattern ) {
 			$len = match ( $pattern ) {
-				'地場産品類型番号' => mb_strlen( preg_replace( '/.*?\|/u', '', $value ) ),// パイプ前を削除
+				'地場産品類型番号' => mb_strlen( preg_replace( '/.*?\|/u', '', $value ) ), // パイプ前を削除
 				default => mb_strlen( $value ),
 			};
 			if ( preg_match( "/{$pattern}/", $name ) && $len > $max ) {

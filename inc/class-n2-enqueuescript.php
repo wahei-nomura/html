@@ -20,11 +20,9 @@ class N2_Enqueuescript {
 	public function __construct() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 		add_action( 'login_enqueue_scripts', array( $this, 'login_enqueue_script' ) );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_front_script' ) );
 		add_filter( 'admin_body_class', array( $this, 'add_admin_body_class' ) );
 		add_action( 'admin_footer', array( $this, 'noscript' ) );
 		add_action( 'admin_footer', array( $this, 'check_chrome' ) );
-		add_action( 'wp_footer', array( $this, 'noscript' ) );
 		add_action( 'in_admin_header', array( $this, 'forcelogout_review_nodisplay' ), 90 );
 	}
 
@@ -41,12 +39,10 @@ class N2_Enqueuescript {
 		wp_enqueue_style( 'n2-admin', get_theme_file_uri( 'dist/css/admin.css' ), array( 'n2-google-font-PTmono' ), $n2->cash_buster );
 		$n2->hook_suffix = $hook_suffix;
 		wp_localize_script( 'n2-admin', 'n2', $n2 );
-		wp_localize_script( 'n2-admin', 'tmp_path', $this->get_tmp_path() );
 		$name = match ( $hook_suffix ) {
 			'index.php' => 'admin-index',
 			'post.php', 'post-new.php' => 'admin-post-editor',
 			'edit.php' => 'admin-post-list',
-			'toplevel_page_n2_crew_setup_menu' => 'admin-setup',
 			'toplevel_page_n2_rakuten_menu' => 'admin-rakuten-explorer',
 			mb_strtolower( rawurlencode( '楽天_page_n2_rakuten_menu_rms-cabinet' ) ) => 'admin-rakuten-cabinet',
 			mb_strtolower( rawurlencode( '楽天_page_n2_rakuten_menu_sftp-upload' ) ) => 'admin-rakuten-upload',
@@ -64,20 +60,6 @@ class N2_Enqueuescript {
 		}
 	}
 
-	/**
-	 * フロントのjs,cssの読み込み
-	 *
-	 * @param string $hook_suffix ページ名
-	 * @return void
-	 */
-	public function enqueue_front_script( $hook_suffix ) {
-		global $n2;
-		wp_enqueue_script( 'n2-front', get_theme_file_uri( 'dist/js/front.js' ), array( 'jquery' ), $n2->cash_buster, false );
-		wp_enqueue_style( 'n2-front', get_theme_file_uri( 'dist/css/front.css' ), array(), $n2->cash_buster );
-		$n2->hook_suffix = $hook_suffix;
-		wp_localize_script( 'n2-front', 'n2', $n2 );
-		wp_localize_script( 'n2-front', 'tmp_path', $this->get_tmp_path() );
-	}
 
 	/**
 	 *
@@ -110,18 +92,6 @@ class N2_Enqueuescript {
 	}
 
 	/**
-	 * JSに渡す用のwindowのグローバル変数を配列としてreturn
-	 *
-	 * @return Array tmp_path
-	 */
-	private function get_tmp_path() {
-		return array(
-			'tmp_url'  => get_theme_file_uri(),
-			'ajax_url' => admin_url( 'admin-ajax.php' ),
-			'home_url' => home_url(),
-		);
-	}
-	/**
 	 * jsがオフの場合は警告する
 	 *
 	 * @return void
@@ -141,6 +111,7 @@ class N2_Enqueuescript {
 		</pre>
 		</noscript>";
 	}
+
 	/**
 	 * chromeでない場合警告を出す
 	 *

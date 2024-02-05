@@ -57,7 +57,7 @@ export default ($: any = jQuery) => {
 				for ( const name in this.$data ) {
 					data[name] = this.$data[name];
 				}
-				console.log('watching')
+				console.log('watching');
 				return data;
 			},
 			async function(newVal, oldVal) {
@@ -145,16 +145,20 @@ export default ($: any = jQuery) => {
 			});
 			n2.media.on( 'open', () => {
 				// N2のものだけに
-				console.log(n2.media)
-				const add =  n2.tmp.vue.商品画像.filter( v => v.nonces );
+				const add =  this.商品画像.filter( v => v.nonces );
+				n2.media.state().reset();
 				n2.media.state().get('selection').add( add.map( v => wp.media.attachment(v.id) ) );
 			});
-			n2.media.on( 'select close', () => {
+			n2.media.on( 'close', () => {
+				const selected = [];
 				n2.media.state().get('selection').forEach( img => {
-					if ( ! n2.tmp.vue.商品画像.find( v => v.id == img.attributes.id ) ) {
-						n2.tmp.vue.商品画像.push( img.attributes );
+					if ( ! this.商品画像.find( v => v.id == img.id ) ) {
+						this.商品画像.push( img.attributes );
 					}
-				})
+					selected.push( img.id );
+				});
+				// N1のものと、削除されていないものだけに絞る
+				this.商品画像 = this.商品画像.filter( v => ! v.nonces || selected.includes( v.id ) );
 			});
 			n2.media.open();
 		},
@@ -183,6 +187,11 @@ export default ($: any = jQuery) => {
 			};
 			let res = await $.ajax(opt);
 			res = JSON.parse(res);
+			if ( ! res.genre ) {
+				alert('RMS APIに接続できません');
+				this.tmp.商品属性アニメーション = false;
+				return;
+			}
 			let attr = res.genre.attributes;
 			attr = mandatoryFlg ? attr.filter( v => v.properties.rmsMandatoryFlg ) : attr;
 			this.商品属性 = this.商品属性 || attr;
