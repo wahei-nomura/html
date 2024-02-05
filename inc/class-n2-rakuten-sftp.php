@@ -182,12 +182,11 @@ class N2_Rakuten_SFTP {
 	/**
 	 * キャビアップ
 	 */
-	public function img_upload() {
-		$this->set_files();
+	public function img_upload( $files ) {
 		global $n2;
-		$name     = $this->data['files']['name'];
-		$type     = $this->data['files']['type'];
-		$tmp_name = $this->data['files']['tmp_name'];
+		$name     = $files['name'];
+		$type     = $files['type'];
+		$tmp_name = $files['tmp_name'];
 
 		$img_dir = rtrim( $n2->settings['楽天']['商品画像ディレクトリ'], '/' ) . '/';
 
@@ -256,11 +255,10 @@ class N2_Rakuten_SFTP {
 	/**
 	 * CSVアップロード
 	 */
-	public function csv_upload() {
-		$this->set_files();
-		$name     = $this->data['files']['name'];
-		$type     = $this->data['files']['type'];
-		$tmp_name = $this->data['files']['tmp_name'];
+	public function csv_upload( $files ) {
+		$name     = $files['name'];
+		$type     = $files['type'];
+		$tmp_name = $files['tmp_name'];
 		$name     = array_map(
 			function ( $n ) {
 				foreach ( $this->data['rakuten_csv_name'] as $file_name ) {
@@ -300,15 +298,15 @@ class N2_Rakuten_SFTP {
 			$this->data['log'][] = match ( $uploaded ) {
 				true => array(
 					'status'  => '転送成功',
-					'context' => $this->data['files']['name'][ $k ],
+					'context' => $name[ $k ],
 				),
 				default => array(
 					'status'  => '転送失敗',
-					'context' => $this->data['files']['name'][ $k ],
+					'context' => $name[ $k ],
 				),
 			};
 			if ( $uploaded ) {
-				$this->n2data[ $this->data['files']['name'][ $k ] ][] = $this->data['files']['name'][ $k ];
+				$this->n2data[ $name[ $k ] ][] = $name[ $k ];
 			}
 			wp_delete_file( $file );
 		}
@@ -569,10 +567,12 @@ class N2_Rakuten_SFTP {
 
 		switch ( $this->data['params']['judge'] ) {
 			case 'csv_upload':
-				$this->csv_upload();
+				$this->set_files();
+				$this->csv_upload( $this->data['files'] );
 				break;
 			case 'img_upload':
-				$this->img_upload();
+				$this->set_files();
+				$this->img_upload( $this->data['files'] );
 				break;
 			case 'mkdir':
 				$this->mkdir( $this->data['params']['path'] );
