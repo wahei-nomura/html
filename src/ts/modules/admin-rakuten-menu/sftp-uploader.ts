@@ -1,4 +1,3 @@
-import axios, {AxiosResponse} from 'axios';
 import Vue from 'vue/dist/vue.min';
 import {mapState,mapActions} from 'vuex/dist/vuex.min';
 import { SftpUploadData } from './sftp-upload-interface';
@@ -18,15 +17,11 @@ export default Vue.extend({
 					icon: 'dashicons dashicons-format-gallery',
 				},
 			},
-			action: 'n2_rakuten_sftp_api',
 			files: [],
 			fileResetCount: 0,
 		}
 	},
 	computed:{
-		...mapState([
-			'n2nonce',
-		]),
 		uploadType(): string|undefined{
 			return this.files[0]?.type;
 		},
