@@ -178,11 +178,12 @@ class N2_Notification {
 		global $pagenow;
 		// チェックボックス生成用
 		$options = self::get_role_options();
-		$options = json_encode($options, JSON_UNESCAPED_UNICODE);
 		// 新規追加と編集で初期値の取り方が変化する
 		$initial = $pagenow === 'post-new.php'
-			? $values // 新規追加なら全て選択でスタート
+			? array_column($options, 0) // 新規追加なら全て選択でスタート
 			: get_post_meta($post->ID, self::CUSTOMFIELD_ID_ROLES, true);
+		// json文字列に変換
+		$options = json_encode($options, JSON_UNESCAPED_UNICODE);
 		$initial = json_encode($initial, JSON_UNESCAPED_UNICODE);
         ?>
         <div id="notification-input-roles">
