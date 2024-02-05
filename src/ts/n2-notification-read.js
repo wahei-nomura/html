@@ -45,6 +45,39 @@ const PostTab = {
 	`,
 };
 
+const PostList2 = {
+	props: {
+		/**
+		 * カスタム投稿の配列
+		 * WP_Post[]
+		 */
+		posts: Array,
+	},
+	emits: ["open"],
+	template: `
+		<div class="vue-a">
+			<div v-for="p in posts" :key="p.ID" class="vue-a-b">
+				<div class="vue-a-b-dot"></div>
+				<div class="vue-a-b-date">
+					<div>
+						{{ p.post_date }}
+					</div>
+				</div>
+				<div>
+					<a @click="$emit('open', p)" class="vue-a-b-title">
+						{{ p.post_title }}
+					</a>
+				</div>
+				<div>
+					<a @click="$emit('open', p)" class="vue-a-b-btn">
+						詳しくみる
+					</a>
+				</div>
+			</div>
+		</div>
+	`,
+};
+
 /**
  * 投稿のリスト表示
  */
@@ -142,7 +175,7 @@ window.addEventListener("DOMContentLoaded", () => {
 	// eslint-disable-next-line no-new
 	new Vue({
 		el: "#app",
-		components: { PostTab, PostList, PostModal },
+		components: { PostTab, PostList, PostList2, PostModal },
 		data() {
 			return {
 				tabValue: true,
@@ -178,7 +211,7 @@ window.addEventListener("DOMContentLoaded", () => {
 				const y = date.getFullYear();
 				const m = String(date.getMonth() + 1).padStart(2, "0");
 				const d = String(date.getDate()).padStart(2, "0");
-				return `${y}年${m}月${d}日`;
+				return `${y}.${m}.${d}`;
 			},
 		},
 		template: `
@@ -191,7 +224,7 @@ window.addEventListener("DOMContentLoaded", () => {
 					<p v-else class="vue-zero">確認が必要なお知らせはありません</p>
 				</template>
 				<template v-else>
-					<PostList v-if="formattedPosts.length > 0" :posts="formattedPosts" @open="openModal" />
+					<PostList2 v-if="formattedPosts.length > 0" :posts="formattedPosts" @open="openModal" />
 					<p v-else class="vue-zero">お知らせはありません</p>
 				</template>
 				<!-- モーダル -->
