@@ -152,7 +152,7 @@ export default Vue.extend({
 			};
 			this.currentFileContens = await this.sftpRequest({data}).then(res=>{
 				this.SET_LOADING({is:false,status:'取得完了'});
-				return res.data
+				return res.data.log
 			});
 		},
 		formatSize(byte){

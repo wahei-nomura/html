@@ -67,7 +67,7 @@ export default new Vuex.Store({
 		},
 		async sftpRequest({state,commit},{data,config}){
 			const params = {
-				action: 'n2_rakuten_sftp_explorer',
+				action: 'n2_rakuten_sftp_api',
 				n2nonce: state.n2nonce,
 				...data,
 			};
@@ -90,7 +90,7 @@ export default new Vuex.Store({
 					path: '/',
 					recursive: true,
 				}}).then(res=>{
-					const dirlist = res.data;
+					const dirlist = res.data.log;
 					commit('SFTP',{dirlist});
 				}),
 				// current
@@ -99,7 +99,7 @@ export default new Vuex.Store({
 					path: currentPath,
 					recursive: true,
 				}}).then(res=>{
-					const children = res.data;
+					const children = res.data.log;
 					commit('SET_CURRENT_DIR',{
 						path: currentPath,
 						children,

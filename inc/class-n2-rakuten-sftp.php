@@ -70,7 +70,6 @@ class N2_Rakuten_SFTP {
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 		add_action( 'wp_ajax_n2_rakuten_sftp_api', array( $this, 'api' ) );
 		add_action( 'wp_ajax_n2_rakuten_sftp_insert_cabi_renho_log', array( $this, 'insert_cabi_renho_log' ) );
-		add_action( 'wp_ajax_n2_rakuten_sftp_explorer', array( $this, 'explorer' ) );
 		add_action( 'init', array( $this, 'register_post_type' ) );
 	}
 	/**
@@ -194,7 +193,7 @@ class N2_Rakuten_SFTP {
 		if ( ! $args['connect'] ) {
 			return $args;
 		}
-		$args['dirlist'] = $this->sftp->dirlist( '/', true, true );
+		$args['dirlist'] = $this->dirlist( '/', true, true );
 		return $args;
 	}
 
@@ -210,11 +209,11 @@ class N2_Rakuten_SFTP {
 			return $args;
 		}
 		$args['dir']  = 'ritem/logs';
-		$args['logs'] = $this->sftp->dirlist( $args['dir'] );
+		$args['logs'] = $this->dirlist( $args['dir'] );
 		$args['logs'] = array_reverse( $args['logs'] );
 		$args['logs'] = array_map(
 			function ( $log ) use ( $args ) {
-				$contents = $this->sftp->get_contents( "{$args['dir']}/{$log['name']}" );
+				$contents = $this->get_contents( "{$args['dir']}/{$log['name']}" );
 				$contents = htmlspecialchars( mb_convert_encoding( $contents, 'utf-8', 'sjis' ) );
 				return array(
 					'name'     => $log['name'],
@@ -234,7 +233,7 @@ class N2_Rakuten_SFTP {
 		$this->connect();
 		check_fatal_error( $this->data['connect'], '接続エラー' );
 		$error_dir = 'ritem/logs';
-		$logs      = $this->sftp->dirlist( $error_dir );
+		$logs      = $this->dirlist( $error_dir );
 		return array_map(
 			function ( $log ) use ( $args ) {
 				$contents = $this->sftp->get_contents( "{$error_dir}/{$log['name']}" );
@@ -264,18 +263,6 @@ class N2_Rakuten_SFTP {
 		);
 	}
 
-	/**
-	 * 楽天への転送機能（超突貫）
-	 *
-	 * @return void
-	 */
-	public function api() {
-		$this->check_fatal_error( $this->connect(), 'パスワードが違います。パスワードの有効期限が切れていないかRMSでご確認ください。' );
-		$this->set_params();
-		$this->{$this->data['params']['judge']}();
-		$this->insert_post();
-		$this->log_output();
-	}
 
 	/**
 	 * キャビアップ
@@ -413,29 +400,51 @@ class N2_Rakuten_SFTP {
 	}
 
 	/**
+	 * get_contents
+	 *
+	 * @param string $path path
+	 */
+	private function get_contents( $path ) {
+		$this->check_fatal_error( $path, 'pathが未設定です' );
+		return $this->sftp->get_contents( $path );
+	}
+
+	/**
+	 * dirlist
+	 *
+	 * @param string  $path           path
+	 * @param boolean $include_hidden include_hidden
+	 * @param boolean $recursive      recursive
+	 */
+	private function dirlist( $path = '', $include_hidden = true, $recursive = false ) {
+		$recursive = $recursive ?: $this->data['params']['recursive'] ?? false;
+		return $this->sftp->dirlist( $path, $include_hidden, $recursive );
+	}
+
+
+	/**
 	 * アップロード
 	 */
-	private function upload() {
-		$this->set_files();
-		$name     = $this->data['files']['name'];
-		$type     = $this->data['files']['type'];
-		$tmp_name = $this->data['files']['tmp_name'];
+	private function upload( $path, $files ) {
+		$this->check_fatal_error( $path, 'pathが未設定です' );
+		$name     = $files['name'];
+		$tmp_name = $files['tmp_name'];
 		foreach ( $tmp_name as $k => $file ) {
-			$remote_file         = "{$this->data['params']['path']}/{$name[ $k ]}";
+			$remote_file         = "{$path}/{$name[ $k ]}";
 			$file_data           = file_get_contents( $file );
 			$uploaded            = $this->sftp->put_contents( $remote_file, $file_data );
 			$this->data['log'][] = match ( $uploaded ) {
 				true => array(
 					'status'  => '転送成功',
-					'context' => $this->data['files']['name'][ $k ],
+					'context' => $name[ $k ],
 				),
 				default => array(
 					'status'  => '転送失敗',
-					'context' => $this->data['files']['name'][ $k ],
+					'context' => $name[ $k ],
 				),
 			};
 			if ( $uploaded ) {
-				$this->n2data[ $this->data['files']['name'][ $k ] ][] = $this->data['files']['name'][ $k ];
+				$this->n2data[ $name[ $k ] ][] = $name[ $k ];
 			}
 		}
 	}
@@ -443,15 +452,17 @@ class N2_Rakuten_SFTP {
 	/**
 	 * Download
 	 */
-	private function download() {
+	private function download( $path, $files ) {
+		$this->check_fatal_error( $path, 'pathが未設定です' );
+		$this->check_fatal_error( $files, 'filesが未設定です' );
 
 		$tmp_zip_uri = stream_get_meta_data( tmpfile() )['uri'];
 		$zip         = new ZipArchive();
 		$zip->open( $tmp_zip_uri, ZipArchive::CREATE );
 		$zip_name = 'sftp';
 
-		foreach ( $this->data['params']['files'] as $file ) {
-			$file_path = "{$this->data['params']['path']}/{$file}";
+		foreach ( $files as $file ) {
+			$file_path = "{$path}/{$file}";
 			$zip->addFromString( "{$zip_name}/{$file}", $this->sftp->get_contents( $file_path ) );
 			$this->data['log'][] = array(
 				'status'  => 'DL成功',
@@ -459,7 +470,6 @@ class N2_Rakuten_SFTP {
 			);
 		}
 		$zip->close();
-
 
 		header( 'Content-Type: application/zip' );
 		header( 'Content-Transfer-Encoding: Binary' );
@@ -470,9 +480,6 @@ class N2_Rakuten_SFTP {
 		}
 		// 出力処理
 		readfile( $tmp_zip_uri );
-
-		$this->insert_post();
-		exit;
 	}
 
 	/**
@@ -481,6 +488,7 @@ class N2_Rakuten_SFTP {
 	 * @param string $path path
 	 */
 	private function mkdir( $path ) {
+		$this->check_fatal_error( $path, 'pathが未設定です' );
 		if ( $this->sftp->mkdir( $path ) ) {
 			$this->data['log'][] = array(
 				'status'  => '作成',
@@ -495,6 +503,7 @@ class N2_Rakuten_SFTP {
 	 * @param array $paths paths
 	 */
 	private function delete( $paths, $recursive = false ) {
+		$recursive = $recursive ?: $this?->data['params']['paths'] ?? false;
 		foreach ( $paths as $path ) {
 			$this->data['log'][] = match ( $this->sftp->delete( $path, $recursive ) ) {
 				true => array(
@@ -517,6 +526,9 @@ class N2_Rakuten_SFTP {
 	 * @param boolean $overwrite   overwrite
 	 */
 	private function move( $source, $destination, $overwrite = false ) {
+		$this->check_fatal_error( $source, 'sourceが未設定です' );
+		$this->check_fatal_error( $destination, 'destinationが未設定です' );
+		$overwrite           = $overwrite ?: $this?->data['params']['overwrite'] ?? false;
 		$this->data['log'][] = match ( $this->sftp->move( $source, $destination, $overwrite ) ) {
 			true => array(
 				'status'  => '移動完了',
@@ -632,48 +644,45 @@ class N2_Rakuten_SFTP {
 
 	/**
 	 * https://developer.wordpress.org/reference/classes/wp_filesystem_ssh2/
-	 * エクスプローラー操作一覧
+	 * API
+	 *
+	 * @return void
 	 */
-	public function explorer() {
-		$this->check_fatal_error( $this->connect(), 'パスワードが違います' );
+	public function api() {
+		$this->check_fatal_error( $this->connect(), 'パスワードが違います。パスワードの有効期限が切れていないかRMSでご確認ください。' );
 		$this->set_params();
-		$recursive = (bool) $this->data['params']['recursive'] ?? false;
-		$overwrite = (bool) $this->data['params']['overwrite'] ?? false;
 
 		switch ( $this->data['params']['judge'] ) {
+			case 'csv_upload':
+				$this->csv_upload();
+				break;
+			case 'img_upload':
+				$this->img_upload();
+				break;
 			case 'mkdir':
-				$this->check_fatal_error( $this->data['params']['path'], 'pathが未設定です' );
 				$this->mkdir( $this->data['params']['path'] );
 				break;
 			case 'delete':
-				$this->check_fatal_error( $this->data['params']['paths'], 'pathsが未設定です' );
-				$this->delete( $this->data['params']['paths'], $recursive );
+				$this->delete( $this->data['params']['paths'] );
 				break;
 			case 'move':
-				$this->check_fatal_error( $this->data['params']['source'], 'sourceが未設定です' );
-				$this->check_fatal_error( $this->data['params']['destination'], 'destinationが未設定です' );
-				$this->move( $this->data['params']['source'], $this->data['params']['destination'], $overwrite );
+				$this->move( $this->data['params']['source'], $this->data['params']['destination'] );
 				break;
 			case 'download':
-				$this->check_fatal_error( $this->data['params']['path'], 'pathが未設定です' );
-				$this->check_fatal_error( $this->data['params']['files'], 'filesが未設定です' );
-				$this->download();
+				$this->download( $this->data['params']['path'], $this->data['params']['files'] );
 				break;
 			case 'upload':
-				$this->check_fatal_error( $this->data['params']['path'], 'pathが未設定です' );
-				$this->upload();
+				$this->set_files();
+				$this->upload( $this->data['params']['path'], $this->data['params']['files'] );
 				break;
 			case 'get_contents':
-				$this->check_fatal_error( $this->data['params']['path'], 'pathが未設定です' );
-				$data = $this->sftp->get_contents( $this->data['params']['path'] );
-				header( 'Content-Type: application/json; charset=utf-8' );
-				echo wp_json_encode( $data, JSON_UNESCAPED_UNICODE );
-				exit;
+				$this->data['log'] = $this->get_contents( $this->data['params']['path'] );
+				$this->log_output();
+				break;
 			case 'dirlist':
-				$data = $this->sftp->dirlist( $this->data['params']['path'] ?? '', true, $recursive );
-				header( 'Content-Type: application/json; charset=utf-8' );
-				echo wp_json_encode( $data, JSON_UNESCAPED_UNICODE );
-				exit;
+				$this->data['log'] = $this->dirlist( $this->data['params']['path'] ?? '' );
+				$this->log_output();
+				break;
 			default:
 				$this->check_fatal_error( false, '未定義です' );
 		}
