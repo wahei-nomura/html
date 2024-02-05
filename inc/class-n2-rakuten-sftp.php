@@ -861,7 +861,10 @@ class N2_Rakuten_SFTP {
 		if ( $author ) {
 			$post['post_author'] = $author;
 		}
-		$this->update_post( $post );
+		$this->data['log'] = array(
+			'id'      => wp_update_post( $update_post ),
+			'message' => '更新完了！',
+		);
 	}
 
 	/**
