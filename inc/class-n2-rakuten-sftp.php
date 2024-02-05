@@ -126,12 +126,8 @@ class N2_Rakuten_SFTP {
 			$menu_slug    = $this->create_menu_slug( $page );
 			$html['nav'] .= sprintf( '<a href="?page=%s" class="nav-tab%s">%s</a>', $menu_slug, $menu_slug === $template ? ' nav-tab-active' : '', $name );
 			if ( $menu_slug === $template ) {
-				$args = match ( $page ) {
-					'sftp-upload'    => $this->upload_args(),
-					default     => null,
-				};
 				ob_start();
-				get_template_part( "{$this->settings['template']}/{$page}", '', $args );
+				get_template_part( "{$this->settings['template']}/{$page}", '' );
 				$html['contents'] = ob_get_clean();
 			}
 		}
@@ -196,22 +192,6 @@ class N2_Rakuten_SFTP {
 		$args['dirlist'] = $this->dirlist( '/', true, true );
 		return $args;
 	}
-
-	/**
-	 * アップロードテンプレート用の変数
-	 */
-	public function upload_args() {
-		return array(
-			'action'    => 'n2_rakuten_sftp_api',
-			'radio'     => array(
-				'img_upload' => '商品画像',
-				'csv_upload' => '商品CSV',
-			),
-			'file'      => 'sftp_file[]',
-			'post_type' => $this->data['post_type'],
-		);
-	}
-
 
 	/**
 	 * キャビアップ
