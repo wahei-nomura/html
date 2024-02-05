@@ -117,7 +117,7 @@ class N2_Item_Export_Base {
 		global $n2;
 		$n2field = array(
 			...array_keys( $n2->custom_field['スチームシップ用'] ),
-			...array_keys( $n2->custom_field['自治体用']),
+			...array_keys( $n2->custom_field['自治体用'] ),
 			...array_keys( $n2->custom_field['事業者用'] ),
 		);
 		// 重複削除
@@ -465,12 +465,12 @@ class N2_Item_Export_Base {
 				<button id="download" class="btn btn-success px-5">エラーが無い返礼品のみダウンロードする</button>
 			</form>
 			<?php if ( ! empty( $add_btn ) ) : ?>  
-			<?php foreach ( $add_btn as $btn ) : ?>
+				<?php foreach ( $add_btn as $btn ) : ?>
 			<form method="post" class="p-3 m-0">
 				<input type="hidden" name="option" value="<?php echo esc_attr( $btn['id'] ); ?>">
 				<input type="hidden" name="action" value="<?php echo esc_attr( mb_strtolower( get_class( $this ) ) ); ?>">
 				<input type="hidden" name="n2nonce" value="<?php echo esc_attr( $n2nonce ); ?>">
-				<?php foreach ( $includes as $include ) : ?>
+					<?php foreach ( $includes as $include ) : ?>
 					<input type="hidden" name="include[]" value="<?php echo esc_attr( $include ); ?>">
 				<?php endforeach; ?>
 				<button id="<?php echo $btn['id']; ?>" class="btn px-5 <?php echo $btn['class']; ?>"><?php echo $btn['text']; ?></button>
