@@ -605,6 +605,14 @@ class N2_Rakuten_SFTP {
 				$this->data['log'] = $this->dirlist( $this->data['params']['path'] ?? '' );
 				$this->log_output();
 				break;
+			case 'update_post':
+				$this->update_post();
+				$this->log_output();
+				break;
+			case 'checkout_revision':
+				$this->checkout_revision();
+				$this->log_output();
+				break;
 			default:
 				$this->check_fatal_error( false, '未定義です' );
 		}
@@ -785,7 +793,7 @@ class N2_Rakuten_SFTP {
 		$data['RMS商品画像']['変更後'] = null;
 		unset( $data['RMS商品画像']['変更前'] );
 		$post   = array(
-			'post_id'      => $revision->post_parent,
+			'ID'           => $revision->post_parent,
 			'post_content' => wp_json_encode( $data, JSON_UNESCAPED_UNICODE ),
 		);
 		$author = $this->get_userid_by_usermeta( 'last_name', $data['事業者コード'] ?? '' );
@@ -793,7 +801,7 @@ class N2_Rakuten_SFTP {
 			$post['post_author'] = $author;
 		}
 		$this->data['log'] = array(
-			'id'      => wp_update_post( $update_post ),
+			'id'      => wp_update_post( $post ),
 			'message' => '更新完了！',
 		);
 	}

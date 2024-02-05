@@ -62,7 +62,6 @@ export default Vue.extend({
 					},
 				},
 			},
-			action: 'n2_rakuten_sftp_api',
 			popover: {
 				'アップロード': {
 					display: '',
@@ -84,6 +83,7 @@ export default Vue.extend({
 	},
 	methods:{
 		...mapActions([
+			'sftpRequest',
 			'updateSFTPLog'
 		]),
 		viewLogMore(){
@@ -200,21 +200,17 @@ export default Vue.extend({
 			await Promise.all(itemPatchRequests).then( async res => {
 				console.log('item_batch',res);
 				// N2を更新
-				const formData = new FormData();
-				formData.append('n2nonce', this.n2nonce);
-				formData.append('action', this.action);
-				formData.append('judge', 'update_post' );
-				formData.append('post_id', log.ID );
+				const data = {
+					judge: 'update_post',
+					post_id: log.ID,
+				};
 				// id削除
 				delete updateLog.display;
 				// 画像用revision追加
 				updateLog.RMS商品画像.変更前 = this.linkData.rmsOrigin;
 				updateLog.RMS商品画像.変更後 = updateLog.アップロード.data;
-				formData.append('post_content', JSON.stringify(updateLog));
-				await axios.post(
-					window['n2'].ajaxurl,
-					formData,
-				);
+				data['post_content'] = JSON.stringify(updateLog);
+				await this.sftpRequest({data});
 				// 最新情報に更新
 				await this.updateSFTPLog()
 				this.linkData.id = null;
