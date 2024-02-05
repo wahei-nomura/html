@@ -35,7 +35,8 @@ class N2_Notification {
 		// カスタムフィールドの入力を保存
 		add_action( 'save_post', [$this, 'save_customfields'], 10, 3 ); // 第四引数が必要!!
 		// リスト(表)のカラムの設定
-		add_filter( 'manage_posts_columns', [$this, 'manage_posts_columns'], 10, 4 );
+		add_filter('manage_notification_posts_columns', [$this, 'manage_notification_columns'], 10, 4);
+		add_action('manage_notification_posts_custom_column', [$this, 'custom_notification_column'], 10, 4);
 		// 投稿のステータスのラベルを修正
 		add_filter( 'gettext', array( $this, 'change_status' ) );
 		add_filter( 'ngettext', array( $this, 'change_status' ) );
@@ -125,6 +126,21 @@ class N2_Notification {
     }
 
 	/**
+	 * ユーザー権限の値と表示名を出力
+	 *
+	 * @return [$value, $label][]
+	 */
+	private static function get_role_options() {
+		$yml = 'config/user-roles.yml';
+		$roles = yaml_parse_file(get_theme_file_path($yml));
+		$values = array_column($roles, 'role'); // 値
+		$labels = array_keys($roles); // 表示名
+		$options = array_map(fn($value, $label) => [$value, $label], $values, $labels);
+		n2_log($options);
+		return $options;
+	}
+
+	/**
 	 * 強制表示の入力欄
 	 *
      * @param WP_Post $post post
@@ -161,10 +177,7 @@ class N2_Notification {
     public function display_customfield_roll( $post, $metabox ) {
 		global $pagenow;
 		// チェックボックス生成用
-		$roles = yaml_parse_file( get_theme_file_path( 'config/user-roles.yml' ) );
-		$values = array_column($roles, 'role'); // 値
-		$labels = array_keys($roles); // 表示名
-		$options = array_map(fn($value, $label) => [$value, $label], $values, $labels);
+		$options = self::get_role_options();
 		$options = json_encode($options, JSON_UNESCAPED_UNICODE);
 		// 新規追加と編集で初期値の取り方が変化する
 		$initial = $pagenow === 'post-new.php'
@@ -239,15 +252,25 @@ class N2_Notification {
 	 * カラム調整
 	 *
 	 * @param array  $columns カラム名の配列
-	 * @param string $post_type 投稿タイプ
 	 * @return array $columns
 	 */
-	public function manage_posts_columns( $columns, $post_type ) {
-		if ($post_type === 'notification') {
-			$columns['title'] = 'タイトル';
-			$columns['date'] = '公開日時';
-		}
+	public function manage_notification_columns($columns) {
+		$columns['title'] = 'タイトル';
+		$columns['date'] = '公開日時';
+		$columns['roles'] = '対象権限';
 		return $columns;
+	}
+	public function custom_notification_column( $column_name, $post_id ) {
+		echo match($column_name) {
+			'roles' => (function() use ($post_id) {
+				$options = self::get_role_options();
+				$options = array_column($options, 1, 0);
+				$roles = get_post_meta($post_id, self::CUSTOMFIELD_ID_ROLES, true);
+				$roles = array_map(fn($r) => $options[$r], $roles);
+				$roles = implode(', ', $roles);
+				return $roles;
+			})(),
+		};
 	}
 
 	/**
