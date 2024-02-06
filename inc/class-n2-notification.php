@@ -257,6 +257,7 @@ class N2_Notification {
 	 */
 	public function manage_notification_columns($columns) {
 		return [
+			'cb' => 'ID',
 			'post_id' => 'ID',
 			'title' => 'タイトル',
 			'roles' => '対象権限',
