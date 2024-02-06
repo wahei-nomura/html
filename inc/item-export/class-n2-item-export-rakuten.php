@@ -221,7 +221,13 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 	 * @return array
 	 */
 	public function add_download_btn( $add_btn ) {
-		if ( $this->rms['image_error'] ) {
+		if ( $this->rms['image_error'] && filter_input( INPUT_POST, 'mode' ) === 'sftp_upload' ) {
+			$add_btn[] = array(
+				'id'    => 'ignore_img_error',
+				'class' => 'btn-warning',
+				'text'  => '画像エラーを無視してSFTP転送する',
+			);
+		} elseif ( $this->rms['image_error'] ) {
 			$add_btn[] = array(
 				'id'    => 'ignore_img_error',
 				'class' => 'btn-warning',

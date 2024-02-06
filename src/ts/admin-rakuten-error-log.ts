@@ -56,7 +56,7 @@ jQuery( async function($){
 					path: `${this.errorLog.dir}/${this.errorLog.name}`
 				};
 				await this.sftpRequest({data}).then(res=>{
-					get_contents[name] = res.data;
+					get_contents[name] = res.data.log;
 					this.SFTP({get_contents});
 					this.SET_LOADING({is:false,status:'取得完了'});
 				});
@@ -77,7 +77,7 @@ jQuery( async function($){
 				judge: 'dirlist',
 				path: this.errorLog.dir,
 			}}).then(res=>{
-				const dirlist = res.data;
+				const dirlist = res.data.log;
 				this.SFTP({dirlist});
 				this.SET_LOADING({is:false,status:'接続完了'});
 			})

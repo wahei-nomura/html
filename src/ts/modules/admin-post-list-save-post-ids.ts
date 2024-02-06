@@ -27,6 +27,7 @@ export default ($: any = jQuery) => {
 			change_author_name: '',
 			focusHover: false,
 			hover_list: '',
+			rakutenSFTPUpload:false,
 			n2,
 		},
 		async created(){
@@ -109,6 +110,9 @@ export default ($: any = jQuery) => {
 			},
 			change_author_id(){
 				return this.users.filter(user=>user.display_name === this.change_author_name)[0]?.ID ?? '';
+			},
+			rightClickHandler(){
+				this.rakutenSFTPUpload ^= 1;
 			}
 		},
 	});

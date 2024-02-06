@@ -42,8 +42,8 @@ global $n2;
 								<label v-if="n2.settings.N2.出品ポータル.includes('ふるさとチョイス')"><input type="radio" name="action" value="n2_item_export_furusato_choice" v-model="fd.action"> ふるさとチョイス</label>
 								<!-- 楽天 -->
 								<template v-if="n2.settings.N2.出品ポータル.includes('楽天')">
-									<label><input type="radio" name="action" value="n2_item_export_rakuten_sku" v-model="fd.action"> 楽天</label>
-									<label><input type="radio" name="action" value="n2_item_export_rakuten_cat" v-model="fd.action"> 楽天 [ item-cat.csv ]</label>
+									<label @click.right.prevent="rightClickHandler"><input type="radio" name="action" value="n2_item_export_rakuten_sku" v-model="fd.action"> 楽天</label>
+									<label @click.right.prevent="rightClickHandler"><input type="radio" name="action" value="n2_item_export_rakuten_cat" v-model="fd.action"> 楽天 [ item-cat.csv ]</label>
 								</template>
 							<?php endif; ?>
 							<!-- 総務省(地場産品) -->
@@ -69,6 +69,7 @@ global $n2;
 							<label><input type="radio" name="mode" value="spreadsheet" v-model="fd.mode"> スプレットシート貼付</label>
 							<?php if ( current_user_can( 'ss_crew' ) ) : // 自治体はデバッグ不要 ?>
 								<label><input type="radio" name="mode" value="debug" v-model="fd.mode"> デバッグモード</label>
+								<label v-if="rakutenSFTPUpload && fd.action.includes('n2_item_export_rakuten')"><input type="radio" name="mode" value="sftp_upload" v-model="fd.mode"> SFTP転送</label>
 							<?php endif; ?>
 						</div>
 						<!-- 送信 -->
