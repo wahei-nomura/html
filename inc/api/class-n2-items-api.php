@@ -85,59 +85,33 @@ class N2_Items_API {
 		$params = wp_parse_args( $params );
 		self::set_params( $params );
 		$posts = get_posts( self::$data['params'] );
-		$posts = array_map(fn($p) => self::optimize_item($p), $posts);
-		$posts = array_filter($posts);
-		$posts = array_values($posts);
-		n2_log([
-			get_site()->blog_id,
-			$posts,
-		]);
+		$posts = array_map(
+			function ( $v ) {
+				$post_content = json_decode( $v->post_content, true );
+				if ( 'post' === self::$data['params']['post_type'] ) {
+					// idを混ぜ込む
+					$post_content['id'] = $v->ID;
+					return $post_content;
+				} else {
+					$arr = array(
+						'ID'           => $v->ID,
+						'post_title'   => $v->post_title,
+						'post_date'    => $v->post_date,
+						'post_content' => $post_content ?? $v->post_content,
+					);
+					if ( isset( self::$data['params']['get_post_meta'] ) ) {
+						$arr['post_meta'] = array_map( fn( $v ) => $v[0], get_post_meta( $v->ID ) );
+					}
+					return $arr;
+				}
+			},
+			$posts
+		);
+		$posts = array_filter( $posts );
 		/**
 		 * [hook] n2_items_api_get_items
 		 */
 		return apply_filters( 'n2_items_api_get_items', $posts );
-	}
-
-	/**
-	 * パラメータに合わせて投稿データをいい感じに整える
-	 * 
-	 * @param WP_Post $p
-	 * @return array|false
-	 */
-	private static function optimize_item($p) {
-		global $n2;
-		$post_content = json_decode( $p->post_content, true );
-		if ( 'post' === self::$data['params']['post_type'] ) {
-			// idを混ぜ込む
-			$post_content['id'] = $p->ID;
-			return $post_content;
-		} else {
-			$arr = array(
-				'ID'           => $p->ID,
-				'post_title'   => $p->post_title,
-				'post_date'    => $p->post_date,
-				'post_content' => $post_content ?? $p->post_content,
-			);
-			if ( isset( self::$data['params']['get_post_meta'] ) ) {
-				$arr['post_meta'] = array_map( fn( $p ) => unserialize($p[0]), get_post_meta( $p->ID ) );
-				// お知らせの場合ユーザー権限と自治体を自動で絞り込んだ結果を返す
-				if ('notification' === self::$data['params']['post_type'] ) {
-					// 自治体フィルター
-					if (!in_array(get_site()->blog_id, $arr['post_meta']['notification-target-region'])) {
-						return false;
-					}
-					// 権限フィルター
-					if (!is_admin()) {
-						
-					}
-				}
-			}
-			n2_log([
-				get_site()->blog_id,
-				$arr,
-			]);
-			return $arr;
-		}
 	}
 
 	/**
