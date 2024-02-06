@@ -271,6 +271,7 @@ class N2_Notification {
 			'post_id' => 'ID',
 			'title' => 'タイトル',
 			'roles' => '対象権限',
+			'regions' => '対象自治体',
 			'date' => '公開日時',
 		];
 	}
@@ -282,8 +283,16 @@ class N2_Notification {
 				$options = array_column($options, 1, 0);
 				$roles = get_post_meta($post_id, self::CUSTOMFIELD_ID_ROLES, true);
 				$roles = array_map(fn($r) => $options[$r], $roles);
-				$roles = implode(', ', $roles);
+				$roles = implode(',', $roles);
 				return $roles;
+			})(),
+			'regions' => (function() use ($post_id) {
+				$options = self::get_region_options();
+				$options = array_column($options, 1, 0);
+				$regions = get_post_meta($post_id, self::CUSTOMFIELD_ID_REGIONS, true);
+				$regions = array_map(fn($r) => $options[$r], $regions);
+				$regions = implode(',', $regions);
+				return $regions;
 			})(),
 		};
 	}
