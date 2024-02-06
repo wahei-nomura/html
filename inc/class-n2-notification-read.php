@@ -52,7 +52,7 @@ class N2_Notification_Read {
 		add_menu_page(
 			'お知らせ',
 			$label,
-			'ss_crew',
+			'read',
 			'n2_notification_read',
 			[$this, 'display_page'],
 			'dashicons-bell',
