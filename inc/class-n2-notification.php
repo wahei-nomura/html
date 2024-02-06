@@ -282,6 +282,7 @@ class N2_Notification {
 				$options = self::get_role_options();
 				$options = array_column($options, 1, 0);
 				$roles = get_post_meta($post_id, self::CUSTOMFIELD_ID_ROLES, true);
+				if (count($roles) === count($options)) return 'すべて';
 				$roles = array_map(fn($r) => $options[$r], $roles);
 				$roles = implode(',', $roles);
 				return $roles;
@@ -290,6 +291,7 @@ class N2_Notification {
 				$options = self::get_region_options();
 				$options = array_column($options, 1, 0);
 				$regions = get_post_meta($post_id, self::CUSTOMFIELD_ID_REGIONS, true);
+				if (count($regions) === count($options)) return 'すべて';
 				$regions = array_map(fn($r) => $options[$r], $regions);
 				$regions = implode(',', $regions);
 				return $regions;
