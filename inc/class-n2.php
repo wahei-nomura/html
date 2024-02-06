@@ -441,26 +441,6 @@ class N2 {
 		}
 	}
 
-	/**
-	 * 管理している自治体(サイト)のblog_idと名前を返す
-	 * get_sites()と区別するためにget_regions()にしている
-	 * 現状お知らせだけで使ってます
-	 * 
-	 * return $regions array
-	 */
-	public static function get_regions() {
-		$regions = [];
-		foreach (get_sites() as $site) {
-			switch_to_blog($site->blog_id);
-			$regions[$site->blog_id] = [
-				// 自治体名以外も紐付けたくなるかもしれないから連想配列にしておきます
-				'name' => get_bloginfo('name'),
-			];
-			restore_current_blog();
-		}
-		return $regions;
-	}
-
 	public function set_notifications() {
 		switch_to_blog(1); // メインサイトからのみ投稿してる
 		// 全てのお知らせを取得

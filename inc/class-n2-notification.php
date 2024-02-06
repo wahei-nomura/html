@@ -43,6 +43,34 @@ class N2_Notification {
 	}
 
 	/**
+	 * サイトIDと自治体の名前を出力
+	 * 
+	 * @return [$value, $label][]
+	 */
+	private static function get_regions() {
+		return array_map(function($s) {
+			switch_to_blog($s->blog_id);
+			$name = get_bloginfo('name');
+			restore_current_blog();
+			return [$s->blog_id, $name];
+		}, get_sites());
+	}
+
+	/**
+	 * ユーザー権限の値と表示名を出力
+	 *
+	 * @return [$value, $label][]
+	 */
+	private static function get_role_options() {
+		$file_path = 'config/user-roles.yml';
+		$roles = yaml_parse_file(get_theme_file_path($file_path));
+		$values = array_column($roles, 'role'); // 値
+		$labels = array_keys($roles); // 表示名
+		$options = array_map(fn($value, $label) => [$value, $label], $values, $labels);
+		return $options;
+	}
+
+	/**
 	 * カスタム投稿とタクソノミーの設定
 	 */
 	function create_posttype() {
@@ -126,21 +154,6 @@ class N2_Notification {
     }
 
 	/**
-	 * ユーザー権限の値と表示名を出力
-	 *
-	 * @return [$value, $label][]
-	 */
-	private static function get_role_options() {
-		$yml = 'config/user-roles.yml';
-		$roles = yaml_parse_file(get_theme_file_path($yml));
-		$values = array_column($roles, 'role'); // 値
-		$labels = array_keys($roles); // 表示名
-		$options = array_map(fn($value, $label) => [$value, $label], $values, $labels);
-		n2_log($options);
-		return $options;
-	}
-
-	/**
 	 * 強制表示の入力欄
 	 *
      * @param WP_Post $post post
@@ -205,18 +218,15 @@ class N2_Notification {
      * @param array   $metabox メタボックスのデータ
      */
     public function display_customfield_region( $post, $metabox ) {
-		global $n2;
 		global $pagenow;
 		// チェックボックス生成用
-		$regions = $n2->get_regions();
-		$values = array_keys($regions);
-		$labels = array_column($regions, 'name');
-		$options = array_map(fn($value, $label) => [$value, $label], $values, $labels);
-		$options = json_encode($options, JSON_UNESCAPED_UNICODE);
+		$options = self::get_regions();
 		// 新規追加と編集で初期値の取り方が変化する
 		$initial = $pagenow === 'post-new.php'
-			? $values
+			? array_column($options, 0)
 			: get_post_meta($post->ID, self::CUSTOMFIELD_ID_REGIONS, true);
+		// json文字列に変換
+		$options = json_encode($options, JSON_UNESCAPED_UNICODE);
 		$initial = json_encode($initial, JSON_UNESCAPED_UNICODE);
         ?>
         <div id="notification-input-regions">
