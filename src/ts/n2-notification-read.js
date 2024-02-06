@@ -7,8 +7,10 @@ import MountingPortal from "portal-vue";
  */
 Vue.use(MountingPortal);
 
-// n2をリアクティブな値として参照
-// あくまでもwindow.n2の値をコピーしているだけなので注意
+/**
+ * global $n2をすべてのコンポーネントからリアクティブに参照できるようにする
+ * そして、スコープを跨いだ影響を与えない保険の意味もある
+ */
 Vue.use({
 	install(Vue) {
 		Vue.prototype.$n2 = Vue.observable({
