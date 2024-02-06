@@ -472,8 +472,9 @@ class N2 {
 		// フィルター
 		$posts = array_filter($posts, function($p){
 			// 自治体フィルター
-			$regiosn = get_post_meta($p->ID, 'notification-regions', true);
-			if (!in_array($this->site_id, $regiosn)) return false;
+			$regions = get_post_meta($p->ID, 'notification-regions', true);
+			if (!is_array($regions)) return false; // get_post_meta()で取得できなかったら空文字が返り値になる
+			if (!in_array($this->site_id, $regions)) return false;
 			// 権限フィルター
 			if (!is_admin()) {
 				$roles = get_post_meta($p->ID, 'notification-roles', true);
