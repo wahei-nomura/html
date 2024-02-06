@@ -47,7 +47,7 @@ class N2_Notification {
 	 * 
 	 * @return [$value, $label][]
 	 */
-	private static function get_regions() {
+	private static function get_region_options() {
 		return array_map(function($s) {
 			switch_to_blog($s->blog_id);
 			$name = get_bloginfo('name');
@@ -220,7 +220,7 @@ class N2_Notification {
     public function display_customfield_region( $post, $metabox ) {
 		global $pagenow;
 		// チェックボックス生成用
-		$options = self::get_regions();
+		$options = self::get_region_options();
 		// 新規追加と編集で初期値の取り方が変化する
 		$initial = $pagenow === 'post-new.php'
 			? array_column($options, 0)
