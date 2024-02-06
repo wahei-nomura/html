@@ -6,6 +6,8 @@
  */
 
 global $n2;
+ob_start();
+
 ?>
 <table class="form-table">
 	<tr>
@@ -26,6 +28,7 @@ global $n2;
 			<input type="number" step="0.01" name="n2_settings[寄附金額・送料][除数]" value="<?php echo esc_attr( $n2->settings['寄附金額・送料']['除数'] ); ?>" <?php wp_readonly( ! $n2->settings_access ); ?> style="width: 6em;">
 		</td>
 	</tr>
+	<!-- 食品タイプ寄附金額計算 -->
 	<tr>
 		<th>下限寄附金額</th>
 		<td>
@@ -78,3 +81,8 @@ global $n2;
 		</td>
 	</tr>
 </table>
+<?php
+/**
+ * [hook] n2_formula_delivery_html
+ */
+echo apply_filters( 'n2_formula_delivery_html', ob_get_clean() );
