@@ -37,9 +37,6 @@ class N2_Notification {
 		// リスト(表)のカラムの設定
 		add_filter('manage_notification_posts_columns', [$this, 'manage_notification_columns'], 10, 4);
 		add_action('manage_notification_posts_custom_column', [$this, 'custom_notification_column'], 10, 4);
-		// 投稿のステータスのラベルを修正
-		add_filter( 'gettext', array( $this, 'change_status' ) );
-		add_filter( 'ngettext', array( $this, 'change_status' ) );
 	}
 
 	/**
@@ -297,22 +294,5 @@ class N2_Notification {
 				return $regions;
 			})(),
 		};
-	}
-
-	/**
-	 * 返礼品のページでの変更を戻す
-	 *
-	 * @param string $status ステータス
-	 * @return string $status ステータス
-	 */
-	public function change_status( $status ) {
-		$re = array(
-			'入力中' => '下書き',
-			'スチームシップ確認待ち' => 'レビュー待ち',
-			'ポータル登録準備中' => '公開済み',
-		);
-		// 変換
-		$status = str_replace( array_keys( $re ), $re, $status );
-		return $status;
 	}
 }
