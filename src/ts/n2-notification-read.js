@@ -78,8 +78,8 @@ const PostListAll = {
 				</div>
 				<div>
 					<a @click="$emit('open', p)" class="vue-a-b-btn">
-						<font-awesome-icon :icon="['fas', 'arrow-right']" />
 						詳しくみる
+						<font-awesome-icon :icon="['fas', 'arrow-right']" />
 					</a>
 				</div>
 			</div>

@@ -194,7 +194,7 @@ $max-w: 760px;
 			display: grid;
 			grid-template-columns: 120px 1fr;
 			grid-template-rows: auto 20px;
-			gap: 8px 20px;
+			gap: 8px 32px;
 			margin-bottom: 40px;
 			&-dot {
 				position: absolute;
@@ -223,6 +223,17 @@ $max-w: 760px;
 			&-title {
 				font-size: 18px;
 				font-weight: bold;
+				&:hover {
+					cursor: pointer;
+					text-decoration: underline;
+				}
+			}
+			&-btn {
+				font-size: 14px;
+				&:hover {
+					cursor: pointer;
+					text-decoration: underline;
+				}
 			}
 		}
 	}
