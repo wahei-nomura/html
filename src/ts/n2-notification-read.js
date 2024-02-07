@@ -47,7 +47,7 @@ const PostTab = {
 	`,
 };
 
-const PostList2 = {
+const PostListAll = {
 	props: {
 		/**
 		 * カスタム投稿の配列
@@ -58,7 +58,7 @@ const PostList2 = {
 	emits: ["open"],
 	template: `
 		<div class="vue-a">
-			<div v-for="p in posts" :key="p.ID" class="vue-a-b">
+			<div v-for="p in posts" :key="p.ID" class="vue-a-b" :data-p="p.ID">
 				<div class="vue-a-b-dot"></div>
 				<div class="vue-a-b-date">
 					<div>
@@ -83,7 +83,7 @@ const PostList2 = {
 /**
  * 投稿のリスト表示
  */
-const PostList = {
+const PostListForce = {
 	props: {
 		/**
 		 * カスタム投稿の配列
@@ -103,7 +103,7 @@ const PostList = {
 	},
 	template: `
 		<div class="vue-ul">
-			<div v-for="p in posts" :key="p.ID" class="vue-li">
+			<div v-for="p in posts" :key="p.ID" class="vue-li" :data-p="p.ID">
 				<div class="vue-li-header">
 					<span class="vue-li-header-title" @click="$emit('open', p)">
 						{{ p.post_title }}
@@ -173,65 +173,77 @@ const PostModal = {
 	`,
 };
 
+const Root = {
+	components: { PostTab, PostListForce, PostListAll, PostModal },
+	props: {
+		/**
+		 * カスタム投稿の配列
+		 * WP_Post[]
+		 */
+		posts: Array,
+	},
+	data() {
+		return {
+			tabValue: true,
+			modalContent: undefined,
+		};
+	},
+	computed: {
+		// 日付の部分だけ日本語に変換
+		formattedPosts() {
+			return this.posts.map((p) => {
+				p.post_date = this.formatDate(p.post_date);
+				return p;
+			});
+		},
+		// 強制表示用
+		forceReadPosts() {
+			return [...this.formattedPosts].filter(
+				(p) => p.is_force && !p.is_read
+			);
+		},
+	},
+	watch: {},
+	methods: {
+		openModal(wpPost) {
+			this.modalContent = wpPost;
+		},
+		closeModal() {
+			this.modalContent = undefined;
+		},
+		formatDate(dateString) {
+			const date = new Date(dateString);
+			const y = date.getFullYear();
+			const m = String(date.getMonth() + 1).padStart(2, "0");
+			const d = String(date.getDate()).padStart(2, "0");
+			return `${y}.${m}.${d}`;
+		},
+	},
+	template: `
+		<div class="vue-wrap">
+			<!-- タブ -->
+			<PostTab v-model="tabValue" />
+			<!-- 投稿 -->
+			<template v-if="tabValue">
+				<!-- 確認が必要 -->
+				<PostListForce v-if="forceReadPosts.length > 0" :posts="forceReadPosts" @open="openModal" />
+				<p v-else class="vue-zero">確認が必要なお知らせはありません</p>
+			</template>
+			<template v-else>
+				<!-- このユーザーが閲覧できるすべてのお知らせ -->
+				<PostListAll v-if="formattedPosts.length > 0" :posts="formattedPosts" @open="openModal" />
+				<p v-else class="vue-zero">お知らせはありません</p>
+			</template>
+			<!-- モーダル -->
+			<PostModal :post="modalContent" @close="closeModal" />
+		</div>
+	`,
+};
+
 window.addEventListener("DOMContentLoaded", () => {
 	// eslint-disable-next-line no-new
 	new Vue({
 		el: "#app",
-		components: { PostTab, PostList, PostList2, PostModal },
-		data() {
-			return {
-				tabValue: true,
-				modalContent: undefined,
-			};
-		},
-		computed: {
-			// 日付の部分だけ日本語に変換
-			formattedPosts() {
-				const notifications = Vue.prototype.$n2.notifications || [];
-				return notifications.map((p) => {
-					p.post_date = this.formatDate(p.post_date);
-					return p;
-				});
-			},
-			// 強制表示用
-			forceReadPosts() {
-				return [...this.formattedPosts].filter(
-					(p) => p.is_force && !p.is_read
-				);
-			},
-		},
-		watch: {},
-		methods: {
-			openModal(wpPost) {
-				this.modalContent = wpPost;
-			},
-			closeModal() {
-				this.modalContent = undefined;
-			},
-			formatDate(dateString) {
-				const date = new Date(dateString);
-				const y = date.getFullYear();
-				const m = String(date.getMonth() + 1).padStart(2, "0");
-				const d = String(date.getDate()).padStart(2, "0");
-				return `${y}.${m}.${d}`;
-			},
-		},
-		template: `
-			<div class="vue-wrap">
-				<!-- タブ -->
-				<PostTab v-model="tabValue" />
-				<!-- 投稿 -->
-				<template v-if="tabValue">
-					<PostList v-if="forceReadPosts.length > 0" :posts="forceReadPosts" @open="openModal" />
-					<p v-else class="vue-zero">確認が必要なお知らせはありません</p>
-				</template>
-				<template v-else>
-					<PostList2 v-if="formattedPosts.length > 0" :posts="formattedPosts" @open="openModal" />
-					<p v-else class="vue-zero">お知らせはありません</p>
-				</template>
-				<!-- モーダル -->
-				<PostModal :post="modalContent" @close="closeModal" />
-			</div>
-		`,
+		components: { NotificationRead: Root },
 	});
 });
