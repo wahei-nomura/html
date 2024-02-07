@@ -197,6 +197,12 @@
             8ロ: 例）区域（もしくは都道府県）が3号で提供する共通返礼品（区域の同意あり）
             8ハ: 例）博多和牛は県産品として認定されているため
             99: 例）区域内で提供される役務や地場産品に対するクーポンであるため　役務や地場産品を中心に取り扱う施設を対象とし、事業所及び寄附者に役務及び地場産品の利用のみと周知を行う。
+    商品タイプ:
+        type: checkbox
+        value: []
+        option: 
+            - 食品
+        "@change": "check_handling_method();check_tax();"
     定期便:
         type: select
         value: 1
@@ -287,12 +293,6 @@
         style: 'width: 100%'
         "@focus": set_info($event.target)
         "@input": set_info($event.target)
-    商品タイプ:
-        type: checkbox
-        value: []
-        option: 
-            - 食品
-        "@change": "check_handling_method();check_tax();"
     税率:
         type: radio
         option:
@@ -365,7 +365,7 @@
         style: 'width: 100%;'
         maxlength: 200
         rows: auto
-        v-if: 商品タイプ.some(v=>v.match(/食品|酒/))
+        v-if: 商品タイプ
         "@focus": set_info($event.target)
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
 # ▲ =========== 食品専用のフィールド ==========
@@ -404,7 +404,13 @@
         "@focus": set_info($event.target)
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
 # ▲ =========== やきもの専用のフィールド ==========
-
+    eチケット注意事項:  # eチケット選択時のみ
+        type : textarea
+        value : ・キャンセルは承っておりません。・お釣りは出ません。・利用有効期限は、発行から１年。有効期限を過ぎますと、権利放棄となり利用ができませんのでご注意ください
+        style: 'width: 100%;'
+        v-if: 商品タイプ.includes('eチケット')
+        "@focus": set_info($event.target)
+        "@input": set_info($event.target);auto_fit_tetxarea($event.target)
     申込期間:
         type: text
         placeholder: 例）通年4月〜6月など
