@@ -136,10 +136,9 @@ class N2 {
 	public $query;
 
 	/**
-	 * お知らせ
+	 * 未読のお知らせがあるか
 	 */
-	public $notifications;
-	public $notifications_should_read;
+	public $unread_notification_count;
 
 	/**
 	 * 正規表現
@@ -177,7 +176,7 @@ class N2 {
 	public function __construct() {
 		$this->set_vars();
 		$this->set_filters();
-		$this->set_notifications();
+		$this->set_unread_notification_count();
 		add_action( 'pre_get_posts', array( $this, 'add_post_data' ) );
 	}
 
@@ -451,43 +450,65 @@ class N2 {
 		}
 	}
 
-	public function set_notifications() {
-		switch_to_blog(1); // メインサイトからのみ投稿してる
-		// 全てのお知らせを取得
-		$posts = get_posts([
+	/**
+	 * 確認が必要なお知らせ件数を取得
+	 *
+	 * @return int
+	 */
+	public function set_unread_notification_count() {
+		global $wpdb;
+		switch_to_blog(1);
+		// お知らせのメタデータをすべて取得
+		$query = $wpdb->prepare("
+			SELECT *
+			FROM $wpdb->postmeta 
+			WHERE meta_key LIKE 'notification-%'
+		");
+		// 投稿IDでグループ化
+		$notification_post_meta = array_reduce(
+			$wpdb->get_results($query) ?? [],
+			function($carry, $meta) {
+				$carry[$meta->post_id][$meta->meta_key] = maybe_unserialize($meta->meta_value);
+				return $carry;
+			},
+			[]
+		);
+		// 条件に当てはまる投稿IDを取得
+		$filtered_post_ids = array_keys(
+			array_filter($notification_post_meta, function($meta) {
+				// 既読
+				if (in_array($this->current_user->ID, $meta['notification-read'] ?? [])) return false;
+				// 強制表示
+				if (!$meta['notification-force']) return false;
+				// 権限
+				if (!is_admin()) {
+					if (!in_array($this->current_user->roles[0], $meta['notification-roles'] ?? [])) return false;
+				}
+				// 自治体
+				if (!in_array($this->site_id, $meta['notification-regions'] ?? [])) return false;
+				return true;
+			})
+		);
+		if (count($filtered_post_ids) === 0) {
+			$this->unread_notification_count = 0;
+			return; // 'post__in'に空配列を渡すとWHERE INが無効化されるから早期リターン
+		}
+		// お知らせの投稿を検索
+		$query = new WP_Query([
 			'post_type' => 'notification',
 			'post_status' => 'publish', // 公開中のみ
-			'numberposts' => -1, // 全て
+			'posts_per_page' => -1, // すべての投稿を対象
+			'fields' => 'ids', // 投稿IDだけ
+			'date_query' => [ // 特定の日付範囲
+				[
+					'after' => $this->current_user->user_registered, // ユーザー登録以降の投稿
+					'inclusive' => true,
+				],
+			],
+			'post__in' => $filtered_post_ids,
 		]);
-		// フィルター
-		$posts = array_filter($posts, function($p){
-			// 自治体フィルター
-			$regions = get_post_meta($p->ID, 'notification-regions', true);
-			if (!is_array($regions)) return false; // get_post_meta()で取得できなかったら空文字が返り値になる
-			if (!in_array($this->site_id, $regions)) return false;
-			// 権限フィルター
-			if (!is_admin()) {
-				$roles = get_post_meta($p->ID, 'notification-roles', true);
-				if (!in_array($this->current_user->roles[0], $roles)) return false;
-			}
-			return true;
-		});
-		// マップ
-		$posts = array_map(function($p) {
-			// 強制表示
-			// フラグが立っていても投稿日時がユーザーの登録より前なら強制表示はしない
-			$force = (int) get_post_meta($p->ID, 'notification-force', true);
-			$force &= strtotime($p->post_date) > strtotime($this->current_user->user_registered);
-			$p->is_force = $force;
-			// 確認が必要か
-			$read = get_post_meta($p->ID, 'notification-read', true);
-			$p->is_read = is_array($read) ? in_array($this->current_user->ID, $read) : false;
-			return $p;
-		}, $posts);
-		$posts = array_values($posts);
-		$should_read = count(array_filter($posts, fn($p) => $p->is_force && !$p->is_read));
 		restore_current_blog(); // 戻す
-		$this->notifications = $posts;
-		$this->notifications_should_read = $should_read;
+		// 件数をメンバ変数に代入
+		$this->unread_notification_count = $query->found_posts;
 	}
 }
