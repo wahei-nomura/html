@@ -55,3 +55,7 @@
     発送サイズ:
     包装対応:
     のし対応:
+    備考欄:
+      attr:
+        td:
+          style: "text-align: left;"

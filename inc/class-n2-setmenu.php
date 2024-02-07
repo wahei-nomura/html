@@ -52,6 +52,7 @@ class N2_Setmenu {
 		$name                      = '返礼品';
 		$menu[5][0]                = $name;
 		$submenu['edit.php'][5][0] = $name . '一覧';
+		$menu[5][6]                = 'dashicons-media-document';
 	}
 
 	/**
@@ -119,13 +120,6 @@ class N2_Setmenu {
 	 */
 	public function not_edit_user() {
 		global $pagenow, $n2;
-		// if ( 'edit.php' === $pagenow && ( empty( $n2->settings['寄附金額・送料']['除数'] ) || empty( $n2->settings['寄附金額・送料']['送料']['0101'] ) ) ) {
-		// echo '送料の設定は必須です。';
-		// <script>alertsetTimeout(function(){}, 2000);</script>
-		// wp_safe_redirect( admin_url( 'admin.php?page=n2_settings_formula-delivery' ) );
-		// exit;
-		// }
-		// echo '<pre>';print_r($n2);echo '</pre>';exit;
 		if ( current_user_can( 'ss_crew' ) ) {
 			return;
 		}
@@ -174,7 +168,7 @@ class N2_Setmenu {
 	 * @return void
 	 */
 	public function my_custom_logo() {
-		echo '<style type="text/css">#wpadminbar #wp-admin-bar-wp-logo > .ab-item > .ab-icon:before { content: url(' . get_theme_file_uri( 'neo_neng_logo.svg' ) . ');}</style>';
+		echo '<style type="text/css">#wpadminbar #wp-admin-bar-wp-logo > .ab-item > .ab-icon:before { content: url(' . get_theme_file_uri( 'assets/svg/neo_neng_logo.svg' ) . ');}</style>';
 	}
 	/**
 	 * 管理画面のヘッダーメニューバーで不要なものを除去 @yamasaki

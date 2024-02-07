@@ -23,7 +23,7 @@ global $n2;
 		<!-- メニュー -->
 		<ul	id="n2-checked-posts-actions" @mouseleave="focusHover ? null : set_hover_list()">
 			<!-- エクスポート -->
-			<?php if ( current_user_can( 'ss_crew' ) ) : ?>
+			<?php if ( current_user_can( 'ss_crew' ) || current_user_can( 'local-government' ) ) : // 自治体も地場産品(総務省提出用)だけ出力したい ?>
 			<li @mouseenter="set_hover_list('エクスポート')" :class="{'is-hover': 'エクスポート'=== hover_list}">
 				エクスポート
 				<div class="childs">
@@ -33,23 +33,21 @@ global $n2;
 						<!-- フォーマット選択 -->
 						<div style="margin-bottom: 1em;">
 							<span>フォーマット選択 ：　</span>
-							<!-- N2 -->
-							<label><input type="radio" name="action" value="n2_item_export_base" v-model="fd.action"> N2</label>
-							<!-- [LedgHOME] -->
-							<label><input type="radio" name="action" :value="`n2_item_export_${n2.settings.N2.LedgHOME}`" v-model="fd.action"> LedgHOME</label>
-							<!-- ふるさとチョイス -->
-							<label v-if="n2.settings.N2.出品ポータル.includes('ふるさとチョイス')"><input type="radio" name="action" value="n2_item_export_furusato_choice" v-model="fd.action"> ふるさとチョイス</label>
-							<!-- 楽天 -->
-							<template v-if="n2.settings.N2.出品ポータル.includes('楽天')">
-								<template v-if="n2.settings.楽天.SKU">
-									<label><input type="radio" name="action" value="n2_item_export_rakuten_sku" v-model="fd.action"> 楽天</label>
-									<label><input type="radio" name="action" value="n2_item_export_rakuten_cat" v-model="fd.action"> 楽天 [ item-cat.csv ]</label>
+							<?php if ( current_user_can( 'ss_crew' ) ) : // 地場産品(総務省提出用)以外はssクルーのみ表示 ?>
+								<!-- N2 -->
+								<label><input type="radio" name="action" value="n2_item_export_base" v-model="fd.action"> N2</label>
+								<!-- [LedgHOME] -->
+								<label><input type="radio" name="action" :value="`n2_item_export_${n2.settings.N2.LedgHOME}`" v-model="fd.action"> LedgHOME</label>
+								<!-- ふるさとチョイス -->
+								<label v-if="n2.settings.N2.出品ポータル.includes('ふるさとチョイス')"><input type="radio" name="action" value="n2_item_export_furusato_choice" v-model="fd.action"> ふるさとチョイス</label>
+								<!-- 楽天 -->
+								<template v-if="n2.settings.N2.出品ポータル.includes('楽天')">
+									<label @click.right.prevent="rightClickHandler"><input type="radio" name="action" value="n2_item_export_rakuten_sku" v-model="fd.action"> 楽天</label>
+									<label @click.right.prevent="rightClickHandler"><input type="radio" name="action" value="n2_item_export_rakuten_cat" v-model="fd.action"> 楽天 [ item-cat.csv ]</label>
 								</template>
-								<template v-else>
-									<label><input type="radio" name="action" value="n2_item_export_rakuten" v-model="fd.action"> 楽天 [ item.csv ]</label>
-									<label><input type="radio" name="action" value="n2_item_export_rakuten_select" v-model="fd.action"> 楽天 [ select.csv ]</label>
-								</template>
-							</template>
+							<?php endif; ?>
+							<!-- 総務省(地場産品) -->
+							<label><input type="radio" name="action" value="n2_item_export_jibasanpin" v-model="fd.action"> 地場産品(総務省提出用)</label>
 						</div>
 						<!-- タイプ選択 -->
 						<div style="margin-bottom: 1em;" v-if="fd.action.match(/lhcloud|ledghome/)">
@@ -58,18 +56,29 @@ global $n2;
 							<?php endforeach; ?>
 							<!-- <label v-if="'download' === fd.mode"><input type="radio" name="type" value="3"> 3ファイル一括ダウンロード</label> -->
 						</div>
+						<div style="margin-bottom: 1em;" v-if="fd.action.match(/jibasanpin/)">
+						<span>出力項目選択 ：　</span>
+								<label><input type="radio" name="type" value="info" checked> 各情報</label>
+								<label><input type="radio" name="type" value="jibasan"> 地場産品関連</label>
+							<!-- <label v-if="'download' === fd.mode"><input type="radio" name="type" value="3"> 3ファイル一括ダウンロード</label> -->
+						</div>
 						<!-- モード選択 -->
 						<div style="margin-bottom: 1em;">
 							<span>モード選択 ：　</span>
 							<label><input type="radio" name="mode" value="download" v-model="fd.mode"> CSV・TSVダウンロード</label>
 							<label><input type="radio" name="mode" value="spreadsheet" v-model="fd.mode"> スプレットシート貼付</label>
-							<label><input type="radio" name="mode" value="debug" v-model="fd.mode"> デバッグモード</label>
+							<?php if ( current_user_can( 'ss_crew' ) ) : // 自治体はデバッグ不要 ?>
+								<label><input type="radio" name="mode" value="debug" v-model="fd.mode"> デバッグモード</label>
+								<label v-if="rakutenSFTPUpload && fd.action.includes('n2_item_export_rakuten')"><input type="radio" name="mode" value="sftp_upload" v-model="fd.mode"> SFTP転送</label>
+							<?php endif; ?>
 						</div>
 						<!-- 送信 -->
 						<button>エクスポート実行</button>
+						<?php if ( current_user_can( 'ss_crew' ) ) : // 自治体には不要 ?>
 						<div style="margin-top: 1em;">
 							<input type="checkbox" name="include" value=""> 選択しているものに関わらず「<?php bloginfo( 'name' ); ?>」全返礼品を対象にする
 						</div>
+						<?php endif; ?>
 					</form>
 				</div>
 			</li>

@@ -152,7 +152,7 @@ class N2_Setusers {
 			return $args;
 		}
 		$args['url'] = match ( $user_data->roles[0] ) {
-			'administrator' => get_theme_file_uri( 'img/fullfrontal.jpg' ),
+			'administrator' => get_theme_file_uri( 'assets/img/fullfrontal.jpg' ),
 			default => $args['url'],
 		};
 		return $args;

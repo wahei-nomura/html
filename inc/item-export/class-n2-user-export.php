@@ -1,21 +1,20 @@
 <?php
 /**
- * class-n2-item-export-base.php
- * BasicなN2エクスポート
- * このクラスを拡張して他のチョイスなど対応する
+ * class-n2-user-export.php
+ * ユーザー情報エクスポート
  *
  * @package neoneng
  */
 
-if ( class_exists( 'N2_Item_Export_Base' ) ) {
-	new N2_Item_Export_Base();
+if ( class_exists( 'N2_User_Export' ) ) {
+	new N2_User_Export();
 	return;
 }
 
 /**
- * N2_Item_Export_Base
+ * N2_User_Export
  */
-class N2_Item_Export_Base {
+class N2_User_Export {
 
 	/**
 	 * 設定（基本的に拡張で上書きする）
@@ -23,7 +22,7 @@ class N2_Item_Export_Base {
 	 * @var array
 	 */
 	protected $settings = array(
-		'filename'      => 'N2データ.csv',
+		'filename'      => 'N2ユーザーデータ.csv',
 		'delimiter'     => ',',
 		'charset'       => 'utf-8',
 		'header_string' => '', // 基本は自動設定、falseでヘッダー文字列無し
@@ -35,24 +34,21 @@ class N2_Item_Export_Base {
 	 * @var array
 	 */
 	protected $data = array(
-		'params'       => array(),
-		'memory_usage' => array(),
-		'header'       => array(),
-		'n2field'      => array(),
-		'n2data'       => array(),
-		'data'         => array(),
-		'error'        => array(),
-		'string'       => '',
+		'params'  => array(),
+		'header'  => array(),
+		'data'    => array(),
+		'error'   => array(),
+		'string'  => '',
 	);
 
 	/**
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		$this->set_memory_usage( 'start' );
 		add_filter( mb_strtolower( get_class( $this ) ) . '_walk_values', array( $this, 'check_error' ), 10, 3 );
 		add_action( 'wp_ajax_' . mb_strtolower( get_class( $this ) ), array( $this, 'export' ) );
 		add_filter( mb_strtolower( get_class( $this ) ) . '_filename', array( $this, 'add_town_to_filename' ) );
+		add_action( 'admin_footer-users.php', array( $this, 'user_export_ui' ) );// ユーザー一覧のフッターにUI表示
 	}
 
 	/**
@@ -77,15 +73,10 @@ class N2_Item_Export_Base {
 		// パラメーターをセット
 		$this->set_params();
 
-		// n2としてのデータをセット
-		$this->set_n2field();
-		$this->set_n2data();
-
 		// 独自のデータをセット（基本的にこの２つを拡張）
 		$this->set_header();
 		$this->set_data();
 
-		// n2_log($this->data['memory_usage']);
 		$this->{$this->data['params']['mode']}();
 	}
 
@@ -107,103 +98,55 @@ class N2_Item_Export_Base {
 		);
 		// デフォルト値を$paramsで上書き
 		$this->data['params'] = wp_parse_args( $params, $defaults );
-		$this->set_memory_usage( 'set_params' );
-	}
-
-	/**
-	 * N2カスタムフィールド全設定項目をセット
-	 */
-	private function set_n2field() {
-		global $n2;
-		$n2field = array(
-			...array_keys( $n2->custom_field['スチームシップ用'] ),
-			...array_keys( $n2->custom_field['事業者用'] ),
-		);
-		// 重複削除
-		$n2field = array_unique( $n2field );
-		// 商品画像とN1zipは使いようがないので対象から外す
-		$exclusion = array(
-			'商品画像',
-			'N1zip',
-		);
-		// フィルタ
-		$n2field = array_filter( $n2field, fn( $v ) => ! in_array( $v, $exclusion, true ) );
-		/**
-		 * [hook] n2_item_export_base_set_n2field
-		 */
-		$this->data['n2field'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_n2field', $n2field );
-		$this->set_memory_usage( 'set_n2field' );
-	}
-
-	/**
-	 * N2データ取得してセット
-	 */
-	private function set_n2data() {
-		$n2data = array();
-		$fields = array(
-			'id',
-			'タイトル',
-			'事業者コード',
-			'事業者名',
-			'ステータス',
-			...$this->data['n2field'],
-			'_n2_required',
-		);
-		foreach ( N2_Items_API::get_items() as $v ) {
-			// fieldを絞る
-			foreach ( $fields as $key ) {
-				$n2data[ $v['id'] ][ $key ] = $v[ $key ] ?? '';
-			}
-		}
-		/**
-		 * [hook] n2_item_export_base_set_n2data
-		 */
-		$n2data = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_n2data', $n2data );
-		// ソート
-		array_multisort(
-			array_column( $n2data, $this->data['params']['sort'] ),
-			'desc' === strtolower( $this->data['params']['order'] ) ? SORT_DESC : SORT_ASC,
-			$n2data
-		);
-		$this->data['n2data'] = $n2data;
-		$this->set_memory_usage( 'set_n2data' );
 	}
 
 	/**
 	 * ヘッダー配列の作成（基本的に拡張で上書きする）
 	 */
 	protected function set_header() {
-		// n2dataをもとに配列を作成
-		$header = reset( $this->data['n2data'] );
-		$header = array_keys( $header );
-		// アンダースコアで始まるものを排除
-		$header = array_filter( $header, fn( $v ) => ! preg_match( '/^_/', $v ) );
+		$params = $this->data['params'];
+		$type   = $params['type'] ?? 'all_user';
+		$header = ['id', 'ログインアカウント名', 'メールアドレス', 'パスワード', '事業者名', '事業者コード', 'ポータルサイトでの表示名', '権限'];
 		/**
-		 * [hook] n2_item_export_base_set_header
+		 * [hook] n2_user_export_set_header
 		 */
 		$this->data['header'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_header', $header );
-		$this->set_memory_usage( 'set_header' );
 	}
 
 	/**
 	 * 内容を配列で作成
 	 */
 	protected function set_data() {
-		$data = array();
-		$this->check_fatal_error( $this->data['header'], 'ヘッダーが正しくセットされていません' );
+		$users  = get_users();
+		$params = $this->data['params'];
+		$type   = $params['type'] ?? 'all_user';
 		// データをセットする
-		foreach ( $this->data['n2data'] as $key => $values ) {
-			$id = $values['id'];
+		foreach ( $users as $key => $values ) {
+			$id = $values->data->ID;
+			$meta_users = get_user_meta($id);
+			if ( 'all_user' !== $type ) {
+				if ( $values->roles[0] !== $type ) { // 選択したユーザー権限以外はスキップ
+					continue;
+				}
+			}
+			$user_values['id'] = $id;
+			$user_values['ログインアカウント名'] = $values->data->user_login;
+			$user_values['メールアドレス'] = $values->data->user_email;
+			$user_values['パスワード'] = $values->data->user_pass;
+			$user_values['事業者名'] = $meta_users['first_name'];
+			$user_values['事業者コード'] = $meta_users['last_name'];
+			$user_values['ポータルサイトでの表示名'] = $values->data->display_name;
+			$user_values['権限'] = $values->roles;
 			// ヘッダーをセット
 			$data[ $id ] = $this->data['header'];
-			array_walk( $data[ $id ], array( $this, 'walk_values' ), $values );
+			array_walk( $data[ $id ], array( $this, 'walk_values' ), $user_values );
 			$data[ $id ] = array_filter( $data[ $id ], fn( $v ) => ! is_array( $v ) || ! empty( $v ) );
 			if ( ! empty( $data[ $id ] ) ) {
 				$data[ $id ] = array_combine( $this->data['header'], $data[ $id ] );
 			}
 		}
 		/**
-		 * [hook] n2_item_export_base_set_data
+		 * [hook] n2_user_export_set_data
 		 */
 		$data = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_data', $data );
 		// エラーは排除
@@ -211,7 +154,6 @@ class N2_Item_Export_Base {
 		$data = array_values( $data );
 		// dataをセット
 		$this->data['data'] = array_filter( $data );// 空は削除
-		$this->set_memory_usage( 'set_data' );
 	}
 
 	/**
@@ -224,31 +166,12 @@ class N2_Item_Export_Base {
 	protected function walk_values( &$val, $index, $n2values ) {
 		// 最終的に入る項目の値（文字列）
 		$data = $n2values[ $val ] ?: '';
-		// 商品属性だけ階層が深くなっているので必要なデータだけ掘りだして格納
-		$data = match ( $val ) {
-			'商品属性' => is_array( $data )
-			? implode(
-				"\n",
-				array_map(
-					fn( $v ) => sprintf(
-						'%s%s：%s%s',
-						$v['nameJa'],
-						$v['properties']['rmsMandatoryFlg'] ? '*' : '',
-						$v['value'],
-						! empty( $v['unitValue'] ) ? '：' . $v['unitValue'] : ''
-					),
-					$data
-				)
-			)
-			: '',
-			default => $data,
-		};
 		if ( is_array( $data ) ) {
 			// |で連結
 			$data = implode( '|', $data );
 		}
 		/**
-		 * [hook] n2_item_export_base_walk_values
+		 * [hook] n2_user_export_walk_values
 		 *
 		 * @param string $data 項目値
 		 * @param string $val 項目名
@@ -268,7 +191,7 @@ class N2_Item_Export_Base {
 			$this->settings['header_string'] .= '"' . implode( "\"{$this->settings['delimiter']}\"", $this->data['header'] ) . '"' . PHP_EOL;
 		}
 		/**
-		 * [hook] n2_item_export_base_set_header_string
+		 * [hook] n2_user_export_set_header_string
 		 */
 		$this->settings['header_string'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_header_string', $this->settings['header_string'] );
 	}
@@ -293,7 +216,7 @@ class N2_Item_Export_Base {
 			}
 		}
 		/**
-		 * [hook] n2_item_export_base_set_data_string
+		 * [hook] n2_user_export_set_data_string
 		 */
 		$this->data['string'] = apply_filters( mb_strtolower( get_class( $this ) ) . '_set_data_string', $str );
 	}
@@ -306,7 +229,7 @@ class N2_Item_Export_Base {
 	 */
 	protected function special_str_convert( $str ) {
 		/**
-		 * [hook] n2_item_export_base_special_str_convert
+		 * [hook] n2_user_export_special_str_convert
 		 */
 		$str = apply_filters( mb_strtolower( get_class( $this ) ) . '_special_str_convert', $str );
 		return $str;
@@ -348,22 +271,15 @@ class N2_Item_Export_Base {
 		if ( empty( $this->data['error'] ) ) {
 			return;
 		}
-		$html         = '';
-		$pattern      = '<tr><th><a href="%s" target="_blank">%s</a></th><td><ul class="mb-0"><li>%s</li></ul></td></tr>';
-		$reward_code  = '';
-		$reward_codes = array();
-		foreach ( $this->data['n2data'] as $item ) {
-			$reward_codes[ $item['id'] ] = ! empty( $item['返礼品コード'] ) ? $item['返礼品コード'] : $item['id'] . '（返礼品コード無し）';
-		}
-
+		$html    = '';
+		$pattern = '<tr><th><a href="%s" target="_blank">%s</a></th><td><ul class="mb-0"><li>%s</li></ul></td></tr>';
 		foreach ( $this->data['error'] as $id => $errors ) {
-			$reward_code = $reward_codes[ $id ] ?? 'ID・返礼品コード不明';
-			$html       .= wp_sprintf( $pattern, get_edit_post_link( $id ), $reward_code, implode( '</li><li>', $errors ) );
+			$html .= wp_sprintf( $pattern, get_edit_post_link( $id ), $id, implode( '</li><li>', $errors ) );
 		}
 		?>
 		<table class="table table-striped">
 			<thead>
-				<tr><th>返礼品コード (※無い場合はID)</th><th>エラー内容</th></tr>
+				<tr><th>ID</th><th>エラー内容</th></tr>
 			</thead>
 			<?php echo $html; ?>
 		</table>
@@ -416,15 +332,15 @@ class N2_Item_Export_Base {
 	 */
 	private function download() {
 		/**
-		 * [hook] n2_item_export_base_charset
+		 * [hook] n2_user_export_charset
 		 */
 		$charset = apply_filters( mb_strtolower( get_class( $this ) ) . '_charset', $this->settings['charset'] );
 		/**
-		 * [hook] n2_item_export_base_filename
+		 * [hook] n2_user_export_filename
 		 */
 		$filename = apply_filters( mb_strtolower( get_class( $this ) ) . '_filename', $this->settings['filename'] );
 		/**
-		 * [hook] n2_item_export_base_download_add_btn
+		 * [hook] n2_user_export_download_add_btn
 		 */
 		$add_btn = apply_filters( mb_strtolower( get_class( $this ) ) . '_download_add_btn', array() );
 
@@ -435,7 +351,7 @@ class N2_Item_Export_Base {
 		$includes = filter_input( INPUT_POST, 'include', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
 
 		/**
-		 * [hook] n2_item_export_base_download_str
+		 * [hook] n2_user_export_download_str
 		 */
 		$str = apply_filters( mb_strtolower( get_class( $this ) ) . '_download_str', $str, $option );
 
@@ -471,12 +387,12 @@ class N2_Item_Export_Base {
 				<button id="download" class="btn btn-success px-5">エラーが無い返礼品のみダウンロードする</button>
 			</form>
 			<?php if ( ! empty( $add_btn ) ) : ?>  
-				<?php foreach ( $add_btn as $btn ) : ?>
+			<?php foreach ( $add_btn as $btn ) : ?>
 			<form method="post" class="p-3 m-0">
 				<input type="hidden" name="option" value="<?php echo esc_attr( $btn['id'] ); ?>">
 				<input type="hidden" name="action" value="<?php echo esc_attr( mb_strtolower( get_class( $this ) ) ); ?>">
 				<input type="hidden" name="n2nonce" value="<?php echo esc_attr( $n2nonce ); ?>">
-					<?php foreach ( $includes as $include ) : ?>
+				<?php foreach ( $includes as $include ) : ?>
 					<input type="hidden" name="include[]" value="<?php echo esc_attr( $include ); ?>">
 				<?php endforeach; ?>
 				<button id="<?php echo $btn['id']; ?>" class="btn px-5 <?php echo $btn['class']; ?>"><?php echo $btn['text']; ?></button>
@@ -531,122 +447,11 @@ class N2_Item_Export_Base {
 		print_r( $this->data );
 		exit;
 	}
-
-	/**
-	 * 楽天SFTPへ直接転送
-	 */
-	private function sftp_upload() {
-		/**
-		 * [hook] n2_item_export_base_charset
-		 */
-		$charset = apply_filters( mb_strtolower( get_class( $this ) ) . '_charset', $this->settings['charset'] );
-		/**
-		 * [hook] n2_item_export_base_filename
-		 */
-		$filename = apply_filters( mb_strtolower( get_class( $this ) ) . '_filename', $this->settings['filename'] );
-		/**
-		 * [hook] n2_item_export_base_download_add_btn
-		 */
-		$add_btn = apply_filters( mb_strtolower( get_class( $this ) ) . '_download_add_btn', array() );
-
-		// POST送信されたか判定
-		$str      = filter_input( INPUT_POST, 'str' );
-		$option   = filter_input( INPUT_POST, 'option' );
-		$n2nonce  = filter_input( INPUT_POST, 'n2nonce' );
-		$includes = filter_input( INPUT_POST, 'include', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
-
-		/**
-		 * [hook] n2_item_export_base_download_str
-		 */
-		$str = apply_filters( mb_strtolower( get_class( $this ) ) . '_download_str', $str, $option );
-
-		if ( ! $str ) {
-			$this->set_header_string();
-			$this->set_data_string();
-			// 出力文字列
-			$str = $this->settings['header_string'] . $this->data['string'];
-			// エラー
-			$error = $this->data['error'];
-		}
-		if ( empty( $error ) ) {
-			// 文字コード変換
-			$str  = mb_convert_encoding( $str, $charset, 'utf-8' );
-			$sftp = new N2_Rakuten_SFTP();
-
-			// paramをセット
-			add_filter(
-				'n2_rakuten_sftp_set_params',
-				function () {
-					return array(
-						'judge' => 'csv_upload',
-						'mode'  => 'text',
-					);
-				}
-			);
-			// fileをセット
-			add_filter(
-				'n2_rakuten_sftp_set_files',
-				function () use ( $str, $filename ) {
-					$file = tempnam( sys_get_temp_dir(), 'n2_rakuten_sftp_' );
-					( new WP_Filesystem_Direct( '' ) )->put_contents( $file, $str );
-					return array(
-						'tmp_name' => array( $file ),
-						'name'     => array( $filename ),
-						'type'     => array( 'text/csv' ),
-					);
-				}
-			);
-
-			// アップロード
-			$sftp->api();
-			exit;
-		}
-		?>
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
-		<div class=" sticky-top justify-content-evenly d-flex bg-dark">
-			<?php if ( ! empty( $this->data['data'] ) ) : ?>
-			<form method="post" class="p-3 m-0">
-				<input type="hidden" name="action" value="<?php echo esc_attr( mb_strtolower( get_class( $this ) ) ); ?>">
-				<input type="hidden" name="str" value="<?php echo esc_attr( $str ); ?>">
-				<input type="hidden" name="mode" value="sftp_upload">
-				<button id="download" class="btn btn-success px-5">エラーが無い返礼品のみSFTP転送する</button>
-			</form>
-			<?php endif; ?>
-			<?php if ( ! empty( $add_btn ) ) : ?>  
-			<?php foreach ( $add_btn as $btn ) : ?>
-				<form method="post" class="p-3 m-0">
-				<input type="hidden" name="mode" value="sftp_upload">
-				<input type="hidden" name="option" value="<?php echo esc_attr( $btn['id'] ); ?>">
-				<input type="hidden" name="action" value="<?php echo esc_attr( mb_strtolower( get_class( $this ) ) ); ?>">
-				<input type="hidden" name="n2nonce" value="<?php echo esc_attr( $n2nonce ); ?>">
-				<?php foreach ( $includes as $include ) : ?>
-					<input type="hidden" name="include[]" value="<?php echo esc_attr( $include ); ?>">
-				<?php endforeach; ?>
-				<button id="<?php echo $btn['id']; ?>" class="btn px-5 <?php echo $btn['class']; ?>"><?php echo $btn['text']; ?></button>
-			</form method="post" class="p-3 m-0 sticky-top justify-content-evenly d-flex bg-dark">
-			<?php endforeach; ?>
-			<?php endif; ?>
-		</div>
-		<?php
-		$this->display_error();
-		exit;
-	}
-
-	/**
-	 * メモリ使用量のログ
-	 *
-	 * @param string $name 名前
-	 */
-	private function set_memory_usage( $name ) {
-		$memory = array(
-			'usage' => ceil( memory_get_usage() / ( 1024 * 1024 ) ) . 'MB',
-			'peak'  => ceil( memory_get_peak_usage() / ( 1024 * 1024 ) ) . 'MB',
-		);
-		// 記録
-		if ( $name ) {
-			$this->data['memory_usage'][ $name ] = $memory;
-		} else {
-			$this->data['memory_usage'][] = $memory;
+	public function user_export_ui() {
+		if ( current_user_can( 'administrator' )) {
+			get_template_part( 'template/admin-users/user-list-export' );
 		}
 	}
+
 }
+

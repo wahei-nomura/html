@@ -21,7 +21,7 @@ jQuery( async function($){
 				path: '',
 				recursive: true,
 			}}).then(res=>{
-				const dirlist = res.data;
+				const dirlist = res.data.log;
 				this.$store.commit('SFTP',{dirlist});
 				this.$store.commit('SET_LOADING',{is:false,status:'接続完了'});
 				this.$store.commit('SET_CURRENT_DIR',{

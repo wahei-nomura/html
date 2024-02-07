@@ -1058,7 +1058,7 @@ class N2_Sync {
 				$num = $d['地場産品類型'];
 				// 数字は半角に
 				$d['地場産品類型'] = mb_convert_kana( mb_substr( $d['地場産品類型'], 0, 1 ), 'n' ) . mb_substr( $d['地場産品類型'], 1 );
-				if ( ! in_array( $d['地場産品類型'], array_map( 'strval', array_keys( $n2->custom_field['スチームシップ用']['地場産品類型']['option'] ?? array() ) ), true ) ) {
+				if ( ! in_array( $d['地場産品類型'], array_map( 'strval', array_keys( $n2->custom_field['事業者用']['地場産品類型']['option'] ?? array() ) ), true ) ) {
 					$this->error[ $k ][] = "存在しない地場産品類型「{$num}」が設定されています。";
 				}
 			}

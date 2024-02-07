@@ -122,6 +122,13 @@ class N2 {
 	public $product_list_print;
 
 	/**
+	 * GPTテンプレート
+	 *
+	 * @var array
+	 */
+	public $openai_template;
+
+	/**
 	 * query（ログイン時のみ）
 	 *
 	 * @var object
@@ -375,6 +382,9 @@ class N2 {
 
 		// プリントアウト
 		$this->product_list_print = yaml_parse_file( get_theme_file_path( 'config/n2-product-list-print.yml' ) );
+
+		// GPTテンプレート
+		$this->openai_template = yaml_parse_file( get_theme_file_path( 'config/openai-template.yml' ) );
 
 		// 文字列変換
 		$this->special_str_convert = yaml_parse_file( get_theme_file_path( 'config/special-str-convert.yml' ) );

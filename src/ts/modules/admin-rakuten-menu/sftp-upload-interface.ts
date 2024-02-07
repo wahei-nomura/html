@@ -15,7 +15,6 @@ export interface ModeProp {
 export interface SftpUploadData {
 	uploading: boolean;
 	modeProp: ModeProp;
-	action: string;
 	files: File[];
 	fileResetCount: number;
 };

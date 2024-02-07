@@ -171,18 +171,33 @@ class N2_Admin_Post_Editor {
 					<span class="badge bg-danger ms-2">必須</span>
 					<?php endif; ?>
 				</div>
-				<div class="n2-fields-value col-12 col-sm-9 gap-2 d-flex flex-wrap" data-description="<?php echo $detail['description'] ?? ''; ?>">
-				<?php
-					// templateに渡すために不純物を除去
-					unset( $detail['description'], $detail['label'], $detail['v-if'] );
-					/**
-					 * プラグインでテンプレートを追加したい場合は、get_template_part_{$slug}フック
-					 * フック参考：https://github.com/WordPress/wordpress-develop/blob/6.1/src/wp-includes/general-template.php#L167-L207
-					 * 書き方参考：https://github.com/steamships/n2-plugins/blob/n2-rakuten-spa/index.php
-					 */
-					if ( isset( $detail['type'] ) ) {
-						get_template_part( "template/forms/{$detail['type']}", null, $detail );
-					}
+				<div class="n2-fields-value col-12 col-sm-9 gap-2 d-flex flex-wrap">
+					<?php if ( ! empty( $detail['maxlength'] ) || ! empty( $detail[':description'] ) || ! empty( $detail['description'] ) ) : ?>
+					<div class="n2-field-description small lh-base col-12 d-flex flex-wrap justify-content-between" v-if="tmp.info['<?php echo $field; ?>']">
+						<?php if ( ! empty( $detail[':description'] ) || ! empty( $detail['description'] ) ) : ?>
+							<!-- 説明文 -->
+							<div class="alert alert-primary mb-2 col-12" v-html="<?php echo $detail[':description'] ?? "`{$detail['description']}`" ?? ''; ?>"></div>
+						<?php endif; ?>
+						<?php if ( ! empty( $detail['insert-placeholder'] ) ) : ?>
+							<div class="btn btn-dark btn-sm py-0 px-3" @click="insert_placeholder('<?php echo $field; ?>')">+ 例文を挿入</div>
+						<?php endif; ?>
+						<?php if ( ! empty( $detail['maxlength'] ) ) : ?>
+							<!-- テキストカウンター -->
+							文字数： {{$data['<?php echo $field; ?>'].length ?? ''}}/<?php echo $detail['maxlength']; ?>
+						<?php endif; ?>
+					</div>
+					<?php endif; ?>
+					<?php
+						// templateに渡すために不純物を除去
+						unset( $detail['description'], $detail[':description'], $detail['insert-placeholder'], $detail['label'], $detail['v-if'] );
+						/**
+						 * プラグインでテンプレートを追加したい場合は、get_template_part_{$slug}フック
+						 * フック参考：https://github.com/WordPress/wordpress-develop/blob/6.1/src/wp-includes/general-template.php#L167-L207
+						 * 書き方参考：https://github.com/steamships/n2-plugins/blob/n2-rakuten-spa/index.php
+						 */
+						if ( isset( $detail['type'] ) ) {
+							get_template_part( "template/forms/{$detail['type']}", null, $detail );
+						}
 					?>
 				</div>
 			</div>

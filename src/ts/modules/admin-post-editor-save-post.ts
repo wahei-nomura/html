@@ -1,6 +1,6 @@
 import get_meta from "./admin-post-editor-get-meta";
 import _ from 'lodash';
-const $ = jQuery;
+const $:any = jQuery;
 const n2 = window['n2'];
 const btn_class = {
 	save: 'btn btn-sm btn-dark d-flex align-items-center px-4',
@@ -51,7 +51,7 @@ export default (target: string) => {
 						n2.tmp.saved.tmp.post_title = wp.data.select('core/editor').getEditedPostAttribute('title');
 						n2.tmp.saved.tmp.post_status = wp.data.select('core/editor').getEditedPostAttribute('status');
 						n2.tmp.diff = false;
-						$('#n2-hypernavi').attr('src',$('#n2-hypernavi').attr('src'));
+						$("#n2-hypernavi").get(0).contentWindow.location.reload();
 					},
 					reason => {
 						console.log( '保存失敗', reason );

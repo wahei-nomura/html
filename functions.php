@@ -32,14 +32,9 @@ $incs = array(
 	'class-n2-dashboard',
 	'class-n2-enqueuescript',
 	'class-n2-sync',
-	'class-n2-front',
 	'class-n2-img-download',
-	'class-n2-all-town',
 	'class-n2-item-export',
 	'class-n2-user-profile',
-	'class-n2-semi-auto-data-importer',
-	'class-n2-chonbo',
-	'class-n2-rakuten-ftp',
 	'api/class-n2-donation-amount-api',
 	'api/class-n2-rms-base-api',
 	'api/class-n2-rms-cabinet-api',
@@ -47,19 +42,18 @@ $incs = array(
 	'api/class-n2-rms-navigation-api',
 	'api/class-n2-rms-shop-api',
 	'api/class-n2-rms-items-api',
-	'class-n2-chonbo',
-	'api/class-n2-output-gift-api',
+	'api/class-n2-output-gift-api', // おーとめ用
 	'api/class-n2-post-history-api',
 	'api/class-n2-users-api',
-	'class-n2-chrome-checker',
 	'api/class-n2-items-api',
 	'api/class-n2-blogs-api',
 	'api/class-n2-multi-url-request-api',
-	'class-n2-change-allergen',
-	'class-n2-change-sku-firstaid',
 	'class-n2-portal-item-data',
-	'class-n2-notification',
-	'class-n2-notification-read',
+	'api/class-n2-openai-base-api',
+	'api/class-n2-openai-chat-api',
+	'api/class-n2-openai-assistants-api',
+	'class-n2-notification', // お知らせ(管理用)
+	'class-n2-notification-read', // お知らせ(閲覧用)
 );
 
 foreach ( $incs as $name ) {
