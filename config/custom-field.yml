@@ -358,9 +358,9 @@
         "@focus": set_info($event.target)
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
     消費期限:
-        label: "{{商品タイプ.every(v=>!v.match(/チケット/)) ? '消費期限' : '有効期限'}}"
+        label: "{{商品タイプ.includes('チケット') ? '有効期限' : '消費期限'}}"
         type: textarea
-        ":placeholder": 商品タイプ.every(v=>!v.match(/チケット/)) ? '例）冷凍庫９０日間':'例）発行日より１年間'
+        ":placeholder": 商品タイプ.includes('チケット') ? '例）発行日より１年間':'例）冷凍庫９０日間'
         insert-placeholder: true
         style: 'width: 100%;'
         maxlength: 200
