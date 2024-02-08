@@ -365,7 +365,7 @@
         style: 'width: 100%;'
         maxlength: 200
         rows: auto
-        v-if: 商品タイプ
+        v-if: "!商品タイプ.includes('eチケット')"
         "@focus": set_info($event.target)
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
 # ▲ =========== 食品専用のフィールド ==========
@@ -406,8 +406,10 @@
 # ▲ =========== やきもの専用のフィールド ==========
     eチケット注意事項:  # eチケット選択時のみ
         type : textarea
-        value : ・キャンセルは承っておりません。・お釣りは出ません。・利用有効期限は、発行から１年。有効期限を過ぎますと、権利放棄となり利用ができませんのでご注意ください
+        description: LHの自由入力欄１に出力され、特設サイトの注意事項に表示されます。
+        value : "・キャンセルは承っておりません。\n・お釣りは出ません。\n・利用有効期限は、発行から１年。有効期限を過ぎますと、権利放棄となり利用ができませんのでご注意ください。"
         style: 'width: 100%;'
+        rows: 3
         v-if: 商品タイプ.includes('eチケット')
         "@focus": set_info($event.target)
         "@input": set_info($event.target);auto_fit_tetxarea($event.target)
