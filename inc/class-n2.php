@@ -491,6 +491,7 @@ class N2 {
 		);
 		if (count($filtered_post_ids) === 0) {
 			$this->unread_notification_count = 0;
+			restore_current_blog(); // 戻す
 			return; // 'post__in'に空配列を渡すとWHERE INが無効化されるから早期リターン
 		}
 		// お知らせの投稿を検索
