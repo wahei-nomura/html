@@ -15,6 +15,20 @@ if ( class_exists( 'N2_RMS_Navigation_API' ) ) {
  * NavigationAPIから商品属性情報を取得するAPI
  */
 class N2_RMS_Navigation_API extends N2_RMS_Base_API {
+
+	/**
+	 * 指定したジャンルIDの情報を取得
+	 *
+	 * @var    string $genreId     ジャンルID
+	 * @return array
+	 */
+	public static function genres_get( $genreId = 0 ) {
+		$url = static::$settings['endpoint'] . "/2.0/navigation/genres/{$genreId}";
+
+		$response = static::request( $url );
+		return $response;
+	}
+
 	/**
 	 * 指定したジャンルIDに紐づく商品属性情報を取得する
 	 *
