@@ -310,7 +310,21 @@ class N2_Items_API {
 
 			// 楽天なのにジャンルID or 商品属性なし
 			if ( in_array( '楽天', $n2->settings['N2']['出品ポータル'], true ) && ! in_array( '楽天', (array) ( $meta['出品禁止ポータル'] ?? '' ), true ) ) {
-				array_push( $required, '全商品ディレクトリID', '商品属性' );
+				// ジャンルID
+				$required[] = '全商品ディレクトリID';
+
+				// 商品属性
+				if ( empty( $meta['商品属性'] ) ) {
+					// 商品属性がそもそもないとき
+					$required[] = '商品属性';
+				} else {
+					// 商品属性あるけどvalueがないとき
+					foreach ( $meta['商品属性'] as $attribute ) {
+						if ( ! empty( $attribute['properties']['rmsMandatoryFlg'] ) && empty( $attribute['value'] ) ) {
+							$required[] = '商品属性： ' . $attribute['nameJa'];
+						}
+					}
+				}
 			}
 
 			// アレルギーあるのにアレルゲンなし

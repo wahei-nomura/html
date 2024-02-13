@@ -1,4 +1,3 @@
-import axios, {AxiosResponse} from 'axios';
 import Vue from 'vue/dist/vue.min';
 import {mapState,mapActions} from 'vuex/dist/vuex.min';
 import { SftpUploadData } from './sftp-upload-interface';
@@ -18,15 +17,11 @@ export default Vue.extend({
 					icon: 'dashicons dashicons-format-gallery',
 				},
 			},
-			action: 'n2_rakuten_sftp_upload_to_rakuten',
 			files: [],
 			fileResetCount: 0,
 		}
 	},
 	computed:{
-		...mapState([
-			'n2nonce',
-		]),
 		uploadType(): string|undefined{
 			return this.files[0]?.type;
 		},
@@ -39,6 +34,7 @@ export default Vue.extend({
 	},
 	methods:{
 		...mapActions([
+			'sftpRequest',
 			'updateSFTPLog'
 		]),
 		setFiles():void{
@@ -86,27 +82,23 @@ export default Vue.extend({
 				return;
 			}
 			this.uploading = true;
-			const formData:FormData = new FormData();
-			formData.append( 'n2nonce', this.n2nonce);
-			formData.append( 'action', this.action);
-			formData.append( 'judge', this.uploadMode);
+			const data = {
+				judge: this.uploadMode,
+				mode: 'text',
+			};
 			for (let i = 0; i < files.length; i++) {
-				formData.append('sftp_file[]', files[i]);
+				data[`sftp_file[${i}]`] = files[i];
 			}
-			const headers = {
+			const config = {
 				'content-type': 'multipart/form-data',
 			};
-			return await axios.post(
-				window['n2'].ajaxurl,
-				formData,
-				{headers:headers}
-			).then((res)=>{
-				alert(res.data.log.message);
+			return await this.sftpRequest({data,config}).then((res)=>{
+				alert(res.data);
 				// ログ一覧の更新
 				this.updateSFTPLog();
 			}).catch(err=>{
 				console.error(err);
-				alert(err.response.data.message);
+				alert(err.response.data);
 			}).then(()=>{
 				this.uploading = false;
 				this.resetFiles();

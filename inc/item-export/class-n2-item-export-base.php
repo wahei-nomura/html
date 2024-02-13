@@ -534,6 +534,106 @@ class N2_Item_Export_Base {
 	}
 
 	/**
+	 * 楽天SFTPへ直接転送
+	 */
+	private function sftp_upload() {
+		/**
+		 * [hook] n2_item_export_base_charset
+		 */
+		$charset = apply_filters( mb_strtolower( get_class( $this ) ) . '_charset', $this->settings['charset'] );
+		/**
+		 * [hook] n2_item_export_base_filename
+		 */
+		$filename = apply_filters( mb_strtolower( get_class( $this ) ) . '_filename', $this->settings['filename'] );
+		/**
+		 * [hook] n2_item_export_base_download_add_btn
+		 */
+		$add_btn = apply_filters( mb_strtolower( get_class( $this ) ) . '_download_add_btn', array() );
+
+		// POST送信されたか判定
+		$str      = filter_input( INPUT_POST, 'str' );
+		$option   = filter_input( INPUT_POST, 'option' );
+		$n2nonce  = filter_input( INPUT_POST, 'n2nonce' );
+		$includes = filter_input( INPUT_POST, 'include', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
+
+		/**
+		 * [hook] n2_item_export_base_download_str
+		 */
+		$str = apply_filters( mb_strtolower( get_class( $this ) ) . '_download_str', $str, $option );
+
+		if ( ! $str ) {
+			$this->set_header_string();
+			$this->set_data_string();
+			// 出力文字列
+			$str = $this->settings['header_string'] . $this->data['string'];
+			// エラー
+			$error = $this->data['error'];
+		}
+		if ( empty( $error ) ) {
+			// 文字コード変換
+			$str  = mb_convert_encoding( $str, $charset, 'utf-8' );
+			$sftp = new N2_Rakuten_SFTP();
+
+			// paramをセット
+			add_filter(
+				'n2_rakuten_sftp_set_params',
+				function () {
+					return array(
+						'judge' => 'csv_upload',
+						'mode'  => 'text',
+					);
+				}
+			);
+			// fileをセット
+			add_filter(
+				'n2_rakuten_sftp_set_files',
+				function () use ( $str, $filename ) {
+					$file = tempnam( sys_get_temp_dir(), 'n2_rakuten_sftp_' );
+					( new WP_Filesystem_Direct( '' ) )->put_contents( $file, $str );
+					return array(
+						'tmp_name' => array( $file ),
+						'name'     => array( $filename ),
+						'type'     => array( 'text/csv' ),
+					);
+				}
+			);
+
+			// アップロード
+			$sftp->api();
+			exit;
+		}
+		?>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+		<div class=" sticky-top justify-content-evenly d-flex bg-dark">
+			<?php if ( ! empty( $this->data['data'] ) ) : ?>
+			<form method="post" class="p-3 m-0">
+				<input type="hidden" name="action" value="<?php echo esc_attr( mb_strtolower( get_class( $this ) ) ); ?>">
+				<input type="hidden" name="str" value="<?php echo esc_attr( $str ); ?>">
+				<input type="hidden" name="mode" value="sftp_upload">
+				<button id="download" class="btn btn-success px-5">エラーが無い返礼品のみSFTP転送する</button>
+			</form>
+			<?php endif; ?>
+			<?php if ( ! empty( $add_btn ) ) : ?>  
+			<?php foreach ( $add_btn as $btn ) : ?>
+				<form method="post" class="p-3 m-0">
+				<input type="hidden" name="mode" value="sftp_upload">
+				<input type="hidden" name="option" value="<?php echo esc_attr( $btn['id'] ); ?>">
+				<input type="hidden" name="action" value="<?php echo esc_attr( mb_strtolower( get_class( $this ) ) ); ?>">
+				<input type="hidden" name="n2nonce" value="<?php echo esc_attr( $n2nonce ); ?>">
+				<?php foreach ( $includes as $include ) : ?>
+					<input type="hidden" name="include[]" value="<?php echo esc_attr( $include ); ?>">
+				<?php endforeach; ?>
+				<button id="<?php echo $btn['id']; ?>" class="btn px-5 <?php echo $btn['class']; ?>"><?php echo $btn['text']; ?></button>
+			</form method="post" class="p-3 m-0 sticky-top justify-content-evenly d-flex bg-dark">
+			<?php endforeach; ?>
+			<?php endif; ?>
+		</div>
+		<?php
+		$this->display_error();
+		exit;
+	}
+
+	/**
 	 * メモリ使用量のログ
 	 *
 	 * @param string $name 名前

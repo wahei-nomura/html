@@ -52,6 +52,8 @@ $incs = array(
 	'api/class-n2-openai-base-api',
 	'api/class-n2-openai-chat-api',
 	'api/class-n2-openai-assistants-api',
+	'class-n2-notification', // お知らせ(管理用)
+	'class-n2-notification-read', // お知らせ(閲覧用)
 );
 
 foreach ( $incs as $name ) {
