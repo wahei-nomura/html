@@ -282,13 +282,16 @@ class N2_Admin_Post_List {
 	 * @return string $status ステータス
 	 */
 	public function change_status( $status ) {
-		$re = array(
-			'下書き'    => '入力中',
-			'レビュー待ち' => 'スチームシップ確認待ち',
-			'公開済み'   => 'ポータル登録準備中',
-		);
-		// 変換
-		$status = str_replace( array_keys( $re ), $re, $status );
+		global $post_type;
+		if ($post_type === 'post') {
+			$re = array(
+				'下書き'    => '入力中',
+				'レビュー待ち' => 'スチームシップ確認待ち',
+				'公開済み'   => 'ポータル登録準備中',
+			);
+			// 変換
+			$status = str_replace( array_keys( $re ), $re, $status );
+		}
 		return $status;
 	}
 }
