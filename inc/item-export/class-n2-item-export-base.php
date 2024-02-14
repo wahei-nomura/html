@@ -117,6 +117,7 @@ class N2_Item_Export_Base {
 		global $n2;
 		$n2field = array(
 			...array_keys( $n2->custom_field['スチームシップ用'] ),
+			...array_keys( $n2->custom_field['自治体用'] ),
 			...array_keys( $n2->custom_field['事業者用'] ),
 		);
 		// 重複削除
