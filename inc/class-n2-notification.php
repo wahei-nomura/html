@@ -111,8 +111,10 @@ class N2_Notification {
 	 * @return string
 	 */
 	public function change_title( $title ) {
-		$title = 'お知らせのタイトルを入力';
-		return $title;
+		$screen = get_current_screen();
+		return $screen->post_type === 'notification'
+			? 'お知らせのタイトルを入力'
+			: $title;
 	}
 
     /**
