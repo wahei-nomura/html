@@ -51,7 +51,7 @@ class N2_Settings {
 	 * @var array
 	 */
 	public $data = array(
-		'商品タイプ' => array( '食品', '酒', 'やきもの', 'eチケット' ),
+		'商品タイプ' => array( '食品', '酒', 'やきもの', 'チケット', 'eチケット' ),
 	);
 
 	/**
