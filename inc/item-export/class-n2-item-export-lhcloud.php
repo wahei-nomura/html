@@ -98,6 +98,9 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 			'税率リスト' => 1,
 			default => $n2values['定期便'] > 1 ? 1 : 0,
 		};
+		// やきものの場合
+		$taioukikiinfo  = in_array( 'やきもの', $n2values['商品タイプ'], true ) ? "\n" . '【対応機器】' . "\n" . '電子レンジ' . $n2values['電子レンジ対応'] . ' / オーブン' . $n2values['オーブン対応'] . ' / 食器洗浄機' . $n2values['食洗機対応'] : '';
+		$taioukikiinfo .= $n2values['対応機器備考'] ? '対応機器備考' . "\n" . '※' . nl2br( $n2values['対応機器備考'] ) : '';
 		for ( $i = 1; $i <= $loop; $i++ ) {
 			// 返礼品コード
 			$item_code = $n2values['返礼品コード'] . ( $loop > 1 ? "_{$i}/{$n2values['定期便']}" : '' );
@@ -111,7 +114,7 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 				'特設サイト名称' => $is_e_ticket ? "{$item_code} " . ( $n2values['配送伝票表示名'] ?: $n2values['タイトル'] ) : '', // eチケット
 				'事業者' => $n2values['事業者名'],
 				'謝礼品カテゴリー' => $n2values['LHカテゴリー'],
-				'セット内容' => $n2values['内容量・規格等'],
+				'セット内容' => $n2values['内容量・規格等'] . $taioukikiinfo,
 				'謝礼品紹介文' => $n2values['説明文'],
 				'ステータス' => '受付中',
 				'状態' => '表示',
