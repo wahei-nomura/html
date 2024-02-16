@@ -153,6 +153,12 @@ $max-w: 760px;
 			li {
 				margin: 10px 16px;
 			}
+			img,
+			video {
+				display: block;
+				max-width: 100%;
+				height: auto;
+			}
 		}
 		&-footer {
 			display: flex;
