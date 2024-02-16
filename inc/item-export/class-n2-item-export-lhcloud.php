@@ -100,7 +100,7 @@ class N2_Item_Export_LHcloud extends N2_Item_Export_Base {
 		};
 		// やきものの場合
 		$taioukikiinfo  = in_array( 'やきもの', $n2values['商品タイプ'], true ) ? "\n" . '【対応機器】' . "\n" . '電子レンジ' . $n2values['電子レンジ対応'] . ' / オーブン' . $n2values['オーブン対応'] . ' / 食器洗浄機' . $n2values['食洗機対応'] : '';
-		$taioukikiinfo .= $n2values['対応機器備考'] ? '対応機器備考' . "\n" . '※' . nl2br( $n2values['対応機器備考'] ) : '';
+		$taioukikiinfo .= $n2values['対応機器備考'] ? '対応機器備考' . "\n" . '※' . $n2values['対応機器備考'] : '';
 		for ( $i = 1; $i <= $loop; $i++ ) {
 			// 返礼品コード
 			$item_code = $n2values['返礼品コード'] . ( $loop > 1 ? "_{$i}/{$n2values['定期便']}" : '' );
