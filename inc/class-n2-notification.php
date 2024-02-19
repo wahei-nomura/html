@@ -25,7 +25,8 @@ class N2_Notification {
 	/**
 	 * コンストラクタ
 	 */
-	public function __construct() {
+public function __construct() {
+	if ( is_admin() && is_main_site() ) {
 		// ページングとかナビゲーションの設定
 		add_action( 'init', array( $this, 'create_posttype' ) );
 		// お知らせのタイトル入力欄のplaceholderを設定
@@ -39,6 +40,7 @@ class N2_Notification {
 		// リスト(表)のフィールドの設定
 		add_action( 'manage_notification_posts_custom_column', array( $this, 'custom_notification_column' ), 10, 4 );
 	}
+}
 
 	/**
 	 * サイトIDと自治体の名前を出力
@@ -245,8 +247,8 @@ class N2_Notification {
 	 * @param WP_Post $post 投稿オブジェクト
 	 */
 	public function save_customfields( $post_id, $post ) {
-		// 管理者でメインサイトにアクセスしていて、お知らせの投稿の時だけOK
-		if ( false === is_admin() || false === is_main_site() || 'notification' !== $post->post_type ) {
+		// お知らせの投稿の時だけOK
+		if ( 'notification' !== $post->post_type ) {
 			return;
 		}
 		// nonce
