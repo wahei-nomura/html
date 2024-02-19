@@ -137,6 +137,7 @@ const PostModal = {
 		 * WP_Post
 		 */
 		post: Object,
+		nonce: String,
 	},
 	emits: ["close"],
 	computed: {
@@ -165,6 +166,8 @@ const PostModal = {
 					<form method="post" action="">
 						<input type="hidden" name="user" :value="$n2.current_user.ID" />
 						<input type="hidden" name="post" :value="post.ID" />
+						<!-- nonce -->
+						<input type="hidden" name="n2nonce-read" :value="nonce" />
 						<div class="vue-modal-footer">
 							<button v-if="isShouldRead" type="submit">
 								確認しました！
@@ -188,6 +191,10 @@ const Root = {
 		 * WP_Post[]
 		 */
 		posts: Array,
+		/**
+		 * WPの$_POSTの認証
+		 */
+		nonce: String,
 	},
 	data() {
 		return {
@@ -242,7 +249,7 @@ const Root = {
 				<p v-else class="vue-zero">お知らせはありません</p>
 			</template>
 			<!-- モーダル -->
-			<PostModal :post="modalContent" @close="closeModal" />
+			<PostModal :post="modalContent" :nonce="nonce" @close="closeModal" />
 		</div>
 	`,
 };

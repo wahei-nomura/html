@@ -29,10 +29,12 @@ class N2_Notification_Read {
 	 */
 	public function set_read() {
 		global $n2;
-		$has_user_id = isset( $_POST['user'] ) && wp_verify_nonce( $_POST['user'], 'n2nonce' );
-		$has_post_id = isset( $_POST['post'] ) && wp_verify_nonce( $_POST['post'], 'n2nonce' );
-		$has_both    = $has_user_id && $has_post_id;
-		if ( false === $has_both ) {
+		// nonce
+		if ( false === wp_verify_nonce( $_POST['n2nonce-read'] ?? '', 'n2nonce-read' ) ) {
+			return;
+		}
+		// params
+		if ( false === isset( $_POST['user'] ) || false === isset( $_POST['post'] ) ) {
 			return;
 		}
 		switch_to_blog( 1 );
@@ -78,12 +80,17 @@ class N2_Notification_Read {
 		// この中で検索しないと別ページでも検索されて必要以上に重くなる
 		$notifications = $this->get_notifications();
 		$notifications = wp_json_encode( $notifications, JSON_UNESCAPED_UNICODE );
+		// nonce
+		$nonce = wp_create_nonce( 'n2nonce-read' );
 		?>
 		<div class="wrap">
 			<h1 class="wp-heading-inline">お知らせ</h1>
 			<div id="app">
 				<!-- Vue -->
-				<notification-read :posts="<?php echo esc_attr( $notifications ); ?>" />
+				<notification-read
+					:posts="<?php echo esc_attr( $notifications ); ?>"
+					nonce="<?php echo esc_attr( $nonce ); ?>"
+				/>
 			</div>
 		</div>
 		<?php

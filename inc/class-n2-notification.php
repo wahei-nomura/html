@@ -26,20 +26,18 @@ class N2_Notification {
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		if ( is_admin() && is_main_site() ) {
-			// ページングとかナビゲーションの設定
-			add_action( 'init', array( $this, 'create_posttype' ) );
-			// お知らせのタイトル入力欄のplaceholderを設定
-			add_filter( 'enter_title_here', array( $this, 'change_title' ) );
-			// お知らせの表示対象の入力欄を設定
-			add_action( 'add_meta_boxes', array( $this, 'add_customfields' ) );
-			// カスタムフィールドの入力を保存
-			add_action( 'save_post', array( $this, 'save_customfields' ), 10, 3 ); // 第四引数が必要!!
-			// リスト(表)のカラムの設定
-			add_filter( 'manage_notification_posts_columns', array( $this, 'manage_notification_columns' ), 10, 4 );
-			// リスト(表)のフィールドの設定
-			add_action( 'manage_notification_posts_custom_column', array( $this, 'custom_notification_column' ), 10, 4 );
-		}
+		// ページングとかナビゲーションの設定
+		add_action( 'init', array( $this, 'create_posttype' ) );
+		// お知らせのタイトル入力欄のplaceholderを設定
+		add_filter( 'enter_title_here', array( $this, 'change_title' ) );
+		// お知らせの表示対象の入力欄を設定
+		add_action( 'add_meta_boxes', array( $this, 'add_customfields' ) );
+		// カスタムフィールドの入力を保存
+		add_action( 'save_post', array( $this, 'save_customfields' ), 10, 3 ); // 第四引数が必要!!
+		// リスト(表)のカラムの設定
+		add_filter( 'manage_notification_posts_columns', array( $this, 'manage_notification_columns' ), 10, 4 );
+		// リスト(表)のフィールドの設定
+		add_action( 'manage_notification_posts_custom_column', array( $this, 'custom_notification_column' ), 10, 4 );
 	}
 
 	/**
@@ -159,6 +157,12 @@ class N2_Notification {
 			// 編集画面
 			$is_checked = get_post_meta( $post->ID, self::CUSTOMFIELD_ID_FORCE, true ) ? 'checked' : '';
 		}
+		// nonce
+		// ３つあるカスタムフィールドの代表
+		wp_nonce_field(
+			'n2nonce-customfield',
+			'n2nonce-customfield'
+		);
 		?>
 		<div>
 			<p>オンにすると表示対象のユーザーの画面に点滅するバーが表示されされます。</p>
@@ -241,21 +245,23 @@ class N2_Notification {
 	 * @param WP_Post $post 投稿オブジェクト
 	 */
 	public function save_customfields( $post_id, $post ) {
+		// 管理者でメインサイトにアクセスしていて、お知らせの投稿の時だけOK
+		if ( false === is_admin() || false === is_main_site() || 'notification' !== $post->post_type ) {
+			return;
+		}
+		// nonce
+		if ( false === wp_verify_nonce( $_POST['n2nonce-customfield'], 'n2nonce-customfield' ) ) {
+			return;
+		}
 		// 強制表示
-		if ( isset( $_POST[ self::CUSTOMFIELD_ID_FORCE ] ) && wp_verify_nonce( $_POST[ self::CUSTOMFIELD_ID_FORCE ], 'n2nonce' ) ) {
-			$new_force = $_POST[ self::CUSTOMFIELD_ID_FORCE ] ? 1 : 0;
-			update_post_meta( $post_id, self::CUSTOMFIELD_ID_FORCE, $new_force );
-		}
+		$new_force = $_POST[ self::CUSTOMFIELD_ID_FORCE ] ? 1 : 0;
+		update_post_meta( $post_id, self::CUSTOMFIELD_ID_FORCE, $new_force );
 		// ユーザー権限
-		if ( isset( $_POST[ self::CUSTOMFIELD_ID_ROLES ] ) && wp_verify_nonce( $_POST[ self::CUSTOMFIELD_ID_ROLES ], 'n2nonce' ) ) {
-			$new_roles = $_POST[ self::CUSTOMFIELD_ID_ROLES ] ?? array();
-			update_post_meta( $post_id, self::CUSTOMFIELD_ID_ROLES, $new_roles );
-		}
+		$new_roles = $_POST[ self::CUSTOMFIELD_ID_ROLES ] ?? array();
+		update_post_meta( $post_id, self::CUSTOMFIELD_ID_ROLES, $new_roles );
 		// 自治体
-		if ( isset( $_POST[ self::CUSTOMFIELD_ID_REGIONS ] ) && wp_verify_nonce( $_POST[ self::CUSTOMFIELD_ID_REGIONS ], 'n2nonce' ) ) {
-			$new_regions = $_POST[ self::CUSTOMFIELD_ID_REGIONS ] ?? array();
-			update_post_meta( $post_id, self::CUSTOMFIELD_ID_REGIONS, $new_regions );
-		}
+		$new_regions = $_POST[ self::CUSTOMFIELD_ID_REGIONS ] ?? array();
+		update_post_meta( $post_id, self::CUSTOMFIELD_ID_REGIONS, $new_regions );
 	}
 
 	/**
