@@ -36,7 +36,7 @@ class N2_Donation_Amount_API {
 		global $n2;
 		$args = $args ? wp_parse_args( $args ) : $_GET;
 		foreach ( $args as $k => &$v ) {
-			$v = 'action' !== $k && ! is_numeric( $v ) ? 0 : $v;
+			$v = 'action' !== $k && 'type' !== $k && ! is_numeric( $v ) ? 0 : $v;
 		}
 		$default = array(
 			'price'               => 0,
@@ -46,6 +46,7 @@ class N2_Donation_Amount_API {
 			'delivery_add_point'  => (int) $n2->settings['寄附金額・送料']['送料加算分岐点'],
 			'divisor'             => (float) $n2->settings['寄附金額・送料']['除数'],
 			'min_donation'        => (int) $n2->settings['寄附金額・送料']['下限寄附金額'],
+			'type'                => array(),
 			'action'              => false,
 		);
 		$args    = wp_parse_args( array_filter( $args ), $default );

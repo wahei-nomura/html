@@ -139,12 +139,13 @@ class N2_Notification_Read {
 			function ( $p ) use( $n2 ) {
 				// 強制表示
 				// フラグが立っていても投稿日時がユーザーの登録より前なら強制表示はしない
-				$force       = (int) get_post_meta( $p->ID, 'notification-force', true );
-				$force      &= strtotime( $p->post_date ) > strtotime( $n2->current_user->user_registered );
-				$p->is_force = $force;
+				$force           = (int) get_post_meta( $p->ID, 'notification-force', true );
+				$force          &= strtotime( $p->post_date ) > strtotime( $n2->current_user->user_registered );
+				$p->is_force     = $force;
+				$p->post_content = get_the_content( null, false, $p->ID );
 				// 確認が必要か
-				$read        = get_post_meta( $p->ID, 'notification-read', true );
-				$p->is_read  = is_array( $read ) ? in_array( $n2->current_user->ID, $read ) : false;
+				$read            = get_post_meta( $p->ID, 'notification-read', true );
+				$p->is_read      = is_array( $read ) ? in_array( $n2->current_user->ID, $read ) : false;
 				return $p;
 			},
 			$posts

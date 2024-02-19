@@ -634,7 +634,7 @@ class N2_Item_Export_Rakuten extends N2_Item_Export_Base {
 			if ( isset( $n2values['電子レンジ対応'] ) || isset( $n2values['オーブン対応'] ) || isset( $n2values['食洗機対応'] ) ) {
 				$result .= '電子レンジ' . $n2values['電子レンジ対応'] . ' / オーブン' . $n2values['オーブン対応'] . ' / 食器洗浄機' . $n2values['食洗機対応'] . '<br>';
 			}
-			if ( isset( $n2values['対応機器備考'] ) ) {
+			if ( isset( $n2values['対応機器備考'] ) && '' !== $n2values['対応機器備考'] ) {
 				$result .= '※' . $n2values['対応機器備考'] . '<br>';
 			}
 		}

@@ -76,6 +76,7 @@ class N2_Item_Export_Furusato_Choice extends N2_Item_Export_Base {
 					$warning['やきもの対応機器'][ $key ] = $value . $n2values[ $value ];
 				}
 				$warning['やきもの対応機器']  = implode( ' / ', $warning['やきもの対応機器'] );
+				$warning['やきもの対応機器']  = str_replace( '対応', '', $warning['やきもの対応機器'] );
 				$warning['やきもの対応機器'] .= "\n{$n2values['対応機器備考']}";
 				$siteurl              = site_url();
 				$rakuten_dir          = $n2->settings['楽天']['商品画像ディレクトリ']; // 画像ディレクトリ取得

@@ -43,7 +43,7 @@ export default ($: any = jQuery) => {
 		loading_view.show('#wpwrap', 500);
 
 		save_as_pending.append_button("#n2-save-post");// スチームシップへ送信
-		this.寄附金額 = await this.calc_donation(this.価格,this.送料,this.定期便);
+		this.寄附金額 = await this.calc_donation(this.価格,this.送料,this.定期便, this.商品タイプ);
 		if (n2.settings.N2.出品ポータル.includes('楽天')) {
 			this.get_rakuten_category();
 			await this.get_rakuten_delvdate();
@@ -70,7 +70,7 @@ export default ($: any = jQuery) => {
 				].filter(v=>v);
 				this.送料 = newVal.発送サイズ != oldVal.発送サイズ ? '' : this.送料 ;// 事業者に隠すため送料の初期化
 				this.送料 = n2.settings['寄附金額・送料']['送料'][size.join('_')] || this.送料;// 送料設定されていない場合は送料をそのまま
-				this.寄附金額 = await this.calc_donation(newVal.価格,this.送料,newVal.定期便);
+				this.寄附金額 = await this.calc_donation(newVal.価格,this.送料,newVal.定期便, this.商品タイプ);
 				if ( n2.tmp.save_post_promise_resolve ) {
 					n2.tmp.save_post_promise_resolve('resolve');
 				}
@@ -253,7 +253,7 @@ export default ($: any = jQuery) => {
 			event.target.value = '';
 		},
 		// 寄附金額計算
-		async calc_donation(price, delivery_fee, subscription) {
+		async calc_donation(price, delivery_fee, subscription, type) {
 			this.check_donation();
 			const opt = {
 				url: n2.ajaxurl,
@@ -262,6 +262,7 @@ export default ($: any = jQuery) => {
 					price,
 					delivery_fee,
 					subscription,
+					type,
 				}
 			}
 			this.tmp.寄附金額自動計算値 = await $.ajax(opt);
@@ -275,7 +276,7 @@ export default ($: any = jQuery) => {
 		// 寄附金額の更新
 		async update_donation(){
 			alert(`価格：${Number(this.価格).toLocaleString()}\n送料：${Number(this.送料).toLocaleString()}\n定期便回数：${this.定期便}\nを元に再計算します。`);
-			this.寄附金額 = await this.calc_donation(this.価格, this.送料, this.定期便);
+			this.寄附金額 = await this.calc_donation(this.価格, this.送料, this.定期便, this.商品タイプ);
 			console.log(this.寄附金額)
 		},
 		check_donation() {
