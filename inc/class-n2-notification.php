@@ -25,22 +25,22 @@ class N2_Notification {
 	/**
 	 * コンストラクタ
 	 */
-public function __construct() {
-	if ( is_admin() && is_main_site() ) {
-		// ページングとかナビゲーションの設定
-		add_action( 'init', array( $this, 'create_posttype' ) );
-		// お知らせのタイトル入力欄のplaceholderを設定
-		add_filter( 'enter_title_here', array( $this, 'change_title' ) );
-		// お知らせの表示対象の入力欄を設定
-		add_action( 'add_meta_boxes', array( $this, 'add_customfields' ) );
-		// カスタムフィールドの入力を保存
-		add_action( 'save_post', array( $this, 'save_customfields' ), 10, 3 ); // 第四引数が必要!!
-		// リスト(表)のカラムの設定
-		add_filter( 'manage_notification_posts_columns', array( $this, 'manage_notification_columns' ), 10, 4 );
-		// リスト(表)のフィールドの設定
-		add_action( 'manage_notification_posts_custom_column', array( $this, 'custom_notification_column' ), 10, 4 );
+	public function __construct() {
+		if ( is_admin() && is_main_site() ) {
+			// ページングとかナビゲーションの設定
+			add_action( 'init', array( $this, 'create_posttype' ) );
+			// お知らせのタイトル入力欄のplaceholderを設定
+			add_filter( 'enter_title_here', array( $this, 'change_title' ) );
+			// お知らせの表示対象の入力欄を設定
+			add_action( 'add_meta_boxes', array( $this, 'add_customfields' ) );
+			// カスタムフィールドの入力を保存
+			add_action( 'save_post', array( $this, 'save_customfields' ), 10, 3 ); // 第四引数が必要!!
+			// リスト(表)のカラムの設定
+			add_filter( 'manage_notification_posts_columns', array( $this, 'manage_notification_columns' ), 10, 4 );
+			// リスト(表)のフィールドの設定
+			add_action( 'manage_notification_posts_custom_column', array( $this, 'custom_notification_column' ), 10, 4 );
+		}
 	}
-}
 
 	/**
 	 * サイトIDと自治体の名前を出力
