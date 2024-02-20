@@ -70,10 +70,6 @@ class N2_Notification {
 	 * カスタム投稿とタクソノミーの設定
 	 */
 	public function create_posttype() {
-		if ( false === is_admin() || false === is_main_site() ) {
-			return;
-		}
-		// カスタム投稿
 		register_post_type(
 			'notification',
 			array(
@@ -87,7 +83,7 @@ class N2_Notification {
 					'not_found_in_trash' => 'ゴミ箱にはありませんでした。',
 				),
 				'public'       => false, // サイト上では非表示
-				'show_ui'      => true, // 管理画面では表示
+				'show_ui'      => is_admin() && is_main_site(), // 管理画面では表示
 				'description'  => '', // 説明文
 				'hierarchicla' => false, // コンテンツを階層構造にするかどうか
 				'has_archive'  => true,  // trueにすると投稿した記事の一覧ページを作成することができる
@@ -249,10 +245,6 @@ class N2_Notification {
 	 * @param WP_Post $post 投稿オブジェクト
 	 */
 	public function save_customfields( $post_id, $post ) {
-		// メインサイトで管理者の時だけOK
-		if ( false === is_admin() || false === is_main_site() ) {
-			return;
-		}
 		// お知らせの投稿の時だけOK
 		if ( 'notification' !== $post->post_type ) {
 			return;
