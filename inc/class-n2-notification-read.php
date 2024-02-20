@@ -142,7 +142,7 @@ class N2_Notification_Read {
 				$force           = (int) get_post_meta( $p->ID, 'notification-force', true );
 				$force          &= strtotime( $p->post_date ) > strtotime( $n2->current_user->user_registered );
 				$p->is_force     = $force;
-				$p->post_content = get_the_content( null, false, $p->ID );
+				$p->post_content = $p->post_content_filtered;
 				// 確認が必要か
 				$read            = get_post_meta( $p->ID, 'notification-read', true );
 				$p->is_read      = is_array( $read ) ? in_array( $n2->current_user->ID, $read ) : false;
