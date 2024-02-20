@@ -70,6 +70,9 @@ class N2_Notification {
 	 * カスタム投稿とタクソノミーの設定
 	 */
 	public function create_posttype() {
+		if ( false === is_admin() || false === is_main_site() ) {
+			return;
+		}
 		// カスタム投稿
 		register_post_type(
 			'notification',
@@ -247,7 +250,7 @@ class N2_Notification {
 	 */
 	public function save_customfields( $post_id, $post ) {
 		// メインサイトで管理者の時だけOK
-		if ( is_admin() && is_main_site() ) {
+		if ( false === is_admin() || false === is_main_site() ) {
 			return;
 		}
 		// お知らせの投稿の時だけOK
