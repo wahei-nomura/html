@@ -32,7 +32,7 @@ class N2_Notification {
 		// お知らせの表示対象の入力欄を設定
 		add_action( 'add_meta_boxes', array( $this, 'add_customfields' ) );
 		// カスタムフィールドの入力を保存
-		add_action( 'save_post', array( $this, 'save_customfields' ), 10, 3 ); // 第四引数が必要!!
+		add_action( 'wp_after_insert_post', array( $this, 'save_customfields' ), 99999, 4 );
 		// リスト(表)のカラムの設定
 		add_filter( 'manage_notification_posts_columns', array( $this, 'manage_notification_columns' ), 10, 4 );
 		// リスト(表)のフィールドの設定
@@ -243,8 +243,10 @@ class N2_Notification {
 	 *
 	 * @param int     $post_id 投稿ID
 	 * @param WP_Post $post 投稿オブジェクト
+	 * @param bool    $update 更新かどうか
+	 * @param WP_Post $post_before 更新前の投稿オブジェクト
 	 */
-	public function save_customfields( $post_id, $post ) {
+	public function save_customfields( $post_id, $post, $update, $post_before ) {
 		// お知らせの投稿の時だけOK
 		if ( 'notification' !== $post->post_type ) {
 			return;
@@ -263,8 +265,8 @@ class N2_Notification {
 		$new_regions = $_POST[ self::CUSTOMFIELD_ID_REGIONS ] ?? array();
 		update_post_meta( $post_id, self::CUSTOMFIELD_ID_REGIONS, $new_regions );
 		// 本文の画像のsrcを正規化して再保存
-		$post->post_content = get_the_content( null, false, $post );
-		wp_update_post( $post );
+		$post->post_content_filtered = get_the_content( null, false, $post );
+		wp_insert_post( $post, false, false );
 	}
 
 	/**
