@@ -26,20 +26,17 @@ class N2_Notification {
 	 * コンストラクタ
 	 */
 	public function __construct() {
-		if ( is_admin() && is_main_site() ) {
-			// ページングとかナビゲーションの設定
-			add_action( 'init', array( $this, 'create_posttype' ) );
-			// お知らせのタイトル入力欄のplaceholderを設定
-			add_filter( 'enter_title_here', array( $this, 'change_title' ) );
-			// お知らせの表示対象の入力欄を設定
-			add_action( 'add_meta_boxes', array( $this, 'add_customfields' ) );
-			// カスタムフィールドの入力を保存
-			add_action( 'save_post', array( $this, 'save_customfields' ), 10, 3 ); // 第四引数が必要!!
-			// リスト(表)のカラムの設定
-			add_filter( 'manage_notification_posts_columns', array( $this, 'manage_notification_columns' ), 10, 4 );
-			// リスト(表)のフィールドの設定
-			add_action( 'manage_notification_posts_custom_column', array( $this, 'custom_notification_column' ), 10, 4 );
-		}
+		add_action( 'init', array( $this, 'create_posttype' ) );
+		// お知らせのタイトル入力欄のplaceholderを設定
+		add_filter( 'enter_title_here', array( $this, 'change_title' ) );
+		// お知らせの表示対象の入力欄を設定
+		add_action( 'add_meta_boxes', array( $this, 'add_customfields' ) );
+		// カスタムフィールドの入力を保存
+		add_action( 'save_post', array( $this, 'save_customfields' ), 10, 3 ); // 第四引数が必要!!
+		// リスト(表)のカラムの設定
+		add_filter( 'manage_notification_posts_columns', array( $this, 'manage_notification_columns' ), 10, 4 );
+		// リスト(表)のフィールドの設定
+		add_action( 'manage_notification_posts_custom_column', array( $this, 'custom_notification_column' ), 10, 4 );
 	}
 
 	/**
@@ -110,7 +107,7 @@ class N2_Notification {
 	 */
 	public function change_title( $title ) {
 		$screen = get_current_screen();
-		return $screen->post_type === 'notification'
+		return 'notification' === $screen->post_type
 			? 'お知らせのタイトルを入力'
 			: $title;
 	}
@@ -249,6 +246,10 @@ class N2_Notification {
 	 * @param WP_Post $post 投稿オブジェクト
 	 */
 	public function save_customfields( $post_id, $post ) {
+		// メインサイトで管理者の時だけOK
+		if ( is_admin() && is_main_site() ) {
+			return;
+		}
 		// お知らせの投稿の時だけOK
 		if ( 'notification' !== $post->post_type ) {
 			return;
@@ -266,6 +267,9 @@ class N2_Notification {
 		// 自治体
 		$new_regions = $_POST[ self::CUSTOMFIELD_ID_REGIONS ] ?? array();
 		update_post_meta( $post_id, self::CUSTOMFIELD_ID_REGIONS, $new_regions );
+		// 本文の画像のsrcを正規化して再保存
+		$post->post_content = get_the_content( null, false, $post );
+		wp_update_post( $post );
 	}
 
 	/**
