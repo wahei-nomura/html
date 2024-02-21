@@ -265,6 +265,8 @@ LedgHOME:
 
 地場産品:
     csv_header:
+        all:
+        - id
         info:
         - 番号
         - 品目名

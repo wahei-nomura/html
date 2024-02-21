@@ -60,6 +60,7 @@ global $n2;
 						<span>出力項目選択 ：　</span>
 								<label><input type="radio" name="type" value="info" checked> 各情報</label>
 								<label><input type="radio" name="type" value="jibasan"> 地場産品関連</label>
+								<label style="margin-left:3rem;"><input type="radio" name="type" value="all_soumu"> 一括(id+全項目)</label>
 							<!-- <label v-if="'download' === fd.mode"><input type="radio" name="type" value="3"> 3ファイル一括ダウンロード</label> -->
 						</div>
 						<!-- モード選択 -->
