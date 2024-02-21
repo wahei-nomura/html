@@ -41,6 +41,14 @@
         description: 総務省申請で「不要」を選択した場合は必ず記入して下さい。
         "@focus": set_info($event.target)
         "@input": auto_fit_tetxarea($event.target)
+    総務省申請差戻理由:
+        type: textarea
+        style: 'width: 100%;'
+        v-if: 総務省申請==='差戻'
+        rows: auto
+        description: 総務省申請で「差戻」を選択した場合は記入して下さい。
+        "@focus": set_info($event.target)
+        "@input": auto_fit_tetxarea($event.target)
 
     返礼品コード:
         type: text
