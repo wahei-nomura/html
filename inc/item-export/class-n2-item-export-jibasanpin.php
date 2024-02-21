@@ -59,6 +59,8 @@ class N2_Item_Export_Jibasanpin extends N2_Item_Export_Base {
 		// preg_matchで判定
 		$data = match ( 1 ) {
 			preg_match( '/^id$/', $val )  => $n2values['id'],
+			preg_match( '/^総務省申請$/', $val )  => $n2values['総務省申請'],
+			preg_match( '/^総務省申請差戻理由$/', $val )  => $n2values['総務省申請差戻理由'],
 			preg_match( '/^番号$/', $val )  => $this->settings['num'],
 			preg_match( '/^品目名$/', $val ) => $n2values['タイトル'],
 			preg_match( '/^必要寄附金額$/', $val )  => $n2values['寄附金額'],

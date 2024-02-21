@@ -267,6 +267,8 @@ LedgHOME:
     csv_header:
         all:
         - id
+        - 総務省申請
+        - 総務省申請差戻理由
         info:
         - 番号
         - 品目名
