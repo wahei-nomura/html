@@ -37,7 +37,7 @@ class N2_Item_Export_Jibasanpin extends N2_Item_Export_Base {
 		$params             = $this->data['params'];
 		$type               = $params['type'] ?? '';
 		// CSVヘッダー配列化トス
-		$this->data['header'] = $jibasanpin_setting['csv_header'][ $type ];
+		$this->data['header'] = 'all_soumu' === $type ? array_merge( $jibasanpin_setting['csv_header']['all'], $jibasanpin_setting['csv_header']['info'], $jibasanpin_setting['csv_header']['jibasan'] ) : $jibasanpin_setting['csv_header'][ $type ];
 		/**
 		 * [hook] n2_item_export_lhcloud_set_header
 		 */
@@ -54,10 +54,11 @@ class N2_Item_Export_Jibasanpin extends N2_Item_Export_Base {
 	 */
 	protected function walk_values( &$val, $index, $n2values ) {
 		if ( '番号' === $val ) {
-			$this->settings['num']++;
+			++$this->settings['num'];
 		}
 		// preg_matchで判定
 		$data = match ( 1 ) {
+			preg_match( '/^id$/', $val )  => $n2values['id'],
 			preg_match( '/^番号$/', $val )  => $this->settings['num'],
 			preg_match( '/^品目名$/', $val ) => $n2values['タイトル'],
 			preg_match( '/^必要寄附金額$/', $val )  => $n2values['寄附金額'],
